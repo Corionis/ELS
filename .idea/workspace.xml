@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="83da174e-5fcb-48cd-ab9e-bd69a7f9c946" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/VolMonger.iml" afterPath="$PROJECT_DIR$/VolMonger.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/artifacts/document/ideas.md" afterPath="$PROJECT_DIR$/artifacts/document/ideas.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/com/groksoft/Main.java" afterPath="$PROJECT_DIR$/src/com/groksoft/Main.java" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,8 +19,8 @@
       <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="432">
-              <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+            <state relative-caret-position="306">
+              <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -32,29 +28,29 @@
       </file>
       <file leaf-file-name="ideas.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/artifacts/document/ideas.md">
+          <provider editor-type-id="Gfm">
+            <state />
+          </provider>
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="1170">
+              <first_editor relative-caret-position="745">
                 <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
                 <folding>
-                  <marker date="1491354324101" expanded="true" signature="2108:3128" ph="{...}" />
-                  <marker date="1491354324101" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-                  <marker date="1491354324101" expanded="true" signature="2198:3122" ph="{...}" />
-                  <marker date="1491354324101" expanded="true" signature="2223:2683" ph="{...}" />
-                  <marker date="1491354324101" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-                  <marker date="1491354324101" expanded="true" signature="2341:2437" ph="[...]" />
-                  <marker date="1491354324101" expanded="true" signature="2467:2669" ph="[...]" />
-                  <marker date="1491354324101" expanded="true" signature="2710:3112" ph="{...}" />
-                  <marker date="1491354324101" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-                  <marker date="1491354324101" expanded="true" signature="2827:2927" ph="[...]" />
-                  <marker date="1491354324101" expanded="true" signature="2957:3098" ph="[...]" />
+                  <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
+                  <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+                  <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
+                  <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
+                  <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+                  <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
+                  <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
+                  <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
+                  <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+                  <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
+                  <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
                 </folding>
               </first_editor>
               <second_editor />
             </state>
-          </provider>
-          <provider editor-type-id="Gfm">
-            <state />
           </provider>
         </entry>
       </file>
@@ -92,8 +88,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="83" />
-    <option name="y" value="20" />
+    <option name="x" value="2046" />
+    <option name="y" value="46" />
     <option name="width" value="1676" />
     <option name="height" value="1000" />
   </component>
@@ -112,7 +108,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -177,8 +172,9 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="NBKnowledgePane" />
+      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="NBKnowledgePane" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -186,8 +182,8 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="add_unversioned_files" value="true" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib/json-simple-2.1.2.jar!/" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Documents/dev-docs/json-simple-2.1.2-javadoc" />
+    <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2705314" />
     <property name="aspect.path.notification.shown" value="true" />
@@ -455,15 +451,6 @@
       </ExternalSystemSettings>
       <method />
     </configuration>
-    <configuration default="true" type="GrailsRunConfigurationType" factoryName="Grails">
-      <setting name="vmparams" value="" />
-      <setting name="cmdLine" value="run-app" />
-      <setting name="passParentEnv" value="true" />
-      <setting name="launchBrowser" value="true" />
-      <setting name="launchBrowserUrl" value="" />
-      <setting name="depsClasspath" value="false" />
-      <method />
-    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="" />
@@ -603,12 +590,6 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <module name="" />
-      <envs />
-      <method />
-    </configuration>
     <configuration default="true" type="TestNG" factoryName="TestNG">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="" />
@@ -679,12 +660,6 @@
       <recursive>false</recursive>
       <method />
     </configuration>
-    <configuration default="true" type="osgi.bnd.run" factoryName="Run Launcher">
-      <method />
-    </configuration>
-    <configuration default="true" type="osgi.bnd.run" factoryName="Test Launcher (JUnit)">
-      <method />
-    </configuration>
     <configuration default="true" type="tests" factoryName="Doctests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -746,7 +721,7 @@
     <option name="totallyTimeSpent" value="8819000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="83" y="20" width="1676" height="1000" extended-state="0" />
+    <frame x="2046" y="46" width="1676" height="1000" extended-state="0" />
     <layout>
       <window_info id="GfmBrowser" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -768,10 +743,10 @@
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32945284" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15470298" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15398774" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -807,17 +782,17 @@
           <first_editor relative-caret-position="1170">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491354324101" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
@@ -838,17 +813,17 @@
           <first_editor relative-caret-position="1170">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491354324101" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
@@ -869,17 +844,48 @@
           <first_editor relative-caret-position="1170">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491354324101" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/artifacts/document/ideas.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="1170">
+            <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
+            <folding>
+              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
@@ -895,35 +901,35 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/artifacts/document/ideas.md">
+      <provider editor-type-id="Gfm">
+        <state />
+      </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="1170">
+          <first_editor relative-caret-position="745">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491354324101" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491354324101" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491354324101" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491354324101" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
+              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
+              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
         </state>
       </provider>
-      <provider editor-type-id="Gfm">
-        <state />
-      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="432">
-          <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
+        <state relative-caret-position="306">
+          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
           <folding />
         </state>
       </provider>
