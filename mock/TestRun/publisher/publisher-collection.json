@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "name": "RockPlex"
+  },
+  "libraries": {
+    "Movies": {
+      "metadata": {
+        "context": 1,
+        "minimum": "10G"
+      },
+      "targets": [
+        "H:/media/movies",
+        "I:/media/movies"
+      ],
+      "sources": [
+        "D:/media/movies",
+        "F:/media/movies",
+        "H:/media/movies",
+        "C:/overflow"
+      ]
+    },
+    "TV Shows": {
+      "metadata": {
+        "context": 2,
+        "minimum": "4G"
+      },
+      "targets": [
+        "H:/media/tv shows",
+        "I:/media/tv shows"
+      ],
+      "sources": [
+        "E:/media/tv shows",
+        "G:/media/tv shows",
+        "H:/media/tv shows"
+      ]
+    }
+  }
+}

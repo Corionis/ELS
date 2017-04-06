@@ -11,7 +11,7 @@ The conflict is flagged, logged into a input file for re-rerun purposes,
 then skipped for that monge run.
 
 Because volumes can be quite large there should be a mechanism
-to feed the conflicts back into another volmonger run so once
+to feed the conflicts back into another VolMonger run so once
 the conflict is resolved it is easier to complete the synch.
 
 The utility must allow for the collection file to be specified
@@ -20,7 +20,7 @@ both source and target collection files when regularly monging
 on a different computer where drive letters would change.
 
 ## Organization
- * A publisher is the source of the data.
+ * A publisher is the provider of the data.
  * A subscriber is the consumer of the data.
  * A collection is a set of named libraries.
    - A collection is described in a single collection file.
@@ -34,7 +34,7 @@ on a different computer where drive letters would change.
 
 ## Assumptions
  * The exact locations of the contents of each library is
- not known at the beginning of a volmonger run.
+ not known at the beginning of a VolMonger run.
  * A directory of only one collection or the other will be
   modified between mongings.
    - If a .volmonger exists on both it is a conflict
@@ -112,6 +112,41 @@ on a different computer where drive letters would change.
      - What are the other permutations?
  * How to handle N-sided monges? Cannot delete .volmonger if so.
 
+## Command Line Options
+ * -p file : Publisher collection file
+ * -pl library : Publisher library to process, default all 
+ * -s file : Subscriber collection file
+ * -sl library : Subscriber library to match against, default same name
+  as Publisher's, not valid if the -pl option not specified
+ * -k : Keep .volmonger files, default is to delete them as they are processed
+ * -t : Test run, validate, scan, and match but do not make any changes
+ * -c : Validate collections files only then exit
+ * -d level : Logging level, default info
+ * -log file : Log file, default VolMonger.log in directory where "run" is executed
+
+The simplest command line would be just the -p and -s options.
+
+The -k option applies to the Provider. Subscriber .volmonger files are not
+involved in a run.
+
+---
+
+IDEA: A way to manage who got what with multiple Subscribers.
+
+Have an option to scan a Publisher for "completed" .volmonger files.
+
+A "completed" .volmonger file contains "done" markers by date for each Subscriber.
+
+Subscribers, by name, could be kept in a separate JSON file.
+
+As runs are made with Subscribers a stamp is added to the .volmonger file.
+
+Work-out the stamp and "done" logic.
+
+Once it all works it could just be part of the process.
+
+---
+
 ### Process
 This is a file-for-file matching/synchronization process.
 
@@ -124,7 +159,7 @@ This is a file-for-file matching/synchronization process.
 
 ### Convenience Utilities
  * [Sent-To utility](send-to utility.md) .volmonger file generator.
- * [Plex-to-volmonger generator](plex-to-volmonger.md) for
+ * [Plex-to-VolMonger generator](plex-to-VolMonger.md) for
  automated collection file generation.
 
 

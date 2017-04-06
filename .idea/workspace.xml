@@ -1,9 +1,139 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="83da174e-5fcb-48cd-ab9e-bd69a7f9c946" name="Default" comment="">
+    <list default="true" id="83da174e-5fcb-48cd-ab9e-bd69a7f9c946" name="Default" comment="More structuring of code and mock/ content">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/Movies/A2 Cool Movie (2017)/a2-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/Movies/A4 Cool Movie (2017)/a4-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/Movies/B2 Cool Movie (2017)/b2-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/Movies/Action/C1 Cool Movie (2017)/c1-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/Movies/SciFi/C2 Cool Movie (2017)/c2-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/Movies/A2 Cool Movie (2017)/a2-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/Movies/Horror/C3 Cool Movie (2017)/c3-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/Movies/B Cool Movie (2017)/b-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/Movies/D Cool Movie (2017)/d-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/Movies/N Cool Movie (2017)/n-movie-poster.jpg" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/lib/log4j2.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/Movies/A1 Cool Movie (2017)/A1 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/Movies/A2 Cool Movie (2017)/A2 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/Movies/A3 Cool Movie (2017)/A3 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/Movies/A4 Cool Movie (2017)/A4 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 02/A1 TV Show - s02e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 02/A1 TV Show - s02e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 02/A1 TV Show - s02e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A1 TV Show (2017)/Season 02/A1 TV Show - s02e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A2 TV Show (2017)/Season 01/A2 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A2 TV Show (2017)/Season 01/A2 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A2 TV Show (2017)/Season 01/A2 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-a/media/TV Shows/A2 TV Show (2017)/Season 01/A2 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/Movies/B1 Cool Movie (2017)/B1 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/Movies/B2 Cool Movie (2017)/B2 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 01/B1 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 01/B1 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 01/B1 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 01/B1 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B2 TV Show (2017)/Season 01/B2 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B2 TV Show (2017)/Season 01/B2 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B2 TV Show (2017)/Season 01/B2 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-b/media/TV Shows/B2 TV Show (2017)/Season 01/B2 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/Movies/Action/C1 Cool Movie (2017)/C1 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/Movies/SciFi/C2 Cool Movie (2017)/C2 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Cartoons/C1 TV Show (2017)/Season 01/C1 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Cartoons/C1 TV Show (2017)/Season 01/C1 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Cartoons/C1 TV Show (2017)/Season 01/C1 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Cartoons/C1 TV Show (2017)/Season 01/C1 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Comedy/C2 TV Show (2017)/Season 01/C2 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Comedy/C2 TV Show (2017)/Season 01/C2 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Comedy/C2 TV Show (2017)/Season 01/C2 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-c/media/TV Shows/Comedy/C2 TV Show (2017)/Season 01/C2 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/media-d/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/publisher-collection.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/Movies/A1 Cool Movie (2017)/A1 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/Movies/A2 Cool Movie (2017)/A2 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/TV Shows/A1 TV Show (2017)/Season 01/A1 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/TV Shows/A2 TV Show (2017)/Season 01/A2 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-a/media/TV Shows/A2 TV Show (2017)/Season 01/A2 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-b/media/Movies/B2 Cool Movie (2017)/B2 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-b/media/TV Shows/B1 TV Show (2017)/Season 02/B1 TV Show - s02e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-b/media/TV Shows/B2 TV Show (2017)/Season 01/B2 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-b/media/TV Shows/B2 TV Show (2017)/Season 01/B2 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/Movies/Horror/C3 Cool Movie (2017)/C3 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/Movies/SciFi/C2 Cool Movie (2017)/C2 Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/TV Shows/Cartoons/C1 TV Show (2017)/Season 01/C1 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/TV Shows/Cartoons/C1 TV Show (2017)/Season 01/C1 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/TV Shows/Comedy/C3 TV Show (2017)/Season 01/C3 TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/TV Shows/Comedy/C3 TV Show (2017)/Season 01/C3 TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/TV Shows/Comedy/C3 TV Show (2017)/Season 01/C3 TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-c/media/TV Shows/Comedy/C3 TV Show (2017)/Season 01/C3 TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/media-d/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-1/subscriber-1-collection.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/Template_Copy-Only/subscriber-2/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/Movies/A Cool Movie (2017)/A Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/Movies/B Cool Movie (2017)/B Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/Movies/C Cool Movie (2017)/C Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/Movies/D Cool Movie (2017)/D Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 01/A TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 01/A TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 01/A TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 01/A TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 02/A TV Show - s02e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 02/A TV Show - s02e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 02/A TV Show - s02e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/A TV Show (2017)/Season 02/A TV Show - s02e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/B TV Show (2017)/Season 01/B TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/B TV Show (2017)/Season 01/B TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/B TV Show (2017)/Season 01/B TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-a/media/TV Shows/B TV Show (2017)/Season 01/B TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/Movies/M Cool Movie (2017)/M Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/Movies/N Cool Movie (2017)/N Cool Movie - pg - 2h - 2017.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 01/M TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 01/M TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 01/M TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 01/M TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 02/M TV Show - s02e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 02/M TV Show - s02e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 02/M TV Show - s02e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/M TV Show (2017)/Season 02/M TV Show - s02e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/N TV Show (2017)/Season 01/N TV Show - s01e01.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/N TV Show (2017)/Season 01/N TV Show - s01e02.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/N TV Show (2017)/Season 01/N TV Show - s01e03.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-b/media/TV Shows/N TV Show (2017)/Season 01/N TV Show - s01e04.mp4" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/media-c/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/publisher/publisher-collection.json" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/subscriber-1/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/TestRun/subscriber-2/README.md" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/reset.bat" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/reset.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/run.bat" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/mock/run.sh" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/groksoft/Collection.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/groksoft/Item.java" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/com/groksoft/VolMonger.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/com/groksoft/Main.java" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/json_simple_2_1_2.xml" afterPath="$PROJECT_DIR$/.idea/libraries/json_simple_2_1_2.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/artifacts/document/ideas.md" afterPath="$PROJECT_DIR$/artifacts/document/ideas.md" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,12 +146,41 @@
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="Main.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
+      <file leaf-file-name="VolMonger.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+            <state relative-caret-position="378">
+              <caret line="83" column="24" lean-forward="false" selection-start-line="83" selection-start-column="24" selection-end-line="83" selection-end-column="24" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Collection.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/groksoft/Collection.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="288">
+              <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Item.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/groksoft/Item.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+              <folding>
+                <element signature="e#179#180#0" expanded="true" />
+                <element signature="e#209#210#0" expanded="true" />
+                <element signature="e#255#256#0" expanded="true" />
+                <element signature="e#293#294#0" expanded="true" />
+                <element signature="e#328#329#0" expanded="true" />
+                <element signature="e#359#360#0" expanded="true" />
+                <element signature="e#407#408#0" expanded="true" />
+                <element signature="e#447#448#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -33,20 +192,20 @@
           </provider>
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="745">
-                <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
+              <first_editor relative-caret-position="712">
+                <caret line="143" column="36" lean-forward="false" selection-start-line="143" selection-start-column="36" selection-end-line="143" selection-end-column="36" />
                 <folding>
-                  <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
-                  <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-                  <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
-                  <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
-                  <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-                  <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
-                  <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
-                  <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
-                  <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-                  <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
-                  <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
+                  <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+                  <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+                  <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+                  <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+                  <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+                  <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+                  <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+                  <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+                  <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+                  <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+                  <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
                 </folding>
               </first_editor>
               <second_editor />
@@ -54,17 +213,52 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="log4j2.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/log4j2.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="publisher-collection.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mock/Template_Copy-Only/publisher/publisher-collection.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="90">
+              <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
       <find>volmonge</find>
+      <find>.VolMonge</find>
     </findStrings>
     <replaceStrings>
       <replace>volmonger</replace>
+      <replace>VolMonge</replace>
+      <replace>.volmonge</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Corionis" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GradleLocalSettings">
@@ -76,8 +270,17 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/.gitignore" />
-        <option value="$PROJECT_DIR$/artifacts/document/ideas.md" />
         <option value="$PROJECT_DIR$/src/com/groksoft/Main.java" />
+        <option value="$PROJECT_DIR$/mock/reset.sh" />
+        <option value="$PROJECT_DIR$/mock/reset.bat" />
+        <option value="$PROJECT_DIR$/mock/run.bat" />
+        <option value="$PROJECT_DIR$/mock/Template_Copy-Only/publisher/publisher-collection.json" />
+        <option value="$PROJECT_DIR$/mock/run.sh" />
+        <option value="$PROJECT_DIR$/lib/log4j2.xml" />
+        <option value="$PROJECT_DIR$/artifacts/document/ideas.md" />
+        <option value="$PROJECT_DIR$/src/com/groksoft/Item.java" />
+        <option value="$PROJECT_DIR$/src/com/groksoft/Collection.java" />
+        <option value="$PROJECT_DIR$/src/com/groksoft/VolMonger.java" />
       </list>
     </option>
   </component>
@@ -89,9 +292,9 @@
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="2046" />
-    <option name="y" value="46" />
+    <option name="y" value="22" />
     <option name="width" value="1676" />
-    <option name="height" value="1000" />
+    <option name="height" value="987" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -108,6 +311,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="NBKnowledgePane" />
+      <pane id="Scratches" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -148,6 +354,172 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="mock" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mock" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Template_Copy-Only" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mock" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Template_Copy-Only" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="subscriber-1" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mock" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Template_Copy-Only" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="publisher" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mock" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Template_Copy-Only" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="publisher" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="media-c" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mock" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Template_Copy-Only" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="publisher" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="media-c" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="media" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="TV Shows" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mock" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Template_Copy-Only" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="publisher" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="media-c" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="media" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="VolMonger" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="lib" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -172,21 +544,128 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
       <pane id="Scope" />
-      <pane id="NBKnowledgePane" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="add_unversioned_files" value="true" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
-    <property name="last_opened_file_path" value="$USER_HOME$/Documents/dev-docs/json-simple-2.1.2-javadoc" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib/json-simple-2.1.2-javadoc.jar!/" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2705314" />
     <property name="aspect.path.notification.shown" value="true" />
+  </component>
+  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
+    <UpdatedFiles>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Updated from server" />
+        <option name="myStatusName" value="Changed on server" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="CHANGED_ON_SERVER" />
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Updated" />
+          <option name="myStatusName" value="Changed" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="UPDATED" />
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/README.md</PATH>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Created" />
+          <option name="myStatusName" value="Created" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="CREATED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Deleted" />
+          <option name="myStatusName" value="Deleted" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="true" />
+          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Restored" />
+          <option name="myStatusName" value="Will be restored" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="RESTORED" />
+        </FILE-GROUP>
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Modified" />
+        <option name="myStatusName" value="Modified" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MODIFIED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Skipped" />
+        <option name="myStatusName" value="Skipped" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SKIPPED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with conflicts" />
+        <option name="myStatusName" value="Will be merged with conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_CONFLICTS" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with tree conflicts" />
+        <option name="myStatusName" value="Merged with tree conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with property conflicts" />
+        <option name="myStatusName" value="Will be merged with property conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged" />
+        <option name="myStatusName" value="Will be merged" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Not in repository" />
+        <option name="myStatusName" value="Not in repository" />
+        <option name="mySupportsDeletion" value="true" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="UNKNOWN" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally added" />
+        <option name="myStatusName" value="Locally added" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_ADDED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally removed" />
+        <option name="myStatusName" value="Locally removed" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_REMOVED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Switched" />
+        <option name="myStatusName" value="Switched" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SWITCHED" />
+      </FILE-GROUP>
+    </UpdatedFiles>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -200,15 +679,15 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Main">
-    <configuration default="false" name="Main" type="Application" factoryName="Application" temporary="true">
+  <component name="RunManager" selected="Application.VolMonge">
+    <configuration default="false" name="VolMonge" type="Application" factoryName="Application" temporary="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="MAIN_CLASS_NAME" value="com.groksoft.Main" />
+      <option name="MAIN_CLASS_NAME" value="com.groksoft.VolMonger" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ALTERNATIVE_JRE_PATH" />
       <option name="ENABLE_SWING_INSPECTOR" value="false" />
       <option name="ENV_VARIABLES" />
       <option name="PASS_PARENT_ENVS" value="true" />
@@ -345,6 +824,30 @@
       <envs />
       <properties />
       <listeners />
+      <method />
+    </configuration>
+    <configuration default="true" type="BashConfigurationType" factoryName="Bash">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="INTERPRETER_PATH" value="/bin/bash" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <module name="" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="true" type="BatchConfigurationType" factoryName="Batch">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Cold Fusion runner description" factoryName="Cold Fusion" custom_browser="" web_path="">
       <method />
     </configuration>
     <configuration default="true" type="CucumberJavaRunConfigurationType" factoryName="Cucumber java">
@@ -697,11 +1200,14 @@
       <method />
     </configuration>
     <list size="1">
-      <item index="0" class="java.lang.String" itemvalue="Application.Main" />
+      <item index="0" class="java.lang.String" itemvalue="Application.VolMonge" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -715,13 +1221,21 @@
       <workItem from="1491356306707" duration="447000" />
       <workItem from="1491356769299" duration="4106000" />
     </task>
+    <task id="LOCAL-00001" summary="Tweaks in a Linux development environment">
+      <created>1491365575928</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1491365575928</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
     <option name="totallyTimeSpent" value="8819000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="2046" y="46" width="1676" height="1000" extended-state="0" />
+    <frame x="2046" y="22" width="1676" height="987" extended-state="0" />
     <layout>
       <window_info id="GfmBrowser" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -736,17 +1250,19 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Notes" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Notes" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32960597" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32945284" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32945284" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3286052" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15398774" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15153374" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -754,7 +1270,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -763,15 +1278,55 @@
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Tweaks in a Linux development environment" />
+    <option name="LAST_COMMIT_MESSAGE" value="Tweaks in a Linux development environment" />
+  </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
     <watches-manager />
   </component>
+  <component name="antWorkspaceConfiguration">
+    <option name="IS_AUTOSCROLL_TO_SOURCE" value="false" />
+    <option name="FILTER_TARGETS" value="false" />
+  </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/run.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="0" lean-forward="false" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/reset.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/reset.bat">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -782,24 +1337,32 @@
           <first_editor relative-caret-position="1170">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
+    <entry file="file://$PROJECT_DIR$/mock/run.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="38" lean-forward="false" selection-start-line="5" selection-start-column="38" selection-end-line="5" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -813,24 +1376,24 @@
           <first_editor relative-caret-position="1170">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -844,24 +1407,24 @@
           <first_editor relative-caret-position="1170">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -875,17 +1438,110 @@
           <first_editor relative-caret-position="1170">
             <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
             <folding>
-              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/artifacts/document/ideas.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="1170">
+            <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
+            <folding>
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/artifacts/document/ideas.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="1170">
+            <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
+            <folding>
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
+            </folding>
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/artifacts/document/ideas.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="1170">
+            <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
+            <folding>
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
@@ -896,6 +1552,53 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="162">
           <caret line="9" column="6" lean-forward="true" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/reset.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" column="37" lean-forward="true" selection-start-line="18" selection-start-column="7" selection-end-line="18" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/run.bat">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="6" column="0" lean-forward="true" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/reset.bat">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="23" column="0" lean-forward="true" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/run.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="45" lean-forward="false" selection-start-line="5" selection-start-column="45" selection-end-line="5" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/log4j2.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mock/Template_Copy-Only/publisher/publisher-collection.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -906,30 +1609,73 @@
       </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="745">
-            <caret line="65" column="37" lean-forward="false" selection-start-line="65" selection-start-column="37" selection-end-line="65" selection-end-column="37" />
+          <first_editor relative-caret-position="712">
+            <caret line="143" column="36" lean-forward="false" selection-start-line="143" selection-start-column="36" selection-end-line="143" selection-end-column="36" />
             <folding>
-              <marker date="1491363968647" expanded="true" signature="2108:3128" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2131:2174" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2198:3122" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2223:2683" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2254:2311" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2341:2437" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2467:2669" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2710:3112" ph="{...}" />
-              <marker date="1491363968647" expanded="true" signature="2741:2797" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
-              <marker date="1491363968647" expanded="true" signature="2827:2927" ph="[...]" />
-              <marker date="1491363968647" expanded="true" signature="2957:3098" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2110:3130" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2133:2176" ph="{&quot;name&quot;: &quot;RockPlex&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2200:3124" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2225:2685" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2256:2313" ph="{&quot;minimum&quot;: &quot;10G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2343:2439" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2469:2671" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2712:3114" ph="{...}" />
+              <marker date="1491462384946" expanded="true" signature="2743:2799" ph="{&quot;minimum&quot;: &quot;4G&quot;...}" />
+              <marker date="1491462384946" expanded="true" signature="2829:2929" ph="[...]" />
+              <marker date="1491462384946" expanded="true" signature="2959:3100" ph="[...]" />
             </folding>
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Main.java">
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Item.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+        <state relative-caret-position="180">
+          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding>
+            <element signature="e#179#180#0" expanded="true" />
+            <element signature="e#209#210#0" expanded="true" />
+            <element signature="e#255#256#0" expanded="true" />
+            <element signature="e#293#294#0" expanded="true" />
+            <element signature="e#328#329#0" expanded="true" />
+            <element signature="e#359#360#0" expanded="true" />
+            <element signature="e#407#408#0" expanded="true" />
+            <element signature="e#447#448#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/Collection.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="uml://JAVA/com.groksoft.VolMonger">
+      <provider selected="true" editor-type-id="UmlEditorProvider">
+        <state>
+          <ID>JAVA</ID>
+          <OriginalElement>com.groksoft.VolMonger</OriginalElement>
+          <nodes>
+            <node x="" y="">com.groksoft.VolMonger</node>
+          </nodes>
+          <notes />
+          <edges />
+          <settings layout="Hierarchic Group" zoom="1.0" x="58.0" y="15.0" />
+          <SelectedNodes />
+          <Categories />
+          <SCOPE>All</SCOPE>
+          <VISIBILITY>private</VISIBILITY>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/VolMonger.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="83" column="24" lean-forward="false" selection-start-line="83" selection-start-column="24" selection-end-line="83" selection-end-column="24" />
           <folding />
         </state>
       </provider>
@@ -992,7 +1738,6 @@
             <option name="proportions">
               <list>
                 <option value="0.2705314" />
-                <option value="0.6" />
               </list>
             </option>
           </splitter-proportions>
