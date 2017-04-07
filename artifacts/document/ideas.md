@@ -116,8 +116,6 @@ on a different computer where drive letters would change.
  * -p file : Publisher collection file
  * -pl library : Publisher library to process, default all 
  * -s file : Subscriber collection file
- * -sl library : Subscriber library to match against, default same name
-  as Publisher's, not valid if the -pl option not specified
  * -k : Keep .volmonger files, default is to delete them as they are processed
  * -t : Test run, validate, scan, and match but do not make any changes
  * -c : Validate collections files only then exit
