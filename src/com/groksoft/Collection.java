@@ -19,7 +19,10 @@ public class Collection extends HashMap<String, Item> // extends WHAT ??????????
     // A duplicates method to check for duplicate contexts in the Collection - possibly enforced by the selected Java collection requiring a unique key
 
 
-    //private ArrayList<Item> items = new ArrayList<Item>();
+    /**
+     * Just messing with UML
+     */
+    private ArrayList<Item> itemArrayLists = new ArrayList<>();
     private Item itemArray[] = new Item[10];
     private Item curItem;
 
