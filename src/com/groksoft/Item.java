@@ -5,8 +5,8 @@ package com.groksoft;
  */
 public class Item
 {
-    String context;
-    String fullPath;
+    private String context;
+    private String fullPath;
 
 
     // Add a compare(String otherContext) method

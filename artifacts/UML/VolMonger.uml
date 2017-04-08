@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement />
+  <nodes>
+    <node x="-449.5" y="-346.0">com.groksoft.VolMonger</node>
+    <node x="-42.0" y="-137.5">com.groksoft.Item</node>
+    <node x="-46.0" y="-246.5">com.groksoft.Collection</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="com.groksoft.Collection" target="com.groksoft.Item">
+      <point x="0.0" y="25.5" />
+      <point x="0.0" y="-36.5" />
+    </edge>
+    <edge source="com.groksoft.VolMonger" target="com.groksoft.Collection">
+      <point x="161.5" y="-0.0" />
+      <point x="-78.0" y="-0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="184.5" y="0.0" />
+  <SelectedNodes>
+    <node>com.groksoft.VolMonger</node>
+    <node>com.groksoft.Item</node>
+    <node>com.groksoft.Collection</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Inner Classes</Category>
+    <Category>Constructors</Category>
+    <Category>Properties</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
