@@ -3,270 +3,42 @@
   <ID>JAVA</ID>
   <OriginalElement />
   <nodes>
-    <node x="4620.5" y="2708.0">java.util.HashMap.HashIterator</node>
-    <node x="5497.0" y="2741.5">java.util.HashMap.KeySpliterator</node>
-    <node x="5203.5" y="2708.5">java.util.HashMap.KeySet</node>
-    <node x="213.5" y="2079.5">java.util.HashMap.Values</node>
-    <node x="1993.0" y="2565.0">java.util.HashMap.TreeNode</node>
-    <node x="172.0" y="2341.5">java.util.HashMap.ValueSpliterator</node>
-    <node x="4985.5" y="2774.5">java.util.HashMap.KeyIterator</node>
-    <node x="3198.5" y="2697.0">java.util.HashMap.HashMapSpliterator</node>
-    <node x="519.5" y="605.0">java.util.HashMap</node>
-    <node x="3613.0" y="2741.5">java.util.HashMap.EntrySpliterator</node>
-    <node x="4003.5" y="2708.5">java.util.HashMap.EntrySet</node>
-    <node x="2734.5" y="2675.0">java.util.HashMap.Node</node>
-    <node x="1478.5" y="275.0">com.groksoft.VolMonger</node>
-    <node x="-17.5" y="2134.5">java.util.HashMap.ValueIterator</node>
-    <node x="4357.5" y="2774.5">java.util.HashMap.EntryIterator</node>
-    <node x="279.0" y="79.0">com.groksoft.Item</node>
-    <node x="1023.5" y="308.0">com.groksoft.Collection</node>
+    <node x="523.0" y="-104.5">java.io.Serializable</node>
+    <node x="-265.5" y="-55.0">com.groksoft.VolMonger</node>
+    <node x="504.0" y="22.0">com.groksoft.Item</node>
+    <node x="159.5" y="22.0">com.groksoft.Collection</node>
   </nodes>
-  <notes>
-    <note x="638.0" y="226.5">
-      <node>com.groksoft.Collection</node>
-      <value>This is a NOTE fo the Collection</value>
-      <edge>
-        <point x="-80.0" y="-92.0" />
-        <point x="1120.0" y="240.0" />
-        <point x="122.0" y="0.0" />
-      </edge>
-    </note>
-  </notes>
+  <notes />
   <edges>
-    <edge source="java.util.HashMap.ValueIterator" target="java.util.HashMap">
-      <point x="0.0" y="-25.5" />
-      <point x="40.0" y="1280.0" />
-      <point x="-680.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.TreeNode" target="java.util.HashMap">
-      <point x="-287.0" y="0.0" />
-      <point x="1240.0" y="2800.0" />
-      <point x="40.0" y="675.0" />
-    </edge>
-    <edge source="java.util.HashMap.HashMapSpliterator" target="java.util.HashMap.Node">
-      <point x="-161.5" y="0.0" />
-      <point x="145.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.Node" target="java.util.HashMap">
-      <point x="-145.5" y="-40.0" />
-      <point x="2640.0" y="2760.0" />
-      <point x="2640.0" y="1800.0" />
-      <point x="680.5" y="520.0" />
-    </edge>
-    <edge source="java.util.HashMap.EntrySpliterator" target="java.util.HashMap.HashMapSpliterator">
-      <point x="-147.0" y="0.0" />
-      <point x="161.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.Values" target="java.util.HashMap.ValueIterator">
-      <point x="-106.5" y="0.0" />
-      <point x="57.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.EntrySpliterator" target="java.util.HashMap">
-      <point x="0.0" y="-58.5" />
-      <point x="3760.0" y="1600.0" />
-      <point x="680.5" y="320.0" />
-    </edge>
-    <edge source="java.util.HashMap.Values" target="java.util.HashMap.ValueSpliterator">
-      <point x="0.0" y="80.5" />
-      <point x="0.0" y="-58.5" />
-    </edge>
-    <edge source="java.util.HashMap.EntrySet" target="java.util.HashMap.EntrySpliterator">
-      <point x="-116.5" y="0.0" />
-      <point x="147.0" y="0.0" />
-    </edge>
     <edge source="com.groksoft.Collection" target="com.groksoft.Item">
-      <point x="-176.5" y="0.0" />
-      <point x="400.0" y="400.0" />
-      <point x="0.0" y="81.0" />
+      <point x="0.0" y="-48.0" />
+      <point x="296.0" y="-170.0" />
+      <point x="696.0" y="-170.0" />
+      <point x="696.0" y="70.0" />
+      <point x="72.0" y="0.0" />
     </edge>
-    <edge source="java.util.HashMap" target="java.util.HashMap.TreeNode">
-      <point x="680.5" y="560.0" />
-      <point x="2280.0" y="1840.0" />
-      <point x="0.0" y="-235.0" />
-    </edge>
-    <edge source="java.util.HashMap.HashIterator" target="java.util.HashMap">
-      <point x="0.0" y="-92.0" />
-      <point x="4760.0" y="1440.0" />
-      <point x="680.5" y="160.0" />
-    </edge>
-    <edge source="java.util.HashMap.ValueIterator" target="java.util.HashMap.HashIterator">
-      <point x="0.0" y="25.5" />
-      <point x="40.0" y="3280.0" />
-      <point x="4760.0" y="3280.0" />
-      <point x="0.0" y="92.0" />
-    </edge>
-    <edge source="java.util.HashMap.Node" target="java.util.HashMap.Node">
-      <point x="0.0" y="-125.0" />
-      <point x="2880.0" y="2600.0" />
-      <point x="3080.0" y="2600.0" />
-      <point x="3080.0" y="2760.0" />
-      <point x="145.5" y="-40.0" />
-    </edge>
-    <edge source="java.util.HashMap" target="java.util.HashMap.Values">
-      <point x="-40.0" y="675.0" />
-      <point x="1160.0" y="2160.0" />
-      <point x="106.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.Values" target="java.util.HashMap">
-      <point x="0.0" y="-80.5" />
-      <point x="320.0" y="1320.0" />
-      <point x="-680.5" y="40.0" />
-    </edge>
-    <edge source="java.util.HashMap.HashIterator" target="java.util.HashMap.Node">
-      <point x="-40.0" y="92.0" />
-      <point x="4720.0" y="3200.0" />
-      <point x="2880.0" y="3200.0" />
-      <point x="0.0" y="125.0" />
-    </edge>
-    <edge source="java.util.HashMap.HashMapSpliterator" target="java.util.HashMap">
-      <point x="0.0" y="-103.0" />
-      <point x="3360.0" y="1640.0" />
-      <point x="680.5" y="360.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeyIterator" target="java.util.HashMap.HashIterator">
-      <point x="-54.5" y="0.0" />
-      <point x="139.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap" target="java.util.HashMap.Node">
-      <point x="680.5" y="440.0" />
-      <point x="2840.0" y="1720.0" />
-      <point x="-40.0" y="-125.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeySet" target="java.util.HashMap.KeyIterator">
-      <point x="-116.5" y="0.0" />
-      <point x="54.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.TreeNode" target="java.util.HashMap.Node">
-      <point x="287.0" y="0.0" />
-      <point x="-145.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeySet" target="java.util.HashMap">
-      <point x="-116.5" y="-40.0" />
-      <point x="5160.0" y="2760.0" />
-      <point x="5160.0" y="1360.0" />
-      <point x="680.5" y="80.0" />
-    </edge>
-    <edge source="com.groksoft.Collection" target="java.util.HashMap">
-      <point x="0.0" y="92.0" />
-      <point x="0.0" y="-675.0" />
-    </edge>
-    <edge source="java.util.HashMap.EntrySet" target="java.util.HashMap.EntryIterator">
-      <point x="116.5" y="0.0" />
-      <point x="-82.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.ValueSpliterator" target="java.util.HashMap">
-      <point x="148.0" y="0.0" />
-      <point x="1200.0" y="2400.0" />
-      <point x="0.0" y="675.0" />
-    </edge>
-    <edge source="java.util.HashMap.EntryIterator" target="java.util.HashMap.HashIterator">
-      <point x="82.5" y="0.0" />
-      <point x="-139.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.EntrySpliterator" target="java.util.HashMap.EntrySpliterator">
-      <point x="147.0" y="40.0" />
-      <point x="3960.0" y="2840.0" />
-      <point x="3960.0" y="2920.0" />
-      <point x="3760.0" y="2920.0" />
-      <point x="0.0" y="58.5" />
-    </edge>
-    <edge source="java.util.HashMap.TreeNode" target="java.util.HashMap.TreeNode">
-      <point x="287.0" y="40.0" />
-      <point x="2640.0" y="2840.0" />
-      <point x="2640.0" y="3120.0" />
-      <point x="2280.0" y="3120.0" />
-      <point x="0.0" y="235.0" />
-    </edge>
-    <edge source="java.util.HashMap.ValueSpliterator" target="java.util.HashMap.HashMapSpliterator">
-      <point x="0.0" y="58.5" />
-      <point x="320.0" y="3160.0" />
-      <point x="3320.0" y="3160.0" />
-      <point x="-40.0" y="103.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeySpliterator" target="java.util.HashMap">
-      <point x="-40.0" y="-58.5" />
-      <point x="5600.0" y="1280.0" />
-      <point x="680.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeyIterator" target="java.util.HashMap">
-      <point x="0.0" y="-25.5" />
-      <point x="5040.0" y="1400.0" />
-      <point x="680.5" y="120.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeySpliterator" target="java.util.HashMap.HashMapSpliterator">
-      <point x="0.0" y="58.5" />
-      <point x="5640.0" y="3240.0" />
-      <point x="3360.0" y="3240.0" />
-      <point x="0.0" y="103.0" />
-    </edge>
-    <edge source="java.util.HashMap.ValueSpliterator" target="java.util.HashMap.ValueSpliterator">
-      <point x="-40.0" y="58.5" />
-      <point x="280.0" y="2520.0" />
-      <point x="80.0" y="2520.0" />
-      <point x="80.0" y="2400.0" />
-      <point x="-148.0" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap" target="java.util.HashMap.KeySet">
-      <point x="680.5" y="40.0" />
-      <point x="5320.0" y="1320.0" />
-      <point x="0.0" y="-91.5" />
-    </edge>
-    <edge source="java.util.HashMap.EntrySet" target="java.util.HashMap">
-      <point x="0.0" y="-91.5" />
-      <point x="4120.0" y="1560.0" />
-      <point x="680.5" y="280.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeySet" target="java.util.HashMap.KeySpliterator">
-      <point x="116.5" y="0.0" />
-      <point x="-143.0" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap.EntryIterator" target="java.util.HashMap">
-      <point x="0.0" y="-25.5" />
-      <point x="4440.0" y="1480.0" />
-      <point x="680.5" y="200.0" />
+    <edge source="com.groksoft.Item" target="java.io.Serializable">
+      <point x="0.0" y="-48.0" />
+      <point x="0.0" y="14.5" />
     </edge>
     <edge source="com.groksoft.VolMonger" target="com.groksoft.Collection">
-      <point x="-161.5" y="0.0" />
-      <point x="176.5" y="0.0" />
-    </edge>
-    <edge source="java.util.HashMap" target="java.util.HashMap.EntrySet">
-      <point x="680.5" y="240.0" />
-      <point x="4280.0" y="1520.0" />
-      <point x="4280.0" y="2760.0" />
-      <point x="116.5" y="-40.0" />
-    </edge>
-    <edge source="java.util.HashMap.KeySpliterator" target="java.util.HashMap.KeySpliterator">
-      <point x="0.0" y="-58.5" />
-      <point x="5640.0" y="2680.0" />
-      <point x="5840.0" y="2680.0" />
-      <point x="5840.0" y="2800.0" />
-      <point x="143.0" y="0.0" />
+      <point x="161.5" y="0.0" />
+      <point x="-136.5" y="0.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="0.2393671316774413" x="2911.0" y="1635.0" />
+  <settings layout="Hierarchic Group" zoom="1.0" x="479.0" y="185.0" />
   <SelectedNodes>
-    <node>java.util.HashMap.HashIterator</node>
-    <node>java.util.HashMap.KeySpliterator</node>
-    <node>java.util.HashMap.KeySet</node>
-    <node>java.util.HashMap.Values</node>
-    <node>java.util.HashMap.TreeNode</node>
-    <node>java.util.HashMap.ValueSpliterator</node>
-    <node>java.util.HashMap.KeyIterator</node>
-    <node>java.util.HashMap.HashMapSpliterator</node>
-    <node>java.util.HashMap</node>
-    <node>java.util.HashMap.EntrySpliterator</node>
-    <node>java.util.HashMap.EntrySet</node>
-    <node>java.util.HashMap.Node</node>
+    <node>java.io.Serializable</node>
     <node>com.groksoft.VolMonger</node>
-    <node>java.util.HashMap.ValueIterator</node>
-    <node>java.util.HashMap.EntryIterator</node>
     <node>com.groksoft.Item</node>
     <node>com.groksoft.Collection</node>
   </SelectedNodes>
   <Categories>
-    <Category>Methods</Category>
     <Category>Fields</Category>
     <Category>Inner Classes</Category>
+    <Category>Constructors</Category>
+    <Category>Properties</Category>
+    <Category>Methods</Category>
   </Categories>
   <SCOPE>All</SCOPE>
   <VISIBILITY>private</VISIBILITY>

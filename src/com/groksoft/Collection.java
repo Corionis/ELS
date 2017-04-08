@@ -20,7 +20,7 @@ public class Collection extends HashMap<String, Item> // extends WHAT ??????????
 
 
     /**
-     * Just messing with UML
+     * Just messing with UML...
      */
     private ArrayList<Item> itemArrayLists = new ArrayList<>();
     private Item itemArray[] = new Item[10];
