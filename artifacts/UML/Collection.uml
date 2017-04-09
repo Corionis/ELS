@@ -3,14 +3,14 @@
   <ID>JAVA</ID>
   <OriginalElement />
   <nodes>
-    <node x="-432.89053254437886" y="2400.292899408284">java.lang.Cloneable</node>
-    <node x="-1102.8905325443789" y="574.792899408284">java.util.HashMap</node>
-    <node x="-1315.3905325443789" y="1280.292899408284">java.io.Serializable</node>
-    <node x="475.10946745562114" y="1058.792899408284">java.util.AbstractMap</node>
-    <node x="-543.8905325443789" y="-70.20710059171597">com.groksoft.VolMonger</node>
-    <node x="441.10946745562114" y="2044.792899408284">java.util.Map</node>
-    <node x="-1334.3905325443789" y="486.79289940828403">com.groksoft.Item</node>
-    <node x="-518.8905325443789" y="286.79289940828403">com.groksoft.Collection</node>
+    <node x="1463.5164286336667" y="1580.0423416215813">java.util.AbstractMap</node>
+    <node x="555.5164286336667" y="2921.5423416215813">java.lang.Cloneable</node>
+    <node x="444.5164286336667" y="451.0423416215813">com.groksoft.VolMonger</node>
+    <node x="1429.5164286336667" y="2566.0423416215813">java.util.Map</node>
+    <node x="-114.48357136633331" y="1096.0423416215813">java.util.HashMap</node>
+    <node x="-345.9835713663333" y="1008.0423416215813">com.groksoft.Item</node>
+    <node x="469.5164286336667" y="808.0423416215813">com.groksoft.Collection</node>
+    <node x="-326.9835713663333" y="1801.5423416215813">java.io.Serializable</node>
   </nodes>
   <notes>
     <note x="-176.39053254437886" y="312.79289940828403">
@@ -28,11 +28,6 @@
       <point x="-342.39053254437886" y="2334.792899408284" />
       <point x="-296.5" y="-0.0" />
     </edge>
-    <edge source="com.groksoft.Collection" target="com.groksoft.Item">
-      <point x="-40.0" y="48.0" />
-      <point x="-422.39053254437886" y="534.792899408284" />
-      <point x="72.0" y="-0.0" />
-    </edge>
     <edge source="java.util.HashMap" target="java.lang.Cloneable">
       <point x="0.0" y="720.0" />
       <point x="0.0" y="-14.5" />
@@ -45,33 +40,29 @@
       <point x="0.0" y="48.0" />
       <point x="0.0" y="-720.0" />
     </edge>
-    <edge source="com.groksoft.Item" target="java.io.Serializable">
-      <point x="0.0" y="48.0" />
-      <point x="0.0" y="-14.5" />
-    </edge>
     <edge source="java.util.AbstractMap" target="java.util.Map">
       <point x="0.0" y="236.0" />
       <point x="0.0" y="-290.0" />
+    </edge>
+    <edge source="com.groksoft.Item" target="java.io.Serializable">
+      <point x="0.0" y="48.0" />
+      <point x="0.0" y="-14.5" />
     </edge>
     <edge source="java.util.HashMap" target="java.io.Serializable">
       <point x="-720.5" y="-0.0" />
       <point x="53.0" y="-0.0" />
     </edge>
-    <edge source="com.groksoft.VolMonger" target="com.groksoft.Collection">
-      <point x="0.0" y="125.0" />
-      <point x="0.0" y="-48.0" />
-    </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="0.30671506352087113" x="1143.9704142011833" y="1242.5" />
+  <settings layout="Hierarchic Group" zoom="0.9067150635208711" x="1144.0000000000002" y="1243.0" />
   <SelectedNodes>
-    <node>java.lang.Cloneable</node>
-    <node>java.util.HashMap</node>
-    <node>java.io.Serializable</node>
     <node>java.util.AbstractMap</node>
+    <node>java.lang.Cloneable</node>
     <node>com.groksoft.VolMonger</node>
     <node>java.util.Map</node>
+    <node>java.util.HashMap</node>
     <node>com.groksoft.Item</node>
     <node>com.groksoft.Collection</node>
+    <node>java.io.Serializable</node>
   </SelectedNodes>
   <Categories>
     <Category>Fields</Category>
