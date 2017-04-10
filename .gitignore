@@ -12,3 +12,6 @@ hs_err_pid*
 /.idea/workspace.xml
 /out
 /mock/TestRun/
+/mock/TestRun/publisher
+/mock/TestRun/subscriber-1
+/mock/TestRun/subscriber-2
