@@ -1,6 +1,7 @@
 {
   "metadata": {
-    "name": "Publisher"
+    "name": "Publisher",
+    "case-sensitive": false
   },
   "libraries": {
     "Movies": {

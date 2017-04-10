@@ -2,10 +2,6 @@ package com.groksoft;
 // http://javarevisited.blogspot.com/2014/12/how-to-read-write-json-string-to-file.html
 
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.Iterator;
 
 // see https://logging.apache.org/log4j/2.x/
 import org.apache.logging.log4j.LogManager;
@@ -19,20 +15,14 @@ import org.json.simple.parser.JSONParser;
 /**
  * The type Vol monger.
  * <p>
- * todo: Show Todd the Gen JavaDoc
  * todo: Show Todd the UML stuff. - Is the 1 to 1 correct, or should it be 1 to n????????
  */
-public class VolMonger {
+public class VolMonger
+{
+    private Configuration cfg = null;
     private Logger logger = null;
     private Collection publisher = null;
     private Collection subscriber = null;
-
-    // command-line option flags & values
-    private String publisherFile = "";
-    private String subscriberFile = "";
-    private String logFilename = "VolMonger.log";
-
-    // ----------------------------------------------------------------------
 
     /**
      * Main entry point
@@ -41,57 +31,68 @@ public class VolMonger {
      */
     public static void main(String[] args) {
         VolMonger volmonger = new VolMonger();
-        volmonger.run(args);
+        int returnValue = volmonger.process(args);
+        System.exit(returnValue);
     } // main
 
-    // ----------------------------------------------------------------------
-
     /**
-     * Run the process
+     * Process everything
+     * <p>
+     * This is the primary mainline.
      *
      * @param args Command Line args
      */
-    private void run(String[] args) {
-        String y;
+    private int process(String[] args) {
+        int returnValue = 0;
 
-        // TODO Process command-line arguments here - with NO logging enabled yet - just spit out System.println() messages if the command-line has errors
-        // xxx
+        cfg = new Configuration();
+        try {
+            if (cfg.parseCommandLine(args)) {
+                // setup the logger
+                System.setProperty("logFilename", cfg.getLogFilename());
+                org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+                ctx.reconfigure();
 
-        // setup the log file with a filename optionally defined on the command-line
-        System.setProperty("logFilename", logFilename); // set the system property used in log4j2.xml
-        org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
-        ctx.reconfigure();
+                // get the named logger
+                logger = LogManager.getLogger("applog");
 
-        // get the named logger
-        logger = LogManager.getLogger("applog");
+                // the + makes searching for the beginning of a run easier
+                logger.info("+ VolMonger begin, version " + cfg.getVOLMONGER_VERSION());
 
-        logger.info("Begin VolMonger");
-
-        if (scanCollection(publisherFile, publisher)) {
-            if (scanCollection(subscriberFile, subscriber)) {
-                if (mongeCollections(publisher, subscriber)) {
-                    logger.info("Success");
-                } else {
-                    logger.error("Error occurred");
+                try {
+                    scanCollection(cfg.getPublisherFileName(), publisher);
+                    scanCollection(cfg.getSubscriberFileName(), subscriber);
+                    mongeCollections(publisher, subscriber);
+                } catch (Exception e) {
+                    // the methods above throw pre-formatted messages, just use that
+                    logger.error(e.getMessage());
+                    returnValue = 2;
                 }
             }
+        } catch (MongerException e) {
+            // no logger yet to just print to the screen
+            System.out.println(Utils.getStackTrace(e));
+            returnValue = 1;
+            cfg = null;
         }
 
-        logger.info("End VolMonger");
+        // the - makes searching for the ending of a run easier
+        logger.info("- VolMonger end");
+        return returnValue;
     } // run
-
-    // ----------------------------------------------------------------------
 
     /**
      * Scan a collection to find Items
      *
      * @param collectionFile The JSON file containing the collection
      * @param collection     The collection object
-     * @return boolean True == success, otherwise error
      */
-    private boolean scanCollection(String collectionFile, Collection collection) throws ParseException {
+    private void scanCollection(String collectionFile, Collection collection) throws MongerException {
+        JSONParser parser = new JSONParser();
         try {
-            JSONParser parser = new JSONParser();
+
+
+            // move this to a validate method
             logger.info("Reading JSON file");
             FileReader fileReader = new FileReader(" ");
             Object o = Jsoner.deserialize(fileReader);
@@ -99,32 +100,28 @@ public class VolMonger {
             JSONArray jsonArray = (JSONArray) parser.parse(fileReader);
             logger.info("JSONObject = " + json.toJSONString());
             logger.info("JSONArray = " + json.toJSONString());
-        } catch (Exception e) {
-            logger.error(e);
-            return false;
-        }
-        return true;
-    } // scanCollection
 
-    // ----------------------------------------------------------------------
+
+
+        } catch (Exception e) {
+            throw new MongerException("Exception while monging" + Utils.getStackTrace(e));
+        }
+    } // scanCollection
 
     /**
      * Monge two collections
      *
      * @param publisher  Publishes new media
      * @param subscriber Subscribes to a Publisher to recive new media
-     * @return boolean True == success, otherwise error
      */
-    private boolean mongeCollections(Collection publisher, Collection subscriber) {
+    private void mongeCollections(Collection publisher, Collection subscriber) throws MongerException {
         boolean iWin = false;
         try {
-            logger.info("Monging ");    // TODO What is the s: called. I understand its the name of the var in the definition of the function, but does have a name in Java??????
 
         } catch (Exception e) {
-            logger.error(e);
-            return false;
+            throw new MongerException("Exception while monging" + Utils.getStackTrace(e));
         }
-        return true;
+        logger.info("Monging ");
     } // mongeCollections
 
 }
