@@ -3,30 +3,25 @@
   <ID>JAVA</ID>
   <OriginalElement />
   <nodes>
-    <node x="-265.5" y="-55.0">com.groksoft.VolMonger</node>
-    <node x="504.0" y="22.0">com.groksoft.Item</node>
-    <node x="159.5" y="22.0">com.groksoft.Collection</node>
-    <node x="523.0" y="-104.5">java.io.Serializable</node>
+    <node x="365.06696726627" y="0.0">com.groksoft.VolMonger</node>
+    <node x="186.0" y="360.0146295136641">com.groksoft.Item</node>
+    <node x="-112.93303273372993" y="-48.0">com.groksoft.Collection</node>
+    <node x="-187.22534934366212" y="297.6518108219449">java.io.Serializable</node>
   </nodes>
   <notes />
   <edges>
     <edge source="com.groksoft.Item" target="java.io.Serializable">
-      <point x="0.0" y="-48.0" />
-      <point x="0.0" y="14.5" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
     <edge source="com.groksoft.Collection" target="java.io.Serializable">
-      <point x="0.0" y="-48.5" />
-      <point x="150.5" y="351.0" />
-      <point x="243.5" y="351.0" />
-      <point x="-30.0" y="15.0" />
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="1.0" x="479.0" y="185.0" />
+  <settings layout="Hierarchic Group" zoom="1.0" x="242.0" y="182.0" />
   <SelectedNodes>
-    <node>com.groksoft.VolMonger</node>
     <node>com.groksoft.Item</node>
-    <node>com.groksoft.Collection</node>
-    <node>java.io.Serializable</node>
   </SelectedNodes>
   <Categories>
     <Category>Fields</Category>
