@@ -1,8 +1,5 @@
 package com.groksoft;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * Configuration
  * <p>
@@ -11,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 public class Configuration
 {
     private final String VOLMONGER_VERSION = "1.0.0";
-    private Logger logger = LogManager.getLogger("applog");
 
     // flags & names
     private String debugLevel = "info";
@@ -31,7 +27,7 @@ public class Configuration
      * Instantiates a new Configuration.
      */
     public Configuration() {
-
+        // empty
     }
 
     /**
@@ -59,17 +55,74 @@ public class Configuration
      * @return the boolean
      * @throws MongerException the monger exception
      */
-    public boolean parseCommandLine(String[] args) throws MongerException {
+    public void parseCommandLine(String[] args) throws MongerException {
         int index;
         boolean success = true;
 
         for (index = 0; index < args.length - 1; ++index) {
-//            switch (argv[index]) {
-//                case 1:
-//                    break;
-//            }
+            switch (args[index]) {
+                case "-c" :
+                    setValidationRun(true);
+                    break;
+                case "-d" :
+                    if (index <= args.length - 2) {
+                        setDebugLevel(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -d requires a level, trace, debug, info, warn, error, or fatal");
+                    }
+                    break;
+                case "-f" :
+                    if (index <= args.length - 2) {
+                        setLogFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -f requires a log filename");
+                    }
+                    break;
+                case "-k" :
+                    setKeepVolMongerFiles(true);
+                    break;
+                case "-l" :
+                    if (index <= args.length - 2) {
+                        setPublisherLibraryName(args[index + 1]);
+                        setSpecificPublisherLibrary(true);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -l requires a publisher library name");
+                    }
+                    break;
+                case "-n" :
+                    if (index <= args.length - 2) {
+                        setSubscriberName(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -n requires a subscriber's name for .volmonger files");
+                    }
+                    break;
+                case "-p" :
+                    if (index <= args.length - 2) {
+                        setPublisherFileName(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -p requires a publisher collection filename");
+                    }
+                    break;
+                case "-s" :
+                    if (index <= args.length - 2) {
+                        setSubscriberFileName(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -s requires a subscriber collection filename");
+                    }
+                    break;
+                case "-t" :
+                    setTestRun(true);
+                    break;
+                default :
+                    throw new MongerException("Error: unknown option " + args[index]);
+            }
         }
-        return success;
     }
 
     /**

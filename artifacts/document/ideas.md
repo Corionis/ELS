@@ -114,13 +114,14 @@ on a different computer where drive letters would change.
 
 ## Command Line Options
  * -p file : Publisher collection file
- * -pl library : Publisher library to process, default all 
+ * -l library : Publisher library to process, default all 
  * -s file : Subscriber collection file
+ * -n name : Subscriber's name for .volmonger files
  * -k : Keep .volmonger files, default is to delete them as they are processed
  * -t : Test run, validate, scan, and match but do not make any changes
  * -c : Validate collections files only then exit
  * -d level : Logging level, default info
- * -log file : Log file, default VolMonger.log in directory where "run" is executed
+ * -f file : Log file, default VolMonger.log in directory where "run" is executed
 
 The simplest command line would be just the -p and -s options.
 
