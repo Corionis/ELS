@@ -1,66 +1,65 @@
 package com.groksoft;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+// see https://github.com/cliftonlabs/json-simple/
+import org.json.simple.*;
 
 /**
  * The type Collection.
  */
-public class Collection extends HashMap<String, Item> // extends WHAT ????????????? Pros and Cons for various types of Collections (Map, List, etc); or should that just be a data member?????
+public class Collection
 {
-    // Data members to describe a VolMonger collection
-    // A set of Item objects as some kind of Java Collection
-    // Accessor and Iterator methods for the set of Item objects
+    private Logger logger = LogManager.getLogger("applog");
+    private String collectionFile = "";
+    private JsonObject json = new JsonObject();;
 
+// Methods:
     // A load method to read a collection.json file
     // A validate method to check the syntax and existence of the elements in a collection.json file
     // A scan method to scan and generate the set of Item objects
     // A sort method, by context
     // A duplicates method to check for duplicate contexts in the Collection - possibly enforced by the selected Java collection requiring a unique key
 
-
-    /**
-     * Just messing with UML...
-     */
-    private ArrayList<Item> itemArrayLists = new ArrayList<>();
-    private Item itemArray[] = new Item[10];
-    private Item curItem;
-
-    /**
-     * Get item array item [ ].
-     *
-     * @return the item [ ]
-     */
-    public Item[] getItemArray() {
-        return itemArray;
+    public Collection() {
     }
 
-    /**
-     * Sets item array.
-     *
-     * @param itemArray the item array
-     */
-    public void setItemArray(Item[] itemArray) {
-        this.itemArray = itemArray;
+    public void readCollectionFile(String filename) throws MongerException {
+        try {
+            logger.info("Reading collection file " + filename);
+            setCollectionFile(filename);
+            String jsonStr = new String(Files.readAllBytes(Paths.get(filename)));
+            setJson(Jsoner.deserialize(jsonStr, getJson()));  // there are no defaults, use the empty json object
+        } catch (Exception e) {
+            throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(e));
+        }
     }
 
-    /**
-     * Gets cur item.
-     *
-     * @return the cur item
-     */
-    public Item getCurItem() {
-        return curItem;
+    public void validateCollection() throws MongerException {
+        if (getJson() == null) {
+            throw new MongerException("JsonObject json is null");
+        }
+        JsonObject o = getJson();
     }
 
-    /**
-     * Sets cur item.
-     *
-     * @param curItem the cur item
-     */
-    public void setCurItem(Item curItem) {
-        this.curItem = curItem;
+    public String getCollectionFile() {
+        return collectionFile;
     }
 
+    public void setCollectionFile(String collectionFile) {
+        this.collectionFile = collectionFile;
+    }
+
+    public JsonObject getJson() {
+        return json;
+    }
+
+    public void setJson(JsonObject json) {
+        this.json = json;
+    }
 
 }

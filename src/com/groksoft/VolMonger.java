@@ -10,22 +10,15 @@ import jdk.nashorn.internal.runtime.JSONFunctions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// see https://github.com/cliftonlabs/json-simple/
-import org.json.simple.*;
-import org.json.simple.parser.JSONParser;
-
-
 /**
- * The type Vol monger.
- * <p>
- * todo: Show Todd the UML stuff. - Is the 1 to 1 correct, or should it be 1 to n????????
+ * VolMonger - main program
  */
 public class VolMonger
 {
     private Configuration cfg = null;
     private Logger logger = null;
-    private JsonObject publisher = null;
-    private Collection subscriber = null;
+    private Collection publisher = new Collection();
+    private Collection subscriber = new Collection();
 
     /**
      * Main entry point
@@ -101,17 +94,9 @@ public class VolMonger
      * @param collectionFile The JSON file containing the collection
      * @param collection     The collection object
      */
-    private void scanCollection(String collectionFile, JsonObject collection) throws MongerException {
-        JSONParser parser = new JSONParser();
-        try {
-            logger.info("Reading JSON file " + collectionFile);
-            String json = new String(Files.readAllBytes(Paths.get(cfg.getPublisherFileName())));
-            JsonObject jobj = new JsonObject();
-            publisher = Jsoner.deserialize(json, jobj);
-            //System.out.println("\n" + publisher.toJson() + "\n");
-        } catch (Exception e) {
-            throw new MongerException("Exception while  " + collectionFile + " trace: " + Utils.getStackTrace(e));
-        }
+    private void scanCollection(String collectionFile, Collection collection) throws MongerException {
+        collection.readCollectionFile(collectionFile);
+        collection.validateCollection();
     } // scanCollection
 
     /**
