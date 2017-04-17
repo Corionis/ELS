@@ -1,12 +1,7 @@
 package com.groksoft;
 // http://javarevisited.blogspot.com/2014/12/how-to-read-write-json-string-to-file.html
 
-import java.io.FileReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 // see https://logging.apache.org/log4j/2.x/
-import jdk.nashorn.internal.runtime.JSONFunctions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,8 +12,8 @@ public class VolMonger
 {
     private Configuration cfg = null;
     private Logger logger = null;
-    private Collection publisher = new Collection();
-    private Collection subscriber = new Collection();
+    private Collection publisher = null;
+    private Collection subscriber = null;
 
     /**
      * Main entry point
@@ -66,6 +61,9 @@ public class VolMonger
             logger.info("cfg: -p Publisher's collection filename = " + cfg.getPublisherFileName());
             logger.info("cfg: -s Subscriber's collection filename = " + cfg.getSubscriberFileName());
             logger.info("cfg: -t Test run = " + Boolean.toString(cfg.isTestRun()));
+
+            publisher = new Collection();
+            subscriber = new Collection();
 
             try {
                 scanCollection(cfg.getPublisherFileName(), publisher);

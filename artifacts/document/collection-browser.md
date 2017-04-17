@@ -7,7 +7,7 @@ the Plex Media Server and uses a VolMonger collection file as the
 definition of the file structure. The client-side would present
 a navigable GUI to allow the user to see, browse, and manipulate
 their collection from anywhere. Any manipulation would also handle
-creating any needed *.volmonger.json files.
+creating any needed *.volmonger.control files.
 
 ## Proposed Architecture
 

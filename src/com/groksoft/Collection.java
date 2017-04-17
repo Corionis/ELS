@@ -2,6 +2,7 @@ package com.groksoft;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,11 +17,12 @@ public class Collection
 {
     private Logger logger = LogManager.getLogger("applog");
     private String collectionFile = "";
-    private JsonObject json = new JsonObject();;
+    private JsonObject control = new JsonObject();
+    ;
 
 // Methods:
-    // A load method to read a collection.json file
-    // A validate method to check the syntax and existence of the elements in a collection.json file
+    // A load method to read a collection.control file
+    // A validate method to check the syntax and existence of the elements in a collection.control file
     // A scan method to scan and generate the set of Item objects
     // A sort method, by context
     // A duplicates method to check for duplicate contexts in the Collection - possibly enforced by the selected Java collection requiring a unique key
@@ -33,17 +35,46 @@ public class Collection
             logger.info("Reading collection file " + filename);
             setCollectionFile(filename);
             String jsonStr = new String(Files.readAllBytes(Paths.get(filename)));
-            setJson(Jsoner.deserialize(jsonStr, getJson()));  // there are no defaults, use the empty json object
+            if (jsonStr.length() == 0) {
+                throw new MongerException("Failed to read " + filename + ", no data");
+            }
+            JsonObject jo = Jsoner.deserialize(jsonStr, getControl());  // there are no defaults, use the empty control object
+            if (jo == null || jo.size() == 0) {
+                throw new MongerException("Failed to parse " + filename + ", possible syntax error?");
+            }
+            setControl(jo);
         } catch (Exception e) {
             throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(e));
         }
     }
 
     public void validateCollection() throws MongerException {
-        if (getJson() == null) {
-            throw new MongerException("JsonObject json is null");
+        String s;
+        boolean b;
+        if (getControl() == null) {
+            throw new MongerException("JsonObject control is null");
         }
-        JsonObject o = getJson();
+
+        try {
+            if (control.size() == 2) {
+                HashMap<String, String> metadata = control.getMap("metadata");
+                if (metadata.size() == 2) {
+                    s = metadata.get("name");
+                    if (s == null || s.length() < 1) {
+                        throw new MongerException("metadata.name must be defined");
+                    }
+                    s = metadata.get("case-sensitive");
+                    if (s == null || s.length() < 1) {
+                        throw new MongerException("metadata.case-sensitive must be defined");
+                    }
+                    b = s.equalsIgnoreCase("true");
+                }
+                HashMap<String, String> libraries = control.getMap("libraries");
+                s = "42";
+            }
+        } catch (Exception e) {
+            throw new MongerException("Exception while validating " + getCollectionFile() + " trace: " + Utils.getStackTrace(e));
+        }
     }
 
     public String getCollectionFile() {
@@ -54,12 +85,12 @@ public class Collection
         this.collectionFile = collectionFile;
     }
 
-    public JsonObject getJson() {
-        return json;
+    public JsonObject getControl() {
+        return control;
     }
 
-    public void setJson(JsonObject json) {
-        this.json = json;
+    public void setControl(JsonObject control) {
+        this.control = control;
     }
 
 }

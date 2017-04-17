@@ -1,9 +1,11 @@
 @echo off
+REM reset [-f]
 
 set base=%~dp0
 cd /d %base%
 
 if not exist .\TestRun goto NoDir
+if "z%1" == "z-f" goto Execute
 echo/
 echo Reset TestRun Directory
 set r=
