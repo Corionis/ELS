@@ -161,5 +161,9 @@ This is a file-for-file matching/synchronization process.
  * [Plex-to-VolMonger generator](plex-to-VolMonger.md) for
  automated collection file generation.
 
+ * Produce Subscriber list for offline compares and/or Internet synch.
+
+ * VolMonger over TCP/IP
+
 
 
