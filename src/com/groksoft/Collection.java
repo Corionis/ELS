@@ -58,20 +58,17 @@ public class Collection
 
         try {
             if (control.size() == 2) {
-                HashMap<String, String> metadata = control.getMap("metadata");
+                HashMap<String, Object> metadata = control.getMap("metadata");
                 if (metadata.size() == 2) {
-                    s = metadata.get("name");
-                    logger.debug("metadata.get(name) = " + s);
+                    s = (String) metadata.get("name");
                     if (s == null || s.length() < 1) {
                         throw new MongerException("metadata.name must be defined");
                     }
-                    s = metadata.get("case-sensitive");
-                    logger.debug("metadata.get(case-sensitive) = " + s);
+                    s = (String) metadata.get("case-sensitive");
                     if (s == null || s.length() < 1) {
                         throw new MongerException("metadata.case-sensitive must be defined");
                     }
                     b = s.equalsIgnoreCase("true");
-                    logger.debug("s.equalsIgnoreCase = " + b);
                 }
                 HashMap<String, String> libraries = control.getMap("libraries");
                 logger.debug("libraries = " + libraries);
