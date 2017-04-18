@@ -8,7 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 // see https://github.com/cliftonlabs/json-simple/
-import org.json.simple.*;
+import org.json.simple.JsonObject;
+import org.json.simple.Jsoner;
 
 /**
  * The type Collection.
@@ -60,21 +61,25 @@ public class Collection
                 HashMap<String, String> metadata = control.getMap("metadata");
                 if (metadata.size() == 2) {
                     s = metadata.get("name");
-                    logger.info("metadata.get(name) = " + s);
+                    logger.debug("metadata.get(name) = " + s);
                     if (s == null || s.length() < 1) {
                         throw new MongerException("metadata.name must be defined");
                     }
-                    s = metadata.get("caseSensitive");
-                    logger.info("metadata.get(caseSensitive) = " + s);
+                    s = metadata.get("case-sensitive");
+                    logger.debug("metadata.get(case-sensitive) = " + s);
                     if (s == null || s.length() < 1) {
                         throw new MongerException("metadata.case-sensitive must be defined");
                     }
                     b = s.equalsIgnoreCase("true");
-                    logger.info("s.equalsIgnoreCase = " + b);
+                    logger.debug("s.equalsIgnoreCase = " + b);
                 }
                 HashMap<String, String> libraries = control.getMap("libraries");
-                logger.info("libraries = " + libraries);
+                logger.debug("libraries = " + libraries);
+
+
                 s = "42";
+
+
             }
         } catch (Exception e) {
             throw new MongerException("Exception while validating " + getCollectionFile() + " trace: " + Utils.getStackTrace(e));
