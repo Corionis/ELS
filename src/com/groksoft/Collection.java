@@ -60,16 +60,20 @@ public class Collection
                 HashMap<String, String> metadata = control.getMap("metadata");
                 if (metadata.size() == 2) {
                     s = metadata.get("name");
+                    logger.info("metadata.get(name) = " + s);
                     if (s == null || s.length() < 1) {
                         throw new MongerException("metadata.name must be defined");
                     }
-                    s = metadata.get("case-sensitive");
+                    s = metadata.get("caseSensitive");
+                    logger.info("metadata.get(caseSensitive) = " + s);
                     if (s == null || s.length() < 1) {
                         throw new MongerException("metadata.case-sensitive must be defined");
                     }
                     b = s.equalsIgnoreCase("true");
+                    logger.info("s.equalsIgnoreCase = " + b);
                 }
                 HashMap<String, String> libraries = control.getMap("libraries");
+                logger.info("libraries = " + libraries);
                 s = "42";
             }
         } catch (Exception e) {
