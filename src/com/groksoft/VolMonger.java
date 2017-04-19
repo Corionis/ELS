@@ -93,8 +93,8 @@ public class VolMonger
      * @param collection     The collection object
      */
     private void scanCollection(String collectionFile, Collection collection) throws MongerException {
-        collection.readCollectionFile(collectionFile);
-        collection.validateCollection();
+        collection.readControl(collectionFile);
+        collection.validateControl();
     } // scanCollection
 
     /**

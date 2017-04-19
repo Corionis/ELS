@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="volmonger">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/log4j-core-2.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-api-2.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/gson-2.8.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-core-2.8.1-javadoc" />
+      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-api-2.8.1-javadoc" />
+      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/gson-2.8.0-javadoc" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>

@@ -128,6 +128,8 @@ The simplest command line would be just the -p and -s options.
 The -k option applies to the Provider. Subscriber .volmonger files are not
 involved in a run.
 
+Idea:  Add a command to output the list to a file.
+
 ---
 
 IDEA: A way to manage who got what with multiple Subscribers.

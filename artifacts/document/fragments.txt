@@ -1,11 +1,11 @@
-{
-    "metadata": {
-        "name": "Publisher",
-        "case_sensitive": false
-    },
+
+
+Chunk of collection file:
+
+,
     "libraries": [
         {
-            "definition": {
+            "metadata": {
                 "name": "Movies",
                 "minimum": "10G"
             },
@@ -19,7 +19,7 @@
             ]
         },
         {
-            "definition": {
+            "metadata": {
                 "name": "Tv Shows",
                 "minimum": "4G"
             },
@@ -33,4 +33,6 @@
             ]
         }
     ]
-}
+
+
+

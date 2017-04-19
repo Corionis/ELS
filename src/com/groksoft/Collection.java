@@ -1,15 +1,17 @@
 package com.groksoft;
 
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
+// see https://github.com/google/gson
+import com.google.gson.Gson;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-// see https://github.com/cliftonlabs/json-simple/
-import org.json.simple.JsonObject;
-import org.json.simple.Jsoner;
+import javax.sound.midi.MetaEventListener;
 
 /**
  * The type Collection.
@@ -18,8 +20,7 @@ public class Collection
 {
     private Logger logger = LogManager.getLogger("applog");
     private String collectionFile = "";
-    private JsonObject control = new JsonObject();
-    ;
+    private Control control = null;
 
 // Methods:
     // A load method to read a collection.control file
@@ -31,56 +32,69 @@ public class Collection
     public Collection() {
     }
 
-    public void readCollectionFile(String filename) throws MongerException {
+    public void readControl(String filename) throws MongerException {
         try {
+            String json;
+            Gson gson = new Gson();
             logger.info("Reading collection file " + filename);
             setCollectionFile(filename);
-            String jsonStr = new String(Files.readAllBytes(Paths.get(filename)));
-            if (jsonStr.length() == 0) {
-                throw new MongerException("Failed to read " + filename + ", no data");
-            }
-            JsonObject jo = Jsoner.deserialize(jsonStr, getControl());  // there are no defaults, use the empty control object
-            if (jo == null || jo.size() == 0) {
-                throw new MongerException("Failed to parse " + filename + ", possible syntax error?");
-            }
-            setControl(jo);
+            json = new String(Files.readAllBytes(Paths.get(filename)));
+            json = json.replaceAll("[\n\r]", "");
+            control = gson.fromJson(json, Control.class);
+
         } catch (Exception e) {
             throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(e));
         }
     }
 
-    public void validateCollection() throws MongerException {
+    public void validateControl() throws MongerException {
         String s;
         boolean b;
+        String itemName = "";
         if (getControl() == null) {
-            throw new MongerException("JsonObject control is null");
+            throw new MongerException("Control is null");
         }
 
         try {
-            if (control.size() == 2) {
-                HashMap<String, Object> metadata = control.getMap("metadata");
-                if (metadata.size() == 2) {
-                    s = (String) metadata.get("name");
-                    if (s == null || s.length() < 1) {
-                        throw new MongerException("metadata.name must be defined");
-                    }
-                    s = (String) metadata.get("case-sensitive");
-                    if (s == null || s.length() < 1) {
-                        throw new MongerException("metadata.case-sensitive must be defined");
-                    }
-                    b = s.equalsIgnoreCase("true");
-                }
-                HashMap<String, String> libraries = control.getMap("libraries");
-                logger.debug("libraries = " + libraries);
-
-
-                s = "42";
-
-
+            if (control.metadata.name == null || control.metadata.name.length() == 0) {
+                throw new MongerException("metadata.name must be defined");
             }
+            if (control.metadata.case_sensitive == null) {
+                throw new MongerException("metadata.case_sensitive true/false must be defined");
+            }
+
+            for (int i = 0; i < control.libraries.length; i++) {
+                if (control.libraries[i].definition == null) {
+                    throw new MongerException("libraries.definition[" + i + "] must be defined");
+                }
+                if (control.libraries[i].sources == null || control.libraries[i].sources.length == 0) {
+                    throw new MongerException("libraries[" + i + "].sources must be defined");
+                } else {
+                    // Verify paths
+                    for (int j = 0; j < control.libraries[i].sources.length; j++) {
+
+                        if (control.libraries[i].sources[j].length() == 0) {
+                            throw new MongerException("libraries[" + i + "].sources[" + j + "] must be defined");
+                        }
+                    }
+                }
+                if (control.libraries[i].targets == null || control.libraries[i].targets.length == 0) {
+                    throw new MongerException("libraries.sources[" + i + "] must be defined");
+                } else {
+                    // Verify paths
+                    for (int j = 0; j < control.libraries[i].targets.length; j++) {
+                        if (control.libraries[i].targets[j].length() == 0) {
+                            throw new MongerException("libraries[" + i + "].targets[" + j + "] must be defined");
+                        }
+                    }
+                }
+            }
+
         } catch (Exception e) {
-            throw new MongerException("Exception while validating " + getCollectionFile() + " trace: " + Utils.getStackTrace(e));
+            throw new MongerException("Exception while validating " + getCollectionFile() + " item " + itemName + " trace: " + Utils.getStackTrace(e));
         }
+
+        logger.info("Validation successful");
     }
 
     public String getCollectionFile() {
@@ -91,12 +105,36 @@ public class Collection
         this.collectionFile = collectionFile;
     }
 
-    public JsonObject getControl() {
+    public Control getControl() {
         return control;
     }
 
-    public void setControl(JsonObject control) {
-        this.control = control;
+    //==================================================================================================================
+
+    public class Control
+    {
+        Metadata metadata;
+        Libraries[] libraries;
+    }
+
+    public class Metadata
+    {
+        public String name;
+        public Boolean case_sensitive;
+    }
+
+    public class Libraries
+    {
+        public Definition definition;
+        public String[] sources;
+        public String[] targets;
+
+    }
+
+    public class Definition
+    {
+        public String name;
+        public String minimum;
     }
 
 }
