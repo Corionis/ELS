@@ -80,22 +80,22 @@ public class Collection {
                         if (control.libraries[i].sources[j].length() == 0) {
                             throw new MongerException("libraries[" + i + "].sources[" + j + "] must be defined");
                         }
-                        System.out.println(control.libraries[i].sources[j]);
+                        System.out.println("DIR: "+control.libraries[i].sources[j]);
                         // Travers the current directory and get the media directories
-                        Path path = Paths.get(control.libraries[i].sources[j]);
+                        // todo This wants the main dir to be TestRun but the other code needs it to be mock??????
+                        // todo Got to tired to figure it out so just added TestRun to the path manually here!
+                        Path path = Paths.get("TestRun/"+control.libraries[i].sources[j]);
                         List<String> fileNames = new ArrayList<>();
 
-                        // todo Seems like this wants the main dir to be TestRun but the other code needs it to be mock??????
-                        // todo Got to tired to figure it out so just checking in what I have for now.
                         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
                             for (Path entry : directoryStream) {
                                 fileNames.add(entry.toString());
+                                System.out.println(entry.toString());
                             }
                         } catch (IOException ex) {
                             throw new MongerException("Error Reading Directory " + control.libraries[i].sources[j]);
                         }
-                        System.out.println(fileNames);
-
+                        //System.out.println(fileNames);
                     }
                 }
                 if (control.libraries[i].targets == null || control.libraries[i].targets.length == 0) {
@@ -109,7 +109,6 @@ public class Collection {
                     }
                 }
             }
-
         } catch (Exception e) {
             throw new MongerException("Exception while validating " + getCollectionFile() + " item " + itemName + " trace: " + Utils.getStackTrace(e));
         }
