@@ -191,7 +191,7 @@ public class Collection
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
                 this.items.add(item);
-                System.out.println(entry.toString());
+                logger.debug(entry.toString());
                 if (isDir) {
                     scanDirectory(item.getFullPath());
                 }
