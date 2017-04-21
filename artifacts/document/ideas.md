@@ -47,7 +47,8 @@ on a different computer where drive letters would change.
  * Add new content from source
    - Automatically synchronized, default behavior
  * Deletes, very rare. 
-   - ***This scheme does not handle a whole-directory delete.***
+   - A .volmonger extension on a Publisher directory with no
+   content indicates the directory should be deleted. 
  * Changes of existing file(s)
    - Different image, subtitles ... any file
    - Cannot trust dates
@@ -62,7 +63,7 @@ on a different computer where drive letters would change.
         },
         "libraries" : {
             "Movies" : {
-                "metadata" : {
+                "definition" : {
                     "minimum" : "10G"
                 },
                 "targets" : [
@@ -77,7 +78,7 @@ on a different computer where drive letters would change.
                 ]
             },
             "TV Shows" : {
-                "metadata" : {
+                "definition" : {
                     "minimum" : "4G"
                 },
                 "targets" : [
@@ -129,8 +130,6 @@ The simplest command line would be just the -p and -s options.
 The -k option applies to the Provider. Subscriber .volmonger files are not
 involved in a run.
 
-Idea:  Add a command to output the list to a file.
-
 ---
 
 IDEA: A way to manage who got what with multiple Subscribers.
@@ -156,6 +155,15 @@ This is a file-for-file matching/synchronization process.
  2. Walk each source library comparing against target
  3. If a .volmonger file exists on source "I Win" logic is triggered
  4. Reverse "source" and "target" sides and repeat for a bi-directional monge.
+
+---
+
+IDEA: It may be possible to provide options for either single- or
+bi-directional synchronization. Because we will have complete lists
+of Publisher and Subscriber content any changes from Subscriber-to-Publisher
+could be done within the same run.
+
+---
 
 ## Other
 

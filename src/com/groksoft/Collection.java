@@ -133,6 +133,12 @@ public class Collection
                     }
                 }
             }
+//
+// EXCEPTION HANDLING point/question: Right now all exceptions are caught and generically re-thrown as MongerExceptions.
+// Should discrete exceptions be detected so CODE exceptions can include getStackTrace() and simple message exceptions
+// do not need to dump out the stack?  It is not consistent yet.  And a stack trace is confusing with a simple text
+// text like "such 'n such must be defined".
+//
         } catch (Exception e) {
             throw new MongerException("Exception while validating " + getCollectionFile() + " item " + itemName + " trace: " + Utils.getStackTrace(e));
         }
