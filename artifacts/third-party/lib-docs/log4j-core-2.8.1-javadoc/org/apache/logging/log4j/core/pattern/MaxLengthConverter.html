@@ -119,7 +119,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/pattern/LogEven
  On invalid length the default value 100 is used (and an error message is logged).
  If max length is greater than 20, an abbreviated text will get ellipsis ("...") appended.
  Example usage (for email subject):
- <code>"%maxLen{[AppName, ${hostName}, ${web:contextPath}] %p: %c{1} - %m%notEmpty{ =&gt;%ex{short}}}{160}"</code></div>
+ <code>"%maxLen{[AppName, ${hostName}, ${web:itemPath}] %p: %c{1} - %m%notEmpty{ =&gt;%ex{short}}}{160}"</code></div>
 <dl><dt><span class="strong">Author:</span></dt>
   <dd>Thies Wellpott</dd></dl>
 </li>

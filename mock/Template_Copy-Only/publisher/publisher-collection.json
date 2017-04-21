@@ -7,29 +7,29 @@
         {
             "definition": {
                 "name": "Movies",
-                "minimum": "10G"
+                "minimum": "10GB"
             },
             "sources": [
-                "publisher/media-a/media/Movies",
-                "publisher/media-b/media/Movies",
-                "publisher/media-c/media/Movies"
+                "TestRun/publisher/media-a/media/Movies",
+                "TestRun/publisher/media-b/media/Movies",
+                "TestRun/publisher/media-c/media/Movies"
             ],
             "targets": [
-                "publisher/media-d/media/Movies"
+                "TestRun/publisher/media-d/media/Movies"
             ]
         },
         {
             "definition": {
-                "name": "Tv Shows",
-                "minimum": "4G"
+                "name": "TV Shows",
+                "minimum": "500MB"
             },
             "sources": [
-                "publisher/media-a/media/TV Shows",
-                "publisher/media-b/media/TV Shows",
-                "publisher/media-c/media/TV Shows"
+                "TestRun/publisher/media-a/media/TV Shows",
+                "TestRun/publisher/media-b/media/TV Shows",
+                "TestRun/publisher/media-c/media/TV Shows"
             ],
             "targets": [
-                "publisher/media-d/media/TV Shows"
+                "TestRun/publisher/media-d/media/TV Shows"
             ]
         }
     ]

@@ -1,5 +1,7 @@
 package com.groksoft;
 
+import sun.security.krb5.Config;
+
 /**
  * Configuration
  * <p>
@@ -8,13 +10,15 @@ package com.groksoft;
 public class Configuration
 {
     private final String VOLMONGER_VERSION = "1.0.0";
+    private static Configuration instance = null;
 
     // flags & names
-    private String debugLevel = "info";
+    private String debugLevel = "info";  // Levels: TRACE, DEBUG, INFO, WARN, ERROR, and FATAL
     private boolean keepVolMongerFiles = false;
     private String logFilename = "VolMonger.log";
     private boolean testRun = false;
     private boolean validationRun = false;
+    private String exportFilename = "";
 
     // publisher & subscriber
     private String publisherFileName = "";
@@ -26,8 +30,33 @@ public class Configuration
     /**
      * Instantiates a new Configuration.
      */
-    public Configuration() {
-        // empty
+    private Configuration() {
+        // singleton pattern
+    }
+
+    public static Configuration getInstance() {
+        if (instance == null) {
+            instance = new Configuration();
+        }
+        return instance;
+    }
+
+    /**
+     * Gets export filename.
+     *
+     * @return the export filename
+     */
+    public String getExportFilename() {
+        return exportFilename;
+    }
+
+    /**
+     * Sets export filename.
+     *
+     * @param exportFilename the export filename
+     */
+    public void setExportFilename(String exportFilename) {
+        this.exportFilename = exportFilename;
     }
 
     /**
@@ -70,6 +99,14 @@ public class Configuration
                         ++index;
                     } else {
                         throw new MongerException("Error: -d requires a level, trace, debug, info, warn, error, or fatal");
+                    }
+                    break;
+                case "-e" :
+                    if (index <= args.length - 2) {
+                        setExportFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -e requires an export filename");
                     }
                     break;
                 case "-f" :

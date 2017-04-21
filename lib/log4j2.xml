@@ -16,7 +16,7 @@
     </Appenders>
     <Loggers>
         <!-- Levels: TRACE, DEBUG, INFO, WARN, ERROR, and FATAL -->
-        <Logger name="applog" level="debug">
+        <Logger name="applog" level="${sys:debugLevel}">
             <AppenderRef ref="applog"/>
         </Logger>
         <Root level="debug">

@@ -7,33 +7,55 @@ import java.io.Serializable;
  */
 public class Item implements Serializable
 {
-    private String context;
     private String fullPath;
+    private String itemPath;
+    private boolean directory = false;
+    private boolean symLink = false;
 
+    /**
+     * Instantiates a new Item.
+     */
     public Item() {
         super();
     }
 
-
-    // Add a compare(String otherContext) method
-
-
     /**
-     * Gets context.
+     * Gets item path.
+     * <p>
+     * The item path is the right-side of the full path
+     * with the library path removed from the left side.
      *
-     * @return the context
+     * @return the item path
      */
-    public String getContext() {
-        return context;
+    public String getItemPath() {
+        return itemPath;
     }
 
     /**
-     * Sets context.
+     * Sets item path.
      *
-     * @param context the context
+     * @param itemPath the item path
      */
-    public void setContext(String context) {
-        this.context = context;
+    public void setItemPath(String itemPath) {
+        this.itemPath = itemPath;
+    }
+
+    /**
+     * Is directory boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isDirectory() {
+        return directory;
+    }
+
+    /**
+     * Sets directory.
+     *
+     * @param directory the directory
+     */
+    public void setDirectory(boolean directory) {
+        this.directory = directory;
     }
 
     /**
@@ -54,4 +76,21 @@ public class Item implements Serializable
         this.fullPath = fullPath;
     }
 
+    /**
+     * Is sym link boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isSymLink() {
+        return symLink;
+    }
+
+    /**
+     * Sets sym link.
+     *
+     * @param symLink the sym link
+     */
+    public void setSymLink(boolean symLink) {
+        this.symLink = symLink;
+    }
 }

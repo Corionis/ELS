@@ -3,7 +3,7 @@
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="MAIN_CLASS_NAME" value="com.groksoft.VolMonger" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:../lib/log4j2.xml" />
-    <option name="PROGRAM_PARAMETERS" value="-t -p TestRun/publisher/publisher-collection.json" />
+    <option name="PROGRAM_PARAMETERS" value="-t -d debug -p TestRun/publisher/publisher-collection.json" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/mock" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
     <option name="ALTERNATIVE_JRE_PATH" />

@@ -1,13 +1,11 @@
 package com.groksoft;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 // see https://github.com/google/gson
@@ -16,15 +14,19 @@ import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.sound.midi.MetaEventListener;
+import com.groksoft.Utils;
+import com.groksoft.Item;
 
 /**
  * The type Collection.
  */
-public class Collection {
+public class Collection
+{
     private Logger logger = LogManager.getLogger("applog");
     private String collectionFile = "";
+    private Configuration cfg = null;
     private Control control = null;
+    private List<Item> items = new ArrayList<>();
 
 // Methods:
     // A load method to read a collection.control file
@@ -33,9 +35,19 @@ public class Collection {
     // A sort method, by context
     // A duplicates method to check for duplicate contexts in the Collection - possibly enforced by the selected Java collection requiring a unique key
 
+    /**
+     * Instantiates a new Collection.
+     */
     public Collection() {
+        cfg = Configuration.getInstance();
     }
 
+    /**
+     * Read control.
+     *
+     * @param filename the filename
+     * @throws MongerException the monger exception
+     */
     public void readControl(String filename) throws MongerException {
         try {
             String json;
@@ -51,10 +63,17 @@ public class Collection {
         }
     }
 
+    /**
+     * Validate control.
+     *
+     * @throws MongerException the monger exception
+     */
     public void validateControl() throws MongerException {
         String s;
         boolean b;
         String itemName = "";
+        long minimumSize = -1;
+
         if (getControl() == null) {
             throw new MongerException("Control is null");
         }
@@ -71,31 +90,32 @@ public class Collection {
                 if (control.libraries[i].definition == null) {
                     throw new MongerException("libraries.definition[" + i + "] must be defined");
                 }
+                if (control.libraries[i].definition.name == null || control.libraries[i].definition.name.length() == 0) {
+                    throw new MongerException("library[" + i + "].name must be defined");
+                }
+                // minimum is optional
+                if (control.libraries[i].definition.minimum != null && control.libraries[i].definition.minimum.length() > 0) {
+                    minimumSize = Utils.getScaledValue(control.libraries[i].definition.minimum);
+                    if (minimumSize == -1) {
+                        throw new MongerException("control.libraries[" + i + "].definition.minimum is invalid");
+                    }
+                }
+                if (minimumSize < (1024 * 1024)) {
+                    minimumSize = 1024 * 1024; // a proper 1 megabyte value
+                }
+
                 if (control.libraries[i].sources == null || control.libraries[i].sources.length == 0) {
                     throw new MongerException("libraries[" + i + "].sources must be defined");
                 } else {
                     // Verify paths
                     for (int j = 0; j < control.libraries[i].sources.length; j++) {
-
                         if (control.libraries[i].sources[j].length() == 0) {
                             throw new MongerException("libraries[" + i + "].sources[" + j + "] must be defined");
                         }
-                        System.out.println("DIR: "+control.libraries[i].sources[j]);
-                        // Travers the current directory and get the media directories
-                        // todo This wants the main dir to be TestRun but the other code needs it to be mock??????
-                        // todo Got to tired to figure it out so just added TestRun to the path manually here!
-                        Path path = Paths.get("TestRun/"+control.libraries[i].sources[j]);
-                        List<String> fileNames = new ArrayList<>();
-
-                        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
-                            for (Path entry : directoryStream) {
-                                fileNames.add(entry.toString());
-                                System.out.println(entry.toString());
-                            }
-                        } catch (IOException ex) {
-                            throw new MongerException("Error Reading Directory " + control.libraries[i].sources[j]);
+                        if (Files.notExists(Paths.get(control.libraries[i].sources[j]))) {
+                            throw new MongerException("control.libraries[" + i + "].sources[" + j + "]: " + control.libraries[i].sources[j] + " does not exist");
                         }
-                        //System.out.println(fileNames);
+                        logger.debug("DIR: " + control.libraries[i].sources[j]);
                     }
                 }
                 if (control.libraries[i].targets == null || control.libraries[i].targets.length == 0) {
@@ -106,6 +126,10 @@ public class Collection {
                         if (control.libraries[i].targets[j].length() == 0) {
                             throw new MongerException("libraries[" + i + "].targets[" + j + "] must be defined");
                         }
+                        if (Files.notExists(Paths.get(control.libraries[i].targets[j]))) {
+                            throw new MongerException("control.libraries[" + i + "].targets[" + j + "]: " + control.libraries[i].targets[j] + " does not exist");
+                        }
+                        logger.debug("DIR: " + control.libraries[i].targets[j]);
                     }
                 }
             }
@@ -116,14 +140,91 @@ public class Collection {
         logger.info("Validation successful");
     }
 
+    /**
+     * Scan.
+     *
+     * @throws MongerException the monger exception
+     */
+    public void scan() throws MongerException {
+
+        // Traverse the library and get the media directories
+        for (int i = 0; i < control.libraries.length; i++) {
+
+            // todo decide if a single library was specified
+
+            for (int j = 0; j < control.libraries[i].sources.length; j++) {
+                scanDirectory(control.libraries[i].sources[j]);
+            }
+        }
+
+        // todo sort it
+
+        if (cfg.getExportFilename().length() < 1) {
+            // todo write out to file
+        }
+    }
+
+    /**
+     * Scan directory.
+     *
+     * @param directory the directory
+     * @throws MongerException the monger exception
+     */
+    private void scanDirectory(String directory) throws MongerException {
+        Item it = null;
+        String cp = "";
+        boolean isDir = false;
+        boolean isSym = false;
+        Path path;
+
+        path = Paths.get(directory);
+
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
+            for (Path entry : directoryStream) {
+                it = new Item();
+                cp = entry.toString();
+                it.setFullPath(cp);
+                path = Paths.get(cp);
+                isDir = Files.isDirectory(path);
+                it.setDirectory(isDir);
+                cp = cp.substring(directory.length() + 1);
+                it.setItemPath(cp);
+                isSym = Files.isSymbolicLink(path);
+                it.setSymLink(isSym);
+                this.items.add(it);
+                System.out.println(entry.toString());
+                if (isDir) {
+                    scanDirectory(it.getFullPath());
+                }
+            }
+        } catch (Exception e) {
+            throw new MongerException("Error Reading Directory " + directory);
+        }
+    }
+
+    /**
+     * Gets collection file.
+     *
+     * @return the collection file
+     */
     public String getCollectionFile() {
         return collectionFile;
     }
 
+    /**
+     * Sets collection file.
+     *
+     * @param collectionFile the collection file
+     */
     public void setCollectionFile(String collectionFile) {
         this.collectionFile = collectionFile;
     }
 
+    /**
+     * Gets control.
+     *
+     * @return the control
+     */
     public Control getControl() {
         return control;
     }
@@ -133,26 +234,65 @@ public class Collection {
     /**
      * Classes used in the JSON to Object translations
      */
-
-    public class Control {
+    public class Control
+    {
+        /**
+         * The Metadata.
+         */
         Metadata metadata;
+        /**
+         * The Libraries.
+         */
         Libraries[] libraries;
     }
 
-    public class Metadata {
+    /**
+     * The type Metadata.
+     */
+    public class Metadata
+    {
+        /**
+         * The Name.
+         */
         public String name;
+        /**
+         * The Case sensitive.
+         */
         public Boolean case_sensitive;
     }
 
-    public class Libraries {
+    /**
+     * The type Libraries.
+     */
+    public class Libraries
+    {
+        /**
+         * The Definition.
+         */
         public Definition definition;
+        /**
+         * The Sources.
+         */
         public String[] sources;
+        /**
+         * The Targets.
+         */
         public String[] targets;
 
     }
 
-    public class Definition {
+    /**
+     * The type Definition.
+     */
+    public class Definition
+    {
+        /**
+         * The Name.
+         */
         public String name;
+        /**
+         * The Minimum.
+         */
         public String minimum;
     }
 

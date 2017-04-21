@@ -122,6 +122,7 @@ on a different computer where drive letters would change.
  * -c : Validate collections files only then exit
  * -d level : Logging level, default info
  * -f file : Log file, default VolMonger.log in directory where "run" is executed
+ * -e file : Export publisher collection to file only, then exit
 
 The simplest command line would be just the -p and -s options.
 

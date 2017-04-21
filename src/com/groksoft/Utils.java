@@ -13,6 +13,12 @@ import java.util.regex.Pattern;
  */
 public class Utils
 {
+    /**
+     * Instantiates a new Utils.
+     */
+    public Utils() {
+        // empty
+    }
 
     /**
      * Gets scaled value.

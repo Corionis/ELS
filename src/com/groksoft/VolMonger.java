@@ -37,11 +37,12 @@ public class VolMonger
         int returnValue = 0;
 
         try {
-            cfg = new Configuration();
+            cfg = Configuration.getInstance();
             cfg.parseCommandLine(args);
 
             // setup the logger
             System.setProperty("logFilename", cfg.getLogFilename());
+            System.setProperty("debugLevel", cfg.getDebugLevel());
             org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
             ctx.reconfigure();
 
@@ -67,7 +68,7 @@ public class VolMonger
 
             try {
                 scanCollection(cfg.getPublisherFileName(), publisher);
-      //          scanCollection(cfg.getSubscriberFileName(), subscriber);
+//                scanCollection(cfg.getSubscriberFileName(), subscriber);
 //                mongeCollections(publisher, subscriber);
             } catch (Exception e) {
                 // the methods above throw pre-formatted messages, just use that
@@ -95,6 +96,7 @@ public class VolMonger
     private void scanCollection(String collectionFile, Collection collection) throws MongerException {
         collection.readControl(collectionFile);
         collection.validateControl();
+        collection.scan();
     } // scanCollection
 
     /**
