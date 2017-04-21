@@ -96,7 +96,7 @@ public class VolMonger
     private void scanCollection(String collectionFile, Collection collection) throws MongerException {
         collection.readControl(collectionFile);
         collection.validateControl();
-        collection.scan();
+        collection.scanAll();
     } // scanCollection
 
     /**

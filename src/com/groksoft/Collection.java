@@ -31,7 +31,7 @@ public class Collection
 // Methods:
     // A load method to read a collection.control file
     // A validate method to check the syntax and existence of the elements in a collection.control file
-    // A scan method to scan and generate the set of Item objects
+    // A scanAll method to scanAll and generate the set of Item objects
     // A sort method, by context
     // A duplicates method to check for duplicate contexts in the Collection - possibly enforced by the selected Java collection requiring a unique key
 
@@ -141,12 +141,11 @@ public class Collection
     }
 
     /**
-     * Scan.
+     * Scan All libraries.
      *
      * @throws MongerException the monger exception
      */
-    public void scan() throws MongerException {
-
+    public void scanAll() throws MongerException {
         // Traverse the library and get the media directories
         for (int i = 0; i < control.libraries.length; i++) {
 
@@ -157,44 +156,44 @@ public class Collection
             }
         }
 
-        // todo sort it
+        // todo sort items
 
         if (cfg.getExportFilename().length() < 1) {
             // todo write out to file
+            // Idea: Export to a JSON file; then a load of that file creates an ArrayList of Items
         }
     }
 
     /**
-     * Scan directory.
+     * Scan a specific directory, recursively.
      *
      * @param directory the directory
      * @throws MongerException the monger exception
      */
     private void scanDirectory(String directory) throws MongerException {
-        Item it = null;
-        String cp = "";
+        Item item = null;
+        String fullPath = "";
+        String itemPath = "";
         boolean isDir = false;
         boolean isSym = false;
-        Path path;
-
-        path = Paths.get(directory);
+        Path path = Paths.get(directory);
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
             for (Path entry : directoryStream) {
-                it = new Item();
-                cp = entry.toString();
-                it.setFullPath(cp);
-                path = Paths.get(cp);
-                isDir = Files.isDirectory(path);
-                it.setDirectory(isDir);
-                cp = cp.substring(directory.length() + 1);
-                it.setItemPath(cp);
-                isSym = Files.isSymbolicLink(path);
-                it.setSymLink(isSym);
-                this.items.add(it);
+                item = new Item();
+                fullPath = entry.toString();                            // full path
+                item.setFullPath(fullPath);
+                path = Paths.get(fullPath);
+                isDir = Files.isDirectory(path);                        // is directory check
+                item.setDirectory(isDir);
+                itemPath = fullPath.substring(directory.length() + 1);  // item path
+                item.setItemPath(itemPath);
+                isSym = Files.isSymbolicLink(path);                     // is symbolic link check
+                item.setSymLink(isSym);
+                this.items.add(item);
                 System.out.println(entry.toString());
                 if (isDir) {
-                    scanDirectory(it.getFullPath());
+                    scanDirectory(item.getFullPath());
                 }
             }
         } catch (Exception e) {
