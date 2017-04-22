@@ -55,6 +55,7 @@ public class VolMonger
             // dump the settings
             logger.info("cfg: -c Validation run = " + Boolean.toString(cfg.isValidationRun()));
             logger.info("cfg: -d Debug level = " + cfg.getDebugLevel());
+            logger.info("cfg: -e Export filename = " + cfg.getExportFilename());
             logger.info("cfg: -f Log filename = " + cfg.getLogFilename());
             logger.info("cfg: -k Keep .volmonger files = " + Boolean.toString(cfg.isKeepVolMongerFiles()));
             logger.info("cfg: -l Publisher library name = " + cfg.getPublisherLibraryName());
@@ -68,7 +69,7 @@ public class VolMonger
 
             try {
                 scanCollection(cfg.getPublisherFileName(), publisher);
-//                scanCollection(cfg.getSubscriberFileName(), subscriber);
+                scanCollection(cfg.getSubscriberFileName(), subscriber);
 //                mongeCollections(publisher, subscriber);
             } catch (Exception e) {
                 // the methods above throw pre-formatted messages, just use that

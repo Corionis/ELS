@@ -5,8 +5,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 // see https://github.com/google/gson
 import com.google.gson.Gson;
@@ -57,7 +56,6 @@ public class Collection
             json = new String(Files.readAllBytes(Paths.get(filename)));
             json = json.replaceAll("[\n\r]", "");
             control = gson.fromJson(json, Control.class);
-
         } catch (Exception e) {
             throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(e));
         }
@@ -103,6 +101,7 @@ public class Collection
                 if (minimumSize < (1024 * 1024)) {
                     minimumSize = 1024 * 1024; // a proper 1 megabyte value
                 }
+                // genre is optional
 
                 if (control.libraries[i].sources == null || control.libraries[i].sources.length == 0) {
                     throw new MongerException("libraries[" + i + "].sources must be defined");
@@ -158,11 +157,17 @@ public class Collection
             // todo decide if a single library was specified
 
             for (int j = 0; j < control.libraries[i].sources.length; j++) {
-                scanDirectory(control.libraries[i].sources[j]);
+                scanDirectory(control.libraries[i].sources[j], control.libraries[i].sources[j]);
             }
         }
 
-        // todo sort items
+        System.out.println("PRESORTED:");
+        dumpCollection();
+
+        sortCollection();
+
+        System.out.println("\r\nSORTED:");
+        dumpCollection();
 
         if (cfg.getExportFilename().length() < 1) {
             // todo write out to file
@@ -176,7 +181,7 @@ public class Collection
      * @param directory the directory
      * @throws MongerException the monger exception
      */
-    private void scanDirectory(String directory) throws MongerException {
+    private void scanDirectory(String base, String directory) throws MongerException {
         Item item = null;
         String fullPath = "";
         String itemPath = "";
@@ -192,18 +197,37 @@ public class Collection
                 path = Paths.get(fullPath);
                 isDir = Files.isDirectory(path);                        // is directory check
                 item.setDirectory(isDir);
-                itemPath = fullPath.substring(directory.length() + 1);  // item path
+                itemPath = fullPath.substring(base.length() + 1);  // item path
                 item.setItemPath(itemPath);
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
                 this.items.add(item);
-                logger.debug(entry.toString());
+                //logger.debug(entry.toString());
                 if (isDir) {
-                    scanDirectory(item.getFullPath());
+                    scanDirectory(base, item.getFullPath());
                 }
             }
         } catch (Exception e) {
             throw new MongerException("Error Reading Directory " + directory);
+        }
+    }
+
+    public void sortCollection() {
+        // Sorting
+        Collections.sort(items, new Comparator<Item>() {
+            @Override
+            public int compare(Item item1, Item item2)
+            {
+                return  item1.getItemPath().compareTo(item2.getItemPath());
+            }
+        });
+    }
+
+    public void dumpCollection() {
+        Iterator<Item> itemIterator = items.iterator();
+        while (itemIterator.hasNext()) {
+            Item item = itemIterator.next();
+            System.out.println(item.getItemPath());
         }
     }
 
@@ -299,6 +323,10 @@ public class Collection
          * The Minimum.
          */
         public String minimum;
+        /**
+         * If it has genres.
+         */
+        public boolean genre;
     }
 
 }

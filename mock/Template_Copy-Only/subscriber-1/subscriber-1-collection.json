@@ -1,17 +1,16 @@
 {
   "metadata": {
-    "name": "Publisher"
+    "name": "subscriber-1"
   },
   "libraries": {
     "Movies": {
       "metadata": {
-        "context": 1,
-        "minimum": "10G"
+        "minimum": "10GB"
       },
       "sources": [
-        "publisher/media-a/media/Movies",
-        "publisher/media-b/media/Movies",
-        "publisher/media-c/media/Movies"
+        "subscriber-1/media-a/media/Movies",
+        "subscriber-1/media-b/media/Movies",
+        "subscriber-1/media-c/media/Movies"
       ],
       "targets": [
         "H:/media/movies",
@@ -20,12 +19,12 @@
     },
     "TV Shows": {
       "metadata": {
-        "context": 2,
-        "minimum": "4G"
+        "minimum": "4GB"
       },
       "targets": [
-        "H:/media/tv shows",
-        "I:/media/tv shows"
+        "subscriber-1/media-a/media/TV Shows",
+        "subscriber-1/media-b/media/TV Shows",
+        "subscriber-1/media-c/media/TV Shows"
       ],
       "sources": [
         "E:/media/tv shows",
