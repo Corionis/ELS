@@ -1,36 +1,36 @@
 {
-  "metadata": {
-    "name": "subscriber-1"
-  },
-  "libraries": {
-    "Movies": {
-      "metadata": {
-        "minimum": "10GB"
-      },
-      "sources": [
-        "subscriber-1/media-a/media/Movies",
-        "subscriber-1/media-b/media/Movies",
-        "subscriber-1/media-c/media/Movies"
-      ],
-      "targets": [
-        "H:/media/movies",
-        "I:/media/movies"
-      ]
+    "metadata": {
+        "name": "Subscriber-1",
+        "case_sensitive": false
     },
-    "TV Shows": {
-      "metadata": {
-        "minimum": "4GB"
-      },
-      "targets": [
-        "subscriber-1/media-a/media/TV Shows",
-        "subscriber-1/media-b/media/TV Shows",
-        "subscriber-1/media-c/media/TV Shows"
-      ],
-      "sources": [
-        "E:/media/tv shows",
-        "G:/media/tv shows",
-        "H:/media/tv shows"
-      ]
-    }
-  }
+    "libraries": [
+        {
+            "definition": {
+                "name": "Movies",
+                "minimum": "10GB"
+            },
+            "sources": [
+                "TestRun/subscriber-1/media-a/media/Movies",
+                "TestRun/subscriber-1/media-b/media/Movies",
+                "TestRun/subscriber-1/media-c/media/Movies"
+            ],
+            "targets": [
+                "TestRun/subscriber-1/media-d/media/Movies"
+            ]
+        },
+        {
+            "definition": {
+                "name": "TV Shows",
+                "minimum": "4GB"
+            },
+            "targets": [
+                "TestRun/subscriber-1/media-a/media/TV Shows",
+                "TestRun/subscriber-1/media-b/media/TV Shows",
+                "TestRun/subscriber-1/media-c/media/TV Shows"
+            ],
+            "sources": [
+                "TestRun/subscriber-1/media-d/media/TV Shows"
+            ]
+        }
+    ]
 }

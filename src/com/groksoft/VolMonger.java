@@ -1,9 +1,16 @@
 package com.groksoft;
-// http://javarevisited.blogspot.com/2014/12/how-to-read-write-json-string-to-file.html
 
 // see https://logging.apache.org/log4j/2.x/
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Iterator;
+
+import static java.awt.SystemColor.text;
 
 /**
  * VolMonger - main program
@@ -69,8 +76,17 @@ public class VolMonger
 
             try {
                 scanCollection(cfg.getPublisherFileName(), publisher);
-                scanCollection(cfg.getSubscriberFileName(), subscriber);
-//                mongeCollections(publisher, subscriber);
+                if (cfg.getSubscriberFileName().length() > 0) {
+                    scanCollection(cfg.getSubscriberFileName(), subscriber);
+                }
+                if (cfg.getExportFilename().length() > 0) {
+                    publisher.exportCollection();
+                } else {
+                    if (cfg.getImportFilename().length() > 0) {
+                        subscriber.importItems();
+                    }
+                    mongeCollections(publisher, subscriber);
+                }
             } catch (Exception e) {
                 // the methods above throw pre-formatted messages, just use that
                 logger.error(e.getMessage());
@@ -104,16 +120,48 @@ public class VolMonger
      * Monge two collections
      *
      * @param publisher  Publishes new media
-     * @param subscriber Subscribes to a Publisher to recive new media
+     * @param subscriber Subscribes to a Publisher to receive new media
      */
     private void mongeCollections(Collection publisher, Collection subscriber) throws MongerException {
         boolean iWin = false;
-        try {
+        PrintWriter mismatchFile = null;
+        String header = "Monging " + publisher.getControl().metadata.name + " to " + subscriber.getControl().metadata.name;
 
-        } catch (Exception e) {
-            throw new MongerException("Exception while monging" + Utils.getStackTrace(e));
+        if (cfg.getMismatchFilename().length() > 0) {
+            try {
+                mismatchFile = new PrintWriter(cfg.getMismatchFilename());
+                mismatchFile.println(header);
+            } catch (FileNotFoundException fnf) {
+                String s = "File not found error for mismatch output file " + cfg.getMismatchFilename();
+                logger.error(s);
+                throw new MongerException(s);
+            }
         }
-        logger.info("Monging ");
+
+        logger.info(header);
+        Iterator<Item> publisherIterator = publisher.getItems().iterator();
+        while (publisherIterator.hasNext()) {
+            Item publisherItem = publisherIterator.next();
+            boolean has = subscriber.has(publisherItem.getItemPath());
+            if (has) {
+                logger.info("  + Subscriber " + subscriber.getControl().metadata.name + " has " + publisherItem.getItemPath());
+            } else {
+                logger.info("  - Subscriber " + subscriber.getControl().metadata.name + " missing " + publisherItem.getItemPath());
+                if (cfg.getMismatchFilename().length() > 0) {
+                    mismatchFile.println(publisherItem.getItemPath());
+                }
+                if (cfg.isTestRun()) {
+                    logger.info("    Would copy " + publisherItem.getFullPath());
+                } else {
+                    // copy it
+
+                    logger.info("    Copied " + publisherItem.getFullPath());
+                }
+            }
+        }
+        if (mismatchFile != null) {
+            mismatchFile.close();
+        }
     } // mongeCollections
 
-}
+} // VolMonger

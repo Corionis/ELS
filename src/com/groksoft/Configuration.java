@@ -20,6 +20,10 @@ public class Configuration
     private boolean validationRun = false;
     private String exportFilename = "";
 
+    private String importFilename = "";
+
+    private String mismatchFilename = "";
+
     // publisher & subscriber
     private String publisherFileName = "";
     private String publisherLibraryName = "";
@@ -117,6 +121,14 @@ public class Configuration
                         throw new MongerException("Error: -f requires a log filename");
                     }
                     break;
+                case "-i" :
+                    if (index <= args.length - 2) {
+                        setImportFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -i requires an import filename");
+                    }
+                    break;
                 case "-k" :
                     setKeepVolMongerFiles(true);
                     break;
@@ -127,6 +139,14 @@ public class Configuration
                         ++index;
                     } else {
                         throw new MongerException("Error: -l requires a publisher library name");
+                    }
+                    break;
+                case "-m" :
+                    if (index <= args.length - 2) {
+                        setMismatchFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -m requires a mismatch output filename");
                     }
                     break;
                 case "-n" :
@@ -190,6 +210,24 @@ public class Configuration
     }
 
     /**
+     * Gets import filename.
+     *
+     * @return the import filename
+     */
+    public String getImportFilename() {
+        return importFilename;
+    }
+
+    /**
+     * Sets import filename.
+     *
+     * @param importFilename the import filename
+     */
+    public void setImportFilename(String importFilename) {
+        this.importFilename = importFilename;
+    }
+
+    /**
      * Is keep vol monger files boolean.
      *
      * @return the boolean
@@ -205,6 +243,24 @@ public class Configuration
      */
     public void setKeepVolMongerFiles(boolean keepVolMongerFiles) {
         this.keepVolMongerFiles = keepVolMongerFiles;
+    }
+
+    /**
+     * Gets mismatch filename.
+     *
+     * @return the mismatch filename
+     */
+    public String getMismatchFilename() {
+        return mismatchFilename;
+    }
+
+    /**
+     * Sets mismatch filename.
+     *
+     * @param mismatchFilename the mismatch filename
+     */
+    public void setMismatchFilename(String mismatchFilename) {
+        this.mismatchFilename = mismatchFilename;
     }
 
     /**

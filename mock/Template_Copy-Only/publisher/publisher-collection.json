@@ -11,7 +11,7 @@
             },
             "sources": [
                 "TestRun/publisher/media-a/media/Movies",
-                "TestRun/publisher/media-b/media/Movies",
+                "TestRun/publisher/media-b/media/Movies"
             ],
             "targets": [
                 "TestRun/publisher/media-d/media/Movies"
@@ -37,7 +37,7 @@
             },
             "sources": [
                 "TestRun/publisher/media-a/media/TV Shows",
-                "TestRun/publisher/media-b/media/TV Shows",
+                "TestRun/publisher/media-b/media/TV Shows"
             ],
             "targets": [
                 "TestRun/publisher/media-d/media/TV Shows"
