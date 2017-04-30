@@ -182,7 +182,7 @@ public class Collection
                 item.setItemPath(itemPath);
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
-                item.setLibrary(library);
+                item.setLibrary(library);                               // the library name
                 this.items.add(item);
                 //logger.debug(entry.toString());
                 if (isDir) {
