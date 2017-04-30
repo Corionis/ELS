@@ -14,10 +14,10 @@ import java.util.regex.Pattern;
 public class Utils
 {
     /**
-     * Instantiates a new Utils.
+     * Do not instantiate.
      */
-    public Utils() {
-        // empty
+    private Utils() {
+        // do not instantiate
     }
 
     /**

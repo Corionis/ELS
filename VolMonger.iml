@@ -8,6 +8,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="volmonger" level="project" />
+    <orderEntry type="library" exported="" name="volmonger" level="project" />
   </component>
 </module>

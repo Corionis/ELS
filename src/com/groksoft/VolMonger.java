@@ -55,7 +55,7 @@ public class VolMonger
             logger = LogManager.getLogger("applog");
 
             // the + makes searching for the beginning of a run easier
-            logger.info("+ VolMonger begin, version " + cfg.getVOLMONGER_VERSION());
+            logger.info("+ VolMonger begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
 
             // dump the settings
             logger.info("cfg: -c Validation run = " + Boolean.toString(cfg.isValidationRun()));
@@ -95,15 +95,18 @@ public class VolMonger
             }
         } catch (MongerException e) {
             // no logger yet to just print to the screen
-            System.out.println(Utils.getStackTrace(e));
+            System.out.println(e.getMessage());
             returnValue = 1;
             cfg = null;
         }
 
         // the - makes searching for the ending of a run easier
-        logger.info("- VolMonger end");
+        if (logger != null) {
+            logger.info("- VolMonger end" + " ------------------------------------------");
+        }
+
         return returnValue;
-    } // run
+    } // process
 
     /**
      * Scan a collection to find Items
@@ -160,7 +163,7 @@ public class VolMonger
 
                     logger.info("    Would copy " + publisherItem.getFullPath());
 
-                    // todo should a test run do more?  e,g, check space, or?
+                    // QUESTION should a test run do more?  e,g, check space, or?
 
                 } else {
 
@@ -241,7 +244,7 @@ public class VolMonger
         }
         if (notFound) {
 
-            // todo should this be an exception?
+            // QUESTION should this be an exception?
 
             logger.error("No subscriber library match found for publisher library " + library);
         }
@@ -256,7 +259,6 @@ public class VolMonger
      */
     public long availableSpace(String target) {
         long space = Utils.getScaledValue("4TB");
-
 
         // todo if local just get the disk free space of the target
 

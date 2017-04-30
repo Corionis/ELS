@@ -92,7 +92,7 @@ public class Configuration
         int index;
         boolean success = true;
 
-        for (index = 0; index < args.length - 1; ++index) {
+        for (index = 0; index < args.length; ++index) {
             switch (args[index]) {
                 case "-c":                                             // validate collections files
                     setValidationRun(true);

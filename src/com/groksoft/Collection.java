@@ -106,7 +106,7 @@ public class Collection
                     if (Files.notExists(Paths.get(control.libraries[i].sources[j]))) {
                         throw new MongerException("control.libraries[" + i + "].sources[" + j + "]: " + control.libraries[i].sources[j] + " does not exist");
                     }
-                    logger.debug("DIR: " + control.libraries[i].sources[j]);
+                    logger.debug("src: " + control.libraries[i].sources[j]);
                 }
             }
             if (control.libraries[i].targets == null || control.libraries[i].targets.length == 0) {
@@ -120,7 +120,7 @@ public class Collection
                     if (Files.notExists(Paths.get(control.libraries[i].targets[j]))) {
                         throw new MongerException("control.libraries[" + i + "].targets[" + j + "]: " + control.libraries[i].targets[j] + " does not exist");
                     }
-                    logger.debug("DIR: " + control.libraries[i].targets[j]);
+                    logger.debug("tar: " + control.libraries[i].targets[j]);
                 }
             }
         }

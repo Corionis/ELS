@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public class Item implements Serializable
 {
+    // JSON output will be in the order defined here
     private String itemPath;
     private String fullPath;
     private String library;
@@ -37,6 +38,7 @@ public class Item implements Serializable
     public void setDirectory(boolean directory) {
         this.directory = directory;
     }
+
     /**
      * Gets item path.
      * <p>
