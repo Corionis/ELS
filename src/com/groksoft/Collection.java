@@ -149,11 +149,6 @@ public class Collection
 
         System.out.println("\r\nSORTED:");
         dumpCollection();
-
-        if (cfg.getExportFilename().length() < 1) {
-            // todo write out to file
-            // Idea: Export to a JSON file; then a load of that file creates an ArrayList of Items
-        }
     }
 
     /**

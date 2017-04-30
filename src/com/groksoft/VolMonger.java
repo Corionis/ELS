@@ -76,7 +76,7 @@ public class VolMonger
 
             try {
                 scanCollection(cfg.getPublisherFileName(), publisher);
-                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher only
+                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
                     publisher.exportCollection();
                 } else {
                     if (cfg.getImportFilename().length() > 0) {                 // -i import if specified
@@ -129,6 +129,8 @@ public class VolMonger
         String header = "Monging " + publisher.getControl().metadata.name + " to " + subscriber.getControl().metadata.name;
         logger.info(header);
 
+        // todo IDEA: Add some counters for the various situations: Copied, Skipped, Not found, WTF, etc. for metrics
+
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0) {
             try {
@@ -136,7 +138,7 @@ public class VolMonger
                 mismatchFile.println(header);
                 logger.info("Writing to mismatch file " + cfg.getMismatchFilename());
             } catch (FileNotFoundException fnf) {
-                String s = "File not found error for mismatch output file " + cfg.getMismatchFilename();
+                String s = "File not found exception for mismatch output file " + cfg.getMismatchFilename();
                 logger.error(s);
                 throw new MongerException(s);
             }
@@ -154,7 +156,8 @@ public class VolMonger
                 if (cfg.getMismatchFilename().length() > 0) {
                     mismatchFile.println(publisherItem.getItemPath());
                 }
-                if (cfg.isTestRun()) {
+                if (cfg.isTestRun()) {          // -t Test run option
+
                     logger.info("    Would copy " + publisherItem.getFullPath());
 
                     // todo should a test run do more?  e,g, check space, or?
@@ -216,7 +219,7 @@ public class VolMonger
 
                 for (int j = 0; j < subscriber.getControl().libraries[i].targets.length; ++j) {
 
-                    // check space on the target
+                    // check space on the candidate target
                     String candidate = subscriber.getControl().libraries[i].targets[j];
                     long space = availableSpace(candidate);
                     long minimum = Utils.getScaledValue(subscriber.getControl().libraries[i].definition.minimum);
@@ -225,7 +228,7 @@ public class VolMonger
                         allFull = false;
 
                         if (space > size) {                 // check size of item(s) to be copied
-                            target = candidate;
+                            target = candidate;             // has space, use it
                             break;
                         }
                     }
