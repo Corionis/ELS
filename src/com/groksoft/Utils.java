@@ -28,9 +28,10 @@ public class Utils
      */
     public static long getScaledValue(String size) {
         long returnValue = -1;
-        Pattern patt = Pattern.compile("([\\d.]+)([GMK]B)", Pattern.CASE_INSENSITIVE);
+        Pattern patt = Pattern.compile("([\\d.]+)([TGMK]B)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = patt.matcher(size);
         Map<String, Integer> powerMap = new HashMap<String, Integer>();
+        powerMap.put("TB", 4);
         powerMap.put("GB", 3);
         powerMap.put("MB", 2);
         powerMap.put("KB", 1);

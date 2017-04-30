@@ -1,10 +1,6 @@
 package com.groksoft;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.lang.reflect.Type;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,13 +10,8 @@ import java.util.*;
 // see https://github.com/google/gson
 import com.google.gson.Gson;
 
-import com.google.gson.stream.JsonWriter;
-import jdk.nashorn.internal.ir.debug.JSONWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.groksoft.Utils;
-import com.groksoft.Item;
 
 /**
  * The type Collection.
@@ -75,10 +66,7 @@ public class Collection
      * @throws MongerException the monger exception
      */
     public void validateControl() throws MongerException {
-        String s;
-        boolean b;
-        String itemName = "";
-        long minimumSize = -1;
+        long minimumSize;
 
         if (getControl() == null) {
             throw new MongerException("Control is null");
@@ -104,9 +92,6 @@ public class Collection
                 if (minimumSize == -1) {
                     throw new MongerException("control.libraries[" + i + "].definition.minimum is invalid");
                 }
-            }
-            if (minimumSize < (1024 * 1024)) {
-                minimumSize = 1024 * 1024; // a proper 1 megabyte value
             }
             // genre is optional
 
@@ -148,13 +133,12 @@ public class Collection
      * @throws MongerException the monger exception
      */
     public void scanAll() throws MongerException {
-        // Traverse the library and get the media directories
         for (int i = 0; i < control.libraries.length; i++) {
 
             // todo decide if a single library was specified
 
             for (int j = 0; j < control.libraries[i].sources.length; j++) {
-                scanDirectory(control.libraries[i].sources[j], control.libraries[i].sources[j]);
+                scanDirectory(control.libraries[i].definition.name, control.libraries[i].sources[j], control.libraries[i].sources[j]);
             }
         }
 
@@ -178,7 +162,7 @@ public class Collection
      * @param directory the directory
      * @throws MongerException the monger exception
      */
-    private void scanDirectory(String base, String directory) throws MongerException {
+    private void scanDirectory(String library, String base, String directory) throws MongerException {
         Item item = null;
         String fullPath = "";
         String itemPath = "";
@@ -194,14 +178,15 @@ public class Collection
                 path = Paths.get(fullPath);
                 isDir = Files.isDirectory(path);                        // is directory check
                 item.setDirectory(isDir);
-                itemPath = fullPath.substring(base.length() + 1);  // item path
+                itemPath = fullPath.substring(base.length() + 1);       // item path
                 item.setItemPath(itemPath);
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
+                item.setLibrary(library);
                 this.items.add(item);
                 //logger.debug(entry.toString());
                 if (isDir) {
-                    scanDirectory(base, item.getFullPath());
+                    scanDirectory(library, base, item.getFullPath());
                 }
             }
         } catch (IOException ioe) {
@@ -241,39 +226,29 @@ public class Collection
         Gson gson = new Gson();
         logger.info("Writing item file " + cfg.getExportFilename());
         ItemExport export = new ItemExport();
-        export.metadata = new Metadata();
-        export.metadata.name = getControl().metadata.name;
-        export.metadata.case_sensitive = getControl().metadata.case_sensitive;
+        export.control = control;
         export.items = items;
         json = gson.toJson(export);
         try {
-            PrintWriter outputStream;
-            outputStream = new PrintWriter(cfg.getExportFilename());
+            PrintWriter outputStream = new PrintWriter(cfg.getExportFilename());
             outputStream.println(json);
             outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (FileNotFoundException fnf) {
+            throw new MongerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
-    public void importItems() throws MongerException{
+    public void importItems() throws MongerException {
         String filename = cfg.getImportFilename();
         try {
             String json;
             Gson gson = new Gson();
             logger.info("Reading item file " + filename);
-            setCollectionFile(cfg.getImportFilename());
             json = new String(Files.readAllBytes(Paths.get(filename)));
             json = json.replaceAll("[\n\r]", "");
             ItemExport itemExport = gson.fromJson(json, ItemExport.class);
-            if (control == null) {
-                control = new Control();
-            }
-            if (control.metadata == null) {
-                control.metadata = new Metadata();
-            }
-            control.metadata.name = itemExport.metadata.name;
-            control.metadata.case_sensitive = itemExport.metadata.case_sensitive;
+            setCollectionFile(filename);
+            control = itemExport.control;
             items = itemExport.items;
         } catch (IOException ioe) {
             throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(ioe));
@@ -282,28 +257,30 @@ public class Collection
 
     /**
      * Has boolean.
+     * <p>
+     * Does this Collection have an item with an itemPath the same as the passed itemPath?
      *
      * @param path the path
      * @return the boolean
      */
     public boolean has(String path) {
-        boolean hasIt = false;
+        boolean has = false;
         Iterator<Item> iterator = getItems().iterator();
         while (iterator.hasNext()) {
             Item item = iterator.next();
             if (getControl().metadata.case_sensitive) {
                 if (path.equalsIgnoreCase(item.getItemPath())) {
-                    hasIt = true;
+                    has = true;
                     break;
                 }
             } else {
                 if (path.equals(item.getItemPath())) {
-                    hasIt = true;
+                    has = true;
                     break;
                 }
             }
         }
-        return hasIt;
+        return has;
     }
 
     /**
@@ -355,19 +332,21 @@ public class Collection
     // Inner classes for Gson collection (control) file
 
     /**
-     * Classes used in the JSON to Object translations
+     * The type Control
+     * <p>
+     * Top-level object for a publisher or subscriber collection file.
      */
     public class Control
     {
         /**
          * The Metadata.
          */
-        Metadata metadata;
+        public Metadata metadata;
 
         /**
          * The Libraries.
          */
-        Libraries[] libraries;
+        public Libraries[] libraries;
     }
 
     /**
@@ -438,14 +417,16 @@ public class Collection
     public class ItemExport
     {
         /**
-         * The Metadata.
+         * The type Control
+         * <p>
+         * Top-level object for a publisher or subscriber collection file.
          */
-        Metadata metadata;
+        public Control control;
 
         /**
          * The Items.
          */
-        List<Item> items;
+        public List<Item> items;
     }
 
 }

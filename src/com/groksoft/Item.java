@@ -7,8 +7,9 @@ import java.io.Serializable;
  */
 public class Item implements Serializable
 {
-    private String fullPath;
     private String itemPath;
+    private String fullPath;
+    private String library;
     private boolean directory = false;
     private boolean symLink = false;
 
@@ -19,6 +20,23 @@ public class Item implements Serializable
         super();
     }
 
+    /**
+     * Is directory boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isDirectory() {
+        return directory;
+    }
+
+    /**
+     * Sets directory.
+     *
+     * @param directory the directory
+     */
+    public void setDirectory(boolean directory) {
+        this.directory = directory;
+    }
     /**
      * Gets item path.
      * <p>
@@ -40,23 +58,6 @@ public class Item implements Serializable
         this.itemPath = itemPath;
     }
 
-    /**
-     * Is directory boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isDirectory() {
-        return directory;
-    }
-
-    /**
-     * Sets directory.
-     *
-     * @param directory the directory
-     */
-    public void setDirectory(boolean directory) {
-        this.directory = directory;
-    }
 
     /**
      * Gets full path.
@@ -76,6 +77,14 @@ public class Item implements Serializable
         this.fullPath = fullPath;
     }
 
+    public String getLibrary() {
+        return library;
+    }
+
+    public void setLibrary(String library) {
+        this.library = library;
+    }
+
     /**
      * Is sym link boolean.
      *
@@ -93,4 +102,5 @@ public class Item implements Serializable
     public void setSymLink(boolean symLink) {
         this.symLink = symLink;
     }
+
 }

@@ -94,10 +94,10 @@ public class Configuration
 
         for (index = 0; index < args.length - 1; ++index) {
             switch (args[index]) {
-                case "-c" :
+                case "-c":                                             // validate collections files
                     setValidationRun(true);
                     break;
-                case "-d" :
+                case "-d":                                             // debug level
                     if (index <= args.length - 2) {
                         setDebugLevel(args[index + 1]);
                         ++index;
@@ -105,7 +105,7 @@ public class Configuration
                         throw new MongerException("Error: -d requires a level, trace, debug, info, warn, error, or fatal");
                     }
                     break;
-                case "-e" :
+                case "-e":                                             // export filename
                     if (index <= args.length - 2) {
                         setExportFilename(args[index + 1]);
                         ++index;
@@ -113,7 +113,7 @@ public class Configuration
                         throw new MongerException("Error: -e requires an export filename");
                     }
                     break;
-                case "-f" :
+                case "-f":                                             // log filename
                     if (index <= args.length - 2) {
                         setLogFilename(args[index + 1]);
                         ++index;
@@ -121,7 +121,7 @@ public class Configuration
                         throw new MongerException("Error: -f requires a log filename");
                     }
                     break;
-                case "-i" :
+                case "-i":                                             // import filename
                     if (index <= args.length - 2) {
                         setImportFilename(args[index + 1]);
                         ++index;
@@ -129,10 +129,10 @@ public class Configuration
                         throw new MongerException("Error: -i requires an import filename");
                     }
                     break;
-                case "-k" :
+                case "-k":                                             // keep .volmonger files
                     setKeepVolMongerFiles(true);
                     break;
-                case "-l" :
+                case "-l":                                             // publisher library to process
                     if (index <= args.length - 2) {
                         setPublisherLibraryName(args[index + 1]);
                         setSpecificPublisherLibrary(true);
@@ -141,7 +141,7 @@ public class Configuration
                         throw new MongerException("Error: -l requires a publisher library name");
                     }
                     break;
-                case "-m" :
+                case "-m":                                             // Mismatch output filename
                     if (index <= args.length - 2) {
                         setMismatchFilename(args[index + 1]);
                         ++index;
@@ -149,7 +149,7 @@ public class Configuration
                         throw new MongerException("Error: -m requires a mismatch output filename");
                     }
                     break;
-                case "-n" :
+                case "-n":                                             // Subscriber's name for .volmonger files
                     if (index <= args.length - 2) {
                         setSubscriberName(args[index + 1]);
                         ++index;
@@ -157,7 +157,7 @@ public class Configuration
                         throw new MongerException("Error: -n requires a subscriber's name for .volmonger files");
                     }
                     break;
-                case "-p" :
+                case "-p":                                             // publisher collection filename
                     if (index <= args.length - 2) {
                         setPublisherFileName(args[index + 1]);
                         ++index;
@@ -165,7 +165,7 @@ public class Configuration
                         throw new MongerException("Error: -p requires a publisher collection filename");
                     }
                     break;
-                case "-s" :
+                case "-s":                                             // subscriber collection filename
                     if (index <= args.length - 2) {
                         setSubscriberFileName(args[index + 1]);
                         ++index;
@@ -173,10 +173,10 @@ public class Configuration
                         throw new MongerException("Error: -s requires a subscriber collection filename");
                     }
                     break;
-                case "-t" :
+                case "-t":                                             // test run
                     setTestRun(true);
                     break;
-                default :
+                default:
                     throw new MongerException("Error: unknown option " + args[index]);
             }
         }

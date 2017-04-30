@@ -98,6 +98,10 @@ on a different computer where drive letters would change.
    - One or more may be specified
    - Space check perform before copying
    - Automatic roll-over to the next target
+   
+ * RULES OF COLLECTION FILES, in no particular order:
+   - No two library names may be the same, i.e. library names must be unique
+   - 
 
 ## Design
 
@@ -121,9 +125,9 @@ on a different computer where drive letters would change.
  * -i file : Import subscriber items file
  * -k : Keep .volmonger files, default is to delete them as they are processed
  * -l library : Publisher library to process, default all 
- * -p file : Publisher collection file
  * -m file : Mismatch output file (differences)
  * -n name : Subscriber's name for .volmonger files
+ * -p file : Publisher collection file
  * -s file : Subscriber collection file
  * -t : Test run, validate, scan, and match but do not make any changes
 
@@ -131,6 +135,10 @@ The simplest command line would be just the -p and -s options.
 
 The -k option applies to the Provider. Subscriber .volmonger files are not
 involved in a run.
+
+ * RULES OF COMMAND-LINE OPTIONS, in no particular order:
+   * -e is only done then it stops, so other options like -s or -m do not make sense
+   * -i and -s together do not make sense
 
 ---
 
