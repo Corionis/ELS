@@ -16,3 +16,5 @@ hs_err_pid*
 /mock/TestRun/subscriber-1
 /mock/TestRun/subscriber-2
 /deploy
+/grok-rock/
+grok-rock/

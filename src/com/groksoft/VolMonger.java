@@ -56,6 +56,7 @@ public class VolMonger
             // setup the logger
             System.setProperty("logFilename", cfg.getLogFilename());
             System.setProperty("debugLevel", cfg.getDebugLevel());
+            System.setProperty("consoleLevel", cfg.getConsoleLevel());
             org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
             ctx.reconfigure();
 
@@ -66,31 +67,38 @@ public class VolMonger
             logger.info("+ VolMonger begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
 
             // dump the settings
-            logger.info("cfg: -c Validation run = " + Boolean.toString(cfg.isValidationRun()));
+            logger.info("cfg: -c Console level = " + cfg.getConsoleLevel());
             logger.info("cfg: -d Debug level = " + cfg.getDebugLevel());
+            logger.info("cfg: -D Dry run = " + Boolean.toString(cfg.isTestRun()));
             logger.info("cfg: -e Export filename = " + cfg.getExportFilename());
             logger.info("cfg: -f Log filename = " + cfg.getLogFilename());
-            logger.info("cfg: -i Import filename = " + cfg.getSubscriberImportFilename());
             logger.info("cfg: -k Keep .volmonger files = " + Boolean.toString(cfg.isKeepVolMongerFiles()));
             logger.info("cfg: -l Publisher library name = " + cfg.getPublisherLibraryName());
             logger.info("cfg: -m Mismatch output filename = " + cfg.getMismatchFilename());
-            logger.info("cfg: -n Subscriber's name = " + cfg.getSubscriberName());
-            logger.info("cfg: -p Publisher's collection filename = " + cfg.getPublisherFileName());
-            logger.info("cfg: -s Subscriber's collection filename = " + cfg.getSubscriberFileName());
-            logger.info("cfg: -t Test run = " + Boolean.toString(cfg.isTestRun()));
+            logger.info("cfg: -p Publisher's libraries filename = " + cfg.getPublisherFileName());
+            logger.info("cfg: -P Publisher's collection import filename = " + cfg.getPublisherFileName());
+            logger.info("cfg: -s Subscriber's libraries filename = " + cfg.getSubscriberFileName());
+            logger.info("cfg: -S Subscriber collection import filename = " + cfg.getSubscriberImportFilename());
+            logger.info("cfg: -v Validation run = " + Boolean.toString(cfg.isValidationRun()));
 
             publisher = new Collection();
             subscriber = new Collection();
 
             try {
-                scanCollection(cfg.getPublisherFileName(), publisher);
+            if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
+                    publisher.importItems(cfg.getPublisherImportFilename());
+                } else {
+                    if (cfg.getPublisherFileName().length() > 0) {              // else -p publisher library scan
+                        scanCollection(cfg.getPublisherFileName(), publisher);
+                    }
+                }
                 if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
                     publisher.exportCollection();
                 } else {
-                    if (cfg.getSubscriberImportFilename().length() > 0) {                 // -i import if specified
-                        subscriber.importItems();
+                    if (cfg.getSubscriberImportFilename().length() > 0) {       // -S import subscriber if specified
+                        subscriber.importItems(cfg.getSubscriberImportFilename());
                     } else {
-                        if (cfg.getSubscriberFileName().length() > 0) {         // else -s subscriber scan
+                        if (cfg.getSubscriberFileName().length() > 0) {         // else -s subscriber library scan
                             scanCollection(cfg.getSubscriberFileName(), subscriber);
                         }
                     }

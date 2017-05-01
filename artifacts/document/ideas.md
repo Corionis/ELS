@@ -118,6 +118,7 @@ on a different computer where drive letters would change.
  * How to handle N-sided monges? Cannot delete .volmonger if so.
 
 ## Command Line Options
+ * -c level : Logging level for console, default debug
  * -d level : Logging level, default info
  * -D : Dry run, validate, scan, and match but do not make any changes
  * -e file : Export publisher items to file
@@ -129,17 +130,19 @@ on a different computer where drive letters would change.
   May need to add specific item(s)
  
  * -m file : Mismatch output file (differences)
- * -n name : ~~Subscriber's name for .volmonger files~~
  
- * -p file : Publisher collection file
- * -P file : Publisher import items file
+ * -p file : Publisher libraries file
+ * -P file : Publisher collection import items file
  
- * -s file : Subscriber collection file
- * -S file : Subscriber import items file
+ * -s file : Subscriber libraries  file
+ * -S file : Subscriber collection import items file
  
  * -t file : Transport filename
 
  * -v : Validate collections files only then exit
+
+Log Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
+
 
 
 The simplest command line would be just the -p and -s options.

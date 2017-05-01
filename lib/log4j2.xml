@@ -19,7 +19,7 @@
         <Logger name="applog" level="${sys:debugLevel}">
             <AppenderRef ref="applog"/>
         </Logger>
-        <Root level="debug">
+        <Root level="${sys:consoleLevel}">
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>

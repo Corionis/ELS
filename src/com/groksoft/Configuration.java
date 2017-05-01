@@ -11,24 +11,23 @@ public class Configuration
     private static Configuration instance = null;
 
     // flags & names
-    private String debugLevel = "info";  // Levels: TRACE, DEBUG, INFO, WARN, ERROR, and FATAL
+    private String consoleLevel = "debug";  // Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
+    private String debugLevel = "info";
+
     private boolean keepVolMongerFiles = false;
     private String logFilename = "VolMonger.log";
     private boolean testRun = false;
     private boolean validationRun = false;
+
     private String exportFilename = "";
-
     private String subscriberImportFilename = "";
-
     private String publisherImportFilename = "";
-
     private String mismatchFilename = "";
 
     // publisher & subscriber
     private String publisherFileName = "";
     private String publisherLibraryName = "";
     private boolean specificPublisherLibrary = false;
-    private String subscriberName = "";
     private String subscriberFileName = "";
 
     /**
@@ -43,6 +42,24 @@ public class Configuration
             instance = new Configuration();
         }
         return instance;
+    }
+
+    /**
+     * Gets console level.
+     *
+     * @return the console level
+     */
+    public String getConsoleLevel() {
+        return consoleLevel;
+    }
+
+    /**
+     * Sets console level.
+     *
+     * @param consoleLevel the console level
+     */
+    public void setConsoleLevel(String consoleLevel) {
+        this.consoleLevel = consoleLevel;
     }
 
     /**
@@ -94,15 +111,23 @@ public class Configuration
 
         for (index = 0; index < args.length; ++index) {
             switch (args[index]) {
-                case "-v":                                             // validate collections files
-                    setValidationRun(true);
+                case "-c":                                             // console level
+                    if (index <= args.length - 2) {
+                        setConsoleLevel(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                    }
+                    break;
+                case "-D":                                             // Dry run
+                    setTestRun(true);
                     break;
                 case "-d":                                             // debug level
                     if (index <= args.length - 2) {
                         setDebugLevel(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -d requires a level, trace, debug, info, warn, error, or fatal");
+                        throw new MongerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
                 case "-e":                                             // export filename
@@ -141,14 +166,6 @@ public class Configuration
                         throw new MongerException("Error: -m requires a mismatch output filename");
                     }
                     break;
-                case "-n":                                             // Subscriber's name for .volmonger files
-                    if (index <= args.length - 2) {
-                        setSubscriberName(args[index + 1]);
-                        ++index;
-                    } else {
-                        throw new MongerException("Error: -n requires a subscriber's name for .volmonger files");
-                    }
-                    break;
                 case "-p":                                             // publisher collection filename
                     if (index <= args.length - 2) {
                         setPublisherFileName(args[index + 1]);
@@ -181,8 +198,8 @@ public class Configuration
                         throw new MongerException("Error: -S requires an subscriber import filename");
                     }
                     break;
-                case "-D":                                             // Dry run
-                    setTestRun(true);
+                case "-v":                                             // validate collections files
+                    setValidationRun(true);
                     break;
                 default:
                     throw new MongerException("Error: unknown option " + args[index]);
@@ -359,24 +376,6 @@ public class Configuration
      */
     public void setSubscriberFileName(String subscriberFileName) {
         this.subscriberFileName = subscriberFileName;
-    }
-
-    /**
-     * Gets subscriber name.
-     *
-     * @return the subscriber name
-     */
-    public String getSubscriberName() {
-        return subscriberName;
-    }
-
-    /**
-     * Sets subscriber name.
-     *
-     * @param subscriberName the subscriber name
-     */
-    public void setSubscriberName(String subscriberName) {
-        this.subscriberName = subscriberName;
     }
 
     /**

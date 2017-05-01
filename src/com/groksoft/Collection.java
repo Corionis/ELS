@@ -142,13 +142,17 @@ public class Collection
             }
         }
 
-        System.out.println("PRESORTED:");
-        dumpCollection();
+        if (!cfg.getConsoleLevel().equalsIgnoreCase("off")) {
+            System.out.println("PRESORT:");
+            dumpCollection();
+        }
 
         sortCollection();
 
-        System.out.println("\r\nSORTED:");
-        dumpCollection();
+        if (!cfg.getConsoleLevel().equalsIgnoreCase("off")) {
+            System.out.println("\r\nSORTED:");
+            dumpCollection();
+        }
     }
 
     /**
@@ -233,8 +237,7 @@ public class Collection
         }
     }
 
-    public void importItems() throws MongerException {
-        String filename = cfg.getSubscriberImportFilename();
+    public void importItems(String filename) throws MongerException {
         try {
             String json;
             Gson gson = new Gson();
