@@ -130,6 +130,8 @@ on a different computer where drive letters would change.
   May need to add specific item(s)
  
  * -m file : Mismatch output file (differences)
+
+ * -n file : Show What's new in a readable format, to send to your Plex users
  
  * -p file : Publisher libraries file
  * -P file : Publisher collection import items file
@@ -140,6 +142,8 @@ on a different computer where drive letters would change.
  * -t file : Transport filename
 
  * -v : Validate collections files only then exit
+
+
 
 Log Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
 

@@ -75,6 +75,7 @@ public class VolMonger
             logger.info("cfg: -k Keep .volmonger files = " + Boolean.toString(cfg.isKeepVolMongerFiles()));
             logger.info("cfg: -l Publisher library name = " + cfg.getPublisherLibraryName());
             logger.info("cfg: -m Mismatch output filename = " + cfg.getMismatchFilename());
+            logger.info("cfg: -n What's new output filename = " + cfg.getWhatsNewFilename());
             logger.info("cfg: -p Publisher's libraries filename = " + cfg.getPublisherFileName());
             logger.info("cfg: -P Publisher's collection import filename = " + cfg.getPublisherFileName());
             logger.info("cfg: -s Subscriber's libraries filename = " + cfg.getSubscriberFileName());
@@ -145,6 +146,8 @@ public class VolMonger
     private void mongeCollections(Collection publisher, Collection subscriber) throws MongerException {
         boolean iWin = false;
         PrintWriter mismatchFile = null;
+        PrintWriter whatsNewFile = null;
+        String currentWhatsNew = "";
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
 
@@ -166,58 +169,105 @@ public class VolMonger
             }
         }
 
-        for (Item publisherItem : publisher.getItems()) {
-            boolean has = subscriber.has(publisherItem.getItemPath());
-            if (has) {
-                logger.info("  + Subscriber " + subscriber.getLibrary().metadata.name + " has " + publisherItem.getItemPath());
-            } else {
-
-                if (!publisherItem.isDirectory()) {
-                    logger.info("  - Subscriber " + subscriber.getLibrary().metadata.name + " missing " + publisherItem.getItemPath());
-                    if (cfg.getMismatchFilename().length() > 0) {
-                        mismatchFile.println(publisherItem.getItemPath());
-                    }
-
-                    if (isNewGrouping(publisherItem)) {
-                        // if there is a group - process it
-
-                        if (group.size() > 0) {
-                            // get a subscriber target where the publisher item(s) will fit
-                            String target = getTarget(subscriber, group.get(0).getLibrary(), totalSize);
-                            if (target.length() > 0) {
-                                for (Item groupItem : group) {
-                                    if (cfg.isTestRun()) {          // -t Test run option
-                                        logger.info("    Would copy " + groupItem.getFullPath());
-                                    } else {
-                                        // copy item(s) to target
-                                        logger.info("    Copied " + groupItem.getFullPath());
-                                    }
-                                }
-                            } else {
-                                logger.error("    No space on any subscriber " + group.get(0).getLibrary() + " target for " +
-                                        lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
-                            }
-                        }
-                        logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
-                        group.clear();
-                        totalSize = 0;
-                        lastGroupName = currentGroupName;
-                    }
-                    long size = 0;
-                    try {
-                        size = Files.size(Paths.get(publisherItem.getFullPath()));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    publisherItem.setSize(size);
-                    totalSize += size;
-                    group.add(publisherItem);
-                }
+        // setup the -n What's New output file
+        if (cfg.getWhatsNewFilename().length() > 0) {
+            try {
+                whatsNewFile = new PrintWriter(cfg.getWhatsNewFilename());
+                whatsNewFile.println("What's New");
+                logger.info("Writing to What's New file " + cfg.getWhatsNewFilename());
+            } catch (FileNotFoundException fnf) {
+                String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
+                logger.error(s);
+                throw new MongerException(s);
             }
         }
-        if (mismatchFile != null) {
-            mismatchFile.close();
+
+        // Make sure we close the mismatch and whatsnew files if anything throws an exception....
+        try {
+            for (Item publisherItem : publisher.getItems()) {
+                boolean has = subscriber.has(publisherItem.getItemPath());
+
+                // Ignore thumbs.db files
+                // QUESTION Are there more files like thumbs.db we should ignore? If so make an array fo them....
+                if (publisherItem.getItemPath().equalsIgnoreCase("Thumbs.db"))
+                    continue;
+
+                if (has) {
+                    logger.info("  + Subscriber " + subscriber.getLibrary().metadata.name + " has " + publisherItem.getItemPath());
+                } else {
+
+                    if (!publisherItem.isDirectory()) {
+                        logger.info("  - Subscriber " + subscriber.getLibrary().metadata.name + " missing " + publisherItem.getItemPath());
+                        if (cfg.getMismatchFilename().length() > 0) {
+                            mismatchFile.println(publisherItem.getItemPath());
+                        }
+
+                        if (cfg.getWhatsNewFilename().length() > 0) {
+                            /**
+                             * Only show the left side of mismatched file. And Only show it once.
+                             * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                             * Big Bang Theory
+                             * Lucifer
+                             * Legion
+                             */
+                            String path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().indexOf("\\"));
+                            if (path.length() < 1) {
+                                path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().indexOf("/"));
+                            }
+
+                            if (!currentWhatsNew.equalsIgnoreCase(path)) {
+                                logger.info("************************** currentWhatsNew = " + currentWhatsNew + " | path = " + path);
+                                whatsNewFile.println(path);
+                                currentWhatsNew = path;
+                            }
+                        }
+
+                        if (isNewGrouping(publisherItem)) {
+                            // if there is a group - process it
+
+                            if (group.size() > 0) {
+                                // get a subscriber target where the publisher item(s) will fit
+                                String target = getTarget(subscriber, group.get(0).getLibrary(), totalSize);
+                                if (target.length() > 0) {
+                                    for (Item groupItem : group) {
+                                        if (cfg.isTestRun()) {          // -t Test run option
+                                            logger.info("    Would copy " + groupItem.getFullPath());
+                                        } else {
+                                            // copy item(s) to target
+                                            logger.info("    Copied " + groupItem.getFullPath());
+                                        }
+                                    }
+                                } else {
+                                    logger.error("    No space on any subscriber " + group.get(0).getLibrary() + " target for " +
+                                            lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                                }
+                            }
+                            logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
+                            group.clear();
+                            totalSize = 0;
+                            lastGroupName = currentGroupName;
+                        }
+                        long size = 0;
+                        try {
+                            size = Files.size(Paths.get(publisherItem.getFullPath()));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        publisherItem.setSize(size);
+                        totalSize += size;
+                        group.add(publisherItem);
+                    }
+                }
+            }
+        } finally {
+            if (mismatchFile != null) {
+                mismatchFile.close();
+            }
+            if (whatsNewFile != null) {
+                whatsNewFile.close();
+            }
         }
+
     }
 
     /**

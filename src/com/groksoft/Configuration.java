@@ -23,6 +23,7 @@ public class Configuration
     private String subscriberImportFilename = "";
     private String publisherImportFilename = "";
     private String mismatchFilename = "";
+    private String whatsNewFilename = "";
 
     // publisher & subscriber
     private String publisherFileName = "";
@@ -166,6 +167,14 @@ public class Configuration
                         throw new MongerException("Error: -m requires a mismatch output filename");
                     }
                     break;
+                case "-n":                                             // What's New output filename
+                    if (index <= args.length - 2) {
+                        setWhatsNewFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -n requires a What's New output filename");
+                    }
+                    break;
                 case "-p":                                             // publisher collection filename
                     if (index <= args.length - 2) {
                         setPublisherFileName(args[index + 1]);
@@ -286,6 +295,24 @@ public class Configuration
      */
     public void setMismatchFilename(String mismatchFilename) {
         this.mismatchFilename = mismatchFilename;
+    }
+
+    /**
+     * Gets whats new filename.
+     *
+     * @return the whats new filename
+     */
+    public String getWhatsNewFilename() {
+        return whatsNewFilename;
+    }
+
+    /**
+     * Sets whats new filename.
+     *
+     * @param whatsNewFilename the whats new filename
+     */
+    public void setWhatsNewFilename(String whatsNewFilename) {
+        this.whatsNewFilename = whatsNewFilename;
     }
 
     /**
@@ -413,5 +440,6 @@ public class Configuration
     public void setValidationRun(boolean validationRun) {
         this.validationRun = validationRun;
     }
+
 
 }
