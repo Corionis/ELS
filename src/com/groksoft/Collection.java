@@ -267,12 +267,12 @@ public class Collection
         while (iterator.hasNext()) {
             Item item = iterator.next();
             if (getLibrary().metadata.case_sensitive) {
-                if (path.equalsIgnoreCase(item.getItemPath())) {
+                if (path.equals(item.getItemPath())) {
                     has = true;
                     break;
                 }
             } else {
-                if (path.equals(item.getItemPath())) {
+                if (path.equalsIgnoreCase(item.getItemPath())) {
                     has = true;
                     break;
                 }
