@@ -7,6 +7,8 @@ import java.io.Serializable;
  */
 public class Item implements Serializable
 {
+    private transient long size = -1;
+
     // JSON output will be in the order defined here
     private String itemPath;
     private String fullPath;
@@ -79,12 +81,40 @@ public class Item implements Serializable
         this.fullPath = fullPath;
     }
 
+    /**
+     * Gets library.
+     *
+     * @return the library
+     */
     public String getLibrary() {
         return library;
     }
 
+    /**
+     * Sets library.
+     *
+     * @param library the library
+     */
     public void setLibrary(String library) {
         this.library = library;
+    }
+
+    /**
+     * Gets size.
+     *
+     * @return the size
+     */
+    public long getSize() {
+        return size;
+    }
+
+    /**
+     * Sets size.
+     *
+     * @param size the size
+     */
+    public void setSize(long size) {
+        this.size = size;
     }
 
     /**

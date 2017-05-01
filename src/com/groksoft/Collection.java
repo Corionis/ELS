@@ -18,17 +18,17 @@ import org.apache.logging.log4j.Logger;
  */
 public class Collection
 {
-    private Logger logger = LogManager.getLogger("applog");
-    private Configuration cfg = null;
+    private transient Logger logger = LogManager.getLogger("applog");
+    private transient Configuration cfg = null;
 
     // data members
-    private Control control = null;
+    private Library library = null;
     private String collectionFile = "";
     private List<Item> items = new ArrayList<>();
 
 // Methods:
-    // A load method to read a collection.control file
-    // A validate method to check the syntax and existence of the elements in a collection.control file
+    // A load method to read a collection.library file
+    // A validate method to check the syntax and existence of the elements in a collection.library file
     // A scanAll method to scanAll and generate the set of Item objects
     // A sort method, by context
     // A duplicates method to check for duplicate contexts in the Collection - possibly enforced by the selected Java collection requiring a unique key
@@ -41,7 +41,7 @@ public class Collection
     }
 
     /**
-     * Read control.
+     * Read library.
      *
      * @param filename the filename
      * @throws MongerException the monger exception
@@ -54,73 +54,73 @@ public class Collection
             setCollectionFile(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             json = json.replaceAll("[\n\r]", "");
-            control = gson.fromJson(json, Control.class);
+            library = gson.fromJson(json, Library.class);
         } catch (IOException ioe) {
             throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
     }
 
     /**
-     * Validate control.
+     * Validate library.
      *
      * @throws MongerException the monger exception
      */
     public void validateControl() throws MongerException {
         long minimumSize;
 
-        if (getControl() == null) {
-            throw new MongerException("Control is null");
+        if (getLibrary() == null) {
+            throw new MongerException("Library is null");
         }
 
-        if (control.metadata.name == null || control.metadata.name.length() == 0) {
+        if (library.metadata.name == null || library.metadata.name.length() == 0) {
             throw new MongerException("metadata.name must be defined");
         }
-        if (control.metadata.case_sensitive == null) {
+        if (library.metadata.case_sensitive == null) {
             throw new MongerException("metadata.case_sensitive true/false must be defined");
         }
 
-        for (int i = 0; i < control.libraries.length; i++) {
-            if (control.libraries[i].definition == null) {
+        for (int i = 0; i < library.libraries.length; i++) {
+            if (library.libraries[i].definition == null) {
                 throw new MongerException("libraries.definition[" + i + "] must be defined");
             }
-            if (control.libraries[i].definition.name == null || control.libraries[i].definition.name.length() == 0) {
+            if (library.libraries[i].definition.name == null || library.libraries[i].definition.name.length() == 0) {
                 throw new MongerException("library[" + i + "].name must be defined");
             }
             // minimum is optional
-            if (control.libraries[i].definition.minimum != null && control.libraries[i].definition.minimum.length() > 0) {
-                minimumSize = Utils.getScaledValue(control.libraries[i].definition.minimum);
+            if (library.libraries[i].definition.minimum != null && library.libraries[i].definition.minimum.length() > 0) {
+                minimumSize = Utils.getScaledValue(library.libraries[i].definition.minimum);
                 if (minimumSize == -1) {
-                    throw new MongerException("control.libraries[" + i + "].definition.minimum is invalid");
+                    throw new MongerException("library.libraries[" + i + "].definition.minimum is invalid");
                 }
             }
             // genre is optional
 
-            if (control.libraries[i].sources == null || control.libraries[i].sources.length == 0) {
+            if (library.libraries[i].sources == null || library.libraries[i].sources.length == 0) {
                 throw new MongerException("libraries[" + i + "].sources must be defined");
             } else {
                 // Verify paths
-                for (int j = 0; j < control.libraries[i].sources.length; j++) {
-                    if (control.libraries[i].sources[j].length() == 0) {
+                for (int j = 0; j < library.libraries[i].sources.length; j++) {
+                    if (library.libraries[i].sources[j].length() == 0) {
                         throw new MongerException("libraries[" + i + "].sources[" + j + "] must be defined");
                     }
-                    if (Files.notExists(Paths.get(control.libraries[i].sources[j]))) {
-                        throw new MongerException("control.libraries[" + i + "].sources[" + j + "]: " + control.libraries[i].sources[j] + " does not exist");
+                    if (Files.notExists(Paths.get(library.libraries[i].sources[j]))) {
+                        throw new MongerException("library.libraries[" + i + "].sources[" + j + "]: " + library.libraries[i].sources[j] + " does not exist");
                     }
-                    logger.debug("src: " + control.libraries[i].sources[j]);
+                    logger.debug("src: " + library.libraries[i].sources[j]);
                 }
             }
-            if (control.libraries[i].targets == null || control.libraries[i].targets.length == 0) {
+            if (library.libraries[i].targets == null || library.libraries[i].targets.length == 0) {
                 throw new MongerException("libraries.sources[" + i + "] must be defined");
             } else {
                 // Verify paths
-                for (int j = 0; j < control.libraries[i].targets.length; j++) {
-                    if (control.libraries[i].targets[j].length() == 0) {
+                for (int j = 0; j < library.libraries[i].targets.length; j++) {
+                    if (library.libraries[i].targets[j].length() == 0) {
                         throw new MongerException("libraries[" + i + "].targets[" + j + "] must be defined");
                     }
-                    if (Files.notExists(Paths.get(control.libraries[i].targets[j]))) {
-                        throw new MongerException("control.libraries[" + i + "].targets[" + j + "]: " + control.libraries[i].targets[j] + " does not exist");
+                    if (Files.notExists(Paths.get(library.libraries[i].targets[j]))) {
+                        throw new MongerException("library.libraries[" + i + "].targets[" + j + "]: " + library.libraries[i].targets[j] + " does not exist");
                     }
-                    logger.debug("tar: " + control.libraries[i].targets[j]);
+                    logger.debug("tar: " + library.libraries[i].targets[j]);
                 }
             }
         }
@@ -133,12 +133,12 @@ public class Collection
      * @throws MongerException the monger exception
      */
     public void scanAll() throws MongerException {
-        for (int i = 0; i < control.libraries.length; i++) {
+        for (int i = 0; i < library.libraries.length; i++) {
 
             // todo decide if a single library was specified
 
-            for (int j = 0; j < control.libraries[i].sources.length; j++) {
-                scanDirectory(control.libraries[i].definition.name, control.libraries[i].sources[j], control.libraries[i].sources[j]);
+            for (int j = 0; j < library.libraries[i].sources.length; j++) {
+                scanDirectory(library.libraries[i].definition.name, library.libraries[i].sources[j], library.libraries[i].sources[j]);
             }
         }
 
@@ -197,7 +197,7 @@ public class Collection
         {
             @Override
             public int compare(Item item1, Item item2) {
-                return item1.getItemPath().compareTo(item2.getItemPath());
+                return item1.getItemPath().compareToIgnoreCase(item2.getItemPath());
             }
         });
     }
@@ -221,7 +221,7 @@ public class Collection
         Gson gson = new Gson();
         logger.info("Writing item file " + cfg.getExportFilename());
         ItemExport export = new ItemExport();
-        export.control = control;
+        export.library = library;
         export.items = items;
         json = gson.toJson(export);
         try {
@@ -234,7 +234,7 @@ public class Collection
     }
 
     public void importItems() throws MongerException {
-        String filename = cfg.getImportFilename();
+        String filename = cfg.getSubscriberImportFilename();
         try {
             String json;
             Gson gson = new Gson();
@@ -243,7 +243,7 @@ public class Collection
             json = json.replaceAll("[\n\r]", "");
             ItemExport itemExport = gson.fromJson(json, ItemExport.class);
             setCollectionFile(filename);
-            control = itemExport.control;
+            library = itemExport.library;
             items = itemExport.items;
         } catch (IOException ioe) {
             throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(ioe));
@@ -263,7 +263,7 @@ public class Collection
         Iterator<Item> iterator = getItems().iterator();
         while (iterator.hasNext()) {
             Item item = iterator.next();
-            if (getControl().metadata.case_sensitive) {
+            if (getLibrary().metadata.case_sensitive) {
                 if (path.equalsIgnoreCase(item.getItemPath())) {
                     has = true;
                     break;
@@ -297,12 +297,12 @@ public class Collection
     }
 
     /**
-     * Gets control.
+     * Gets library.
      *
-     * @return the control
+     * @return the library
      */
-    public Control getControl() {
-        return control;
+    public Library getLibrary() {
+        return library;
     }
 
     /**
@@ -324,14 +324,14 @@ public class Collection
     }
 
     //==================================================================================================================
-    // Inner classes for Gson collection (control) file
+    // Inner classes for Gson collection (library) file
 
     /**
-     * The type Control
+     * The type Library
      * <p>
      * Top-level object for a publisher or subscriber collection file.
      */
-    public class Control
+    public class Library
     {
         /**
          * The Metadata.
@@ -412,11 +412,11 @@ public class Collection
     public class ItemExport
     {
         /**
-         * The type Control
+         * The type Library
          * <p>
          * Top-level object for a publisher or subscriber collection file.
          */
-        public Control control;
+        public Library library;
 
         /**
          * The Items.

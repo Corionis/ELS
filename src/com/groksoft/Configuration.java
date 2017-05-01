@@ -1,7 +1,5 @@
 package com.groksoft;
 
-import sun.security.krb5.Config;
-
 /**
  * Configuration
  * <p>
@@ -20,7 +18,9 @@ public class Configuration
     private boolean validationRun = false;
     private String exportFilename = "";
 
-    private String importFilename = "";
+    private String subscriberImportFilename = "";
+
+    private String publisherImportFilename = "";
 
     private String mismatchFilename = "";
 
@@ -94,7 +94,7 @@ public class Configuration
 
         for (index = 0; index < args.length; ++index) {
             switch (args[index]) {
-                case "-c":                                             // validate collections files
+                case "-v":                                             // validate collections files
                     setValidationRun(true);
                     break;
                 case "-d":                                             // debug level
@@ -119,14 +119,6 @@ public class Configuration
                         ++index;
                     } else {
                         throw new MongerException("Error: -f requires a log filename");
-                    }
-                    break;
-                case "-i":                                             // import filename
-                    if (index <= args.length - 2) {
-                        setImportFilename(args[index + 1]);
-                        ++index;
-                    } else {
-                        throw new MongerException("Error: -i requires an import filename");
                     }
                     break;
                 case "-k":                                             // keep .volmonger files
@@ -165,6 +157,14 @@ public class Configuration
                         throw new MongerException("Error: -p requires a publisher collection filename");
                     }
                     break;
+                case "-P":                                             // import publisher filename
+                    if (index <= args.length - 2) {
+                        setPublisherImportFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -P requires an publisher import filename");
+                    }
+                    break;
                 case "-s":                                             // subscriber collection filename
                     if (index <= args.length - 2) {
                         setSubscriberFileName(args[index + 1]);
@@ -173,7 +173,15 @@ public class Configuration
                         throw new MongerException("Error: -s requires a subscriber collection filename");
                     }
                     break;
-                case "-t":                                             // test run
+                case "-S":                                             // import subscriber filename
+                    if (index <= args.length - 2) {
+                        setSubscriberImportFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -S requires an subscriber import filename");
+                    }
+                    break;
+                case "-D":                                             // Dry run
                     setTestRun(true);
                     break;
                 default:
@@ -210,21 +218,21 @@ public class Configuration
     }
 
     /**
-     * Gets import filename.
+     * Gets subscriber import filename.
      *
      * @return the import filename
      */
-    public String getImportFilename() {
-        return importFilename;
+    public String getSubscriberImportFilename() {
+        return subscriberImportFilename;
     }
 
     /**
      * Sets import filename.
      *
-     * @param importFilename the import filename
+     * @param subscriberImportFilename the import filename
      */
-    public void setImportFilename(String importFilename) {
-        this.importFilename = importFilename;
+    public void setSubscriberImportFilename(String subscriberImportFilename) {
+        this.subscriberImportFilename = subscriberImportFilename;
     }
 
     /**
@@ -315,6 +323,24 @@ public class Configuration
      */
     public void setSpecificPublisherLibrary(boolean specificPublisherLibrary) {
         this.specificPublisherLibrary = specificPublisherLibrary;
+    }
+
+    /**
+     * Gets publisher import filename.
+     *
+     * @return the publisher import filename
+     */
+    public String getPublisherImportFilename() {
+        return publisherImportFilename;
+    }
+
+    /**
+     * Sets publisher import filename.
+     *
+     * @param publisherImportFilename the publisher import filename
+     */
+    public void setPublisherImportFilename(String publisherImportFilename) {
+        this.publisherImportFilename = publisherImportFilename;
     }
 
     /**

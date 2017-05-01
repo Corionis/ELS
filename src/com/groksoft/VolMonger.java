@@ -5,9 +5,15 @@ package com.groksoft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * VolMonger - main program
@@ -19,6 +25,8 @@ public class VolMonger
 
     private Collection publisher = null;
     private Collection subscriber = null;
+    private String currentGroupName = "";
+    private String lastGroupName = "";
 
     /**
      * Main entry point
@@ -62,7 +70,7 @@ public class VolMonger
             logger.info("cfg: -d Debug level = " + cfg.getDebugLevel());
             logger.info("cfg: -e Export filename = " + cfg.getExportFilename());
             logger.info("cfg: -f Log filename = " + cfg.getLogFilename());
-            logger.info("cfg: -i Import filename = " + cfg.getImportFilename());
+            logger.info("cfg: -i Import filename = " + cfg.getSubscriberImportFilename());
             logger.info("cfg: -k Keep .volmonger files = " + Boolean.toString(cfg.isKeepVolMongerFiles()));
             logger.info("cfg: -l Publisher library name = " + cfg.getPublisherLibraryName());
             logger.info("cfg: -m Mismatch output filename = " + cfg.getMismatchFilename());
@@ -79,7 +87,7 @@ public class VolMonger
                 if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
                     publisher.exportCollection();
                 } else {
-                    if (cfg.getImportFilename().length() > 0) {                 // -i import if specified
+                    if (cfg.getSubscriberImportFilename().length() > 0) {                 // -i import if specified
                         subscriber.importItems();
                     } else {
                         if (cfg.getSubscriberFileName().length() > 0) {         // else -s subscriber scan
@@ -129,7 +137,10 @@ public class VolMonger
     private void mongeCollections(Collection publisher, Collection subscriber) throws MongerException {
         boolean iWin = false;
         PrintWriter mismatchFile = null;
-        String header = "Monging " + publisher.getControl().metadata.name + " to " + subscriber.getControl().metadata.name;
+        ArrayList<Item> group = new ArrayList<>();
+        long totalSize = 0;
+
+        String header = "Monging " + publisher.getLibrary().metadata.name + " to " + subscriber.getLibrary().metadata.name;
         logger.info(header);
 
         // todo IDEA: Add some counters for the various situations: Copied, Skipped, Not found, WTF, etc. for metrics
@@ -147,85 +158,109 @@ public class VolMonger
             }
         }
 
-        Iterator<Item> publisherIterator = publisher.getItems().iterator();
-        while (publisherIterator.hasNext()) {
-            Item publisherItem = publisherIterator.next();
-
+        for (Item publisherItem : publisher.getItems()) {
             boolean has = subscriber.has(publisherItem.getItemPath());
             if (has) {
-                logger.info("  + Subscriber " + subscriber.getControl().metadata.name + " has " + publisherItem.getItemPath());
+                logger.info("  + Subscriber " + subscriber.getLibrary().metadata.name + " has " + publisherItem.getItemPath());
             } else {
-                logger.info("  - Subscriber " + subscriber.getControl().metadata.name + " missing " + publisherItem.getItemPath());
-                if (cfg.getMismatchFilename().length() > 0) {
-                    mismatchFile.println(publisherItem.getItemPath());
-                }
-                if (cfg.isTestRun()) {          // -t Test run option
 
-                    logger.info("    Would copy " + publisherItem.getFullPath());
-
-                    // QUESTION should a test run do more?  e,g, check space, or?
-
-                } else {
-
-
-                    // todo below:
-                    // may need the notion of a "group of items" that is the collection of directories and files
-                    // we consider to be the minimum set that could be copied to a different target
-                    // AND whether individual items exist or not on the subscriber.
-
-
-                    // get total size of non-existent item(s), recursively, in bytes
-                    long size = totalItemSize(publisherItem);
-
-                    // get a subscriber target where the publisher item(s) will fit
-                    String target = getTarget(subscriber, publisherItem.getLibrary(), size);
-                    if (target.length() > 0) {
-
-
-                        // copy item(s) to target
-                        logger.info("    Copied " + publisherItem.getFullPath());
-
-
-                    } else {
-                        logger.error("    No space on any subscriber " + publisherItem.getLibrary() + " target for " +
-                            publisherItem.getFullPath() + " that is " + size / (1024 * 1024) + " MB");
+                if (!publisherItem.isDirectory()) {
+                    logger.info("  - Subscriber " + subscriber.getLibrary().metadata.name + " missing " + publisherItem.getItemPath());
+                    if (cfg.getMismatchFilename().length() > 0) {
+                        mismatchFile.println(publisherItem.getItemPath());
                     }
+
+                    if (isNewGrouping(publisherItem)) {
+                        // if there is a group - process it
+
+                        if (group.size() > 0) {
+                            // get a subscriber target where the publisher item(s) will fit
+                            String target = getTarget(subscriber, group.get(0).getLibrary(), totalSize);
+                            if (target.length() > 0) {
+                                for (Item groupItem : group) {
+                                    if (cfg.isTestRun()) {          // -t Test run option
+                                        logger.info("    Would copy " + groupItem.getFullPath());
+                                    } else {
+                                        // copy item(s) to target
+                                        logger.info("    Copied " + groupItem.getFullPath());
+                                    }
+                                }
+                            } else {
+                                logger.error("    No space on any subscriber " + group.get(0).getLibrary() + " target for " +
+                                        lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                            }
+                        }
+                        logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
+                        group.clear();
+                        totalSize = 0;
+                        lastGroupName = currentGroupName;
+                    }
+                    long size = 0;
+                    try {
+                        size = Files.size(Paths.get(publisherItem.getFullPath()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    publisherItem.setSize(size);
+                    totalSize += size;
+                    group.add(publisherItem);
                 }
             }
         }
         if (mismatchFile != null) {
             mismatchFile.close();
         }
-    } // mongeCollections
+    }
+
+    /**
+     * Is new grouping boolean.
+     *
+     * @param publisherItem the publisher item
+     * @return the boolean
+     */
+    private boolean isNewGrouping(Item publisherItem) {
+        boolean ret = true;
+        String path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf("\\"));
+        if (path.length() < 1) {
+            path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf("/"));
+        }
+        if (currentGroupName.equalsIgnoreCase(path)) {
+            ret = false;
+        } else {
+            currentGroupName = path;
+        }
+        return ret;
+    }
 
     /**
      * Gets a subscriber target.
-     *
+     * <p>
      * Will return one of the subscriber targets for the library of the item that is
      * large enough to hold the size specified, otherwise an empty string is returned.
      *
-     * @param subscriber    the subscriber collection object
-     * @param library       the publisher library.definition.name
-     * @param size          the total size of item(s) to be copied
+     * @param subscriber the subscriber collection object
+     * @param library    the publisher library.definition.name
+     * @param size       the total size of item(s) to be copied
      * @return the target
+     * @throws MongerException the monger exception
      */
     public String getTarget(Collection subscriber, String library, long size) throws MongerException {
         String target = "";
         boolean allFull = true;
         boolean notFound = true;
 
-        for (int i = 0; i < subscriber.getControl().libraries.length; ++i) {
+        for (int i = 0; i < subscriber.getLibrary().libraries.length; ++i) {
 
             // find the matching subscriber library
-            if (library.equalsIgnoreCase(subscriber.getControl().libraries[i].definition.name)) {
+            if (library.equalsIgnoreCase(subscriber.getLibrary().libraries[i].definition.name)) {
                 notFound = false;
 
-                for (int j = 0; j < subscriber.getControl().libraries[i].targets.length; ++j) {
+                for (int j = 0; j < subscriber.getLibrary().libraries[i].targets.length; ++j) {
 
                     // check space on the candidate target
-                    String candidate = subscriber.getControl().libraries[i].targets[j];
+                    String candidate = subscriber.getLibrary().libraries[i].targets[j];
                     long space = availableSpace(candidate);
-                    long minimum = Utils.getScaledValue(subscriber.getControl().libraries[i].definition.minimum);
+                    long minimum = Utils.getScaledValue(subscriber.getLibrary().libraries[i].definition.minimum);
 
                     if (space > minimum) {                  // check target space minimum
                         allFull = false;
@@ -237,7 +272,7 @@ public class VolMonger
                     }
                 }
                 if (allFull) {
-                    logger.error("All targets for library " + library + " are below definition.minimum of " + subscriber.getControl().libraries[i].definition.minimum);
+                    logger.error("All targets for library " + library + " are below definition.minimum of " + subscriber.getLibrary().libraries[i].definition.minimum);
                 }
                 break;  // can match only one library name
             }
@@ -254,7 +289,7 @@ public class VolMonger
     /**
      * Available space on target.
      *
-     * @param target  the target
+     * @param target the target
      * @return the long space available on target in bytes
      */
     public long availableSpace(String target) {
