@@ -188,7 +188,7 @@ public class VolMonger
                 boolean has = subscriber.has(publisherItem.getItemPath());
 
                 // Ignore thumbs.db files
-                // QUESTION Are there more files like thumbs.db we should ignore? If so make an array fo them....
+                // QUESTION Are there more files like thumbs.db we should ignore? If so make an array of them....
                 if (publisherItem.getItemPath().equalsIgnoreCase("Thumbs.db"))
                     continue;
 
