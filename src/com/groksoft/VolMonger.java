@@ -86,7 +86,7 @@ public class VolMonger
             subscriber = new Collection();
 
             try {
-            if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
+                if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
                     publisher.importItems(cfg.getPublisherImportFilename());
                 } else {
                     if (cfg.getPublisherFileName().length() > 0) {              // else -p publisher library scan
@@ -150,6 +150,11 @@ public class VolMonger
         String currentWhatsNew = "";
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
+        boolean importedPublisher = false;
+
+        if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
+            importedPublisher = true;
+        }
 
         String header = "Monging " + publisher.getLibrary().metadata.name + " to " + subscriber.getLibrary().metadata.name;
         logger.info(header);
@@ -267,7 +272,6 @@ public class VolMonger
                 whatsNewFile.close();
             }
         }
-
     }
 
     /**

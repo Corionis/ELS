@@ -157,6 +157,7 @@ involved in a run.
  * RULES OF COMMAND-LINE OPTIONS, in no particular order:
    * -e is only done then it stops, so other options like -s or -m do not make sense
    * -i and -s together do not make sense
+   * -P and -S used at the same time also requires -t.
 
 ---
 
@@ -173,6 +174,12 @@ As runs are made with Subscribers a stamp is added to the .volmonger file.
 Work-out the stamp and "done" logic.
 
 Once it all works it could just be part of the process.
+
+
+IDEA: Add to the data inside a .volmonger file:
+
+ * Tag:  permanent      == do not delete this .volmonger file
+ * Tag:  ignore         == skip this item.
 
 ---
 
@@ -203,6 +210,38 @@ could be done within the same run.
  * Produce Subscriber list for offline compares and/or Internet synch.
 
  * VolMonger over TCP/IP
+
+
+
+
+
+## Use Cases
+
+ 1. Subscriber visits Publisher
+    * Publisher has own drives
+    * Subscriber drives (E,F,...) will not mount on those same drive letters
+ 
+ 2. Publisher visits Subscriber
+    * Subscriber has own drives
+    * Publisher drives (E,F,...) will not mount on those same drive letters
+
+ 3. Internet transport
+    * Publisher has own drives
+    * Subscriber has own drives
+
+ 4. Transport drive(s)
+    * Publisher has own drives
+    * Subscribers drive letters will not match 
+
+ 5. Local Backup
+    * Publisher has own drives
+    * Subscriber has own drives
+
+ 6. Cloud Synchronization
+    * Publisher has ALL drives
+ 
+
+
 
 
 
