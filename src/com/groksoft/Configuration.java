@@ -38,6 +38,11 @@ public class Configuration
         // singleton pattern
     }
 
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
     public static Configuration getInstance() {
         if (instance == null) {
             instance = new Configuration();

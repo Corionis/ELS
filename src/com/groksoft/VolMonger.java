@@ -221,7 +221,6 @@ public class VolMonger
                             }
 
                             if (!currentWhatsNew.equalsIgnoreCase(path)) {
-                                logger.info("************************** currentWhatsNew = " + currentWhatsNew + " | path = " + path);
                                 whatsNewFile.println(path);
                                 currentWhatsNew = path;
                             }
@@ -317,6 +316,7 @@ public class VolMonger
             if (library.equalsIgnoreCase(subscriber.getLibrary().libraries[i].definition.name)) {
                 notFound = false;
 
+                // fixme Change targets to it's own file and use the -t option to define it.
                 for (int j = 0; j < subscriber.getLibrary().libraries[i].targets.length; ++j) {
 
                     // check space on the candidate target

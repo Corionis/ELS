@@ -219,6 +219,8 @@ public class Collection
 
     /**
      * Export collection.
+     *
+     * @throws MongerException the monger exception
      */
     public void exportCollection() throws MongerException {
         String json;
@@ -237,6 +239,12 @@ public class Collection
         }
     }
 
+    /**
+     * Import items.
+     *
+     * @param filename the filename
+     * @throws MongerException the monger exception
+     */
     public void importItems(String filename) throws MongerException {
         try {
             String json;
