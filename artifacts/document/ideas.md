@@ -139,7 +139,7 @@ on a different computer where drive letters would change.
  * -s file : Subscriber libraries  file
  * -S file : Subscriber collection import items file
  
- * -t file : Transport filename
+ * -t file : Targets filename
 
  * -v : Validate collections files only then exit
 
