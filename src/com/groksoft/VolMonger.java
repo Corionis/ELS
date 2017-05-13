@@ -80,6 +80,7 @@ public class VolMonger
             logger.info("cfg: -P Publisher's collection import filename = " + cfg.getPublisherFileName());
             logger.info("cfg: -s Subscriber's libraries filename = " + cfg.getSubscriberFileName());
             logger.info("cfg: -S Subscriber collection import filename = " + cfg.getSubscriberImportFilename());
+            logger.info("cfg: -t Targets for mismatches to be copied too = " + cfg.getTargetsFilename());
             logger.info("cfg: -v Validation run = " + Boolean.toString(cfg.isValidationRun()));
 
             publisher = new Collection();
@@ -160,7 +161,7 @@ public class VolMonger
         logger.info(header);
 
         // todo IDEA: Add some counters for the various situations: Copied, Skipped, Not found, WTF, etc. for metrics
-
+        
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0) {
             try {
@@ -310,6 +311,18 @@ public class VolMonger
         boolean allFull = true;
         boolean notFound = true;
 
+        // setup the -m mismatch output file
+        if (cfg.getTargetsFilename().length() > 0) {
+            try {
+                logger.info("Using Targets from file " + cfg.getTargetsFilename());
+                readTargets();
+            } catch (FileNotFoundException fnf) {
+                String s = "File not found exception for mismatch output file " + cfg.getMismatchFilename();
+                logger.error(s);
+                throw new MongerException(s);
+            }
+        }
+
         for (int i = 0; i < subscriber.getLibrary().libraries.length; ++i) {
 
             // find the matching subscriber library
@@ -346,6 +359,13 @@ public class VolMonger
             logger.error("No subscriber library match found for publisher library " + library);
         }
         return target;
+    }
+
+    /**
+     * Read targets.
+     * todo Not sure if this is the place for this......
+     */
+    public void readTargets() {
     }
 
     /**

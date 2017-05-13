@@ -5,8 +5,7 @@ package com.groksoft;
  * <p>
  * Contains all command-line options and any other application-level configuration.
  */
-public class Configuration
-{
+public class Configuration {
     private final String VOLMONGER_VERSION = "1.0.0";
     private static Configuration instance = null;
 
@@ -24,6 +23,7 @@ public class Configuration
     private String publisherImportFilename = "";
     private String mismatchFilename = "";
     private String whatsNewFilename = "";
+    private String targetsFilename = "";
 
     // publisher & subscriber
     private String publisherFileName = "";
@@ -408,6 +408,24 @@ public class Configuration
      */
     public void setSubscriberFileName(String subscriberFileName) {
         this.subscriberFileName = subscriberFileName;
+    }
+
+    /**
+     * Gets targets filename.
+     *
+     * @return the targets filename
+     */
+    public String getTargetsFilename() {
+        return targetsFilename;
+    }
+
+    /**
+     * Sets targets filename.
+     *
+     * @param targetsFilename the targets filename
+     */
+    public void setTargetsFilename(String targetsFilename) {
+        this.targetsFilename = targetsFilename;
     }
 
     /**
