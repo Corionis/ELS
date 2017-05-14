@@ -212,6 +212,14 @@ public class Configuration {
                         throw new MongerException("Error: -S requires an subscriber import filename");
                     }
                     break;
+                case "-t":                                             // targets filename
+                    if (index <= args.length - 2) {
+                        setTargetsFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -t requires a targets filename");
+                    }
+                    break;
                 case "-v":                                             // validate collections files
                     setValidationRun(true);
                     break;
