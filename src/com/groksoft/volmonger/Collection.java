@@ -1,4 +1,4 @@
-package com.groksoft;
+package com.groksoft.volmonger;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -21,6 +21,17 @@ public class Collection
     private transient Logger logger = LogManager.getLogger("applog");
     private transient Configuration cfg = null;
 
+
+
+
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // todo This is all messed-up and not done with the large refactoring
+
+
+
+
+
     // data members
     private Library library = null;
     private String collectionFile = "";
@@ -29,7 +40,7 @@ public class Collection
 // Methods:
     // A load method to read a collection.library file
     // A validate method to check the syntax and existence of the elements in a collection.library file
-    // A scanAll method to scanAll and generate the set of Item objects
+    // A scanAllLibraries method to scanAllLibraries and generate the set of Item objects
     // A sort method, by context
     // A duplicates method to check for duplicate contexts in the Collection - possibly enforced by the selected Java collection requiring a unique key
 
@@ -46,7 +57,7 @@ public class Collection
      * @param filename the filename
      * @throws MongerException the monger exception
      */
-    public void readControl(String filename) throws MongerException {
+    public void readLibrary(String filename) throws MongerException {
         try {
             String json;
             Gson gson = new Gson();
@@ -65,7 +76,7 @@ public class Collection
      *
      * @throws MongerException the monger exception
      */
-    public void validateControl() throws MongerException {
+    public void validateLibrary() throws MongerException {
         long minimumSize;
 
         if (getLibrary() == null) {
@@ -132,7 +143,7 @@ public class Collection
      *
      * @throws MongerException the monger exception
      */
-    public void scanAll() throws MongerException {
+    public void scanAllLibraries() throws MongerException {
         for (int i = 0; i < library.libraries.length; i++) {
 
             // todo decide if a single library was specified
@@ -350,7 +361,7 @@ public class Collection
         public Metadata metadata;
 
         /**
-         * The Libraries.
+         * The Library.
          */
         public Libraries[] libraries;
     }
@@ -369,15 +380,20 @@ public class Collection
          * The Case sensitive.
          */
         public Boolean case_sensitive;
+
+        /**
+         * The Ignore patterns.
+         */
+        public String[] ignore_patterns;
     }
 
     /**
-     * The type Libraries.
+     * The type Library.
      */
     public class Libraries
     {
         /**
-         * The Definition.
+         * The Library.
          */
         public Definition definition;
 
@@ -394,7 +410,7 @@ public class Collection
     }
 
     /**
-     * The type Definition.
+     * The type Library.
      */
     public class Definition
     {
@@ -417,22 +433,24 @@ public class Collection
     //==================================================================================================================
     // Inner classes for Gson item export file
 
-    /**
-     * The type Item export.
-     */
-    public class ItemExport
-    {
         /**
-         * The type Library
-         * <p>
-         * Top-level object for a publisher or subscriber collection file.
+         * The type Item export.
          */
-        public Library library;
+        public class ItemExport
+        {
+            /**
+             * The Metadata.
+             */
+            public Metadata metadata;
 
-        /**
-         * The Items.
-         */
-        public List<Item> items;
-    }
+            /**
+             * The data.
+             */
+            public Library[] libraries;
 
+            /**
+             * The Items.
+             */
+            public List<Item> items;
+        }
 }

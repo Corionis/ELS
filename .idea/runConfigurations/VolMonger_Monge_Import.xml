@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="VolMonger Monge Import" type="Application" factoryName="Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.VolMonger" />
+    <option name="MAIN_CLASS_NAME" value="com.groksoft.volmonger.Main" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:../lib/log4j2.xml" />
     <option name="PROGRAM_PARAMETERS" value="-D -d debug -p TestRun/publisher/publisher-libraries.json -S TestRun/subscriber-1-export.json -m TestRun/mismatches-import.txt" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/mock" />

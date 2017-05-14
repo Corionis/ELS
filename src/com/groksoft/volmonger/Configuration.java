@@ -1,4 +1,4 @@
-package com.groksoft;
+package com.groksoft.volmonger;
 
 /**
  * Configuration
@@ -14,7 +14,7 @@ public class Configuration {
     private String debugLevel = "info";
 
     private boolean keepVolMongerFiles = false;
-    private String logFilename = "VolMonger.log";
+    private String logFilename = "Main.log";
     private boolean testRun = false;
     private boolean validationRun = false;
 
@@ -230,9 +230,9 @@ public class Configuration {
     }
 
     /**
-     * Gets VolMonger version.
+     * Gets Main version.
      *
-     * @return the VolMonger version
+     * @return the Main version
      */
     public String getVOLMONGER_VERSION() {
         return VOLMONGER_VERSION;

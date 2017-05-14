@@ -1,4 +1,4 @@
-package com.groksoft;
+package com.groksoft.volmonger;
 
 /**
  * Monger exception

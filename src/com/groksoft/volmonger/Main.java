@@ -1,24 +1,21 @@
-package com.groksoft;
+package com.groksoft.volmonger;
 
 // see https://logging.apache.org/log4j/2.x/
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
- * VolMonger - main program
+ * Main - main program
  */
-public class VolMonger
+public class Main
 {
     private Configuration cfg = null;
     private Logger logger = null;
@@ -34,10 +31,16 @@ public class VolMonger
      * @param args the input arguments
      */
     public static void main(String[] args) {
-        VolMonger volmonger = new VolMonger();
+        Main volmonger = new Main();
         int returnValue = volmonger.process(args);
         System.exit(returnValue);
     } // main
+
+    /**
+     * Instantiates a new Main application.
+     */
+    public Main() {
+    }
 
     /**
      * Process everything
@@ -64,7 +67,7 @@ public class VolMonger
             logger = LogManager.getLogger("applog");
 
             // the + makes searching for the beginning of a run easier
-            logger.info("+ VolMonger begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
+            logger.info("+ Main begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
 
             // dump the settings
             logger.info("cfg: -c Console level = " + cfg.getConsoleLevel());
@@ -120,7 +123,7 @@ public class VolMonger
 
         // the - makes searching for the ending of a run easier
         if (logger != null) {
-            logger.info("- VolMonger end" + " ------------------------------------------");
+            logger.info("- Main end" + " ------------------------------------------");
         }
 
         return returnValue;
@@ -133,9 +136,9 @@ public class VolMonger
      * @param collection     The collection object
      */
     private void scanCollection(String collectionFile, Collection collection) throws MongerException {
-        collection.readControl(collectionFile);
-        collection.validateControl();
-        collection.scanAll();
+        collection.readLibrary(collectionFile);
+        collection.validateLibrary();
+        collection.scanAllLibraries();
     } // scanCollection
 
     /**
@@ -189,12 +192,21 @@ public class VolMonger
         }
 
         // Make sure we close the mismatch and whatsnew files if anything throws an exception....
+
+        // todo Rearrange this logic to be subscriber-centric.
+        //      The outer loop should iterate over the "subscribed" libraries.
+        //      There should be an option to specify one (or more?) libraries to process.
+        //      QUESTION Should there be an option to scan all, or scan as-subscribed in the loop below dynamically?
+        //               That is - only scan publisher libraries the subscriber has listed (subscribed to).
+
         try {
             for (Item publisherItem : publisher.getItems()) {
                 boolean has = subscriber.has(publisherItem.getItemPath());
 
                 // Ignore thumbs.db files
                 // QUESTION Are there more files like thumbs.db we should ignore? If so make an array of them....
+                // ANSWER Extend library metadata to include an array of files to ignore.
+                // QUESTION Should we implement regex patterns too?
                 if (publisherItem.getItemPath().equalsIgnoreCase("Thumbs.db"))
                     continue;
 
@@ -400,4 +412,4 @@ public class VolMonger
         return size;
     }
 
-} // VolMonger
+} // Main

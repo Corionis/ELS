@@ -22,6 +22,22 @@ on a different computer where drive letters would change.
 ## Organization
  * A publisher is the provider of the data.
  * A subscriber is the consumer of the data.
+ * Both have Libraries.
+ * A subscriber libraries file may be a subset, i.e. only what
+   content is desired from the publisher.
+ 
+ * Libraries describe one or more Library objects.
+ * Each Library is described by:
+    - a name 
+    - one or more sources (directories) containing Items
+ * An item can be either a directory or file.
+ 
+ * A Collection is the list of Items from scanning one or more libraries.
+ * The Collection file is described by:
+   - a list of the libraries 
+ 
+---
+OLD:
  * A collection is a set of named libraries.
    - A collection is described in a single collection file.
  * A named library is one or more directories, possibly on
