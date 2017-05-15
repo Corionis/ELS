@@ -20,6 +20,8 @@ public class Main
     private Configuration cfg = null;
     private Logger logger = null;
 
+    private Repository publisherRepository = null;
+
     private Collection publisher = null;
     private Collection subscriber = null;
     private String currentGroupName = "";
@@ -79,41 +81,61 @@ public class Main
             logger.info("cfg: -l Publisher library name = " + cfg.getPublisherLibraryName());
             logger.info("cfg: -m Mismatch output filename = " + cfg.getMismatchFilename());
             logger.info("cfg: -n What's new output filename = " + cfg.getWhatsNewFilename());
-            logger.info("cfg: -p Publisher's libraries filename = " + cfg.getPublisherFileName());
+            logger.info("cfg: -p Publisher's LibraryData filename = " + cfg.getPublisherFileName());
             logger.info("cfg: -P Publisher's collection import filename = " + cfg.getPublisherFileName());
-            logger.info("cfg: -s Subscriber's libraries filename = " + cfg.getSubscriberFileName());
+            logger.info("cfg: -s Subscriber's LibraryData filename = " + cfg.getSubscriberFileName());
             logger.info("cfg: -S Subscriber collection import filename = " + cfg.getSubscriberImportFilename());
             logger.info("cfg: -t Targets for mismatches to be copied too = " + cfg.getTargetsFilename());
             logger.info("cfg: -v Validation run = " + Boolean.toString(cfg.isValidationRun()));
 
-            publisher = new Collection();
-            subscriber = new Collection();
+            publisherRepository = new Repository();
 
             try {
-                if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
-                    publisher.importItems(cfg.getPublisherImportFilename());
-                } else {
-                    if (cfg.getPublisherFileName().length() > 0) {              // else -p publisher library scan
-                        scanCollection(cfg.getPublisherFileName(), publisher);
-                    }
+                if (cfg.getPublisherFileName().length() > 0) {
+                    publisherRepository.read(cfg.getPublisherFileName());
                 }
+
                 if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
-                    publisher.exportCollection();
-                } else {
-                    if (cfg.getSubscriberImportFilename().length() > 0) {       // -S import subscriber if specified
-                        subscriber.importItems(cfg.getSubscriberImportFilename());
-                    } else {
-                        if (cfg.getSubscriberFileName().length() > 0) {         // else -s subscriber library scan
-                            scanCollection(cfg.getSubscriberFileName(), subscriber);
-                        }
-                    }
-                    mongeCollections(publisher, subscriber);                    // monge publisher-to-subscriber
+                    publisherRepository.export();
                 }
-            } catch (Exception e) {
-                // the methods above throw pre-formatted messages, just use that
-                logger.error(e.getMessage());
+
+                publisherRepository.dump();
+
+            } catch (Exception ex) {
+                logger.error(ex.getMessage());
                 returnValue = 2;
             }
+
+
+            // OLD
+//            publisher = new Collection();
+//            subscriber = new Collection();
+//
+//            try {
+//                if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
+//                    publisher.importItems(cfg.getPublisherImportFilename());
+//                } else {
+//                    if (cfg.getPublisherFileName().length() > 0) {              // else -p publisher library scan
+//                        scanCollection(cfg.getPublisherFileName(), publisher);
+//                    }
+//                }
+//                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
+//                    publisher.exportCollection();
+//                } else {
+//                    if (cfg.getSubscriberImportFilename().length() > 0) {       // -S import subscriber if specified
+//                        subscriber.importItems(cfg.getSubscriberImportFilename());
+//                    } else {
+//                        if (cfg.getSubscriberFileName().length() > 0) {         // else -s subscriber library scan
+//                            scanCollection(cfg.getSubscriberFileName(), subscriber);
+//                        }
+//                    }
+//                    mongeCollections(publisher, subscriber);                    // monge publisher-to-subscriber
+//                }
+//            } catch (Exception e) {
+//                // the methods above throw pre-formatted messages, just use that
+//                logger.error(e.getMessage());
+//                returnValue = 2;
+//            }
         } catch (MongerException e) {
             // no logger yet to just print to the screen
             System.out.println(e.getMessage());
@@ -136,9 +158,9 @@ public class Main
      * @param collection     The collection object
      */
     private void scanCollection(String collectionFile, Collection collection) throws MongerException {
-        collection.readLibrary(collectionFile);
-        collection.validateLibrary();
-        collection.scanAllLibraries();
+//        collection.readLibrary(collectionFile);
+//        collection.validateLibrary();
+//        collection.scanAllLibraries();
     } // scanCollection
 
     /**
@@ -194,10 +216,10 @@ public class Main
         // Make sure we close the mismatch and whatsnew files if anything throws an exception....
 
         // todo Rearrange this logic to be subscriber-centric.
-        //      The outer loop should iterate over the "subscribed" libraries.
-        //      There should be an option to specify one (or more?) libraries to process.
+        //      The outer loop should iterate over the "subscribed" LibraryData.
+        //      There should be an option to specify one (or more?) LibraryData to process.
         //      QUESTION Should there be an option to scan all, or scan as-subscribed in the loop below dynamically?
-        //               That is - only scan publisher libraries the subscriber has listed (subscribed to).
+        //               That is - only scan publisher LibraryData the subscriber has listed (subscribed to).
 
         try {
             for (Item publisherItem : publisher.getItems()) {
@@ -328,7 +350,8 @@ public class Main
             try {
                 logger.info("Using Targets from file " + cfg.getTargetsFilename());
                 readTargets();
-            } catch (FileNotFoundException fnf) {
+            }   // catch (FileNotFoundException fnf) {
+            catch (Exception fnf) {
                 String s = "File not found exception for mismatch output file " + cfg.getMismatchFilename();
                 logger.error(s);
                 throw new MongerException(s);

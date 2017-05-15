@@ -1,22 +1,27 @@
 package com.groksoft.volmonger;
 
+import java.util.List;
+
 /**
  * The type Library.
  */
 public class Library
 {
     /**
-     * The Name.
+     * The library Name.
      */
     public String name;
 
-    /**
-     * If it has genres.
-     */
-    public boolean genre;
+    // QUESTION Should a library "type" be added?
+    // Plex types: Movies, TV Shows, Music, Photos, Other Videos
 
     /**
-     * The Sources.
+     * One or more Sources.
      */
     public String[] sources;
+
+    /**
+     * One or more Items.
+     */
+    public List<Item> items;
 }

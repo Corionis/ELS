@@ -1,48 +1,41 @@
 {
-    "metadata": {
-        "name": "Publisher",
+    "libraries": {
+        "description": "Publisher",
         "case_sensitive": false,
         "ignore_patterns": [
             "desktop.ini",
             "Thumbs.db"
-        ]
-    },
-    "libraries": [
-        {
-            "library": {
+        ],
+        "bibliography": [
+            {
                 "name": "Movies",
                 "sources": [
                     "TestRun/publisher/media-a/media/Movies",
                     "TestRun/publisher/media-b/media/Movies"
+                ],
+                "items": [
+
                 ]
-            }
-        },
-        {
-            "library": {
+            },
+            {
                 "name": "Movies with Genre",
-                "genre": true,
                 "sources": [
                     "TestRun/publisher/media-c/media/Movies"
                 ]
-            }
-        },
-        {
-            "library": {
+            },
+            {
                 "name": "TV Shows",
                 "sources": [
                     "TestRun/publisher/media-a/media/TV Shows",
                     "TestRun/publisher/media-b/media/TV Shows"
                 ]
-            }
-        },
-        {
-            "library": {
+            },
+            {
                 "name": "TV Shows with Genre",
-                "genre": true,
                 "sources": [
                     "TestRun/publisher/media-c/media/TV Shows"
                 ]
             }
-        }
-    ]
+        ]
+    }
 }

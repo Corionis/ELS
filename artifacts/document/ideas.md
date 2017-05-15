@@ -57,7 +57,7 @@ OLD:
    - Conflicts are logged for re-run
  * To monge two operational systems will require one to use
   a collection file for the target system configured from
-  its own connection perspective, e.g. drive letters, etc.
+  its own connection perspective, e.g. drive letters, etc.  
 
 ## Use Cases
  * Add new content from source
