@@ -210,13 +210,7 @@ public class Collection
      * Sort collection.
      */
     public void sortCollection() {
-        Collections.sort(items, new Comparator<Item>()
-        {
-            @Override
-            public int compare(Item item1, Item item2) {
-                return item1.getItemPath().compareToIgnoreCase(item2.getItemPath());
-            }
-        });
+        Collections.sort(items, (item1, item2) -> item1.getItemPath().compareToIgnoreCase(item2.getItemPath()));
     }
 
     /**
