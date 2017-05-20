@@ -29,12 +29,6 @@ public class Collection
     // todo This is all messed-up and not done with the large refactoring
 
 
-
-
-    private String collectionFile = "";
-    private String collectionFile = "";
-    private List<Item> items = new ArrayList<>();
-
 // Methods:
     // A load method to read a collection.library file
     // A validate method to check the syntax and existence of the elements in a collection.library file
@@ -65,19 +59,19 @@ public class Collection
      * @param filename the filename
      * @throws MongerException the monger exception
      */
-    public void readLibrary(String filename) throws MongerException {
-        try {
-            String json;
-            Gson gson = new Gson();
-            logger.info("Reading collection file " + filename);
-            setCollectionFile(filename);
-            json = new String(Files.readAllBytes(Paths.get(filename)));
-            json = json.replaceAll("[\n\r]", "");
-            library = gson.fromJson(json, Library.class);
-        } catch (IOException ioe) {
-            throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(ioe));
-        }
-    }
+//    public void readLibrary(String filename) throws MongerException {
+//        try {
+//            String json;
+//            Gson gson = new Gson();
+//            logger.info("Reading collection file " + filename);
+//            setCollectionFile(filename);
+//            json = new String(Files.readAllBytes(Paths.get(filename)));
+//            json = json.replaceAll("[\n\r]", "");
+//            library = gson.fromJson(json, Library.class);
+//        } catch (IOException ioe) {
+//            throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(ioe));
+//        }
+//    }
 
     /**
      * Validate library.
@@ -241,22 +235,22 @@ public class Collection
      *
      * @throws MongerException the monger exception
      */
-    public void exportCollection() throws MongerException {
-        String json;
-        Gson gson = new Gson();
-        logger.info("Writing item file " + cfg.getExportFilename());
-        ItemExport export = new ItemExport();
-        export.library = library;
-        export.items = items;
-        json = gson.toJson(export);
-        try {
-            PrintWriter outputStream = new PrintWriter(cfg.getExportFilename());
-            outputStream.println(json);
-            outputStream.close();
-        } catch (FileNotFoundException fnf) {
-            throw new MongerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
-        }
-    }
+//    public void exportCollection() throws MongerException {
+//        String json;
+//        Gson gson = new Gson();
+//        logger.info("Writing item file " + cfg.getExportFilename());
+//        ItemExport export = new ItemExport();
+//        export.library = library;
+//        export.items = items;
+//        json = gson.toJson(export);
+//        try {
+//            PrintWriter outputStream = new PrintWriter(cfg.getExportFilename());
+//            outputStream.println(json);
+//            outputStream.close();
+//        } catch (FileNotFoundException fnf) {
+//            throw new MongerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
+//        }
+//    }
 
     /**
      * Import items.
@@ -264,21 +258,21 @@ public class Collection
      * @param filename the filename
      * @throws MongerException the monger exception
      */
-    public void importItems(String filename) throws MongerException {
-        try {
-            String json;
-            Gson gson = new Gson();
-            logger.info("Reading item file " + filename);
-            json = new String(Files.readAllBytes(Paths.get(filename)));
-            json = json.replaceAll("[\n\r]", "");
-            ItemExport itemExport = gson.fromJson(json, ItemExport.class);
-            setCollectionFile(filename);
-            library = itemExport.library;
-            items = itemExport.items;
-        } catch (IOException ioe) {
-            throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(ioe));
-        }
-    }
+//    public void importItems(String filename) throws MongerException {
+//        try {
+//            String json;
+//            Gson gson = new Gson();
+//            logger.info("Reading item file " + filename);
+//            json = new String(Files.readAllBytes(Paths.get(filename)));
+//            json = json.replaceAll("[\n\r]", "");
+//            ItemExport itemExport = gson.fromJson(json, ItemExport.class);
+//            setCollectionFile(filename);
+//            library = itemExport.library;
+//            items = itemExport.items;
+//        } catch (IOException ioe) {
+//            throw new MongerException("Exception while reading " + filename + " trace: " + Utils.getStackTrace(ioe));
+//        }
+//    }
 
     /**
      * Has boolean.

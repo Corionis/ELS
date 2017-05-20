@@ -187,14 +187,17 @@ public class Repository
      * Sort collection.
      */
     public void sort(Library lib) {
-        lib.items.sort(new Comparator<Item>()
-        {
-            @Override
-            public int compare(Item item1, Item item2) {
-                return item1.getItemPath().compareToIgnoreCase(item2.getItemPath());
-            }
-        });
+        lib.items.sort((item1, item2) -> item1.getItemPath().compareToIgnoreCase(item2.getItemPath()));
+
+//        lib.items.sort(new Comparator<Item>()
+//        {
+//            @Override
+//            public int compare(Item item1, Item item2) {
+//                return item1.getItemPath().compareToIgnoreCase(item2.getItemPath());
+//            }
+//        });
     }
+
 
     /**
      * Validate LibraryData.
