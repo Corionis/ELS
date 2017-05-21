@@ -1,65 +1,37 @@
 {
-    "metadata": {
-        "name": "Subscriber-1",
+    "libraries": {
+        "description": "Subscriber-1",
         "case_sensitive": false,
         "ignore_patterns": [
             "desktop.ini",
             "Thumbs.db"
-        ]
-    },
-    "libraries": [
-        {
-            "definition": {
+        ],
+        "bibliography": [
+            {
                 "name": "Movies",
-                "minimum": "10GB"
+                "sources": [
+                    "TestRun/subscriber-1/media-a/media/Movies",
+                    "TestRun/subscriber-1/media-b/media/Movies"
+                ]
             },
-            "sources": [
-                "TestRun/subscriber-1/media-a/media/Movies",
-                "TestRun/subscriber-1/media-b/media/Movies"
-            ],
-            "targets": [
-                "TestRun/subscriber-1/media-d/media/Movies"
-            ]
-        },
-        {
-            "definition": {
+            {
                 "name": "Movies with Genre",
-                "minimum": "10GB",
-                "genre": false
+                "sources": [
+                    "TestRun/subscriber-1/media-c/media/Movies"
+                ]
             },
-            "sources": [
-                "TestRun/subscriber-1/media-c/media/Movies"
-            ],
-            "targets": [
-                "TestRun/subscriber-1/media-d/media/Movies"
-            ]
-        },
-        {
-            "definition": {
+            {
                 "name": "TV Shows",
-                "minimum": "4GB"
+                "sources": [
+                    "TestRun/subscriber-1/media-d/media/TV Shows"
+                ]
             },
-            "targets": [
-                "TestRun/subscriber-1/media-a/media/TV Shows",
-                "TestRun/subscriber-1/media-b/media/TV Shows",
-                "TestRun/subscriber-1/media-c/media/TV Shows"
-            ],
-            "sources": [
-                "TestRun/subscriber-1/media-d/media/TV Shows"
-            ]
-        },
-        {
-            "definition": {
+            {
                 "name": "TV Shows with Genre",
-                "minimum": "500MB",
-                "genre": false
-            },
-            "sources": [
-                "TestRun/subscriber-1/media-c/media/TV Shows"
-            ],
-            "targets": [
-                "TestRun/subscriber-1/media-d/media/TV Shows"
-            ]
-        }
-    ]
+                "sources": [
+                    "TestRun/subscriber-1/media-c/media/TV Shows"
+                ]
+            }
+        ]
+    }
 }

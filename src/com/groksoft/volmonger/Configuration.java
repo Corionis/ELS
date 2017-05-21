@@ -1,5 +1,8 @@
 package com.groksoft.volmonger;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Configuration
  * <p>
@@ -27,7 +30,7 @@ public class Configuration {
 
     // publisher & subscriber
     private String publisherFileName = "";
-    private String publisherLibraryName = "";
+    private ArrayList<String> publisherLibraryName = new ArrayList<>();
     private boolean specificPublisherLibrary = false;
     private String subscriberFileName = "";
 
@@ -157,7 +160,7 @@ public class Configuration {
                     break;
                 case "-l":                                             // publisher library to process
                     if (index <= args.length - 2) {
-                        setPublisherLibraryName(args[index + 1]);
+                        addPublisherLibraryName(args[index + 1]);
                         setSpecificPublisherLibrary(true);
                         ++index;
                     } else {
@@ -351,17 +354,17 @@ public class Configuration {
      *
      * @return the publisher library name
      */
-    public String getPublisherLibraryName() {
+    public ArrayList<String> getPublisherLibraryNames() {
         return publisherLibraryName;
     }
 
     /**
-     * Sets publisher library name.
+     * Add a publisher library name.
      *
      * @param publisherLibraryName the publisher library name
      */
-    public void setPublisherLibraryName(String publisherLibraryName) {
-        this.publisherLibraryName = publisherLibraryName;
+    public void addPublisherLibraryName(String publisherLibraryName) {
+        this.publisherLibraryName.add(publisherLibraryName);
     }
 
     /**

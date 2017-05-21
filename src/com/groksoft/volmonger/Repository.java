@@ -5,15 +5,20 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 // see https://github.com/google/gson
 import com.google.gson.Gson;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.management.monitor.MonitorSettingException;
 
 /**
  * The type Repository.
@@ -75,22 +80,81 @@ public class Repository
     }
 
     /**
-     * Has boolean.
+     * Has specific item
+     * <p>
+     * Does this Library have a particular item?
+     *
+     * @param libraryName the library name
+     * @param match       the match
+     * @return the boolean
+     */
+    public boolean hasItem(String libraryName, String match) {
+        boolean has = false;
+        for (Library lib : libraryData.libraries.bibliography) {
+            if (lib.name.equalsIgnoreCase(libraryName)) {
+                for (Item item : lib.items) {
+                    if (libraryData.libraries.case_sensitive) {
+                        if (item.getItemPath().equals(match)) {
+                            has = true;
+                            break;
+                        }
+                    } else {
+                        if (item.getItemPath().equalsIgnoreCase(match)) {
+                            has = true;
+                            break;
+                        }
+                    }
+                }
+                if (has) {
+                    break;  // break outer loop also
+                }
+            }
+        }
+        return has;
+    }
+
+    /**
+     * Has specific library
      * <p>
      * Do these Libraries have a particular Library?
      *
      * @param libraryName the library name
      * @return the boolean
      */
-    public boolean has(String libraryName) {
+    public boolean hasLibrary(String libraryName) throws MongerException {
         boolean has = false;
         for (Library lib : libraryData.libraries.bibliography) {
             if (lib.name.equalsIgnoreCase(libraryName)) {
+                if (has) {
+                    throw new MonitorSettingException("Library " + lib.name + " found more than once in " + getJsonFilename());
+                }
                 has = true;
-                break;
             }
         }
         return has;
+    }
+
+    /**
+     * Get specific library
+     * <p>
+     * Do these Libraries have a particular Library?
+     *
+     * @param libraryName the library name
+     * @return the Library
+     */
+    public Library getLibrary(String libraryName) throws MongerException {
+        boolean has = false;
+        Library retLib = null;
+        for (Library lib : libraryData.libraries.bibliography) {
+            if (lib.name.equalsIgnoreCase(libraryName)) {
+                if (has) {
+                    throw new MonitorSettingException("Library " + lib.name + " found more than once in " + getJsonFilename());
+                }
+                has = true;
+                retLib = lib;
+            }
+        }
+        return retLib;
     }
 
     /**
@@ -141,8 +205,6 @@ public class Repository
                 dump();
             }
         }
-
-
     }
 
     /**
@@ -158,6 +220,10 @@ public class Repository
         boolean isDir = false;
         boolean isSym = false;
         Path path = Paths.get(directory);
+
+        if (library.items == null) {
+            library.items = new ArrayList<>();
+        }
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
             for (Path entry : directoryStream) {
@@ -188,14 +254,6 @@ public class Repository
      */
     public void sort(Library lib) {
         lib.items.sort((item1, item2) -> item1.getItemPath().compareToIgnoreCase(item2.getItemPath()));
-
-//        lib.items.sort(new Comparator<Item>()
-//        {
-//            @Override
-//            public int compare(Item item1, Item item2) {
-//                return item1.getItemPath().compareToIgnoreCase(item2.getItemPath());
-//            }
-//        });
     }
 
 
@@ -220,24 +278,39 @@ public class Repository
             throw new MongerException("libraryData.case_sensitive true/false must be defined");
         }
 
+        if (lbs.ignore_patterns.length > 0) {
+            Pattern patt = null;
+            try {
+                for (String s : lbs.ignore_patterns) {
+                    patt = Pattern.compile(s);
+                    lbs.compiledPatterns.add(patt);
+                }
+            } catch (PatternSyntaxException pe) {
+                throw new MongerException("Pattern " + patt + " has bad regular expression (regex) syntax");
+            } catch (IllegalArgumentException iae) {
+                throw new MongerException("Pattern " + patt + " has been flags");
+            }
+        }
+
         for (int i = 0; i < lbs.bibliography.length; i++) {
             Library lib = lbs.bibliography[i];
             if (lib.name == null || lib.name.length() == 0) {
                 throw new MongerException("library.name " + i + " must be defined");
             }
-
-            if (lib.sources == null || lib.sources.length == 0) {
-                throw new MongerException("library.sources " + i + " must be defined");
-            } else {
-                // Verify paths
-                for (int j = 0; j < lib.sources.length; j++) {
-                    if (lib.sources[j].length() == 0) {
-                        throw new MongerException("library[" + i + "].sources[" + j + "] must be defined");
+            if (lib.items == null || lib.items.size() == 0) {
+                if (lib.sources == null || lib.sources.length == 0) {
+                    throw new MongerException("library.sources " + i + " must be defined");
+                } else {
+                    // Verify paths
+                    for (int j = 0; j < lib.sources.length; j++) {
+                        if (lib.sources[j].length() == 0) {
+                            throw new MongerException("library[" + i + "].sources[" + j + "] must be defined");
+                        }
+                        if (Files.notExists(Paths.get(lib.sources[j]))) {
+                            throw new MongerException("library[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
+                        }
+                        logger.debug("src: " + lib.sources[j]);
                     }
-                    if (Files.notExists(Paths.get(lib.sources[j]))) {
-                        throw new MongerException("library[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
-                    }
-                    logger.debug("src: " + lib.sources[j]);
                 }
             }
         }

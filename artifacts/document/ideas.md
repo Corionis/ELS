@@ -256,8 +256,7 @@ could be done within the same run.
  6. Cloud Synchronization
     * Publisher has ALL drives
  
+ 7. Move content within a library - not a VolMonger use case.
 
-
-
-
+ 8. Move content to a different library - delete + add, but can it be done with a move?
 

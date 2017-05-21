@@ -21,11 +21,19 @@ public class Main
     private Logger logger = null;
 
     private Repository publisherRepository = null;
+    private Repository subscriberRepository = null;
 
-    private Collection publisher = null;
-    private Collection subscriber = null;
+//    private Collection publisher = null;
+//    private Collection subscriber = null;
+
     private String currentGroupName = "";
     private String lastGroupName = "";
+
+    /**
+     * Instantiates a new Main application.
+     */
+    public Main() {
+    }
 
     /**
      * Main entry point
@@ -37,12 +45,6 @@ public class Main
         int returnValue = volmonger.process(args);
         System.exit(returnValue);
     } // main
-
-    /**
-     * Instantiates a new Main application.
-     */
-    public Main() {
-    }
 
     /**
      * Process everything
@@ -72,34 +74,44 @@ public class Main
             logger.info("+ Main begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
 
             // dump the settings
-            logger.info("cfg: -c Console level = " + cfg.getConsoleLevel());
-            logger.info("cfg: -d Debug level = " + cfg.getDebugLevel());
-            logger.info("cfg: -D Dry run = " + Boolean.toString(cfg.isTestRun()));
-            logger.info("cfg: -e Export filename = " + cfg.getExportFilename());
-            logger.info("cfg: -f Log filename = " + cfg.getLogFilename());
-            logger.info("cfg: -k Keep .volmonger files = " + Boolean.toString(cfg.isKeepVolMongerFiles()));
-            logger.info("cfg: -l Publisher library name = " + cfg.getPublisherLibraryName());
-            logger.info("cfg: -m Mismatch output filename = " + cfg.getMismatchFilename());
-            logger.info("cfg: -n What's new output filename = " + cfg.getWhatsNewFilename());
-            logger.info("cfg: -p Publisher's LibraryData filename = " + cfg.getPublisherFileName());
-            logger.info("cfg: -P Publisher's collection import filename = " + cfg.getPublisherFileName());
-            logger.info("cfg: -s Subscriber's LibraryData filename = " + cfg.getSubscriberFileName());
-            logger.info("cfg: -S Subscriber collection import filename = " + cfg.getSubscriberImportFilename());
-            logger.info("cfg: -t Targets for mismatches to be copied too = " + cfg.getTargetsFilename());
-            logger.info("cfg: -v Validation run = " + Boolean.toString(cfg.isValidationRun()));
+            logger.info("  cfg: -c Console level = " + cfg.getConsoleLevel());
+            logger.info("  cfg: -d Debug level = " + cfg.getDebugLevel());
+            logger.info("  cfg: -D Dry run = " + Boolean.toString(cfg.isTestRun()));
+            logger.info("  cfg: -e Export filename = " + cfg.getExportFilename());
+            logger.info("  cfg: -f Log filename = " + cfg.getLogFilename());
+            logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(cfg.isKeepVolMongerFiles()));
+            logger.info("  cfg: -l Publisher library name(s):");
+            for (String ln : cfg.getPublisherLibraryNames()) {
+                logger.info("  cfg:     " + ln);
+            }
+            logger.info("  cfg: -m Mismatch output filename = " + cfg.getMismatchFilename());
+            logger.info("  cfg: -n What's new output filename = " + cfg.getWhatsNewFilename());
+            logger.info("  cfg: -p Publisher's LibraryData filename = " + cfg.getPublisherFileName());
+            logger.info("  cfg: -P Publisher's collection import filename = " + cfg.getPublisherFileName());
+            logger.info("  cfg: -s Subscriber's LibraryData filename = " + cfg.getSubscriberFileName());
+            logger.info("  cfg: -S Subscriber collection import filename = " + cfg.getSubscriberImportFilename());
+            logger.info("  cfg: -t Targets for mismatches to be copied too = " + cfg.getTargetsFilename());
+            logger.info("  cfg: -v Validation run = " + Boolean.toString(cfg.isValidationRun()));
 
             publisherRepository = new Repository();
+            subscriberRepository = new Repository();
 
             try {
                 if (cfg.getPublisherFileName().length() > 0) {
-                    publisherRepository.read(cfg.getPublisherFileName());
+                    readRepository(cfg.getPublisherFileName(), publisherRepository);
                 }
 
-                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
-                    publisherRepository.export();
+                if (cfg.getSubscriberFileName().length() > 0) {
+                    readRepository(cfg.getSubscriberFileName(), subscriberRepository);
                 }
 
-                publisherRepository.dump();
+                mongeCollections();
+
+//                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
+//                    publisherRepository.export();
+//                }
+
+//                publisherRepository.dump();
 
             } catch (Exception ex) {
                 logger.error(ex.getMessage());
@@ -152,41 +164,36 @@ public class Main
     } // process
 
     /**
-     * Scan a collection to find Items
+     * Read repository.
      *
-     * @param collectionFile The JSON file containing the collection
-     * @param collection     The collection object
+     * @param filename the filename
+     * @param repo     the repo
+     * @throws MongerException the monger exception
      */
-    private void scanCollection(String collectionFile, Collection collection) throws MongerException {
-//        collection.readLibrary(collectionFile);
-//        collection.validateLibrary();
-//        collection.scanAllLibraries();
-    } // scanCollection
+    private void readRepository(String filename, Repository repo) throws MongerException {
+        repo.read(filename);
+        repo.validate();
+    } // readRepository
 
     /**
      * Monge two collections
      *
-     * @param publisher  Publishes new media
-     * @param subscriber Subscribes to a Publisher to receive new media
+     * @throws MongerException the monger exception
      */
-    private void mongeCollections(Collection publisher, Collection subscriber) throws MongerException {
+    private void mongeCollections() throws MongerException {
         boolean iWin = false;
         PrintWriter mismatchFile = null;
         PrintWriter whatsNewFile = null;
+        PrintWriter targetFile = null;
         String currentWhatsNew = "";
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
-        boolean importedPublisher = false;
 
-        if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
-            importedPublisher = true;
-        }
-
-        String header = "Monging " + publisher.getLibrary().metadata.name + " to " + subscriber.getLibrary().metadata.name;
+        String header = "Monging " + publisherRepository.getLibraryData().libraries.description + " to " + subscriberRepository.getLibraryData().libraries.description;
         logger.info(header);
 
         // todo IDEA: Add some counters for the various situations: Copied, Skipped, Not found, WTF, etc. for metrics
-        
+
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0) {
             try {
@@ -213,97 +220,126 @@ public class Main
             }
         }
 
-        // Make sure we close the mismatch and whatsnew files if anything throws an exception....
-
-        // todo Rearrange this logic to be subscriber-centric.
-        //      The outer loop should iterate over the "subscribed" LibraryData.
-        //      There should be an option to specify one (or more?) LibraryData to process.
-        //      QUESTION Should there be an option to scan all, or scan as-subscribed in the loop below dynamically?
-        //               That is - only scan publisher LibraryData the subscriber has listed (subscribed to).
+        // Open the -t Target file
+        if (cfg.getTargetsFilename().length() > 0) {
+            try {
+                targetFile = new PrintWriter(cfg.getTargetsFilename());
+            } catch (FileNotFoundException fnf) {
+                String s = "File not found exception for targetFile file " + cfg.getTargetsFilename();
+                logger.error(s);
+                throw new MongerException(s);
+            }
+        }
 
         try {
-            for (Item publisherItem : publisher.getItems()) {
-                boolean has = subscriber.has(publisherItem.getItemPath());
+            for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
+                Library pubLib = null;
+                if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null) {
+                    // Does the subscribed library have items or do we need to scan
 
-                // Ignore thumbs.db files
-                // QUESTION Are there more files like thumbs.db we should ignore? If so make an array of them....
-                // ANSWER Extend library metadata to include an array of files to ignore.
-                // QUESTION Should we implement regex patterns too?
-                if (publisherItem.getItemPath().equalsIgnoreCase("Thumbs.db"))
-                    continue;
 
-                if (has) {
-                    logger.info("  + Subscriber " + subscriber.getLibrary().metadata.name + " has " + publisherItem.getItemPath());
-                } else {
+                    // todo LEFTOFF
+                    // finish implementing Targets
+                    // change template filenames to show what should go where
 
-                    if (!publisherItem.isDirectory()) {
-                        logger.info("  - Subscriber " + subscriber.getLibrary().metadata.name + " missing " + publisherItem.getItemPath());
-                        if (cfg.getMismatchFilename().length() > 0) {
-                            mismatchFile.println(publisherItem.getItemPath());
-                        }
+                    // todo How to generate a collection list?
+                    // could use subscriber file and only generate what is subscribed from publisher
+                    // generate "has" collection of what is subscribed
 
-                        if (cfg.getWhatsNewFilename().length() > 0) {
-                            /**
-                             * Only show the left side of mismatched file. And Only show it once.
-                             * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                             * Big Bang Theory
-                             * Lucifer
-                             * Legion
-                             */
-                            String path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().indexOf("\\"));
-                            if (path.length() < 1) {
-                                path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().indexOf("/"));
-                            }
 
-                            if (!currentWhatsNew.equalsIgnoreCase(path)) {
-                                whatsNewFile.println(path);
-                                currentWhatsNew = path;
-                            }
-                        }
 
-                        if (isNewGrouping(publisherItem)) {
-                            // if there is a group - process it
 
-                            if (group.size() > 0) {
-                                // get a subscriber target where the publisher item(s) will fit
-                                String target = getTarget(subscriber, group.get(0).getLibrary(), totalSize);
-                                if (target.length() > 0) {
-                                    for (Item groupItem : group) {
-                                        if (cfg.isTestRun()) {          // -t Test run option
-                                            logger.info("    Would copy " + groupItem.getFullPath());
-                                        } else {
-                                            // copy item(s) to target
-                                            logger.info("    Copied " + groupItem.getFullPath());
-                                        }
-                                    }
-                                } else {
-                                    logger.error("    No space on any subscriber " + group.get(0).getLibrary() + " target for " +
-                                            lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                    if (subLib.items == null) {
+                        subscriberRepository.scan(subLib.name);
+                    }
+                    if (pubLib.items == null) {
+                        publisherRepository.scan(pubLib.name);
+                    }
+
+                    for (Item item : pubLib.items) {
+                        boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
+                        if (has) {
+                            logger.info("  + Subscriber " + subLib.name + " has " + item.getItemPath());
+                        } else {
+                            if (cfg.getWhatsNewFilename().length() > 0) {
+                                /*
+                                 * Only show the left side of mismatched file. And Only show it once.
+                                 * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                                 * Big Bang Theory
+                                 * Lucifer
+                                 * Legion
+                                 */
+                                String path = item.getItemPath().substring(0, item.getItemPath().indexOf("\\"));
+                                if (path.length() < 1) {
+                                    path = item.getItemPath().substring(0, item.getItemPath().indexOf("/"));
+                                }
+                                if (!currentWhatsNew.equalsIgnoreCase(path)) {
+                                    assert whatsNewFile != null;
+                                    whatsNewFile.println(path);
+                                    currentWhatsNew = path;
                                 }
                             }
-                            logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
-                            group.clear();
-                            totalSize = 0;
-                            lastGroupName = currentGroupName;
+
+                            if (!item.isDirectory()) {
+                                logger.info("  - Subscriber " + subLib.name + " missing " + item.getItemPath());
+                                if (cfg.getMismatchFilename().length() > 0) {
+                                    assert mismatchFile != null;
+                                    mismatchFile.println(item.getItemPath());
+                                }
+
+                                if (isNewGrouping(item)) {
+                                    // if there is a group - process it
+                                    if (group.size() > 0) {
+                                        // get a subscriber target where the publisher item(s) will fit
+///                                        String target = getTarget(subscriber, group.get(0).getLibrary(), totalSize);
+ ///                                       if (target.length() > 0) {
+                                            for (Item groupItem : group) {
+                                                if (cfg.isTestRun()) {          // -t Test run option
+                                                    logger.info("    Would copy " + groupItem.getFullPath());
+                                                } else {
+                                                    // copy item(s) to target
+                                                    logger.info("    Copied " + groupItem.getFullPath());
+                                                }
+                                           }
+//                                        } else {
+//                                            logger.error("    No space on any subscriber " + group.get(0).getLibrary() + " target for " +
+//                                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+//                                        }
+                                    }
+                                    logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
+                                    group.clear();
+                                    totalSize = 0;
+                                    lastGroupName = currentGroupName;
+                                }
+                                long size = 0;
+                                try {
+                                    size = Files.size(Paths.get(item.getFullPath()));
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                                item.setSize(size);
+                                totalSize += size;
+                                group.add(item);
+                            }
                         }
-                        long size = 0;
-                        try {
-                            size = Files.size(Paths.get(publisherItem.getFullPath()));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        publisherItem.setSize(size);
-                        totalSize += size;
-                        group.add(publisherItem);
                     }
+                } else {
+                    throw new MongerException("Subscribed Publisher library " + subLib.name + " not found");
                 }
             }
-        } finally {
+        }
+        catch (Exception e) {
+            logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
+        }
+        finally {
             if (mismatchFile != null) {
                 mismatchFile.close();
             }
             if (whatsNewFile != null) {
                 whatsNewFile.close();
+            }
+            if (targetFile != null) {
+                targetFile.close();
             }
         }
     }

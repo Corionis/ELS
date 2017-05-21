@@ -1,10 +1,16 @@
 package com.groksoft.volmonger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 /**
  * The type Libraries.
  */
 public class Libraries
 {
+    public transient List<Pattern> compiledPatterns = new ArrayList<>();
+
     /**
      * The Description of this set of libraries.
      */
