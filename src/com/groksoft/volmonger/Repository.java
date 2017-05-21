@@ -320,16 +320,16 @@ public class Repository
     /**
      * Gets LibraryData filename.
      *
-     * @return the collection filename
+     * @return the LibraryData filename
      */
     public String getJsonFilename() {
         return jsonFilename;
     }
 
     /**
-     * Sets collection file.
+     * Sets LibraryData file.
      *
-     * @param jsonFilename the collection file
+     * @param jsonFilename the LibraryData file
      */
     public void setJsonFilename(String jsonFilename) {
         this.jsonFilename = jsonFilename;

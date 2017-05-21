@@ -1,23 +1,17 @@
 package com.groksoft.volmonger;
 
-// see https://github.com/google/gson
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * The type Targets.
  */
 public class Targets
 {
-    private transient Logger logger = LogManager.getLogger("applog");
-    private transient Configuration cfg = null;
+    /**
+     * The Description of this set of targets.
+     */
+    public String description;
 
     /**
-     * Instantiates a new Targets.
+     * The Targets.
      */
-    public Targets() {
-    }
-
-
+    public Target[] storage;
 }

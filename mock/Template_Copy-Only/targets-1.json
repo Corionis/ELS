@@ -1,0 +1,23 @@
+{
+    "targets": {
+        "description": "Targets 1"
+    },
+    "storage": [
+        {
+            "name": "Movies",
+            "minimum": "1GB",
+            "locations": [
+                "T:\media\Movies",
+                "U:\media\Movies"
+            ]
+        },
+        {
+            "name": "TV Shows",
+            "minimum": "1GB",
+            "locations": [
+                "T:\media\TV Shows",
+                "U:\media\TV Shows"
+            ]
+        }
+    ]
+}
