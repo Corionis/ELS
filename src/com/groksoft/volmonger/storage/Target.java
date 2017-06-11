@@ -13,7 +13,7 @@ public class Target
     /**
      * The Minimum space available limit.
      */
-    public long minimum;
+    public String minimum;
 
     /**
      * The Locations.

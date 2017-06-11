@@ -283,19 +283,19 @@ public class Repository
         for (int i = 0; i < lbs.bibliography.length; i++) {
             Library lib = lbs.bibliography[i];
             if (lib.name == null || lib.name.length() == 0) {
-                throw new MongerException("library.name " + i + " must be defined");
+                throw new MongerException("bibliography.name " + i + " must be defined");
             }
             if (lib.items == null || lib.items.size() == 0) {
                 if (lib.sources == null || lib.sources.length == 0) {
-                    throw new MongerException("library.sources " + i + " must be defined");
+                    throw new MongerException("bibliography.sources " + i + " must be defined");
                 } else {
                     // Verify paths
                     for (int j = 0; j < lib.sources.length; j++) {
                         if (lib.sources[j].length() == 0) {
-                            throw new MongerException("library[" + i + "].sources[" + j + "] must be defined");
+                            throw new MongerException("bibliography[" + i + "].sources[" + j + "] must be defined");
                         }
                         if (Files.notExists(Paths.get(lib.sources[j]))) {
-                            throw new MongerException("library[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
+                            throw new MongerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
                         }
                         logger.debug("src: " + lib.sources[j]);
                     }

@@ -48,6 +48,13 @@ public class Storage
             json = new String(Files.readAllBytes(Paths.get(filename)));
             json = json.replaceAll("[\n\r]", "");
             targetData = gson.fromJson(json, TargetData.class);
+
+
+
+            String p = targetData.targets.storage[0].locations[0];
+
+
+
         } catch (IOException ioe) {
             throw new MongerException("Exception while reading targets: " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
@@ -65,13 +72,27 @@ public class Storage
             throw new MongerException("TargetData are null");
         }
 
-        Targets targs = targetData.targets;
+        Targets targets = targetData.targets;
 
-        if (targs.description == null || targs.description.length() == 0) {
+        if (targets.description == null || targets.description.length() == 0) {
             throw new MongerException("targets.description must be defined");
         }
 
-        // todo More validations
+        for (int i = 0; i < targets.storage.length; ++i) {
+            Target t = targets.storage[i];
+            if (t.name == null || t.name.length() == 0) {
+                throw new MongerException("storage.name " + i + " must be defined");
+            }
+            if (t.minimum == null || t.minimum.length() == 0) {
+                throw new MongerException("storage.minimum " + i + " must be defined");
+            }
+            if (t.locations == null || t.locations.length == 0) {
+                throw new MongerException("storage.locations " + i + " must be defined");
+            }
+            for (int j = 0; j < t.locations.length; ++j) {
+
+            }
+        }
     }
 
     /**
