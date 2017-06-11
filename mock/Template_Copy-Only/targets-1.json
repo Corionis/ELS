@@ -7,16 +7,14 @@
             "name": "Movies",
             "minimum": "1GB",
             "locations": [
-                "T:\media\Movies",
-                "U:\media\Movies"
+                "TestRun/subscriber-1/media-d/media/Movies"
             ]
         },
         {
             "name": "TV Shows",
             "minimum": "1GB",
             "locations": [
-                "T:\media\TV Shows",
-                "U:\media\TV Shows"
+                "TestRun/subscriber-1/media-d/media/TV Shows"
             ]
         }
     ]

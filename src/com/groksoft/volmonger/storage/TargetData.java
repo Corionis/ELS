@@ -1,4 +1,4 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmonger.storage;
 
 /**
  * The type Target data.
@@ -10,5 +10,5 @@ public class TargetData
     /**
      * The Targets.
      */
-    Targets targets;
+    public Targets targets;
 }

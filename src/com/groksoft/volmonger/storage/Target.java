@@ -1,7 +1,7 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmonger.storage;
 
 /**
- * Created by trh on 5/20/2017.
+ * The type Target.
  */
 public class Target
 {
@@ -11,7 +11,7 @@ public class Target
     public String name;
 
     /**
-     * The Minimum.
+     * The Minimum space available limit.
      */
     public long minimum;
 

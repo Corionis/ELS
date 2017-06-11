@@ -1,24 +1,18 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmonger.storage;
 
 import java.io.*;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-// see https://github.com/google/gson
-import com.google.gson.Gson;
+import com.google.gson.Gson;                    // see https://github.com/google/gson
 
+// see https://logging.apache.org/log4j/2.x/
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.management.monitor.MonitorSettingException;
+import com.groksoft.volmonger.Configuration;
+import com.groksoft.volmonger.MongerException;
+import com.groksoft.volmonger.Utils;
 
 /**
  * The type Storage.
@@ -60,7 +54,28 @@ public class Storage
     }
 
     /**
-     * Gets TargetData filename.
+     * Validate the Targets data.
+     *
+     * @throws MongerException the monger exception
+     */
+    public void validate() throws MongerException {
+        long minimumSize;
+
+        if (getTargetData() == null) {
+            throw new MongerException("TargetData are null");
+        }
+
+        Targets targs = targetData.targets;
+
+        if (targs.description == null || targs.description.length() == 0) {
+            throw new MongerException("targets.description must be defined");
+        }
+
+        // todo More validations
+    }
+
+    /**
+     * Gets Storage filename.
      *
      * @return the TargetData filename
      */
@@ -69,7 +84,7 @@ public class Storage
     }
 
     /**
-     * Sets TargetData file.
+     * Sets Storage file.
      *
      * @param jsonFilename the TargetData file
      */
@@ -77,8 +92,13 @@ public class Storage
         this.jsonFilename = jsonFilename;
     }
 
-
-    // todo Add validate and other methods
-
+    /**
+     * Gets targetData.
+     *
+     * @return the target data
+     */
+    public TargetData getTargetData() {
+        return targetData;
+    }
 
 }

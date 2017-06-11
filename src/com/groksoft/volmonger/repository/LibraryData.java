@@ -1,4 +1,4 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmonger.repository;
 
 /**
  * The type Library data.
@@ -10,5 +10,5 @@ public class LibraryData
     /**
      * The Libraries.
      */
-    Libraries libraries;
+    public Libraries libraries;
 }

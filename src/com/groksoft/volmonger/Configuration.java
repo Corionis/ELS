@@ -1,7 +1,10 @@
 package com.groksoft.volmonger;
 
 import java.util.ArrayList;
-import java.util.List;
+
+// see https://logging.apache.org/log4j/2.x/
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Configuration
@@ -9,6 +12,8 @@ import java.util.List;
  * Contains all command-line options and any other application-level configuration.
  */
 public class Configuration {
+    private transient Logger logger = LogManager.getLogger("applog");
+
     private final String VOLMONGER_VERSION = "1.0.0";
     private static Configuration instance = null;
 
@@ -51,6 +56,30 @@ public class Configuration {
             instance = new Configuration();
         }
         return instance;
+    }
+
+    /**
+     * Dump the configuration
+     */
+    public void dump() {
+        logger.info("  cfg: -c Console level = " + getConsoleLevel());
+        logger.info("  cfg: -d Debug level = " + getDebugLevel());
+        logger.info("  cfg: -D Dry run = " + Boolean.toString(isTestRun()));
+        logger.info("  cfg: -e Export filename = " + getExportFilename());
+        logger.info("  cfg: -f Log filename = " + getLogFilename());
+        logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(isKeepVolMongerFiles()));
+        logger.info("  cfg: -l Publisher library name(s):");
+        for (String ln : getPublisherLibraryNames()) {
+            logger.info("  cfg:     " + ln);
+        }
+        logger.info("  cfg: -m Mismatch output filename = " + getMismatchFilename());
+        logger.info("  cfg: -n What's new output filename = " + getWhatsNewFilename());
+        logger.info("  cfg: -p Publisher's LibraryData filename = " + getPublisherFileName());
+        logger.info("  cfg: -P Publisher's collection import filename = " + getPublisherFileName());
+        logger.info("  cfg: -s Subscriber's LibraryData filename = " + getSubscriberFileName());
+        logger.info("  cfg: -S Subscriber collection import filename = " + getSubscriberImportFilename());
+        logger.info("  cfg: -t Targets for mismatches to be copied too = " + getTargetsFilename());
+        logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
     }
 
     /**

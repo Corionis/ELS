@@ -1,10 +1,5 @@
 package com.groksoft.volmonger;
 
-// see https://logging.apache.org/log4j/2.x/
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,8 +7,17 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+// see https://logging.apache.org/log4j/2.x/
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.groksoft.volmonger.repository.Item;
+import com.groksoft.volmonger.repository.Library;
+import com.groksoft.volmonger.repository.Repository;
+import com.groksoft.volmonger.storage.Storage;
+
 /**
- * Main - main program
+ * Main - VolMonger program
  */
 public class Main
 {
@@ -22,6 +26,8 @@ public class Main
 
     private Repository publisherRepository = null;
     private Repository subscriberRepository = null;
+
+    private Storage storageTargets = null;
 
 //    private Collection publisher = null;
 //    private Collection subscriber = null;
@@ -62,8 +68,8 @@ public class Main
 
             // setup the logger
             System.setProperty("logFilename", cfg.getLogFilename());
-            System.setProperty("debugLevel", cfg.getDebugLevel());
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
+            System.setProperty("debugLevel", cfg.getDebugLevel());
             org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
             ctx.reconfigure();
 
@@ -72,29 +78,12 @@ public class Main
 
             // the + makes searching for the beginning of a run easier
             logger.info("+ Main begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
+            cfg.dump();
 
-            // dump the settings
-            logger.info("  cfg: -c Console level = " + cfg.getConsoleLevel());
-            logger.info("  cfg: -d Debug level = " + cfg.getDebugLevel());
-            logger.info("  cfg: -D Dry run = " + Boolean.toString(cfg.isTestRun()));
-            logger.info("  cfg: -e Export filename = " + cfg.getExportFilename());
-            logger.info("  cfg: -f Log filename = " + cfg.getLogFilename());
-            logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(cfg.isKeepVolMongerFiles()));
-            logger.info("  cfg: -l Publisher library name(s):");
-            for (String ln : cfg.getPublisherLibraryNames()) {
-                logger.info("  cfg:     " + ln);
-            }
-            logger.info("  cfg: -m Mismatch output filename = " + cfg.getMismatchFilename());
-            logger.info("  cfg: -n What's new output filename = " + cfg.getWhatsNewFilename());
-            logger.info("  cfg: -p Publisher's LibraryData filename = " + cfg.getPublisherFileName());
-            logger.info("  cfg: -P Publisher's collection import filename = " + cfg.getPublisherFileName());
-            logger.info("  cfg: -s Subscriber's LibraryData filename = " + cfg.getSubscriberFileName());
-            logger.info("  cfg: -S Subscriber collection import filename = " + cfg.getSubscriberImportFilename());
-            logger.info("  cfg: -t Targets for mismatches to be copied too = " + cfg.getTargetsFilename());
-            logger.info("  cfg: -v Validation run = " + Boolean.toString(cfg.isValidationRun()));
-
+            // create primary objects
             publisherRepository = new Repository();
             subscriberRepository = new Repository();
+            storageTargets = new Storage();
 
             try {
                 if (cfg.getPublisherFileName().length() > 0) {
@@ -105,7 +94,15 @@ public class Main
                     readRepository(cfg.getSubscriberFileName(), subscriberRepository);
                 }
 
-                mongeCollections();
+                if (cfg.getTargetsFilename().length() > 0) {
+                    readTargets(cfg.getTargetsFilename(), storageTargets);
+                }
+
+                if (cfg.getPublisherFileName().length() > 0 &&
+                        cfg.getSubscriberFileName().length() > 0 &&
+                        cfg.getTargetsFilename().length() > 0) {
+                    mongeCollections();
+                }
 
 //                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
 //                    publisherRepository.export();
@@ -164,18 +161,6 @@ public class Main
     } // process
 
     /**
-     * Read repository.
-     *
-     * @param filename the filename
-     * @param repo     the repo
-     * @throws MongerException the monger exception
-     */
-    private void readRepository(String filename, Repository repo) throws MongerException {
-        repo.read(filename);
-        repo.validate();
-    } // readRepository
-
-    /**
      * Monge two collections
      *
      * @throws MongerException the monger exception
@@ -220,17 +205,6 @@ public class Main
             }
         }
 
-        // Open the -t Target file
-        if (cfg.getTargetsFilename().length() > 0) {
-            try {
-                targetFile = new PrintWriter(cfg.getTargetsFilename());
-            } catch (FileNotFoundException fnf) {
-                String s = "File not found exception for targetFile file " + cfg.getTargetsFilename();
-                logger.error(s);
-                throw new MongerException(s);
-            }
-        }
-
         try {
             for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
                 Library pubLib = null;
@@ -245,8 +219,6 @@ public class Main
                     // todo How to generate a collection list?
                     // could use subscriber file and only generate what is subscribed from publisher
                     // generate "has" collection of what is subscribed
-
-
 
 
                     if (subLib.items == null) {
@@ -292,15 +264,15 @@ public class Main
                                     if (group.size() > 0) {
                                         // get a subscriber target where the publisher item(s) will fit
 ///                                        String target = getTarget(subscriber, group.get(0).getLibrary(), totalSize);
- ///                                       if (target.length() > 0) {
-                                            for (Item groupItem : group) {
-                                                if (cfg.isTestRun()) {          // -t Test run option
-                                                    logger.info("    Would copy " + groupItem.getFullPath());
-                                                } else {
-                                                    // copy item(s) to target
-                                                    logger.info("    Copied " + groupItem.getFullPath());
-                                                }
-                                           }
+                                        ///                                       if (target.length() > 0) {
+                                        for (Item groupItem : group) {
+                                            if (cfg.isTestRun()) {          // -t Test run option
+                                                logger.info("    Would copy " + groupItem.getFullPath());
+                                            } else {
+                                                // copy item(s) to target
+                                                logger.info("    Copied " + groupItem.getFullPath());
+                                            }
+                                        }
 //                                        } else {
 //                                            logger.error("    No space on any subscriber " + group.get(0).getLibrary() + " target for " +
 //                                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
@@ -327,19 +299,14 @@ public class Main
                     throw new MongerException("Subscribed Publisher library " + subLib.name + " not found");
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
-        }
-        finally {
+        } finally {
             if (mismatchFile != null) {
                 mismatchFile.close();
             }
             if (whatsNewFile != null) {
                 whatsNewFile.close();
-            }
-            if (targetFile != null) {
-                targetFile.close();
             }
         }
     }
@@ -370,16 +337,16 @@ public class Main
      * Will return one of the subscriber targets for the library of the item that is
      * large enough to hold the size specified, otherwise an empty string is returned.
      *
-     * @param subscriber the subscriber collection object
      * @param library    the publisher library.definition.name
      * @param size       the total size of item(s) to be copied
      * @return the target
      * @throws MongerException the monger exception
      */
-    public String getTarget(Collection subscriber, String library, long size) throws MongerException {
+    public String getTarget(String library, long size) throws MongerException {
         String target = "";
         boolean allFull = true;
         boolean notFound = true;
+/*
 
         // setup the -m mismatch output file
         if (cfg.getTargetsFilename().length() > 0) {
@@ -423,6 +390,7 @@ public class Main
                 break;  // can match only one library name
             }
         }
+*/
         if (notFound) {
 
             // QUESTION should this be an exception?
@@ -433,10 +401,20 @@ public class Main
     }
 
     /**
-     * Read targets.
-     * todo Not sure if this is the place for this......
+     * Read repository.
+     *
+     * @param filename the filename
+     * @param repo     the repo
+     * @throws MongerException the monger exception
      */
-    public void readTargets() {
+    private void readRepository(String filename, Repository repo) throws MongerException {
+        repo.read(filename);
+        repo.validate();
+    } // readRepository
+
+    public void readTargets(String filename, Storage storage) throws MongerException {
+        storage.read(filename);
+        storage.validate();
     }
 
     /**

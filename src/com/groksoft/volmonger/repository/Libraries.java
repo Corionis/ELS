@@ -1,4 +1,4 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmonger.repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,9 @@ import java.util.regex.Pattern;
  */
 public class Libraries
 {
+    /**
+     * The compiled patterns of ignore_patterns.
+     */
     public transient List<Pattern> compiledPatterns = new ArrayList<>();
 
     /**
@@ -17,7 +20,7 @@ public class Libraries
     public String description;
 
     /**
-     * If case-sensitive.
+     * If case-sensitive true/false.
      */
     public Boolean case_sensitive;
 

@@ -1,4 +1,4 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmonger.repository;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -6,19 +6,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-// see https://github.com/google/gson
-import com.google.gson.Gson;
+import com.google.gson.Gson;                    // see https://github.com/google/gson
 
+// see https://logging.apache.org/log4j/2.x/
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.management.monitor.MonitorSettingException;
+import com.groksoft.volmonger.Configuration;
+import com.groksoft.volmonger.MongerException;
+import com.groksoft.volmonger.Utils;
 
 /**
  * The type Repository.
@@ -126,7 +125,7 @@ public class Repository
         for (Library lib : libraryData.libraries.bibliography) {
             if (lib.name.equalsIgnoreCase(libraryName)) {
                 if (has) {
-                    throw new MonitorSettingException("Library " + lib.name + " found more than once in " + getJsonFilename());
+                    throw new MongerException("Library " + lib.name + " found more than once in " + getJsonFilename());
                 }
                 has = true;
             }
@@ -148,7 +147,7 @@ public class Repository
         for (Library lib : libraryData.libraries.bibliography) {
             if (lib.name.equalsIgnoreCase(libraryName)) {
                 if (has) {
-                    throw new MonitorSettingException("Library " + lib.name + " found more than once in " + getJsonFilename());
+                    throw new MongerException("Library " + lib.name + " found more than once in " + getJsonFilename());
                 }
                 has = true;
                 retLib = lib;
@@ -192,18 +191,7 @@ public class Repository
             for (String src : lib.sources) {
                 scanDirectory(lib, src, src);
             }
-
-            if (!cfg.getConsoleLevel().equalsIgnoreCase("off")) {
-                System.out.println("PRESORT of libraries from: " + getJsonFilename());
-                dump();
-            }
-
             sort(lib);
-
-            if (!cfg.getConsoleLevel().equalsIgnoreCase("off")) {
-                System.out.println("\r\nSORTED of libraries from: " + getJsonFilename());
-                dump();
-            }
         }
     }
 
@@ -272,10 +260,10 @@ public class Repository
         Libraries lbs = libraryData.libraries;
 
         if (lbs.description == null || lbs.description.length() == 0) {
-            throw new MongerException("libraryData.description must be defined");
+            throw new MongerException("libraries.description must be defined");
         }
         if (lbs.case_sensitive == null) {
-            throw new MongerException("libraryData.case_sensitive true/false must be defined");
+            throw new MongerException("libraries.case_sensitive true/false must be defined");
         }
 
         if (lbs.ignore_patterns.length > 0) {
@@ -288,7 +276,7 @@ public class Repository
             } catch (PatternSyntaxException pe) {
                 throw new MongerException("Pattern " + patt + " has bad regular expression (regex) syntax");
             } catch (IllegalArgumentException iae) {
-                throw new MongerException("Pattern " + patt + " has been flags");
+                throw new MongerException("Pattern " + patt + " has bad flags");
             }
         }
 
