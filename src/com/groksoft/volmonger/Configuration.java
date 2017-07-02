@@ -27,11 +27,11 @@ public class Configuration {
     private boolean validationRun = false;
 
     private String exportFilename = "";
-    private String subscriberImportFilename = "";
-    private String publisherImportFilename = "";
     private String mismatchFilename = "";
-    private String whatsNewFilename = "";
+    private String publisherImportFilename = "";
+    private String subscriberImportFilename = "";
     private String targetsFilename = "";
+    private String whatsNewFilename = "";
 
     // publisher & subscriber
     private String publisherFileName = "";

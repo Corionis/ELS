@@ -88,17 +88,17 @@ public class Main
             storageTargets = new Storage();
 
             try {
-                // get Publisher metadata
+                // get -p Publisher metadata
                 if (cfg.getPublisherFileName().length() > 0) {
                     readRepository(cfg.getPublisherFileName(), publisherRepository);
                 }
 
-                // get Subscriber metadata
+                // get -s Subscriber metadata
                 if (cfg.getSubscriberFileName().length() > 0) {
                     readRepository(cfg.getSubscriberFileName(), subscriberRepository);
                 }
 
-                // get Targets
+                // get -t Targets
                 if (cfg.getTargetsFilename().length() > 0) {
                     readTargets(cfg.getTargetsFilename(), storageTargets);
                 }
@@ -225,18 +225,18 @@ public class Main
                     // generate "has" collection of what is subscribed
 
 
-                    // Does the subscribed library have items or do we need to scan?
-                    if (subLib.items == null) {
-                        subscriberRepository.scan(subLib.name);
-                    }
+                    // Does the libraries have items or do we need to scan?
                     if (pubLib.items == null) {
                         publisherRepository.scan(pubLib.name);
+                    }
+                    if (subLib.items == null) {
+                        subscriberRepository.scan(subLib.name);
                     }
 
                     for (Item item : pubLib.items) {
                         boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
                         if (has) {
-                            logger.info("  + Subscriber " + subLib.name + " has " + item.getItemPath());
+                            logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
                         } else {
                             if (cfg.getWhatsNewFilename().length() > 0) {
                                 /*
@@ -258,7 +258,7 @@ public class Main
                             }
 
                             if (!item.isDirectory()) {
-                                logger.info("  - Subscriber " + subLib.name + " missing " + item.getItemPath());
+                                logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
                                 if (cfg.getMismatchFilename().length() > 0) {
                                     assert mismatchFile != null;
                                     mismatchFile.println(item.getItemPath());
