@@ -4,7 +4,7 @@
         "storage": [
             {
                 "name": "Movies",
-                "minimum": "1GB",
+                "minimum": "50kb",
                 "locations": [
                     "TestRun/subscriber-1/media-d/media/Movies"
                 ]

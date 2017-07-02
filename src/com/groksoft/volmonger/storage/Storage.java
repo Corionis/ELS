@@ -26,6 +26,8 @@ public class Storage
     private TargetData targetData = null;
     private String jsonFilename = "";
 
+    public final long minimumBytes = 1048576L;      // minimum minimum bytes (1MB)
+
     /**
      * Instantiates a new Storage instance.
      */
@@ -48,13 +50,7 @@ public class Storage
             json = new String(Files.readAllBytes(Paths.get(filename)));
             json = json.replaceAll("[\n\r]", "");
             targetData = gson.fromJson(json, TargetData.class);
-
-
-
             String p = targetData.targets.storage[0].locations[0];
-
-
-
         } catch (IOException ioe) {
             throw new MongerException("Exception while reading targets: " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
@@ -86,13 +82,24 @@ public class Storage
             if (t.minimum == null || t.minimum.length() == 0) {
                 throw new MongerException("storage.minimum " + i + " must be defined");
             }
+            long min = Utils.getScaledValue(t.minimum);
+            if (min < minimumBytes) {               // non-fatal warning
+                logger.warn("storage.minimum " + i + " (" + t.minimum + ") is less than minimum of " + minimumBytes + ". Using " + minimumBytes);
+            }
             if (t.locations == null || t.locations.length == 0) {
                 throw new MongerException("storage.locations " + i + " must be defined");
             }
             for (int j = 0; j < t.locations.length; ++j) {
-
+                if (t.locations[j].length() == 0) {
+                    throw new MongerException("storage[" + i + "].locations[" + j + "] must be defined");
+                }
+                if (Files.notExists(Paths.get(t.locations[j]))) {
+                    throw new MongerException("storage[" + i + "].locations[" + j + "]: " + t.locations[j] + " does not exist");
+                }
+                logger.debug("loc: " + t.locations[j]);
             }
         }
+        logger.info("Targets validation successful: " + getJsonFilename());
     }
 
     /**

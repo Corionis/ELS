@@ -36,7 +36,7 @@ public class Main
     private String lastGroupName = "";
 
     /**
-     * Instantiates a new Main application.
+     * Instantiates the Main application.
      */
     public Main() {
     }
@@ -80,24 +80,30 @@ public class Main
             logger.info("+ Main begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
             cfg.dump();
 
+            // todo Add sanity checks for option combinations that do not make sense
+
             // create primary objects
             publisherRepository = new Repository();
             subscriberRepository = new Repository();
             storageTargets = new Storage();
 
             try {
+                // get Publisher metadata
                 if (cfg.getPublisherFileName().length() > 0) {
                     readRepository(cfg.getPublisherFileName(), publisherRepository);
                 }
 
+                // get Subscriber metadata
                 if (cfg.getSubscriberFileName().length() > 0) {
                     readRepository(cfg.getSubscriberFileName(), subscriberRepository);
                 }
 
+                // get Targets
                 if (cfg.getTargetsFilename().length() > 0) {
                     readTargets(cfg.getTargetsFilename(), storageTargets);
                 }
 
+                // if all the pieces are specified monge the collections
                 if (cfg.getPublisherFileName().length() > 0 &&
                         cfg.getSubscriberFileName().length() > 0 &&
                         cfg.getTargetsFilename().length() > 0) {
@@ -209,11 +215,9 @@ public class Main
             for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
                 Library pubLib = null;
                 if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null) {
-                    // Does the subscribed library have items or do we need to scan
 
 
                     // todo LEFTOFF
-                    // finish implementing Targets
                     // change template filenames to show what should go where
 
                     // todo How to generate a collection list?
@@ -221,6 +225,7 @@ public class Main
                     // generate "has" collection of what is subscribed
 
 
+                    // Does the subscribed library have items or do we need to scan?
                     if (subLib.items == null) {
                         subscriberRepository.scan(subLib.name);
                     }

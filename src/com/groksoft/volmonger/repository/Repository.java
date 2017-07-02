@@ -302,7 +302,7 @@ public class Repository
                 }
             }
         }
-        logger.info("Validation successful");
+        logger.info("Library validation successful: " + getJsonFilename());
     }
 
     /**

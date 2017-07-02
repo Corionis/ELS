@@ -12,9 +12,6 @@ public class Library
      */
     public String name;
 
-    // QUESTION Should a library "type" be added?
-    // Plex types: Movies, TV Shows, Music, Photos, Other Videos
-
     /**
      * One or more Sources.
      */
