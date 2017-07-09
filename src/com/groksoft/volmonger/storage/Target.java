@@ -6,7 +6,7 @@ package com.groksoft.volmonger.storage;
 public class Target
 {
     /**
-     * The library Name.
+     * The target Name.
      */
     public String name;
 

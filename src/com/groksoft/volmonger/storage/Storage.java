@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;                    // see https://github.com/google/gson
 
 // see https://logging.apache.org/log4j/2.x/
+import com.groksoft.volmonger.repository.Library;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +34,29 @@ public class Storage
      */
     public Storage() {
         cfg = Configuration.getInstance();
+    }
+
+    /**
+     * Get target for a specific library
+     * <p>
+     * Do these Targets have a particular Library?
+     *
+     * @param libraryName the library name
+     * @return the Target
+     */
+    public Target getTarget(String libraryName) throws MongerException {
+        boolean has = false;
+        Target retTarget = null;
+        for (Target tar : targetData.targets.storage) {
+            if (tar.name.equalsIgnoreCase(libraryName)) {
+                if (has) {
+                    throw new MongerException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
+                }
+                has = true;
+                retTarget = tar;
+            }
+        }
+        return retTarget;
     }
 
     /**

@@ -1,13 +1,15 @@
 package com.groksoft.volmonger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.ArrayList;
 
 // see https://logging.apache.org/log4j/2.x/
+import com.groksoft.volmonger.storage.Target;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -225,7 +227,7 @@ public class Main
                     // generate "has" collection of what is subscribed
 
 
-                    // Does the libraries have items or do we need to scan?
+                    // Do the libraries have items or do we need to scan?
                     if (pubLib.items == null) {
                         publisherRepository.scan(pubLib.name);
                     }
@@ -265,23 +267,23 @@ public class Main
                                 }
 
                                 if (isNewGrouping(item)) {
-                                    // if there is a group - process it
+                                    // if there is a new group - process it
                                     if (group.size() > 0) {
-                                        // get a subscriber target where the publisher item(s) will fit
-///                                        String target = getTarget(subscriber, group.get(0).getLibrary(), totalSize);
-                                        ///                                       if (target.length() > 0) {
-                                        for (Item groupItem : group) {
-                                            if (cfg.isTestRun()) {          // -t Test run option
-                                                logger.info("    Would copy " + groupItem.getFullPath());
-                                            } else {
-                                                // copy item(s) to target
-                                                logger.info("    Copied " + groupItem.getFullPath());
+                                        String targetPath = getTarget(subLib.name, totalSize);
+                                        if (targetPath != null) {
+                                            for (Item groupItem : group) {
+                                                if (cfg.isTestRun()) {          // -t Test run option
+                                                    logger.info("    Would copy " + groupItem.getFullPath());
+                                                } else {
+                                                    // copy item(s) to targetPath
+                                                    copyFile(groupItem.getFullPath(), targetPath);
+                                                    logger.info("    Copied " + groupItem.getFullPath());
+                                                }
                                             }
+                                        } else {
+                                            logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
+                                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
                                         }
-//                                        } else {
-//                                            logger.error("    No space on any subscriber " + group.get(0).getLibrary() + " target for " +
-//                                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
-//                                        }
                                     }
                                     logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
                                     group.clear();
@@ -289,11 +291,7 @@ public class Main
                                     lastGroupName = currentGroupName;
                                 }
                                 long size = 0;
-                                try {
-                                    size = Files.size(Paths.get(item.getFullPath()));
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
+                                size = getItemSize(item);
                                 item.setSize(size);
                                 totalSize += size;
                                 group.add(item);
@@ -342,65 +340,40 @@ public class Main
      * Will return one of the subscriber targets for the library of the item that is
      * large enough to hold the size specified, otherwise an empty string is returned.
      *
-     * @param library    the publisher library.definition.name
-     * @param size       the total size of item(s) to be copied
+     * @param library the publisher library.definition.name
+     * @param size    the total size of item(s) to be copied
      * @return the target
      * @throws MongerException the monger exception
      */
     public String getTarget(String library, long size) throws MongerException {
-        String target = "";
+        String target = null;
         boolean allFull = true;
         boolean notFound = true;
-/*
 
-        // setup the -m mismatch output file
-        if (cfg.getTargetsFilename().length() > 0) {
-            try {
-                logger.info("Using Targets from file " + cfg.getTargetsFilename());
-                readTargets();
-            }   // catch (FileNotFoundException fnf) {
-            catch (Exception fnf) {
-                String s = "File not found exception for mismatch output file " + cfg.getMismatchFilename();
-                logger.error(s);
-                throw new MongerException(s);
-            }
-        }
+        // find the matching library
+        Target tar = storageTargets.getTarget(library);
+        if (tar != null) {
+            notFound = false;
+            for (int j = 0; j < tar.locations.length; ++j) {
 
-        for (int i = 0; i < subscriber.getLibrary().libraries.length; ++i) {
-
-            // find the matching subscriber library
-            if (library.equalsIgnoreCase(subscriber.getLibrary().libraries[i].definition.name)) {
-                notFound = false;
-
-                // fixme Change targets to it's own file and use the -t option to define it.
-                for (int j = 0; j < subscriber.getLibrary().libraries[i].targets.length; ++j) {
-
-                    // check space on the candidate target
-                    String candidate = subscriber.getLibrary().libraries[i].targets[j];
-                    long space = availableSpace(candidate);
-                    long minimum = Utils.getScaledValue(subscriber.getLibrary().libraries[i].definition.minimum);
-
-                    if (space > minimum) {                  // check target space minimum
-                        allFull = false;
-
-                        if (space > size) {                 // check size of item(s) to be copied
-                            target = candidate;             // has space, use it
-                            break;
-                        }
+                // check space on the candidate target
+                String candidate = tar.locations[j];
+                long space = availableSpace(candidate);     // todo Move to Transport class
+                long minimum = Utils.getScaledValue(tar.minimum);
+                if (space > minimum) {                  // check target space minimum
+                    allFull = false;
+                    if (space > size) {                 // check size of item(s) to be copied
+                        target = candidate;             // has space, use it
+                        break;
                     }
                 }
-                if (allFull) {
-                    logger.error("All targets for library " + library + " are below definition.minimum of " + subscriber.getLibrary().libraries[i].definition.minimum);
-                }
-                break;  // can match only one library name
+            }
+            if (allFull) {
+                logger.error("All locations for library " + library + " are below definition.minimum of " + tar.minimum);
             }
         }
-*/
         if (notFound) {
-
-            // QUESTION should this be an exception?
-
-            logger.error("No subscriber library match found for publisher library " + library);
+            logger.error("No target library match found for publisher library " + library);
         }
         return target;
     }
@@ -425,33 +398,51 @@ public class Main
     /**
      * Available space on target.
      *
-     * @param target the target
+     * @param location the path to the target
      * @return the long space available on target in bytes
      */
-    public long availableSpace(String target) {
-        long space = Utils.getScaledValue("4TB");
+    public long availableSpace(String location) {
 
-        // todo if local just get the disk free space of the target
-
-        // todo if target transport is a Socket make the size request to the client end
-
+        // todo Move to Transport class
+        long space = 0;
+        try {
+            File f = new File(location);
+            space = f.getFreeSpace();
+            //space = Files.getFileStore(Paths.get(location).toRealPath().getRoot()).getUsableSpace();
+        } catch (SecurityException e) {
+            logger.error("Exception '" + e.getMessage() + "' getting available space from " + location);
+        }
         return space;
     }
 
     /**
-     * Total item(s) size long.
+     * Get item size long.
      *
      * @param item the item root node
      * @return the long size of the item(s) in bytes
      */
-    public long totalItemSize(Item item) {
-        long size = 1024 * 1024;
-
-        // todo get size of item
-
-        // todo item may be a directory - if so get total size of all objects in it recursively
-
+    public long getItemSize(Item item) {
+        long size = 0;
+        try {
+            size = Files.size(Paths.get(item.getFullPath()));    /// todo Move to Transport class
+        } catch (IOException e) {
+            logger.error("Exception '" + e.getMessage() + "' getting size of item " + item.getFullPath());
+        }
         return size;
+    }
+
+    /**
+     * Copy file.
+     *
+     * @param from the from
+     * @param to   the to
+     */
+    public void copyFile(String from, String to) {
+        try {
+            Files.copy(Paths.get(from).toRealPath(), Paths.get(to).toRealPath(), StandardCopyOption.COPY_ATTRIBUTES, LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 } // Main
