@@ -72,7 +72,6 @@ public class Storage
             logger.info("Reading Targets file " + filename);
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
-            json = json.replaceAll("[\n\r]", "");
             targetData = gson.fromJson(json, TargetData.class);
             String p = targetData.targets.storage[0].locations[0];
         } catch (IOException ioe) {

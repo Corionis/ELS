@@ -46,6 +46,28 @@ public class Utils
     }
 
     /**
+     * Gets last path.
+     *
+     * @param full the full
+     * @return the last path
+     */
+    public static String getLastPath(String full) {
+        String path = "";
+        int p = full.indexOf("\\");
+        if (p >= 0) {
+            path = full.substring(0, p);
+        } else {
+            p = full.indexOf("/");
+            if (p >= 0) {
+                path = full.substring(0, p);
+            } else {
+                path = full;
+            }
+        }
+        return path;
+    }
+
+    /**
      * Gets stack trace.
      *
      * @param throwable the throwable

@@ -11,24 +11,14 @@
                 "name": "Movies",
                 "sources": [
                     "TestRun/subscriber-1/media-a/media/Movies",
-                    "TestRun/subscriber-1/media-b/media/Movies"
-                ]
-            },
-            {
-                "name": "Movies with Genre",
-                "sources": [
+                    "TestRun/subscriber-1/media-b/media/Movies",
                     "TestRun/subscriber-1/media-c/media/Movies"
                 ]
             },
             {
                 "name": "TV Shows",
                 "sources": [
-                    "TestRun/subscriber-1/media-d/media/TV Shows"
-                ]
-            },
-            {
-                "name": "TV Shows with Genre",
-                "sources": [
+                    "TestRun/subscriber-1/media-d/media/TV Shows",
                     "TestRun/subscriber-1/media-c/media/TV Shows"
                 ]
             }

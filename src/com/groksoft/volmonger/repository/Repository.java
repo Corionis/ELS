@@ -169,7 +169,6 @@ public class Repository
             logger.info("Reading Libraries file " + filename);
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
-            json = json.replaceAll("[\n\r]", "");
             libraryData = gson.fromJson(json, LibraryData.class);
         } catch (IOException ioe) {
             throw new MongerException("Exception while reading libraries " + filename + " trace: " + Utils.getStackTrace(ioe));

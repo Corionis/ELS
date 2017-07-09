@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 // see https://logging.apache.org/log4j/2.x/
 import com.groksoft.volmonger.storage.Target;
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,9 +30,6 @@ public class Main
 
     private Storage storageTargets = null;
 
-//    private Collection publisher = null;
-//    private Collection subscriber = null;
-
     private String currentGroupName = "";
     private String lastGroupName = "";
 
@@ -53,6 +49,20 @@ public class Main
         int returnValue = volmonger.process(args);
         System.exit(returnValue);
     } // main
+
+    private void export() {
+        int returnValue = 0;
+        try {
+            for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography) {
+                publisherRepository.scan(pubLib.name);
+            }
+            publisherRepository.export();
+        } catch (MongerException e) {
+            // no logger yet to just print to the screen
+            System.out.println(e.getMessage());
+            returnValue = 1;
+        }
+    }
 
     /**
      * Process everything
@@ -92,17 +102,40 @@ public class Main
             try {
                 // get -p Publisher metadata
                 if (cfg.getPublisherFileName().length() > 0) {
-                    readRepository(cfg.getPublisherFileName(), publisherRepository);
+                    readRepository(cfg.getPublisherFileName(), publisherRepository, true);
+                }
+
+                // get -P Publisher import metadata
+                if (cfg.getPublisherImportFilename().length() > 0) {
+                    readRepository(cfg.getPublisherImportFilename(), publisherRepository, false);
                 }
 
                 // get -s Subscriber metadata
                 if (cfg.getSubscriberFileName().length() > 0) {
-                    readRepository(cfg.getSubscriberFileName(), subscriberRepository);
+                    readRepository(cfg.getSubscriberFileName(), subscriberRepository, true);
+                }
+
+                // get -S Subscriber import metadata
+                if (cfg.getSubscriberImportFilename().length() > 0) {
+                    readRepository(cfg.getSubscriberImportFilename(), subscriberRepository, false);
                 }
 
                 // get -t Targets
                 if (cfg.getTargetsFilename().length() > 0) {
                     readTargets(cfg.getTargetsFilename(), storageTargets);
+                } else {
+                    logger.warn("NOTE: No targets file was specified - performing a dry run");
+                    cfg.setDryRun(true);
+                }
+
+                // handle -e export publisher (only)
+                if (cfg.getExportFilename().length() > 0) {
+                    if (cfg.getPublisherFileName().length() > 0 ||
+                            cfg.getPublisherImportFilename().length() > 0) {
+                        export();
+                    } else {
+                        throw new MongerException("-e option requires the -p and/or -P options");
+                    }
                 }
 
                 // if all the pieces are specified monge the collections
@@ -112,48 +145,12 @@ public class Main
                     mongeCollections();
                 }
 
-//                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
-//                    publisherRepository.export();
-//                }
-
-//                publisherRepository.dump();
-
             } catch (Exception ex) {
                 logger.error(ex.getMessage());
                 returnValue = 2;
             }
-
-
-            // OLD
-//            publisher = new Collection();
-//            subscriber = new Collection();
-//
-//            try {
-//                if (cfg.getPublisherImportFilename().length() > 0) {                // -P import publisher if specified
-//                    publisher.importItems(cfg.getPublisherImportFilename());
-//                } else {
-//                    if (cfg.getPublisherFileName().length() > 0) {              // else -p publisher library scan
-//                        scanCollection(cfg.getPublisherFileName(), publisher);
-//                    }
-//                }
-//                if (cfg.getExportFilename().length() > 0) {                     // -e export publisher (only)
-//                    publisher.exportCollection();
-//                } else {
-//                    if (cfg.getSubscriberImportFilename().length() > 0) {       // -S import subscriber if specified
-//                        subscriber.importItems(cfg.getSubscriberImportFilename());
-//                    } else {
-//                        if (cfg.getSubscriberFileName().length() > 0) {         // else -s subscriber library scan
-//                            scanCollection(cfg.getSubscriberFileName(), subscriber);
-//                        }
-//                    }
-//                    mongeCollections(publisher, subscriber);                    // monge publisher-to-subscriber
-//                }
-//            } catch (Exception e) {
-//                // the methods above throw pre-formatted messages, just use that
-//                logger.error(e.getMessage());
-//                returnValue = 2;
-//            }
-        } catch (MongerException e) {
+        }
+        catch (MongerException e) {
             // no logger yet to just print to the screen
             System.out.println(e.getMessage());
             returnValue = 1;
@@ -174,6 +171,7 @@ public class Main
      * @throws MongerException the monger exception
      */
     private void mongeCollections() throws MongerException {
+        int errorCount = 0;
         boolean iWin = false;
         PrintWriter mismatchFile = null;
         PrintWriter whatsNewFile = null;
@@ -217,21 +215,11 @@ public class Main
             for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
                 Library pubLib = null;
                 if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null) {
-
-
-                    // todo LEFTOFF
-                    // change template filenames to show what should go where
-
-                    // todo How to generate a collection list?
-                    // could use subscriber file and only generate what is subscribed from publisher
-                    // generate "has" collection of what is subscribed
-
-
                     // Do the libraries have items or do we need to scan?
-                    if (pubLib.items == null) {
+                    if (pubLib.items == null || pubLib.items.size() < 1) {
                         publisherRepository.scan(pubLib.name);
                     }
-                    if (subLib.items == null) {
+                    if (subLib.items == null || subLib.items.size() < 1) {
                         subscriberRepository.scan(subLib.name);
                     }
 
@@ -248,10 +236,8 @@ public class Main
                                  * Lucifer
                                  * Legion
                                  */
-                                String path = item.getItemPath().substring(0, item.getItemPath().indexOf("\\"));
-                                if (path.length() < 1) {
-                                    path = item.getItemPath().substring(0, item.getItemPath().indexOf("/"));
-                                }
+                                String path;
+                                path = Utils.getLastPath(item.getItemPath());
                                 if (!currentWhatsNew.equalsIgnoreCase(path)) {
                                     assert whatsNewFile != null;
                                     whatsNewFile.println(path);
@@ -269,20 +255,25 @@ public class Main
                                 if (isNewGrouping(item)) {
                                     // if there is a new group - process it
                                     if (group.size() > 0) {
-                                        String targetPath = getTarget(subLib.name, totalSize);
-                                        if (targetPath != null) {
-                                            for (Item groupItem : group) {
-                                                if (cfg.isTestRun()) {          // -t Test run option
-                                                    logger.info("    Would copy " + groupItem.getFullPath());
-                                                } else {
+                                        for (Item groupItem : group) {
+                                            if (cfg.isDryRun()) {          // -t Test run option
+                                                logger.info("    Would copy " + groupItem.getFullPath());
+                                            } else {
+                                                String targetPath = getTarget(subLib.name, totalSize);
+                                                if (targetPath != null) {
                                                     // copy item(s) to targetPath
-                                                    copyFile(groupItem.getFullPath(), targetPath);
-                                                    logger.info("    Copied " + groupItem.getFullPath());
+//                                                    String to = Utils.getLastPath(targetPath + "/" + groupItem.getItemPath());
+                                                    String to = targetPath + "/" + groupItem.getItemPath();
+                                                    if (copyFile(groupItem.getFullPath(), to)) {
+                                                        logger.info("    Copied " + groupItem.getFullPath());
+                                                    } else {
+                                                        ++errorCount;       // todo should there be an error count threshold?
+                                                    }
+                                                } else {
+                                                    logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
+                                                            lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
                                                 }
                                             }
-                                        } else {
-                                            logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
-                                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
                                         }
                                     }
                                     logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
@@ -385,9 +376,11 @@ public class Main
      * @param repo     the repo
      * @throws MongerException the monger exception
      */
-    private void readRepository(String filename, Repository repo) throws MongerException {
+    private void readRepository(String filename, Repository repo, boolean validate) throws MongerException {
         repo.read(filename);
-        repo.validate();
+        if (validate) {
+            repo.validate();
+        }
     } // readRepository
 
     public void readTargets(String filename, Storage storage) throws MongerException {
@@ -408,7 +401,6 @@ public class Main
         try {
             File f = new File(location);
             space = f.getFreeSpace();
-            //space = Files.getFileStore(Paths.get(location).toRealPath().getRoot()).getUsableSpace();
         } catch (SecurityException e) {
             logger.error("Exception '" + e.getMessage() + "' getting available space from " + location);
         }
@@ -437,12 +429,21 @@ public class Main
      * @param from the from
      * @param to   the to
      */
-    public void copyFile(String from, String to) {
+    public boolean copyFile(String from, String to) {
         try {
-            Files.copy(Paths.get(from).toRealPath(), Paths.get(to).toRealPath(), StandardCopyOption.COPY_ATTRIBUTES, LinkOption.NOFOLLOW_LINKS);
-        } catch (IOException e) {
-            e.printStackTrace();
+            File f = new File(to);
+            if (f != null) {
+                f.getParentFile().mkdirs();
+            }
+            Path fromPath = Paths.get(from).toRealPath();
+            Path toPath = Paths.get(to);  //.toRealPath();
+            //Files.copy(fromPath, toPath.resolve(fromPath.getFileName()), StandardCopyOption.COPY_ATTRIBUTES, LinkOption.NOFOLLOW_LINKS);
+            Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, LinkOption.NOFOLLOW_LINKS);
+        } catch (Exception e) {
+            logger.error("Exception copying " + from + " to " + to + " msg: " + e.getMessage());
+            return false;
         }
+        return true;
     }
 
 } // Main

@@ -23,7 +23,7 @@ public class Configuration {
 
     private boolean keepVolMongerFiles = false;
     private String logFilename = "Main.log";
-    private boolean testRun = false;
+    private boolean dryRun = false;
     private boolean validationRun = false;
 
     private String exportFilename = "";
@@ -64,7 +64,7 @@ public class Configuration {
     public void dump() {
         logger.info("  cfg: -c Console level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug level = " + getDebugLevel());
-        logger.info("  cfg: -D Dry run = " + Boolean.toString(isTestRun()));
+        logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export filename = " + getExportFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
         logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(isKeepVolMongerFiles()));
@@ -158,7 +158,7 @@ public class Configuration {
                     }
                     break;
                 case "-D":                                             // Dry run
-                    setTestRun(true);
+                    setDryRun(true);
                     break;
                 case "-d":                                             // debug level
                     if (index <= args.length - 2) {
@@ -469,21 +469,21 @@ public class Configuration {
     }
 
     /**
-     * Is test run boolean.
+     * Is dry run boolean.
      *
      * @return the boolean
      */
-    public boolean isTestRun() {
-        return testRun;
+    public boolean isDryRun() {
+        return dryRun;
     }
 
     /**
-     * Sets test run.
+     * Sets dry run.
      *
-     * @param testRun the test run
+     * @param dryRun true/false boolean
      */
-    public void setTestRun(boolean testRun) {
-        this.testRun = testRun;
+    public void setDryRun(boolean dryRun) {
+        this.dryRun = dryRun;
     }
 
     /**

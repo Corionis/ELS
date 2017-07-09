@@ -19,6 +19,16 @@ as an argument. That allows multiple combinations ... for instance
 both source and target collection files when regularly monging
 on a different computer where drive letters would change.
 
+## Features
+Various features and nuances of VolMonger.
+
+ * Both lower- and upper-case -p/-P or -s/-S options may be used
+   to bend multiple publishers to one subscriber, and vice-versa.
+   Example: A normal publisher with hard drives and a separate
+   shuttle drive as publishers.
+
+ * 
+
 ## Organization
  * A publisher is the provider of the data.
  * A subscriber is the consumer of the data.
