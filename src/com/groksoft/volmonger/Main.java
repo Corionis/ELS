@@ -262,7 +262,6 @@ public class Main
                                                 String targetPath = getTarget(subLib.name, totalSize);
                                                 if (targetPath != null) {
                                                     // copy item(s) to targetPath
-//                                                    String to = Utils.getLastPath(targetPath + "/" + groupItem.getItemPath());
                                                     String to = targetPath + "/" + groupItem.getItemPath();
                                                     if (copyFile(groupItem.getFullPath(), to)) {
                                                         logger.info("    Copied " + groupItem.getFullPath());

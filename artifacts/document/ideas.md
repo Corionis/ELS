@@ -1,3 +1,37 @@
+
+# Current Issues
+
+ 1. If a supporting file (e.g. poster, subtitle, etc) is added the
+ target is used to copy it - instead of the supporting file being
+ copied to the original directory.
+ 
+ This issue also impacts the Mismatch and What's New files. 
+ 
+ For Mismatch it is probably OK, but the What's New should
+ probably not list non-media changes like a poster. _But what
+ about subtitles?_<br/>
+ 
+ __Possible solution:__        
+     1. Add a command-line option to scan content and return a
+     list of all the different file extensions found. Some of
+     those are the "known media types" but not all. Some are
+     supporting files.
+     2. Add a construct for "known media types". If the extension
+     of the supporting file is not one of those, AND the
+     Subscriber's original path exists in the current run,
+     then use the original path.
+         1. The current run might be a shuttle drive or other target.
+         So by looking to see if the actual subscriber path exists
+         we know if the supporting file can be added there - with a
+         space check before the copy.
+             1. This would require the scan to be done in the context
+             of the current run so paths match.
+         2. The "known media types" may need to be an array in the
+         repository (publisher or subscriber) file.
+ 2. Testing
+    1. We could conceivably write JUnit tests with "if exists()" calls
+    to verify each type of monge behavior.
+
 # Ideas
 
 The existence of an empty (or not) volmonger.json file triggers the
