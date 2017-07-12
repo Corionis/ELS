@@ -267,7 +267,7 @@ public class Main
                                                     // copy item(s) to targetPath
                                                     String to = targetPath + "/" + groupItem.getItemPath();
                                                     if (copyFile(groupItem.getFullPath(), to)) {
-                                                        logger.info("    Copied " + groupItem.getFullPath());
+                                                        logger.info("    Copied " + groupItem.getFullPath() + " to " + to);
                                                     } else {
                                                         ++errorCount;       // todo should there be an error count threshold?
                                                     }
