@@ -119,7 +119,7 @@ public class Storage
                 if (Files.notExists(Paths.get(t.locations[j]))) {
                     throw new MongerException("storage[" + i + "].locations[" + j + "]: " + t.locations[j] + " does not exist");
                 }
-                logger.debug("loc: " + t.locations[j]);
+                logger.debug("  loc: " + t.locations[j]);
             }
         }
         logger.info("Targets validation successful: " + getJsonFilename());

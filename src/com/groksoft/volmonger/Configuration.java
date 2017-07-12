@@ -12,8 +12,6 @@ import org.apache.logging.log4j.Logger;
  * Contains all command-line options and any other application-level configuration.
  */
 public class Configuration {
-    private transient Logger logger = LogManager.getLogger("applog");
-
     private final String VOLMONGER_VERSION = "1.0.0";
     private static Configuration instance = null;
 
@@ -22,7 +20,7 @@ public class Configuration {
     private String debugLevel = "info";
 
     private boolean keepVolMongerFiles = false;
-    private String logFilename = "Main.log";
+    private String logFilename = "volmonger.log";
     private boolean dryRun = false;
     private boolean validationRun = false;
 
@@ -62,6 +60,8 @@ public class Configuration {
      * Dump the configuration
      */
     public void dump() {
+        Logger logger = LogManager.getLogger("applog");
+
         logger.info("  cfg: -c Console level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));

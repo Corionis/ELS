@@ -74,6 +74,7 @@ public class Main
     private int process(String[] args) {
         int returnValue = 0;
 
+        System.out.println("STARTING");
         try {
             cfg = Configuration.getInstance();
             cfg.parseCommandLine(args);
@@ -173,6 +174,7 @@ public class Main
     private void mongeCollections() throws MongerException {
         int errorCount = 0;
         boolean iWin = false;
+        Item lastDirectoryItem = null;
         PrintWriter mismatchFile = null;
         PrintWriter whatsNewFile = null;
         PrintWriter targetFile = null;
@@ -245,21 +247,22 @@ public class Main
                                 }
                             }
 
+                            logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
+
                             if (!item.isDirectory()) {
-                                logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
                                 if (cfg.getMismatchFilename().length() > 0) {
                                     assert mismatchFile != null;
                                     mismatchFile.println(item.getItemPath());
                                 }
-
                                 if (isNewGrouping(item)) {
+                                    logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
                                     // if there is a new group - process it
                                     if (group.size() > 0) {
                                         for (Item groupItem : group) {
                                             if (cfg.isDryRun()) {          // -t Test run option
                                                 logger.info("    Would copy " + groupItem.getFullPath());
                                             } else {
-                                                String targetPath = getTarget(subLib.name, totalSize);
+                                                String targetPath = getTarget(subscriberRepository, subLib.name, totalSize);
                                                 if (targetPath != null) {
                                                     // copy item(s) to targetPath
                                                     String to = targetPath + "/" + groupItem.getItemPath();
@@ -275,7 +278,10 @@ public class Main
                                             }
                                         }
                                     }
-                                    logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
+
+                                    // QUESTION Is this setLastDirectory() right???
+                                    subscriberRepository.setLastDirectory(null);    // reset lastDirectory
+
                                     group.clear();
                                     totalSize = 0;
                                     lastGroupName = currentGroupName;
@@ -330,15 +336,26 @@ public class Main
      * Will return one of the subscriber targets for the library of the item that is
      * large enough to hold the size specified, otherwise an empty string is returned.
      *
+     * @param subRepo the subscriber Repository object
      * @param library the publisher library.definition.name
      * @param size    the total size of item(s) to be copied
      * @return the target
      * @throws MongerException the monger exception
      */
-    public String getTarget(String library, long size) throws MongerException {
+    public String getTarget(Repository subRepo, String library, long size) throws MongerException {
         String target = null;
         boolean allFull = true;
         boolean notFound = true;
+        long space = 0l;
+
+        if (subRepo.getLastDirectory() != null) {
+
+            // todo Check available space on lastDirectory volume
+
+            String ldfp = subRepo.getLastDirectory().getFullPath();
+            String path = ldfp.substring(0, ldfp.lastIndexOf("\\"));        // the item already has the last directory name
+            return path;
+        }
 
         // find the matching library
         Target tar = storageTargets.getTarget(library);
@@ -348,7 +365,7 @@ public class Main
 
                 // check space on the candidate target
                 String candidate = tar.locations[j];
-                long space = availableSpace(candidate);     // todo Move to Transport class
+                space = availableSpace(candidate);     // todo Move to Transport class
                 long minimum = Utils.getScaledValue(tar.minimum);
                 if (space > minimum) {                  // check target space minimum
                     allFull = false;

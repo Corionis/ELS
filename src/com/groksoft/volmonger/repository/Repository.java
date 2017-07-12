@@ -26,6 +26,8 @@ public class Repository
 {
     private transient Logger logger = LogManager.getLogger("applog");
     private transient Configuration cfg = null;
+    private transient Item currentDirectory = null;
+    private transient Item lastDirectory = null;
 
     // LibraryData members
     private LibraryData libraryData = null;
@@ -88,34 +90,41 @@ public class Repository
      * @return the boolean
      */
     public boolean hasItem(String libraryName, String match) {
-        boolean has = false;
+
+        // QUESTION This might not be the place to do this. We iterate over the entire collection for every item!!!
+
+        Item has = null;
         for (Library lib : libraryData.libraries.bibliography) {
             if (lib.name.equalsIgnoreCase(libraryName)) {
                 for (Item item : lib.items) {
                     if (libraryData.libraries.case_sensitive) {
                         if (item.getItemPath().equals(match)) {
-                            has = true;
+                            has = item;
                             break;
                         }
                     } else {
                         if (item.getItemPath().equalsIgnoreCase(match)) {
-                            has = true;
+                            has = item;
                             break;
                         }
                     }
                 }
-                if (has) {
+                if (has != null) {
+                    if (has.isDirectory()) {                                        // QUESTION what about setLastDirectory()? Done right???
+                        lastDirectory = currentDirectory;
+                        currentDirectory = has;
+                    }
                     break;  // break outer loop also
                 }
             }
         }
-        return has;
+        return has != null;
     }
 
     /**
      * Has specific library
      * <p>
-     * Do these Libraries have a particular Library?
+     * Do these Libraries have a particular one?
      *
      * @param libraryName the library name
      * @return the boolean
@@ -296,7 +305,7 @@ public class Repository
                         if (Files.notExists(Paths.get(lib.sources[j]))) {
                             throw new MongerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
                         }
-                        logger.debug("src: " + lib.sources[j]);
+                        logger.debug("  src: " + lib.sources[j]);
                     }
                 }
             }
@@ -331,5 +340,20 @@ public class Repository
         return libraryData;
     }
 
+    /**
+     * Sets last directory.
+     */
+    public void setLastDirectory(Item lastDir) {
+        lastDirectory = lastDir;
+    }
+
+    /**
+     * Gets last directory.
+     *
+     * @return the last directory
+     */
+    public Item getLastDirectory() {
+        return lastDirectory;
+    }
 
 }
