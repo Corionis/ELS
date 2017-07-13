@@ -226,6 +226,7 @@ public class Main
                     }
 
                     for (Item item : pubLib.items) {
+
                         boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
                         if (has) {
                             logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
@@ -345,6 +346,10 @@ public class Main
 
         String path = subscriberRepository.hasDirectory(library, item.getItemPath());
         if (path != null) {
+
+            // todo Check the available size !!
+            // todo Log if it won't fit.
+
             return path;
         }
 
