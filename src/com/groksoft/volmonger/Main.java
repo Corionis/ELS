@@ -262,10 +262,10 @@ public class Main
                                             if (cfg.isDryRun()) {          // -t Test run option
                                                 logger.info("    Would copy " + groupItem.getFullPath());
                                             } else {
-                                                String targetPath = getTarget(subscriberRepository, subLib.name, totalSize);
+                                                String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
                                                 if (targetPath != null) {
                                                     // copy item(s) to targetPath
-                                                    String to = targetPath + "/" + groupItem.getItemPath();
+                                                    String to = targetPath + "\\" + groupItem.getItemPath();
                                                     if (copyFile(groupItem.getFullPath(), to)) {
                                                         logger.info("    Copied " + groupItem.getFullPath() + " to " + to);
                                                     } else {
@@ -278,10 +278,6 @@ public class Main
                                             }
                                         }
                                     }
-
-                                    // QUESTION Is this setLastDirectory() right???
-                                    subscriberRepository.setLastDirectory(null);    // reset lastDirectory
-
                                     group.clear();
                                     totalSize = 0;
                                     lastGroupName = currentGroupName;
@@ -336,24 +332,19 @@ public class Main
      * Will return one of the subscriber targets for the library of the item that is
      * large enough to hold the size specified, otherwise an empty string is returned.
      *
-     * @param subRepo the subscriber Repository object
      * @param library the publisher library.definition.name
      * @param size    the total size of item(s) to be copied
      * @return the target
      * @throws MongerException the monger exception
      */
-    public String getTarget(Repository subRepo, String library, long size) throws MongerException {
+    public String getTarget(Item item, String library, long size) throws MongerException {
         String target = null;
         boolean allFull = true;
         boolean notFound = true;
         long space = 0l;
 
-        if (subRepo.getLastDirectory() != null) {
-
-            // todo Check available space on lastDirectory volume
-
-            String ldfp = subRepo.getLastDirectory().getFullPath();
-            String path = ldfp.substring(0, ldfp.lastIndexOf("\\"));        // the item already has the last directory name
+        String path = subscriberRepository.hasDirectory(library, item.getItemPath());
+        if (path != null) {
             return path;
         }
 

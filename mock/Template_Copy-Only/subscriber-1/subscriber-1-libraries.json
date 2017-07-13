@@ -18,7 +18,8 @@
             {
                 "name": "TV Shows",
                 "sources": [
-                    "TestRun/subscriber-1/media-d/media/TV Shows",
+                    "TestRun/subscriber-1/media-a/media/TV Shows",
+                    "TestRun/subscriber-1/media-b/media/TV Shows",
                     "TestRun/subscriber-1/media-c/media/TV Shows"
                 ]
             }

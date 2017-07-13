@@ -26,8 +26,6 @@ public class Repository
 {
     private transient Logger logger = LogManager.getLogger("applog");
     private transient Configuration cfg = null;
-    private transient Item currentDirectory = null;
-    private transient Item lastDirectory = null;
 
     // LibraryData members
     private LibraryData libraryData = null;
@@ -81,6 +79,59 @@ public class Repository
     }
 
     /**
+     * Has directory string.
+     *
+     * @param libraryName the library name
+     * @param match       the match
+     * @return the string
+     */
+    public String hasDirectory(String libraryName, String match) {
+        Item foundItem = null;
+        String path = match.substring(0, match.lastIndexOf("\\"));
+        if (path.length() < 1) {
+            path = match.substring(0, match.lastIndexOf("/"));
+        }
+        match = path;
+        path = null;
+        for (Library lib : libraryData.libraries.bibliography) {
+            if (lib.name.equalsIgnoreCase(libraryName)) {
+                for (Item item : lib.items) {
+                    if (libraryData.libraries.case_sensitive) {
+                        if (item.getItemPath().equals(match)) {
+                            foundItem = item;
+                            break;
+                        }
+                    } else {
+                        if (item.getItemPath().equalsIgnoreCase(match)) {
+                            foundItem = item;
+                            break;
+                        }
+                    }
+                }
+                if (foundItem != null) {
+                    if (foundItem.isDirectory()) {
+                        path = foundItem.getFullPath();
+                        String segment;
+                        while(true) {
+                            segment = path.substring(0, path.lastIndexOf("\\"));
+                            if (segment.length() < 1) {
+                                segment = foundItem.getFullPath().substring(0, foundItem.getFullPath().lastIndexOf("/"));
+                            }
+                            path = segment;
+                            String s = segment.substring(segment.lastIndexOf("\\") + 1, segment.length());
+                            if (segment.substring(segment.lastIndexOf("\\") + 1, segment.length()).equalsIgnoreCase(libraryName) ) {
+                                break;
+                            }
+                        }
+                    }
+                    break;  // break outer loop also
+                }
+            }
+        }
+        return path;
+    }
+
+    /**
      * Has specific item
      * <p>
      * Does this Library have a particular item?
@@ -90,9 +141,6 @@ public class Repository
      * @return the boolean
      */
     public boolean hasItem(String libraryName, String match) {
-
-        // QUESTION This might not be the place to do this. We iterate over the entire collection for every item!!!
-
         Item has = null;
         for (Library lib : libraryData.libraries.bibliography) {
             if (lib.name.equalsIgnoreCase(libraryName)) {
@@ -110,10 +158,6 @@ public class Repository
                     }
                 }
                 if (has != null) {
-                    if (has.isDirectory()) {                                        // QUESTION what about setLastDirectory()? Done right???
-                        lastDirectory = currentDirectory;
-                        currentDirectory = has;
-                    }
                     break;  // break outer loop also
                 }
             }
@@ -338,22 +382,6 @@ public class Repository
      */
     public LibraryData getLibraryData() {
         return libraryData;
-    }
-
-    /**
-     * Sets last directory.
-     */
-    public void setLastDirectory(Item lastDir) {
-        lastDirectory = lastDir;
-    }
-
-    /**
-     * Gets last directory.
-     *
-     * @return the last directory
-     */
-    public Item getLastDirectory() {
-        return lastDirectory;
     }
 
 }
