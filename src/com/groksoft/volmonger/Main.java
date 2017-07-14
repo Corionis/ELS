@@ -143,8 +143,8 @@ public class Main
 
                 // if all the pieces are specified monge the collections
                 if (cfg.getPublisherFileName().length() > 0 &&
-                        cfg.getSubscriberFileName().length() > 0 &&
-                        cfg.getTargetsFilename().length() > 0) {
+                        cfg.getSubscriberFileName().length() > 0 ||
+                        cfg.getSubscriberImportFilename().length() > 0) {
                     mongeCollections();
                 }
 
