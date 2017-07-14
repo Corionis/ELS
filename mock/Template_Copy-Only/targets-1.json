@@ -1,6 +1,6 @@
 {
     "targets": {
-        "description": "Targets 1",
+        "description": "Targets-1",
         "storage": [
             {
                 "name": "Movies",

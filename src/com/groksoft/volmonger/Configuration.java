@@ -212,7 +212,7 @@ public class Configuration {
                         throw new MongerException("Error: -n requires a What's New output filename");
                     }
                     break;
-                case "-p":                                             // publisher collection filename   todo remove one
+                case "-p":                                             // publisher collection filename
                     if (index <= args.length - 2) {
                         setPublisherFileName(args[index + 1]);
                         ++index;
@@ -228,7 +228,7 @@ public class Configuration {
                         throw new MongerException("Error: -P requires an publisher import filename");
                     }
                     break;
-                case "-s":                                             // subscriber collection filename    todo remove one
+                case "-s":                                             // subscriber collection filename
                     if (index <= args.length - 2) {
                         setSubscriberFileName(args[index + 1]);
                         ++index;

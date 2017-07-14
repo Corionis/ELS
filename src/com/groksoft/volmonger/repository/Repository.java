@@ -305,11 +305,14 @@ public class Repository
     public void validate() throws MongerException {
         long minimumSize;
 
-        if (getLibraryData() == null) {
+        if (libraryData == null) {
             throw new MongerException("Libraries are null");
         }
 
         Libraries lbs = libraryData.libraries;
+        if (lbs == null) {
+            throw new MongerException("libraries must be defined");
+        }
 
         if (lbs.description == null || lbs.description.length() == 0) {
             throw new MongerException("libraries.description must be defined");
@@ -332,6 +335,9 @@ public class Repository
             }
         }
 
+        if (lbs.bibliography == null) {
+            throw new MongerException("libraries.bibliography must be defined");
+        }
         for (int i = 0; i < lbs.bibliography.length; i++) {
             Library lib = lbs.bibliography[i];
             if (lib.name == null || lib.name.length() == 0) {

@@ -29,6 +29,8 @@ public class Main
     private Repository subscriberRepository = null;
 
     private Storage storageTargets = null;
+    private long grandTotalItems = 0L;
+    private long grandTotalSize = 0L;
 
     private String currentGroupName = "";
     private String lastGroupName = "";
@@ -147,7 +149,7 @@ public class Main
                 }
 
             } catch (Exception ex) {
-                logger.error(ex.getMessage());
+                logger.error(ex.getMessage() + " toString=" + ex.toString());
                 returnValue = 2;
             }
         }
@@ -279,8 +281,10 @@ public class Main
                                             }
                                         }
                                     }
+                                    grandTotalItems = grandTotalItems + group.size();
                                     group.clear();
-                                    totalSize = 0;
+                                    grandTotalSize = grandTotalSize + totalSize;
+                                    totalSize = 0L;
                                     lastGroupName = currentGroupName;
                                 }
                                 long size = 0;
@@ -305,6 +309,10 @@ public class Main
                 whatsNewFile.close();
             }
         }
+        logger.info("---------------------------------------------");
+        logger.info("Grand total items: " + grandTotalItems);
+        double gb = grandTotalSize / (1024 * 1024 * 1024);
+        logger.info("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
     }
 
     /**
@@ -344,25 +352,31 @@ public class Main
         boolean notFound = true;
         long space = 0l;
 
+        // see if there is an "original" directory the new content will fit in
         String path = subscriberRepository.hasDirectory(library, item.getItemPath());
         if (path != null) {
-
-            // todo Check the available size !!
-            // todo Log if it won't fit.
-
-            return path;
+            space = availableSpace(path);
+            if (space > Storage.minimumBytes) {  // QUESTION where should value come from?
+                if (space > size) {
+                    logger.info("Using original storage location for " + item.getFullPath() + " to " + path);
+                    return path;
+                } else {
+                    logger.info("Original storage location too full for " + item.getFullPath() + " (" + size + ")");
+                }
+            } else {
+                logger.info("Original storage location too full for " + item.getFullPath() + " minimum is (" + Storage.minimumBytes + ")");
+            }
         }
 
-        // find the matching library
+        // find the matching target
         Target tar = storageTargets.getTarget(library);
         if (tar != null) {
             notFound = false;
+            long minimum = Utils.getScaledValue(tar.minimum);
             for (int j = 0; j < tar.locations.length; ++j) {
-
                 // check space on the candidate target
                 String candidate = tar.locations[j];
                 space = availableSpace(candidate);     // todo Move to Transport class
-                long minimum = Utils.getScaledValue(tar.minimum);
                 if (space > minimum) {                  // check target space minimum
                     allFull = false;
                     if (space > size) {                 // check size of item(s) to be copied

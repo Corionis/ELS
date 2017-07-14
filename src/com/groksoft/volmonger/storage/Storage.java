@@ -27,7 +27,7 @@ public class Storage
     private TargetData targetData = null;
     private String jsonFilename = "";
 
-    public final long minimumBytes = 1048576L;      // minimum minimum bytes (1MB)
+    public static final long minimumBytes = 1073741824L;      // minimum minimum bytes (1GB)
 
     /**
      * Instantiates a new Storage instance.
