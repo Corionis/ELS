@@ -5,7 +5,11 @@
  * Mark all not-so-good movies with fubar, or whatever
  * Setup 2 collection files: 1 with TV and Movies, the other with
    everything else.
- * 
+ * Synch up on Blu-Ray and DVD
+ * GO through Dups
+ * Move documentaries stuff around before synch
+ * Put library name in whats new and indent content
+
 
 # Ideas
 
