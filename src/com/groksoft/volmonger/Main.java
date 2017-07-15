@@ -34,6 +34,7 @@ public class Main
 
     private String currentGroupName = "";
     private String lastGroupName = "";
+    private long whatsNewTotal = 0;
 
     /**
      * Instantiates the Main application.
@@ -181,6 +182,7 @@ public class Main
         PrintWriter whatsNewFile = null;
         PrintWriter targetFile = null;
         String currentWhatsNew = "";
+        String currLib = "";
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
 
@@ -241,12 +243,30 @@ public class Main
                                  * Lucifer
                                  * Legion
                                  */
+
+                                if( !item.getLibrary().equals(currLib)) {
+                                    // If not first time display and reset the whatsNewTotal
+                                    if( !currLib.equals("") )
+                                    {
+                                        whatsNewFile.println("--------------------------------");
+                                        whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
+                                        whatsNewFile.println("--------------------------------");
+                                        whatsNewTotal = 0;
+                                    }
+                                    // Display the Library
+                                    currLib = item.getLibrary();
+                                    whatsNewFile.println("");
+                                    whatsNewFile.println(currLib);
+                                    whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
+                                    whatsNewFile.println("");
+                                }
                                 String path;
                                 path = Utils.getLastPath(item.getItemPath());
                                 if (!currentWhatsNew.equalsIgnoreCase(path)) {
                                     assert whatsNewFile != null;
-                                    whatsNewFile.println(path);
+                                    whatsNewFile.println("    " + path);
                                     currentWhatsNew = path;
+                                    whatsNewTotal++;
                                 }
                             }
 
@@ -306,6 +326,9 @@ public class Main
                 mismatchFile.close();
             }
             if (whatsNewFile != null) {
+                whatsNewFile.println("--------------------------------");
+                whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
+                whatsNewFile.println("--------------------------------");
                 whatsNewFile.close();
             }
         }
