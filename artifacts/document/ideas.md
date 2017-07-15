@@ -10,6 +10,8 @@
  * Move documentaries stuff around before synch
  * Put library name in whats new and indent content
  * Should this be called volmunger? I look for mong, mung and a few others on google and did not find any fits
+ * Thumbs.db is showing in tghe compare output
+ * Go over my OneNote for VolMonger
 
 
 # Ideas

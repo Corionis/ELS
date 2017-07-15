@@ -323,6 +323,10 @@ public class Main
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
         } finally {
             if (mismatchFile != null) {
+                mismatchFile.println("----------------------------------------------------");
+                mismatchFile.println("Grand total items: " + grandTotalItems);
+                double gb = grandTotalSize / (1024 * 1024 * 1024);
+                mismatchFile.println("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
                 mismatchFile.close();
             }
             if (whatsNewFile != null) {
@@ -332,7 +336,7 @@ public class Main
                 whatsNewFile.close();
             }
         }
-        logger.info("---------------------------------------------");
+        logger.info("-----------------------------------------------------");
         logger.info("Grand total items: " + grandTotalItems);
         double gb = grandTotalSize / (1024 * 1024 * 1024);
         logger.info("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
