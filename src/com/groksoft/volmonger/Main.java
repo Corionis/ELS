@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
 import com.groksoft.volmonger.storage.Target;
@@ -20,8 +21,7 @@ import com.groksoft.volmonger.storage.Storage;
 /**
  * Main - VolMonger program
  */
-public class Main
-{
+public class Main {
     private Configuration cfg = null;
     private Logger logger = null;
 
@@ -35,6 +35,7 @@ public class Main
     private String currentGroupName = "";
     private String lastGroupName = "";
     private long whatsNewTotal = 0;
+    private int ignoreTotal = 0;
 
     /**
      * Instantiates the Main application.
@@ -153,8 +154,7 @@ public class Main
                 logger.error(ex.getMessage() + " toString=" + ex.toString());
                 returnValue = 2;
             }
-        }
-        catch (MongerException e) {
+        } catch (MongerException e) {
             // no logger yet to just print to the screen
             System.out.println(e.getMessage());
             returnValue = 1;
@@ -230,88 +230,91 @@ public class Main
                     }
 
                     for (Item item : pubLib.items) {
-
-                        boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
-                        if (has) {
-                            logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
+                        if (ignore(item)) {
+                            logger.info("  ! Ignoring '" + item.getItemPath() + "'");
                         } else {
-                            if (cfg.getWhatsNewFilename().length() > 0) {
-                                /*
-                                 * Only show the left side of mismatched file. And Only show it once.
-                                 * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                                 * Big Bang Theory
-                                 * Lucifer
-                                 * Legion
-                                 */
+                            boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
+                            if (has) {
+                                logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
+                            } else {
 
-                                if( !item.getLibrary().equals(currLib)) {
-                                    // If not first time display and reset the whatsNewTotal
-                                    if( !currLib.equals("") )
-                                    {
-                                        whatsNewFile.println("--------------------------------");
-                                        whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
-                                        whatsNewFile.println("--------------------------------");
-                                        whatsNewTotal = 0;
+                                if (cfg.getWhatsNewFilename().length() > 0) {
+                                    /*
+                                     * Only show the left side of mismatched file. And Only show it once.
+                                     * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                                     * Big Bang Theory
+                                     * Lucifer
+                                     * Legion
+                                     */
+
+                                    if (!item.getLibrary().equals(currLib)) {
+                                        // If not first time display and reset the whatsNewTotal
+                                        if (!currLib.equals("")) {
+                                            whatsNewFile.println("--------------------------------");
+                                            whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
+                                            whatsNewFile.println("--------------------------------");
+                                            whatsNewTotal = 0;
+                                        }
+                                        // Display the Library
+                                        currLib = item.getLibrary();
+                                        whatsNewFile.println("");
+                                        whatsNewFile.println(currLib);
+                                        whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
+                                        whatsNewFile.println("");
                                     }
-                                    // Display the Library
-                                    currLib = item.getLibrary();
-                                    whatsNewFile.println("");
-                                    whatsNewFile.println(currLib);
-                                    whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
-                                    whatsNewFile.println("");
+                                    String path;
+                                    path = Utils.getLastPath(item.getItemPath());
+                                    if (!currentWhatsNew.equalsIgnoreCase(path)) {
+                                        assert whatsNewFile != null;
+                                        whatsNewFile.println("    " + path);
+                                        currentWhatsNew = path;
+                                        whatsNewTotal++;
+                                    }
                                 }
-                                String path;
-                                path = Utils.getLastPath(item.getItemPath());
-                                if (!currentWhatsNew.equalsIgnoreCase(path)) {
-                                    assert whatsNewFile != null;
-                                    whatsNewFile.println("    " + path);
-                                    currentWhatsNew = path;
-                                    whatsNewTotal++;
-                                }
-                            }
 
-                            logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
+                                logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
 
-                            if (!item.isDirectory()) {
-                                if (cfg.getMismatchFilename().length() > 0) {
-                                    assert mismatchFile != null;
-                                    mismatchFile.println(item.getItemPath());
-                                }
-                                if (isNewGrouping(item)) {
-                                    logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
-                                    // if there is a new group - process it
-                                    if (group.size() > 0) {
-                                        for (Item groupItem : group) {
-                                            if (cfg.isDryRun()) {          // -t Test run option
-                                                logger.info("    Would copy " + groupItem.getFullPath());
-                                            } else {
-                                                String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
-                                                if (targetPath != null) {
-                                                    // copy item(s) to targetPath
-                                                    String to = targetPath + "\\" + groupItem.getItemPath();
-                                                    if (copyFile(groupItem.getFullPath(), to)) {
-                                                        logger.info("    Copied " + groupItem.getFullPath() + " to " + to);
-                                                    } else {
-                                                        ++errorCount;       // todo should there be an error count threshold?
-                                                    }
+                                if (!item.isDirectory()) {
+                                    if (cfg.getMismatchFilename().length() > 0) {
+                                        assert mismatchFile != null;
+                                        mismatchFile.println(item.getItemPath());
+                                    }
+                                    if (isNewGrouping(item)) {
+                                        logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
+                                        // if there is a new group - process it
+                                        if (group.size() > 0) {
+                                            for (Item groupItem : group) {
+                                                if (cfg.isDryRun()) {          // -t Test run option
+                                                    logger.info("    Would copy " + groupItem.getFullPath());
                                                 } else {
-                                                    logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
-                                                            lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                                                    String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
+                                                    if (targetPath != null) {
+                                                        // copy item(s) to targetPath
+                                                        String to = targetPath + "\\" + groupItem.getItemPath();
+                                                        if (copyFile(groupItem.getFullPath(), to)) {
+                                                            logger.info("    Copied " + groupItem.getFullPath() + " to " + to);
+                                                        } else {
+                                                            ++errorCount;       // todo should there be an error count threshold?
+                                                        }
+                                                    } else {
+                                                        logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
+                                                                lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                                                    }
                                                 }
                                             }
                                         }
+                                        grandTotalItems = grandTotalItems + group.size();
+                                        group.clear();
+                                        grandTotalSize = grandTotalSize + totalSize;
+                                        totalSize = 0L;
+                                        lastGroupName = currentGroupName;
                                     }
-                                    grandTotalItems = grandTotalItems + group.size();
-                                    group.clear();
-                                    grandTotalSize = grandTotalSize + totalSize;
-                                    totalSize = 0L;
-                                    lastGroupName = currentGroupName;
+                                    long size = 0;
+                                    size = getItemSize(item);
+                                    item.setSize(size);
+                                    totalSize += size;
+                                    group.add(item);
                                 }
-                                long size = 0;
-                                size = getItemSize(item);
-                                item.setSize(size);
-                                totalSize += size;
-                                group.add(item);
                             }
                         }
                     }
@@ -319,9 +322,14 @@ public class Main
                     throw new MongerException("Subscribed Publisher library " + subLib.name + " not found");
                 }
             }
-        } catch (Exception e) {
+        } catch (
+                Exception e)
+
+        {
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
-        } finally {
+        } finally
+
+        {
             if (mismatchFile != null) {
                 mismatchFile.println("----------------------------------------------------");
                 mismatchFile.println("Grand total items: " + grandTotalItems);
@@ -337,9 +345,29 @@ public class Main
             }
         }
         logger.info("-----------------------------------------------------");
+        logger.info("Grand  total ignored: " + ignoreTotal);
         logger.info("Grand total items: " + grandTotalItems);
         double gb = grandTotalSize / (1024 * 1024 * 1024);
         logger.info("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
+    }
+
+    private boolean ignore(Item item) {
+        String str = "";
+        String str1 = "";
+        boolean ret = false;
+
+        for (Pattern patt : publisherRepository.getLibraryData().libraries.compiledPatterns) {
+
+            str = patt.toString();
+            str1 = str.replace("?", ".?").replace("*", ".*?");
+            if (item.getName().matches(str1)) {
+                logger.info(">>>>>>Ignoring '" + item.getName());
+                ignoreTotal++;
+                ret = true;
+                break;
+            }
+        }
+        return ret;
     }
 
     /**

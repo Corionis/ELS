@@ -113,6 +113,7 @@ public class Repository
                         path = foundItem.getFullPath();
                         String segment;
                         while(true) {
+                            logger.info(">>>>>>>> Checking hasDirectory for "+path);
                             segment = path.substring(0, path.lastIndexOf("\\"));
                             if (segment.length() < 1) {
                                 segment = foundItem.getFullPath().substring(0, foundItem.getFullPath().lastIndexOf("/"));

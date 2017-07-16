@@ -12,6 +12,9 @@
  * Should this be called volmunger? I look for mong, mung and a few others on google and did not find any fits
  * Thumbs.db is showing in tghe compare output
  * Go over my OneNote for VolMonger
+ * put flushes
+ * Change mong copied to coping and show before the copy starts.
+
 
 
 # Ideas

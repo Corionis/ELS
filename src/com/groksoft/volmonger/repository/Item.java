@@ -135,4 +135,9 @@ public class Item implements Serializable
         this.symLink = symLink;
     }
 
+
+    public String getName() {
+        String path = getItemPath();
+        return path.substring(path.lastIndexOf("\\") + 1, path.length());
+    }
 }

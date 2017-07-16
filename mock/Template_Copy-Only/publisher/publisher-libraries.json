@@ -4,7 +4,8 @@
         "case_sensitive": false,
         "ignore_patterns": [
             "desktop.ini",
-            "Thumbs.db"
+            "Thumbs.db",
+            "!!!!!!!!!!*"
         ],
         "bibliography": [
             {
