@@ -217,6 +217,7 @@ public class Main {
             }
         }
 
+        logger.info("                          ***** Starting Monge *****");
         try {
             for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
                 Library pubLib = null;

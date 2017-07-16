@@ -114,8 +114,15 @@ public class Repository
                         String segment;
                         while(true) {
                             logger.info(">>>>>>>> Checking hasDirectory for "+path);
-                            segment = path.substring(0, path.lastIndexOf("\\"));
-                            if (segment.length() < 1) {
+                            try {
+                                segment = path.substring(0, path.lastIndexOf("\\"));
+                            } catch (Exception e) {
+                                logger.info("No subdir found in string - setting to '' | Exception was :" +e.toString());
+                                segment = "";   // todo is this the right thing to do??????????
+                                break;
+                            }
+                            logger.info(">>>>>>>> segment is: '"+segment + "'");
+                            if (segment !=  "" && segment.length() < 1) {
                                 segment = foundItem.getFullPath().substring(0, foundItem.getFullPath().lastIndexOf("/"));
                             }
                             path = segment;

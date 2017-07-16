@@ -14,6 +14,7 @@
  * Go over my OneNote for VolMonger
  * put flushes
  * Change mong copied to coping and show before the copy starts.
+ * Add a find dups in collection
 
 
 
