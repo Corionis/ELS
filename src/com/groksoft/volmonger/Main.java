@@ -292,10 +292,10 @@ public class Main {
                                                     if (targetPath != null) {
                                                         // copy item(s) to targetPath
                                                         String to = targetPath + "\\" + groupItem.getItemPath();
-                                                        if (copyFile(groupItem.getFullPath(), to)) {
-                                                            logger.info("    Copied " + groupItem.getFullPath() + " to " + to);
-                                                        } else {
-                                                            ++errorCount;       // todo should there be an error count threshold?
+                                                        logger.info("  > Copying " + groupItem.getFullPath() + " to " + to);
+                                                        if ( ! copyFile(groupItem.getFullPath(), to)) {
+                                                            logger.error("    Copy failed");
+                                                            ++errorCount;
                                                         }
                                                     } else {
                                                         logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
@@ -325,7 +325,6 @@ public class Main {
             }
         } catch (
                 Exception e)
-
         {
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
         } finally
@@ -346,6 +345,7 @@ public class Main {
             }
         }
         logger.info("-----------------------------------------------------");
+        logger.info("Grand  total errors: " + errorCount);
         logger.info("Grand  total ignored: " + ignoreTotal);
         logger.info("Grand total items: " + grandTotalItems);
         double gb = grandTotalSize / (1024 * 1024 * 1024);
@@ -379,7 +379,12 @@ public class Main {
      */
     private boolean isNewGrouping(Item publisherItem) {
         boolean ret = true;
-        String path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf("\\"));
+        int i = publisherItem.getItemPath().lastIndexOf("\\");
+        if( i < 0 ) {
+            logger.warn("No subdirectory in path : "+publisherItem.getItemPath());
+            return true;
+        }
+        String path = publisherItem.getItemPath().substring(0, i);
         if (path.length() < 1) {
             path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf("/"));
         }
@@ -406,36 +411,39 @@ public class Main {
         String target = null;
         boolean allFull = true;
         boolean notFound = true;
-        long space = 0l;
+        long space = 0L;
+        long minimum = 0L;
+
+        Target tar = storageTargets.getTarget(library);
+        if (tar != null) {
+            minimum = Utils.getScaledValue(tar.minimum);
+        } else {
+            minimum = Storage.minimumBytes;
+        }
 
         // see if there is an "original" directory the new content will fit in
         String path = subscriberRepository.hasDirectory(library, item.getItemPath());
         if (path != null) {
             space = availableSpace(path);
-            if (space > Storage.minimumBytes) {  // QUESTION where should value come from?
-                if (space > size) {
-                    logger.info("Using original storage location for " + item.getFullPath() + " to " + path);
-                    return path;
-                } else {
-                    logger.info("Original storage location too full for " + item.getFullPath() + " (" + size + ")");
-                }
+            logger.info("Checking space " + path + " == " + (space / (1024 * 1024)) + " for " + (size / (1024 * 1024)) + " minimum " + (minimum / (1024 * 1024)));
+            if (space > (size + minimum)) {
+                logger.info("Using original storage location for " + item.getItemPath() + " to " + path);
+                return path;
             } else {
-                logger.info("Original storage location too full for " + item.getFullPath() + " minimum is (" + Storage.minimumBytes + ")");
+                logger.info("Original storage location too full for " + item.getItemPath() + " (" + size + ") on " + path);
             }
         }
 
         // find the matching target
-        Target tar = storageTargets.getTarget(library);
         if (tar != null) {
             notFound = false;
-            long minimum = Utils.getScaledValue(tar.minimum);
             for (int j = 0; j < tar.locations.length; ++j) {
                 // check space on the candidate target
                 String candidate = tar.locations[j];
                 space = availableSpace(candidate);     // todo Move to Transport class
                 if (space > minimum) {                  // check target space minimum
                     allFull = false;
-                    if (space > size) {                 // check size of item(s) to be copied
+                    if (space > (size + minimum)) {     // check size of item(s) to be copied
                         target = candidate;             // has space, use it
                         break;
                     }

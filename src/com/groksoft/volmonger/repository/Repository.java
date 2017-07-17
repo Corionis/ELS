@@ -87,7 +87,11 @@ public class Repository
      */
     public String hasDirectory(String libraryName, String match) {
         Item foundItem = null;
-        String path = match.substring(0, match.lastIndexOf("\\"));
+        int i = match.lastIndexOf("\\");
+        if (i < 0) {
+            return null;
+        }
+        String path = match.substring(0, i);
         if (path.length() < 1) {
             path = match.substring(0, match.lastIndexOf("/"));
         }
@@ -113,15 +117,14 @@ public class Repository
                         path = foundItem.getFullPath();
                         String segment;
                         while(true) {
-                            logger.info(">>>>>>>> Checking hasDirectory for "+path);
+                            // logger.info(">>>>>>>> Checking hasDirectory for "+path);
                             try {
                                 segment = path.substring(0, path.lastIndexOf("\\"));
                             } catch (Exception e) {
-                                logger.info("No subdir found in string - setting to '' | Exception was :" +e.toString());
-                                segment = "";   // todo is this the right thing to do??????????
-                                break;
+                                logger.info("Library name error. No library '"+ libraryName +"' found in path '"+ foundItem.getFullPath() +"'" );
+                                throw e;
                             }
-                            logger.info(">>>>>>>> segment is: '"+segment + "'");
+                            // logger.info(">>>>>>>> segment is: '"+segment + "'");
                             if (segment !=  "" && segment.length() < 1) {
                                 segment = foundItem.getFullPath().substring(0, foundItem.getFullPath().lastIndexOf("/"));
                             }
@@ -248,7 +251,9 @@ public class Repository
                 if (!libraryName.equalsIgnoreCase(lib.name))
                     continue;
             }
+            logger.info("Scanning:" + lib.name);
             for (String src : lib.sources) {
+                logger.info("  " + src);
                 scanDirectory(lib, src, src);
             }
             sort(lib);
