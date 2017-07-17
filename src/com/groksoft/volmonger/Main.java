@@ -278,7 +278,7 @@ public class Main {
                                 if (!item.isDirectory()) {
                                     if (cfg.getMismatchFilename().length() > 0) {
                                         assert mismatchFile != null;
-                                        mismatchFile.println(item.getItemPath());
+                                        mismatchFile.println(item.getFullPath());
                                     }
                                     if (isNewGrouping(item)) {
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
