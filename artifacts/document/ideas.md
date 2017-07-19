@@ -15,8 +15,17 @@
  * put flushes
  * Change mong copied to coping and show before the copy starts.
  * Add a find dups in collection
+ * deal with SRTs
+ * Go over how to handle Dir cuts See Underworld
+ * Fi8x Avitar & its extended edition
+ * Do Documentary
+ * Do Music etc...*[]:
+ * Do Movies 3d
+ * Look at orphaned Group when switching Sources and libraries
 
+ * EMPTY TRASH before Grok to Rock
 
+ *
 
 # Ideas
 
