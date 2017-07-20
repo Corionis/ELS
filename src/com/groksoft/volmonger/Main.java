@@ -345,8 +345,8 @@ public class Main {
             }
         }
         logger.info("-----------------------------------------------------");
-        logger.info("Grand  total errors: " + errorCount);
-        logger.info("Grand  total ignored: " + ignoreTotal);
+        logger.info("Grand total errors: " + errorCount);
+        logger.info("Grand total ignored: " + ignoreTotal);
         logger.info("Grand total items: " + grandTotalItems);
         double gb = grandTotalSize / (1024 * 1024 * 1024);
         logger.info("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
