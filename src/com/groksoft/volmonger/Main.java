@@ -362,7 +362,7 @@ public class Main {
             str = patt.toString();
             str1 = str.replace("?", ".?").replace("*", ".*?");
             if (item.getName().matches(str1)) {
-                logger.info(">>>>>>Ignoring '" + item.getName());
+                //logger.info(">>>>>>Ignoring '" + item.getName());
                 ignoreTotal++;
                 ret = true;
                 break;

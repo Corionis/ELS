@@ -22,9 +22,7 @@
  * Do Music etc...*[]:
  * Look at orphaned Group when switching Sources and libraries
  * Todd- Fix Journey to the Center of the Earth matches
-
-
- *
+ * Add libname array to something so you only use certain libs
 
 # Ideas
 
