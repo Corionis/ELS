@@ -22,6 +22,8 @@
  * Do Music etc...*[]:
  * Do Movies 3d
  * Look at orphaned Group when switching Sources and libraries
+ * Todd- Fix Journey to the Center of the Earth matches
+ 
 
  * EMPTY TRASH before Grok to Rock
 
