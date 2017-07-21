@@ -17,7 +17,8 @@
  * Add a find dups in collection
  * deal with SRTs
  * Go over how to handle Dir cuts See Underworld
- * Fi8x Avitar & its extended edition
+ * Fix Avatar & its extended edition
+ * Go over my latest noptes in OneNote
  * Do Documentary
  * Do Music etc...*[]:
  * Look at orphaned Group when switching Sources and libraries
