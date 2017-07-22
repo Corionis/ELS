@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -37,6 +38,13 @@ public class Main {
     private long whatsNewTotal = 0;
     private int ignoreTotal = 0;
     private int errorCount = 0;
+    private ArrayList<String> ignoredList = new ArrayList<>();
+
+    /**
+     * The Formatter.
+     * Setup formatter for number
+     */
+    DecimalFormat formatter = new DecimalFormat("#,###");
 
     /**
      * Instantiates the Main application.
@@ -54,6 +62,20 @@ public class Main {
         int returnValue = volmonger.process(args);
         System.exit(returnValue);
     } // main
+
+    private void exportPaths() {
+        int returnValue = 0;
+        try {
+            for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography) {
+                publisherRepository.scan(pubLib.name);
+            }
+            publisherRepository.exportPaths();
+        } catch (MongerException e) {
+            // no logger yet to just print to the screen
+            System.out.println(e.getMessage());
+            returnValue = 1;
+        }
+    }
 
     private void export() {
         int returnValue = 0;
@@ -135,12 +157,22 @@ public class Main {
                 }
 
                 // handle -e export publisher (only)
+                if (cfg.getExportPathFilename().length() > 0) {
+                    if (cfg.getPublisherFileName().length() > 0 ||
+                            cfg.getPublisherImportFilename().length() > 0) {
+                        exportPaths();
+                    } else {
+                        throw new MongerException("-e option requires the -p and/or -P options");
+                    }
+                }
+
+                // handle -i export publisher (only)
                 if (cfg.getExportFilename().length() > 0) {
                     if (cfg.getPublisherFileName().length() > 0 ||
                             cfg.getPublisherImportFilename().length() > 0) {
                         export();
                     } else {
-                        throw new MongerException("-e option requires the -p and/or -P options");
+                        throw new MongerException("-i option requires the -p and/or -P options");
                     }
                 }
 
@@ -233,6 +265,7 @@ public class Main {
                     for (Item item : pubLib.items) {
                         if (ignore(item)) {
                             logger.info("  ! Ignoring '" + item.getItemPath() + "'");
+                            ignoredList.add("\n"+item.getFullPath());
                         } else {
                             boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
                             if (has) {
@@ -315,7 +348,7 @@ public class Main {
                 mismatchFile.println("----------------------------------------------------");
                 mismatchFile.println("Grand total items: " + grandTotalItems);
                 double gb = grandTotalSize / (1024 * 1024 * 1024);
-                mismatchFile.println("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
+                mismatchFile.println("Grand total size : " + formatter.format(grandTotalSize) + " bytes, " + gb + " GB");
                 mismatchFile.close();
             }
             if (whatsNewFile != null) {
@@ -326,14 +359,28 @@ public class Main {
             }
         }
         logger.info("-----------------------------------------------------");
+        if( ignoredList.size() > 0 ) {
+            logger.info("Ignore List " + ignoredList.toString()+"\n");
+            /*for (String s : ignoredList) {
+                // todo is there a way to get the logger NOT to show the line number stuff on the end.
+                logger.info(s+"        ");
+            }*/
+        }
         logger.info("Grand total errors: " + errorCount);
         logger.info("Grand total ignored: " + ignoreTotal);
         logger.info("Grand total items: " + grandTotalItems);
         double gb = grandTotalSize / (1024 * 1024 * 1024);
-        logger.info("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
+        logger.info("Grand total size : " + formatter.format(grandTotalSize) + " bytes, " + gb + " GB");
     }
 
 
+    /**
+     * Process group.
+     *
+     * @param group     the group
+     * @param totalSize the total size
+     * @throws MongerException the monger exception
+     */
     private void processGroup(ArrayList<Item> group, long totalSize) throws MongerException{
         try {
             if (group.size() > 0) {
@@ -367,6 +414,10 @@ public class Main {
         }
     }
 
+    /**
+     * @param item
+     * @return
+     */
     private boolean ignore(Item item) {
         String str = "";
         String str1 = "";
@@ -417,6 +468,7 @@ public class Main {
      * Will return one of the subscriber targets for the library of the item that is
      * large enough to hold the size specified, otherwise an empty string is returned.
      *
+     * @param item    the item
      * @param library the publisher library.definition.name
      * @param size    the total size of item(s) to be copied
      * @return the target
@@ -488,6 +540,13 @@ public class Main {
         }
     } // readRepository
 
+    /**
+     * Read targets.
+     *
+     * @param filename the filename
+     * @param storage  the storage
+     * @throws MongerException the monger exception
+     */
     public void readTargets(String filename, Storage storage) throws MongerException {
         storage.read(filename);
         storage.validate();
@@ -533,6 +592,7 @@ public class Main {
      *
      * @param from the from
      * @param to   the to
+     * @return the boolean
      */
     public boolean copyFile(String from, String to) {
         try {

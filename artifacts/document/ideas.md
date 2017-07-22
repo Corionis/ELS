@@ -7,10 +7,12 @@
  * deal with SRTs
  * Go over how to handle Dir cuts See Underworld
  * Fix Avatar & its extended edition
- * Todd- Fix Journey to the Center of the Earth matches
  * Add libname array to something so you only use certain libs
  * Should we rename "Documentary Movies" to ...Movie
  * Fix Library Name issue. The dirs names should not have to match the library or group name.
+ * Go though Documentary libraries and verify all have been changed
+ * Add option to overwrite output files
+
 
 # Ideas
 

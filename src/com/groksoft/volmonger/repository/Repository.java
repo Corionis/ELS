@@ -60,6 +60,57 @@ public class Repository
     }
 
     /**
+     * @param item
+     * @return
+     */
+    private boolean ignore(Item item) {
+        String str = "";
+        String str1 = "";
+        boolean ret = false;
+
+        for (Pattern patt : getLibraryData().libraries.compiledPatterns) {
+
+            str = patt.toString();
+            str1 = str.replace("?", ".?").replace("*", ".*?");
+            if (item.getName().matches(str1)) {
+                //logger.info(">>>>>>Ignoring '" + item.getName());
+                //ignoreTotal++;
+                ret = true;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Export libraries to JSON.
+     *
+     * @throws MongerException the monger exception
+     */
+    public void exportPaths() throws MongerException {
+        String path;
+        logger.info("Writing paths file " + cfg.getExportPathFilename());
+
+
+        try {
+            PrintWriter outputStream = new PrintWriter(cfg.getExportPathFilename());
+            for (Library lib : libraryData.libraries.bibliography) {
+                for (Item item : lib.items) {
+                    if( !item.isDirectory() ) {
+                        if( !ignore(item) ) {
+                            outputStream.println(item.getItemPath());
+                        }
+                    }
+                }
+            }
+
+            outputStream.close();
+        } catch (FileNotFoundException fnf) {
+            throw new MongerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
+        }
+    }
+
+    /**
      * Export libraries to JSON.
      *
      * @throws MongerException the monger exception

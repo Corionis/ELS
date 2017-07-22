@@ -25,6 +25,7 @@ public class Configuration {
     private boolean validationRun = false;
 
     private String exportFilename = "";
+    private String exportPathFilename = "";
     private String mismatchFilename = "";
     private String publisherImportFilename = "";
     private String subscriberImportFilename = "";
@@ -65,8 +66,9 @@ public class Configuration {
         logger.info("  cfg: -c Console level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
-        logger.info("  cfg: -e Export filename = " + getExportFilename());
+        logger.info("  cfg: -e Export filename = " + getExportPathFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
+        logger.info("  cfg: -i Log filename = " + getExportFilename());
         logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(isKeepVolMongerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames()) {
@@ -170,10 +172,10 @@ public class Configuration {
                     break;
                 case "-e":                                             // export filename
                     if (index <= args.length - 2) {
-                        setExportFilename(args[index + 1]);
+                        setExportPathFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -e requires an export filename");
+                        throw new MongerException("Error: -e requires an export path filename");
                     }
                     break;
                 case "-f":                                             // log filename
@@ -182,6 +184,14 @@ public class Configuration {
                         ++index;
                     } else {
                         throw new MongerException("Error: -f requires a log filename");
+                    }
+                    break;
+                case "-i":                                             // export filename
+                    if (index <= args.length - 2) {
+                        setExportFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MongerException("Error: -e requires an export filename");
                     }
                     break;
                 case "-k":                                             // keep .volmonger files
@@ -505,4 +515,11 @@ public class Configuration {
     }
 
 
+    public String getExportPathFilename() {
+        return exportPathFilename;
+    }
+
+    public void setExportPathFilename(String exportPathFilename) {
+        this.exportPathFilename = exportPathFilename;
+    }
 }
