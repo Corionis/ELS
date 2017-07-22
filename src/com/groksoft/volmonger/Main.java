@@ -36,6 +36,7 @@ public class Main {
     private String lastGroupName = "";
     private long whatsNewTotal = 0;
     private int ignoreTotal = 0;
+    private int errorCount = 0;
 
     /**
      * Instantiates the Main application.
@@ -175,7 +176,6 @@ public class Main {
      * @throws MongerException the monger exception
      */
     private void mongeCollections() throws MongerException {
-        int errorCount = 0;
         boolean iWin = false;
         Item lastDirectoryItem = null;
         PrintWriter mismatchFile = null;
@@ -247,7 +247,6 @@ public class Main {
                                      * Lucifer
                                      * Legion
                                      */
-
                                     if (!item.getLibrary().equals(currLib)) {
                                         // If not first time display and reset the whatsNewTotal
                                         if (!currLib.equals("")) {
@@ -280,35 +279,11 @@ public class Main {
                                         assert mismatchFile != null;
                                         mismatchFile.println(item.getFullPath());
                                     }
+                                    /* If the group is switching, process the current one. */
                                     if (isNewGrouping(item)) {
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
-                                        // if there is a new group - process it
-                                        if (group.size() > 0) {
-                                            for (Item groupItem : group) {
-                                                if (cfg.isDryRun()) {          // -t Test run option
-                                                    logger.info("    Would copy " + groupItem.getFullPath());
-                                                } else {
-                                                    String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
-                                                    if (targetPath != null) {
-                                                        // copy item(s) to targetPath
-                                                        String to = targetPath + "\\" + groupItem.getItemPath();
-                                                        logger.info("  > Copying " + groupItem.getFullPath() + " to " + to);
-                                                        if ( ! copyFile(groupItem.getFullPath(), to)) {
-                                                            logger.error("    Copy failed");
-                                                            ++errorCount;
-                                                        }
-                                                    } else {
-                                                        logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
-                                                                lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        grandTotalItems = grandTotalItems + group.size();
-                                        group.clear();
-                                        grandTotalSize = grandTotalSize + totalSize;
-                                        totalSize = 0L;
-                                        lastGroupName = currentGroupName;
+                                        // There is a new group - process it
+                                        processGroup(group, totalSize);
                                     }
                                     long size = 0;
                                     size = getItemSize(item);
@@ -323,13 +298,19 @@ public class Main {
                     throw new MongerException("Subscribed Publisher library " + subLib.name + " not found");
                 }
             }
-        } catch (
-                Exception e)
+        } catch (Exception e)
+
         {
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
         } finally
 
         {
+            // Process the last group
+            logger.info("Processing last group '" + currentGroupName + "'");
+            // There is a new group - process it
+            processGroup(group, totalSize);
+
+            // Close asl the files and show the results
             if (mismatchFile != null) {
                 mismatchFile.println("----------------------------------------------------");
                 mismatchFile.println("Grand total items: " + grandTotalItems);
@@ -350,6 +331,40 @@ public class Main {
         logger.info("Grand total items: " + grandTotalItems);
         double gb = grandTotalSize / (1024 * 1024 * 1024);
         logger.info("Grand total size : " + grandTotalSize + " bytes, " + gb + " GB");
+    }
+
+
+    private void processGroup(ArrayList<Item> group, long totalSize) throws MongerException{
+        try {
+            if (group.size() > 0) {
+                for (Item groupItem : group) {
+                    if (cfg.isDryRun()) {          // -t Test run option
+                        logger.info("    Would copy " + groupItem.getFullPath());
+                    } else {
+                        String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
+                        if (targetPath != null) {
+                            // copy item(s) to targetPath
+                            String to = targetPath + "\\" + groupItem.getItemPath();
+                            logger.info("  > Copying " + groupItem.getFullPath() + " to " + to);
+                            if (!copyFile(groupItem.getFullPath(), to)) {
+                                logger.error("    Copy failed");
+                                ++errorCount;
+                            }
+                        } else {
+                            logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
+                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                        }
+                    }
+                }
+            }
+            grandTotalItems = grandTotalItems + group.size();
+            group.clear();
+            grandTotalSize = grandTotalSize + totalSize;
+            totalSize = 0L;
+            lastGroupName = currentGroupName;
+        } catch (Exception e) {
+            throw new MongerException("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
+        }
     }
 
     private boolean ignore(Item item) {
@@ -380,8 +395,8 @@ public class Main {
     private boolean isNewGrouping(Item publisherItem) {
         boolean ret = true;
         int i = publisherItem.getItemPath().lastIndexOf("\\");
-        if( i < 0 ) {
-            logger.warn("No subdirectory in path : "+publisherItem.getItemPath());
+        if (i < 0) {
+            logger.warn("No subdirectory in path : " + publisherItem.getItemPath());
             return true;
         }
         String path = publisherItem.getItemPath().substring(0, i);
