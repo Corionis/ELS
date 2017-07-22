@@ -10,7 +10,7 @@
  * Move documentaries stuff around before synch
  * Put library name in whats new and indent content
  * Should this be called volmunger? I look for mong, mung and a few others on google and did not find any fits
- * Thumbs.db is showing in tghe compare output
+ * Thumbs.db is showing in the compare output
  * Go over my OneNote for VolMonger
  * put flushes
  * Change mong copied to coping and show before the copy starts.
@@ -18,12 +18,13 @@
  * deal with SRTs
  * Go over how to handle Dir cuts See Underworld
  * Fix Avatar & its extended edition
- * Go over my latest noptes in OneNote
+ * Go over my latest notes in OneNote
  * Do Documentary
- * Do Music etc...*[]:
+ * Do Music etc...
  * Look at orphaned Group when switching Sources and libraries
  * Todd- Fix Journey to the Center of the Earth matches
  * Add libname array to something so you only use certain libs
+ * Should we rename "Documentary Movies" to ...Movie
 
 # Ideas
 
