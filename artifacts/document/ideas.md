@@ -1,30 +1,16 @@
 # Next Synch
 
- * Map network shares to drive letters.
- * Search for all "volmonger" on BOTH PMS boxes.
  * Mark all not-so-good movies with fubar, or whatever
- * Setup 2 collection files: 1 with TV and Movies, the other with
-   everything else.
- * Synch up on Blu-Ray and DVD
- * GO through Dups
- * Move documentaries stuff around before synch
- * Put library name in whats new and indent content
  * Should this be called volmunger? I look for mong, mung and a few others on google and did not find any fits
- * Thumbs.db is showing in the compare output
- * Go over my OneNote for VolMonger
  * put flushes
- * Change mong copied to coping and show before the copy starts.
  * Add a find dups in collection
  * deal with SRTs
  * Go over how to handle Dir cuts See Underworld
  * Fix Avatar & its extended edition
- * Go over my latest notes in OneNote
- * Do Documentary
- * Do Music etc...
- * Look at orphaned Group when switching Sources and libraries
  * Todd- Fix Journey to the Center of the Earth matches
  * Add libname array to something so you only use certain libs
  * Should we rename "Documentary Movies" to ...Movie
+ * Fix Library Name issue. The dirs names should not have to match the library or group name.
 
 # Ideas
 
