@@ -12,6 +12,9 @@
  * Fix Library Name issue. The dirs names should not have to match the library or group name.
  * Go though Documentary libraries and verify all have been changed
  * Add option to overwrite output files
+ * Avoid cascading errors if all targets are full
+ * For VolMunger actions add a transcode option for high-resource-demand items, e.g. Bring It On
+  
 
 
 # Ideas
