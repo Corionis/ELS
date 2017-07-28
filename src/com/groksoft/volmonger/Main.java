@@ -317,6 +317,15 @@ public class Main {
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
                                         // There is a new group - process it
                                         processGroup(group, totalSize);
+
+                                        // FLush the output files
+                                        if (cfg.getWhatsNewFilename().length() > 0) {
+                                            whatsNewFile.flush();
+                                        }
+
+                                        if (cfg.getMismatchFilename().length() > 0) {
+                                            mismatchFile.flush();
+                                        }
                                     }
                                     long size = 0;
                                     size = getItemSize(item);
