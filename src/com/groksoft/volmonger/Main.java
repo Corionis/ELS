@@ -312,6 +312,7 @@ public class Main {
                                         assert mismatchFile != null;
                                         mismatchFile.println(item.getFullPath());
                                     }
+
                                     /* If the group is switching, process the current one. */
                                     if (isNewGrouping(item)) {
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
@@ -322,7 +323,6 @@ public class Main {
                                         if (cfg.getWhatsNewFilename().length() > 0) {
                                             whatsNewFile.flush();
                                         }
-
                                         if (cfg.getMismatchFilename().length() > 0) {
                                             mismatchFile.flush();
                                         }
@@ -340,13 +340,9 @@ public class Main {
                     throw new MongerException("Subscribed Publisher library " + subLib.name + " not found");
                 }
             }
-        } catch (Exception e)
-
-        {
+        } catch (Exception e) {
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
-        } finally
-
-        {
+        } finally {
             // Process the last group
             logger.info("Processing last group '" + currentGroupName + "'");
             // There is a new group - process it
@@ -425,7 +421,7 @@ public class Main {
 
     /**
      * @param item
-     * @return
+     * @return true if it should be ignored
      */
     private boolean ignore(Item item) {
         String str = "";

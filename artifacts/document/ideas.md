@@ -2,7 +2,7 @@
 
  * Mark all not-so-good movies with fubar, or whatever
  * Should this be called volmunger? I look for mong, mung and a few others on google and did not find any fits
- * put flushes
+ x put flushes
  * Add a find dups in collection
  * deal with SRTs
  * Go over how to handle Dir cuts See Underworld
