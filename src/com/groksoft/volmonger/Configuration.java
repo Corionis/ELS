@@ -37,6 +37,7 @@ public class Configuration {
     private ArrayList<String> publisherLibraryName = new ArrayList<>();
     private boolean specificPublisherLibrary = false;
     private String subscriberFileName = "";
+    private boolean overwrite = false;
 
     /**
      * Instantiates a new Configuration.
@@ -76,6 +77,7 @@ public class Configuration {
         }
         logger.info("  cfg: -m Mismatch output filename = " + getMismatchFilename());
         logger.info("  cfg: -n What's new output filename = " + getWhatsNewFilename());
+        logger.info("  cfg: -o Overwrite = " + Boolean.toString(getOverwrite()));
         logger.info("  cfg: -p Publisher's LibraryData filename = " + getPublisherFileName());
         logger.info("  cfg: -P Publisher's collection import filename = " + getPublisherFileName());
         logger.info("  cfg: -s Subscriber's LibraryData filename = " + getSubscriberFileName());
@@ -221,6 +223,9 @@ public class Configuration {
                     } else {
                         throw new MongerException("Error: -n requires a What's New output filename");
                     }
+                    break;
+                case "-o":                                             // Overwrite the output files
+                    setOverwrite(true);
                     break;
                 case "-p":                                             // publisher collection filename
                     if (index <= args.length - 2) {
@@ -515,11 +520,27 @@ public class Configuration {
     }
 
 
+    /**
+     * @return exportPathFilename
+     */
     public String getExportPathFilename() {
         return exportPathFilename;
     }
 
+    /**
+     * @param exportPathFilename
+     */
     public void setExportPathFilename(String exportPathFilename) {
         this.exportPathFilename = exportPathFilename;
     }
+
+    /**
+     * @param overwrite
+     */
+    public void setOverwrite(boolean overwrite) { this.overwrite = overwrite; }
+
+    /**
+     * @return overwrite
+     */
+    public boolean getOverwrite() { return overwrite; }
 }

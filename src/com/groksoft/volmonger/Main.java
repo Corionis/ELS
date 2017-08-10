@@ -226,6 +226,8 @@ public class Main {
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0) {
             try {
+                // todo Left off adding the -o option. I already coded the option in config. Created getter and setter for overwrite
+                // todo Delete the old file if overwrite is on. Do we need to do this - I think its done by the new PrintWriter
                 mismatchFile = new PrintWriter(cfg.getMismatchFilename());
                 mismatchFile.println(header);
                 logger.info("Writing to mismatch file " + cfg.getMismatchFilename());
@@ -316,10 +318,10 @@ public class Main {
                                     /* If the group is switching, process the current one. */
                                     if (isNewGrouping(item)) {
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
-                                        // There is a new group - process it
+                                        // There is a new group - process the old group
                                         processGroup(group, totalSize);
 
-                                        // FLush the output files
+                                        // Flush the output files
                                         if (cfg.getWhatsNewFilename().length() > 0) {
                                             whatsNewFile.flush();
                                         }

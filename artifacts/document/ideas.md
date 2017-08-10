@@ -10,7 +10,7 @@
  * Add libname array to something so you only use certain libs
  * Should we rename "Documentary Movies" to ...Movie
  * Fix Library Name issue. The dirs names should not have to match the library or group name.
- * Go though Documentary libraries and verify all have been changed
+ x Go though Documentary libraries and verify all have been changed
  * Add option to overwrite output files
  * Avoid cascading errors if all targets are full
  * For VolMunger actions add a transcode option for high-resource-demand items, e.g. Bring It On
@@ -171,7 +171,8 @@ OLD:
  * -m file : Mismatch output file (differences)
 
  * -n file : Show What's new in a readable format, to send to your Plex users
- 
+
+ * -o : Overwrite the output files
  * -p file : Publisher libraries file
  * -P file : Publisher collection import items file
  
