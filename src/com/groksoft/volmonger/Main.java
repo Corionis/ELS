@@ -20,7 +20,7 @@ import com.groksoft.volmonger.repository.Repository;
 import com.groksoft.volmonger.storage.Storage;
 
 /**
- * Main - VolMonger program
+ * Main VolMonger program
  */
 public class Main {
     private Configuration cfg = null;

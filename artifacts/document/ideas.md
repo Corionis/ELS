@@ -1,21 +1,25 @@
 # Next Synch
 
+## Media
  * Mark all not-so-good movies with fubar, or whatever
- * Should this be called volmunger? I look for mong, mung and a few others on google and did not find any fits
- x put flushes
- * Add a find dups in collection
- * deal with SRTs
- * Go over how to handle Dir cuts See Underworld
+ * Deal with SRTs
+ * Go over how to handle Director cuts See Underworld
  * Fix Avatar & its extended edition
- * Add libname array to something so you only use certain libs
  * Should we rename "Documentary Movies" to ...Movie
- * Fix Library Name issue. The dirs names should not have to match the library or group name.
  x Go though Documentary libraries and verify all have been changed
- * Add option to overwrite output files
- * Avoid cascading errors if all targets are full
- * For VolMunger actions add a transcode option for high-resource-demand items, e.g. Bring It On
-  
 
+## Code
+ * Rename GitHub project to VolMunger
+ x Add log flushes
+ * Add library name option so only certain libraries are processed
+ * Add a find dupes in collection
+ * Add option to overwrite output files
+ * Fix library name issue. The directories should not have to match the
+   library or group name.
+ * Avoid cascading errors if all targets are full
+ * For .volmunger actions:
+   - transcode option for high resource demand items, 
+     e.g. Bring It On, Sons of Anarchy
 
 # Ideas
 
@@ -42,11 +46,10 @@ on a different computer where drive letters would change.
 Various features and nuances of VolMonger.
 
  * Both lower- and upper-case -p/-P or -s/-S options may be used
-   to bend multiple publishers to one subscriber, and vice-versa.
+   to send multiple publishers to one subscriber, and vice-versa.
    Example: A normal publisher with hard drives and a separate
    shuttle drive as publishers.
 
- * 
 
 ## Organization
  * A publisher is the provider of the data.
@@ -70,78 +73,26 @@ Various features and nuances of VolMonger.
    - This works for a movie and that directory's contents,
    - and works for a TV show and a season directory.
  
----
-OLD:
- * A collection is a set of named libraries.
-   - A collection is described in a single collection file.
- * A named library is one or more directories, possibly on
- different drives.
- * Each source ...
- * Each target is one or more directories, possibly on
- different drives.
- * As each target becomes full to a specified minimum the
- next target is used.
 
 ## Assumptions
  * The exact locations of the contents of each library is
- not known at the beginning of a VolMonger run.
+   not known at the beginning of a VolMonger run.
  * A directory of only one collection or the other will be
-  modified between mongings.
+   modified between mongings.
    - If a volmonger.json exists on both it is a conflict
    - Conflicts are logged for re-run
  * To monge two operational systems will require one to use
   a collection file for the target system configured from
   its own connection perspective, e.g. drive letters, etc.  
 
-## Collection File
+### Collection Files
+ * No two library names may be the same, i.e. library names must be unique
 
-```JSON
-    {
-        "metadata" : {
-            "name" : "RockPlex"
-        },
-        "libraries" : {
-            "Movies" : {
-                "definition" : {
-                    "minimum" : "10G"
-                },
-                "targets" : [
-                    "H:/media/movies",
-                    "I:/media/movies"
-                ],
-                "sources" : [
-                    {"dir": "D:/media/movies"},
-                    {"dir": "F:/media/movies", "context": 3},
-                    "H:/media/movies",
-                    "C:/overflow"
-                ]
-            },
-            "TV Shows" : {
-                "definition" : {
-                    "minimum" : "4G"
-                },
-                "targets" : [
-                    "H:/media/tv shows",
-                    "I:/media/tv shows"
-                ],
-                "sources" : [
-                    "E:/media/tv shows",
-                    "G:/media/tv shows",
-                    "H:/media/tv shows"
-                ]
-            }
-        }
-    }
-```
- * Targets
-   - One or more may be specified
-   - Space check perform before copying
-   - Automatic roll-over to the next target
+### Target Files
+ * One or more may be specified
+ * Space check perform before copying
+ * Automatic roll-over to the next target
    
- * RULES OF COLLECTION FILES, in no particular order:
-   - No two library names may be the same, i.e. library names must be unique
-   - 
-
 ## Design
 
 ### Questions
@@ -156,7 +107,7 @@ OLD:
      - What are the other permutations?
  * How to handle N-sided monges? Cannot delete volmonger.json if so.
 
-## Command Line Options
+### Command Line Options
  * -c level : Logging level for console, default debug
  * -d level : Logging level, default info
  * -D : Dry run, validate, scan, and match but do not make any changes
@@ -232,12 +183,7 @@ This is a file-for-file matching/synchronization process.
 
 ### Convenience Utilities
  * [Sent-To utility](send-to utility.md) volmonger.json file generator.
- * [Plex-to-VolMonger generator](plex-to-VolMonger.md) for
- automated collection file generation.
-
- * Produce Subscriber list for offline compares and/or Internet synch.
-
- * VolMonger over TCP/IP
+ * [Plex-to-VolMonger generator](plex-to-VolMonger.md) for automated collection file generation.
 
 ---
 
@@ -284,9 +230,3 @@ This is a file-for-file matching/synchronization process.
 
  3. volmonger.json, Moves do not matter, this is location inspecific with a library
 
-
-## Test Ideas
-
- 1. Test the Utils class
-    * getScaledValue() for invalid data, no match, etc.
-    
