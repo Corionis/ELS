@@ -11,7 +11,7 @@
             </Policies>
         </RollingFile>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m [%t]:%C.%M:%L%n"/>
+            <PatternLayout pattern="${sys:pattern}"/>
         </Console>
     </Appenders>
     <Loggers>

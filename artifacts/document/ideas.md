@@ -109,32 +109,41 @@ Various features and nuances of VolMonger.
 
 ### Command Line Options
  * -c level : Logging level for console, default debug
- * -d level : Logging level, default info
+ 
+ * -d level : Logging level, default info 
+      Levels= off, fatal, error, warn, info, debug, trace, all.
+      If level = info then Java method and line number are not added.
+ 
  * -D : Dry run, validate, scan, and match but do not make any changes
+ 
  * -e file : Export publisher items to file
+ 
  * -f file : Log file, default VolMonger.log in directory where "run" is executed
 
  * -k : Keep volmonger.json files, default is to delete them as they are processed
  
  * -l library : Publisher library to process, default all
-  May need to add specific item(s)
+      May need to add specific item(s)
  
  * -m file : Mismatch output file (differences)
 
  * -n file : Show What's new in a readable format, to send to your Plex users
 
  * -o : Overwrite the output files
+ 
  * -p file : Publisher libraries file
+ 
  * -P file : Publisher collection import items file
  
  * -s file : Subscriber libraries  file
+ 
  * -S file : Subscriber collection import items file
  
  * -t file : Targets filename
 
  * -v : Validate collections files only then exit
 
-Log Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
+Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
 
 
 The -k option applies to the Provider. Subscriber volmonger.json files are not

@@ -89,11 +89,11 @@ public class Repository
      */
     public void exportPaths() throws MongerException {
         String path;
-        logger.info("Writing paths file " + cfg.getExportPathFilename());
+        logger.info("Writing paths file " + cfg.getExportPathsFilename());
 
 
         try {
-            PrintWriter outputStream = new PrintWriter(cfg.getExportPathFilename());
+            PrintWriter outputStream = new PrintWriter(cfg.getExportPathsFilename());
             for (Library lib : libraryData.libraries.bibliography) {
                 for (Item item : lib.items) {
                     if( !item.isDirectory() ) {
@@ -291,7 +291,7 @@ public class Repository
     }
 
     /**
-     * Scan All LibraryData.
+     * Scan a specific library name.
      *
      * @throws MongerException the monger exception
      */
@@ -302,7 +302,7 @@ public class Repository
                 if (!libraryName.equalsIgnoreCase(lib.name))
                     continue;
             }
-            logger.info("Scanning:" + lib.name);
+            logger.info("Scanning " + getLibraryData().libraries.description + ": " + lib.name);
             for (String src : lib.sources) {
                 logger.info("  " + src);
                 scanDirectory(lib, src, src);

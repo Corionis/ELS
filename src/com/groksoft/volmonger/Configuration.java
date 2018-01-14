@@ -16,7 +16,7 @@ public class Configuration {
     private static Configuration instance = null;
 
     // flags & names
-    private String consoleLevel = "debug";  // Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
+    private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
 
     private boolean keepVolMongerFiles = false;
@@ -25,7 +25,7 @@ public class Configuration {
     private boolean validationRun = false;
 
     private String exportFilename = "";
-    private String exportPathFilename = "";
+    private String exportPathsFilename = "";
     private String mismatchFilename = "";
     private String publisherImportFilename = "";
     private String subscriberImportFilename = "";
@@ -61,15 +61,21 @@ public class Configuration {
     /**
      * Dump the configuration
      */
-    public void dump() {
+    public void dump(String[] argsCopy) {
         Logger logger = LogManager.getLogger("applog");
+
+        String msg = "Arguments: ";
+        for (int index = 0; index < argsCopy.length; ++index) {
+            msg = msg + argsCopy[index] + " ";
+        }
+        logger.info(msg);
 
         logger.info("  cfg: -c Console level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
-        logger.info("  cfg: -e Export filename = " + getExportPathFilename());
+        logger.info("  cfg: -e Export paths filename = " + getExportPathsFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
-        logger.info("  cfg: -i Log filename = " + getExportFilename());
+        logger.info("  cfg: -i Export filename = " + getExportFilename());
         logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(isKeepVolMongerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames()) {
@@ -172,12 +178,12 @@ public class Configuration {
                         throw new MongerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
-                case "-e":                                             // export filename
+                case "-e":                                             // export paths filename
                     if (index <= args.length - 2) {
-                        setExportPathFilename(args[index + 1]);
+                        setExportPathsFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -e requires an export path filename");
+                        throw new MongerException("Error: -e requires an export paths output filename");
                     }
                     break;
                 case "-f":                                             // log filename
@@ -193,7 +199,7 @@ public class Configuration {
                         setExportFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -e requires an export filename");
+                        throw new MongerException("Error: -i requires an export output filename");
                     }
                     break;
                 case "-k":                                             // keep .volmonger files
@@ -376,6 +382,22 @@ public class Configuration {
     }
 
     /**
+     * Gets PatternLayout for log4j2.
+     *
+     * Call this method AFTER setDebugLevel() has been called.
+     *
+     * @return the PatternLayout to use
+     */
+    public String getPattern() {
+        String withMethod = "%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m [%t]:%C.%M:%L%n";
+        String withoutMethod = "%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n";
+        if (getDebugLevel().trim().equalsIgnoreCase("info")) {
+            return withoutMethod;
+        }
+        return withMethod;
+    }
+
+    /**
      * Gets publisher configuration file name.
      *
      * @return the publisher configuration file name
@@ -521,17 +543,17 @@ public class Configuration {
 
 
     /**
-     * @return exportPathFilename
+     * @return exportPathsFilename
      */
-    public String getExportPathFilename() {
-        return exportPathFilename;
+    public String getExportPathsFilename() {
+        return exportPathsFilename;
     }
 
     /**
-     * @param exportPathFilename
+     * @param exportPathsFilename
      */
-    public void setExportPathFilename(String exportPathFilename) {
-        this.exportPathFilename = exportPathFilename;
+    public void setExportPathsFilename(String exportPathsFilename) {
+        this.exportPathsFilename = exportPathsFilename;
     }
 
     /**

@@ -110,6 +110,7 @@ public class Main {
             System.setProperty("logFilename", cfg.getLogFilename());
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
             System.setProperty("debugLevel", cfg.getDebugLevel());
+            System.setProperty("pattern", cfg.getPattern());
             org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
             ctx.reconfigure();
 
@@ -118,7 +119,7 @@ public class Main {
 
             // the + makes searching for the beginning of a run easier
             logger.info("+ Main begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
-            cfg.dump();
+            cfg.dump(args);
 
             // todo Add sanity checks for option combinations that do not make sense
 
@@ -128,6 +129,14 @@ public class Main {
             storageTargets = new Storage();
 
             try {
+                // get -t Targets
+                if (cfg.getTargetsFilename().length() > 0) {
+                    readTargets(cfg.getTargetsFilename(), storageTargets);
+                } else {
+                    logger.warn("NOTE: No targets file was specified - performing a dry run");
+                    cfg.setDryRun(true);
+                }
+
                 // get -p Publisher metadata
                 if (cfg.getPublisherFileName().length() > 0) {
                     readRepository(cfg.getPublisherFileName(), publisherRepository, true);
@@ -148,16 +157,8 @@ public class Main {
                     readRepository(cfg.getSubscriberImportFilename(), subscriberRepository, false);
                 }
 
-                // get -t Targets
-                if (cfg.getTargetsFilename().length() > 0) {
-                    readTargets(cfg.getTargetsFilename(), storageTargets);
-                } else {
-                    logger.warn("NOTE: No targets file was specified - performing a dry run");
-                    cfg.setDryRun(true);
-                }
-
                 // handle -e export publisher (only)
-                if (cfg.getExportPathFilename().length() > 0) {
+                if (cfg.getExportPathsFilename().length() > 0) {
                     if (cfg.getPublisherFileName().length() > 0 ||
                             cfg.getPublisherImportFilename().length() > 0) {
                         exportPaths();
@@ -197,6 +198,7 @@ public class Main {
         // the - makes searching for the ending of a run easier
         if (logger != null) {
             logger.info("- Main end" + " ------------------------------------------");
+            LogManager.shutdown();
         }
 
         return returnValue;
@@ -251,12 +253,12 @@ public class Main {
             }
         }
 
-        logger.info("                          ***** Starting Monge *****");
         try {
             for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
                 Library pubLib = null;
                 if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null) {
-                    // Do the libraries have items or do we need to scan?
+
+                    // Do the libraries have items or do we need to be scanned?
                     if (pubLib.items == null || pubLib.items.size() < 1) {
                         publisherRepository.scan(pubLib.name);
                     }
@@ -264,6 +266,7 @@ public class Main {
                         subscriberRepository.scan(subLib.name);
                     }
 
+                    logger.info("Munge " + pubLib.items.size() + " publisher items with " + subLib.items.size() + " subscriber items in " + subLib.name);
                     for (Item item : pubLib.items) {
                         if (ignore(item)) {
                             logger.info("  ! Ignoring '" + item.getItemPath() + "'");
@@ -287,7 +290,7 @@ public class Main {
                                         if (!currLib.equals("")) {
                                             whatsNewFile.println("--------------------------------");
                                             whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
-                                            whatsNewFile.println("--------------------------------");
+                                            whatsNewFile.println("================================");
                                             whatsNewTotal = 0;
                                         }
                                         // Display the Library
@@ -295,7 +298,7 @@ public class Main {
                                         whatsNewFile.println("");
                                         whatsNewFile.println(currLib);
                                         whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
-                                        whatsNewFile.println("");
+                                        //whatsNewFile.println("");
                                     }
                                     String path;
                                     path = Utils.getLastPath(item.getItemPath());
@@ -361,7 +364,7 @@ public class Main {
             if (whatsNewFile != null) {
                 whatsNewFile.println("--------------------------------");
                 whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
-                whatsNewFile.println("--------------------------------");
+                whatsNewFile.println("================================");
                 whatsNewFile.close();
             }
         }

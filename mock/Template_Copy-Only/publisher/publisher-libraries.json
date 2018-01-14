@@ -11,9 +11,9 @@
             {
                 "name": "Movies",
                 "sources": [
-                    "TestRun/publisher/media-a/media/Movies",
-                    "TestRun/publisher/media-b/media/Movies",
-                    "TestRun/publisher/media-c/media/Movies"
+                    "TestRun/publisher/media-a/media/MyMovies",
+                    "TestRun/publisher/media-b/media/MoreMovies",
+                    "TestRun/publisher/media-c/media/YetMoreMovies"
                 ],
                 "items": [
                 ]
@@ -21,9 +21,9 @@
             {
                 "name": "TV Shows",
                 "sources": [
-                    "TestRun/publisher/media-a/media/TV Shows",
-                    "TestRun/publisher/media-b/media/TV Shows",
-                    "TestRun/publisher/media-c/media/TV Shows"
+                    "TestRun/publisher/media-a/media/MyTVShows",
+                    "TestRun/publisher/media-b/media/MoreTVShows",
+                    "TestRun/publisher/media-c/media/YetMoreTVShows"
                 ]
             }
         ]
