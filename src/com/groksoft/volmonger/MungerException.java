@@ -3,14 +3,14 @@ package com.groksoft.volmonger;
 /**
  * Monger exception
  */
-public class MongerException extends Exception
+public class MungerException extends Exception
 {
     /**
      * Instantiates a new Monger exception.
      *
      * @param message the message
      */
-    public MongerException(String message) {
+    public MungerException(String message) {
         super(message);
     }
 }

@@ -37,7 +37,6 @@ public class Configuration {
     private ArrayList<String> publisherLibraryName = new ArrayList<>();
     private boolean specificPublisherLibrary = false;
     private String subscriberFileName = "";
-    private boolean overwrite = false;
 
     /**
      * Instantiates a new Configuration.
@@ -70,8 +69,8 @@ public class Configuration {
         }
         logger.info(msg);
 
-        logger.info("  cfg: -c Console level = " + getConsoleLevel());
-        logger.info("  cfg: -d Debug level = " + getDebugLevel());
+        logger.info("  cfg: -c Console logging level = " + getConsoleLevel());
+        logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export paths filename = " + getExportPathsFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
@@ -81,14 +80,13 @@ public class Configuration {
         for (String ln : getPublisherLibraryNames()) {
             logger.info("  cfg:     " + ln);
         }
-        logger.info("  cfg: -m Mismatch output filename = " + getMismatchFilename());
-        logger.info("  cfg: -n What's new output filename = " + getWhatsNewFilename());
-        logger.info("  cfg: -o Overwrite = " + Boolean.toString(getOverwrite()));
-        logger.info("  cfg: -p Publisher's LibraryData filename = " + getPublisherFileName());
-        logger.info("  cfg: -P Publisher's collection import filename = " + getPublisherFileName());
-        logger.info("  cfg: -s Subscriber's LibraryData filename = " + getSubscriberFileName());
-        logger.info("  cfg: -S Subscriber collection import filename = " + getSubscriberImportFilename());
-        logger.info("  cfg: -t Targets for mismatches to be copied too = " + getTargetsFilename());
+        logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
+        logger.info("  cfg: -p Publisher Library filename = " + getPublisherFileName());
+        logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherFileName());
+        logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberFileName());
+        logger.info("  cfg: -S Subscriber Collection import filename = " + getSubscriberImportFilename());
+        logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
         logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
     }
 
@@ -151,9 +149,9 @@ public class Configuration {
      *
      * @param args the args
      * @return the boolean
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void parseCommandLine(String[] args) throws MongerException {
+    public void parseCommandLine(String[] args) throws MungerException {
         int index;
         boolean success = true;
 
@@ -164,7 +162,7 @@ public class Configuration {
                         setConsoleLevel(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungerException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
                 case "-D":                                             // Dry run
@@ -175,7 +173,7 @@ public class Configuration {
                         setDebugLevel(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
                 case "-e":                                             // export paths filename
@@ -183,7 +181,7 @@ public class Configuration {
                         setExportPathsFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -e requires an export paths output filename");
+                        throw new MungerException("Error: -e requires an export paths output filename");
                     }
                     break;
                 case "-f":                                             // log filename
@@ -191,7 +189,7 @@ public class Configuration {
                         setLogFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -f requires a log filename");
+                        throw new MungerException("Error: -f requires a log filename");
                     }
                     break;
                 case "-i":                                             // export filename
@@ -199,7 +197,7 @@ public class Configuration {
                         setExportFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -i requires an export output filename");
+                        throw new MungerException("Error: -i requires an export output filename");
                     }
                     break;
                 case "-k":                                             // keep .volmonger files
@@ -211,7 +209,7 @@ public class Configuration {
                         setSpecificPublisherLibrary(true);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -l requires a publisher library name");
+                        throw new MungerException("Error: -l requires a publisher library name");
                     }
                     break;
                 case "-m":                                             // Mismatch output filename
@@ -219,7 +217,7 @@ public class Configuration {
                         setMismatchFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -m requires a mismatch output filename");
+                        throw new MungerException("Error: -m requires a mismatches output filename");
                     }
                     break;
                 case "-n":                                             // What's New output filename
@@ -227,18 +225,15 @@ public class Configuration {
                         setWhatsNewFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -n requires a What's New output filename");
+                        throw new MungerException("Error: -n requires a What's New output filename");
                     }
-                    break;
-                case "-o":                                             // Overwrite the output files
-                    setOverwrite(true);
                     break;
                 case "-p":                                             // publisher collection filename
                     if (index <= args.length - 2) {
                         setPublisherFileName(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -p requires a publisher collection filename");
+                        throw new MungerException("Error: -p requires a publisher collection filename");
                     }
                     break;
                 case "-P":                                             // import publisher filename
@@ -246,7 +241,7 @@ public class Configuration {
                         setPublisherImportFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -P requires an publisher import filename");
+                        throw new MungerException("Error: -P requires an publisher import filename");
                     }
                     break;
                 case "-s":                                             // subscriber collection filename
@@ -254,7 +249,7 @@ public class Configuration {
                         setSubscriberFileName(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -s requires a subscriber collection filename");
+                        throw new MungerException("Error: -s requires a subscriber collection filename");
                     }
                     break;
                 case "-S":                                             // import subscriber filename
@@ -262,7 +257,7 @@ public class Configuration {
                         setSubscriberImportFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -S requires an subscriber import filename");
+                        throw new MungerException("Error: -S requires an subscriber import filename");
                     }
                     break;
                 case "-t":                                             // targets filename
@@ -270,14 +265,14 @@ public class Configuration {
                         setTargetsFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MongerException("Error: -t requires a targets filename");
+                        throw new MungerException("Error: -t requires a targets filename");
                     }
                     break;
                 case "-v":                                             // validate collections files
                     setValidationRun(true);
                     break;
                 default:
-                    throw new MongerException("Error: unknown option " + args[index]);
+                    throw new MungerException("Error: unknown option " + args[index]);
             }
         }
     }
@@ -556,13 +551,4 @@ public class Configuration {
         this.exportPathsFilename = exportPathsFilename;
     }
 
-    /**
-     * @param overwrite
-     */
-    public void setOverwrite(boolean overwrite) { this.overwrite = overwrite; }
-
-    /**
-     * @return overwrite
-     */
-    public boolean getOverwrite() { return overwrite; }
 }

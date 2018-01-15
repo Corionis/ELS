@@ -7,12 +7,11 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;                    // see https://github.com/google/gson
 
 // see https://logging.apache.org/log4j/2.x/
-import com.groksoft.volmonger.repository.Library;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.groksoft.volmonger.Configuration;
-import com.groksoft.volmonger.MongerException;
+import com.groksoft.volmonger.MungerException;
 import com.groksoft.volmonger.Utils;
 
 /**
@@ -44,13 +43,13 @@ public class Storage
      * @param libraryName the library name
      * @return the Target
      */
-    public Target getTarget(String libraryName) throws MongerException {
+    public Target getTarget(String libraryName) throws MungerException {
         boolean has = false;
         Target retTarget = null;
         for (Target tar : targetData.targets.storage) {
             if (tar.name.equalsIgnoreCase(libraryName)) {
                 if (has) {
-                    throw new MongerException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
+                    throw new MungerException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
                 }
                 has = true;
                 retTarget = tar;
@@ -63,9 +62,9 @@ public class Storage
      * Read Targets.
      *
      * @param filename The JSON Libraries filename
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void read(String filename) throws MongerException {
+    public void read(String filename) throws MungerException {
         try {
             String json;
             Gson gson = new Gson();
@@ -75,49 +74,49 @@ public class Storage
             targetData = gson.fromJson(json, TargetData.class);
             String p = targetData.targets.storage[0].locations[0];
         } catch (IOException ioe) {
-            throw new MongerException("Exception while reading targets: " + filename + " trace: " + Utils.getStackTrace(ioe));
+            throw new MungerException("Exception while reading targets: " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
     }
 
     /**
      * Validate the Targets data.
      *
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void validate() throws MongerException {
+    public void validate() throws MungerException {
         long minimumSize;
 
         if (getTargetData() == null) {
-            throw new MongerException("TargetData are null");
+            throw new MungerException("TargetData are null");
         }
 
         Targets targets = targetData.targets;
 
         if (targets.description == null || targets.description.length() == 0) {
-            throw new MongerException("targets.description must be defined");
+            throw new MungerException("targets.description must be defined");
         }
 
         for (int i = 0; i < targets.storage.length; ++i) {
             Target t = targets.storage[i];
             if (t.name == null || t.name.length() == 0) {
-                throw new MongerException("storage.name " + i + " must be defined");
+                throw new MungerException("storage.name [" + i + "] must be defined");
             }
             if (t.minimum == null || t.minimum.length() == 0) {
-                throw new MongerException("storage.minimum " + i + " must be defined");
+                throw new MungerException("storage.minimum [" + i + "] must be defined");
             }
             long min = Utils.getScaledValue(t.minimum);
             if (min < minimumBytes) {               // non-fatal warning
-                logger.warn("storage.minimum " + i + " (" + t.minimum + ") is less than minimum of " + minimumBytes + ". Using " + minimumBytes);
+                logger.warn("storage.minimum [" + i + "] " + t.name + " of " + t.minimum + " is less than minimum of " + (minimumBytes / 1024 / 1024) + "MB. Using minimum.");
             }
             if (t.locations == null || t.locations.length == 0) {
-                throw new MongerException("storage.locations " + i + " must be defined");
+                throw new MungerException("storage.locations [" + i + "] " + t.name + " must be defined");
             }
             for (int j = 0; j < t.locations.length; ++j) {
                 if (t.locations[j].length() == 0) {
-                    throw new MongerException("storage[" + i + "].locations[" + j + "] must be defined");
+                    throw new MungerException("storage[" + i + "].locations[" + j + "] " + t.name + " must be defined");
                 }
                 if (Files.notExists(Paths.get(t.locations[j]))) {
-                    throw new MongerException("storage[" + i + "].locations[" + j + "]: " + t.locations[j] + " does not exist");
+                    throw new MungerException("storage[" + i + "].locations[" + j + "]: " + t.locations[j] + " does not exist");
                 }
                 logger.debug("  loc: " + t.locations[j]);
             }

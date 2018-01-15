@@ -108,9 +108,9 @@ Various features and nuances of VolMonger.
  * How to handle N-sided monges? Cannot delete volmonger.json if so.
 
 ### Command Line Options
- * -c level : Logging level for console, default debug
+ * -c level : Console logging level, default debug
  
- * -d level : Logging level, default info 
+ * -d level : File logging level, default info 
       Levels= off, fatal, error, warn, info, debug, trace, all.
       If level = info then Java method and line number are not added.
  
@@ -129,8 +129,6 @@ Various features and nuances of VolMonger.
 
  * -n file : Show What's new in a readable format, to send to your Plex users
 
- * -o : Overwrite the output files
- 
  * -p file : Publisher libraries file
  
  * -P file : Publisher collection import items file

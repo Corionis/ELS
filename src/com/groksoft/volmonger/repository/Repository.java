@@ -12,11 +12,11 @@ import java.util.regex.PatternSyntaxException;
 import com.google.gson.Gson;                    // see https://github.com/google/gson
 
 // see https://logging.apache.org/log4j/2.x/
+import com.groksoft.volmonger.MungerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.groksoft.volmonger.Configuration;
-import com.groksoft.volmonger.MongerException;
 import com.groksoft.volmonger.Utils;
 
 /**
@@ -85,9 +85,9 @@ public class Repository
     /**
      * Export libraries to JSON.
      *
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void exportPaths() throws MongerException {
+    public void exportPaths() throws MungerException {
         String path;
         logger.info("Writing paths file " + cfg.getExportPathsFilename());
 
@@ -106,16 +106,16 @@ public class Repository
 
             outputStream.close();
         } catch (FileNotFoundException fnf) {
-            throw new MongerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
     /**
      * Export libraries to JSON.
      *
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void export() throws MongerException {
+    public void export() throws MungerException {
         String json;
         Gson gson = new Gson();
         logger.info("Writing item file " + cfg.getExportFilename());
@@ -125,7 +125,7 @@ public class Repository
             outputStream.println(json);
             outputStream.close();
         } catch (FileNotFoundException fnf) {
-            throw new MongerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -133,9 +133,48 @@ public class Repository
      * Has directory string.
      *
      * @param libraryName the library name
-     * @param match       the match
+     * @param itemPath       the match
      * @return the string
      */
+    public String hasDirectory(String libraryName, String itemPath) {
+        String match = itemPath;
+        Item foundItem = null;
+        int i = match.lastIndexOf("\\");
+        if (i < 0) {
+            return null;
+        }
+        String path = match.substring(0, i);
+        if (path.length() < 1) {
+            path = match.substring(0, match.lastIndexOf("/"));
+        }
+        match = path;
+        path = null;
+        for (Library lib : libraryData.libraries.bibliography) {
+            if (lib.name.equalsIgnoreCase(libraryName)) {
+                foundItem = null;
+                for (Item item : lib.items) {
+                    if (libraryData.libraries.case_sensitive) {
+                        if (item.getItemPath().equals(match)) {
+                            foundItem = item;
+                            break;
+                        }
+                    } else {
+                        if (item.getItemPath().equalsIgnoreCase(match)) {
+                            foundItem = item;
+                            break;
+                        }
+                    }
+                }
+                if (foundItem != null && foundItem.isDirectory()) {
+                    path = foundItem.getFullPath().substring(0, foundItem.getFullPath().lastIndexOf(foundItem.getItemPath()) - 1);
+                }
+                break;
+            }
+        }
+        return path;
+    }
+
+/*
     public String hasDirectory(String libraryName, String match) {
         Item foundItem = null;
         int i = match.lastIndexOf("\\");
@@ -192,6 +231,7 @@ public class Repository
         }
         return path;
     }
+*/
 
     /**
      * Has specific item
@@ -235,12 +275,12 @@ public class Repository
      * @param libraryName the library name
      * @return the boolean
      */
-    public boolean hasLibrary(String libraryName) throws MongerException {
+    public boolean hasLibrary(String libraryName) throws MungerException {
         boolean has = false;
         for (Library lib : libraryData.libraries.bibliography) {
             if (lib.name.equalsIgnoreCase(libraryName)) {
                 if (has) {
-                    throw new MongerException("Library " + lib.name + " found more than once in " + getJsonFilename());
+                    throw new MungerException("Library " + lib.name + " found more than once in " + getJsonFilename());
                 }
                 has = true;
             }
@@ -256,13 +296,13 @@ public class Repository
      * @param libraryName the library name
      * @return the Library
      */
-    public Library getLibrary(String libraryName) throws MongerException {
+    public Library getLibrary(String libraryName) throws MungerException {
         boolean has = false;
         Library retLib = null;
         for (Library lib : libraryData.libraries.bibliography) {
             if (lib.name.equalsIgnoreCase(libraryName)) {
                 if (has) {
-                    throw new MongerException("Library " + lib.name + " found more than once in " + getJsonFilename());
+                    throw new MungerException("Library " + lib.name + " found more than once in " + getJsonFilename());
                 }
                 has = true;
                 retLib = lib;
@@ -275,9 +315,9 @@ public class Repository
      * Read library.
      *
      * @param filename The JSON Libraries filename
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void read(String filename) throws MongerException {
+    public void read(String filename) throws MungerException {
         try {
             String json;
             Gson gson = new Gson();
@@ -286,16 +326,16 @@ public class Repository
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
         } catch (IOException ioe) {
-            throw new MongerException("Exception while reading libraries " + filename + " trace: " + Utils.getStackTrace(ioe));
+            throw new MungerException("Exception while reading libraries " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
     }
 
     /**
      * Scan a specific library name.
      *
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void scan(String libraryName) throws MongerException {
+    public void scan(String libraryName) throws MungerException {
 
         for (Library lib : libraryData.libraries.bibliography) {
             if (libraryName.length() > 0) {
@@ -315,9 +355,9 @@ public class Repository
      * Scan a specific directory, recursively.
      *
      * @param directory the directory
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    private void scanDirectory(Library library, String base, String directory) throws MongerException {
+    private void scanDirectory(Library library, String base, String directory) throws MungerException {
         Item item = null;
         String fullPath = "";
         String itemPath = "";
@@ -349,7 +389,7 @@ public class Repository
                 }
             }
         } catch (IOException ioe) {
-            throw new MongerException("Exception reading directory " + directory + " trace: " + Utils.getStackTrace(ioe));
+            throw new MungerException("Exception reading directory " + directory + " trace: " + Utils.getStackTrace(ioe));
         }
     }
 
@@ -364,25 +404,25 @@ public class Repository
     /**
      * Validate LibraryData.
      *
-     * @throws MongerException the monger exception
+     * @throws MungerException the monger exception
      */
-    public void validate() throws MongerException {
+    public void validate() throws MungerException {
         long minimumSize;
 
         if (libraryData == null) {
-            throw new MongerException("Libraries are null");
+            throw new MungerException("Libraries are null");
         }
 
         Libraries lbs = libraryData.libraries;
         if (lbs == null) {
-            throw new MongerException("libraries must be defined");
+            throw new MungerException("libraries must be defined");
         }
 
         if (lbs.description == null || lbs.description.length() == 0) {
-            throw new MongerException("libraries.description must be defined");
+            throw new MungerException("libraries.description must be defined");
         }
         if (lbs.case_sensitive == null) {
-            throw new MongerException("libraries.case_sensitive true/false must be defined");
+            throw new MungerException("libraries.case_sensitive true/false must be defined");
         }
 
         if (lbs.ignore_patterns.length > 0) {
@@ -393,31 +433,31 @@ public class Repository
                     lbs.compiledPatterns.add(patt);
                 }
             } catch (PatternSyntaxException pe) {
-                throw new MongerException("Pattern " + patt + " has bad regular expression (regex) syntax");
+                throw new MungerException("Pattern " + patt + " has bad regular expression (regex) syntax");
             } catch (IllegalArgumentException iae) {
-                throw new MongerException("Pattern " + patt + " has bad flags");
+                throw new MungerException("Pattern " + patt + " has bad flags");
             }
         }
 
         if (lbs.bibliography == null) {
-            throw new MongerException("libraries.bibliography must be defined");
+            throw new MungerException("libraries.bibliography must be defined");
         }
         for (int i = 0; i < lbs.bibliography.length; i++) {
             Library lib = lbs.bibliography[i];
             if (lib.name == null || lib.name.length() == 0) {
-                throw new MongerException("bibliography.name " + i + " must be defined");
+                throw new MungerException("bibliography.name " + i + " must be defined");
             }
             if (lib.items == null || lib.items.size() == 0) {
                 if (lib.sources == null || lib.sources.length == 0) {
-                    throw new MongerException("bibliography.sources " + i + " must be defined");
+                    throw new MungerException("bibliography.sources " + i + " must be defined");
                 } else {
                     // Verify paths
                     for (int j = 0; j < lib.sources.length; j++) {
                         if (lib.sources[j].length() == 0) {
-                            throw new MongerException("bibliography[" + i + "].sources[" + j + "] must be defined");
+                            throw new MungerException("bibliography[" + i + "].sources[" + j + "] must be defined");
                         }
                         if (Files.notExists(Paths.get(lib.sources[j]))) {
-                            throw new MongerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
+                            throw new MungerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
                         }
                         logger.debug("  src: " + lib.sources[j]);
                     }
