@@ -2,9 +2,10 @@
 
 ## Media
  * Mark all not-so-good movies with fubar, or whatever
+ * Mark Korean Subtitled movies with R6 at end of filename
  * Deal with SRTs
  * Go over how to handle Director cuts See Underworld
- * Fix Avatar & its extended edition
+ x Fix Avatar & its extended edition
  * Should we rename "Documentary Movies" to ...Movie
  x Go though Documentary libraries and verify all have been changed
 
@@ -13,7 +14,7 @@
  x Add log flushes
  * Add library name option so only certain libraries are processed
  * Add a find dupes in collection
- * Add option to overwrite output files
+ x NOT BEEDED - Add option to overwrite output files
  * Fix library name issue. The directories should not have to match the
    library or group name.
  * Avoid cascading errors if all targets are full
