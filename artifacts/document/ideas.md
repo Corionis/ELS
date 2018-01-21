@@ -14,13 +14,14 @@
  x Add log flushes
  * Add library name option so only certain libraries are processed
  * Add a find dupes in collection
- x NOT BEEDED - Add option to overwrite output files
+ x NOT NEEDED - Add option to overwrite output files
  * Fix library name issue. The directories should not have to match the
    library or group name.
  * Avoid cascading errors if all targets are full
  * For .volmunger actions:
    - transcode option for high resource demand items, 
      e.g. Bring It On, Sons of Anarchy
+ * Add a time metric.
 
 # Ideas
 
