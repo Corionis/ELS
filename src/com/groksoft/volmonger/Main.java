@@ -319,12 +319,15 @@ public class Main
 
         try {
             for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
+                boolean scanned = false;
                 Library pubLib = null;
+
                 if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null) {
 
                     // Do the libraries have items or do we need to be scanned?
                     if (pubLib.items == null || pubLib.items.size() < 1) {
                         publisherRepository.scan(pubLib.name);
+                        scanned = true;
                     }
                     if (subLib.items == null || subLib.items.size() < 1) {
                         subscriberRepository.scan(subLib.name);
@@ -397,9 +400,11 @@ public class Main
                                         }
                                     }
                                     long size = 0;
-                                    size = getItemSize(item);
-                                    item.setSize(size);
-                                    totalSize += size;
+                                    if( scanned ) {
+                                        size = getItemSize(item);
+                                        item.setSize(size);
+                                        totalSize += size;
+                                    }
                                     group.add(item);
                                 }
                             }
