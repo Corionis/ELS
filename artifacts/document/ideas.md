@@ -8,8 +8,12 @@
  x Fix Avatar & its extended edition
  * Should we rename "Documentary Movies" to ...Movie
  x Go though Documentary libraries and verify all have been changed
+ * REMEMBER - Put NEW Targets in libray so they are scaned
 
 ## Code
+ * Put counter in log file
+ * Fix Exclusions
+ * Auto Renamer
  * Rename GitHub project to VolMunger
  x Add log flushes
  * Add library name option so only certain libraries are processed
