@@ -212,6 +212,11 @@ public class Main
             }
             if (allFull) {
                 logger.error("All locations for library " + library + " are below definition.minimum of " + tar.minimum);
+
+                // todo Should this be a throw ??
+                System.exit(2);     // EXIT the program
+
+
             }
         }
         if (notFound) {
@@ -579,7 +584,7 @@ public class Main
         try {
             if (group.size() > 0) {
                 for (Item groupItem : group) {
-                    if (cfg.isDryRun()) {          // -t Test run option
+                    if (cfg.isDryRun()) {          // -D Dry run option
                         logger.info("    Would copy " + groupItem.getFullPath());
                     } else {
                         String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);

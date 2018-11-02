@@ -74,7 +74,7 @@ public class Configuration {
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export paths filename = " + getExportPathsFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
-        logger.info("  cfg: -i Export filename = " + getExportFilename());
+        logger.info("  cfg: -i Export JSON filename = " + getExportFilename());
         logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(isKeepVolMongerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames()) {
@@ -83,7 +83,7 @@ public class Configuration {
         logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherFileName());
-        logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherFileName());
+        logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherImportFilename());
         logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberFileName());
         logger.info("  cfg: -S Subscriber Collection import filename = " + getSubscriberImportFilename());
         logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
@@ -197,7 +197,7 @@ public class Configuration {
                         setExportFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -i requires an export output filename");
+                        throw new MungerException("Error: -i requires an export JSON output filename");
                     }
                     break;
                 case "-k":                                             // keep .volmonger files
@@ -241,7 +241,7 @@ public class Configuration {
                         setPublisherImportFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -P requires an publisher import filename");
+                        throw new MungerException("Error: -P requires an publisher import JSON filename");
                     }
                     break;
                 case "-s":                                             // subscriber collection filename
@@ -257,7 +257,7 @@ public class Configuration {
                         setSubscriberImportFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -S requires an subscriber import filename");
+                        throw new MungerException("Error: -S requires an subscriber import JSON filename");
                     }
                     break;
                 case "-t":                                             // targets filename
@@ -314,7 +314,7 @@ public class Configuration {
     }
 
     /**
-     * Sets import filename.
+     * Sets subscriber import filename.
      *
      * @param subscriberImportFilename the import filename
      */

@@ -12,6 +12,7 @@ import java.util.regex.PatternSyntaxException;
 import com.google.gson.Gson;                    // see https://github.com/google/gson
 
 // see https://logging.apache.org/log4j/2.x/
+import com.google.gson.GsonBuilder;
 import com.groksoft.volmonger.MungerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -117,7 +118,7 @@ public class Repository
      */
     public void export() throws MungerException {
         String json;
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();;
         logger.info("Writing item file " + cfg.getExportFilename());
         json = gson.toJson(libraryData);
         try {
