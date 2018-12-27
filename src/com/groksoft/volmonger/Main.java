@@ -94,7 +94,6 @@ public class Main
             Path fromPath = Paths.get(from).toRealPath();
             Path toPath = Paths.get(to);  //.toRealPath();
             Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
-            ++copyCount;
         } catch (UnsupportedOperationException e) {
             logger.error("Copy problem UnsupportedOperationException: " +e.getMessage());
             return false;
@@ -395,6 +394,7 @@ public class Main
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
                                         // There is a new group - process the old group
                                         processGroup(group, totalSize);
+                                        totalSize = 0L;
 
                                         // Flush the output files
                                         if (cfg.getWhatsNewFilename().length() > 0) {
@@ -405,7 +405,7 @@ public class Main
                                         }
                                     }
                                     long size = 0;
-                                    if( scanned ) {
+                                    if ( scanned ) {
                                         size = getItemSize(item);
                                         item.setSize(size);
                                         totalSize += size;
@@ -427,6 +427,7 @@ public class Main
                 logger.info("Processing last group '" + currentGroupName + "'");
                 // There is another group - process it
                 processGroup(group, totalSize);
+                totalSize = 0L;
             }
 
             // Close all the files and show the results
@@ -585,16 +586,18 @@ public class Main
             if (group.size() > 0) {
                 for (Item groupItem : group) {
                     if (cfg.isDryRun()) {          // -D Dry run option
-                        logger.info("    Would copy " + groupItem.getFullPath());
+                        logger.info("    Would copy #" + copyCount + " " + groupItem.getFullPath());
+                        ++copyCount;
                     } else {
                         String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
                         if (targetPath != null) {
                             // copy item(s) to targetPath
                             String to = targetPath + "\\" + groupItem.getItemPath();
-                            logger.info("  > Copying " + groupItem.getFullPath() + " to " + to);
-                            if (!copyFile(groupItem.getFullPath(), to)) {
+                            logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
+                            if ( ! copyFile(groupItem.getFullPath(), to)) {
                                 ++errorCount;
                             }
+                            ++copyCount;
                         } else {
                             logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
                                     lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");

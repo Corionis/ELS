@@ -8,15 +8,16 @@
  * Should we rename "Documentary Movies" to ...Movie
  x Go though Documentary libraries and verify all have been changed
  * Command-line search function
- * REMEMBER - Put NEW Targets in libray so they are scaned
+ * REMEMBER - Put NEW Targets in library so they are scanned
 
 ## Code
  * Library name in JSON and physical directory names must match
- * Put counter in log file
- * Fix Exclusions
+T * Put counter in log file
+T * Total size math is wrong
+T * Fix Exclusions
  * Auto Renamer - xpaus
  * Rename GitHub project to VolMunger
- x Add log flushes
+ x Add log flushes - there is no Flush
  * Add library name option so only certain libraries are processed
  * Add a find dupes in collection
  x NOT NEEDED - Add option to overwrite output files
