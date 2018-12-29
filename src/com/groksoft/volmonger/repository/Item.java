@@ -1,5 +1,6 @@
 package com.groksoft.volmonger.repository;
 
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -138,6 +139,7 @@ public class Item implements Serializable
 
     public String getName() {
         String path = getItemPath();
-        return path.substring(path.lastIndexOf("\\") + 1, path.length());
+        return path.substring(path.lastIndexOf(File.separator) + 1, path.length());
     }
+
 }

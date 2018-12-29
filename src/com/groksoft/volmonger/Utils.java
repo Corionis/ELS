@@ -1,5 +1,6 @@
 package com.groksoft.volmonger;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -57,7 +58,7 @@ public class Utils
         if (p >= 0) {
             path = full.substring(0, p);
         } else {
-            p = full.indexOf("/");
+            p = full.indexOf(File.separator);
             if (p >= 0) {
                 path = full.substring(0, p);
             } else {

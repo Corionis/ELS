@@ -257,14 +257,16 @@ public class Main
      */
     private boolean isNewGrouping(Item publisherItem) {
         boolean ret = true;
-        int i = publisherItem.getItemPath().lastIndexOf("\\");
+        int i = publisherItem.getItemPath().lastIndexOf(File.separator);
         if (i < 0) {
+            logger.warn("File pathsep: '" + File.separator + "'");
+            logger.warn("File     sep: '" + File.separator + "'");
             logger.warn("No subdirectory in path : " + publisherItem.getItemPath());
             return true;
         }
         String path = publisherItem.getItemPath().substring(0, i);
         if (path.length() < 1) {
-            path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf("/"));
+            path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf(File.separator));
         }
         if (currentGroupName.equalsIgnoreCase(path)) {
             ret = false;
@@ -592,7 +594,7 @@ public class Main
                         String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
                         if (targetPath != null) {
                             // copy item(s) to targetPath
-                            String to = targetPath + "\\" + groupItem.getItemPath();
+                            String to = targetPath + File.separator + groupItem.getItemPath();
                             logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
                             if ( ! copyFile(groupItem.getFullPath(), to)) {
                                 ++errorCount;

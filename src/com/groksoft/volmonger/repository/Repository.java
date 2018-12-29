@@ -140,13 +140,13 @@ public class Repository
     public String hasDirectory(String libraryName, String itemPath) {
         String match = itemPath;
         Item foundItem = null;
-        int i = match.lastIndexOf("\\");
+        int i = match.lastIndexOf(File.separator);
         if (i < 0) {
             return null;
         }
         String path = match.substring(0, i);
         if (path.length() < 1) {
-            path = match.substring(0, match.lastIndexOf("/"));
+            path = match.substring(0, match.lastIndexOf(File.separator));
         }
         match = path;
         path = null;
@@ -178,13 +178,13 @@ public class Repository
 /*
     public String hasDirectory(String libraryName, String match) {
         Item foundItem = null;
-        int i = match.lastIndexOf("\\");
+        int i = match.lastIndexOf(File.separator);
         if (i < 0) {
             return null;
         }
         String path = match.substring(0, i);
         if (path.length() < 1) {
-            path = match.substring(0, match.lastIndexOf("/"));
+            path = match.substring(0, match.lastIndexOf(File.separator));
         }
         match = path;
         path = null;
@@ -210,18 +210,18 @@ public class Repository
                         while(true) {
                             // logger.info(">>>>>>>> Checking hasDirectory for "+path);
                             try {
-                                segment = path.substring(0, path.lastIndexOf("\\"));
+                                segment = path.substring(0, path.lastIndexOf(File.separator));
                             } catch (Exception e) {
                                 logger.info("Library name error. No library '"+ libraryName +"' found in path '"+ foundItem.getFullPath() +"'" );
                                 throw e;
                             }
                             // logger.info(">>>>>>>> segment is: '"+segment + "'");
                             if (segment !=  "" && segment.length() < 1) {
-                                segment = foundItem.getFullPath().substring(0, foundItem.getFullPath().lastIndexOf("/"));
+                                segment = foundItem.getFullPath().substring(0, foundItem.getFullPath().lastIndexOf(File.separator));
                             }
                             path = segment;
-                            String s = segment.substring(segment.lastIndexOf("\\") + 1, segment.length());
-                            if (segment.substring(segment.lastIndexOf("\\") + 1, segment.length()).equalsIgnoreCase(libraryName) ) {
+                            String s = segment.substring(segment.lastIndexOf(File.separator) + 1, segment.length());
+                            if (segment.substring(segment.lastIndexOf(File.separator) + 1, segment.length()).equalsIgnoreCase(libraryName) ) {
                                 break;
                             }
                         }
