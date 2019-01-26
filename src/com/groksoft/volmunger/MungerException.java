@@ -1,12 +1,12 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmunger;
 
 /**
- * Monger exception
+ * VolMunger exception
  */
 public class MungerException extends Exception
 {
     /**
-     * Instantiates a new Monger exception.
+     * Instantiates a new VolMunger exception.
      *
      * @param message the message
      */

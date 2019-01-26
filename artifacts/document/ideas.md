@@ -29,18 +29,18 @@ T * Fix Exclusions
 
 # Ideas
 
-The existence of an empty (or not) volmonger.json file triggers the
+The existence of an empty (or not) volmunger.json file triggers the
 "I Win" behavior.
 
 "I Win" means - make the target look like my source - including any
 deletions necessary.
 
-If volmonger.json files exist on both systems it is a conflict.
+If volmunger.json files exist on both systems it is a conflict.
 The conflict is flagged, logged into a input file for re-rerun purposes,
 then skipped for that monge run.
 
 Because volumes can be quite large there should be a mechanism
-to feed the conflicts back into another VolMonger run so once
+to feed the conflicts back into another VolMunger run so once
 the conflict is resolved it is easier to complete the synch.
 
 The utility must allow for the collection file to be specified
@@ -49,7 +49,7 @@ both source and target collection files when regularly monging
 on a different computer where drive letters would change.
 
 ## Features
-Various features and nuances of VolMonger.
+Various features and nuances of VolMunger.
 
  * Both lower- and upper-case -p/-P or -s/-S options may be used
    to send multiple publishers to one subscriber, and vice-versa.
@@ -82,10 +82,10 @@ Various features and nuances of VolMonger.
 
 ## Assumptions
  * The exact locations of the contents of each library is
-   not known at the beginning of a VolMonger run.
+   not known at the beginning of a VolMunger run.
  * A directory of only one collection or the other will be
    modified between mongings.
-   - If a volmonger.json exists on both it is a conflict
+   - If a volmunger.json exists on both it is a conflict
    - Conflicts are logged for re-run
  * To monge two operational systems will require one to use
   a collection file for the target system configured from
@@ -111,29 +111,29 @@ Various features and nuances of VolMonger.
      - A movie is in one directory, generally
      - A tv show could be in 1, 2 or 3 levels of subdirectories
      - What are the other permutations?
- * How to handle N-sided monges? Cannot delete volmonger.json if so.
+ * How to handle N-sided monges? Cannot delete volmunger.json if so.
 
 
 ---
 
 IDEA: A way to manage who got what with multiple Subscribers.
 
-Have an option to scan a Publisher for "completed" volmonger.json files.
+Have an option to scan a Publisher for "completed" volmunger.json files.
 
-A "completed" volmonger.json file contains "done" markers by date for each Subscriber.
+A "completed" volmunger.json file contains "done" markers by date for each Subscriber.
 
 Subscribers, by name, could be kept in a separate JSON file.
 
-As runs are made with Subscribers a stamp is added to the volmonger.json file.
+As runs are made with Subscribers a stamp is added to the volmunger.json file.
 
 Work-out the stamp and "done" logic.
 
 Once it all works it could just be part of the process.
 
 
-IDEA: Add to the data inside a volmonger.json file:
+IDEA: Add to the data inside a volmunger.json file:
 
- * Tag:  permanent      == do not delete this volmonger.json file
+ * Tag:  permanent      == do not delete this volmunger.json file
  * Tag:  ignore         == skip this item.
 
 ---
@@ -143,7 +143,7 @@ This is a file-for-file matching/synchronization process.
 
  1. Iterate through libraries
  2. Walk each source library comparing against target
- 3. If a volmonger.json file exists on source "I Win" logic is triggered
+ 3. If a volmunger.json file exists on source "I Win" logic is triggered
  4. Reverse "Provider" and "Subscriber" sides and repeat for a bi-directional monge.
 
 ---
@@ -151,8 +151,8 @@ This is a file-for-file matching/synchronization process.
 ## Other
 
 ### Convenience Utilities
- * [Sent-To utility](send-to utility.md) volmonger.json file generator.
- * [Plex-to-VolMonger generator](plex-to-VolMonger.md) for automated collection file generation.
+ * [Sent-To utility](send-to utility.md) volmunger.json file generator.
+ * [Plex-to-VolMunger generator](plex-to-VolMunger.md) for automated collection file generation.
 
 ---
 
@@ -181,21 +181,21 @@ This is a file-for-file matching/synchronization process.
  6. Cloud Synchronization
     * Publisher has ALL drives
  
- 7. Move content within a library - not a VolMonger use case.
+ 7. Move content within a library - not a VolMunger use case.
 
  8. Move content to a different library - delete + add, but can it be done with a move?
 
  9. Add new content from provider, default behavior.
 
-## volmonger.json Use Cases
+## volmunger.json Use Cases
 
- 1. volmonger.json, Deletes, very rare. 
-   - A volmonger.json extension on a Publisher directory with no
+ 1. volmunger.json, Deletes, very rare. 
+   - A volmunger.json extension on a Publisher directory with no
    content indicates the directory should be deleted.
 
- 2. volmonger.json, Changes of existing file(s)
+ 2. volmunger.json, Changes of existing file(s)
    - Different image, subtitles ... any file
    - Cannot trust dates
 
- 3. volmonger.json, Moves do not matter, this is location inspecific with a library
+ 3. volmunger.json, Moves do not matter, this is location inspecific with a library
 

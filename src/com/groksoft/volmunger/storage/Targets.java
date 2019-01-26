@@ -1,4 +1,4 @@
-package com.groksoft.volmonger.storage;
+package com.groksoft.volmunger.storage;
 
 /**
  * The type Targets.

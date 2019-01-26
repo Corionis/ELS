@@ -1,4 +1,4 @@
-package com.groksoft.volmonger.repository;
+package com.groksoft.volmunger.repository;
 
 import java.util.ArrayList;
 import java.util.List;

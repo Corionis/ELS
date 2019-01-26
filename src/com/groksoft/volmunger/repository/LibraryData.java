@@ -1,4 +1,4 @@
-package com.groksoft.volmonger.repository;
+package com.groksoft.volmunger.repository;
 
 /**
  * The type Library data.

@@ -1,12 +1,12 @@
 
-# VolMonger: How To Read Me
+# VolMunger: How To Read Me
 
-VolMonger uses a publish/subscribe conceptual model. VolMonger compares
+VolMunger uses a publish/subscribe conceptual model. VolMunger compares
 one or more Plex libraries from a media publisher with those on a 
-media subscriber. VolMonger can then synchronize the subscriber with
+media subscriber. VolMunger can then synchronize the subscriber with
 the publisher.
 
-VolMonger has many options and ways of combining those options to perform
+VolMunger has many options and ways of combining those options to perform
 a wide variety of operations.
 
 ## Basic Command
@@ -37,9 +37,9 @@ similar file.
  
  * -e file : Export publisher libraries to text file
  
- * -f file : Log file, default VolMonger.log in directory where "run" is executed
+ * -f file : Log file, default VolMunger.log in directory where "run" is executed
 
- * -k : Keep volmonger.json files, default is to delete them as they are processed
+ * -k : Keep volmunger.json files, default is to delete them as they are processed
  
  * -i file : Export JSON items to file
  
@@ -65,7 +65,7 @@ similar file.
 Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
 
 
-The -k option applies to the Provider. Subscriber volmonger.json files are not
+The -k option applies to the Provider. Subscriber volmunger.json files are not
 involved in a run.
 
  * RULES OF COMMAND-LINE OPTIONS, in no particular order:

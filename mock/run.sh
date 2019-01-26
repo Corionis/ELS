@@ -3,4 +3,4 @@
 base=`dirname $0`
 cd ${base}
 
-java -cp "../out/production/Main/:../lib:../lib/*" com.groksoft.volmonger.Main $*
+java -cp "../out/production/Main/:../lib:../lib/*" com.groksoft.volmunger.Main $*

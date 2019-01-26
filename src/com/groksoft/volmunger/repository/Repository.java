@@ -1,4 +1,4 @@
-package com.groksoft.volmonger.repository;
+package com.groksoft.volmunger.repository;
 
 import java.io.*;
 import java.nio.file.DirectoryStream;
@@ -13,12 +13,12 @@ import com.google.gson.Gson;                    // see https://github.com/google
 
 // see https://logging.apache.org/log4j/2.x/
 import com.google.gson.GsonBuilder;
-import com.groksoft.volmonger.MungerException;
+import com.groksoft.volmunger.MungerException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.volmonger.Configuration;
-import com.groksoft.volmonger.Utils;
+import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.Utils;
 
 /**
  * The type Repository.
@@ -86,7 +86,7 @@ public class Repository
     /**
      * Export libraries to JSON.
      *
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void exportPaths() throws MungerException {
         String path;
@@ -114,7 +114,7 @@ public class Repository
     /**
      * Export libraries to JSON.
      *
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void export() throws MungerException {
         String json;
@@ -316,7 +316,7 @@ public class Repository
      * Read library.
      *
      * @param filename The JSON Libraries filename
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void read(String filename) throws MungerException {
         try {
@@ -334,7 +334,7 @@ public class Repository
     /**
      * Scan a specific library name.
      *
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void scan(String libraryName) throws MungerException {
 
@@ -356,7 +356,7 @@ public class Repository
      * Scan a specific directory, recursively.
      *
      * @param directory the directory
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     private void scanDirectory(Library library, String base, String directory) throws MungerException {
         Item item = null;
@@ -405,7 +405,7 @@ public class Repository
     /**
      * Validate LibraryData.
      *
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void validate() throws MungerException {
         long minimumSize;

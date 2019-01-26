@@ -1,4 +1,4 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmunger;
 
 import java.util.ArrayList;
 
@@ -19,8 +19,8 @@ public class Configuration {
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
 
-    private boolean keepVolMongerFiles = false;
-    private String logFilename = "volmonger.log";
+    private boolean keepVolMungerFiles = false;
+    private String logFilename = "volmunger.log";
     private boolean dryRun = false;
     private boolean validationRun = false;
 
@@ -75,7 +75,7 @@ public class Configuration {
         logger.info("  cfg: -e Export paths filename = " + getExportPathsFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
         logger.info("  cfg: -i Export JSON filename = " + getExportFilename());
-        logger.info("  cfg: -k Keep .volmonger files = " + Boolean.toString(isKeepVolMongerFiles()));
+        logger.info("  cfg: -k Keep .volmunger files = " + Boolean.toString(isKeepVolMungerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames()) {
             logger.info("  cfg:     " + ln);
@@ -149,7 +149,7 @@ public class Configuration {
      *
      * @param args the args
      * @return the boolean
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void parseCommandLine(String[] args) throws MungerException {
         int index;
@@ -200,8 +200,8 @@ public class Configuration {
                         throw new MungerException("Error: -i requires an export JSON output filename");
                     }
                     break;
-                case "-k":                                             // keep .volmonger files
-                    setKeepVolMongerFiles(true);
+                case "-k":                                             // keep .volmunger files
+                    setKeepVolMungerFiles(true);
                     break;
                 case "-l":                                             // publisher library to process
                     if (index <= args.length - 2) {
@@ -323,21 +323,21 @@ public class Configuration {
     }
 
     /**
-     * Is keep vol monger files boolean.
+     * Is keep vol volmunger files boolean.
      *
      * @return the boolean
      */
-    public boolean isKeepVolMongerFiles() {
-        return keepVolMongerFiles;
+    public boolean isKeepVolMungerFiles() {
+        return keepVolMungerFiles;
     }
 
     /**
-     * Sets keep vol monger files.
+     * Sets keep vol volmunger files.
      *
-     * @param keepVolMongerFiles the keep vol monger files
+     * @param keepVolMungerFiles the keep vol volmunger files
      */
-    public void setKeepVolMongerFiles(boolean keepVolMongerFiles) {
-        this.keepVolMongerFiles = keepVolMongerFiles;
+    public void setKeepVolMungerFiles(boolean keepVolMungerFiles) {
+        this.keepVolMungerFiles = keepVolMungerFiles;
     }
 
     /**

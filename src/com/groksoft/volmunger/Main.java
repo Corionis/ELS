@@ -1,4 +1,4 @@
-package com.groksoft.volmonger;
+package com.groksoft.volmunger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,17 +10,17 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
-import com.groksoft.volmonger.storage.Target;
+import com.groksoft.volmunger.storage.Target;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.volmonger.repository.Item;
-import com.groksoft.volmonger.repository.Library;
-import com.groksoft.volmonger.repository.Repository;
-import com.groksoft.volmonger.storage.Storage;
+import com.groksoft.volmunger.repository.Item;
+import com.groksoft.volmunger.repository.Library;
+import com.groksoft.volmunger.repository.Repository;
+import com.groksoft.volmunger.storage.Storage;
 
 /**
- * Main VolMonger program
+ * Main VolMunger program
  */
 public class Main
 {
@@ -56,8 +56,8 @@ public class Main
      * @param args the input arguments
      */
     public static void main(String[] args) {
-        Main volmonger = new Main();
-        int returnValue = volmonger.process(args);
+        Main volmunger = new Main();
+        int returnValue = volmunger.process(args);
         System.exit(returnValue);
     } // main
 
@@ -164,7 +164,7 @@ public class Main
      * @param library the publisher library.definition.name
      * @param size    the total size of item(s) to be copied
      * @return the target
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public String getTarget(Item item, String library, long size) throws MungerException {
         String target = null;
@@ -279,7 +279,7 @@ public class Main
     /**
      * Munge two collections
      *
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     private void munge() throws MungerException {
         boolean iWin = false;
@@ -581,7 +581,7 @@ public class Main
      *
      * @param group     the group
      * @param totalSize the total size
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     private void processGroup(ArrayList<Item> group, long totalSize) throws MungerException {
         try {
@@ -622,7 +622,7 @@ public class Main
      *
      * @param filename the filename
      * @param repo     the repo
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     private void readRepository(String filename, Repository repo, boolean validate) throws MungerException {
         repo.read(filename);
@@ -636,7 +636,7 @@ public class Main
      *
      * @param filename the filename
      * @param storage  the storage
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void readTargets(String filename, Storage storage) throws MungerException {
         storage.read(filename);

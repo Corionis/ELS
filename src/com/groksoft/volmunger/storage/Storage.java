@@ -1,4 +1,4 @@
-package com.groksoft.volmonger.storage;
+package com.groksoft.volmunger.storage;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -10,9 +10,9 @@ import com.google.gson.Gson;                    // see https://github.com/google
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.volmonger.Configuration;
-import com.groksoft.volmonger.MungerException;
-import com.groksoft.volmonger.Utils;
+import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.MungerException;
+import com.groksoft.volmunger.Utils;
 
 /**
  * The type Storage.
@@ -62,7 +62,7 @@ public class Storage
      * Read Targets.
      *
      * @param filename The JSON Libraries filename
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void read(String filename) throws MungerException {
         try {
@@ -81,7 +81,7 @@ public class Storage
     /**
      * Validate the Targets data.
      *
-     * @throws MungerException the monger exception
+     * @throws MungerException the volmunger exception
      */
     public void validate() throws MungerException {
         long minimumSize;
