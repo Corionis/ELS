@@ -1,4 +1,8 @@
 
+## Remote I/O Spots
+ * availableSpace
+ * copyFile
+
 ## Media
  * Mark all not-so-good movies with fubar, or whatever
  * Mark Korean Subtitled movies with R6 at end of filename
