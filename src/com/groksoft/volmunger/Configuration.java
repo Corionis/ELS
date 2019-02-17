@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
  * Contains all command-line options and any other application-level configuration.
  */
 public class Configuration {
-    private final String VOLMONGER_VERSION = "1.0.0";
+    private final String VOLMUNGER_VERSION = "1.0.0";
     private static Configuration instance = null;
 
     // flags & names
@@ -69,7 +69,7 @@ public class Configuration {
         }
         logger.info(msg);
 
-        logger.info("  cfg: -c Console logging level = " + getConsoleLevel());
+        logger.info("  cfg: -c Session logging level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export paths filename = " + getExportPathsFilename());
@@ -84,8 +84,8 @@ public class Configuration {
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherFileName());
         logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherImportFilename());
-        logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberFileName());
-        logger.info("  cfg: -S Subscriber Collection import filename = " + getSubscriberImportFilename());
+        logger.info("  cfg: -s Session Library filename = " + getSubscriberFileName());
+        logger.info("  cfg: -S Session Collection import filename = " + getSubscriberImportFilename());
         logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
         logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
     }
@@ -282,8 +282,8 @@ public class Configuration {
      *
      * @return the Main version
      */
-    public String getVOLMONGER_VERSION() {
-        return VOLMONGER_VERSION;
+    public String getVOLMUNGER_VERSION() {
+        return VOLMUNGER_VERSION;
     }
 
     /**

@@ -349,7 +349,7 @@ public class Main
                         } else {
                             boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
                             if (has) {
-                                logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
+                                logger.info("  = Session " + subLib.name + " has " + item.getItemPath());
                             } else {
 
                                 if (cfg.getWhatsNewFilename().length() > 0) {
@@ -383,7 +383,7 @@ public class Main
                                     }
                                 }
 
-                                logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
+                                logger.info("  + Session " + subLib.name + " missing " + item.getItemPath());
 
                                 if (!item.isDirectory()) {
                                     if (cfg.getMismatchFilename().length() > 0) {
@@ -490,7 +490,7 @@ public class Main
             logger = LogManager.getLogger("applog");
 
             // the + makes searching for the beginning of a run easier
-            logger.info("+ Main begin, version " + cfg.getVOLMONGER_VERSION() + " ------------------------------------------");
+            logger.info("+ Main begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
             cfg.dump(args);
 
             // todo Add sanity checks for option combinations that do not make sense
@@ -519,12 +519,12 @@ public class Main
                     readRepository(cfg.getPublisherImportFilename(), publisherRepository, false);
                 }
 
-                // get -s Subscriber metadata
+                // get -s Session metadata
                 if (cfg.getSubscriberFileName().length() > 0) {
                     readRepository(cfg.getSubscriberFileName(), subscriberRepository, true);
                 }
 
-                // get -S Subscriber import metadata
+                // get -S Session import metadata
                 if (cfg.getSubscriberImportFilename().length() > 0) {
                     readRepository(cfg.getSubscriberImportFilename(), subscriberRepository, false);
                 }
@@ -549,7 +549,7 @@ public class Main
                     }
                 }
 
-                // if all the pieces are specified monge the collections
+                // if all the pieces are specified munge the collections
                 if (cfg.getPublisherFileName().length() > 0 &&
                         cfg.getSubscriberFileName().length() > 0 ||
                         cfg.getSubscriberImportFilename().length() > 0) {

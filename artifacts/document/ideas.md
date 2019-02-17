@@ -41,7 +41,7 @@ deletions necessary.
 
 If volmunger.json files exist on both systems it is a conflict.
 The conflict is flagged, logged into a input file for re-rerun purposes,
-then skipped for that monge run.
+then skipped for that munge run.
 
 Because volumes can be quite large there should be a mechanism
 to feed the conflicts back into another VolMunger run so once
@@ -49,7 +49,7 @@ the conflict is resolved it is easier to complete the synch.
 
 The utility must allow for the collection file to be specified
 as an argument. That allows multiple combinations ... for instance
-both source and target collection files when regularly monging
+both source and target collection files when regularly munging
 on a different computer where drive letters would change.
 
 ## Features
@@ -88,10 +88,10 @@ Various features and nuances of VolMunger.
  * The exact locations of the contents of each library is
    not known at the beginning of a VolMunger run.
  * A directory of only one collection or the other will be
-   modified between mongings.
+   modified between mungings.
    - If a volmunger.json exists on both it is a conflict
    - Conflicts are logged for re-run
- * To monge two operational systems will require one to use
+ * To munge two operational systems will require one to use
   a collection file for the target system configured from
   its own connection perspective, e.g. drive letters, etc.  
 
@@ -115,7 +115,7 @@ Various features and nuances of VolMunger.
      - A movie is in one directory, generally
      - A tv show could be in 1, 2 or 3 levels of subdirectories
      - What are the other permutations?
- * How to handle N-sided monges? Cannot delete volmunger.json if so.
+ * How to handle N-sided munges? Cannot delete volmunger.json if so.
 
 
 ---
@@ -148,7 +148,7 @@ This is a file-for-file matching/synchronization process.
  1. Iterate through libraries
  2. Walk each source library comparing against target
  3. If a volmunger.json file exists on source "I Win" logic is triggered
- 4. Reverse "Provider" and "Subscriber" sides and repeat for a bi-directional monge.
+ 4. Reverse "Provider" and "Subscriber" sides and repeat for a bi-directional munge.
 
 ---
 
