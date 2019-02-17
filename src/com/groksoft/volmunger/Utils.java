@@ -81,4 +81,23 @@ public class Utils
         return sw.getBuffer().toString();
     }
 
+    /**
+     * Parse the port from a location string
+     *
+     * Expected format: [hostname|IP address]:[port number]
+     *
+     * @param location
+     * @return port
+     */
+    public static String parsePort(String location)
+    {
+        String sport = "";
+        String[] a = location.split(":");
+        if (a.length == 2)
+        {
+            sport = a[1];
+        }
+        return sport;
+    }
+
 }

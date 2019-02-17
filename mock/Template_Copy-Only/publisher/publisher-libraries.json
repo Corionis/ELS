@@ -1,13 +1,12 @@
 {
     "libraries": {
         "description": "Publisher",
-        "url": "sftp://RockPlex",
+        "location": "zathras.monkeyboy.com:50271",
         "key": "025e2ddb-942a-4206-8458-902a87e42e62",
         "case_sensitive": false,
         "ignore_patterns": [
             "desktop.ini",
-            "Thumbs.db",
-            "!!!!!!!!!!*"
+            "Thumbs.db"
         ],
         "bibliography": [
             {

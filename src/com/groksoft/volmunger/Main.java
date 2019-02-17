@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
+import com.groksoft.volmunger.comm.CommManager;
 import com.groksoft.volmunger.storage.Target;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +30,7 @@ public class Main
      * Setup formatter for number
      */
     DecimalFormat formatter = new DecimalFormat("#,###");
+
     private Configuration cfg = null;
     private Logger logger = null;
     private Repository publisherRepository = null;
@@ -43,6 +45,9 @@ public class Main
     private int errorCount = 0;
     private int copyCount = 0;
     private ArrayList<String> ignoredList = new ArrayList<>();
+
+    private CommManager commManager = null;
+
 
     /**
      * Instantiates the Main application.
@@ -328,6 +333,8 @@ public class Main
                 boolean scanned = false;
                 Library pubLib = null;
 
+                // TODO Add filtering which library to process by -l option, isSpecificPublisherLibrary() & getPublisherLibraryNames()
+
                 if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null) {
 
                     // Do the libraries have items or do we need to be scanned?
@@ -492,6 +499,7 @@ public class Main
             // the + makes searching for the beginning of a run easier
             logger.info("+ Main begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
             cfg.dump(args);
+            commManager = CommManager.getInstance();
 
             // todo Add sanity checks for option combinations that do not make sense
 
@@ -499,6 +507,7 @@ public class Main
             publisherRepository = new Repository();
             subscriberRepository = new Repository();
             storageTargets = new Storage();
+            
 
             try {
                 // get -t Targets
@@ -540,12 +549,21 @@ public class Main
                 }
 
                 // handle -i export publisher (only)
-                if (cfg.getExportFilename().length() > 0) {
+                if (cfg.getExportJsonFilename().length() > 0) {
                     if (cfg.getPublisherFileName().length() > 0 ||
                             cfg.getPublisherImportFilename().length() > 0) {
                         export();
                     } else {
                         throw new MungerException("-i option requires the -p and/or -P options");
+                    }
+                }
+
+                // handle -r remote session
+                if (cfg.getRemoteFlag() != 0)
+                {
+                    if ( ! commManager.startListening(publisherRepository, subscriberRepository))
+                    {
+                        logger.error("listening start-up failed");
                     }
                 }
 
@@ -565,6 +583,11 @@ public class Main
             System.out.println(e.getMessage());
             returnValue = 1;
             cfg = null;
+        }
+        finally {
+            //if (commManager != null) {
+            //    commManager.stopCommManager();
+            //}
         }
 
         // the - makes searching for the ending of a run easier
@@ -642,5 +665,7 @@ public class Main
         storage.read(filename);
         storage.validate();
     }
+
+
 
 } // Main

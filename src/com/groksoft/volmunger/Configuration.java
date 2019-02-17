@@ -19,12 +19,8 @@ public class Configuration {
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
 
-    private boolean keepVolMungerFiles = false;
-    private String logFilename = "volmunger.log";
-    private boolean dryRun = false;
-    private boolean validationRun = false;
-
-    private String exportFilename = "";
+    // files
+    private String exportJsonFilename = "";
     private String exportPathsFilename = "";
     private String mismatchFilename = "";
     private String publisherImportFilename = "";
@@ -37,6 +33,14 @@ public class Configuration {
     private ArrayList<String> publisherLibraryName = new ArrayList<>();
     private boolean specificPublisherLibrary = false;
     private String subscriberFileName = "";
+
+    // other
+    private boolean dryRun = false;
+    private boolean keepVolMungerFiles = false;
+    private String logFilename = "volmunger.log";
+    private int remoteFlag = 0;
+    private String remoteType = "-";
+    private boolean validationRun = false;
 
     /**
      * Instantiates a new Configuration.
@@ -74,7 +78,7 @@ public class Configuration {
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export paths filename = " + getExportPathsFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
-        logger.info("  cfg: -i Export JSON filename = " + getExportFilename());
+        logger.info("  cfg: -i Export JSON filename = " + getExportJsonFilename());
         logger.info("  cfg: -k Keep .volmunger files = " + Boolean.toString(isKeepVolMungerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames()) {
@@ -84,6 +88,7 @@ public class Configuration {
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherFileName());
         logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherImportFilename());
+        logger.info("  cfg: -r Remote session = " + getRemoteType());
         logger.info("  cfg: -s Session Library filename = " + getSubscriberFileName());
         logger.info("  cfg: -S Session Collection import filename = " + getSubscriberImportFilename());
         logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
@@ -113,17 +118,17 @@ public class Configuration {
      *
      * @return the export filename
      */
-    public String getExportFilename() {
-        return exportFilename;
+    public String getExportJsonFilename() {
+        return exportJsonFilename;
     }
 
     /**
      * Sets export filename.
      *
-     * @param exportFilename the export filename
+     * @param exportJsonFilename the export filename
      */
-    public void setExportFilename(String exportFilename) {
-        this.exportFilename = exportFilename;
+    public void setExportJsonFilename(String exportJsonFilename) {
+        this.exportJsonFilename = exportJsonFilename;
     }
 
     /**
@@ -194,7 +199,7 @@ public class Configuration {
                     break;
                 case "-i":                                             // export filename
                     if (index <= args.length - 2) {
-                        setExportFilename(args[index + 1]);
+                        setExportJsonFilename(args[index + 1]);
                         ++index;
                     } else {
                         throw new MungerException("Error: -i requires an export JSON output filename");
@@ -242,6 +247,14 @@ public class Configuration {
                         ++index;
                     } else {
                         throw new MungerException("Error: -P requires an publisher import JSON filename");
+                    }
+                    break;
+                case "-r":                                             // remote session
+                    if (index <= args.length - 2) {
+                        setRemoteType(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MungerException("Error: -r must be followed by p|P|s|S, case-insensitive");
                     }
                     break;
                 case "-s":                                             // subscriber collection filename
@@ -302,6 +315,56 @@ public class Configuration {
      */
     public void setDebugLevel(String debugLevel) {
         this.debugLevel = debugLevel;
+    }
+
+    /**
+     * Sets remote type.
+     *
+     * @param type the remote type and remote flag
+     */
+    public void setRemoteType(String type) throws MungerException {
+        this.remoteType = type;
+        this.remoteFlag = 0;
+        if (type.equalsIgnoreCase("P"))
+            this.remoteFlag = 1;
+        else if (type.equalsIgnoreCase("S"))
+            this.remoteFlag = 2;
+        else
+            throw new MungerException("Error: -r must be followed by p|P|s|S, case-insensitive");
+    }
+
+    /**
+     * Gets remote type.
+     *
+     * @return the remote type from the command line
+     */
+    public String getRemoteType() {
+        return this.remoteType;
+    }
+
+    /**
+     * Gets remote flag.
+     *
+     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber
+     */
+    public int getRemoteFlag() {
+        return this.remoteFlag;
+    }
+
+    /**
+     * Returns true if this is a remote publisher
+     */
+    public boolean iAmPublisher()
+    {
+        return (this.remoteFlag == 1);
+    }
+
+    /**
+     * Returns true if this is a remote publisher
+     */
+    public boolean iAmSubscriber()
+    {
+        return (this.remoteFlag == 2);
     }
 
     /**

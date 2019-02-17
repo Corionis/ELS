@@ -1,8 +1,4 @@
 
-## Remote I/O Spots
- * availableSpace
- * copyFile
-
 ## Media
  * Mark all not-so-good movies with fubar, or whatever
  * Mark Korean Subtitled movies with R6 at end of filename
@@ -23,6 +19,7 @@ T * Fix Exclusions
  * Rename GitHub project to VolMunger
  x Add log flushes - there is no Flush
  * Add library name option so only certain libraries are processed
+   - Partially done, see TODO's
  * Add a find dupes in collection
  x NOT NEEDED - Add option to overwrite output files
  * Avoid cascading errors if all targets are full

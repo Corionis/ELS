@@ -20,6 +20,17 @@ public class Libraries
     public String description;
 
     /**
+     * The location for communications, [host name|IP address]:[port]
+     * Default port is 50271 if not specified
+     */
+    public String location;
+
+    /**
+     * The UUID of this system
+     */
+    public String key;
+
+    /**
      * If case-sensitive true/false.
      */
     public Boolean case_sensitive;

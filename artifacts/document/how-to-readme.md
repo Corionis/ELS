@@ -18,14 +18,15 @@ the same for the subscriber.
 A library file lists the desired libraries to compare, a collection file
 also contains all the individual items in each library. Both are JSON files.
 
-A collection file may be generated using the -i item export option.
+A collection JSON file may be generated using the -i item export option.
+Collection data is used to perform a munge.
 
 The -e export paths option lists each individual file in the desired
 libraries. But that data is not used by any other operation. It is 
 intended for visual information and possibly comparison with another
 similar file.
 
-### Command Line Options
+## Command Line Options
 
  * -c level : Console logging level, default debug
  
@@ -53,22 +54,33 @@ similar file.
  * -p file : Publisher libraries file
  
  * -P file : Publisher JSON collection import items file
+
+ * -r P|S : This is a remote session and this is the Publisher or Subscriber 
  
  * -s file : Subscriber libraries file
  
  * -S file : Subscriber JSON collection import items file
  
- * -t file : Targets filename
+ * -t file : Targets filename, see Notes
+ 
+ * -T file : Targets import filename, see Notes
 
  * -v : Validate collections files only then exit
 
-Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
+### Notes
 
+The -i option requires either -p or -P options. 
 
 The -k option applies to the Provider. Subscriber volmunger.json files are not
 involved in a run.
 
- * RULES OF COMMAND-LINE OPTIONS, in no particular order:
-   * -e is only done then it stops, so other options like -s or -m do not make sense
-   * -i and -s together do not make sense
-   * -P and -S used at the same time also requires -t.
+The -t and -T options are equivalent unless the -r option is enabled. Then
+-T will use a local file and -t will request the targets file from
+the subscriber.
+
+Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
+
+### Rules
+ * -e is only performed then it stops, so other options like -s or -m do not make sense
+ * -i and -s together do not make sense
+ * To perform a munge operation -S/s, -P/p and -T/t are required.

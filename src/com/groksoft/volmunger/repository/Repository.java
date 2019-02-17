@@ -45,6 +45,8 @@ public class Repository
     public void dump() {
         System.out.println("  Libraries from " + getJsonFilename());
         System.out.println("    Description: " + libraryData.libraries.description);
+        System.out.println("       Location: " + libraryData.libraries.location);
+        System.out.println("            Key: " + libraryData.libraries.key);
         System.out.println("    Case-sensitive: " + libraryData.libraries.case_sensitive);
         System.out.println("    Ignore patterns:");
         for (String patt : libraryData.libraries.ignore_patterns) {
@@ -107,7 +109,7 @@ public class Repository
 
             outputStream.close();
         } catch (FileNotFoundException fnf) {
-            throw new MungerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungerException("Exception while writing item file " + cfg.getExportJsonFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -119,14 +121,14 @@ public class Repository
     public void export() throws MungerException {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();;
-        logger.info("Writing item file " + cfg.getExportFilename());
+        logger.info("Writing item file " + cfg.getExportJsonFilename());
         json = gson.toJson(libraryData);
         try {
-            PrintWriter outputStream = new PrintWriter(cfg.getExportFilename());
+            PrintWriter outputStream = new PrintWriter(cfg.getExportJsonFilename());
             outputStream.println(json);
             outputStream.close();
         } catch (FileNotFoundException fnf) {
-            throw new MungerException("Exception while writing item file " + cfg.getExportFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungerException("Exception while writing item file " + cfg.getExportJsonFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
