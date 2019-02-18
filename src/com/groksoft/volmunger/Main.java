@@ -89,14 +89,18 @@ public class Main
 
 
 
-            // need to add a command line option for a specific item
+            // need to add a command line option for to request a specific item
             //
             // ideas for adds & changes --
-            // 1. change -i to request an item
-            // 2. change export collection, old -i, to -E
+            // 1. change export collection -i, to -E
+            // a. add -i to request a specific item
             // 3. add -R P|S for --requests-only PULL mode
             // 3. add "double-dash" equivalent options to make command lines more readable
             //    example: -E and --export-collection
+            //    It's just adding more case statements in Configuration.parseCommandLine()
+            //
+            // With -l to spec the library, and -i to spec the item we have a way to make a request.
+            // An "item" is the granularity of a movie (directory) or a tv season (directory).
             //
 
 
