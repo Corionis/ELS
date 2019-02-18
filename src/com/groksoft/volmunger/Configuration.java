@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class Configuration {
     private final String VOLMUNGER_VERSION = "1.0.0";
-    private static Configuration instance = null;
 
     // flags & names
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
@@ -21,136 +20,42 @@ public class Configuration {
 
     // files
     private String exportJsonFilename = "";
-    private String exportPathsFilename = "";
+    private String exportTextFilename = "";
     private String mismatchFilename = "";
-    private String publisherImportFilename = "";
-    private String subscriberImportFilename = "";
+    private String publisherCollectionFilename = "";
+    private String subscriberCollectionFilename = "";
     private String targetsFilename = "";
     private String whatsNewFilename = "";
 
     // publisher & subscriber
-    private String publisherFileName = "";
+    private String publisherLibrariesFileName = "";
     private ArrayList<String> publisherLibraryName = new ArrayList<>();
     private boolean specificPublisherLibrary = false;
-    private String subscriberFileName = "";
+    private String subscriberLibrariesFileName = "";
 
     // other
     private boolean dryRun = false;
     private boolean keepVolMungerFiles = false;
     private String logFilename = "volmunger.log";
+    private String[] originalArgs;
     private int remoteFlag = 0;
     private String remoteType = "-";
     private boolean validationRun = false;
 
+    public final int NONE = 0;
+    public final int AMPUBLISHER = 1;
+    public final int AMSUBSCRIBER = 2;
+
     /**
      * Instantiates a new Configuration.
      */
-    private Configuration() {
-        // singleton pattern
-    }
-
-    /**
-     * Gets instance.
-     *
-     * @return the instance
-     */
-    public static Configuration getInstance() {
-        if (instance == null) {
-            instance = new Configuration();
-        }
-        return instance;
-    }
-
-    /**
-     * Dump the configuration
-     */
-    public void dump(String[] argsCopy) {
-        Logger logger = LogManager.getLogger("applog");
-
-        String msg = "Arguments: ";
-        for (int index = 0; index < argsCopy.length; ++index) {
-            msg = msg + argsCopy[index] + " ";
-        }
-        logger.info(msg);
-
-        logger.info("  cfg: -c Session logging level = " + getConsoleLevel());
-        logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
-        logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
-        logger.info("  cfg: -e Export paths filename = " + getExportPathsFilename());
-        logger.info("  cfg: -f Log filename = " + getLogFilename());
-        logger.info("  cfg: -i Export JSON filename = " + getExportJsonFilename());
-        logger.info("  cfg: -k Keep .volmunger files = " + Boolean.toString(isKeepVolMungerFiles()));
-        logger.info("  cfg: -l Publisher library name(s):");
-        for (String ln : getPublisherLibraryNames()) {
-            logger.info("  cfg:     " + ln);
-        }
-        logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
-        logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
-        logger.info("  cfg: -p Publisher Library filename = " + getPublisherFileName());
-        logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherImportFilename());
-        logger.info("  cfg: -r Remote session = " + getRemoteType());
-        logger.info("  cfg: -s Session Library filename = " + getSubscriberFileName());
-        logger.info("  cfg: -S Session Collection import filename = " + getSubscriberImportFilename());
-        logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
-        logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
-    }
-
-    /**
-     * Gets console level.
-     *
-     * @return the console level
-     */
-    public String getConsoleLevel() {
-        return consoleLevel;
-    }
-
-    /**
-     * Sets console level.
-     *
-     * @param consoleLevel the console level
-     */
-    public void setConsoleLevel(String consoleLevel) {
-        this.consoleLevel = consoleLevel;
-    }
-
-    /**
-     * Gets export filename.
-     *
-     * @return the export filename
-     */
-    public String getExportJsonFilename() {
-        return exportJsonFilename;
-    }
-
-    /**
-     * Sets export filename.
-     *
-     * @param exportJsonFilename the export filename
-     */
-    public void setExportJsonFilename(String exportJsonFilename) {
-        this.exportJsonFilename = exportJsonFilename;
-    }
-
-    /**
-     * Gets log filename.
-     *
-     * @return the log filename
-     */
-    public String getLogFilename() {
-        return logFilename;
-    }
-
-    /**
-     * Sets log filename.
-     *
-     * @param logFilename the log filename
-     */
-    public void setLogFilename(String logFilename) {
-        this.logFilename = logFilename;
+    public Configuration() {
     }
 
     /**
      * Parse command line.
+     *
+     * This populates the rest.
      *
      * @param args the args
      * @return the boolean
@@ -159,6 +64,7 @@ public class Configuration {
     public void parseCommandLine(String[] args) throws MungerException {
         int index;
         boolean success = true;
+        originalArgs = args;
 
         for (index = 0; index < args.length; ++index) {
             switch (args[index]) {
@@ -181,12 +87,12 @@ public class Configuration {
                         throw new MungerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
-                case "-e":                                             // export paths filename
+                case "-e":                                             // exportCollection paths filename
                     if (index <= args.length - 2) {
-                        setExportPathsFilename(args[index + 1]);
+                        setExportTextFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -e requires an export paths output filename");
+                        throw new MungerException("Error: -e requires an exportCollection paths output filename");
                     }
                     break;
                 case "-f":                                             // log filename
@@ -197,12 +103,12 @@ public class Configuration {
                         throw new MungerException("Error: -f requires a log filename");
                     }
                     break;
-                case "-i":                                             // export filename
+                case "-i":                                             // exportCollection filename
                     if (index <= args.length - 2) {
                         setExportJsonFilename(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -i requires an export JSON output filename");
+                        throw new MungerException("Error: -i requires an exportCollection JSON output filename");
                     }
                     break;
                 case "-k":                                             // keep .volmunger files
@@ -235,7 +141,7 @@ public class Configuration {
                     break;
                 case "-p":                                             // publisher collection filename
                     if (index <= args.length - 2) {
-                        setPublisherFileName(args[index + 1]);
+                        setPublisherLibrariesFileName(args[index + 1]);
                         ++index;
                     } else {
                         throw new MungerException("Error: -p requires a publisher collection filename");
@@ -243,7 +149,7 @@ public class Configuration {
                     break;
                 case "-P":                                             // import publisher filename
                     if (index <= args.length - 2) {
-                        setPublisherImportFilename(args[index + 1]);
+                        setPublisherCollectionFilename(args[index + 1]);
                         ++index;
                     } else {
                         throw new MungerException("Error: -P requires an publisher import JSON filename");
@@ -259,7 +165,7 @@ public class Configuration {
                     break;
                 case "-s":                                             // subscriber collection filename
                     if (index <= args.length - 2) {
-                        setSubscriberFileName(args[index + 1]);
+                        setSubscriberLibrariesFileName(args[index + 1]);
                         ++index;
                     } else {
                         throw new MungerException("Error: -s requires a subscriber collection filename");
@@ -267,7 +173,7 @@ public class Configuration {
                     break;
                 case "-S":                                             // import subscriber filename
                     if (index <= args.length - 2) {
-                        setSubscriberImportFilename(args[index + 1]);
+                        setSubscriberCollectionFilename(args[index + 1]);
                         ++index;
                     } else {
                         throw new MungerException("Error: -S requires an subscriber import JSON filename");
@@ -288,6 +194,94 @@ public class Configuration {
                     throw new MungerException("Error: unknown option " + args[index]);
             }
         }
+    }
+
+    /**
+     * Dump the configuration
+     */
+    public void dump() {
+        Logger logger = LogManager.getLogger("applog");
+
+        String msg = "Arguments: ";
+        for (int index = 0; index < originalArgs.length; ++index) {
+            msg = msg + originalArgs[index] + " ";
+        }
+        logger.info(msg);
+
+        logger.info("  cfg: -c Session logging level = " + getConsoleLevel());
+        logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
+        logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
+        logger.info("  cfg: -e Export paths filename = " + getExportTextFilename());
+        logger.info("  cfg: -f Log filename = " + getLogFilename());
+        logger.info("  cfg: -i Export JSON filename = " + getExportJsonFilename());
+        logger.info("  cfg: -k Keep .volmunger files = " + Boolean.toString(isKeepVolMungerFiles()));
+        logger.info("  cfg: -l Publisher library name(s):");
+        for (String ln : getPublisherLibraryNames()) {
+            logger.info("  cfg:     " + ln);
+        }
+        logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
+        logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
+        logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherCollectionFilename());
+        logger.info("  cfg: -r Remote session = " + getRemoteType());
+        logger.info("  cfg: -s Session Library filename = " + getSubscriberLibrariesFileName());
+        logger.info("  cfg: -S Session Collection import filename = " + getSubscriberCollectionFilename());
+        logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
+        logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
+    }
+
+    /**
+     * Gets console level.
+     *
+     * @return the console level
+     */
+    public String getConsoleLevel() {
+        return consoleLevel;
+    }
+
+    /**
+     * Sets console level.
+     *
+     * @param consoleLevel the console level
+     */
+    public void setConsoleLevel(String consoleLevel) {
+        this.consoleLevel = consoleLevel;
+    }
+
+    /**
+     * Gets exportCollection filename.
+     *
+     * @return the exportCollection filename
+     */
+    public String getExportJsonFilename() {
+        return exportJsonFilename;
+    }
+
+    /**
+     * Sets exportCollection filename.
+     *
+     * @param exportJsonFilename the exportCollection filename
+     */
+    public void setExportJsonFilename(String exportJsonFilename) {
+        this.exportJsonFilename = exportJsonFilename;
+    }
+
+    /**
+     * Gets log filename.
+     *
+     * @return the log filename
+     */
+    public String getLogFilename() {
+        return logFilename;
+    }
+
+    /**
+     * Sets log filename.
+     *
+     * @param logFilename the log filename
+     */
+    public void setLogFilename(String logFilename) {
+        this.logFilename = logFilename;
     }
 
     /**
@@ -324,11 +318,11 @@ public class Configuration {
      */
     public void setRemoteType(String type) throws MungerException {
         this.remoteType = type;
-        this.remoteFlag = 0;
+        this.remoteFlag = NONE;
         if (type.equalsIgnoreCase("P"))
-            this.remoteFlag = 1;
+            this.remoteFlag = AMPUBLISHER;
         else if (type.equalsIgnoreCase("S"))
-            this.remoteFlag = 2;
+            this.remoteFlag = AMSUBSCRIBER;
         else
             throw new MungerException("Error: -r must be followed by p|P|s|S, case-insensitive");
     }
@@ -372,17 +366,17 @@ public class Configuration {
      *
      * @return the import filename
      */
-    public String getSubscriberImportFilename() {
-        return subscriberImportFilename;
+    public String getSubscriberCollectionFilename() {
+        return subscriberCollectionFilename;
     }
 
     /**
-     * Sets subscriber import filename.
+     * Sets subscriber collection filename.
      *
-     * @param subscriberImportFilename the import filename
+     * @param subscriberCollectionFilename the import filename
      */
-    public void setSubscriberImportFilename(String subscriberImportFilename) {
-        this.subscriberImportFilename = subscriberImportFilename;
+    public void setSubscriberCollectionFilename(String subscriberCollectionFilename) {
+        this.subscriberCollectionFilename = subscriberCollectionFilename;
     }
 
     /**
@@ -460,17 +454,17 @@ public class Configuration {
      *
      * @return the publisher configuration file name
      */
-    public String getPublisherFileName() {
-        return publisherFileName;
+    public String getPublisherLibrariesFileName() {
+        return publisherLibrariesFileName;
     }
 
     /**
-     * Sets publisher configuration file name.
+     * Sets publisher libraries file name.
      *
-     * @param publisherFileName the publisher configuration file name
+     * @param publisherLibrariesFileName the publisher configuration file name
      */
-    public void setPublisherFileName(String publisherFileName) {
-        this.publisherFileName = publisherFileName;
+    public void setPublisherLibrariesFileName(String publisherLibrariesFileName) {
+        this.publisherLibrariesFileName = publisherLibrariesFileName;
     }
 
     /**
@@ -514,17 +508,17 @@ public class Configuration {
      *
      * @return the publisher import filename
      */
-    public String getPublisherImportFilename() {
-        return publisherImportFilename;
+    public String getPublisherCollectionFilename() {
+        return publisherCollectionFilename;
     }
 
     /**
-     * Sets publisher import filename.
+     * Sets publisher collection filename.
      *
-     * @param publisherImportFilename the publisher import filename
+     * @param publisherCollectionFilename the publisher import filename
      */
-    public void setPublisherImportFilename(String publisherImportFilename) {
-        this.publisherImportFilename = publisherImportFilename;
+    public void setPublisherCollectionFilename(String publisherCollectionFilename) {
+        this.publisherCollectionFilename = publisherCollectionFilename;
     }
 
     /**
@@ -532,17 +526,17 @@ public class Configuration {
      *
      * @return the subscriber configuration file name
      */
-    public String getSubscriberFileName() {
-        return subscriberFileName;
+    public String getSubscriberLibrariesFileName() {
+        return subscriberLibrariesFileName;
     }
 
     /**
-     * Sets subscriber configuration file name.
+     * Sets subscriber libraries file name.
      *
-     * @param subscriberFileName the subscriber configuration file name
+     * @param subscriberLibrariesFileName the subscriber configuration file name
      */
-    public void setSubscriberFileName(String subscriberFileName) {
-        this.subscriberFileName = subscriberFileName;
+    public void setSubscriberLibrariesFileName(String subscriberLibrariesFileName) {
+        this.subscriberLibrariesFileName = subscriberLibrariesFileName;
     }
 
     /**
@@ -601,17 +595,17 @@ public class Configuration {
 
 
     /**
-     * @return exportPathsFilename
+     * @return exportTextFilename
      */
-    public String getExportPathsFilename() {
-        return exportPathsFilename;
+    public String getExportTextFilename() {
+        return exportTextFilename;
     }
 
     /**
-     * @param exportPathsFilename
+     * @param exportTextFilename
      */
-    public void setExportPathsFilename(String exportPathsFilename) {
-        this.exportPathsFilename = exportPathsFilename;
+    public void setExportTextFilename(String exportTextFilename) {
+        this.exportTextFilename = exportTextFilename;
     }
 
 }

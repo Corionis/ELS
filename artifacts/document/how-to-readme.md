@@ -15,16 +15,14 @@ Once the JSON library-definition files are created and validated a basic
 munge operation requires a publisher's library or collection file and
 the same for the subscriber.
 
-A library file lists the desired libraries to compare, a collection file
-also contains all the individual items in each library. Both are JSON files.
+A "library" file lists the libraries only, a "collection" file also contains
+all the individual items in each library. Both are JSON files.
 
 A collection JSON file may be generated using the -i item export option.
-Collection data is used to perform a munge.
 
-The -e export paths option lists each individual file in the desired
-libraries. But that data is not used by any other operation. It is 
-intended for visual information and possibly comparison with another
-similar file.
+Collection data are required to perform a munge. Generally the lowercase
+variation of an option will cause the needed data to be dynamically generated
+at runtime. Whereas the uppcase variation will import the data from a file.
 
 ## Command Line Options
 
@@ -36,13 +34,13 @@ similar file.
  
  * -D : Dry run, validate, scan, and match but do not make any changes
  
- * -e file : Export publisher libraries to text file
+ * -e file : Export publisher libraries items to flat text file
  
  * -f file : Log file, default VolMunger.log in directory where "run" is executed
 
  * -k : Keep volmunger.json files, default is to delete them as they are processed
  
- * -i file : Export JSON items to file
+ * -i file : Export publisher libraries items to collection file
  
  * -l library : Publisher library to process, default all
       May need to add specific item(s)
@@ -51,13 +49,15 @@ similar file.
 
  * -n file : Show What's new in a readable format, to send to your Plex users
 
- * -p file : Publisher libraries file
+ * -p file : Publisher JSON libraries file
  
  * -P file : Publisher JSON collection import items file
 
- * -r P|S : This is a remote session and this is the Publisher or Subscriber 
+ * -r P|S : This is a PUSH remote session and this is the Publisher or Subscriber 
+
+ * -R P|S : This is a PULL remote session and this is the Publisher or Subscriber 
  
- * -s file : Subscriber libraries file
+ * -s file : Subscriber JSON libraries file
  
  * -S file : Subscriber JSON collection import items file
  
@@ -69,7 +69,13 @@ similar file.
 
 ### Notes
 
-The -i option requires either -p or -P options. 
+The -e export paths option lists each individual file in the desired
+libraries. But that data is not used by any other operation. It is 
+intended for visual information and possibly comparison with another
+similar file.
+
+The -e and -i options require either -p or -P option. Also -e and -i do
+immediate scans based on configuration. 
 
 The -k option applies to the Provider. Subscriber volmunger.json files are not
 involved in a run.

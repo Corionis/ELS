@@ -1,62 +1,26 @@
 package com.groksoft.volmunger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.*;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-
 // see https://logging.apache.org/log4j/2.x/
 import com.groksoft.volmunger.comm.CommManager;
-import com.groksoft.volmunger.storage.Target;
+import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.groksoft.volmunger.repository.Item;
-import com.groksoft.volmunger.repository.Library;
-import com.groksoft.volmunger.repository.Repository;
-import com.groksoft.volmunger.storage.Storage;
 
 /**
  * Main VolMunger program
  */
 public class Main
 {
-    /**
-     * The Formatter.
-     * Setup formatter for number
-     */
-    DecimalFormat formatter = new DecimalFormat("#,###");
-
-    private Configuration cfg = null;
     private Logger logger = null;
-    private Repository publisherRepository = null;
-    private Repository subscriberRepository = null;
-    private Storage storageTargets = null;
-    private long grandTotalItems = 0L;
-    private long grandTotalSize = 0L;
-    private String currentGroupName = "";
-    private String lastGroupName = "";
-    private long whatsNewTotal = 0;
-    private int ignoreTotal = 0;
-    private int errorCount = 0;
-    private int copyCount = 0;
-    private ArrayList<String> ignoredList = new ArrayList<>();
-
-    private CommManager commManager = null;
-
 
     /**
-     * Instantiates the Main application.
+     * Instantiates the Main application
      */
     public Main() {
     }
 
     /**
-     * Main entry point
+     * main() entry point
      *
      * @param args the input arguments
      */
@@ -66,426 +30,17 @@ public class Main
         System.exit(returnValue);
     } // main
 
-    /**
-     * Available space on target.
-     *
-     * @param location the path to the target
-     * @return the long space available on target in bytes
-     */
-    public long availableSpace(String location) {
-        long space = 0;
-        try {
-            File f = new File(location);
-            space = f.getFreeSpace();
-        } catch (SecurityException e) {
-            logger.error("Exception '" + e.getMessage() + "' getting available space from " + location);
-        }
-        return space;
-    }
-
-    /**
-     * Copy file.
-     *
-     * @param from the from
-     * @param to   the to
-     * @return the boolean
-     */
-    public boolean copyFile(String from, String to) {
-        try {
-            File f = new File(to);
-            if (f != null) {
-                f.getParentFile().mkdirs();
-            }
-            Path fromPath = Paths.get(from).toRealPath();
-            Path toPath = Paths.get(to);  //.toRealPath();
-            Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
-        } catch (UnsupportedOperationException e) {
-            logger.error("Copy problem UnsupportedOperationException: " +e.getMessage());
-            return false;
-        } catch (FileAlreadyExistsException e) {
-            logger.error("Copy problem FileAlreadyExistsException: " + e.getMessage());
-            return false;
-        } catch (DirectoryNotEmptyException e) {
-            logger.error("Copy problem DirectoryNotEmptyException: " + e.getMessage());
-            return false;
-        } catch (IOException e) {
-            logger.error("Copy problem IOException: " + e.getMessage());
-            return false;
-        }
-        return true;
-    }
-
-    private void export() {
+    public int process(String[] args) {
+        CommManager commManager = null;
+        Repository repo = null;
         int returnValue = 0;
-        try {
-            for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography) {
-                publisherRepository.scan(pubLib.name);
-            }
-            publisherRepository.export();
-        } catch (MungerException e) {
-            // no logger yet to just print to the screen
-            System.out.println(e.getMessage());
-            returnValue = 1;
-        }
-    }
-
-    private void exportPaths() {
-        int returnValue = 0;
-        try {
-            for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography) {
-                publisherRepository.scan(pubLib.name);
-            }
-            publisherRepository.exportPaths();
-        } catch (MungerException e) {
-            // no logger yet to just print to the screen
-            System.out.println(e.getMessage());
-            returnValue = 1;
-        }
-    }
-
-    /**
-     * Get item size long.
-     *
-     * @param item the item root node
-     * @return the long size of the item(s) in bytes
-     */
-    public long getItemSize(Item item) {
-        long size = 0;
-        try {
-            size = Files.size(Paths.get(item.getFullPath()));
-        } catch (IOException e) {
-            logger.error("Exception '" + e.getMessage() + "' getting size of item " + item.getFullPath());
-        }
-        return size;
-    }
-
-    /**
-     * Gets a subscriber target.
-     * <p>
-     * Will return one of the subscriber targets for the library of the item that is
-     * large enough to hold the size specified, otherwise an empty string is returned.
-     *
-     * @param item    the item
-     * @param library the publisher library.definition.name
-     * @param size    the total size of item(s) to be copied
-     * @return the target
-     * @throws MungerException the volmunger exception
-     */
-    public String getTarget(Item item, String library, long size) throws MungerException {
-        String target = null;
-        boolean allFull = true;
-        boolean notFound = true;
-        long space = 0L;
-        long minimum = 0L;
-
-        Target tar = storageTargets.getTarget(library);
-        if (tar != null) {
-            minimum = Utils.getScaledValue(tar.minimum);
-        } else {
-            minimum = Storage.minimumBytes;
-        }
-
-        // see if there is an "original" directory the new content will fit in
-        String path = subscriberRepository.hasDirectory(library, item.getItemPath());
-        if (path != null) {
-            space = availableSpace(path);
-            logger.info("Checking space on " + path + " == " + (space / (1024 * 1024)) + " for " +
-                    (size / (1024 * 1024)) + " minimum " + (minimum / (1024 * 1024)) + " MB");
-            if (space > (size + minimum)) {
-                logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
-                return path;
-            } else {
-                logger.info("Original storage location too full for " + item.getItemPath() + " (" + size + ") at " + path);
-            }
-        }
-
-        // find a matching target
-        if (tar != null) {
-            notFound = false;
-            for (int j = 0; j < tar.locations.length; ++j) {
-                // check space on the candidate target
-                String candidate = tar.locations[j];
-                space = availableSpace(candidate);
-                if (space > minimum) {                  // check target space minimum
-                    allFull = false;
-                    if (space > (size + minimum)) {     // check size of item(s) to be copied
-                        target = candidate;             // has space, use it
-                        break;
-                    }
-                }
-            }
-            if (allFull) {
-                logger.error("All locations for library " + library + " are below definition.minimum of " + tar.minimum);
-
-                // todo Should this be a throw ??
-                System.exit(2);     // EXIT the program
-
-
-            }
-        }
-        if (notFound) {
-            logger.error("No target library match found for publisher library " + library);
-        }
-        return target;
-    }
-
-    /**
-     * Determine if item should be ignored.
-     *
-     * @param item
-     * @return true if it should be ignored
-     */
-    private boolean ignore(Item item) {
-        String str = "";
-        String str1 = "";
-        boolean ret = false;
-
-        for (Pattern patt : publisherRepository.getLibraryData().libraries.compiledPatterns) {
-
-            str = patt.toString();
-            str1 = str.replace("?", ".?").replace("*", ".*?");
-            if (item.getName().matches(str1)) {
-                //logger.info(">>>>>>Ignoring '" + item.getName());
-                ignoreTotal++;
-                ret = true;
-                break;
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * Is new grouping boolean.
-     *
-     * @param publisherItem the publisher item
-     * @return the boolean
-     */
-    private boolean isNewGrouping(Item publisherItem) {
-        boolean ret = true;
-        int i = publisherItem.getItemPath().lastIndexOf(File.separator);
-        if (i < 0) {
-            logger.warn("File pathsep: '" + File.separator + "'");
-            logger.warn("File     sep: '" + File.separator + "'");
-            logger.warn("No subdirectory in path : " + publisherItem.getItemPath());
-            return true;
-        }
-        String path = publisherItem.getItemPath().substring(0, i);
-        if (path.length() < 1) {
-            path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf(File.separator));
-        }
-        if (currentGroupName.equalsIgnoreCase(path)) {
-            ret = false;
-        } else {
-            currentGroupName = path;
-        }
-        return ret;
-    }
-
-    /**
-     * Munge two collections
-     *
-     * @throws MungerException the volmunger exception
-     */
-    private void munge() throws MungerException {
-        boolean iWin = false;
-        Item lastDirectoryItem = null;
-        PrintWriter mismatchFile = null;
-        PrintWriter whatsNewFile = null;
-        PrintWriter targetFile = null;
-        String currentWhatsNew = "";
-        String currLib = "";
-        ArrayList<Item> group = new ArrayList<>();
-        long totalSize = 0;
-
-        String header = "Munging " + publisherRepository.getLibraryData().libraries.description + " to " +
-                subscriberRepository.getLibraryData().libraries.description;
-
-        // setup the -m mismatch output file
-        if (cfg.getMismatchFilename().length() > 0) {
-            try {
-                mismatchFile = new PrintWriter(cfg.getMismatchFilename());
-                mismatchFile.println(header);
-                logger.info("Writing to Mismatches file " + cfg.getMismatchFilename());
-            } catch (FileNotFoundException fnf) {
-                String s = "File not found exception for Mismatches output file " + cfg.getMismatchFilename();
-                logger.error(s);
-                throw new MungerException(s);
-            }
-        }
-
-        // setup the -n What's New output file
-        if (cfg.getWhatsNewFilename().length() > 0) {
-            try {
-                whatsNewFile = new PrintWriter(cfg.getWhatsNewFilename());
-                whatsNewFile.println("What's New");
-                logger.info("Writing to What's New file " + cfg.getWhatsNewFilename());
-            } catch (FileNotFoundException fnf) {
-                String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
-                logger.error(s);
-                throw new MungerException(s);
-            }
-        }
-
-        logger.info(header);
+        ThreadGroup sessionThreads = null;
 
         try {
-            for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography) {
-                boolean scanned = false;
-                Library pubLib = null;
-
-                // TODO Add filtering which library to process by -l option, isSpecificPublisherLibrary() & getPublisherLibraryNames()
-
-                if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null) {
-
-                    // Do the libraries have items or do we need to be scanned?
-                    if (pubLib.items == null || pubLib.items.size() < 1) {
-                        publisherRepository.scan(pubLib.name);
-                        scanned = true;
-                    }
-                    if (subLib.items == null || subLib.items.size() < 1) {
-                        subscriberRepository.scan(subLib.name);
-                    }
-
-                    logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
-                            subLib.items.size() + " subscriber items");
-
-                    for (Item item : pubLib.items) {
-                        if (ignore(item)) {
-                            logger.info("  ! Ignoring '" + item.getItemPath() + "'");
-                            ignoredList.add(item.getFullPath());
-                        } else {
-                            boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
-                            if (has) {
-                                logger.info("  = Session " + subLib.name + " has " + item.getItemPath());
-                            } else {
-
-                                if (cfg.getWhatsNewFilename().length() > 0) {
-                                    /*
-                                     * Only show the left side of mismatches file. And Only show it once.
-                                     * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                                     * Big Bang Theory
-                                     * Lucifer
-                                     * Legion
-                                     */
-                                    if (!item.getLibrary().equals(currLib)) {
-                                        // If not first time display and reset the whatsNewTotal
-                                        if (!currLib.equals("")) {
-                                            whatsNewFile.println("--------------------------------");
-                                            whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
-                                            whatsNewFile.println("================================");
-                                            whatsNewTotal = 0;
-                                        }
-                                        currLib = item.getLibrary();
-                                        whatsNewFile.println("");
-                                        whatsNewFile.println(currLib);
-                                        whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
-                                    }
-                                    String path;
-                                    path = Utils.getLastPath(item.getItemPath());
-                                    if (!currentWhatsNew.equalsIgnoreCase(path)) {
-                                        assert whatsNewFile != null;
-                                        whatsNewFile.println("    " + path);
-                                        currentWhatsNew = path;
-                                        whatsNewTotal++;
-                                    }
-                                }
-
-                                logger.info("  + Session " + subLib.name + " missing " + item.getItemPath());
-
-                                if (!item.isDirectory()) {
-                                    if (cfg.getMismatchFilename().length() > 0) {
-                                        assert mismatchFile != null;
-                                        mismatchFile.println(item.getFullPath());
-                                    }
-
-                                    /* If the group is switching, process the current one. */
-                                    if (isNewGrouping(item)) {
-                                        logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
-                                        // There is a new group - process the old group
-                                        processGroup(group, totalSize);
-                                        totalSize = 0L;
-
-                                        // Flush the output files
-                                        if (cfg.getWhatsNewFilename().length() > 0) {
-                                            whatsNewFile.flush();
-                                        }
-                                        if (cfg.getMismatchFilename().length() > 0) {
-                                            mismatchFile.flush();
-                                        }
-                                    }
-                                    long size = 0;
-                                    if ( scanned ) {
-                                        size = getItemSize(item);
-                                        item.setSize(size);
-                                        totalSize += size;
-                                    }
-                                    group.add(item);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
-        } finally {
-            if (group.size() > 0) {
-                // Process the last group
-                logger.info("Processing last group '" + currentGroupName + "'");
-                // There is another group - process it
-                processGroup(group, totalSize);
-                totalSize = 0L;
-            }
-
-            // Close all the files and show the results
-            if (mismatchFile != null) {
-                mismatchFile.println("----------------------------------------------------");
-                mismatchFile.println("Grand total items: " + grandTotalItems);
-                double gb = grandTotalSize / (1024 * 1024 * 1024);
-                mismatchFile.println("Grand total size : " + formatter.format(grandTotalSize) + " bytes, " + gb + " GB");
-                mismatchFile.close();
-            }
-            if (whatsNewFile != null) {
-                whatsNewFile.println("--------------------------------");
-                whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
-                whatsNewFile.println("================================");
-                whatsNewFile.close();
-            }
-        }
-
-        logger.info("-----------------------------------------------------");
-        if (ignoredList.size() > 0) {
-            logger.info("Ignored " + ignoredList.size() + " files: ");
-            for (String s : ignoredList) {
-                logger.info("    " + s);
-            }
-        }
-        logger.info("Grand total copies: " + copyCount);
-        logger.info("Grand total errors: " + errorCount);
-        logger.info("Grand total ignored: " + ignoreTotal);
-        logger.info("Grand total items: " + grandTotalItems);
-        double gb = grandTotalSize / (1024 * 1024 * 1024);
-        logger.info("Grand total size : " + formatter.format(grandTotalSize) + " bytes, " + gb + " GB");
-    }
-
-    /**
-     * Process everything
-     * <p>
-     * This is the primary mainline.
-     *
-     * @param args Command Line args
-     */
-    private int process(String[] args) {
-        int returnValue = 0;
-
-        System.out.println("STARTING");
-        try {
-            cfg = Configuration.getInstance();
+            Configuration cfg = new Configuration();
             cfg.parseCommandLine(args);
 
-            // setup the logger
+            // setup the logger based on configuration
             System.setProperty("logFilename", cfg.getLogFilename());
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
             System.setProperty("debugLevel", cfg.getDebugLevel());
@@ -496,176 +51,119 @@ public class Main
             // get the named logger
             logger = LogManager.getLogger("applog");
 
-            // the + makes searching for the beginning of a run easier
-            logger.info("+ Main begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
-            cfg.dump(args);
-            commManager = CommManager.getInstance();
+            // handle -r remote session option as Subscriber ... listen
+            if (cfg.iAmSubscriber()) {
+            //// handle -r remote session option, either as Publisher or Subscriber
+            ////if (cfg.getRemoteFlag() != cfg.NONE) {
+                repo = readRepo(cfg); // returns either the Publisher or Subscriber repo based on args
 
-            // todo Add sanity checks for option combinations that do not make sense
+                sessionThreads = new ThreadGroup("Server");
+                commManager = new CommManager(sessionThreads, 2, cfg);
 
-            // create primary objects
-            publisherRepository = new Repository();
-            subscriberRepository = new Repository();
-            storageTargets = new Storage();
-            
-
-            try {
-                // get -t Targets
-                if (cfg.getTargetsFilename().length() > 0) {
-                    readTargets(cfg.getTargetsFilename(), storageTargets);
-                } else {
-                    logger.warn("NOTE: No targets file was specified - performing a dry run");
-                    cfg.setDryRun(true);
+                if (repo.getJsonFilename() != null &&
+                    !repo.getJsonFilename().isEmpty()) {
+                    commManager.startListening(repo);
                 }
-
-                // get -p Publisher metadata
-                if (cfg.getPublisherFileName().length() > 0) {
-                    readRepository(cfg.getPublisherFileName(), publisherRepository, true);
-                }
-
-                // get -P Publisher import metadata
-                if (cfg.getPublisherImportFilename().length() > 0) {
-                    readRepository(cfg.getPublisherImportFilename(), publisherRepository, false);
-                }
-
-                // get -s Session metadata
-                if (cfg.getSubscriberFileName().length() > 0) {
-                    readRepository(cfg.getSubscriberFileName(), subscriberRepository, true);
-                }
-
-                // get -S Session import metadata
-                if (cfg.getSubscriberImportFilename().length() > 0) {
-                    readRepository(cfg.getSubscriberImportFilename(), subscriberRepository, false);
-                }
-
-                // handle -e export publisher (only)
-                if (cfg.getExportPathsFilename().length() > 0) {
-                    if (cfg.getPublisherFileName().length() > 0 ||
-                            cfg.getPublisherImportFilename().length() > 0) {
-                        exportPaths();
-                    } else {
-                        throw new MungerException("-e option requires the -p and/or -P options");
-                    }
-                }
-
-                // handle -i export publisher (only)
-                if (cfg.getExportJsonFilename().length() > 0) {
-                    if (cfg.getPublisherFileName().length() > 0 ||
-                            cfg.getPublisherImportFilename().length() > 0) {
-                        export();
-                    } else {
-                        throw new MungerException("-i option requires the -p and/or -P options");
-                    }
-                }
-
-                // handle -r remote session
-                if (cfg.getRemoteFlag() != 0)
-                {
-                    if ( ! commManager.startListening(publisherRepository, subscriberRepository))
-                    {
-                        logger.error("listening start-up failed");
-                    }
-                }
-
-                // if all the pieces are specified munge the collections
-                if (cfg.getPublisherFileName().length() > 0 &&
-                        cfg.getSubscriberFileName().length() > 0 ||
-                        cfg.getSubscriberImportFilename().length() > 0) {
-                    munge();
-                }
-
-            } catch (Exception ex) {
-                logger.error(ex.getMessage() + " toString=" + ex.toString());
-                returnValue = 2;
             }
-        } catch (MungerException e) {
-            // no logger yet to just print to the screen
-            System.out.println(e.getMessage());
-            returnValue = 1;
-            cfg = null;
+
+            // PUSH MODE ---------------------------------------------------------
+            // the Process class handles the entire VolMunger munger process
+            //
+            // perform primary command line process
+            Process proc = new Process();
+            //
+            // cfg can be null so a new configuration is built based on args
+            returnValue = proc.process(cfg, args);
+
+            // then ask if the subscriber has anything else to be done
+            // .. if so a new command line & process can be executed
+            // .. if not end the program
+
+
+            // PULL MODE --------------------------------------------------------
+            // if -R or --requests-only (or whatever) start a listener
+            // and wait for matching Subscriber to tell Publisher what to do
+
+            // ... to be coded ...
+
+
+
+
+            // need to add a command line option for a specific item
+            //
+            // ideas for adds & changes --
+            // 1. change -i to request an item
+            // 2. change export collection, old -i, to -E
+            // 3. add -R P|S for --requests-only PULL mode
+            // 3. add "double-dash" equivalent options to make command lines more readable
+            //    example: -E and --export-collection
+            //
+
+
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage());
         }
         finally {
-            //if (commManager != null) {
-            //    commManager.stopCommManager();
-            //}
-        }
-
-        // the - makes searching for the ending of a run easier
-        if (logger != null) {
-            logger.info("- Main end" + " ------------------------------------------");
-            LogManager.shutdown();
+            if (commManager != null) {
+                commManager.stopCommManager();
+            }
         }
 
         return returnValue;
     } // process
 
-    /**
-     * Process group.
-     *
-     * @param group     the group
-     * @param totalSize the total size
-     * @throws MungerException the volmunger exception
-     */
-    private void processGroup(ArrayList<Item> group, long totalSize) throws MungerException {
-        try {
-            if (group.size() > 0) {
-                for (Item groupItem : group) {
-                    if (cfg.isDryRun()) {          // -D Dry run option
-                        logger.info("    Would copy #" + copyCount + " " + groupItem.getFullPath());
-                        ++copyCount;
-                    } else {
-                        String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
-                        if (targetPath != null) {
-                            // copy item(s) to targetPath
-                            String to = targetPath + File.separator + groupItem.getItemPath();
-                            logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
-                            if ( ! copyFile(groupItem.getFullPath(), to)) {
-                                ++errorCount;
-                            }
-                            ++copyCount;
-                        } else {
-                            logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
-                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
-                        }
-                    }
-                }
+    private Repository readRepo(Configuration cfg) throws Exception {
+        Repository repo = new Repository(cfg);
+        if (cfg.iAmPublisher()) {
+            if (cfg.getPublisherLibrariesFileName().length() > 0 &&
+                    cfg.getPublisherCollectionFilename().length() > 0)
+            {
+                System.out.println("\r\nCannot use both -p and -P, exiting");
+                return null;
             }
-            grandTotalItems = grandTotalItems + group.size();
-            group.clear();
-            grandTotalSize = grandTotalSize + totalSize;
-            totalSize = 0L;
-            lastGroupName = currentGroupName;
-        } catch (Exception e) {
-            throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
+            else if (cfg.getPublisherLibrariesFileName().length() == 0 &&
+                    cfg.getPublisherCollectionFilename().length() == 0)
+            {
+                System.out.println("\r\nMust use -p or -P with a filename to use -r P");
+                return null;
+            }
+
+            // get -p Publisher libraries
+            if (cfg.getPublisherLibrariesFileName().length() > 0) {
+                repo.read(cfg.getPublisherLibrariesFileName());
+            }
+            // get -P Publisher collection
+            if (cfg.getPublisherCollectionFilename().length() > 0) {
+                repo.read(cfg.getPublisherCollectionFilename());
+            }
         }
-    }
 
-    /**
-     * Read repository.
-     *
-     * @param filename the filename
-     * @param repo     the repo
-     * @throws MungerException the volmunger exception
-     */
-    private void readRepository(String filename, Repository repo, boolean validate) throws MungerException {
-        repo.read(filename);
-        if (validate) {
-            repo.validate();
+        if (cfg.iAmSubscriber()) {
+            if (cfg.getSubscriberLibrariesFileName().length() > 0 &&
+                    cfg.getSubscriberCollectionFilename().length() > 0)
+            {
+                System.out.println("\r\nCannot use both -s and -S, exiting");
+                return null;
+            }
+            else if (cfg.getSubscriberLibrariesFileName().length() == 0 &&
+                    cfg.getSubscriberCollectionFilename().length() == 0)
+            {
+                System.out.println("\r\nMust use -s or -S with a filename to use -r S");
+                return null;
+            }
+
+            // get -s Subscriber libraries
+            if (cfg.getSubscriberLibrariesFileName().length() > 0) {
+                repo.read(cfg.getSubscriberLibrariesFileName());
+            }
+
+            // get -S Subscriber collection
+            if (cfg.getSubscriberCollectionFilename().length() > 0) {
+                repo.read(cfg.getSubscriberCollectionFilename());
+            }
         }
-    } // readRepository
-
-    /**
-     * Read targets.
-     *
-     * @param filename the filename
-     * @param storage  the storage
-     * @throws MungerException the volmunger exception
-     */
-    public void readTargets(String filename, Storage storage) throws MungerException {
-        storage.read(filename);
-        storage.validate();
+        return repo;
     }
-
-
 
 } // Main

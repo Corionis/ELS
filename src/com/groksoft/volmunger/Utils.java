@@ -82,6 +82,25 @@ public class Utils
     }
 
     /**
+     * Parse the host from a location string
+     *
+     * Expected format: [hostname|IP address]:[port number]
+     *
+     * @param location
+     * @return host
+     */
+    public static String parseHost(String location)
+    {
+        String host = null;
+        String[] a = location.split(":");
+        if (a.length >= 1)
+        {
+            host = a[0];
+        }
+        return host;
+    }
+
+    /**
      * Parse the port from a location string
      *
      * Expected format: [hostname|IP address]:[port number]

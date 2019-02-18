@@ -44,17 +44,15 @@ public class CommManager extends Thread
     private Hashtable _allSessions = null;
     private ThreadGroup _allSessionThreads;
 
+    private Configuration cfg;
+
     //------------------------------------------------------------------------
 	/**
-	 * Private Constructor.
-	 *
-     * Singleton pattern.
-     *
 	 * Instantiates the CommManager object and set it as a daemon so the Java
 	 * Virtual Machine does not wait for it to exit.
 	 * 
 	 */
-	private CommManager (ThreadGroup aGroup, int aMaxConnections)
+	public CommManager (ThreadGroup aGroup, int aMaxConnections, Configuration config)
 	{
 		// instantiate this object in the specified thread group to
 		// enforce the specified maximum connections limitation.
@@ -63,7 +61,9 @@ public class CommManager extends Thread
 		this.instance = this;
 
 		// make it a daemon so the JVM does not wait for it to exit
-		this.setDaemon(true);
+        cfg = config;
+        // QUESTION how to handle persistent listener AND properly close the socket when application is killed
+		//this.setDaemon(true);
 		this.setMaxConnections(aMaxConnections);
 		this._allConnections = new Vector(aMaxConnections);
         this._allSessions = new Hashtable();
@@ -108,7 +108,7 @@ public class CommManager extends Thread
 		// if limit has not been reached
 		{
 			// create a connection thread for this request
-			Connection theConnection = new Connection(aSocket, new Session());
+			Connection theConnection = new Connection(aSocket, new Session(cfg));
 			_allConnections.addElement(theConnection);
 
 			// log it
@@ -122,21 +122,18 @@ public class CommManager extends Thread
 
 	//------------------------------------------------------------------------
     /**
-     * Check whether comm is required for this run.
-     * If so start a listener.
+     * Start a session listener
      */
-    public boolean startListening(Repository publisher, Repository subscriber) throws Exception
+    public void startListening(Repository repo) throws Exception
     {
-        Configuration cfg = Configuration.getInstance();
-        if (cfg.iAmPublisher())
-        {
-            startCommManager(publisher.getLibraryData().libraries.location);
-        }
-        else if (cfg.iAmSubscriber())
-        {
-            startCommManager(subscriber.getLibraryData().libraries.location);
-        }
-        return true;
+        if (repo != null &&
+            repo.getLibraryData() != null &&
+            repo.getLibraryData().libraries != null &&
+            repo.getLibraryData().libraries.location != null) {
+			startCommManager(repo.getLibraryData().libraries.location);
+		} else {
+        	throw new MungerException("cannot get location from -r specified remote library");
+		}
     }
 
 	//------------------------------------------------------------------------
@@ -161,10 +158,6 @@ public class CommManager extends Thread
 	 */
 	public static CommManager getInstance ()
 	{
-        if (instance == null) {
-            ThreadGroup allSessionThreads = new ThreadGroup("Server");
-            instance = new CommManager(allSessionThreads, 2);
-        }
 		return instance;
 	}
 
@@ -272,22 +265,22 @@ public class CommManager extends Thread
 		logger.info("Stopped CommManager");
 	}
 
-    protected void addListener(int aPort) throws IOException
+    protected void addListener(String host, int aPort) throws Exception
     {
-        Integer key = new Integer(aPort);   // hashtable key
+        //Integer key = new Integer(aPort);   // hashtable key
 
         // do not allow duplicate port assignments
-        if (_allSessions.get(key) != null)
+        if (_allSessions.get("Listener:" + host + ":" + aPort) != null)
             throw new IllegalArgumentException("Port "+aPort+" already in use");
 
         // create a listener on the port
-        Listener listener = new Listener(_allSessionThreads, aPort);
+        Listener listener = new Listener(_allSessionThreads, host, aPort, cfg);
 
         // put it in the hashtable
-        _allSessions.put(key, listener);
+        _allSessions.put("Listener:" + host + ":" + aPort, listener);
 
         // log it
-        logger.info("Starting Session listener on port "+aPort);
+        logger.info("Starting Session listener on host: " + (host == null ? "default" : host) + " port " + aPort);
 
         // fire it up
         listener.start();
@@ -295,6 +288,11 @@ public class CommManager extends Thread
 
     public void startCommManager(String location) throws Exception
     {
+        String host = Utils.parseHost(location);
+        if (host == null)
+        {
+            logger.info("host not defined, using default: null, all interfaces");
+        }
         int conPort = 0;
         String sport = Utils.parsePort(location);
         if (sport == null || sport.length() < 1)
@@ -306,7 +304,7 @@ public class CommManager extends Thread
         if (conPort > 0)
         {
             this.start();
-            addListener(conPort);
+            addListener(host, conPort);
         }
         if (conPort < 1)
         {

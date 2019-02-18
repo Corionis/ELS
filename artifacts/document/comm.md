@@ -15,14 +15,23 @@ When the -r option is used:
 
  1. For the Publisher (-r P):
     1. -p causes the Publisher to dynamically generate new JSON data
-    2. -P the Publisher will import a local JSON collections file
-    3. -s causes the Publisher to request the subscriber's -i JSON export
-    data, generated dynamically
-    4. -S the Publisher will import a local JSON collections file
+    2. -P the Publisher will import a local JSON collection file
+    3. -s causes the Publisher to request the subscriber's -i JSON
+    collection data, generated dynamically
+    4. -S the Publisher will import a local JSON collection file
+    5. -t causes the Publisher to request the subscriber's -T targets file
+    6. -T the Publisher will import a location JSON targets file
  2. For the Subscriber (-r S):
-    1. -s causes the Subscriber to FORCE the publisher to take a new
+    1. -p and -P are equivalent; the Subscriber only uses the key UUID
+     to validate the connection
+    2. -s causes the Subscriber to FORCE the publisher to take a new
     JSON export file when a connection is made by the publisher
-    2. -S the Subscriber will import a local JSON collections file
+    3. -S the Subscriber will import a local JSON collection file
+    4. -t causes the Subscriber to FORCE the publisher to take a new
+     subscriber's -T targets file
+    5. -T the Subscriber will import a location JSON targets file
+    
+ 2. When a local listener is running 
 
 ## At Connect-Time
 Start the subscriber-side first, then the publisher.

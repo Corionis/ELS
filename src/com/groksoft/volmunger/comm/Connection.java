@@ -2,7 +2,6 @@ package com.groksoft.volmunger.comm;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.*;
@@ -19,7 +18,6 @@ import java.net.*;
 public class Connection extends Thread
 {
 	protected static Logger logger = LogManager.getLogger("applog");//
-//	protected static Logger logger = Logger.getLogger(Connection.class);
 
 	/** The service for the connection */
 	protected Session _service;

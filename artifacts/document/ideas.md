@@ -27,6 +27,13 @@ T * Fix Exclusions
    - transcode option for high resource demand items, 
      e.g. Bring It On, Sons of Anarchy
  * Add a time metric.
+ * Add "double-dash" option equivalents to make commands more readable
+    * Examples:
+       * -p and --publisher-library
+       * -P and --publisher-collection
+       * -D and --dry-run
+       * -e and --export-text
+       * -i and --export-collection
 
 # Ideas
 

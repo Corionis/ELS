@@ -34,9 +34,11 @@ public class Repository
 
     /**
      * Instantiates a new Collection.
+     *
+     * @param config Configuration
      */
-    public Repository() {
-        cfg = Configuration.getInstance();
+    public Repository(Configuration config) {
+        cfg = config;
     }
 
     /**
@@ -86,17 +88,17 @@ public class Repository
     }
 
     /**
-     * Export libraries to JSON.
+     * Export libraries to text.
      *
      * @throws MungerException the volmunger exception
      */
-    public void exportPaths() throws MungerException {
+    public void exportText() throws MungerException {
         String path;
-        logger.info("Writing paths file " + cfg.getExportPathsFilename());
+        logger.info("Writing paths file " + cfg.getExportTextFilename());
 
 
         try {
-            PrintWriter outputStream = new PrintWriter(cfg.getExportPathsFilename());
+            PrintWriter outputStream = new PrintWriter(cfg.getExportTextFilename());
             for (Library lib : libraryData.libraries.bibliography) {
                 for (Item item : lib.items) {
                     if( !item.isDirectory() ) {
@@ -118,7 +120,7 @@ public class Repository
      *
      * @throws MungerException the volmunger exception
      */
-    public void export() throws MungerException {
+    public void exportCollection() throws MungerException {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();;
         logger.info("Writing item file " + cfg.getExportJsonFilename());

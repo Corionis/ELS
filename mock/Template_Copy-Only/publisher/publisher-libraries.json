@@ -1,7 +1,7 @@
 {
     "libraries": {
         "description": "Publisher",
-        "location": "zathras.monkeyboy.com:50271",
+        "location": ":30000",
         "key": "025e2ddb-942a-4206-8458-902a87e42e62",
         "case_sensitive": false,
         "ignore_patterns": [

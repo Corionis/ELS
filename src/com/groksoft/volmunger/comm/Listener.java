@@ -1,5 +1,6 @@
 package com.groksoft.volmunger.comm;
 
+import com.groksoft.volmunger.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 //import org.apache.log4j.Logger;
@@ -21,7 +22,6 @@ import java.util.*;
 public class Listener extends Thread
 {
 	protected static Logger logger = LogManager.getLogger("applog");//
-//	protected static Logger logger = Logger.getLogger(Listener.class);
 
 	/** The default timeout for socket connections, in milliseconds */
 	protected static final int _socketTimeout = 2000;
@@ -33,6 +33,8 @@ public class Listener extends Thread
 	/** Flag used to determine when to stop listening */
 	private boolean _stop = false;
 
+	private Configuration cfg;
+
 	//------------------------------------------------------------------------
 	/**
 	 * Setup a new Listener on a specified port.
@@ -40,18 +42,21 @@ public class Listener extends Thread
 	 * The socket is set with a timeout to allow accept() to be interrupted, and
 	 * the service to be removed from the server.
 	 * 
-	 * @param aGroup The thread group used for the listener.
+	 * @param group The thread group used for the listener.
 	 * @param aPort The port to listen on.
 	 */
-	public Listener (ThreadGroup aGroup, int aPort) throws IOException
+	public Listener (ThreadGroup group, String host, int aPort, Configuration config) throws Exception
 	{
-		super(aGroup, "Listener:" + aPort);
+		super(group, "Listener:" + host + ":" + aPort);
 
 		// setup this listener
+        this.cfg = config;
 		this._port = aPort;
+		InetAddress addr = Inet4Address.getByName(host);
 
-		_listenSocket = new ServerSocket(aPort);
+		_listenSocket = new ServerSocket(this._port, 5, addr);
 
+        // QUESTION how to handle persistent listener AND properly close the socket when application is killed
 		// set a non-zero timeout on the socket so accept() may be interrupted
 		_listenSocket.setSoTimeout(_socketTimeout);
 	} // constructor
@@ -84,7 +89,10 @@ public class Listener extends Thread
 			{
 				Socket theSocket = (Socket)_listenSocket.accept();
 				theSocket.setTcpNoDelay(true);
-				theSocket.setSoLinger(false, -1);
+                // QUESTION how to handle persistent listener AND properly close the socket when application is killed
+                //theSocket.setSoLinger(false, -1);
+                theSocket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
+
 				CommManager.getInstance().addConnection(theSocket);
 			}
 			catch (SocketTimeoutException e)

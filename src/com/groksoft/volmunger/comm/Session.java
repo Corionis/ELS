@@ -34,16 +34,19 @@ public class Session
 	BufferedReader in = null;
 	PrintWriter out = null;
 
+	private Configuration cfg;
+
 	//------------------------------------------------------------------------
 	/**
 	 * Instantiate the Session service
 	 */
-	public Session()
+	public Session(Configuration config)
 	{
 		this.passwordClear = "";
 		this.passwordEncrypted = "";
 		this.secretClear = "";
 		this.secretEncrypted = "";
+		this.cfg = config;
 	} // constructor
 
 	//------------------------------------------------------------------------
@@ -55,26 +58,16 @@ public class Session
 	public synchronized void dumpStatistics (PrintWriter aWriter)
 	{
 		/*
-		aWriter.println("\r\nConsole currently connected: " + ((_connected) ? "true" : "false"));
+		aWriter.println("\r\Session currently connected: " + ((_connected) ? "true" : "false"));
 		aWriter.println("  Connected on port: " + port);
 		aWriter.println("  Connected to: " + address);
 		try
 		{
-			int adm = CertificateManager.getInstance().getCertCount(Certificate.CERT_TYPE_ADMINCLIENT);
-			int api = CertificateManager.getInstance().getCertCount(Certificate.CERT_TYPE_API);
-			int brg = CertificateManager.getInstance().getCertCount(Certificate.CERT_TYPE_BRIDGE);
-			int web = CertificateManager.getInstance().getCertCount(Certificate.CERT_TYPE_WEB);
-			int wrk = CertificateManager.getInstance().getCertCount(Certificate.CERT_TYPE_WORKFLOW);
-			aWriter.println("\r\nActive users:   " + (adm + api + brg + web + wrk) + " total");
-			aWriter.println("  Admin Client: " + adm);
-			aWriter.println("  API-level:    " + api);
-			aWriter.println("  Bridge:       " + brg);
-			aWriter.println("  Web Client:   " + web);
-			aWriter.println("  Workflow:     " + wrk);
+			aWriter.println("  Work: " + work);
 		}
 		catch (Exception e)
 		{
-			aWriter.println("Exception " + e.getMessage() + " getting active user counts");
+			aWriter.println("Exception " + e.getMessage());
 			e.printStackTrace();
 		}
 		*/
@@ -93,117 +86,12 @@ public class Session
 
 	//------------------------------------------------------------------------
 	/**
-	 * Get the passwords for the Session
-	 */
-	private boolean getPasswords ()
-	{
-		/*
-		boolean flag = false;
-		File cfgdir = DocvueInstanceManager.getInstance().getConfigDir();
-		File pwfile = new File(cfgdir, credFilename);
-		if (pwfile.exists())
-		{
-			try
-			{
-				FileReader pwrdr = new FileReader(pwfile);
-				BufferedReader pwin = new BufferedReader(pwrdr);
-				String pw1 = pwin.readLine();
-				String pw2 = pwin.readLine();
-				pwin.close();
-				if (pw1 != null)
-				{
-					pw1 = pw1.trim();
-					this.secretEncrypted = pw1;
-				}
-				if (pw2 != null)
-				{
-					pw2 = pw2.trim();
-					this.passwordEncrypted = pw2;
-				}
-				if (this.secretEncrypted.length() > 0 && this.passwordEncrypted.length() > 0)
-				{
-					flag = true;
-				}
-			}
-			catch (FileNotFoundException e)
-			{
-				logger.error(e.getMessage());
-			}
-			catch (IOException e)
-			{
-				logger.error(e.getMessage());
-			}
-		}
-		if (flag == false)
-		{
-			out.println("\r\nWarning: Password(s) not set. Please set all passwords.\r\n");
-		}
-		return flag;
-		*/
-		return false;
-	}
-
-	//------------------------------------------------------------------------
-	/**
 	 * Request the Session service to stop
 	 */
 	public void requestStop ()
 	{
 		this._stop = true;
 		logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
-	}
-
-	//------------------------------------------------------------------------
-	/**
-	 * Save the passwords
-	 */
-	private boolean savePasswords ()
-	{
-		/*
-		boolean flag = false;
-		File cfgdir = DocvueInstanceManager.getInstance().getConfigDir();
-		File pwfile = new File(cfgdir, credFilename);
-		try
-		{
-			// don't re-encrypt an encrypted password
-			String pw1 = "";
-			if (this.secretClear.trim().length() > 0)
-			{
-				pw1 = PasswordService.getInstance().encrypt(this.secretClear.trim());
-				this.secretEncrypted = pw1;
-			}
-			else
-			{
-				pw1 = this.secretEncrypted;
-			}
-			String pw2 = "";
-			if (this.passwordClear.trim().length() > 0)
-			{
-				pw2 = PasswordService.getInstance().encrypt(this.passwordClear.trim());
-				this.passwordEncrypted = pw2;
-			}
-			else
-			{
-				pw2 = this.passwordEncrypted;
-			}
-			FileWriter pwwtr = new FileWriter(pwfile, false);
-			PrintWriter pwout = new PrintWriter(pwwtr);
-			pwout.println(pw1);
-			pwout.println(pw2);
-			pwout.close();
-			flag = true;
-		}
-		catch (IOException e)
-		{
-			logger.error(e.getMessage());
-		}
-		if (flag == false)
-		{
-			out.println("Error: Password(s) not saved.\r\n");
-		}
-		return flag;
-		*/
-		return false;
 	}
 
 	//------------------------------------------------------------------------
@@ -224,7 +112,6 @@ public class Session
 		String basePrompt = "> ";
 		String prompt = basePrompt;
 		boolean tout = false;
-		Configuration cfg = Configuration.getInstance();
 
 		// setup i/o
 		aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
@@ -237,7 +124,7 @@ public class Session
 		out.println("There are " + CommManager.getInstance().getAllConnections().size() + " active connections");
 		out.println("Enter 'help' or '?' for list of commands.");
 
-		getPasswords();
+		//getPasswords();
 		_connected = true;
 
 		// prompt for & process interactive commands
@@ -339,7 +226,6 @@ public class Session
 							{
 								this.passwordClear = pw.trim();
 							}
-							savePasswords();
 							out.println("password changed and saved\r\n");
 							logger.info((this.secret ? "Secret" : "Authorized") + " password changed and saved");
 						}
@@ -357,55 +243,6 @@ public class Session
 					out.println("\r\n" + theCommand);
 					break; // break the loop
 				}
-
-				// -------------- resetAdmin Client ------------------------
-				/*
-				if (theCommand.equalsIgnoreCase("resetAdmin"))
-				{
-					if (!authorized && !secret)
-						out.println("error: not authorized\r\n");
-					else
-					{
-						try
-						{
-							CertificateManager certificateManager = DocvueInstanceManager.getInstance().getCertificateManager();
-							if (certificateManager != null)
-							{
-								Certificate adminCert = certificateManager.getAdminCertificate();
-								if (adminCert != null)
-								{
-									String loginName = adminCert.getLoginName();
-									String ip = adminCert.getIP();
-									out.println("\r\nResetAdmin user: " + loginName + " at " + ip);
-									logger.info("ResetAdmin user: " + loginName + " at " + ip);
-									LoginWorker worker = new LoginWorker(adminCert, LoginWorker.OPER_ADMIN_LOGOUT, loginName);
-									worker.doWork();
-									worker = null;
-									out.println("appears successful\r\n");
-									logger.info("appears successful");
-								}
-								else
-								{
-									out.println("ResetAdmin no Administrator certificate found\r\n");
-									logger.info("ResetAdmin no Administrator certificate found");
-								}
-							}
-							else
-							{
-								out.println("ResetAdmin CertificateManager == null !\r\n");
-								logger.info("ResetAdmin CertificateManager == null !");
-							}
-						}
-						catch (Exception e)
-						{
-							out.println("ResetAdmin exception: " + e.getMessage() + "\r\n");
-							logger.warn("ResetAdmin exception: " + e.getMessage());
-						}
-						out.println("");
-					}
-					continue;
-				}
-				*/
 
 				// -------------- secret level password (FCS-only) ----------
 				if (theCommand.equalsIgnoreCase("secret"))

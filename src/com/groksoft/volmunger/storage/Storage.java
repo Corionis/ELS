@@ -20,7 +20,6 @@ import com.groksoft.volmunger.Utils;
 public class Storage
 {
     private transient Logger logger = LogManager.getLogger("applog");
-    private transient Configuration cfg = null;
 
     // TargetData members
     private TargetData targetData = null;
@@ -32,7 +31,6 @@ public class Storage
      * Instantiates a new Storage instance.
      */
     public Storage() {
-        cfg = Configuration.getInstance();
     }
 
     /**
