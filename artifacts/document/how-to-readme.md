@@ -53,9 +53,9 @@ at runtime. Whereas the uppcase variation will import the data from a file.
  
  * -P file : Publisher JSON collection import items file
 
- * -r P|S : This is a PUSH remote session and this is the Publisher or Subscriber 
+ * -r P|S : This is a PUSH remote subscriber session and this is the Publisher or Subscriber 
 
- * -R P|S : This is a PULL remote session and this is the Publisher or Subscriber 
+ * -R P|S : This is a PULL request server session and this is the Publisher or Subscriber 
  
  * -s file : Subscriber JSON libraries file
  

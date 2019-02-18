@@ -67,9 +67,9 @@ public class Main
             }
 
             // PUSH MODE ---------------------------------------------------------
-            // the Process class handles the entire VolMunger munger process
+            // -r or --remote-subscriber execute the process
             //
-            // perform primary command line process
+            // the Process class handles the entire VolMunger munger process
             Process proc = new Process();
             //
             // cfg can be null so a new configuration is built based on args
@@ -81,8 +81,8 @@ public class Main
 
 
             // PULL MODE --------------------------------------------------------
-            // if -R or --requests-only (or whatever) start a listener
-            // and wait for matching Subscriber to tell Publisher what to do
+            // if -R or --request-server (or whatever) start a listener and
+            // wait for matching Subscriber to tell Publisher what to do
 
             // ... to be coded ...
 
@@ -94,9 +94,9 @@ public class Main
             // ideas for adds & changes --
             // 1. change export collection -i, to -E
             // a. add -i to request a specific item
-            // 3. add -R P|S for --requests-only PULL mode
+            // 3. add -R P|S for --request-server PULL mode
             // 3. add "double-dash" equivalent options to make command lines more readable
-            //    example: -E and --export-collection
+            //    examples: -E and --export-collection, -r and --remote-subscriber
             //    It's just adding more case statements in Configuration.parseCommandLine()
             //
             // With -l to spec the library, and -i to spec the item we have a way to make a request.
