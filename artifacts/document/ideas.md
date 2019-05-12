@@ -75,13 +75,16 @@ Various features and nuances of VolMunger.
  * Libraries describe one or more Library objects.
  * Each Library is described by:
     - a name 
-    - one or more sources (directories) containing Items
- * An item can be either a directory or file.
+    - one or more sources (directories)
  
  * A Collection is the list of Items from scanning one or more libraries.
  * The Collection file is described by:
    - a list of the libraries 
-   
+   - a list of each item in each library
+ * An item can be either a directory or file.
+
+ * A Repository is a generic term that is either a Library or Collection.
+
  * A Group is an internal set of items in the same
    directory. Items are synchronized by group.
    - This works for a movie and that directory's contents,

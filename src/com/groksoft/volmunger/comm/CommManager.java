@@ -85,7 +85,6 @@ public class CommManager extends Thread
 		if (_allConnections.size() >= _maxConnections)
 		{
 			// maximum connections exceeded - try to tell user
-			// !?! CHANGE TO API RESPONSE, NOT TEXT
 			try
 			{
 				PrintWriter clientOut = new PrintWriter(aSocket.getOutputStream());
@@ -112,7 +111,7 @@ public class CommManager extends Thread
 			_allConnections.addElement(theConnection);
 
 			// log it
-			logger.info("Session opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort() + " port " + aSocket.getLocalPort());
+			logger.info("Session opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 
 			// start the connection thread
 			theConnection.start();
@@ -188,15 +187,12 @@ public class CommManager extends Thread
 	 */
 	public synchronized void dumpStatistics (PrintWriter aWriter)
 	{
-		// dump server information
-//		aWriter.println("DocVue Enterprise Session " + BuildStamp.BUILD_VERSION + ", Buildstamp " + BuildStamp.BUILD_STAMP);
-
 		// dump connection list
 		aWriter.println("Active connections: " + _allConnections.size());
 		for (int index = 0; index < _allConnections.size(); ++index)
 		{
 			Connection c = (Connection)_allConnections.elementAt(index);
-			aWriter.println("  " + c._service.getName() + " to " + c._socket.getInetAddress().getHostAddress() + ":" + c._socket.getPort() + " port " + c._socket.getLocalPort());
+			aWriter.println("  " + c._service.getName() + " to " + c._socket.getInetAddress().getHostAddress() + ":" + c._socket.getPort());
 		}
 
 		// dump connection counts
@@ -271,7 +267,7 @@ public class CommManager extends Thread
 
         // do not allow duplicate port assignments
         if (_allSessions.get("Listener:" + host + ":" + aPort) != null)
-            throw new IllegalArgumentException("Port "+aPort+" already in use");
+            throw new IllegalArgumentException("Port " + aPort + " already in use");
 
         // create a listener on the port
         Listener listener = new Listener(_allSessionThreads, host, aPort, cfg);
@@ -280,7 +276,7 @@ public class CommManager extends Thread
         _allSessions.put("Listener:" + host + ":" + aPort, listener);
 
         // log it
-        logger.info("Starting Session listener on host: " + (host == null ? "default" : host) + " port " + aPort);
+        logger.info("Starting Session listener on host: " + (host == null ? "localhost" : host) + " port " + aPort);
 
         // fire it up
         listener.start();
@@ -289,9 +285,10 @@ public class CommManager extends Thread
     public void startCommManager(String site) throws Exception
     {
         String host = Utils.parseHost(site);
-        if (host == null)
+        if (host == null || host.isEmpty())
         {
-            logger.info("host not defined, using default: null, all interfaces");
+        	host = null;
+            logger.info("host not defined, using default: localhost, all interfaces");
         }
         int conPort = 0;
         String sport = Utils.parsePort(site);
@@ -320,7 +317,10 @@ public class CommManager extends Thread
             Enumeration keys = _allSessions.keys();
             while (keys.hasMoreElements())
             {
-                Integer port = (Integer)keys.nextElement();
+                //Integer port = (Integer)keys.nextElement();
+                Connection conn = (Connection)keys.nextElement();
+                Socket sock = conn.getSocket();
+                Integer port = sock.getPort();
                 Listener listener = (Listener) _allSessions.get( port );
                 if (listener != null)
                 {

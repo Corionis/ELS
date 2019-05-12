@@ -228,7 +228,7 @@ public class Configuration {
         logger.info("  cfg: -k Keep .volmunger files = " + Boolean.toString(isKeepVolMungerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames()) {
-            logger.info("  cfg:     " + ln);
+            logger.info("    cfg:     " + ln);
         }
         logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
@@ -359,17 +359,17 @@ public class Configuration {
     /**
      * Returns true if this is a remote publisher
      */
-    public boolean iAmPublisher()
+    public boolean amRemotePublisher()
     {
-        return (this.remoteFlag == 1);
+        return (this.remoteFlag == AMPUBLISHER);
     }
 
     /**
      * Returns true if this is a remote publisher
      */
-    public boolean iAmSubscriber()
+    public boolean amRemoteSubscriber()
     {
-        return (this.remoteFlag == 2);
+        return (this.remoteFlag == AMSUBSCRIBER);
     }
 
     /**

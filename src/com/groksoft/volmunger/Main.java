@@ -11,7 +11,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class Main
 {
+    private boolean isListening = false;
     private Logger logger = null;
+    CommManager commManager = null;
 
     /**
      * Instantiates the Main application
@@ -27,11 +29,14 @@ public class Main
     public static void main(String[] args) {
         Main volmunger = new Main();
         int returnValue = volmunger.process(args);
-        System.exit(returnValue);
+        if (volmunger.isListening)
+        {
+            volmunger.logger.info("VolMunger is operating in remote mode");
+        }
+        //System.exit(returnValue);
     } // main
 
     public int process(String[] args) {
-        CommManager commManager = null;
         Repository repo = null;
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
@@ -52,16 +57,19 @@ public class Main
             logger = LogManager.getLogger("applog");
 
             // handle -r remote session option as Subscriber ... listen
-            if (cfg.iAmSubscriber()) {
-            //// handle -r remote session option, either as Publisher or Subscriber
-            ////if (cfg.getRemoteFlag() != cfg.NONE) {
+            if (cfg.amRemoteSubscriber()) {
+                // the + makes searching for the beginning of a run easier
+                logger.info("+ VolMunger Remote Subscriber begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                cfg.dump();
                 repo = readRepo(cfg); // returns either the Publisher or Subscriber repo based on args
 
                 sessionThreads = new ThreadGroup("Server");
-                commManager = new CommManager(sessionThreads, 2, cfg);
+                commManager = new CommManager(sessionThreads, 10, cfg);
 
                 if (repo.getJsonFilename() != null && !repo.getJsonFilename().isEmpty()) {
+
                     commManager.startListening(repo);
+                    isListening = true;
                 }
             }
             else {
@@ -86,8 +94,10 @@ public class Main
 
                 // ... to be coded ...
 
+                // HAVE CHANGED:
+                // -t and added -T where existing scripts and batch files need to be edited changing -t to -T
 
-                // need to add a command line option for to request a specific item
+                // need to add a command line option to request a specific item
                 //
                 // ideas for adds & changes --
                 // 1. change export collection -i, to -E
@@ -104,12 +114,26 @@ public class Main
 
         }
         catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
         }
         finally {
-            if (commManager != null) {
-
+            if (commManager != null && !isListening) {
                 commManager.stopCommManager();
+            } else {
+                Runtime.getRuntime().addShutdownHook(new Thread() {
+                    public void run() {
+                        try {
+                            Thread.sleep(200);
+                            logger.info("Shutting down CommManager ...");
+                            //some cleaning up code...
+                            commManager.stopCommManager();
+
+                        }
+                        catch (InterruptedException e) {
+                            logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
+                        }
+                    }
+                });
             }
         }
 
@@ -118,7 +142,8 @@ public class Main
 
     private Repository readRepo(Configuration cfg) throws Exception {
         Repository repo = new Repository(cfg);
-        if (cfg.iAmPublisher()) {
+        if (cfg.amRemotePublisher())
+        {
             if (cfg.getPublisherLibrariesFileName().length() > 0 &&
                     cfg.getPublisherCollectionFilename().length() > 0)
             {
@@ -142,7 +167,8 @@ public class Main
             }
         }
 
-        if (cfg.iAmSubscriber()) {
+        if (cfg.amRemoteSubscriber())
+        {
             if (cfg.getSubscriberLibrariesFileName().length() > 0 &&
                     cfg.getSubscriberCollectionFilename().length() > 0)
             {

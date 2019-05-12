@@ -41,17 +41,18 @@ When the -r option is used:
 Start the subscriber-side first, then the publisher.
 
  1. Publisher connects to subscriber.
- 2. Subscriber says: HELO:[subscriber key]
- 3. Publisher compares to local subscriber key
-    1. If mismatch Publisher disconnects
- 4. Publisher says: HELO:[publisher key]
- 5. Subscriber compares to local publisher key
+ 2. Subscriber says: HELO
+ 4. Publisher says: [publisher key]:[subscriber key]
+ 5. Subscriber compares to keys of library/collection files
     1. If mismatch Subscriber disconnects
- 5. Subscriber says: VolMunger:[VOLMUNGER_VERSION]
- 6. Publisher parses and compares versions:
-    1. If wrong match Pubisher says: ERROR:Version mismatch, publisher (me) VOLMUNGER_VERSION, subscriber (you) VOLMUNGER_VERSION
-       2. Publisher disconnects
- 7. Publisher says: ACK
+ 5. Subscriber returns: [subscriber key]:[publisher key]
+ 3. Publisher compares to keys of library/collection files
+    1. If mismatch Publisher disconnects
+ 5. Publisher says: VolMunger:[VOLMUNGER_VERSION]
+ 6. Subscriber parses and compares versions:
+    1. If wrong match says: ERROR:Version mismatch, subscriber (me) VOLMUNGER_VERSION, publisher (you) VOLMUNGER_VERSION
+       2. Disconnects
+ 7. Publisher says: ???
  
  ### Special Commands
  Immediately after connect-time ...

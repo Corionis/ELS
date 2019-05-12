@@ -78,7 +78,7 @@ public class Process
             }
 
             // the + makes searching for the beginning of a run easier
-            logger.info("+ Process begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+            logger.info("+ VolMunger Process begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
             cfg.dump();
 
             // todo Add sanity checks for option combinations that do not make sense

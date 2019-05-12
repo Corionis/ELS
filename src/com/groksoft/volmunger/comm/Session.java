@@ -109,7 +109,7 @@ public class Session
 		int attempts = 0;
 		int secattempts = 0;
 		String line;
-		String basePrompt = "> ";
+		String basePrompt = "";
 		String prompt = basePrompt;
 		boolean tout = false;
 
@@ -120,9 +120,10 @@ public class Session
 		out = new PrintWriter(new OutputStreamWriter(aSocket.getOutputStream()));
 
 		// hello
-		out.println("VollMunger " + cfg.getVOLMUNGER_VERSION());
-		out.println("There are " + CommManager.getInstance().getAllConnections().size() + " active connections");
-		out.println("Enter 'help' or '?' for list of commands.");
+		//out.println("VollMunger " + cfg.getVOLMUNGER_VERSION());
+		//out.println("There are " + CommManager.getInstance().getAllConnections().size() + " active connections");
+		//out.println("Enter 'help' or '?' for list of commands.");
+		out.println("HELO");
 
 		//getPasswords();
 		_connected = true;
@@ -169,7 +170,7 @@ public class Session
 						out.println("password accepted\r\n");
 						authorized = true; // grant access
 						prompt = "$ ";
-						logger.info("Command password accepted");
+						logger.info("Command auth accepted");
 					}
 					else
 					{
@@ -206,37 +207,6 @@ public class Session
 					}
 				}
 
-				// -------------- password change for current level ---------
-				if (theCommand.equalsIgnoreCase("password"))
-				{
-					if (!authorized && !secret)
-						out.println("error: not authorized\r\n");
-					else
-					{
-						String pw = "";
-						if (t.hasMoreTokens())
-							pw = t.nextToken(); // get the password
-						if (pw.length() > 0)
-						{
-							if (this.secret == true)
-							{
-								this.secretClear = pw.trim();
-							}
-							else if (this.authorized == true)
-							{
-								this.passwordClear = pw.trim();
-							}
-							out.println("password changed and saved\r\n");
-							logger.info((this.secret ? "Secret" : "Authorized") + " password changed and saved");
-						}
-						else
-						{
-							out.println("error: no password specified\r\n");
-						}
-					}
-					continue;
-				}
-
 				// -------------- quit, bye, exit ---------------------------
 				if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
 				{
@@ -244,7 +214,7 @@ public class Session
 					break; // break the loop
 				}
 
-				// -------------- secret level password (FCS-only) ----------
+				// -------------- secret level password ----------
 				if (theCommand.equalsIgnoreCase("secret"))
 				{
 					++secattempts;
@@ -292,27 +262,16 @@ public class Session
 					// @formatter:off
 					out.println("\r\nAvailable commands, not case sensitive:\r\n");
 
-				    if (secret == true)
-					{
-						out.println(
-								"  secret <password> = switch to secret level !" +
-							    "\r\n\r\n And:"
-								);
-					}
-
 					if (authorized == true || secret == true)
 					{
 						out.println(
-								"  password <password> = changes password for level $\r\n" +
-								"  resetAdmin = logout any existing Admin Client login $\r\n" +
+								"  logout = to exit current level\r\n" +
 								"  status = server and console status information $" +
 							    "\r\n\r\n And:"
 								);
 					}
 
 					out.println(
-							"  auth <password> = switch to authorized level\r\n" +
-							"  logout = to exit current level\r\n" +
 							"  help or ? = this list\r\n" +
 							"  quit, bye, exit = disconnect\r\n" +
 							"\r\nNote: Does not support backspace or command-line editing." +
@@ -341,13 +300,13 @@ public class Session
 
 		if (_stop == true)
 		{
-			out.println("\r\n\r\nDocVue Enterprise Session is being shutdown and/or restarted, disconnecting\r\n");
+			out.println("\r\n\r\nSession is being shutdown and/or restarted, disconnecting\r\n");
 		}
 
 		// all done, close everything
 		if (logger != null)
 		{
-			logger.info("Close connection on port " + port + " to " + address);
+			logger.info("Close connection on port " + port + " to " + address.getHostAddress());
 		}
 		out.close();
 		in.close();
