@@ -1,6 +1,9 @@
 # Communications Notes
 This assumes the -r option is used.
 
+## Changes From Original Code
+ 1. Changed -t to -T ... be sure to update batch/script files
+
 ## Roles
 Communication follows the publisher/subscriber paradigm. The
 publisher pushes content to the subscriber.
@@ -20,7 +23,8 @@ When the -r option is used:
     collection data, generated dynamically
     4. -S the Publisher will import a local JSON collection file
     5. -t causes the Publisher to request the subscriber's -T targets file
-    6. -T the Publisher will import a location JSON targets file
+    6. -T the Publisher will import a site JSON targets file
+
  2. For the Subscriber (-r S):
     1. -p and -P are equivalent; the Subscriber only uses the key UUID
      to validate the connection
@@ -29,9 +33,9 @@ When the -r option is used:
     3. -S the Subscriber will import a local JSON collection file
     4. -t causes the Subscriber to FORCE the publisher to take a new
      subscriber's -T targets file
-    5. -T the Subscriber will import a location JSON targets file
+    5. -T the Subscriber will import a site JSON targets file
     
- 2. When a local listener is running 
+ 3. When a local listener is running 
 
 ## At Connect-Time
 Start the subscriber-side first, then the publisher.
@@ -57,6 +61,7 @@ Start the subscriber-side first, then the publisher.
     2. Publisher says: RDY
     3. Subscriber sends targets JSON data
     4. When done Publisher says: ACK
+
  2. HERE is where special content requests might be handled
     1. Get specific single item (directory level)
     2. Publisher says: ACK

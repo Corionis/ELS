@@ -12,11 +12,12 @@ import org.apache.logging.log4j.Logger;
  * Contains all command-line options and any other application-level configuration.
  */
 public class Configuration {
-    private final String VOLMUNGER_VERSION = "1.0.0";
+    private final String VOLMUNGER_VERSION = "1.1.0";
 
     // flags & names
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
+    private boolean targetsFromSubscriber = false;
 
     // files
     private String exportJsonFilename = "";
@@ -160,7 +161,7 @@ public class Configuration {
                         setRemoteType(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -r must be followed by p|P|s|S, case-insensitive");
+                        throw new MungerException("Error: -r must be followed by p|P|s|S, case-sensitive");
                     }
                     break;
                 case "-s":                                             // subscriber collection filename
@@ -181,10 +182,20 @@ public class Configuration {
                     break;
                 case "-t":                                             // targets filename
                     if (index <= args.length - 2) {
+                        setTargetsFromSubscriber(true);
                         setTargetsFilename(args[index + 1]);
                         ++index;
                     } else {
                         throw new MungerException("Error: -t requires a targets filename");
+                    }
+                    break;
+                case "-T":                                             // targets filename
+                    if (index <= args.length - 2) {
+                        setTargetsFromSubscriber(false);
+                        setTargetsFilename(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MungerException("Error: -T requires a targets filename");
                     }
                     break;
                 case "-v":                                             // validate collections files
@@ -546,6 +557,24 @@ public class Configuration {
      */
     public String getTargetsFilename() {
         return targetsFilename;
+    }
+
+    /**
+     * Sets targetsFromSubscriber flag.
+     *
+     * @param isTargetsFromSubscriber true/false
+     */
+    public void setTargetsFromSubscriber(boolean isTargetsFromSubscriber) {
+        this.targetsFromSubscriber = isTargetsFromSubscriber;
+    }
+
+    /**
+     * Gets targetsFromSubscriber flag.
+     *
+     * @return the targetsFromSubscriber flag true/false
+     */
+    public boolean isTargetsFromSubscriber() {
+        return targetsFromSubscriber;
     }
 
     /**

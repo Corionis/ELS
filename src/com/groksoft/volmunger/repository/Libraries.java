@@ -20,10 +20,10 @@ public class Libraries
     public String description;
 
     /**
-     * The location for communications, [host name|IP address]:[port]
+     * The site for communications, [host name|IP address]:[port]
      * Default port is 50271 if not specified
      */
-    public String location;
+    public String site;
 
     /**
      * The UUID of this system

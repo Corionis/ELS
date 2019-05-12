@@ -63,7 +63,7 @@ public class CommManager extends Thread
 		// make it a daemon so the JVM does not wait for it to exit
         cfg = config;
         // QUESTION how to handle persistent listener AND properly close the socket when application is killed
-		//this.setDaemon(true);
+		this.setDaemon(true);
 		this.setMaxConnections(aMaxConnections);
 		this._allConnections = new Vector(aMaxConnections);
         this._allSessions = new Hashtable();
@@ -129,10 +129,10 @@ public class CommManager extends Thread
         if (repo != null &&
             repo.getLibraryData() != null &&
             repo.getLibraryData().libraries != null &&
-            repo.getLibraryData().libraries.location != null) {
-			startCommManager(repo.getLibraryData().libraries.location);
+            repo.getLibraryData().libraries.site != null) {
+			startCommManager(repo.getLibraryData().libraries.site);
 		} else {
-        	throw new MungerException("cannot get location from -r specified remote library");
+        	throw new MungerException("cannot get site from -r specified remote library");
 		}
     }
 
@@ -286,15 +286,15 @@ public class CommManager extends Thread
         listener.start();
     }
 
-    public void startCommManager(String location) throws Exception
+    public void startCommManager(String site) throws Exception
     {
-        String host = Utils.parseHost(location);
+        String host = Utils.parseHost(site);
         if (host == null)
         {
             logger.info("host not defined, using default: null, all interfaces");
         }
         int conPort = 0;
-        String sport = Utils.parsePort(location);
+        String sport = Utils.parsePort(site);
         if (sport == null || sport.length() < 1)
         {
             sport = "50271";                    // SPOT Server Default Session port

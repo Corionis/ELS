@@ -60,49 +60,47 @@ public class Main
                 sessionThreads = new ThreadGroup("Server");
                 commManager = new CommManager(sessionThreads, 2, cfg);
 
-                if (repo.getJsonFilename() != null &&
-                    !repo.getJsonFilename().isEmpty()) {
+                if (repo.getJsonFilename() != null && !repo.getJsonFilename().isEmpty()) {
                     commManager.startListening(repo);
                 }
             }
+            else {
 
-            // PUSH MODE ---------------------------------------------------------
-            // -r or --remote-subscriber execute the process
-            //
-            // the Process class handles the entire VolMunger munger process
-            Process proc = new Process();
-            //
-            // cfg can be null so a new configuration is built based on args
-            returnValue = proc.process(cfg, args);
+                // PUSH MODE ---------------------------------------------------------
+                // -r or --remote-subscriber execute the process
+                //
+                // the Process class handles the entire VolMunger munger process
+                Process proc = new Process();
+                //
+                // cfg can be null so a new configuration is built based on args
+                returnValue = proc.process(cfg, args);
 
-            // then ask if the subscriber has anything else to be done
-            // .. if so a new command line & process can be executed
-            // .. if not end the program
-
-
-            // PULL MODE --------------------------------------------------------
-            // if -R or --request-server (or whatever) start a listener and
-            // wait for matching Subscriber to tell Publisher what to do
-
-            // ... to be coded ...
+                // then ask if the subscriber has anything else to be done
+                // .. if so a new command line & process can be executed
+                // .. if not end the program
 
 
+                // PULL MODE --------------------------------------------------------
+                // if -R or --request-server (or whatever) start a listener and
+                // wait for matching Subscriber to tell Publisher what to do
+
+                // ... to be coded ...
 
 
-            // need to add a command line option for to request a specific item
-            //
-            // ideas for adds & changes --
-            // 1. change export collection -i, to -E
-            // a. add -i to request a specific item
-            // 3. add -R P|S for --request-server PULL mode
-            // 3. add "double-dash" equivalent options to make command lines more readable
-            //    examples: -E and --export-collection, -r and --remote-subscriber
-            //    It's just adding more case statements in Configuration.parseCommandLine()
-            //
-            // With -l to spec the library, and -i to spec the item we have a way to make a request.
-            // An "item" is the granularity of a movie (directory) or a tv season (directory).
-            //
-
+                // need to add a command line option for to request a specific item
+                //
+                // ideas for adds & changes --
+                // 1. change export collection -i, to -E
+                // a. add -i to request a specific item
+                // 3. add -R P|S for --request-server PULL mode
+                // 3. add "double-dash" equivalent options to make command lines more readable
+                //    examples: -E and --export-collection, -r and --remote-subscriber
+                //    It's just adding more case statements in Configuration.parseCommandLine()
+                //
+                // With -l to spec the library, and -i to spec the item we have a way to make a request.
+                // An "item" is the granularity of a movie (directory) or a tv season (directory).
+                //
+            }
 
         }
         catch (Exception e) {
@@ -110,6 +108,7 @@ public class Main
         }
         finally {
             if (commManager != null) {
+
                 commManager.stopCommManager();
             }
         }

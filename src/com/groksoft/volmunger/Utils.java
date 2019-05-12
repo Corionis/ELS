@@ -82,7 +82,7 @@ public class Utils
     }
 
     /**
-     * Parse the host from a location string
+     * Parse the host from a site string
      *
      * Expected format: [hostname|IP address]:[port number]
      *
@@ -101,7 +101,7 @@ public class Utils
     }
 
     /**
-     * Parse the port from a location string
+     * Parse the port from a site string
      *
      * Expected format: [hostname|IP address]:[port number]
      *

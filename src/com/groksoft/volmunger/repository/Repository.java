@@ -47,7 +47,7 @@ public class Repository
     public void dump() {
         System.out.println("  Libraries from " + getJsonFilename());
         System.out.println("    Description: " + libraryData.libraries.description);
-        System.out.println("       Location: " + libraryData.libraries.location);
+        System.out.println("           Site: " + libraryData.libraries.site);
         System.out.println("            Key: " + libraryData.libraries.key);
         System.out.println("    Case-sensitive: " + libraryData.libraries.case_sensitive);
         System.out.println("    Ignore patterns:");
