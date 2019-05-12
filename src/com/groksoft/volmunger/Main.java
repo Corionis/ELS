@@ -67,13 +67,11 @@ public class Main
                 commManager = new CommManager(sessionThreads, 10, cfg);
 
                 if (repo.getJsonFilename() != null && !repo.getJsonFilename().isEmpty()) {
-
                     commManager.startListening(repo);
                     isListening = true;
                 }
             }
             else {
-
                 // PUSH MODE ---------------------------------------------------------
                 // -r or --remote-subscriber execute the process
                 //

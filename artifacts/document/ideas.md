@@ -16,7 +16,7 @@ T * Put counter in log file
 T * Total size math is wrong
 T * Fix Exclusions
  * Auto Renamer - xpaus
- * Rename GitHub project to VolMunger
+ x Rename GitHub project to VolMunger
  x Add log flushes - there is no Flush
  * Add library name option so only certain libraries are processed
    - Partially done, see TODO's

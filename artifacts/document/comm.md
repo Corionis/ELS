@@ -34,27 +34,46 @@ When the -r option is used:
     4. -t causes the Subscriber to FORCE the publisher to take a new
      subscriber's -T targets file
     5. -T the Subscriber will import a site JSON targets file
-    
+
  3. When a local listener is running 
 
 ## At Connect-Time
-Start the subscriber-side first, then the publisher.
+Start the subscriber-side first, then the publisher initiates connection.
 
- 1. Publisher connects to subscriber.
+ 1. Publisher connects to subscriber
  2. Subscriber says: HELO
- 4. Publisher says: [publisher key]:[subscriber key]
- 5. Subscriber compares to keys of library/collection files
-    1. If mismatch Subscriber disconnects
- 5. Subscriber returns: [subscriber key]:[publisher key]
- 3. Publisher compares to keys of library/collection files
-    1. If mismatch Publisher disconnects
+    1. See Interactive below
+ 3. Publisher says: [publisher key]
+    1. Subscriber compares to key of library/collection file
+       1. If mismatch Subscriber disconnects
+ 4. Subscriber returns: [subscriber key]
+    1. Publisher compares to key of library/collection file
+       1. If mismatch Publisher disconnects
  5. Publisher says: VolMunger:[VOLMUNGER_VERSION]
- 6. Subscriber parses and compares versions:
-    1. If wrong match says: ERROR:Version mismatch, subscriber (me) VOLMUNGER_VERSION, publisher (you) VOLMUNGER_VERSION
-       2. Disconnects
- 7. Publisher says: ???
+    1. Subscriber parses and compares versions:
+       1. If wrong match says: ERROR:Version mismatch, subscriber (me) VOLMUNGER_VERSION, publisher (you) VOLMUNGER_VERSION
+          1. Disconnects
+ 6. Subscriber returns: OK
+ 7. Subscriber waits for next command
+
+## Interactive
+When the publisher connects to subscriber a manual mode may be accessed.
+
+ 1. Publisher connects to subscriber
+ 2. Subscriber says: HELO
+ 3. User enters: auth [auth-password]
+ 4. From then on the user is in interactive command-line mode.
+ 5. For next-level security user enters: secret [secret-password]
+
+## Commands
+
+ 1. Scan and return JSON data
+ 2. Return targets file
+ 3. Return freespace on target
+ 4. Initiate file transfer via SFTP
+
  
- ### Special Commands
+### Special Commands
  Immediately after connect-time ...
  
  1. Subscriber's -s option, says: TAR
@@ -67,15 +86,3 @@ Start the subscriber-side first, then the publisher.
     1. Get specific single item (directory level)
     2. Publisher says: ACK
  
- ## Waiting
- Wait for a command ...
- 
- 1. Subscriber says: ACK 
-
-## Commands
-
- 1. Scan and return JSON data
- 2. Return targets file
- 3. Return freespace on target
- 4. Initiate file transfer via SFTP
-
