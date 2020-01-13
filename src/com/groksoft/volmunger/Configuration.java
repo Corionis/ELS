@@ -361,7 +361,7 @@ public class Configuration {
      */
     public boolean amRemotePublisher()
     {
-        return (this.remoteFlag == AMPUBLISHER);
+        return (getRemoteFlag() == AMPUBLISHER);
     }
 
     /**
@@ -369,7 +369,7 @@ public class Configuration {
      */
     public boolean amRemoteSubscriber()
     {
-        return (this.remoteFlag == AMSUBSCRIBER);
+        return (getRemoteFlag() == AMSUBSCRIBER);
     }
 
     /**

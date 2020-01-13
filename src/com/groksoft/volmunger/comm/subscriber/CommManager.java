@@ -1,4 +1,4 @@
-package com.groksoft.volmunger.comm;
+package com.groksoft.volmunger.comm.subscriber;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
@@ -45,6 +45,8 @@ public class CommManager extends Thread
     private ThreadGroup _allSessionThreads;
 
     private Configuration cfg;
+    private Repository publisherRepo;
+    private Repository subscriberRepo;
 
     //------------------------------------------------------------------------
 	/**
@@ -52,7 +54,7 @@ public class CommManager extends Thread
 	 * Virtual Machine does not wait for it to exit.
 	 * 
 	 */
-	public CommManager (ThreadGroup aGroup, int aMaxConnections, Configuration config)
+	public CommManager (ThreadGroup aGroup, int aMaxConnections, Configuration config, Repository pubRepo, Repository subRepo)
 	{
 		// instantiate this object in the specified thread group to
 		// enforce the specified maximum connections limitation.
@@ -62,6 +64,9 @@ public class CommManager extends Thread
 
 		// make it a daemon so the JVM does not wait for it to exit
         cfg = config;
+        publisherRepo = pubRepo;
+        subscriberRepo = subRepo;
+
         // QUESTION how to handle persistent listener AND properly close the socket when application is killed
 		this.setDaemon(true);
 		this.setMaxConnections(aMaxConnections);
@@ -107,7 +112,7 @@ public class CommManager extends Thread
 		// if limit has not been reached
 		{
 			// create a connection thread for this request
-			Connection theConnection = new Connection(aSocket, new Session(cfg));
+			Connection theConnection = new Connection(aSocket, new Session(cfg, publisherRepo, subscriberRepo));
 			_allConnections.addElement(theConnection);
 
 			// log it

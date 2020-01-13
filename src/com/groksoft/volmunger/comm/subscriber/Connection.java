@@ -1,4 +1,4 @@
-package com.groksoft.volmunger.comm;
+package com.groksoft.volmunger.comm.subscriber;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

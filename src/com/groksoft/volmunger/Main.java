@@ -1,7 +1,7 @@
 package com.groksoft.volmunger;
 
 // see https://logging.apache.org/log4j/2.x/
-import com.groksoft.volmunger.comm.CommManager;
+import com.groksoft.volmunger.comm.subscriber.CommManager;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,13 +31,12 @@ public class Main
         int returnValue = volmunger.process(args);
         if (volmunger.isListening)
         {
-            volmunger.logger.info("VolMunger is operating in remote mode");
+            volmunger.logger.info("VolMunger is operating in remote subscriber mode");
         }
         //System.exit(returnValue);
     } // main
 
     public int process(String[] args) {
-        Repository repo = null;
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
 
@@ -56,26 +55,27 @@ public class Main
             // get the named logger
             logger = LogManager.getLogger("applog");
 
-            // handle -r remote session option as Subscriber ... listen
+            // handle -r S or --remote-subscriber session ... listen
             if (cfg.amRemoteSubscriber()) {
                 // the + makes searching for the beginning of a run easier
                 logger.info("+ VolMunger Remote Subscriber begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                 cfg.dump();
-                repo = readRepo(cfg); // returns either the Publisher or Subscriber repo based on args
+
+                Repository publisherRepo = readRepo(cfg, true);
+                Repository subscriberRepo = readRepo(cfg, false);
 
                 sessionThreads = new ThreadGroup("Server");
-                commManager = new CommManager(sessionThreads, 10, cfg);
+                commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
 
-                if (repo.getJsonFilename() != null && !repo.getJsonFilename().isEmpty()) {
-                    commManager.startListening(repo);
+                if (subscriberRepo.getJsonFilename() != null && !subscriberRepo.getJsonFilename().isEmpty()) {
+                    commManager.startListening(subscriberRepo);
                     isListening = true;
                 }
             }
             else {
-                // PUSH MODE ---------------------------------------------------------
-                // -r or --remote-subscriber execute the process
+                // -r P or --remote-publisher, execute the process
                 //
-                // the Process class handles the entire VolMunger munger process
+                // the Process class handles the entire VolMunger process
                 Process proc = new Process();
                 //
                 // cfg can be null so a new configuration is built based on args
@@ -86,26 +86,16 @@ public class Main
                 // .. if not end the program
 
 
-                // PULL MODE --------------------------------------------------------
-                // if -R or --request-server (or whatever) start a listener and
-                // wait for matching Subscriber to tell Publisher what to do
-
-                // ... to be coded ...
-
                 // HAVE CHANGED:
                 // -t and added -T where existing scripts and batch files need to be edited changing -t to -T
 
-                // need to add a command line option to request a specific item
-                //
                 // ideas for adds & changes --
-                // 1. change export collection -i, to -E
-                // a. add -i to request a specific item
-                // 3. add -R P|S for --request-server PULL mode
-                // 3. add "double-dash" equivalent options to make command lines more readable
+                // 1. add -g to get/request a specific item
+                // 2. add "double-dash" equivalent options to make command lines more readable
                 //    examples: -E and --export-collection, -r and --remote-subscriber
                 //    It's just adding more case statements in Configuration.parseCommandLine()
                 //
-                // With -l to spec the library, and -i to spec the item we have a way to make a request.
+                // With -l to spec the library, and -g to get the item we have a way to make a request.
                 // An "item" is the granularity of a movie (directory) or a tv season (directory).
                 //
             }
@@ -138,9 +128,9 @@ public class Main
         return returnValue;
     } // process
 
-    private Repository readRepo(Configuration cfg) throws Exception {
+    private Repository readRepo(Configuration cfg, boolean isPublisher) throws Exception {
         Repository repo = new Repository(cfg);
-        if (cfg.amRemotePublisher())
+        if (isPublisher)
         {
             if (cfg.getPublisherLibrariesFileName().length() > 0 &&
                     cfg.getPublisherCollectionFilename().length() > 0)
@@ -151,7 +141,7 @@ public class Main
             else if (cfg.getPublisherLibrariesFileName().length() == 0 &&
                     cfg.getPublisherCollectionFilename().length() == 0)
             {
-                System.out.println("\r\nMust use -p or -P with a filename to use -r P");
+                System.out.println("\r\nMust use -p or -P with a filename to use -r");
                 return null;
             }
 
@@ -164,8 +154,7 @@ public class Main
                 repo.read(cfg.getPublisherCollectionFilename());
             }
         }
-
-        if (cfg.amRemoteSubscriber())
+        else
         {
             if (cfg.getSubscriberLibrariesFileName().length() > 0 &&
                     cfg.getSubscriberCollectionFilename().length() > 0)
@@ -176,7 +165,7 @@ public class Main
             else if (cfg.getSubscriberLibrariesFileName().length() == 0 &&
                     cfg.getSubscriberCollectionFilename().length() == 0)
             {
-                System.out.println("\r\nMust use -s or -S with a filename to use -r S");
+                System.out.println("\r\nMust use -s or -S with a filename to use -r");
                 return null;
             }
 

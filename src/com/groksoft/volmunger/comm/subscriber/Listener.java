@@ -1,4 +1,4 @@
-package com.groksoft.volmunger.comm;
+package com.groksoft.volmunger.comm.subscriber;
 
 import com.groksoft.volmunger.Configuration;
 import org.apache.logging.log4j.LogManager;
@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 //----------------------------------------------------------------------------
 /**

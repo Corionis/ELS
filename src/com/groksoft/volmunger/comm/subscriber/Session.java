@@ -1,6 +1,7 @@
-package com.groksoft.volmunger.comm;
+package com.groksoft.volmunger.comm.subscriber;
 
 import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,18 +36,22 @@ public class Session
 	PrintWriter out = null;
 
 	private Configuration cfg;
+    private Repository publisherRepo;
+    private Repository subscriberRepo;
 
 	//------------------------------------------------------------------------
 	/**
 	 * Instantiate the Session service
 	 */
-	public Session(Configuration config)
+	public Session(Configuration config, Repository pubRepo, Repository subRepo)
 	{
 		this.passwordClear = "";
 		this.passwordEncrypted = "";
 		this.secretClear = "";
 		this.secretEncrypted = "";
 		this.cfg = config;
+        this.publisherRepo = pubRepo;
+        this.subscriberRepo = subRepo;
 	} // constructor
 
 	//------------------------------------------------------------------------
@@ -119,14 +124,12 @@ public class Session
 		in = new BufferedReader(new InputStreamReader(aSocket.getInputStream()));
 		out = new PrintWriter(new OutputStreamWriter(aSocket.getOutputStream()));
 
-		// hello
-		//out.println("VollMunger " + cfg.getVOLMUNGER_VERSION());
-		//out.println("There are " + CommManager.getInstance().getAllConnections().size() + " active connections");
-		//out.println("Enter 'help' or '?' for list of commands.");
-		out.println("HELO");
-
-		//getPasswords();
 		_connected = true;
+
+		if (! handshake())
+        {
+            _stop = true; // just hang-up on the connection
+        }
 
 		// prompt for & process interactive commands
 		while (_stop == false)
@@ -311,6 +314,39 @@ public class Session
 		out.close();
 		in.close();
 	}
+
+    private boolean handshake()
+    {
+        try {
+            out.println("HELO");
+            out.flush();
+            String input = read();
+            if (input == "DribNit")
+            {
+
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+        }
+
+        return false;
+    }
+
+    private String read()
+    {
+        String input = "";
+        try {
+            input = in.readLine();
+            logger.debug("read: " + input);
+        }
+        catch (IOException e)
+        {
+            logger.error(e.getMessage());
+        }
+        return input;
+    }
 
 } // Session
 

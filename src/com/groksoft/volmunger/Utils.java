@@ -4,21 +4,76 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.security.Key;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * The type Utils.
  */
 public class Utils
 {
+    private static Logger logger = LogManager.getLogger("applog");
+
     /**
      * Do not instantiate.
      */
     private Utils() {
         // do not instantiate
+    }
+
+    public static byte[] encrypt(String key, String text)
+    {
+        String output = "";
+        byte[] encrypted = {};
+        try {
+            //////String key = "Bar12345Bar12345"; // 128 bit key
+            // Create key and cipher
+            Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            // encrypt the text
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+            encrypted = cipher.doFinal(text.getBytes());
+            output = new String(encrypted);
+            logger.debug("encrypted: " + output);
+            // decrypt the text
+            cipher.init(Cipher.DECRYPT_MODE, aesKey);
+            String decrypted = new String(cipher.doFinal(encrypted));
+            System.err.println(decrypted);
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+        }
+        return encrypted;
+    }
+
+    public static String decrypt(String key, byte[] encrypted)
+    {
+        String output = "";
+        try {
+            //////String key = "Bar12345Bar12345"; // 128 bit key
+            // Create key and cipher
+            Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            // decrypt the text
+            cipher.init(Cipher.DECRYPT_MODE, aesKey);
+            String decrypted = new String(cipher.doFinal(encrypted));
+            System.err.println(decrypted);
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+        }
+        return output;
     }
 
     /**
@@ -66,6 +121,23 @@ public class Utils
             }
         }
         return path;
+    }
+
+    public static int getPort(String site)
+    {
+        int port = 0;
+        String sport = parsePort(site);
+        if (sport == null || sport.length() < 1)
+        {
+            sport = "50271";                    // SPOT Server Default Session port
+            logger.info(site + " port not defined, using default: " + sport);
+        }
+        port = Integer.valueOf(sport);
+        if (port < 1)
+        {
+            logger.info(site + " is disabled, port < 1");
+        }
+        return port;
     }
 
     /**

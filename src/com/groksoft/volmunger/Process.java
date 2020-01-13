@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
+import com.groksoft.volmunger.comm.publisher.Remote;
 import com.groksoft.volmunger.storage.Target;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +33,7 @@ public class Process
 
     private transient Logger logger = LogManager.getLogger("applog");
     private Configuration cfg = null;
+    private Remote remote = null;
     private Repository publisherRepository = null;
     private Repository subscriberRepository = null;
     private Storage storageTargets = null;
@@ -90,14 +92,6 @@ public class Process
 
 
             try {
-                // get -t Targets
-                if (cfg.getTargetsFilename().length() > 0) {
-                    readTargets(cfg.getTargetsFilename(), storageTargets);
-                } else {
-                    logger.warn("NOTE: No targets file was specified - performing a dry run");
-                    cfg.setDryRun(true);
-                }
-
                 // get -p Publisher libraries
                 if (cfg.getPublisherLibrariesFileName().length() > 0) {
                     readRepository(cfg.getPublisherLibrariesFileName(), publisherRepository, true);
@@ -128,7 +122,7 @@ public class Process
                     }
                 }
 
-                // handle -i export collection, publisher only
+                // handle -i export collection items, publisher only
                 if (cfg.getExportJsonFilename().length() > 0) {
                     if (cfg.getPublisherLibrariesFileName().length() > 0 ||
                             cfg.getPublisherCollectionFilename().length() > 0) {
@@ -138,11 +132,29 @@ public class Process
                     }
                 }
 
-                // if all the pieces are specified munge the collections
-                if (cfg.getPublisherLibrariesFileName().length() > 0 &&
-                        cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                        cfg.getSubscriberCollectionFilename().length() > 0) {
-                    munge();
+                if (cfg.amRemotePublisher())
+                {
+                    logger.info("VolMunger is operating in remote publisher mode");
+                    remote = new Remote(cfg);
+                    remote.Connect(publisherRepository, subscriberRepository);
+
+                }
+
+                // get -t Targets
+                if (cfg.getTargetsFilename().length() > 0) {
+                    readTargets(cfg.getTargetsFilename(), storageTargets);
+                } else {
+                    logger.warn("NOTE: No targets file was specified - performing a dry run");
+                    cfg.setDryRun(true);
+                }
+
+                if (0 == 1) {
+                    // if all the pieces are specified munge the collections
+                    if (cfg.getPublisherLibrariesFileName().length() > 0 &&
+                            cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                            cfg.getSubscriberCollectionFilename().length() > 0) {
+                        munge();
+                    }
                 }
 
             } catch (Exception ex) {

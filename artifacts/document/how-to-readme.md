@@ -37,13 +37,15 @@ at runtime. Whereas the uppcase variation will import the data from a file.
  * -e file : Export publisher libraries items to flat text file
  
  * -f file : Log file, default VolMunger.log in directory where "run" is executed
+ 
+ * -g item : Get the specific item from the -l library, -l required
+             An "item" is the granularity of a movie (directory) or a tv season (directory).
 
  * -k : Keep volmunger.json files, default is to delete them as they are processed
  
  * -i file : Export publisher libraries items to collection file
  
  * -l library : Publisher library to process, default all
-      May need to add specific item(s)
  
  * -m file : Mismatch output file (differences)
 
@@ -53,10 +55,8 @@ at runtime. Whereas the uppcase variation will import the data from a file.
  
  * -P file : Publisher JSON collection import items file
 
- * -r P|S : This is a PUSH remote subscriber session and this is the Publisher or Subscriber 
+ * -r P|S : This is a remote session and this is the Publisher or Subscriber, P|S is case insensitive 
 
- * -R P|S : This is a PULL request server session and this is the Publisher or Subscriber 
- 
  * -s file : Subscriber JSON libraries file
  
  * -S file : Subscriber JSON collection import items file

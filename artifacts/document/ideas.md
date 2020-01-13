@@ -9,6 +9,7 @@
  x Go though Documentary libraries and verify all have been changed
  * Command-line search function
  * REMEMBER - Put NEW Targets in library so they are scanned
+ * Add carrying total bytes copied for showing progress
 
 ## Code
  * Library name in JSON and physical directory names must match
@@ -34,6 +35,9 @@ T * Fix Exclusions
        * -D and --dry-run
        * -e and --export-text
        * -i and --export-collection
+       * -r P and --remote-publisher
+       * -r S and --remote-subscriber
+       * -g and --get-item
 
 # Ideas
 
