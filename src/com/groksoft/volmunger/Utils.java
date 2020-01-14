@@ -35,8 +35,12 @@ public class Utils
         String output = "";
         byte[] encrypted = {};
         try {
-            //////String key = "Bar12345Bar12345"; // 128 bit key
             // Create key and cipher
+            key = key.replaceAll("-", "");
+            if (key.length() > 16)
+            {
+                key = key.substring(0, 16);
+            }
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // encrypt the text
@@ -44,10 +48,6 @@ public class Utils
             encrypted = cipher.doFinal(text.getBytes());
             output = new String(encrypted);
             logger.debug("encrypted: " + output);
-            // decrypt the text
-            cipher.init(Cipher.DECRYPT_MODE, aesKey);
-            String decrypted = new String(cipher.doFinal(encrypted));
-            System.err.println(decrypted);
         }
         catch (Exception e)
         {
@@ -60,14 +60,18 @@ public class Utils
     {
         String output = "";
         try {
-            //////String key = "Bar12345Bar12345"; // 128 bit key
             // Create key and cipher
+            key = key.replaceAll("-", "");
+            if (key.length() > 16)
+            {
+                key = key.substring(0, 16);
+            }
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // decrypt the text
             cipher.init(Cipher.DECRYPT_MODE, aesKey);
             String decrypted = new String(cipher.doFinal(encrypted));
-            System.err.println(decrypted);
+            logger.debug("decrypted: " + decrypted);
         }
         catch (Exception e)
         {

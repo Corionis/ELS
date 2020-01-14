@@ -52,10 +52,14 @@ public class Remote
                 logger.error(e.getMessage());
             }
 
-            isConnected = true;
-            handshake(publisherRepo, subscriberRepo);
-            logger.info("Connected to " + subscriberRepo.getLibraryData().libraries.site);
-
+            if (handshake(publisherRepo, subscriberRepo)) {
+                isConnected = true;
+                logger.info("Connected to " + subscriberRepo.getLibraryData().libraries.site);
+            }
+            else
+            {
+                logger.warn("Connection to " + subscriberRepo.getLibraryData().libraries.site + " failed handshake");
+            }
 
         }
         else
@@ -70,13 +74,24 @@ public class Remote
     {
         boolean valid = false;
         String input = read();
-        if (input == "HELO")
+        if (input.equals("HELO"))
         {
             out.println("DribNit");
             out.flush();
-
+            input = read();
+            input = new String(Utils.decrypt(subscriberRepo.getLibraryData().libraries.key, input.getBytes()));
+            if (input.equals(subscriberRepo.getLibraryData().libraries.key))
+            {
+                out.println(publisherRepo.getLibraryData().libraries.key);
+                out.flush();
+                input = read();
+                if (input.equals("ACK"))
+                {
+                    logger.info("Session authenticated");
+                    valid = true;
+                }
+            }
         }
-
         return valid;
     }
 

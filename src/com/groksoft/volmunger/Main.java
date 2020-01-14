@@ -113,7 +113,7 @@ public class Main
                         try {
                             Thread.sleep(200);
                             logger.info("Shutting down CommManager ...");
-                            //some cleaning up code...
+                            // some clean up code...
                             commManager.stopCommManager();
 
                         }

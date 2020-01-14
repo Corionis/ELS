@@ -1,6 +1,7 @@
 package com.groksoft.volmunger.comm.subscriber;
 
 import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -129,6 +130,7 @@ public class Session
 		if (! handshake())
         {
             _stop = true; // just hang-up on the connection
+            logger.info("Connection to " + publisherRepo.getLibraryData().libraries.site + " failed handshake");
         }
 
 		// prompt for & process interactive commands
@@ -144,6 +146,7 @@ public class Session
 				}
 				tout = false;
 
+//				byte[] b = in.
 				line = in.readLine(); // get command from user
 				if (line == null)
 					break; // exit on EOF
@@ -317,21 +320,30 @@ public class Session
 
     private boolean handshake()
     {
+        boolean valid = false;
         try {
             out.println("HELO");
             out.flush();
             String input = read();
-            if (input == "DribNit")
+            if (input.equals("DribNit"))
             {
-
+                out.println(new String (Utils.encrypt(subscriberRepo.getLibraryData().libraries.key, subscriberRepo.getLibraryData().libraries.key)));
+                out.flush();
+                input = read();
+                if (input.equals(publisherRepo.getLibraryData().libraries.key))
+                {
+                    out.println("ACK");
+                    out.flush();
+                    logger.info("Session authenticated");
+                    valid = true;
+                }
             }
         }
         catch (Exception e)
         {
             logger.error(e.getMessage());
         }
-
-        return false;
+        return valid;
     }
 
     private String read()
