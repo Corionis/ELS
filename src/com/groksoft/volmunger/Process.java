@@ -136,7 +136,7 @@ public class Process
                 {
                     logger.info("VolMunger is operating in remote publisher mode");
                     remote = new Remote(cfg);
-                    remote.Connect(publisherRepository, subscriberRepository);
+                    remote.connect(publisherRepository, subscriberRepository);
 
                 }
 
@@ -169,6 +169,12 @@ public class Process
             cfg = null;
         }
         finally {
+            if (cfg.amRemotePublisher())
+            {
+                logger.info("closing remote connections");
+                remote.disconnect();
+            }
+
             // the - makes searching for the ending of a run easier
             if (logger != null) {
                 logger.info("- Process end" + " ------------------------------------------");

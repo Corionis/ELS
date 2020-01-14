@@ -33,12 +33,16 @@ public class Session
 	private InetAddress address;
 	private boolean _stop = false;
 
-	BufferedReader in = null;
-	PrintWriter out = null;
+	//BufferedReader in = null;
+    DataInputStream in = null;
+	//PrintWriter out = null;
+    DataOutputStream out = null;
 
 	private Configuration cfg;
     private Repository publisherRepo;
     private Repository subscriberRepo;
+    private String publisherKey;
+    private String subscriberKey;
 
 	//------------------------------------------------------------------------
 	/**
@@ -53,6 +57,8 @@ public class Session
 		this.cfg = config;
         this.publisherRepo = pubRepo;
         this.subscriberRepo = subRepo;
+        this.subscriberKey = subscriberRepo.getLibraryData().libraries.key;
+        this.publisherKey = publisherRepo.getLibraryData().libraries.key;
 	} // constructor
 
 	//------------------------------------------------------------------------
@@ -122,8 +128,10 @@ public class Session
 		// setup i/o
 		aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
 
-		in = new BufferedReader(new InputStreamReader(aSocket.getInputStream()));
-		out = new PrintWriter(new OutputStreamWriter(aSocket.getOutputStream()));
+		//in = new BufferedReader(new InputStreamReader(aSocket.getInputStream()));
+        in = new DataInputStream(aSocket.getInputStream());
+		//out = new PrintWriter(new OutputStreamWriter(aSocket.getOutputStream()));
+		out = new DataOutputStream(aSocket.getOutputStream());
 
 		_connected = true;
 
@@ -141,19 +149,20 @@ public class Session
 				// prompt the user for a command
 				if (!tout)
 				{
-					out.print(prompt);
-					out.flush();
+					//out.print(prompt);
+					//out.flush();
 				}
 				tout = false;
 
 //				byte[] b = in.
-				line = in.readLine(); // get command from user
+				//line = in.readLine(); // get command from user
+                line = Utils.read(in, subscriberKey);
 				if (line == null)
 					break; // exit on EOF
 
 				if (line.trim().length() < 1)
 				{
-					out.print("\r");
+					//out.print("\r");
 					continue;
 				}
 
@@ -173,14 +182,14 @@ public class Session
 						pw = t.nextToken(); // get the password
 					if ((this.passwordEncrypted.length() == 0 && pw.length() == 0)) // || this.passwordEncrypted.equals(PasswordService.getInstance().encrypt(pw.trim())))
 					{
-						out.println("password accepted\r\n");
+						//out.println("password accepted\r\n");
 						authorized = true; // grant access
 						prompt = "$ ";
 						logger.info("Command auth accepted");
 					}
 					else
 					{
-						out.println("invalid password\r\n");
+						//out.println("invalid password\r\n");
 						logger.warn("Auth password attempt failed");
 						if (attempts >= 3) // disconnect on too many attempts
 						{
@@ -216,7 +225,7 @@ public class Session
 				// -------------- quit, bye, exit ---------------------------
 				if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
 				{
-					out.println("\r\n" + theCommand);
+					//out.println("\r\n" + theCommand);
 					break; // break the loop
 				}
 
@@ -229,14 +238,14 @@ public class Session
 						pw = t.nextToken(); // get the password
 					if ((this.secretEncrypted.length() == 0 && pw.length() == 0)) // || this.secretEncrypted.equals(PasswordService.getInstance().encrypt(pw.trim())))
 					{
-						out.println("password accepted\r\n");
+						//out.println("password accepted\r\n");
 						secret = true; // grant secret access
 						prompt = "! ";
 						logger.info("Command secret accepted");
 					}
 					else
 					{
-						out.println("invalid password\r\n");
+						//out.println("invalid password\r\n");
 						logger.warn("Secret password attempt failed");
 						if (secattempts >= 3) // disconnect on too many attempts
 						{
@@ -250,14 +259,15 @@ public class Session
 				// -------------- status information ------------------------
 				if (theCommand.equalsIgnoreCase("status"))
 				{
-					if (!authorized && !secret)
-						out.println("error: not authorized\r\n");
+					if (!authorized && !secret) {
+                        //out.println("error: not authorized\r\n");
+                    }
 					else
 					{
-						out.println("");
-						CommManager.getInstance().dumpStatistics(out);
-						dumpStatistics(out);
-						out.println("");
+						//out.println("");
+						//CommManager.getInstance().dumpStatistics(out);
+						//dumpStatistics(out);
+						//out.println("");
 					}
 					continue;
 				}
@@ -266,38 +276,38 @@ public class Session
 				if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
 				{
 					// @formatter:off
-					out.println("\r\nAvailable commands, not case sensitive:\r\n");
+					//out.println("\r\nAvailable commands, not case sensitive:\r\n");
 
 					if (authorized == true || secret == true)
 					{
-						out.println(
-								"  logout = to exit current level\r\n" +
-								"  status = server and console status information $" +
-							    "\r\n\r\n And:"
-								);
+						//out.println(
+						//		"  logout = to exit current level\r\n" +
+						//		"  status = server and console status information $" +
+						//	    "\r\n\r\n And:"
+						//		);
 					}
 
-					out.println(
-							"  help or ? = this list\r\n" +
-							"  quit, bye, exit = disconnect\r\n" +
-							"\r\nNote: Does not support backspace or command-line editing." +
-						    "\r\n"
-							);
+					//out.println(
+					//		"  help or ? = this list\r\n" +
+					//		"  quit, bye, exit = disconnect\r\n" +
+					//		"\r\nNote: Does not support backspace or command-line editing." +
+					//	    "\r\n"
+					//		);
 				    // @formatter:on
 					continue;
 				}
 
-				out.println("\r\nunknown command '" + theCommand + "', use 'help' for information\r\n");
+				//out.println("\r\nunknown command '" + theCommand + "', use 'help' for information\r\n");
 
 			} // try
-			catch (SocketTimeoutException e)
-			{
-				tout = true;
-				continue;
-			}
+//			catch (SocketTimeoutException e)
+//			{
+//				tout = true;
+//				continue;
+//			}
 			catch (Exception e)
 			{
-				out.println(e);
+				//out.println(e);
 				break;
 			}
 		} // while
@@ -306,7 +316,7 @@ public class Session
 
 		if (_stop == true)
 		{
-			out.println("\r\n\r\nSession is being shutdown and/or restarted, disconnecting\r\n");
+			//out.println("\r\n\r\nSession is being shutdown and/or restarted, disconnecting\r\n");
 		}
 
 		// all done, close everything
@@ -322,18 +332,20 @@ public class Session
     {
         boolean valid = false;
         try {
-            out.println("HELO");
-            out.flush();
-            String input = read();
+            Utils.write(out, subscriberKey, "HELO");
+            String input = Utils.read(in, subscriberKey);
             if (input.equals("DribNit"))
             {
-                out.println(new String (Utils.encrypt(subscriberRepo.getLibraryData().libraries.key, subscriberRepo.getLibraryData().libraries.key)));
-                out.flush();
-                input = read();
-                if (input.equals(publisherRepo.getLibraryData().libraries.key))
+                Utils.write(out, subscriberKey, subscriberKey);
+                //out.println(new String (Utils.encrypt(subscriberRepo.getLibraryData().libraries.key, subscriberRepo.getLibraryData().libraries.key)));
+                //out.flush();
+                //input = read();
+                input = Utils.read(in, subscriberKey);
+                if (input.equals(publisherKey))
                 {
-                    out.println("ACK");
-                    out.flush();
+                    Utils.write(out, subscriberKey, "ACK");
+                    //out.println("ACK");
+                    //out.flush();
                     logger.info("Session authenticated");
                     valid = true;
                 }
@@ -344,20 +356,6 @@ public class Session
             logger.error(e.getMessage());
         }
         return valid;
-    }
-
-    private String read()
-    {
-        String input = "";
-        try {
-            input = in.readLine();
-            logger.debug("read: " + input);
-        }
-        catch (IOException e)
-        {
-            logger.error(e.getMessage());
-        }
-        return input;
     }
 
 } // Session

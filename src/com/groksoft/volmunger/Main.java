@@ -108,20 +108,22 @@ public class Main
             if (commManager != null && !isListening) {
                 commManager.stopCommManager();
             } else {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    public void run() {
-                        try {
-                            Thread.sleep(200);
-                            logger.info("Shutting down CommManager ...");
-                            // some clean up code...
-                            commManager.stopCommManager();
+                if (commManager != null) {
+                    Runtime.getRuntime().addShutdownHook(new Thread()
+                    {
+                        public void run() {
+                            try {
+                                Thread.sleep(200);
+                                logger.info("Shutting down CommManager ...");
+                                // some clean up code...
+                                commManager.stopCommManager();
 
+                            } catch (InterruptedException e) {
+                                logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
+                            }
                         }
-                        catch (InterruptedException e) {
-                            logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
-                        }
-                    }
-                });
+                    });
+                }
             }
         }
 

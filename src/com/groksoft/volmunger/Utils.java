@@ -1,8 +1,6 @@
 package com.groksoft.volmunger;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.math.BigDecimal;
 import java.security.Key;
 import java.util.HashMap;
@@ -23,6 +21,8 @@ public class Utils
 {
     private static Logger logger = LogManager.getLogger("applog");
 
+    private static Cipher cipher = null;
+
     /**
      * Do not instantiate.
      */
@@ -32,7 +32,6 @@ public class Utils
 
     public static byte[] encrypt(String key, String text)
     {
-        String output = "";
         byte[] encrypted = {};
         try {
             // Create key and cipher
@@ -42,12 +41,12 @@ public class Utils
                 key = key.substring(0, 16);
             }
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
-            Cipher cipher = Cipher.getInstance("AES");
+            if (cipher == null) {
+                cipher = Cipher.getInstance("AES");
+            }
             // encrypt the text
             cipher.init(Cipher.ENCRYPT_MODE, aesKey);
             encrypted = cipher.doFinal(text.getBytes());
-            output = new String(encrypted);
-            logger.debug("encrypted: " + output);
         }
         catch (Exception e)
         {
@@ -67,11 +66,12 @@ public class Utils
                 key = key.substring(0, 16);
             }
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
-            Cipher cipher = Cipher.getInstance("AES");
+            if (cipher == null) {
+                cipher = Cipher.getInstance("AES");
+            }
             // decrypt the text
             cipher.init(Cipher.DECRYPT_MODE, aesKey);
-            String decrypted = new String(cipher.doFinal(encrypted));
-            logger.debug("decrypted: " + decrypted);
+            output = new String(cipher.doFinal(encrypted));
         }
         catch (Exception e)
         {
@@ -193,6 +193,39 @@ public class Utils
             sport = a[1];
         }
         return sport;
+    }
+
+    public static String read(DataInputStream in, String key)
+    {
+        byte[] buf = {};
+        try {
+            int count = in.readInt();
+            buf = new byte[count];
+            int readCount = in.read(buf);
+            if (count != readCount)
+            {
+                logger.warn("read buffer counts do not match " + count + " size, " + readCount + " actually read");
+            }
+        }
+        catch (IOException e)
+        {
+            logger.error(e.getMessage());
+        }
+        return decrypt(key, buf);
+    }
+
+    public static void write(DataOutputStream out, String key, String message)
+    {
+        try {
+            byte[] buf = encrypt(key, message);
+            out.writeInt(buf.length);
+            out.write(buf);
+            out.flush();
+        }
+        catch (IOException e)
+        {
+            logger.error(e.getMessage());
+        }
     }
 
 }

@@ -16,23 +16,37 @@ public class Remote
     private transient Logger logger = LogManager.getLogger("applog");
 
     private Configuration cfg;
-    private BufferedReader in;
     private boolean isConnected = false;
-    private PrintWriter out;
     private Socket socket;
+
+    //BufferedReader in = null;
+    DataInputStream in = null;
+    //PrintWriter out = null;
+    DataOutputStream out = null;
+
+    private Repository publisherRepo;
+    private Repository subscriberRepo;
+    private String publisherKey;
+    private String subscriberKey;
 
     public Remote (Configuration config)
     {
         cfg = config;
     }
 
-    public boolean Connect(Repository publisherRepo, Repository subscriberRepo) throws Exception
+    public boolean connect(Repository pubRepo, Repository subRepo) throws Exception
     {
+        this.publisherRepo = pubRepo;
+        this.subscriberRepo = subRepo;
+
         if (subscriberRepo != null &&
                 subscriberRepo.getLibraryData() != null &&
                 subscriberRepo.getLibraryData().libraries != null &&
                 subscriberRepo.getLibraryData().libraries.site != null)
         {
+            this.publisherKey = pubRepo.getLibraryData().libraries.key;
+            this.subscriberKey = subRepo.getLibraryData().libraries.key;
+
             String host = Utils.parseHost(subscriberRepo.getLibraryData().libraries.site);
             if (host == null || host.isEmpty())
             {
@@ -44,15 +58,21 @@ public class Remote
             try
             {
                 socket = new Socket(host, port);
-                out = new PrintWriter(socket.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //out = new PrintWriter(socket.getOutputStream(), true);
+                //in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                //in = new BufferedReader(new InputStreamReader(aSocket.getInputStream()));
+                in = new DataInputStream(socket.getInputStream());
+                //out = new PrintWriter(new OutputStreamWriter(aSocket.getOutputStream()));
+                out = new DataOutputStream(socket.getOutputStream());
+
             }
             catch (Exception e)
             {
                 logger.error(e.getMessage());
             }
 
-            if (handshake(publisherRepo, subscriberRepo)) {
+            if (handshake()) {
                 isConnected = true;
                 logger.info("Connected to " + subscriberRepo.getLibraryData().libraries.site);
             }
@@ -70,21 +90,37 @@ public class Remote
         return isConnected;
     }
 
-    private boolean handshake(Repository publisherRepo, Repository subscriberRepo)
+    public void disconnect()
+    {
+        try {
+            out.flush();
+            out.close();
+            in.close();
+        }
+        catch (Exception e)
+        {
+        }
+    }
+
+    private boolean handshake()
     {
         boolean valid = false;
-        String input = read();
+        String input = Utils.read(in, subscriberKey);
         if (input.equals("HELO"))
         {
-            out.println("DribNit");
-            out.flush();
-            input = read();
-            input = new String(Utils.decrypt(subscriberRepo.getLibraryData().libraries.key, input.getBytes()));
-            if (input.equals(subscriberRepo.getLibraryData().libraries.key))
+            Utils.write(out, subscriberKey, "DribNit");
+            //out.println("DribNit");
+            //out.flush();
+            //input = read();
+            input = Utils.read(in, subscriberKey);
+            //input = new String(Utils.decrypt(subscriberRepo.getLibraryData().libraries.key, input.getBytes()));
+            if (input.equals(subscriberKey))
             {
-                out.println(publisherRepo.getLibraryData().libraries.key);
-                out.flush();
-                input = read();
+                //out.println(publisherRepo.getLibraryData().libraries.key);
+                //out.flush();
+                Utils.write(out, subscriberKey, publisherKey);
+                //input = read();
+                input = Utils.read(in, subscriberKey);
                 if (input.equals("ACK"))
                 {
                     logger.info("Session authenticated");
@@ -93,20 +129,6 @@ public class Remote
             }
         }
         return valid;
-    }
-
-    private String read()
-    {
-        String input = "";
-        try {
-            input = in.readLine();
-            logger.debug("read: " + input);
-        }
-        catch (IOException e)
-        {
-            logger.error(e.getMessage());
-        }
-        return input;
     }
 
 }
