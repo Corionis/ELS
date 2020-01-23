@@ -2,6 +2,7 @@ package com.groksoft.volmunger;
 
 // see https://logging.apache.org/log4j/2.x/
 import com.groksoft.volmunger.comm.subscriber.CommManager;
+import com.groksoft.volmunger.comm.subscriber.Transfer;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,6 +15,7 @@ public class Main
     private boolean isListening = false;
     private Logger logger = null;
     CommManager commManager = null;
+    Transfer transfer = null;
 
     /**
      * Instantiates the Main application
@@ -39,9 +41,9 @@ public class Main
     public int process(String[] args) {
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
+        Configuration cfg = new Configuration();
 
         try {
-            Configuration cfg = new Configuration();
             cfg.parseCommandLine(args);
 
             // setup the logger based on configuration
@@ -64,11 +66,13 @@ public class Main
                 Repository publisherRepo = readRepo(cfg, true);
                 Repository subscriberRepo = readRepo(cfg, false);
 
-                sessionThreads = new ThreadGroup("Server");
-                commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
+                //sessionThreads = new ThreadGroup("Server");
+                //commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
 
                 if (subscriberRepo.getJsonFilename() != null && !subscriberRepo.getJsonFilename().isEmpty()) {
-                    commManager.startListening(subscriberRepo);
+                    //commManager.startListening(subscriberRepo);
+                    transfer = new Transfer();
+                    transfer.start();
                     isListening = true;
                 }
             }
@@ -98,6 +102,11 @@ public class Main
                 // With -l to spec the library, and -g to get the item we have a way to make a request.
                 // An "item" is the granularity of a movie (directory) or a tv season (directory).
                 //
+
+                if (cfg.amRemotePublisher())
+                {
+                    Thread.sleep(Long.MAX_VALUE);
+                }
             }
 
         }
@@ -124,6 +133,7 @@ public class Main
                         }
                     });
                 }
+
             }
         }
 

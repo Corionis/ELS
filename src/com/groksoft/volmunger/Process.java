@@ -656,6 +656,13 @@ public class Process
         storage.validate();
     }
 
+    public void disconnect()
+    {
+        if (remote != null)
+        {
+            remote.disconnect();
+        }
+    }
 
 
 } // Process

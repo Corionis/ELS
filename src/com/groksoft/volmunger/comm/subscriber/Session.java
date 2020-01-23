@@ -154,11 +154,12 @@ public class Session
 				}
 				tout = false;
 
-//				byte[] b = in.
-				//line = in.readLine(); // get command from user
                 line = Utils.read(in, subscriberKey);
 				if (line == null)
+				{
+					_stop = true;
 					break; // exit on EOF
+				}
 
 				if (line.trim().length() < 1)
 				{

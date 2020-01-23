@@ -207,6 +207,10 @@ public class Utils
                 logger.warn("read buffer counts do not match " + count + " size, " + readCount + " actually read");
             }
         }
+        catch (EOFException e)
+        {
+            return null;
+        }
         catch (IOException e)
         {
             logger.error(e.getMessage());
