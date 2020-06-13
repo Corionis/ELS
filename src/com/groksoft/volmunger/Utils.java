@@ -133,7 +133,7 @@ public class Utils
         String sport = parsePort(site);
         if (sport == null || sport.length() < 1)
         {
-            sport = "50271";                    // SPOT Server Default Session port
+            sport = "50271";                    // SPOT Server Default Server port
             logger.info(site + " port not defined, using default: " + sport);
         }
         port = Integer.valueOf(sport);

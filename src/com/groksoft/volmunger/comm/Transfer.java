@@ -1,4 +1,4 @@
-package com.groksoft.volmunger.comm.subscriber;
+package com.groksoft.volmunger.comm;
 
 import java.io.IOException;
 import java.util.Arrays;

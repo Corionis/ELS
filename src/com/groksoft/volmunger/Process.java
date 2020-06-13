@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
-import com.groksoft.volmunger.comm.publisher.Remote;
-import com.groksoft.volmunger.storage.Target;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.groksoft.volmunger.comm.Terminal;
+import com.groksoft.volmunger.comm.Transfer;
+import com.groksoft.volmunger.comm.CommManager;
+import com.groksoft.volmunger.storage.Target;
 import com.groksoft.volmunger.repository.Item;
 import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
@@ -33,7 +35,7 @@ public class Process
 
     private transient Logger logger = LogManager.getLogger("applog");
     private Configuration cfg = null;
-    private Remote remote = null;
+    private Terminal terminal = null;
     private Repository publisherRepository = null;
     private Repository subscriberRepository = null;
     private Storage storageTargets = null;
@@ -46,6 +48,9 @@ public class Process
     private int errorCount = 0;
     private int copyCount = 0;
     private ArrayList<String> ignoredList = new ArrayList<>();
+    private boolean isListening = false;
+    CommManager commManager = null;
+    Transfer transfer = null;
 
 
 
@@ -61,27 +66,13 @@ public class Process
      * This is the where a munge run starts and ends based on configuration
      *
      * @param config Configuration, null allowed
-     * @param args Command-line args, required if config is null, ignored if config is not null
      */
-    public int process(Configuration config, String[] args) {
+    public int process(Configuration config) {
         int returnValue = 0;
+        ThreadGroup sessionThreads = null;
 
-        System.out.println("STARTING");
         try {
-            // if no configuration provided create a new one and parse the arguments
-            if (config == null)
-            {
-                cfg = new Configuration();
-                cfg.parseCommandLine(args);
-            }
-            else // otherwise use the configuration passed as-is
-            {
-                cfg = config;
-            }
-
-            // the + makes searching for the beginning of a run easier
-            logger.info("+ VolMunger Process begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
-            cfg.dump();
+            cfg = config;
 
             // todo Add sanity checks for option combinations that do not make sense
 
@@ -132,14 +123,6 @@ public class Process
                     }
                 }
 
-                if (cfg.amRemotePublisher())
-                {
-                    logger.info("VolMunger is operating in remote publisher mode");
-                    remote = new Remote(cfg);
-                    remote.connect(publisherRepository, subscriberRepository);
-
-                }
-
                 // get -t Targets
                 if (cfg.getTargetsFilename().length() > 0) {
                     readTargets(cfg.getTargetsFilename(), storageTargets);
@@ -148,12 +131,18 @@ public class Process
                     cfg.setDryRun(true);
                 }
 
+                if (cfg.isPublisherProcess()) // remote subscriber
+                {
+                    terminal = new Terminal(cfg);
+                    terminal.connect(publisherRepository, subscriberRepository);
+                }
+
                 if (0 == 1) {
                     // if all the pieces are specified munge the collections
                     if (cfg.getPublisherLibrariesFileName().length() > 0 &&
                             cfg.getSubscriberLibrariesFileName().length() > 0 ||
                             cfg.getSubscriberCollectionFilename().length() > 0) {
-                        munge();
+                        munge(); // this is the full standalone process, not terminal
                     }
                 }
 
@@ -162,17 +151,16 @@ public class Process
                 returnValue = 2;
             }
         }
-        catch (MungerException e) {
-            // no logger yet to just print to the screen
-            System.out.println(e.getMessage());
+        catch (Exception e) {
+            logger.error(e.getMessage());
             returnValue = 1;
             cfg = null;
         }
         finally {
-            if (cfg.amRemotePublisher())
+            if (cfg.isPublisherProcess())
             {
-                logger.info("closing remote connections");
-                remote.disconnect();
+                logger.info("closing terminal connections");
+                terminal.disconnect();
             }
 
             // the - makes searching for the ending of a run easier
@@ -655,14 +643,5 @@ public class Process
         storage.read(filename);
         storage.validate();
     }
-
-    public void disconnect()
-    {
-        if (remote != null)
-        {
-            remote.disconnect();
-        }
-    }
-
 
 } // Process

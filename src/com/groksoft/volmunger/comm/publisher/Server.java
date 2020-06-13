@@ -1,23 +1,29 @@
-package com.groksoft.volmunger.comm.subscriber;
+package com.groksoft.volmunger.comm.publisher;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.Utils;
+import com.groksoft.volmunger.comm.ServerBase;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.StringTokenizer;
 
 //----------------------------------------------------------------------------
+
 /**
- * Session service.
+ * Server service.
  *
- * The Session service is the command interface used to communicate between
+ * The Server service is the command interface used to communicate between
  * the endpoints.
  */
-public class Session
+public class Server extends ServerBase
 {
 	protected static Logger logger = LogManager.getLogger("applog");
 
@@ -44,22 +50,21 @@ public class Session
     private String publisherKey;
     private String subscriberKey;
 
+
 	//------------------------------------------------------------------------
 	/**
-	 * Instantiate the Session service
+	 * Instantiate the Server service
+	 *
+	 * @param config
+	 * @param pubRepo
+	 * @param subRepo
 	 */
-	public Session(Configuration config, Repository pubRepo, Repository subRepo)
+
+	public Server(Configuration config, Repository pubRepo, Repository subRepo)
 	{
-		this.passwordClear = "";
-		this.passwordEncrypted = "";
-		this.secretClear = "";
-		this.secretEncrypted = "";
-		this.cfg = config;
-        this.publisherRepo = pubRepo;
-        this.subscriberRepo = subRepo;
-        this.subscriberKey = subscriberRepo.getLibraryData().libraries.key;
-        this.publisherKey = publisherRepo.getLibraryData().libraries.key;
+		super(config, pubRepo, subRepo);
 	} // constructor
+
 
 	//------------------------------------------------------------------------
 	/**
@@ -70,7 +75,7 @@ public class Session
 	public synchronized void dumpStatistics (PrintWriter aWriter)
 	{
 		/*
-		aWriter.println("\r\Session currently connected: " + ((_connected) ? "true" : "false"));
+		aWriter.println("\r\Server currently connected: " + ((_connected) ? "true" : "false"));
 		aWriter.println("  Connected on port: " + port);
 		aWriter.println("  Connected to: " + address);
 		try
@@ -93,12 +98,12 @@ public class Session
 	 */
 	public String getName ()
 	{
-		return "Session";
+		return "Server";
 	}
 
 	//------------------------------------------------------------------------
 	/**
-	 * Request the Session service to stop
+	 * Request the Server service to stop
 	 */
 	public void requestStop ()
 	{
@@ -108,11 +113,12 @@ public class Session
 
 	//------------------------------------------------------------------------
 	/**
-	 * Process a connection request to the Session service.
+	 * Process a connection request to the Server service.
 	 *
-	 * The Session service provides an interface for this instance.
+	 * The Server service provides an interface for this instance.
 	 *
 	 */
+	@SuppressWarnings("Duplicates")
 	public void process(Socket aSocket) throws IOException
 	{
 		socket = aSocket;
@@ -121,16 +127,14 @@ public class Session
 		int attempts = 0;
 		int secattempts = 0;
 		String line;
-		String basePrompt = "";
+		String basePrompt = ":";
 		String prompt = basePrompt;
 		boolean tout = false;
 
 		// setup i/o
 		aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
 
-		//in = new BufferedReader(new InputStreamReader(aSocket.getInputStream()));
         in = new DataInputStream(aSocket.getInputStream());
-		//out = new PrintWriter(new OutputStreamWriter(aSocket.getOutputStream()));
 		out = new DataOutputStream(aSocket.getOutputStream());
 
 		_connected = true;
@@ -138,7 +142,7 @@ public class Session
 		if (! handshake())
         {
             _stop = true; // just hang-up on the connection
-            logger.info("Connection to " + publisherRepo.getLibraryData().libraries.site + " failed handshake");
+            logger.info("Connection to " + subscriberRepo.getLibraryData().libraries.site + " failed handshake");
         }
 
 		// prompt for & process interactive commands
@@ -149,12 +153,12 @@ public class Session
 				// prompt the user for a command
 				if (!tout)
 				{
-					//out.print(prompt);
-					//out.flush();
+					out.writeChars(prompt);
+					out.flush();
 				}
 				tout = false;
 
-                line = Utils.read(in, subscriberKey);
+                line = Utils.read(in, publisherKey);
 				if (line == null)
 				{
 					_stop = true;
@@ -163,7 +167,7 @@ public class Session
 
 				if (line.trim().length() < 1)
 				{
-					//out.print("\r");
+					out.writeChars("\r");
 					continue;
 				}
 
@@ -184,6 +188,7 @@ public class Session
 					if ((this.passwordEncrypted.length() == 0 && pw.length() == 0)) // || this.passwordEncrypted.equals(PasswordService.getInstance().encrypt(pw.trim())))
 					{
 						//out.println("password accepted\r\n");
+						out.writeChars("password accepted\r\n");
 						authorized = true; // grant access
 						prompt = "$ ";
 						logger.info("Command auth accepted");
@@ -329,25 +334,23 @@ public class Session
 		in.close();
 	}
 
-    private boolean handshake()
+    public boolean handshake()
     {
         boolean valid = false;
         try {
-            Utils.write(out, subscriberKey, "HELO");
-            String input = Utils.read(in, subscriberKey);
+            Utils.write(out, publisherKey, "HELO");
+
+            String input = Utils.read(in, publisherKey);
             if (input.equals("DribNit"))
             {
-                Utils.write(out, subscriberKey, subscriberKey);
-                //out.println(new String (Utils.encrypt(subscriberRepo.getLibraryData().libraries.key, subscriberRepo.getLibraryData().libraries.key)));
-                //out.flush();
-                //input = read();
-                input = Utils.read(in, subscriberKey);
-                if (input.equals(publisherKey))
+                Utils.write(out, publisherKey, publisherKey);
+
+                input = Utils.read(in, publisherKey);
+                if (input.equals(subscriberKey))
                 {
-                    Utils.write(out, subscriberKey, "ACK");
-                    //out.println("ACK");
-                    //out.flush();
-                    logger.info("Session authenticated");
+                    Utils.write(out, publisherKey, "ACK");
+
+                    logger.info("Subscriber authenticated");
                     valid = true;
                 }
             }
@@ -359,5 +362,4 @@ public class Session
         return valid;
     }
 
-} // Session
-
+} // Server

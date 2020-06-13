@@ -10,15 +10,8 @@
       <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/slf4j-jdk14-1.7.25.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sshd-sftp-2.1.0.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/sshd-netty-2.1.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sshd-mina-2.1.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/mina-core-2.0.19.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/netty-buffer-4.1.29.Final.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/netty-codec-4.1.29.Final.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/netty-common-4.1.29.Final.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/netty-handler-4.1.29.Final.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/netty-resolver-4.1.29.Final.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/netty-transport-4.1.29.Final.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-core-2.8.1-javadoc" />

@@ -26,6 +26,8 @@ at runtime. Whereas the uppcase variation will import the data from a file.
 
 ## Command Line Options
 
+ * -b : By hand, interactively. Only valid with -r.
+
  * -c level : Console logging level, default debug
  
  * -d level : File logging level, default info 

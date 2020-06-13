@@ -1,6 +1,6 @@
 {
     "libraries": {
-        "description": "Publisher",
+        "description": "Test Publisher",
         "site": ":30000",
         "key": "025e2ddb-942a-4206-8458-902a87e42e62",
         "case_sensitive": false,

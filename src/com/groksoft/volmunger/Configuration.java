@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
  * Contains all command-line options and any other application-level configuration.
  */
 public class Configuration {
-    private final String VOLMUNGER_VERSION = "1.1.0";
+    private final String VOLMUNGER_VERSION = "2.0.0";
 
     // flags & names
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
@@ -39,13 +39,17 @@ public class Configuration {
     private boolean keepVolMungerFiles = false;
     private String logFilename = "volmunger.log";
     private String[] originalArgs;
-    private int remoteFlag = 0;
-    private String remoteType = "-";
     private boolean validationRun = false;
 
-    public final int NONE = 0;
-    public final int AMPUBLISHER = 1;
-    public final int AMSUBSCRIBER = 2;
+    public static final int NOT_REMOTE = 0;
+    public static final int PUBLISHER_PROCESS = 1;
+    public static final int SUBSCRIBER_LISTENER = 2;
+    public static final int PUBLISHER_TERMINAL = 3;
+    public static final int PUBLISHER_LISTENER = 4;
+    public static final int SUBSCRIBER_TERMINAL = 5;
+
+    private int remoteFlag = NOT_REMOTE;
+    private String remoteType = "-";
 
     /**
      * Instantiates a new Configuration.
@@ -161,7 +165,7 @@ public class Configuration {
                         setRemoteType(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -r must be followed by p|P|s|S, case-sensitive");
+                        throw new MungerException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
                     }
                     break;
                 case "-s":                                             // subscriber collection filename
@@ -219,7 +223,7 @@ public class Configuration {
         }
         logger.info(msg);
 
-        logger.info("  cfg: -c Session logging level = " + getConsoleLevel());
+        logger.info("  cfg: -c Server logging level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export paths filename = " + getExportTextFilename());
@@ -234,9 +238,9 @@ public class Configuration {
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
         logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherCollectionFilename());
-        logger.info("  cfg: -r Remote session = " + getRemoteType());
-        logger.info("  cfg: -s Session Library filename = " + getSubscriberLibrariesFileName());
-        logger.info("  cfg: -S Session Collection import filename = " + getSubscriberCollectionFilename());
+        logger.info("  cfg: -r Terminal session = " + getRemoteType());
+        logger.info("  cfg: -s Server Library filename = " + getSubscriberLibrariesFileName());
+        logger.info("  cfg: -S Server Collection import filename = " + getSubscriberCollectionFilename());
         logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
         logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
     }
@@ -328,14 +332,23 @@ public class Configuration {
      * @param type the remote type and remote flag
      */
     public void setRemoteType(String type) throws MungerException {
+        if (!this.remoteType.equals("-")) {
+            throw new MungerException("The -r option may only be used once");
+        }
         this.remoteType = type;
-        this.remoteFlag = NONE;
+        this.remoteFlag = NOT_REMOTE;
         if (type.equalsIgnoreCase("P"))
-            this.remoteFlag = AMPUBLISHER;
+            this.remoteFlag = PUBLISHER_PROCESS;
         else if (type.equalsIgnoreCase("S"))
-            this.remoteFlag = AMSUBSCRIBER;
+            this.remoteFlag = SUBSCRIBER_LISTENER;
+        else if (type.equalsIgnoreCase("B"))
+            this.remoteFlag = PUBLISHER_TERMINAL;
+        else if (type.equalsIgnoreCase("L"))
+            this.remoteFlag = PUBLISHER_LISTENER;
+        else if (type.equalsIgnoreCase("T"))
+            this.remoteFlag = SUBSCRIBER_TERMINAL;
         else
-            throw new MungerException("Error: -r must be followed by p|P|s|S, case-insensitive");
+            throw new MungerException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
     }
 
     /**
@@ -350,26 +363,68 @@ public class Configuration {
     /**
      * Gets remote flag.
      *
-     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber
+     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal
      */
     public int getRemoteFlag() {
         return this.remoteFlag;
     }
 
     /**
-     * Returns true if this is a remote publisher
+     * Returns true if this is any type of remote session
+     *
+     * @return true/false
      */
-    public boolean amRemotePublisher()
-    {
-        return (getRemoteFlag() == AMPUBLISHER);
+    public boolean isRemoteSession() {
+        return (this.remoteFlag != NOT_REMOTE);
     }
 
     /**
-     * Returns true if this is a remote publisher
+     * Returns true if this is a publisher process, automatically execute the process
      */
-    public boolean amRemoteSubscriber()
+    public boolean isPublisherProcess()
     {
-        return (getRemoteFlag() == AMSUBSCRIBER);
+        return (getRemoteFlag() == PUBLISHER_PROCESS);
+    }
+
+    /**
+     * Returns true if subscriber is in listener mode
+     */
+    public boolean isSubscriberListener()
+    {
+        return (getRemoteFlag() == SUBSCRIBER_LISTENER);
+    }
+
+    /**
+     * Returns true if this publisher is in terminal mode
+     */
+    public boolean isPublisherTerminal()
+    {
+        return (getRemoteFlag() == PUBLISHER_TERMINAL);
+    }
+
+    /**
+     * Returns true if this publisher is in listener mode
+     */
+    public boolean isPublisherListener()
+    {
+        return (getRemoteFlag() == PUBLISHER_LISTENER);
+    }
+
+    /**
+     * Returns true if this subscriber is in terminal mode
+     */
+    public boolean isSubscriberTerminal()
+    {
+        return (getRemoteFlag() == SUBSCRIBER_TERMINAL);
+    }
+
+    /**
+     * Is keep vol volmunger files boolean.
+     *
+     * @return the boolean
+     */
+    public boolean isKeepVolMungerFiles() {
+        return keepVolMungerFiles;
     }
 
     /**
@@ -388,15 +443,6 @@ public class Configuration {
      */
     public void setSubscriberCollectionFilename(String subscriberCollectionFilename) {
         this.subscriberCollectionFilename = subscriberCollectionFilename;
-    }
-
-    /**
-     * Is keep vol volmunger files boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isKeepVolMungerFiles() {
-        return keepVolMungerFiles;
     }
 
     /**

@@ -1,20 +1,24 @@
 # Communications Notes
-This assumes the -r option is used.
+This discusses using the -r option.
+
+Communication follows the publisher/subscriber paradigm. The
+publisher sends content to the subscriber.
 
 ## Changes From Original Code
  1. Changed -t to -T ... be sure to update batch/script files
 
-## Roles
-Communication follows the publisher/subscriber paradigm. The
-publisher pushes content to the subscriber.
-
-A remote session (-r S) is started on the subscriber so it
-is listening and ready.
-
-???
-
 ## Parameter Handling
-When the -r option is used:
+Remote modes:
+```
+  -r P = pub-process                // automatic process for -r S
+  -r B = pub-terminal               // by-hand terminal for -r S
+  -r L = pub-listener               // publish listener for -r T
+
+  -r S = sub-listener               // subscriber listener for -r P|B
+  -r T = sub-terminal               // subscriber terminal for -r L
+```
+
+When the -r P|S "Remote" option is used:
 
  1. For the Publisher (-r P):
     1. -p causes the Publisher to dynamically generate new JSON data
@@ -35,7 +39,6 @@ When the -r option is used:
      subscriber's -T targets file
     5. -T the Subscriber will import a site JSON targets file
 
- 3. When a local listener is running 
 
 ## At Connect-Time
 Start the subscriber-side first, then the publisher initiates connection.

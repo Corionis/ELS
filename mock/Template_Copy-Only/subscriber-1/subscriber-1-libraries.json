@@ -1,6 +1,6 @@
 {
     "libraries": {
-        "description": "Subscriber-1",
+        "description": "Test Subscriber-1",
         "site": ":30000",
         "key": "94eb0321-8a3d-4c10-81e9-1d89733f6d64",
         "case_sensitive": false,
