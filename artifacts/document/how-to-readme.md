@@ -26,7 +26,8 @@ at runtime. Whereas the uppcase variation will import the data from a file.
 
 ## Command Line Options
 
- * -b : By hand, interactively. Only valid with -r.
+ * -a password : The password required to access Authorize mode
+      when allowing -r remote terminal access
 
  * -c level : Console logging level, default debug
  

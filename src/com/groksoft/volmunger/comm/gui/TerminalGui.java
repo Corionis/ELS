@@ -2,6 +2,7 @@ package com.groksoft.volmunger.comm.gui;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.Utils;
+import com.groksoft.volmunger.comm.Terminal;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,11 +26,14 @@ public class TerminalGui implements WindowListener, ActionListener
     private Repository myRepo;
     private Repository theirRepo;
 
+    Terminal terminal;
     JFrame frame;
     JTextArea textArea;
     JTextField commandField;
+    JScrollPane scroll;
 
-    public TerminalGui(Configuration cfg, DataInputStream in, DataOutputStream out) {
+    public TerminalGui(Terminal terminal, Configuration cfg, DataInputStream in, DataOutputStream out) {
+        this.terminal = terminal;
         this.cfg = cfg;
         this.in = in;
         this.out = out;
@@ -37,29 +41,43 @@ public class TerminalGui implements WindowListener, ActionListener
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        String name = e.getActionCommand();
+        String action = e.getActionCommand();
 
-        switch (name)
+        switch (action)
         {
-            case "command" :
-                JOptionPane.showMessageDialog(frame, "Command: " + commandField.getText());
-                roundTrip(commandField.getText());
+            case "clear" :
+                textArea.setText("");
+                frame.revalidate();
+                JScrollBar v0 = scroll.getVerticalScrollBar();
+                v0.setValue( v0.getMaximum() );
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
+                break;
+            case "command" :
+                roundTrip(commandField.getText());
+                frame.revalidate();
+                JScrollBar v1 = scroll.getVerticalScrollBar();
+                v1.setValue( v1.getMaximum() );
+                commandField.setText("");
+                commandField.grabFocus();
+                commandField.requestFocus();
+                v1.setValue( v1.getMaximum() );
                 break;
             case "exit" :
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
                 break;
             case "send" :
-                JOptionPane.showMessageDialog(frame, "Send: " + commandField.getText());
                 roundTrip(commandField.getText());
+                frame.revalidate();
+                JScrollBar v2 = scroll.getVerticalScrollBar();
+                v2.setValue( v2.getMaximum() );
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
+                v2.setValue( v2.getMaximum() );
                 break;
             case "reset" :
-                JOptionPane.showMessageDialog(frame, "Reset");
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
@@ -79,19 +97,23 @@ public class TerminalGui implements WindowListener, ActionListener
         }
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 500);
+        frame.setSize(1024, 768);
         frame.setLocationRelativeTo(null);
         frame.addWindowListener(this);
 
         JMenuBar mb = new JMenuBar();
         JMenu m1 = new JMenu("File");
-        JMenu m2 = new JMenu("Help");
         mb.add(m1);
-        mb.add(m2);
+        JMenuItem clearButton = new JMenuItem("Clear");
+        clearButton.addActionListener(this);
+        clearButton.setActionCommand("clear");
+        m1.add(clearButton);
         JMenuItem exitButton = new JMenuItem("Exit");
         exitButton.addActionListener(this);
         exitButton.setActionCommand("exit");
         m1.add(exitButton);
+        //JMenu m2 = new JMenu("Help");
+        //mb.add(m2);
 
         JPanel panel = new JPanel();
         JLabel label = new JLabel("Command: ");
@@ -115,12 +137,15 @@ public class TerminalGui implements WindowListener, ActionListener
         panel.add(BorderLayout.CENTER, commandField);
         panel.add(BorderLayout.LINE_END, buttons);
 
-        // Text Area at the Center
         textArea = new JTextArea();
+        textArea.setAutoscrolls(true);
+        textArea.setBackground(Color.BLACK);
+        textArea.setForeground(Color.WHITE);
+        textArea.setEditable(false);
+        scroll = new JScrollPane(textArea);
 
-        //Adding Components to the frame.
         frame.getContentPane().add(BorderLayout.NORTH, mb);
-        frame.getContentPane().add(BorderLayout.CENTER, textArea);
+        frame.getContentPane().add(BorderLayout.CENTER, scroll);
         frame.getContentPane().add(BorderLayout.SOUTH, panel);
 
         return 0;
@@ -129,7 +154,7 @@ public class TerminalGui implements WindowListener, ActionListener
     public String receive()
     {
         String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
-        textArea.append(response + "\r\n");
+        textArea.append(response);
         return response;
     }
 
@@ -149,7 +174,7 @@ public class TerminalGui implements WindowListener, ActionListener
         returnValue = build();
         if (returnValue == 0) {
             frame.setVisible(true);
-            textArea.append(": ");
+            receive(); // get and display initial response from server, the prompt
             commandField.grabFocus();
             commandField.requestFocus();
         }
@@ -172,15 +197,12 @@ public class TerminalGui implements WindowListener, ActionListener
 
     @Override
     public void windowClosing(WindowEvent e) {
-        JOptionPane.showMessageDialog(frame, "Window Closing");
-//        frame.setVisible(false);
-//        frame.dispose();
-//        System.exit(0);
-}
+        //JOptionPane.showMessageDialog(frame, "Window Closing");
+    }
 
     @Override
     public void windowClosed(WindowEvent e) {
-        JOptionPane.showMessageDialog(frame, "Window Closed");
+        //JOptionPane.showMessageDialog(frame, "Window Closed");
     }
 
     @Override

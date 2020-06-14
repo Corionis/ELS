@@ -47,6 +47,8 @@ public class CommManager extends Thread
     private Configuration cfg;
     private Repository publisherRepo;
     private Repository subscriberRepo;
+	private String publisherKey;
+	private String subscriberKey;
 
     //------------------------------------------------------------------------
 	/**
@@ -65,7 +67,9 @@ public class CommManager extends Thread
 		// make it a daemon so the JVM does not wait for it to exit
         cfg = config;
         publisherRepo = pubRepo;
+        publisherKey = publisherRepo.getLibraryData().libraries.key;
         subscriberRepo = subRepo;
+        subscriberKey = subscriberRepo.getLibraryData().libraries.key;
 
         // QUESTION how to handle persistent listener AND properly close the socket when application is killed
 		this.setDaemon(true);
@@ -195,21 +199,21 @@ public class CommManager extends Thread
 	/**
 	 * Dump statistics of connections.
 	 * 
-	 * @param aWriter The PrintWriter to be used to print the list.
 	 */
-	public synchronized void dumpStatistics (PrintWriter aWriter)
+	public synchronized String dumpStatistics ()
 	{
-		// dump connection list
-		aWriter.println("Active connections: " + allConnections.size());
+	    String data = "Active connections: " + allConnections.size() + "\r\n";
 		for (int index = 0; index < allConnections.size(); ++index)
 		{
 			Connection c = (Connection) allConnections.elementAt(index);
-			aWriter.println("  " + c.service.getName() + " to " + c.socket.getInetAddress().getHostAddress() + ":" + c.socket.getPort());
+            data += "  " + c.service.getName() + " to " + c.socket.getInetAddress().getHostAddress() + ":" + c.socket.getPort() + "\r\n";
 		}
 
 		// dump connection counts
-		aWriter.println("  Total connections since started: " + totalConnections);
-		aWriter.println("  Maximum allowed connections: " + maxConnections);
+        data += "  Total connections since started: " + totalConnections + "\r\n";
+        data += "  Maximum allowed connections: " + maxConnections + "\r\n";
+
+        return data;
 	}
 
 	//------------------------------------------------------------------------

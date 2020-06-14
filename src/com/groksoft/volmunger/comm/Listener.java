@@ -82,7 +82,7 @@ public class Listener extends Thread
 	 */
 	public void run ()
 	{
-		logger.info("Listening on port " + port);
+		logger.info("VolMunger is listening on port " + port);
 		while (stop == false)
 		{
 			try

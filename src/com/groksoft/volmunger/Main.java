@@ -35,9 +35,6 @@ public class Main
     public static void main(String[] args) {
         Main volmunger = new Main();
         int returnValue = volmunger.process(args);
-        if (volmunger.isListening) {
-            volmunger.logger.info("VolMunger is listening for incoming connections");
-        }
         //System.exit(returnValue);
     } // main
 
@@ -125,11 +122,11 @@ public class Main
                     publisherRepo = readRepo(cfg, true);
                     subscriberRepo = readRepo(cfg, false);
 
-                    Terminal pubTerminal = new Terminal(cfg);
+                    Terminal pubTerminal = new Terminal(cfg, true);
                     if (pubTerminal.connect(publisherRepo, subscriberRepo)) {
                         pubTerminal.session();
                     } else {
-                        throw new MungerException("Publisher Terminal failed");
+                        throw new MungerException("Publisher Terminal failed to connect");
                     }
                     break;
 
@@ -158,8 +155,12 @@ public class Main
                     publisherRepo = readRepo(cfg, true);
                     subscriberRepo = readRepo(cfg, false);
 
-                    Terminal subTerminal = new Terminal(cfg);
-                    subTerminal.connect(publisherRepo, subscriberRepo);
+                    Terminal subTerminal = new Terminal(cfg, true);
+                    if (subTerminal.connect(publisherRepo, subscriberRepo)) {
+                        subTerminal.session();
+                    } else {
+                        throw new MungerException("Subscriber Terminal failed to connect");
+                    }
                     break;
 
                 default:

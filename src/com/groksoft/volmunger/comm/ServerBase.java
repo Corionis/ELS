@@ -1,14 +1,12 @@
 package com.groksoft.volmunger.comm;
 
 import com.groksoft.volmunger.Configuration;
-import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 //----------------------------------------------------------------------------
 /**
@@ -21,25 +19,26 @@ public abstract class ServerBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
+    protected InetAddress address;
     protected boolean authorized = false;
+    protected boolean connected = false;
     protected String passwordClear;
     protected String passwordEncrypted;
+    protected int port;
     protected boolean secret = false;
     protected String secretClear;
     protected String secretEncrypted;
-    protected boolean _connected = false;
     protected Socket socket;
-    protected int port;
-    protected InetAddress address;
-    protected boolean _stop = false;
+    protected boolean stop = false;
 
     protected DataInputStream in = null;
     protected DataOutputStream out = null;
+    protected String response = "";
 
     protected Configuration cfg;
     protected Repository publisherRepo;
-    protected Repository subscriberRepo;
     protected String publisherKey;
+    protected Repository subscriberRepo;
     protected String subscriberKey;
 
     //------------------------------------------------------------------------
@@ -68,7 +67,7 @@ public abstract class ServerBase
     public synchronized void dumpStatistics (PrintWriter aWriter)
     {
 		/*
-		aWriter.println("\r\Server currently connected: " + ((_connected) ? "true" : "false"));
+		aWriter.println("\r\Server currently connected: " + ((connected) ? "true" : "false"));
 		aWriter.println("  Connected on port: " + port);
 		aWriter.println("  Connected to: " + address);
 		try
@@ -100,7 +99,7 @@ public abstract class ServerBase
      */
     public void requestStop ()
     {
-        this._stop = true;
+        this.stop = true;
         logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
     }
 

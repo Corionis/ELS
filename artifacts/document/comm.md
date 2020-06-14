@@ -8,7 +8,20 @@ publisher sends content to the subscriber.
  1. Changed -t to -T ... be sure to update batch/script files
 
 ## Parameter Handling
-Remote modes:
+### Authorization
+The publisher and subscriber automatically perform a complex
+"handshake" when a new connection is initiating. It includes
+comparing library keys. So no real "login" is required.
+
+However, to access more sensitive commands **ON THE PUBLISHER**
+an Authorized mode is used. Using the command "auth [password]"
+where the password is the one used with the -a option when the
+publisher-side was executed. See the -a option in the How-To.
+
+There is no Authorized mode when access a subscriber because the
+publisher must have full access to perform matches correctly.
+
+### Remote modes
 ```
   -r P = pub-process                // automatic process for -r S
   -r B = pub-terminal               // by-hand terminal for -r S
@@ -18,7 +31,7 @@ Remote modes:
   -r T = sub-terminal               // subscriber terminal for -r L
 ```
 
-When the -r P|S "Remote" option is used:
+### When the -r P|S "Remote" option is used:
 
  1. For the Publisher (-r P):
     1. -p causes the Publisher to dynamically generate new JSON data
@@ -39,34 +52,6 @@ When the -r P|S "Remote" option is used:
      subscriber's -T targets file
     5. -T the Subscriber will import a site JSON targets file
 
-
-## At Connect-Time
-Start the subscriber-side first, then the publisher initiates connection.
-
- 1. Publisher connects to subscriber
- 2. Subscriber says: HELO
-    1. See Interactive below
- 3. Publisher says: [publisher key]
-    1. Subscriber compares to key of library/collection file
-       1. If mismatch Subscriber disconnects
- 4. Subscriber returns: [subscriber key]
-    1. Publisher compares to key of library/collection file
-       1. If mismatch Publisher disconnects
- 5. Publisher says: VolMunger:[VOLMUNGER_VERSION]
-    1. Subscriber parses and compares versions:
-       1. If wrong match says: ERROR:Version mismatch, subscriber (me) VOLMUNGER_VERSION, publisher (you) VOLMUNGER_VERSION
-          1. Disconnects
- 6. Subscriber returns: OK
- 7. Subscriber waits for next command
-
-## Interactive
-When the publisher connects to subscriber a manual mode may be accessed.
-
- 1. Publisher connects to subscriber
- 2. Subscriber says: HELO
- 3. User enters: auth [auth-password]
- 4. From then on the user is in interactive command-line mode.
- 5. For next-level security user enters: secret [secret-password]
 
 ## Commands
 

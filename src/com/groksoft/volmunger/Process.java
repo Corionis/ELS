@@ -133,8 +133,10 @@ public class Process
 
                 if (cfg.isPublisherProcess()) // remote subscriber
                 {
-                    terminal = new Terminal(cfg);
-                    terminal.connect(publisherRepository, subscriberRepository);
+                    terminal = new Terminal(cfg, false);
+                    if (!terminal.connect(publisherRepository, subscriberRepository)) {
+                        throw new MungerException("Publisher Process Terminal failed to connect");
+                    }
                 }
 
                 if (0 == 1) {
@@ -157,7 +159,7 @@ public class Process
             cfg = null;
         }
         finally {
-            if (cfg.isPublisherProcess())
+            if (terminal != null)
             {
                 logger.info("closing terminal connections");
                 terminal.disconnect();
@@ -172,23 +174,6 @@ public class Process
 
         return returnValue;
     } // process
-
-    /**
-     * Available space on target.
-     *
-     * @param location the path to the target
-     * @return the long space available on target in bytes
-     */
-    public long availableSpace(String location) {
-        long space = 0;
-        try {
-            File f = new File(location);
-            space = f.getFreeSpace();
-        } catch (SecurityException e) {
-            logger.error("Exception '" + e.getMessage() + "' getting available space from " + location);
-        }
-        return space;
-    }
 
     /**
      * Copy file.
@@ -295,7 +280,11 @@ public class Process
         // see if there is an "original" directory the new content will fit in
         String path = subscriberRepository.hasDirectory(library, item.getItemPath());
         if (path != null) {
-            space = availableSpace(path);
+            if (cfg.isPublisherProcess()) { // remote subscriber
+                space = terminal.availableSpace(path);
+            } else {
+                space = Utils.availableSpace(path);
+            }
             logger.info("Checking space on " + path + " == " + (space / (1024 * 1024)) + " for " +
                     (size / (1024 * 1024)) + " minimum " + (minimum / (1024 * 1024)) + " MB");
             if (space > (size + minimum)) {
@@ -312,7 +301,11 @@ public class Process
             for (int j = 0; j < tar.locations.length; ++j) {
                 // check space on the candidate target
                 String candidate = tar.locations[j];
-                space = availableSpace(candidate);
+                if (cfg.isPublisherProcess()) { // remote subscriber
+                    space = terminal.availableSpace(candidate);
+                } else {
+                    space = Utils.availableSpace(candidate);
+                }
                 if (space > minimum) {                  // check target space minimum
                     allFull = false;
                     if (space > (size + minimum)) {     // check size of item(s) to be copied

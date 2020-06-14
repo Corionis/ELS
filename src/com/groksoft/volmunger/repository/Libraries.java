@@ -26,6 +26,11 @@ public class Libraries
     public String site;
 
     /**
+     * If remote terminal session is allowed then true, else false
+     */
+    public String terminal_allowed;
+
+    /**
      * The UUID of this system
      */
     public String key;

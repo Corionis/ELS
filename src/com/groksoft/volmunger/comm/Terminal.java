@@ -18,6 +18,7 @@ public class Terminal
 
     private Configuration cfg;
     private boolean isConnected = false;
+    private boolean isTerminal = false;
     private Socket socket;
 
     DataInputStream in = null;
@@ -28,8 +29,28 @@ public class Terminal
     private String myKey;
     private String theirKey;
 
-    public Terminal(Configuration config) {
-        cfg = config;
+    /**
+     * Instantiate a Terminal.<br>
+     * <br>
+     * An interactive (manual) client includes the prompt, whereas the prompt
+     * is not appended for automated connections.<br>
+     * <br>
+     * @param config The Configuration object
+     * @param isTerminal True if an interactive client, false if an automated client
+     */
+    public Terminal(Configuration config, boolean isTerminal) {
+        this.cfg = config;
+        this.isTerminal = isTerminal;
+    }
+
+    public long availableSpace(String location) {
+        long space = 0L;
+        String response = roundTrip("space " + location);
+        if (response != null && response.length() > 0)
+        {
+            space = Long.parseLong(response);
+        }
+        return space;
     }
 
     public boolean connect(Repository myRepo, Repository theirRepo) throws Exception {
@@ -47,9 +68,9 @@ public class Terminal
             String host = Utils.parseHost(this.theirRepo.getLibraryData().libraries.site);
             if (host == null || host.isEmpty()) {
                 host = null;
-                logger.info("Remote host not defined, using default: localhost");
             }
             int port = Utils.getPort(this.theirRepo.getLibraryData().libraries.site);
+            logger.info("Opening connection to: " + (host == null ? "localhost" : host) + ":" + port);
 
             try {
                 this.socket = new Socket(host, port);
@@ -64,7 +85,7 @@ public class Terminal
                 if (handshake()) {
                     isConnected = true;
                 } else {
-                    logger.error("Connection failed handshake to " + this.theirRepo.getLibraryData().libraries.site);
+                    logger.error("Connection to " + this.theirRepo.getLibraryData().libraries.site + " failed handshake");
                 }
             }
             else
@@ -91,7 +112,7 @@ public class Terminal
         boolean valid = false;
         String input = Utils.read(in, theirKey);
         if (input.equals("HELO")) {
-            Utils.write(out, theirKey, "DribNit");
+            Utils.write(out, theirKey, (isTerminal ? "DribNit" : "DribNlt"));
 
             input = Utils.read(in, theirKey);
             if (input.equals(theirKey)) {
@@ -99,7 +120,7 @@ public class Terminal
 
                 input = Utils.read(in, theirKey);
                 if (input.equals("ACK")) {
-                    logger.info("Server authenticated: " + theirRepo.getLibraryData().libraries.description);
+                    logger.info("Authenticated: " + theirRepo.getLibraryData().libraries.description);
                     valid = true;
                 }
             }
@@ -113,9 +134,28 @@ public class Terminal
 
     public int session() {
         int returnValue = 0;
-        TerminalGui gui = new TerminalGui(cfg, in, out);
+        TerminalGui gui = new TerminalGui(this, cfg, in, out);
         returnValue = gui.run(myRepo, theirRepo);
         return returnValue;
+    }
+
+    public String receive()
+    {
+        String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
+        return response;
+    }
+
+    public String roundTrip(String command)
+    {
+        send(command);
+        String response = receive();
+        return response;
+    }
+
+    public int send(String command)
+    {
+        Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
+        return 0;
     }
 
 }

@@ -48,6 +48,7 @@ public class Configuration {
     public static final int PUBLISHER_LISTENER = 4;
     public static final int SUBSCRIBER_TERMINAL = 5;
 
+    private String authorizedPassword = "";
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
 
@@ -73,6 +74,14 @@ public class Configuration {
 
         for (index = 0; index < args.length; ++index) {
             switch (args[index]) {
+                case "-a":                                             // authorize mode password
+                    if (index <= args.length - 2) {
+                        setAuthorizedPassword(args[index + 1]);
+                        ++index;
+                    } else {
+                        throw new MungerException("Error: -a requires a password value");
+                    }
+                    break;
                 case "-c":                                             // console level
                     if (index <= args.length - 2) {
                         setConsoleLevel(args[index + 1]);
@@ -252,6 +261,24 @@ public class Configuration {
      */
     public String getConsoleLevel() {
         return consoleLevel;
+    }
+
+    /**
+     * Gets Authorized password.
+     *
+     * @return the password required to access Authorized mode when using a Terminal
+     */
+    public String getAuthorizedPassword() {
+        return authorizedPassword;
+    }
+
+    /**
+     * Sets Authorized password.
+     *
+     * @param password the password required to access Authorized mode with a Terminal
+     */
+    public void setAuthorizedPassword(String password) {
+        this.authorizedPassword = password;
     }
 
     /**
