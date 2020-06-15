@@ -52,8 +52,6 @@ public class Process
     CommManager commManager = null;
     Transfer transfer = null;
 
-
-
     /**
      * Instantiates the class
      */
@@ -74,8 +72,6 @@ public class Process
         try {
             cfg = config;
 
-            // todo Add sanity checks for option combinations that do not make sense
-
             // create primary objects
             publisherRepository = new Repository(cfg);
             subscriberRepository = new Repository(cfg);
@@ -83,6 +79,14 @@ public class Process
 
 
             try {
+                // connect to remote subscriber
+                if (cfg.isPublisherProcess()) {
+                    terminal = new Terminal(cfg, false);
+                    if (!terminal.connect(publisherRepository, subscriberRepository)) {
+                        throw new MungerException("Publisher Process failed to connect");
+                    }
+                }
+
                 // get -p Publisher libraries
                 if (cfg.getPublisherLibrariesFileName().length() > 0) {
                     readRepository(cfg.getPublisherLibrariesFileName(), publisherRepository, true);
@@ -95,7 +99,13 @@ public class Process
 
                 // get -s Subscriber libraries
                 if (cfg.getSubscriberLibrariesFileName().length() > 0) {
-                    readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, true);
+                    if (cfg.isRemoteSession()) {
+                        // request collection data from subscriber
+                        terminal.exportCollection();
+                        readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, false);
+                    } else {
+                        readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, true);
+                    }
                 }
 
                 // get -S Subscriber collection
@@ -131,36 +141,23 @@ public class Process
                     cfg.setDryRun(true);
                 }
 
-                if (cfg.isPublisherProcess()) // remote subscriber
-                {
-                    terminal = new Terminal(cfg, false);
-                    if (!terminal.connect(publisherRepository, subscriberRepository)) {
-                        throw new MungerException("Publisher Process Terminal failed to connect");
-                    }
-                }
-
-                if (0 == 1) {
-                    // if all the pieces are specified munge the collections
-                    if (cfg.getPublisherLibrariesFileName().length() > 0 &&
-                            cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                            cfg.getSubscriberCollectionFilename().length() > 0) {
-                        munge(); // this is the full standalone process, not terminal
-                    }
+                // if all the pieces are specified munge the collections
+                if (cfg.getPublisherLibrariesFileName().length() > 0 &&
+                        cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                        cfg.getSubscriberCollectionFilename().length() > 0) {
+                    munge(); // this is the full standalone process, not terminal
                 }
 
             } catch (Exception ex) {
                 logger.error(ex.getMessage() + " toString=" + ex.toString());
                 returnValue = 2;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
             returnValue = 1;
             cfg = null;
-        }
-        finally {
-            if (terminal != null)
-            {
+        } finally {
+            if (terminal != null) {
                 logger.info("closing terminal connections");
                 terminal.disconnect();
             }
@@ -192,7 +189,7 @@ public class Process
             Path toPath = Paths.get(to);  //.toRealPath();
             Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
         } catch (UnsupportedOperationException e) {
-            logger.error("Copy problem UnsupportedOperationException: " +e.getMessage());
+            logger.error("Copy problem UnsupportedOperationException: " + e.getMessage());
             return false;
         } catch (FileAlreadyExistsException e) {
             logger.error("Copy problem FileAlreadyExistsException: " + e.getMessage());
@@ -208,7 +205,6 @@ public class Process
     }
 
     private void exportCollection() {
-        int returnValue = 0;
         try {
             for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography) {
                 publisherRepository.scan(pubLib.name);
@@ -217,12 +213,10 @@ public class Process
         } catch (MungerException e) {
             // no logger yet to just print to the screen
             System.out.println(e.getMessage());
-            returnValue = 1;
         }
     }
 
     private void exportText() {
-        int returnValue = 0;
         try {
             for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography) {
                 publisherRepository.scan(pubLib.name);
@@ -231,7 +225,6 @@ public class Process
         } catch (MungerException e) {
             // no logger yet to just print to the screen
             System.out.println(e.getMessage());
-            returnValue = 1;
         }
     }
 
@@ -514,7 +507,7 @@ public class Process
                                         }
                                     }
                                     long size = 0;
-                                    if ( scanned ) {
+                                    if (scanned) {
                                         size = getItemSize(item);
                                         item.setSize(size);
                                         totalSize += size;
@@ -590,7 +583,7 @@ public class Process
                             // copy item(s) to targetPath
                             String to = targetPath + File.separator + groupItem.getItemPath();
                             logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
-                            if ( ! copyFile(groupItem.getFullPath(), to)) {
+                            if (!copyFile(groupItem.getFullPath(), to)) {
                                 ++errorCount;
                             }
                             ++copyCount;

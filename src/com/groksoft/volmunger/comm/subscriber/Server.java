@@ -5,13 +5,17 @@ import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.comm.CommManager;
 import com.groksoft.volmunger.comm.ServerBase;
+import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.net.*;
-import java.text.DecimalFormat;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 //----------------------------------------------------------------------------
@@ -56,6 +60,7 @@ public class Server extends ServerBase
     } // dumpStatistics
 
     //------------------------------------------------------------------------
+
     /**
      * Get the short name of the service.
      *
@@ -159,8 +164,8 @@ public class Server extends ServerBase
                     String pw = "";
                     if (t.hasMoreTokens())
                         pw = t.nextToken(); // get the password
-                    if ((this.passwordEncrypted.length() == 0 && pw.length() == 0)) // || this.passwordEncrypted.equals(PasswordService.getInstance().encrypt(pw.trim())))
-                    {
+                    if ((cfg.getAuthorizedPassword().length() == 0 && pw.length() == 0) ||
+                            cfg.getAuthorizedPassword().equals(pw.trim())) {
                         response = "password accepted\r\n";
                         authorized = true;
                         prompt = "$ ";
@@ -176,13 +181,31 @@ public class Server extends ServerBase
                     continue;
                 }
 
+                // -------------- export collection file --------------------
+                if (theCommand.equalsIgnoreCase("exportCollection")) {
+                    try {
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                        LocalDateTime now = LocalDateTime.now();
+                        String stamp = dtf.format(now);
+
+                        String location = subscriberRepo.getJsonFilename() + "_collection-" + stamp + ".json";
+                        cfg.setExportJsonFilename(location);
+
+                        for (Library subLib : subscriberRepo.getLibraryData().libraries.bibliography) {
+                            subscriberRepo.scan(subLib.name);
+                        }
+                        subscriberRepo.exportCollection();
+
+                        response = new String(Files.readAllBytes(Paths.get(location)));
+                    } catch (MungerException e) {
+                        logger.error(e.getMessage());
+                    }
+                    continue;
+                }
+
                 // -------------- logout ------------------------------------
                 if (theCommand.equalsIgnoreCase("logout")) {
-                    if (secret) {
-                        secret = false;
-                        prompt = authorized ? "$ " : basePrompt;
-                        continue;
-                    } else if (authorized) {
+                    if (authorized) {
                         authorized = false;
                         prompt = basePrompt;
                         continue;
@@ -194,38 +217,13 @@ public class Server extends ServerBase
 
                 // -------------- quit, bye, exit ---------------------------
                 if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit")) {
-                    Utils.write(out, subscriberKey, "\r\n" + theCommand);
+                    Utils.write(out, subscriberKey, "End-Execution");
                     stop = true;
                     break; // break the loop
                 }
 
-                // -------------- secret level password ----------
-                if (theCommand.equalsIgnoreCase("secret")) {
-                    ++secattempts;
-                    String pw = "";
-                    if (t.hasMoreTokens())
-                        pw = t.nextToken(); // get the password
-                    if ((this.secretEncrypted.length() == 0 && pw.length() == 0)) // || this.secretEncrypted.equals(PasswordService.getInstance().encrypt(pw.trim())))
-                    {
-                        response = "password accepted\r\n";
-                        secret = true;
-                        prompt = "! ";
-                        logger.info("Command secret accepted");
-                    } else {
-                        response = "invalid password\r\n";
-                        logger.warn("Secret password attempt failed using: " + pw);
-                        if (secattempts >= 3) // disconnect on too many attempts
-                        {
-                            logger.error("Too many failures, disconnecting");
-                            break;
-                        }
-                    }
-                    continue;
-                }
-
                 // -------------- available disk space ----------------------
-                if (theCommand.equalsIgnoreCase("space"))
-                {
+                if (theCommand.equalsIgnoreCase("space")) {
                     String location = "";
                     if (t.hasMoreTokens()) {
                         location = t.nextToken();
@@ -243,7 +241,7 @@ public class Server extends ServerBase
 
                 // -------------- status information ------------------------
                 if (theCommand.equalsIgnoreCase("status")) {
-                    if (!authorized && !secret) {
+                    if (!authorized) {
                         response = "not authorized\r\n";
                     } else {
                         response = CommManager.getInstance().dumpStatistics();
@@ -257,9 +255,8 @@ public class Server extends ServerBase
                     // @formatter:off
                     response = "\r\nAvailable commands, not case sensitive:\r\n";
 
-                    if (authorized || secret) {
-                        response += "  space [location] = free space at location\r\n" +
-                                "  status = server and console status information\r\n" +
+                    if (authorized) {
+                        response += "  status = server and console status information\r\n" +
                                 "\r\n" + "" +
                                 " And:\r\n";
                     }
@@ -268,6 +265,7 @@ public class Server extends ServerBase
                             "  help or ? = this list\r\n" +
                             "  logout = exit current level\r\n" +
                             "  quit, bye, exit = disconnect\r\n" +
+                            "  space [location] = free space at location\r\n" +
                             "\r\n";
                     // @formatter:on
                     continue;

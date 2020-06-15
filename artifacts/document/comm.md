@@ -24,10 +24,10 @@ publisher must have full access to perform matches correctly.
 ### Remote modes
 ```
   -r P = pub-process                // automatic process for -r S
-  -r B = pub-terminal               // by-hand terminal for -r S
   -r L = pub-listener               // publish listener for -r T
+  -r M = pub-terminal               // manual terminal for -r S
 
-  -r S = sub-listener               // subscriber listener for -r P|B
+  -r S = sub-listener               // subscriber listener for -r P|M
   -r T = sub-terminal               // subscriber terminal for -r L
 ```
 

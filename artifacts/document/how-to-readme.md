@@ -37,7 +37,7 @@ at runtime. Whereas the uppcase variation will import the data from a file.
  
  * -D : Dry run, validate, scan, and match but do not make any changes
  
- * -e file : Export publisher libraries items to flat text file
+ * -e file : Export publisher items to flat text file
  
  * -f file : Log file, default VolMunger.log in directory where "run" is executed
  
@@ -46,7 +46,7 @@ at runtime. Whereas the uppcase variation will import the data from a file.
 
  * -k : Keep volmunger.json files, default is to delete them as they are processed
  
- * -i file : Export publisher libraries items to collection file
+ * -i file : Export publisher items to collection file
  
  * -l library : Publisher library to process, default all
  

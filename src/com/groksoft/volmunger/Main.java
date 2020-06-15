@@ -60,6 +60,8 @@ public class Main
             // get the named logger
             logger = LogManager.getLogger("applog");
 
+            // todo Add sanity checks for option combinations that do not make sense
+
             // HAVE CHANGED:
             // -t and added -T where existing scripts and batch files need to be edited changing -t to -T
 
@@ -100,6 +102,8 @@ public class Main
                     if (subscriberRepo.getJsonFilename() != null && !subscriberRepo.getJsonFilename().isEmpty()) {
                         commManager.startListening(subscriberRepo);
                         isListening = true;
+                    } else {
+                        throw new MungerException("A subscriber library or collection file is required for -r S");
                     }
                     break;
 

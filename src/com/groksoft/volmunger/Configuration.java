@@ -174,7 +174,7 @@ public class Configuration {
                         setRemoteType(args[index + 1]);
                         ++index;
                     } else {
-                        throw new MungerException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
+                        throw new MungerException("Error: -r must be followed by |P|L|M|S|T, case-insensitive");
                     }
                     break;
                 case "-s":                                             // subscriber collection filename
@@ -368,7 +368,7 @@ public class Configuration {
             this.remoteFlag = PUBLISHER_PROCESS;
         else if (type.equalsIgnoreCase("S"))
             this.remoteFlag = SUBSCRIBER_LISTENER;
-        else if (type.equalsIgnoreCase("B"))
+        else if (type.equalsIgnoreCase("M"))
             this.remoteFlag = PUBLISHER_TERMINAL;
         else if (type.equalsIgnoreCase("L"))
             this.remoteFlag = PUBLISHER_LISTENER;

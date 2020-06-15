@@ -4,13 +4,18 @@ import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.comm.gui.TerminalGui;
+import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Terminal
 {
@@ -105,6 +110,28 @@ public class Terminal
             out.close();
             in.close();
         } catch (Exception e) {
+        }
+    }
+
+    public void exportCollection() throws MungerException {
+        String response = roundTrip("exportCollection");
+        if (response != null && response.length() > 0)
+        {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+            LocalDateTime now = LocalDateTime.now();
+            String stamp = dtf.format(now);
+
+            String location = cfg.getSubscriberLibrariesFileName() + "_collection-" + stamp + ".json";
+            cfg.setExportJsonFilename(location);
+            cfg.setSubscriberCollectionFilename(location);
+
+            try {
+                PrintWriter outputStream = new PrintWriter(cfg.getExportJsonFilename());
+                outputStream.println(response);
+                outputStream.close();
+            } catch (FileNotFoundException fnf) {
+                throw new MungerException("Exception while writing dynamic subscriber collection file " + cfg.getExportJsonFilename() + " trace: " + Utils.getStackTrace(fnf));
+            }
         }
     }
 

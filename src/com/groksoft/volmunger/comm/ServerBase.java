@@ -22,12 +22,7 @@ public abstract class ServerBase
     protected InetAddress address;
     protected boolean authorized = false;
     protected boolean connected = false;
-    protected String passwordClear;
-    protected String passwordEncrypted;
     protected int port;
-    protected boolean secret = false;
-    protected String secretClear;
-    protected String secretEncrypted;
     protected Socket socket;
     protected boolean stop = false;
 
@@ -47,10 +42,6 @@ public abstract class ServerBase
      */
     public ServerBase(Configuration config, Repository pubRepo, Repository subRepo)
     {
-        this.passwordClear = "";
-        this.passwordEncrypted = "";
-        this.secretClear = "";
-        this.secretEncrypted = "";
         this.cfg = config;
         this.publisherRepo = pubRepo;
         this.subscriberRepo = subRepo;

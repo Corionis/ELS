@@ -42,47 +42,56 @@ public class TerminalGui implements WindowListener, ActionListener
     @Override
     public void actionPerformed(ActionEvent e) {
         String action = e.getActionCommand();
+        String response = "";
+        JScrollBar sb;
+
+        logger.info("Processing action: " + action + " = " + commandField.getText());
 
         switch (action)
         {
             case "clear" :
                 textArea.setText("");
                 frame.revalidate();
-                JScrollBar v0 = scroll.getVerticalScrollBar();
-                v0.setValue( v0.getMaximum() );
+                sb = scroll.getVerticalScrollBar();
+                sb.setValue( sb.getMaximum() );
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
                 break;
             case "command" :
-                roundTrip(commandField.getText());
+                response = roundTrip(commandField.getText());
                 frame.revalidate();
-                JScrollBar v1 = scroll.getVerticalScrollBar();
-                v1.setValue( v1.getMaximum() );
+                sb = scroll.getVerticalScrollBar();
+                sb.setValue( sb.getMaximum() );
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
-                v1.setValue( v1.getMaximum() );
                 break;
             case "exit" :
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-                break;
-            case "send" :
-                roundTrip(commandField.getText());
-                frame.revalidate();
-                JScrollBar v2 = scroll.getVerticalScrollBar();
-                v2.setValue( v2.getMaximum() );
-                commandField.setText("");
-                commandField.grabFocus();
-                commandField.requestFocus();
-                v2.setValue( v2.getMaximum() );
                 break;
             case "reset" :
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
                 break;
+            case "send" :
+                response = roundTrip(commandField.getText());
+                frame.revalidate();
+                sb = scroll.getVerticalScrollBar();
+                sb.setValue( sb.getMaximum() );
+                commandField.setText("");
+                commandField.grabFocus();
+                commandField.requestFocus();
+                break;
         }
+        if (response.equalsIgnoreCase("End-Execution"))
+        {
+            logger.info("Handling End-Execution from server");
+            frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        }
+
+
     }
 
     private int build()

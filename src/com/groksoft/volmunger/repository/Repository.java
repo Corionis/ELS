@@ -111,7 +111,7 @@ public class Repository
 
             outputStream.close();
         } catch (FileNotFoundException fnf) {
-            throw new MungerException("Exception while writing item file " + cfg.getExportJsonFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungerException("Exception while writing text file " + cfg.getExportTextFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -130,7 +130,7 @@ public class Repository
             outputStream.println(json);
             outputStream.close();
         } catch (FileNotFoundException fnf) {
-            throw new MungerException("Exception while writing item file " + cfg.getExportJsonFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungerException("Exception while writing collection file " + cfg.getExportJsonFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
