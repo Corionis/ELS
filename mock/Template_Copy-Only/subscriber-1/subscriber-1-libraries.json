@@ -2,6 +2,7 @@
     "libraries": {
         "description": "Test Subscriber-1",
         "site": ":30000",
+        "terminal_allowed": "true",
         "key": "94eb0321-8a3d-4c10-81e9-1d89733f6d64",
         "case_sensitive": false,
         "ignore_patterns": [

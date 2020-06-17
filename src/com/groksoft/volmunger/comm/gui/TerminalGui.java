@@ -32,7 +32,8 @@ public class TerminalGui implements WindowListener, ActionListener
     JTextField commandField;
     JScrollPane scroll;
 
-    public TerminalGui(Terminal terminal, Configuration cfg, DataInputStream in, DataOutputStream out) {
+    public TerminalGui(Terminal terminal, Configuration cfg, DataInputStream in, DataOutputStream out)
+    {
         this.terminal = terminal;
         this.cfg = cfg;
         this.in = in;
@@ -40,7 +41,8 @@ public class TerminalGui implements WindowListener, ActionListener
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void actionPerformed(ActionEvent e)
+    {
         String action = e.getActionCommand();
         String response = "";
         JScrollBar sb;
@@ -49,37 +51,37 @@ public class TerminalGui implements WindowListener, ActionListener
 
         switch (action)
         {
-            case "clear" :
+            case "clear":
                 textArea.setText("");
                 frame.revalidate();
                 sb = scroll.getVerticalScrollBar();
-                sb.setValue( sb.getMaximum() );
+                sb.setValue(sb.getMaximum());
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
                 break;
-            case "command" :
+            case "command":
                 response = roundTrip(commandField.getText());
                 frame.revalidate();
                 sb = scroll.getVerticalScrollBar();
-                sb.setValue( sb.getMaximum() );
+                sb.setValue(sb.getMaximum());
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
                 break;
-            case "exit" :
+            case "exit":
                 frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
                 break;
-            case "reset" :
+            case "reset":
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
                 break;
-            case "send" :
+            case "send":
                 response = roundTrip(commandField.getText());
                 frame.revalidate();
                 sb = scroll.getVerticalScrollBar();
-                sb.setValue( sb.getMaximum() );
+                sb.setValue(sb.getMaximum());
                 commandField.setText("");
                 commandField.grabFocus();
                 commandField.requestFocus();
@@ -97,10 +99,11 @@ public class TerminalGui implements WindowListener, ActionListener
     private int build()
     {
         frame = new JFrame("VolMunger " + cfg.getVOLMUNGER_VERSION() + " connected to " + theirRepo.getLibraryData().libraries.description);
-        try {
+        try
+        {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        }
-        catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.error(e.getMessage());
             return 1;
         }
@@ -174,14 +177,16 @@ public class TerminalGui implements WindowListener, ActionListener
         return response;
     }
 
-    public int run(Repository myRepo, Repository theirRepo) {
+    public int run(Repository myRepo, Repository theirRepo)
+    {
         int returnValue = 0;
 
         this.myRepo = myRepo;
         this.theirRepo = theirRepo;
 
         returnValue = build();
-        if (returnValue == 0) {
+        if (returnValue == 0)
+        {
             frame.setVisible(true);
             receive(); // get and display initial response from server, the prompt
             commandField.grabFocus();
@@ -199,40 +204,47 @@ public class TerminalGui implements WindowListener, ActionListener
     }
 
     @Override
-    public void windowOpened(WindowEvent e) {
+    public void windowOpened(WindowEvent e)
+    {
         commandField.grabFocus();
         commandField.requestFocus();
     }
 
     @Override
-    public void windowClosing(WindowEvent e) {
+    public void windowClosing(WindowEvent e)
+    {
         //JOptionPane.showMessageDialog(frame, "Window Closing");
     }
 
     @Override
-    public void windowClosed(WindowEvent e) {
+    public void windowClosed(WindowEvent e)
+    {
         //JOptionPane.showMessageDialog(frame, "Window Closed");
     }
 
     @Override
-    public void windowIconified(WindowEvent e) {
+    public void windowIconified(WindowEvent e)
+    {
 
     }
 
     @Override
-    public void windowDeiconified(WindowEvent e) {
+    public void windowDeiconified(WindowEvent e)
+    {
         commandField.grabFocus();
         commandField.requestFocus();
     }
 
     @Override
-    public void windowActivated(WindowEvent e) {
+    public void windowActivated(WindowEvent e)
+    {
         commandField.grabFocus();
         commandField.requestFocus();
     }
 
     @Override
-    public void windowDeactivated(WindowEvent e) {
+    public void windowDeactivated(WindowEvent e)
+    {
 
     }
 }

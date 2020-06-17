@@ -42,7 +42,8 @@ public class Server extends ServerBase
      * @param subRepo
      */
 
-    public Server(Configuration config, Repository pubRepo, Repository subRepo) {
+    public Server(Configuration config, Repository pubRepo, Repository subRepo)
+    {
         super(config, pubRepo, subRepo);
     } // constructor
 
@@ -52,7 +53,8 @@ public class Server extends ServerBase
     /**
      * Dump statistics from all available internal sources.
      */
-    public synchronized String dumpStatistics() {
+    public synchronized String dumpStatistics()
+    {
         String data = "\r\nServer currently connected: " + ((connected) ? "true" : "false") + "\r\n";
         data += "  Connected on port: " + port + "\r\n";
         data += "  Connected to: " + address + "\r\n";
@@ -66,31 +68,37 @@ public class Server extends ServerBase
      *
      * @return Short name of this service.
      */
-    public String getName() {
+    public String getName()
+    {
         return "Server";
     } // getName
 
     //------------------------------------------------------------------------
 
-    public boolean handshake() {
+    public boolean handshake()
+    {
         boolean valid = false;
-        try {
+        try
+        {
             Utils.write(out, subscriberKey, "HELO");
 
             String input = Utils.read(in, subscriberKey);
-            if (input.equals("DribNit") || input.equals("DribNlt")) {
+            if (input.equals("DribNit") || input.equals("DribNlt"))
+            {
                 isTerminal = input.equals("DribNit");
                 Utils.write(out, subscriberKey, subscriberKey);
 
                 input = Utils.read(in, subscriberKey);
-                if (input.equals(publisherKey)) {
+                if (input.equals(publisherKey))
+                {
                     Utils.write(out, subscriberKey, "ACK");
 
-                    logger.info("Authenticated: " + publisherRepo.getLibraryData().libraries.description);
+                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + publisherRepo.getLibraryData().libraries.description);
                     valid = true;
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.error(e.getMessage());
         }
         return valid;
@@ -104,7 +112,8 @@ public class Server extends ServerBase
      * The Server service provides an interface for this instance.
      */
     @SuppressWarnings("Duplicates")
-    public void process(Socket aSocket) throws IOException {
+    public void process(Socket aSocket) throws IOException
+    {
         socket = aSocket;
         port = aSocket.getPort();
         address = aSocket.getInetAddress();
@@ -123,33 +132,60 @@ public class Server extends ServerBase
 
         connected = true;
 
-        if (!handshake()) {
+        if (!handshake())
+        {
             stop = true; // just hang-up on the connection
             logger.info("Connection to " + publisherRepo.getLibraryData().libraries.site + " failed handshake");
         }
 
-        response = "Enter 'help' for information\r\n";
+        if (isTerminal)
+        {
+            response = "Enter 'help' for information\r\n";
+        }
+        else
+        {
+            response = "CMD";
+
+            //  -s Subscriber libraries
+            if (cfg.getSubscriberLibrariesFileName().length() > 0)
+            {
+                response = response + ":RequestCollection";
+            }
+
+            //  -t Subscriber targets
+            if (cfg.getTargetsFilename().length() > 0)
+            {
+                response = response + ":RequestTargets";
+            }
+        }
 
         // prompt for & process interactive commands
-        while (stop == false) {
-            try {
+        while (stop == false)
+        {
+            try
+            {
                 // prompt the user for a command
-                if (!tout) {
+                if (!tout)
+                {
                     Utils.write(out, subscriberKey, response + (isTerminal ? prompt : ""));
                 }
                 tout = false;
                 response = "";
 
                 line = Utils.read(in, subscriberKey);
-                if (line == null) {
+                if (line == null)
+                {
                     stop = true;
                     break; // exit on EOF
                 }
 
-                if (line.trim().length() < 1) {
+                if (line.trim().length() < 1)
+                {
                     response = "\r";
                     continue;
                 }
+
+                logger.info("Processing command: " + line);
 
                 // parse the command
                 StringTokenizer t = new StringTokenizer(line);
@@ -159,18 +195,21 @@ public class Server extends ServerBase
                 String theCommand = t.nextToken();
 
                 // -------------- authorized level password -----------------
-                if (theCommand.equalsIgnoreCase("auth")) {
+                if (theCommand.equalsIgnoreCase("auth"))
+                {
                     ++attempts;
                     String pw = "";
                     if (t.hasMoreTokens())
                         pw = t.nextToken(); // get the password
                     if ((cfg.getAuthorizedPassword().length() == 0 && pw.length() == 0) ||
-                            cfg.getAuthorizedPassword().equals(pw.trim())) {
+                            cfg.getAuthorizedPassword().equals(pw.trim()))
+                    {
                         response = "password accepted\r\n";
                         authorized = true;
                         prompt = "$ ";
                         logger.info("Command auth accepted");
-                    } else {
+                    } else
+                    {
                         logger.warn("Auth password attempt failed using: " + pw);
                         if (attempts >= 3) // disconnect on too many attempts
                         {
@@ -182,68 +221,84 @@ public class Server extends ServerBase
                 }
 
                 // -------------- export collection file --------------------
-                if (theCommand.equalsIgnoreCase("exportCollection")) {
-                    try {
+                if (theCommand.equalsIgnoreCase("retrieveRemoteCollectionExport"))
+                {
+                    try
+                    {
                         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
                         LocalDateTime now = LocalDateTime.now();
                         String stamp = dtf.format(now);
 
-                        String location = subscriberRepo.getJsonFilename() + "_collection-" + stamp + ".json";
-                        cfg.setExportJsonFilename(location);
+                        String location = subscriberRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
+                        cfg.setExportCollectionFilename(location);
 
-                        for (Library subLib : subscriberRepo.getLibraryData().libraries.bibliography) {
+                        for (Library subLib : subscriberRepo.getLibraryData().libraries.bibliography)
+                        {
                             subscriberRepo.scan(subLib.name);
                         }
                         subscriberRepo.exportCollection();
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
-                    } catch (MungerException e) {
+                    } catch (MungerException e)
+                    {
                         logger.error(e.getMessage());
                     }
                     continue;
                 }
 
                 // -------------- logout ------------------------------------
-                if (theCommand.equalsIgnoreCase("logout")) {
-                    if (authorized) {
+                if (theCommand.equalsIgnoreCase("logout"))
+                {
+                    if (authorized)
+                    {
                         authorized = false;
                         prompt = basePrompt;
                         continue;
-                    } else {
+                    } else
+                    {
                         theCommand = "quit";
                         // let the logic fall through to the 'quit' handler below
                     }
                 }
 
                 // -------------- quit, bye, exit ---------------------------
-                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit")) {
+                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
+                {
                     Utils.write(out, subscriberKey, "End-Execution");
                     stop = true;
                     break; // break the loop
                 }
 
                 // -------------- available disk space ----------------------
-                if (theCommand.equalsIgnoreCase("space")) {
+                if (theCommand.equalsIgnoreCase("space"))
+                {
                     String location = "";
-                    if (t.hasMoreTokens()) {
+                    if (t.hasMoreTokens())
+                    {
                         location = t.nextToken();
                         long space = Utils.availableSpace(location);
-                        if (isTerminal) {
+                        if (isTerminal)
+                        {
                             response = Utils.formatLong(space);
-                        } else {
+                        } else
+                        {
                             response = String.valueOf(space);
                         }
-                    } else {
+                    } else
+                    {
                         response = (isTerminal ? "space command requires a location\r\n" : "0");
                     }
                     continue;
                 }
 
                 // -------------- status information ------------------------
-                if (theCommand.equalsIgnoreCase("status")) {
-                    if (!authorized) {
+                if (theCommand.equalsIgnoreCase("status"))
+                {
+                    if (!authorized)
+                    {
                         response = "not authorized\r\n";
-                    } else {
+                    } else
+                    {
                         response = CommManager.getInstance().dumpStatistics();
                         response += dumpStatistics();
                     }
@@ -251,17 +306,20 @@ public class Server extends ServerBase
                 }
 
                 // -------------- help! -------------------------------------
-                if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?")) {
+                if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
+                {
                     // @formatter:off
                     response = "\r\nAvailable commands, not case sensitive:\r\n";
 
-                    if (authorized) {
+                    if (authorized)
+                    {
                         response += "  status = server and console status information\r\n" +
                                 "\r\n" + "" +
                                 " And:\r\n";
                     }
 
                     response += "  auth [password] = access Authorized commands\r\n" +
+                            "  retrieveRemoteCollectionExport = get collection data from remote\r\n" +
                             "  help or ? = this list\r\n" +
                             "  logout = exit current level\r\n" +
                             "  quit, bye, exit = disconnect\r\n" +
@@ -274,7 +332,8 @@ public class Server extends ServerBase
                 response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
 
             } // try
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 Utils.write(out, subscriberKey, e.getMessage());
                 break;
             }
@@ -282,12 +341,14 @@ public class Server extends ServerBase
 
         connected = false;
 
-        if (stop) {
+        if (stop)
+        {
             Utils.write(out, subscriberKey, "\r\n\r\nSession is disconnecting\r\n");
         }
 
         // all done, close everything
-        if (logger != null) {
+        if (logger != null)
+        {
             logger.info("Close connection on port " + port + " to " + address.getHostAddress());
         }
         out.close();
@@ -299,7 +360,8 @@ public class Server extends ServerBase
     /**
      * Request the Server service to stop
      */
-    public void requestStop() {
+    public void requestStop()
+    {
         this.stop = true;
         logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
     } // requestStop

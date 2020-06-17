@@ -1,6 +1,7 @@
 package com.groksoft.volmunger;
 
 // see https://logging.apache.org/log4j/2.x/
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +25,8 @@ public class Main
     /**
      * Instantiates the Main application
      */
-    public Main() {
+    public Main()
+    {
     }
 
     /**
@@ -32,13 +34,15 @@ public class Main
      *
      * @param args the input arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         Main volmunger = new Main();
         int returnValue = volmunger.process(args);
-        //System.exit(returnValue);
+//        System.exit(returnValue);
     } // main
 
-    public int process(String[] args) {
+    public int process(String[] args)
+    {
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
         Configuration cfg = new Configuration();
@@ -46,7 +50,8 @@ public class Main
         Repository publisherRepo;
         Repository subscriberRepo;
 
-        try {
+        try
+        {
             cfg.parseCommandLine(args);
 
             // setup the logger based on configuration
@@ -99,10 +104,13 @@ public class Main
                     sessionThreads = new ThreadGroup("Server");
                     commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
 
-                    if (subscriberRepo.getJsonFilename() != null && !subscriberRepo.getJsonFilename().isEmpty()) {
+                    if (subscriberRepo.getJsonFilename() != null && !subscriberRepo.getJsonFilename().isEmpty())
+                    {
                         commManager.startListening(subscriberRepo);
                         isListening = true;
-                    } else {
+                    }
+                    else
+                    {
                         throw new MungerException("A subscriber library or collection file is required for -r S");
                     }
                     break;
@@ -112,10 +120,20 @@ public class Main
                     logger.info("+ VolMunger Publisher Process Remote Subscriber begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
-                    // the Process class handles the VolMunger process
-                    proc = new Process();
-                    returnValue = proc.process(cfg);
-                    Thread.sleep(Long.MAX_VALUE);
+                    if (cfg.getSubscriberCollectionFilename().length() > 0 || cfg.getSubscriberLibrariesFileName().length() > 0)
+                    {
+                        // the Process class handles the VolMunger process
+                        proc = new Process();
+                        returnValue = proc.process(cfg);
+                        if (returnValue == 0)
+                        {
+                            Thread.sleep(Long.MAX_VALUE);
+                        }
+                    }
+                    else
+                    {
+                        throw new MungerException("A subscriber library or collection file is required for -r P");
+                    }
                     break;
 
                 // handle -r B publisher terminal
@@ -127,9 +145,12 @@ public class Main
                     subscriberRepo = readRepo(cfg, false);
 
                     Terminal pubTerminal = new Terminal(cfg, true);
-                    if (pubTerminal.connect(publisherRepo, subscriberRepo)) {
+                    if (pubTerminal.connect(publisherRepo, subscriberRepo))
+                    {
                         pubTerminal.session();
-                    } else {
+                    }
+                    else
+                    {
                         throw new MungerException("Publisher Terminal failed to connect");
                     }
                     break;
@@ -145,7 +166,8 @@ public class Main
                     sessionThreads = new ThreadGroup("Server");
                     commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
 
-                    if (publisherRepo.getJsonFilename() != null && !publisherRepo.getJsonFilename().isEmpty()) {
+                    if (publisherRepo.getJsonFilename() != null && !publisherRepo.getJsonFilename().isEmpty())
+                    {
                         commManager.startListening(publisherRepo);
                         isListening = true;
                     }
@@ -160,9 +182,12 @@ public class Main
                     subscriberRepo = readRepo(cfg, false);
 
                     Terminal subTerminal = new Terminal(cfg, true);
-                    if (subTerminal.connect(publisherRepo, subscriberRepo)) {
+                    if (subTerminal.connect(publisherRepo, subscriberRepo))
+                    {
                         subTerminal.session();
-                    } else {
+                    }
+                    else
+                    {
                         throw new MungerException("Subscriber Terminal failed to connect");
                     }
                     break;
@@ -171,24 +196,33 @@ public class Main
                     throw new MungerException("Unknown type of remote");
             }
 
-        } catch (Exception e) {
+        } catch (Exception e)
+        {
             logger.error(e.getMessage()); // + "\r\n" + Utils.getStackTrace(e));
             returnValue = 1;
-        } finally {
-            if (commManager != null) {
-                if (!isListening) {
+        } finally
+        {
+            if (commManager != null)
+            {
+                if (!isListening)
+                {
                     commManager.stopCommManager();
-                } else {
+                }
+                else
+                {
                     Runtime.getRuntime().addShutdownHook(new Thread()
                     {
-                        public void run() {
-                            try {
+                        public void run()
+                        {
+                            try
+                            {
                                 Thread.sleep(200);
                                 logger.info("Shutting down CommManager ...");
                                 // some clean up code...
                                 commManager.stopCommManager();
 
-                            } catch (InterruptedException e) {
+                            } catch (InterruptedException e)
+                            {
                                 logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
                             }
                         }
@@ -201,45 +235,59 @@ public class Main
         return returnValue;
     } // process
 
-    private Repository readRepo(Configuration cfg, boolean isPublisher) throws Exception {
+    private Repository readRepo(Configuration cfg, boolean isPublisher) throws Exception
+    {
         Repository repo = new Repository(cfg);
-        if (isPublisher) {
+        if (isPublisher)
+        {
             if (cfg.getPublisherLibrariesFileName().length() > 0 &&
-                    cfg.getPublisherCollectionFilename().length() > 0) {
+                    cfg.getPublisherCollectionFilename().length() > 0)
+            {
                 System.out.println("\r\nCannot use both -p and -P, exiting");
                 return null;
-            } else if (cfg.getPublisherLibrariesFileName().length() == 0 &&
-                    cfg.getPublisherCollectionFilename().length() == 0) {
+            }
+            else if (cfg.getPublisherLibrariesFileName().length() == 0 &&
+                    cfg.getPublisherCollectionFilename().length() == 0)
+            {
                 System.out.println("\r\nMust use -p or -P with a filename to use -r");
                 return null;
             }
 
             // get -p Publisher libraries
-            if (cfg.getPublisherLibrariesFileName().length() > 0) {
+            if (cfg.getPublisherLibrariesFileName().length() > 0)
+            {
                 repo.read(cfg.getPublisherLibrariesFileName());
             }
             // get -P Publisher collection
-            if (cfg.getPublisherCollectionFilename().length() > 0) {
+            if (cfg.getPublisherCollectionFilename().length() > 0)
+            {
                 repo.read(cfg.getPublisherCollectionFilename());
             }
-        } else {
+        }
+        else
+        {
             if (cfg.getSubscriberLibrariesFileName().length() > 0 &&
-                    cfg.getSubscriberCollectionFilename().length() > 0) {
+                    cfg.getSubscriberCollectionFilename().length() > 0)
+            {
                 System.out.println("\r\nCannot use both -s and -S, exiting");
                 return null;
-            } else if (cfg.getSubscriberLibrariesFileName().length() == 0 &&
-                    cfg.getSubscriberCollectionFilename().length() == 0) {
+            }
+            else if (cfg.getSubscriberLibrariesFileName().length() == 0 &&
+                    cfg.getSubscriberCollectionFilename().length() == 0)
+            {
                 System.out.println("\r\nMust use -s or -S with a filename to use -r");
                 return null;
             }
 
             // get -s Subscriber libraries
-            if (cfg.getSubscriberLibrariesFileName().length() > 0) {
+            if (cfg.getSubscriberLibrariesFileName().length() > 0)
+            {
                 repo.read(cfg.getSubscriberLibrariesFileName());
             }
 
             // get -S Subscriber collection
-            if (cfg.getSubscriberCollectionFilename().length() > 0) {
+            if (cfg.getSubscriberCollectionFilename().length() > 0)
+            {
                 repo.read(cfg.getSubscriberCollectionFilename());
             }
         }

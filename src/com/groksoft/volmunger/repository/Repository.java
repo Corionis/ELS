@@ -123,14 +123,14 @@ public class Repository
     public void exportCollection() throws MungerException {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();;
-        logger.info("Writing item file " + cfg.getExportJsonFilename());
+        logger.info("Writing collection file " + cfg.getExportCollectionFilename());
         json = gson.toJson(libraryData);
         try {
-            PrintWriter outputStream = new PrintWriter(cfg.getExportJsonFilename());
+            PrintWriter outputStream = new PrintWriter(cfg.getExportCollectionFilename());
             outputStream.println(json);
             outputStream.close();
         } catch (FileNotFoundException fnf) {
-            throw new MungerException("Exception while writing collection file " + cfg.getExportJsonFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungerException("Exception while writing collection file " + cfg.getExportCollectionFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -325,6 +325,8 @@ public class Repository
     public void read(String filename) throws MungerException {
         try {
             String json;
+            if (libraryData != null)
+                libraryData = null;
             Gson gson = new Gson();
             logger.info("Reading Libraries file " + filename);
             setJsonFilename(filename);
@@ -484,7 +486,7 @@ public class Repository
     /**
      * Sets LibraryData file.
      *
-     * @param jsonFilename the LibraryData file
+     * @param jsonFilename of the LibraryData file
      */
     public void setJsonFilename(String jsonFilename) {
         this.jsonFilename = jsonFilename;
