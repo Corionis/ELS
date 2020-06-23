@@ -372,9 +372,10 @@ public class Repository
         boolean isSym = false;
         Path path = Paths.get(directory);
 
-        if (library.items == null) {
-            library.items = new ArrayList<>();
+        if (library.items != null) {
+            library.items = null; // clear any existing data
         }
+        library.items = new ArrayList<>();
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path)) {
             for (Path entry : directoryStream) {

@@ -68,7 +68,6 @@ public class Process
      */
     public int process(Configuration config)
     {
-        boolean restarted = false;
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
 
@@ -83,127 +82,146 @@ public class Process
 
             try
             {
-                boolean restart = true;
-
-                while (restart)
+                // get -p Publisher libraries
+                if (cfg.getPublisherLibrariesFileName().length() > 0)
                 {
-                    // get -S Subscriber collection
-                    if (cfg.getSubscriberCollectionFilename().length() > 0)
-                    {
-                        readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, false);
-                    }
-
-                    // get subscriber connection information for remote end
-                    if (cfg.isRemoteSession())
-                    {
-                        // get -s Subscriber libraries
-                        if (cfg.getSubscriberLibrariesFileName().length() > 0)
-                        {
-                            readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, false);
-                        }
-                    }
-
-                    // get -p Publisher libraries
-                    if (cfg.getPublisherLibrariesFileName().length() > 0)
-                    {
-                        readRepository(cfg.getPublisherLibrariesFileName(), publisherRepository, true);
-                    }
-
+                    readRepository(cfg.getPublisherLibrariesFileName(), publisherRepository, true);
+                }
+                else
+                {
                     // get -P Publisher collection
                     if (cfg.getPublisherCollectionFilename().length() > 0)
                     {
                         readRepository(cfg.getPublisherCollectionFilename(), publisherRepository, false);
                     }
-
-                    // For -r P connect to remote subscriber -r S
-                    if (cfg.isPublisherProcess())
+                    else
                     {
-                        terminal = new Terminal(cfg, false);
-                        if (!terminal.connect(publisherRepository, subscriberRepository))
-                        {
-                            throw new MungerException("Publisher Process failed to connect");
-                        }
-                        if (!restarted && terminal.checkBannerCommands())
-                        {
-                            logger.info("Received forced subscriber updates, restarting Process");
-                            terminal.disconnect();
-                            restart = true; // avoid looping
-                            continue;
-                        }
+                        throw new MungerException("A publisher file -p or -P is required for the munge process");
                     }
+                }
 
-                    // get -s Subscriber libraries
+                // For -r P connect to remote subscriber -r S
+                if (cfg.isPublisherProcess())
+                {
+                    // get subscriber connection information
                     if (cfg.getSubscriberLibrariesFileName().length() > 0)
                     {
-                        if (cfg.isRemoteSession())
-                        {
-                            // request complete collection data from remote subscriber
-                            terminal.retrieveRemoteCollectionExport();
-                            readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, false);
-                        }
-                        else
-                        {
-                            readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, true);
-                        }
+                        readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, false);
+                    }
+                    else if (cfg.getSubscriberCollectionFilename().length() > 0)
+                    {
+                        readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, false);
+                    }
+                    else
+                        throw new MungerException("-r P requires a subscriber -s or -S");
+
+                    // connect to subscriber
+                    terminal = new Terminal(cfg, false);
+                    if (!terminal.connect(publisherRepository, subscriberRepository))
+                    {
+                        throw new MungerException("Publisher Process failed to connect");
                     }
 
-                    // handle -e export text, publisher only
-                    if (cfg.getExportTextFilename().length() > 0)
+                    // check for opening commands from Subscriber
+                    // *** might change cfg options for subscriber and targets that are handled below ***
+                    if (terminal.checkBannerCommands())
                     {
-                        if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
-                        {
-                            exportText();
-                        }
-                        else
-                        {
-                            throw new MungerException("-e option requires the -p and/or -P options");
-                        }
+                        logger.info("Received subscriber requests:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
                     }
+                }
 
-                    // handle -i export collection items, publisher only
-                    if (cfg.getExportCollectionFilename().length() > 0)
+                // get -s Subscriber libraries
+                if (cfg.getSubscriberLibrariesFileName().length() > 0)
+                {
+                    if (cfg.isRemoteSession() && cfg.isRequestCollection())
                     {
-                        if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
-                        {
-                            exportCollection();
-                        }
-                        else
-                        {
-                            throw new MungerException("-i option requires the -p and/or -P options");
-                        }
-                    }
+                        // request complete collection data from remote subscriber
+                        String location = terminal.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
+                        cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
+                        cfg.setSubscriberCollectionFilename(location);
 
-                    // get -t Targets
-                    if (cfg.getTargetsFilename().length() > 0)
-                    {
-                        readTargets(cfg.getTargetsFilename(), storageTargets);
+                        readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, false);
                     }
                     else
                     {
-                        logger.warn("NOTE: No targets file was specified - performing a dry run");
-                        cfg.setDryRun(true);
+                        readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, true);
                     }
-
-                    // if all the pieces are specified munge the collections
-                    if (cfg.getPublisherLibrariesFileName().length() > 0 &&
-                            cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                            cfg.getSubscriberCollectionFilename().length() > 0)
-                    {
-                        munge(); // this is the full standalone process, not terminal
-                    }
-
                 }
-            } catch (Exception ex)
+
+                // get -S Subscriber collection
+                if (cfg.getSubscriberCollectionFilename().length() > 0 && !cfg.isRequestCollection())
+                {
+                    readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, true);
+                }
+
+                // process -e export text, publisher only
+                if (cfg.getExportTextFilename().length() > 0)
+                {
+                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
+                    {
+                        exportText();
+                    }
+                    else
+                    {
+                        throw new MungerException("-e option requires the -p and/or -P options");
+                    }
+                }
+
+                // process -i export collection items, publisher only
+                if (cfg.getExportCollectionFilename().length() > 0)
+                {
+                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
+                    {
+                        exportCollection();
+                    }
+                    else
+                    {
+                        throw new MungerException("-i option requires the -p and/or -P options");
+                    }
+                }
+
+                // get -t|T Targets
+                if (cfg.getTargetsFilename().length() > 0)
+                {
+                    String location = cfg.getTargetsFilename();
+
+                    if (cfg.isRemoteSession() && cfg.isRequestTargets())
+                    {
+                        // request target data from remote subscriber
+                        location = terminal.retrieveRemoteData(location, "targets");
+                        cfg.setTargetsFilename(location);
+                    }
+                    readTargets(location, storageTargets);
+                }
+                else
+                {
+                    logger.warn("NOTE: No targets file was specified - performing a dry run");
+                    cfg.setDryRun(true);
+                }
+
+                // if all the pieces are specified munge the collections
+                if ((cfg.getPublisherLibrariesFileName().length() > 0 ||
+                        cfg.getPublisherCollectionFilename().length() > 0) &&
+                        (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                                cfg.getSubscriberCollectionFilename().length() > 0) &&
+                        cfg.getTargetsFilename().length() > 0)
+                {
+                    munge(); // this is the full standalone process, not terminal
+                }
+            }
+            catch (Exception ex)
             {
                 logger.error(ex.getMessage() + " toString=" + ex.toString());
                 returnValue = 2;
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             logger.error(e.getMessage());
             returnValue = 1;
             cfg = null;
-        } finally
+        }
+        finally
         {
             if (terminal != null)
             {
@@ -241,19 +259,23 @@ public class Process
             Path fromPath = Paths.get(from).toRealPath();
             Path toPath = Paths.get(to);  //.toRealPath();
             Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
-        } catch (UnsupportedOperationException e)
+        }
+        catch (UnsupportedOperationException e)
         {
             logger.error("Copy problem UnsupportedOperationException: " + e.getMessage());
             return false;
-        } catch (FileAlreadyExistsException e)
+        }
+        catch (FileAlreadyExistsException e)
         {
             logger.error("Copy problem FileAlreadyExistsException: " + e.getMessage());
             return false;
-        } catch (DirectoryNotEmptyException e)
+        }
+        catch (DirectoryNotEmptyException e)
         {
             logger.error("Copy problem DirectoryNotEmptyException: " + e.getMessage());
             return false;
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("Copy problem IOException: " + e.getMessage());
             return false;
@@ -270,7 +292,8 @@ public class Process
                 publisherRepository.scan(pubLib.name);
             }
             publisherRepository.exportCollection();
-        } catch (MungerException e)
+        }
+        catch (MungerException e)
         {
             // no logger yet to just print to the screen
             System.out.println(e.getMessage());
@@ -286,7 +309,8 @@ public class Process
                 publisherRepository.scan(pubLib.name);
             }
             publisherRepository.exportText();
-        } catch (MungerException e)
+        }
+        catch (MungerException e)
         {
             // no logger yet to just print to the screen
             System.out.println(e.getMessage());
@@ -305,7 +329,8 @@ public class Process
         try
         {
             size = Files.size(Paths.get(item.getFullPath()));
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("Exception '" + e.getMessage() + "' getting size of item " + item.getFullPath());
         }
@@ -499,7 +524,8 @@ public class Process
                 mismatchFile = new PrintWriter(cfg.getMismatchFilename());
                 mismatchFile.println(header);
                 logger.info("Writing to Mismatches file " + cfg.getMismatchFilename());
-            } catch (FileNotFoundException fnf)
+            }
+            catch (FileNotFoundException fnf)
             {
                 String s = "File not found exception for Mismatches output file " + cfg.getMismatchFilename();
                 logger.error(s);
@@ -515,7 +541,8 @@ public class Process
                 whatsNewFile = new PrintWriter(cfg.getWhatsNewFilename());
                 whatsNewFile.println("What's New");
                 logger.info("Writing to What's New file " + cfg.getWhatsNewFilename());
-            } catch (FileNotFoundException fnf)
+            }
+            catch (FileNotFoundException fnf)
             {
                 String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
                 logger.error(s);
@@ -631,7 +658,7 @@ public class Process
                                             mismatchFile.flush();
                                         }
                                     }
-                                    long size = 0;
+                                    long size = 0L;
                                     if (scanned)
                                     {
                                         size = getItemSize(item);
@@ -649,10 +676,12 @@ public class Process
                     throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
                 }
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
-        } finally
+        }
+        finally
         {
             if (group.size() > 0)
             {
@@ -714,23 +743,25 @@ public class Process
                 for (Item groupItem : group)
                 {
                     if (cfg.isDryRun())
-                    {          // -D Dry run option
-                        logger.info("    Would copy #" + copyCount + " " + groupItem.getFullPath());
+                    {
+                        // -D Dry run option
                         ++copyCount;
+                        logger.info("    Would copy #" + copyCount + " " + groupItem.getFullPath());
                     }
                     else
                     {
+            // LEFTOFF
                         String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
                         if (targetPath != null)
                         {
                             // copy item(s) to targetPath
+                            ++copyCount;
                             String to = targetPath + File.separator + groupItem.getItemPath();
                             logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
                             if (!copyFile(groupItem.getFullPath(), to))
                             {
                                 ++errorCount;
                             }
-                            ++copyCount;
                         }
                         else
                         {
@@ -745,7 +776,8 @@ public class Process
             grandTotalSize = grandTotalSize + totalSize;
             totalSize = 0L;
             lastGroupName = currentGroupName;
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
         }

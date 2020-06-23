@@ -60,38 +60,44 @@ public class Terminal
         return space;
     }
 
-    public boolean checkBannerCommands()
+    public boolean checkBannerCommands() throws MungerException
     {
         boolean hasCommands = false;
         String response = receive(); // read opening terminal banner
-        if (!response.startsWith("Enter 'help'"))
+        if (!response.startsWith("Enter "))
         {
             String[] cmdSplit = response.split(":");
             if (cmdSplit.length > 0)
             {
                 if (cmdSplit[0].equals("CMD"))
                 {
-                    int i = 1;
-                    while (i < cmdSplit.length - 1)
+                    for (int i = 1; i < cmdSplit.length; ++i)
                     {
                         if (cmdSplit[i].equals("RequestCollection"))
                         {
                             hasCommands = true;
-                            // todo Retrieve Collection
-                            continue;
+                            cfg.setRequestCollection(true);
+                            String location;
+                            if (cfg.getSubscriberCollectionFilename().length() > 0)
+                                location = cfg.getSubscriberCollectionFilename();
+                            else
+                                location = cfg.getSubscriberLibrariesFileName();
+
+                            // change cfg -S to -s so -s handling in Process.process retrieves the data
+                            cfg.setSubscriberLibrariesFileName(location);
+                            cfg.setSubscriberCollectionFilename("");
                         }
                         else if (cmdSplit[i].equals("RequestTargets"))
                         {
                             hasCommands = true;
-                            // todo Retrieve Targets
-                            continue;;
+                            cfg.setRequestTargets(true);
                         }
                     }
                 }
             }
             else
             {
-
+                throw new MungerException("Unknown banner receive");
             }
         }
         return hasCommands;
@@ -125,7 +131,8 @@ public class Terminal
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
 
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 logger.error(e.getMessage());
             }
@@ -161,41 +168,9 @@ public class Terminal
             out.flush();
             out.close();
             in.close();
-        } catch (Exception e)
-        {
         }
-    }
-
-    public void retrieveRemoteCollectionExport() throws MungerException
-    {
-        String response = receive(); // read opening terminal banner
-        if (response.startsWith("Enter 'help'"))
+        catch (Exception e)
         {
-            response = roundTrip("retrieveRemoteCollectionExport");
-            if (response != null && response.length() > 0)
-            {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                LocalDateTime now = LocalDateTime.now();
-                String stamp = dtf.format(now);
-
-                String location = cfg.getSubscriberLibrariesFileName() + "_collection-received-" + stamp + ".json";
-                cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
-                cfg.setSubscriberCollectionFilename(location);
-
-                try
-                {
-                    PrintWriter outputStream = new PrintWriter(location);
-                    outputStream.println(response);
-                    outputStream.close();
-                } catch (FileNotFoundException fnf)
-                {
-                    throw new MungerException("Exception while writing remote subscriber collection file " + location + " trace: " + Utils.getStackTrace(fnf));
-                }
-            }
-        }
-        else
-        {
-            throw new MungerException("Subscriber returned unknown data");
         }
     }
 
@@ -228,18 +203,43 @@ public class Terminal
         return isConnected;
     }
 
-    public int session()
-    {
-        int returnValue = 0;
-        TerminalGui gui = new TerminalGui(this, cfg, in, out);
-        returnValue = gui.run(myRepo, theirRepo);
-        return returnValue;
-    }
-
     public String receive()
     {
         String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
         return response;
+    }
+
+    public String retrieveRemoteData(String filename, String command) throws MungerException
+    {
+        String location = "";
+        String response = "";
+//        String response = receive(); // read opening terminal banner
+//        if (response.startsWith("Enter "))
+//        {
+        response = roundTrip(command);
+        if (response != null && response.length() > 0)
+        {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+            LocalDateTime now = LocalDateTime.now();
+            String stamp = dtf.format(now);
+            location = filename + "_" + command + "-received-" + stamp + ".json";
+            try
+            {
+                PrintWriter outputStream = new PrintWriter(location);
+                outputStream.println(response);
+                outputStream.close();
+            }
+            catch (FileNotFoundException fnf)
+            {
+                throw new MungerException("Exception while writing " + command + " file " + location + " trace: " + Utils.getStackTrace(fnf));
+            }
+        }
+//        }
+//        else
+//        {
+//            throw new MungerException("Subscriber returned unknown data");
+//        }
+        return location;
     }
 
     public String roundTrip(String command)
@@ -253,6 +253,14 @@ public class Terminal
     {
         Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
         return 0;
+    }
+
+    public int session()
+    {
+        int returnValue = 0;
+        TerminalGui gui = new TerminalGui(this, cfg, in, out);
+        returnValue = gui.run(myRepo, theirRepo);
+        return returnValue;
     }
 
 }

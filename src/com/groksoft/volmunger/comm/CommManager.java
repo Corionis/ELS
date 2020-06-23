@@ -12,8 +12,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-//----------------------------------------------------------------------------
-
 /**
  * Manage all connections and enforce limits.
  * <p>
@@ -60,8 +58,7 @@ public class CommManager extends Thread
     private Repository subscriberRepo;
     private String publisherKey;
     private String subscriberKey;
-
-    //------------------------------------------------------------------------
+    private int listenPort;
 
     /**
      * Instantiates the CommManager object and set it as a daemon so the Java
@@ -89,8 +86,6 @@ public class CommManager extends Thread
         this.allSessions = new Hashtable<String, Listener>();
         this.allSessionThreads = aGroup;
     } // constructor
-
-    //------------------------------------------------------------------------
 
     /**
      * Add a connection for a service.
@@ -147,8 +142,6 @@ public class CommManager extends Thread
         }
     }
 
-    //------------------------------------------------------------------------
-
     /**
      * Start a session listener
      */
@@ -166,8 +159,6 @@ public class CommManager extends Thread
         }
     }
 
-    //------------------------------------------------------------------------
-
     /**
      * End a client connection.
      * <p>
@@ -183,8 +174,6 @@ public class CommManager extends Thread
         this.notify();
     }
 
-    //------------------------------------------------------------------------
-
     /**
      * Get this instance.
      */
@@ -192,8 +181,6 @@ public class CommManager extends Thread
     {
         return instance;
     }
-
-    //------------------------------------------------------------------------
 
     /**
      * Get the connections Vector
@@ -203,8 +190,6 @@ public class CommManager extends Thread
         return this.allConnections;
     }
 
-    //------------------------------------------------------------------------
-
     /**
      * Set or change the maximum number of connections allowed for this server.
      */
@@ -213,14 +198,13 @@ public class CommManager extends Thread
         maxConnections = aMax;
     }
 
-    //------------------------------------------------------------------------
-
     /**
      * Dump statistics of connections.
      */
     public synchronized String dumpStatistics()
     {
-        String data = "Active connections: " + allConnections.size() + "\r\n";
+        String data = "Listening on: " + listenPort + "\r\n" +
+                "Active connections: " + allConnections.size() + "\r\n";
         for (int index = 0; index < allConnections.size(); ++index)
         {
             Connection c = (Connection) allConnections.elementAt(index);
@@ -233,8 +217,6 @@ public class CommManager extends Thread
 
         return data;
     }
-
-    //------------------------------------------------------------------------
 
     /**
      * Politely request the listener to stop.
@@ -253,8 +235,6 @@ public class CommManager extends Thread
         }
         this.interrupt();
     }
-
-    //------------------------------------------------------------------------
 
     /**
      * Thread used to clean-up dead connections.
@@ -324,20 +304,20 @@ public class CommManager extends Thread
             host = null;
             logger.info("Host not defined, using default: localhost");
         }
-        int conPort = 0;
+        listenPort = 0;
         String sport = Utils.parsePort(site);
         if (sport == null || sport.length() < 1)
         {
             sport = "50271";                    // SPOT Server Default Server port
             logger.info("Port not defined, using default: " + sport);
         }
-        conPort = Integer.valueOf(sport);
-        if (conPort > 0)
+        listenPort = Integer.valueOf(sport);
+        if (listenPort > 0)
         {
             this.start();
-            addListener(host, conPort);
+            addListener(host, listenPort);
         }
-        if (conPort < 1)
+        if (listenPort < 1)
         {
             logger.info("CommManager is disabled");
         }

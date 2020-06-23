@@ -1,10 +1,11 @@
 package com.groksoft.volmunger;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 
 // see https://logging.apache.org/log4j/2.x/
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * Configuration
@@ -18,7 +19,6 @@ public class Configuration
     // flags & names
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
-    private boolean targetsFromSubscriber = false;
 
     // files
     private String exportCollectionFilename = "";
@@ -52,6 +52,9 @@ public class Configuration
     private String authorizedPassword = "";
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
+
+    private boolean requestCollection = false;
+    private boolean requestTargets = false;
 
     /**
      * Instantiates a new Configuration.
@@ -119,7 +122,7 @@ public class Configuration
                         ++index;
                     } else
                     {
-                        throw new MungerException("Error: -e requires an retrieveRemoteCollectionExport paths output filename");
+                        throw new MungerException("Error: -e requires an export path output filename");
                     }
                     break;
                 case "-f":                                             // log filename
@@ -209,6 +212,7 @@ public class Configuration
                 case "-s":                                             // subscriber collection filename
                     if (index <= args.length - 2)
                     {
+                        setRequestCollection(true);
                         setSubscriberLibrariesFileName(args[index + 1]);
                         ++index;
                     } else
@@ -229,7 +233,7 @@ public class Configuration
                 case "-t":                                             // targets filename
                     if (index <= args.length - 2)
                     {
-                        setTargetsFromSubscriber(true);
+                        setRequestTargets(true);
                         setTargetsFilename(args[index + 1]);
                         ++index;
                     } else
@@ -240,7 +244,7 @@ public class Configuration
                 case "-T":                                             // targets filename
                     if (index <= args.length - 2)
                     {
-                        setTargetsFromSubscriber(false);
+                        setRequestTargets(false);
                         setTargetsFilename(args[index + 1]);
                         ++index;
                     } else
@@ -305,6 +309,16 @@ public class Configuration
     }
 
     /**
+     * Sets console level.
+     *
+     * @param consoleLevel the console level
+     */
+    public void setConsoleLevel(String consoleLevel)
+    {
+        this.consoleLevel = consoleLevel;
+    }
+
+    /**
      * Gets Authorized password.
      *
      * @return the password required to access Authorized mode when using a Terminal
@@ -322,16 +336,6 @@ public class Configuration
     public void setAuthorizedPassword(String password)
     {
         this.authorizedPassword = password;
-    }
-
-    /**
-     * Sets console level.
-     *
-     * @param consoleLevel the console level
-     */
-    public void setConsoleLevel(String consoleLevel)
-    {
-        this.consoleLevel = consoleLevel;
     }
 
     /**
@@ -405,6 +409,16 @@ public class Configuration
     }
 
     /**
+     * Gets remote type.
+     *
+     * @return the remote type from the command line
+     */
+    public String getRemoteType()
+    {
+        return this.remoteType;
+    }
+
+    /**
      * Sets remote type.
      *
      * @param type the remote type and remote flag
@@ -429,16 +443,6 @@ public class Configuration
             this.remoteFlag = SUBSCRIBER_TERMINAL;
         else
             throw new MungerException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
-    }
-
-    /**
-     * Gets remote type.
-     *
-     * @return the remote type from the command line
-     */
-    public String getRemoteType()
-    {
-        return this.remoteType;
     }
 
     /**
@@ -512,6 +516,16 @@ public class Configuration
     }
 
     /**
+     * Sets keep vol volmunger files.
+     *
+     * @param keepVolMungerFiles the keep vol volmunger files
+     */
+    public void setKeepVolMungerFiles(boolean keepVolMungerFiles)
+    {
+        this.keepVolMungerFiles = keepVolMungerFiles;
+    }
+
+    /**
      * Gets subscriber import filename.
      *
      * @return the import filename
@@ -529,16 +543,6 @@ public class Configuration
     public void setSubscriberCollectionFilename(String subscriberCollectionFilename)
     {
         this.subscriberCollectionFilename = subscriberCollectionFilename;
-    }
-
-    /**
-     * Sets keep vol volmunger files.
-     *
-     * @param keepVolMungerFiles the keep vol volmunger files
-     */
-    public void setKeepVolMungerFiles(boolean keepVolMungerFiles)
-    {
-        this.keepVolMungerFiles = keepVolMungerFiles;
     }
 
     /**
@@ -710,26 +714,6 @@ public class Configuration
     }
 
     /**
-     * Sets targetsFromSubscriber flag.
-     *
-     * @param isTargetsFromSubscriber true/false
-     */
-    public void setTargetsFromSubscriber(boolean isTargetsFromSubscriber)
-    {
-        this.targetsFromSubscriber = isTargetsFromSubscriber;
-    }
-
-    /**
-     * Gets targetsFromSubscriber flag.
-     *
-     * @return the targetsFromSubscriber flag true/false
-     */
-    public boolean isTargetsFromSubscriber()
-    {
-        return targetsFromSubscriber;
-    }
-
-    /**
      * Sets targets filename.
      *
      * @param targetsFilename the targets filename
@@ -796,4 +780,23 @@ public class Configuration
         this.exportTextFilename = exportTextFilename;
     }
 
+    public boolean isRequestCollection()
+    {
+        return requestCollection;
+    }
+
+    public void setRequestCollection(boolean requestCollection)
+    {
+        this.requestCollection = requestCollection;
+    }
+
+    public boolean isRequestTargets()
+    {
+        return requestTargets;
+    }
+
+    public void setRequestTargets(boolean requestTargets)
+    {
+        this.requestTargets = requestTargets;
+    }
 }

@@ -18,8 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-//----------------------------------------------------------------------------
-
 /**
  * Subscriber Server service.
  * <p>
@@ -31,8 +29,6 @@ public class Server extends ServerBase
     protected static Logger logger = LogManager.getLogger("applog");
 
     private boolean isTerminal = false;
-
-    //------------------------------------------------------------------------
 
     /**
      * Instantiate the Server service
@@ -48,8 +44,6 @@ public class Server extends ServerBase
     } // constructor
 
 
-    //------------------------------------------------------------------------
-
     /**
      * Dump statistics from all available internal sources.
      */
@@ -61,8 +55,6 @@ public class Server extends ServerBase
         return data;
     } // dumpStatistics
 
-    //------------------------------------------------------------------------
-
     /**
      * Get the short name of the service.
      *
@@ -72,8 +64,6 @@ public class Server extends ServerBase
     {
         return "Server";
     } // getName
-
-    //------------------------------------------------------------------------
 
     public boolean handshake()
     {
@@ -103,8 +93,6 @@ public class Server extends ServerBase
         }
         return valid;
     } // handshake
-
-    //------------------------------------------------------------------------
 
     /**
      * Process a connection request to the Server service.
@@ -140,9 +128,9 @@ public class Server extends ServerBase
 
         if (isTerminal)
         {
-            response = "Enter 'help' for information\r\n";
+            response = "Enter 'help' for information\r\n"; // "Enter " checked in Terminal.checkBannerCommands()
         }
-        else
+        else // is automation
         {
             response = "CMD";
 
@@ -220,8 +208,8 @@ public class Server extends ServerBase
                     continue;
                 }
 
-                // -------------- export collection file --------------------
-                if (theCommand.equalsIgnoreCase("retrieveRemoteCollectionExport"))
+                // -------------- return collection file --------------------
+                if (theCommand.equalsIgnoreCase("collection"))
                 {
                     try
                     {
@@ -305,6 +293,19 @@ public class Server extends ServerBase
                     continue;
                 }
 
+                // -------------- return targets file -----------------------
+                if (theCommand.equalsIgnoreCase("targets"))
+                {
+                    try
+                    {
+                        response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                    } catch (Exception e)
+                    {
+                        logger.error(e.getMessage());
+                    }
+                    continue;
+                }
+
                 // -------------- help! -------------------------------------
                 if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
                 {
@@ -319,11 +320,12 @@ public class Server extends ServerBase
                     }
 
                     response += "  auth [password] = access Authorized commands\r\n" +
-                            "  retrieveRemoteCollectionExport = get collection data from remote\r\n" +
-                            "  help or ? = this list\r\n" +
+                            "  collection = get collection data from remote\r\n" +
+                            "  space [location] = free space at location on remote\r\n" +
+                            "  targets = get targets file from remote\r\n" +
+                            "\r\n  help or ? = this list\r\n" +
                             "  logout = exit current level\r\n" +
                             "  quit, bye, exit = disconnect\r\n" +
-                            "  space [location] = free space at location\r\n" +
                             "\r\n";
                     // @formatter:on
                     continue;
@@ -343,7 +345,7 @@ public class Server extends ServerBase
 
         if (stop)
         {
-            Utils.write(out, subscriberKey, "\r\n\r\nSession is disconnecting\r\n");
+            // cannot write anything to remote, connection is closed
         }
 
         // all done, close everything
@@ -354,8 +356,6 @@ public class Server extends ServerBase
         out.close();
         in.close();
     } // process
-
-    //------------------------------------------------------------------------
 
     /**
      * Request the Server service to stop

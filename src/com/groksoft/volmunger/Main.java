@@ -10,6 +10,10 @@ import com.groksoft.volmunger.comm.Terminal;
 import com.groksoft.volmunger.comm.Transfer;
 import com.groksoft.volmunger.repository.Repository;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static com.groksoft.volmunger.Configuration.*;
 
 /**
@@ -50,6 +54,19 @@ public class Main
         Repository publisherRepo;
         Repository subscriberRepo;
 
+        // HAVE CHANGED:
+        // -t and added -T where existing scripts and batch files need to be edited changing -t to -T
+
+        // ideas for adds & changes --
+        // 1. add -g to get/request a specific item
+        // 2. add "double-dash" equivalent options to make command lines more readable
+        //    examples: -E and --export-collection, -r and --remote-subscriber
+        //    It's just adding more case statements in Configuration.parseCommandLine()
+        //
+        // With -l to spec the library, and -g to get the item we have a way to make a request.
+        // An "item" is the granularity of a movie (directory) or a tv season (directory).
+        //
+
         try
         {
             cfg.parseCommandLine(args);
@@ -66,19 +83,6 @@ public class Main
             logger = LogManager.getLogger("applog");
 
             // todo Add sanity checks for option combinations that do not make sense
-
-            // HAVE CHANGED:
-            // -t and added -T where existing scripts and batch files need to be edited changing -t to -T
-
-            // ideas for adds & changes --
-            // 1. add -g to get/request a specific item
-            // 2. add "double-dash" equivalent options to make command lines more readable
-            //    examples: -E and --export-collection, -r and --remote-subscriber
-            //    It's just adding more case statements in Configuration.parseCommandLine()
-            //
-            // With -l to spec the library, and -g to get the item we have a way to make a request.
-            // An "item" is the granularity of a movie (directory) or a tv season (directory).
-            //
 
             // an execution of this program can only be configured as one of these
             switch (cfg.getRemoteFlag())
@@ -98,6 +102,9 @@ public class Main
                     logger.info("+ VolMunger Subscriber Listener begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
+                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
+                        throw new MungerException("-t file not found: " + cfg.getTargetsFilename());
+
                     publisherRepo = readRepo(cfg, true);
                     subscriberRepo = readRepo(cfg, false);
 
@@ -111,7 +118,7 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("A subscriber library or collection file is required for -r S");
+                        throw new MungerException("A subscriber library (-s) or collection file (-S) is required for -r S");
                     }
                     break;
 

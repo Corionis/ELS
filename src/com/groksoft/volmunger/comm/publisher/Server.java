@@ -12,8 +12,6 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-//----------------------------------------------------------------------------
-
 /**
  * Publisher Server service.
  * <p>
@@ -25,8 +23,6 @@ public class Server extends ServerBase
     protected static Logger logger = LogManager.getLogger("applog");
 
     private boolean isTerminal = false;
-
-    //------------------------------------------------------------------------
 
     /**
      * Instantiate the Server service
@@ -41,8 +37,6 @@ public class Server extends ServerBase
     } // constructor
 
 
-    //------------------------------------------------------------------------
-
     /**
      * Dump statistics from all available internal sources.
      */
@@ -53,7 +47,6 @@ public class Server extends ServerBase
         return data;
     } // dumpStatistics
 
-    //------------------------------------------------------------------------
     /**
      * Get the short name of the service.
      *
@@ -62,8 +55,6 @@ public class Server extends ServerBase
     public String getName() {
         return "Server";
     } // getName
-
-    //------------------------------------------------------------------------
 
     public boolean handshake() {
         boolean valid = false;
@@ -91,8 +82,6 @@ public class Server extends ServerBase
         }
         return valid;
     } // handshake
-
-    //------------------------------------------------------------------------
 
     /**
      * Process a connection request to the Server service.
@@ -266,8 +255,6 @@ public class Server extends ServerBase
         out.close();
         in.close();
     } // process
-
-    //------------------------------------------------------------------------
 
     /**
      * Request the Server service to stop

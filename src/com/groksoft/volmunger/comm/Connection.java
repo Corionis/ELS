@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.*;
 
-//----------------------------------------------------------------------------
 /**
  * Handle individual client connections.
  * 
@@ -24,7 +23,6 @@ public class Connection extends Thread
 	/** The socket for the connection */
 	protected Socket socket;
 
-	//------------------------------------------------------------------------
 	/**
 	 * Constructor.
 	 * 
@@ -42,7 +40,6 @@ public class Connection extends Thread
 		this.service = aService;
 	} // constructor
 	
-	//------------------------------------------------------------------------
 	/**
 	 * Get the associated Server instance
 	 */
@@ -51,7 +48,6 @@ public class Connection extends Thread
 		return service;
 	}
 	
-	//------------------------------------------------------------------------
 	/**
 	 * Get the associated Socket instance
 	 */
@@ -60,7 +56,6 @@ public class Connection extends Thread
 		return socket;
 	}
 
-	//------------------------------------------------------------------------
 	/**
 	 * Run the service for this connection.
 	 * 

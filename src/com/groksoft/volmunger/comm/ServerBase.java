@@ -8,7 +8,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.*;
 
-//----------------------------------------------------------------------------
 /**
  * Server service.
  *
@@ -36,7 +35,6 @@ public abstract class ServerBase
     protected Repository subscriberRepo;
     protected String subscriberKey;
 
-    //------------------------------------------------------------------------
     /**
      * Instantiate the Server service
      */
@@ -49,7 +47,6 @@ public abstract class ServerBase
         this.publisherKey = publisherRepo.getLibraryData().libraries.key;
     } // constructor
 
-    //------------------------------------------------------------------------
     /**
      * Dump statistics from all available internal sources.
      *
@@ -73,7 +70,6 @@ public abstract class ServerBase
 		*/
     }
 
-    //------------------------------------------------------------------------
     /**
      * Get the short name of the service.
      *
@@ -84,7 +80,6 @@ public abstract class ServerBase
         return "ServerBase";
     }
 
-    //------------------------------------------------------------------------
     /**
      * Request the Server service to stop
      */
@@ -94,14 +89,12 @@ public abstract class ServerBase
         logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
     }
 
-    //------------------------------------------------------------------------
     /**
      * Process a connection request to the Server service.
      *
      */
     public abstract void process(Socket aSocket) throws IOException;
 
-    //------------------------------------------------------------------------
     /**
      * Perform initial handshake for this session.
      *

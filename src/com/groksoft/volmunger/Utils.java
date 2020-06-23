@@ -265,13 +265,16 @@ public class Utils
             try
             {
                 int count = in.readInt();
-                buf = new byte[count];
-                int readCount = in.read(buf);
-                if (count != readCount)
+                if (count > 0)
                 {
-                    logger.warn("read buffer counts do not match " + count + " size, " + readCount + " actually read");
+                    buf = new byte[count];
+                    int readCount = in.read(buf);
+                    if (count != readCount)
+                    {
+                        logger.warn("read buffer counts do not match " + count + " size, " + readCount + " actually read");
+                    }
+                    input += decrypt(key, buf);
                 }
-                input += decrypt(key, buf);
                 break;
             } catch (SocketTimeoutException e)
             {
@@ -284,7 +287,7 @@ public class Utils
             {
                 if (e.getMessage().toLowerCase().contains("connection reset"))
                 {
-                    logger.info("Connection closed by client");
+                    logger.info("connection closed by client");
                     input = null;
                     break;
                 }

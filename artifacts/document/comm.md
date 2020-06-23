@@ -1,4 +1,4 @@
-# Communications Notes
+# VolMunger: Communications Notes
 This discusses using the -r option.
 
 Communication follows the publisher/subscriber paradigm. The
@@ -10,8 +10,9 @@ publisher sends content to the subscriber.
 ## Parameter Handling
 ### Authorization
 The publisher and subscriber automatically perform a complex
-"handshake" when a new connection is initiating. It includes
-comparing library keys. So no real "login" is required.
+"handshake" when a new connection is initiated. That includes
+comparing library keys and other things. So no real "login"
+is required.
 
 However, to access more sensitive commands **ON THE PUBLISHER**
 an Authorized mode is used. Using the command "auth [password]"
@@ -23,12 +24,14 @@ publisher must have full access to perform matches correctly.
 
 ### Remote modes
 ```
-  -r P = pub-process                // automatic process for -r S
-  -r L = pub-listener               // publish listener for -r T
-  -r M = pub-terminal               // manual terminal for -r S
+  -r P = pub-process        // publish process with -r S
+  -r L = pub-listener       // publish listener for -r T
+  -r M = pub-terminal       // manual terminal with -r S
 
-  -r S = sub-listener               // subscriber listener for -r P|M
-  -r T = sub-terminal               // subscriber terminal for -r L
+  -r S = sub-listener       // subscriber listener for -r P|M
+  -r T = sub-terminal       // subscriber terminal with -r L
+  
+  The mode letter is case insensitive.
 ```
 
 ### When the -r P|S "Remote" option is used:

@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.*;
 
-//----------------------------------------------------------------------------
 /**
  * Listen for a connection request for a service.
  * 
@@ -35,7 +34,6 @@ public class Listener extends Thread
 
 	private Configuration cfg;
 
-	//------------------------------------------------------------------------
 	/**
 	 * Setup a new Listener on a specified port.
 	 * 
@@ -61,7 +59,6 @@ public class Listener extends Thread
 		listenSocket.setSoTimeout(socketTimeout);
 	} // constructor
 
-	//------------------------------------------------------------------------
 	/**
 	 * Politely request the listener to stop.
 	 * 
@@ -72,7 +69,6 @@ public class Listener extends Thread
 		this.interrupt();
 	}
 
-	//------------------------------------------------------------------------
 	/**
 	 * Run listen thread body.
 	 * 
