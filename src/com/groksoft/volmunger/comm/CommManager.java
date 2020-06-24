@@ -136,7 +136,7 @@ public class CommManager extends Thread
             // log it
             logger.info("Server opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 
-            // start the connection thread
+            // startServer the connection thread
             theConnection.start();
             ++totalConnections;
         }

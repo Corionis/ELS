@@ -41,19 +41,19 @@ public class Storage
      * @param libraryName the library name
      * @return the Target
      */
-    public Target getTarget(String libraryName) throws MungerException {
+    public Target getLibraryTarget(String libraryName) throws MungerException {
         boolean has = false;
-        Target retTarget = null;
+        Target target = null;
         for (Target tar : targetData.targets.storage) {
             if (tar.name.equalsIgnoreCase(libraryName)) {
                 if (has) {
                     throw new MungerException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
                 }
                 has = true;
-                retTarget = tar;
+                target = tar;
             }
         }
-        return retTarget;
+        return target;
     }
 
     /**

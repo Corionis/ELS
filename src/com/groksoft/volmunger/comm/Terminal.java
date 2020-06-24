@@ -213,9 +213,7 @@ public class Terminal
     {
         String location = "";
         String response = "";
-//        String response = receive(); // read opening terminal banner
-//        if (response.startsWith("Enter "))
-//        {
+
         response = roundTrip(command);
         if (response != null && response.length() > 0)
         {
@@ -234,11 +232,6 @@ public class Terminal
                 throw new MungerException("Exception while writing " + command + " file " + location + " trace: " + Utils.getStackTrace(fnf));
             }
         }
-//        }
-//        else
-//        {
-//            throw new MungerException("Subscriber returned unknown data");
-//        }
         return location;
     }
 
@@ -249,10 +242,9 @@ public class Terminal
         return response;
     }
 
-    public int send(String command)
+    public void send(String command)
     {
         Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
-        return 0;
     }
 
     public int session()

@@ -357,7 +357,7 @@ public class Process
         long space = 0L;
         long minimum = 0L;
 
-        Target tar = storageTargets.getTarget(library);
+        Target tar = storageTargets.getLibraryTarget(library);
         if (tar != null)
         {
             minimum = Utils.getScaledValue(tar.minimum);
@@ -371,19 +371,23 @@ public class Process
         String path = subscriberRepository.hasDirectory(library, item.getItemPath());
         if (path != null)
         {
-            if (cfg.isPublisherProcess())
-            { // remote subscriber
+            if (cfg.isRemoteSession())
+            {
+                // remote subscriber
                 space = terminal.availableSpace(path);
             }
             else
             {
                 space = Utils.availableSpace(path);
             }
-            logger.info("Checking space on " + path + " == " + (space / (1024 * 1024)) + " for " +
+            logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") + " path " + path + " == " + (space / (1024 * 1024)) + " for " +
                     (size / (1024 * 1024)) + " minimum " + (minimum / (1024 * 1024)) + " MB");
             if (space > (size + minimum))
             {
                 logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
+                //
+                // inline return
+                //
                 return path;
             }
             else
@@ -400,7 +404,7 @@ public class Process
             {
                 // check space on the candidate target
                 String candidate = tar.locations[j];
-                if (cfg.isPublisherProcess())
+                if (cfg.isRemoteSession())
                 { // remote subscriber
                     space = terminal.availableSpace(candidate);
                 }
@@ -409,10 +413,12 @@ public class Process
                     space = Utils.availableSpace(candidate);
                 }
                 if (space > minimum)
-                {                  // check target space minimum
+                {
+                    // check target space minimum
                     allFull = false;
                     if (space > (size + minimum))
-                    {     // check size of item(s) to be copied
+                    {
+                        // check size of item(s) to be copied
                         target = candidate;             // has space, use it
                         break;
                     }
@@ -449,7 +455,6 @@ public class Process
 
         for (Pattern patt : publisherRepository.getLibraryData().libraries.compiledPatterns)
         {
-
             str = patt.toString();
             str1 = str.replace("?", ".?").replace("*", ".*?");
             if (item.getName().matches(str1))
@@ -750,7 +755,6 @@ public class Process
                     }
                     else
                     {
-            // LEFTOFF
                         String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
                         if (targetPath != null)
                         {

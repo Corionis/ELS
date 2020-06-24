@@ -10,7 +10,7 @@ import com.groksoft.volmunger.comm.Terminal;
 import com.groksoft.volmunger.comm.Transfer;
 import com.groksoft.volmunger.repository.Repository;
 
-import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -107,6 +107,11 @@ public class Main
 
                     publisherRepo = readRepo(cfg, true);
                     subscriberRepo = readRepo(cfg, false);
+
+                    String host = Utils.parseHost(subscriberRepo.getLibraryData().libraries.site);
+                    String port = Utils.parsePort(subscriberRepo.getLibraryData().libraries.site);
+                    transfer = new Transfer(host, port);
+                    transfer.startServer();
 
                     sessionThreads = new ThreadGroup("Server");
                     commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
@@ -224,11 +229,19 @@ public class Main
                             try
                             {
                                 Thread.sleep(200);
-                                logger.info("Shutting down CommManager ...");
+                                logger.info("Shutting down communications ...");
+
                                 // some clean up code...
                                 commManager.stopCommManager();
 
-                            } catch (InterruptedException e)
+                                if (transfer != null)
+                                    transfer.stop();
+                            }
+                            catch (InterruptedException e)
+                            {
+                                logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
+                            }
+                            catch (IOException e)
                             {
                                 logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
                             }
