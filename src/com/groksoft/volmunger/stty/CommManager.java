@@ -1,4 +1,4 @@
-package com.groksoft.volmunger.comm;
+package com.groksoft.volmunger.stty;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
@@ -123,10 +123,10 @@ public class CommManager extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.comm.publisher.Server(cfg, publisherRepo, subscriberRepo));
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Server(cfg, publisherRepo, subscriberRepo));
             } else if (cfg.isSubscriberListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.comm.subscriber.Server(cfg, publisherRepo, subscriberRepo));
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.subscriber.Server(cfg, publisherRepo, subscriberRepo));
             } else
             {
                 throw new MungerException("FATAL: Unknown connection type");
@@ -136,7 +136,7 @@ public class CommManager extends Thread
             // log it
             logger.info("Server opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 
-            // startServer the connection thread
+            // start the connection thread
             theConnection.start();
             ++totalConnections;
         }

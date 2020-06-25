@@ -1,8 +1,8 @@
-package com.groksoft.volmunger.comm.gui;
+package com.groksoft.volmunger.stty.gui;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.comm.Terminal;
+import com.groksoft.volmunger.stty.Terminal;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

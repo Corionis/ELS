@@ -2,12 +2,12 @@ package com.groksoft.volmunger;
 
 // see https://logging.apache.org/log4j/2.x/
 
+import com.groksoft.volmunger.sftp.Server;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.volmunger.comm.CommManager;
-import com.groksoft.volmunger.comm.Terminal;
-import com.groksoft.volmunger.comm.Transfer;
+import com.groksoft.volmunger.stty.CommManager;
+import com.groksoft.volmunger.stty.Terminal;
 import com.groksoft.volmunger.repository.Repository;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class Main
     private boolean isListening = false;
     private Logger logger = null;
     CommManager commManager = null;
-    Transfer transfer = null;
+    Server sftpServer = null;
 
     /**
      * Instantiates the Main application
@@ -42,7 +42,6 @@ public class Main
     {
         Main volmunger = new Main();
         int returnValue = volmunger.process(args);
-//        System.exit(returnValue);
     } // main
 
     public int process(String[] args)
@@ -110,8 +109,8 @@ public class Main
 
                     String host = Utils.parseHost(subscriberRepo.getLibraryData().libraries.site);
                     String port = Utils.parsePort(subscriberRepo.getLibraryData().libraries.site);
-                    transfer = new Transfer(host, port);
-                    transfer.startServer();
+                    sftpServer = new Server(host, port);
+                    sftpServer.startServer();
 
                     sessionThreads = new ThreadGroup("Server");
                     commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
@@ -208,11 +207,20 @@ public class Main
                     throw new MungerException("Unknown type of remote");
             }
 
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
-            logger.error(e.getMessage()); // + "\r\n" + Utils.getStackTrace(e));
+            if (logger != null)
+            {
+                logger.error(e.getMessage());
+            }
+            else
+            {
+                System.out.println(e.getMessage());
+            }
             returnValue = 1;
-        } finally
+        }
+        finally
         {
             if (commManager != null)
             {
@@ -234,8 +242,8 @@ public class Main
                                 // some clean up code...
                                 commManager.stopCommManager();
 
-                                if (transfer != null)
-                                    transfer.stop();
+                                if (sftpServer != null)
+                                    sftpServer.stop();
                             }
                             catch (InterruptedException e)
                             {

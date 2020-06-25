@@ -1,9 +1,9 @@
-package com.groksoft.volmunger.comm;
+package com.groksoft.volmunger.stty;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.comm.gui.TerminalGui;
+import com.groksoft.volmunger.stty.gui.TerminalGui;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +16,9 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Terminal -to- Server, used for both manual (interactive) and automated sessions
+ */
 public class Terminal
 {
     private transient Logger logger = LogManager.getLogger("applog");
@@ -35,10 +38,6 @@ public class Terminal
 
     /**
      * Instantiate a Terminal.<br>
-     * <br>
-     * An interactive (manual) client includes the prompt, whereas the prompt
-     * is not appended for automated connections.<br>
-     * <br>
      *
      * @param config     The Configuration object
      * @param isTerminal True if an interactive client, false if an automated client

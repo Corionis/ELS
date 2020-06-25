@@ -13,9 +13,9 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.volmunger.comm.Terminal;
-import com.groksoft.volmunger.comm.Transfer;
-import com.groksoft.volmunger.comm.CommManager;
+import com.groksoft.volmunger.stty.Terminal;
+import com.groksoft.volmunger.sftp.Server;
+import com.groksoft.volmunger.stty.CommManager;
 import com.groksoft.volmunger.storage.Target;
 import com.groksoft.volmunger.repository.Item;
 import com.groksoft.volmunger.repository.Library;
@@ -50,7 +50,7 @@ public class Process
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isListening = false;
     CommManager commManager = null;
-    Transfer transfer = null;
+    Server transfer = null;
 
     /**
      * Instantiates the class
@@ -93,10 +93,6 @@ public class Process
                     if (cfg.getPublisherCollectionFilename().length() > 0)
                     {
                         readRepository(cfg.getPublisherCollectionFilename(), publisherRepository, false);
-                    }
-                    else
-                    {
-                        throw new MungerException("A publisher file -p or -P is required for the munge process");
                     }
                 }
 
@@ -195,8 +191,11 @@ public class Process
                 }
                 else
                 {
-                    logger.warn("NOTE: No targets file was specified - performing a dry run");
-                    cfg.setDryRun(true);
+                    if (!cfg.isDryRun())
+                    {
+                        logger.warn("NOTE: No targets file was specified - performing a dry run");
+                        cfg.setDryRun(true);
+                    }
                 }
 
                 // if all the pieces are specified munge the collections
@@ -206,7 +205,11 @@ public class Process
                                 cfg.getSubscriberCollectionFilename().length() > 0) &&
                         cfg.getTargetsFilename().length() > 0)
                 {
-                    munge(); // this is the full standalone process, not terminal
+                    munge(); // this is the full munge process
+                }
+                else
+                {
+                    logger.info("Munge not performed");
                 }
             }
             catch (Exception ex)
@@ -650,7 +653,7 @@ public class Process
                                     {
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
                                         // There is a new group - process the old group
-                                        processGroup(group, totalSize);
+                                        copyGroup(group, totalSize);
                                         totalSize = 0L;
 
                                         // Flush the output files
@@ -693,7 +696,7 @@ public class Process
                 // Process the last group
                 logger.info("Processing last group '" + currentGroupName + "'");
                 // There is another group - process it
-                processGroup(group, totalSize);
+                copyGroup(group, totalSize);
                 totalSize = 0L;
             }
 
@@ -733,13 +736,13 @@ public class Process
     }
 
     /**
-     * Process group.
+     * Copy group of files.
      *
      * @param group     the group
      * @param totalSize the total size
      * @throws MungerException the volmunger exception
      */
-    private void processGroup(ArrayList<Item> group, long totalSize) throws MungerException
+    private void copyGroup(ArrayList<Item> group, long totalSize) throws MungerException
     {
         try
         {
