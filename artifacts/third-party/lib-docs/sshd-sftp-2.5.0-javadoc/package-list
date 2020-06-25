@@ -1,0 +1,11 @@
+org.apache.sshd.client.subsystem.sftp
+org.apache.sshd.client.subsystem.sftp.extensions
+org.apache.sshd.client.subsystem.sftp.extensions.helpers
+org.apache.sshd.client.subsystem.sftp.extensions.openssh
+org.apache.sshd.client.subsystem.sftp.extensions.openssh.helpers
+org.apache.sshd.client.subsystem.sftp.fs
+org.apache.sshd.client.subsystem.sftp.impl
+org.apache.sshd.common.subsystem.sftp
+org.apache.sshd.common.subsystem.sftp.extensions
+org.apache.sshd.common.subsystem.sftp.extensions.openssh
+org.apache.sshd.server.subsystem.sftp

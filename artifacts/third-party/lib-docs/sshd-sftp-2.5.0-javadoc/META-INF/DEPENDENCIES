@@ -1,0 +1,21 @@
+// ------------------------------------------------------------------
+// Transitive dependencies of this project determined from the
+// maven pom organized by organization.
+// ------------------------------------------------------------------
+
+Apache MINA SSHD
+
+
+From: 'Simple Logging Facade for Java' (https://www.slf4j.org/)
+  - SLF4J API Module (http://www.slf4j.org/slf4j-api) org.slf4j:slf4j-api:jar:1.7.30:compile
+    License: MIT style  (http://www.slf4j.org/license.html)
+
+From: 'The Apache Software Foundation' (http://www.apache.org/)
+  - Apache Mina SSHD :: Common support utilities (http://www.apache.org/sshd/sshd-common/) org.apache.sshd:sshd-common:jar:2.5.0
+    License: Apache 2.0 License  (https://www.apache.org/licenses/LICENSE-2.0)
+  - Apache Mina SSHD :: Core (http://www.apache.org/sshd/sshd-core/) org.apache.sshd:sshd-core:jar:2.5.0
+    License: Apache 2.0 License  (https://www.apache.org/licenses/LICENSE-2.0)
+
+
+
+
