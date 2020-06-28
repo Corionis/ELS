@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
+import com.groksoft.volmunger.sftp.Client;
+import com.groksoft.volmunger.stty.SttyClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.volmunger.stty.Terminal;
-import com.groksoft.volmunger.sftp.Server;
-import com.groksoft.volmunger.stty.CommManager;
+import com.groksoft.volmunger.stty.Stty;
 import com.groksoft.volmunger.storage.Target;
 import com.groksoft.volmunger.repository.Item;
 import com.groksoft.volmunger.repository.Library;
@@ -35,7 +35,7 @@ public class Process
 
     private transient Logger logger = LogManager.getLogger("applog");
     private Configuration cfg = null;
-    private Terminal terminal = null;
+    private SttyClient sttyClient = null;
     private Repository publisherRepository = null;
     private Repository subscriberRepository = null;
     private Storage storageTargets = null;
@@ -49,8 +49,8 @@ public class Process
     private int copyCount = 0;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isListening = false;
-    CommManager commManager = null;
-    Server transfer = null;
+    Stty stty = null;
+    Client sftpClient = null;
 
     /**
      * Instantiates the class
@@ -111,19 +111,20 @@ public class Process
                     else
                         throw new MungerException("-r P requires a subscriber -s or -S");
 
-                    // connect to subscriber
-                    terminal = new Terminal(cfg, false);
-                    if (!terminal.connect(publisherRepository, subscriberRepository))
-                    {
-                        throw new MungerException("Publisher Process failed to connect");
-                    }
+                    sttyClientInit();
 
                     // check for opening commands from Subscriber
                     // *** might change cfg options for subscriber and targets that are handled below ***
-                    if (terminal.checkBannerCommands())
+                    if (sttyClient != null)
                     {
-                        logger.info("Received subscriber requests:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
+                        if (sttyClient.checkBannerCommands())
+                        {
+                            logger.info("Received subscriber requests:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
+                        }
                     }
+
+                    // connect sftp client to subscriber server
+//                    sftpClient = new Client()
                 }
 
                 // get -s Subscriber libraries
@@ -132,7 +133,9 @@ public class Process
                     if (cfg.isRemoteSession() && cfg.isRequestCollection())
                     {
                         // request complete collection data from remote subscriber
-                        String location = terminal.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
+                        if (sttyClient == null)
+                            sttyClientInit();
+                        String location = sttyClient.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
                         cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
                         cfg.setSubscriberCollectionFilename(location);
 
@@ -184,7 +187,9 @@ public class Process
                     if (cfg.isRemoteSession() && cfg.isRequestTargets())
                     {
                         // request target data from remote subscriber
-                        location = terminal.retrieveRemoteData(location, "targets");
+                        if (sttyClient == null)
+                            sttyClientInit();
+                        location = sttyClient.retrieveRemoteData(location, "targets");
                         cfg.setTargetsFilename(location);
                     }
                     readTargets(location, storageTargets);
@@ -226,10 +231,10 @@ public class Process
         }
         finally
         {
-            if (terminal != null)
+            if (sttyClient != null)
             {
-                logger.info("closing terminal connections");
-                terminal.disconnect();
+                logger.info("closing sttyClient connections");
+                sttyClient.disconnect();
             }
 
             // the - makes searching for the ending of a run easier
@@ -377,7 +382,7 @@ public class Process
             if (cfg.isRemoteSession())
             {
                 // remote subscriber
-                space = terminal.availableSpace(path);
+                space = sttyClient.availableSpace(path);
             }
             else
             {
@@ -409,7 +414,7 @@ public class Process
                 String candidate = tar.locations[j];
                 if (cfg.isRemoteSession())
                 { // remote subscriber
-                    space = terminal.availableSpace(candidate);
+                    space = sttyClient.availableSpace(candidate);
                 }
                 else
                 {

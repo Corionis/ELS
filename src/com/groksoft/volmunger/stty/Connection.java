@@ -77,7 +77,7 @@ public class Connection extends Thread
 		finally
 		{
 			// notify the ConnectionManager that this connection has closed
-			CommManager cm = CommManager.getInstance();
+			Stty cm = Stty.getInstance();
 			if (cm != null)
 			{
 				cm.endConnection();

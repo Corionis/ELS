@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Terminal -to- Server, used for both manual (interactive) and automated sessions
+ * SttyClient -to- Stty server, used for both manual (interactive) and automated sessions
  */
-public class Terminal
+public class SttyClient
 {
     private transient Logger logger = LogManager.getLogger("applog");
 
@@ -37,12 +37,12 @@ public class Terminal
     private String theirKey;
 
     /**
-     * Instantiate a Terminal.<br>
+     * Instantiate a SttyClient.<br>
      *
      * @param config     The Configuration object
      * @param isTerminal True if an interactive client, false if an automated client
      */
-    public Terminal(Configuration config, boolean isTerminal)
+    public SttyClient(Configuration config, boolean isTerminal)
     {
         this.cfg = config;
         this.isTerminal = isTerminal;
@@ -102,9 +102,9 @@ public class Terminal
         return hasCommands;
     }
 
-    public boolean connect(Repository myRepo, Repository theirRepo) throws Exception
+    public boolean connect(Repository mine, Repository theirs) throws MungerException
     {
-        this.myRepo = myRepo;
+        this.myRepo = mine;
         this.theirRepo = theirRepo;
 
         if (this.theirRepo != null &&
@@ -113,7 +113,7 @@ public class Terminal
                 this.theirRepo.getLibraryData().libraries.site != null)
         {
 
-            this.myKey = myRepo.getLibraryData().libraries.key;
+            this.myKey = mine.getLibraryData().libraries.key;
             this.theirKey = theirRepo.getLibraryData().libraries.key;
 
             String host = Utils.parseHost(this.theirRepo.getLibraryData().libraries.site);
@@ -246,7 +246,7 @@ public class Terminal
         Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
     }
 
-    public int session()
+    public int guiSession()
     {
         int returnValue = 0;
         TerminalGui gui = new TerminalGui(this, cfg, in, out);

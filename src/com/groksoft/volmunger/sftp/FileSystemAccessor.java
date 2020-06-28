@@ -25,30 +25,9 @@ public class FileSystemAccessor implements SftpFileSystemAccessor
     private transient Logger logger = LogManager.getLogger("applog");
 
     @Override
-    public Path resolveLocalFilePath(ServerSession session, SftpSubsystemProxy subsystem, Path rootDir, String remotePath) throws IOException, InvalidPathException
+    public void closeDirectory(ServerSession session, SftpSubsystemProxy subsystem, DirectoryHandle dirHandle, Path dir, String handle, DirectoryStream<Path> ds) throws IOException
     {
-        logger.info("resolveLocalFilePath");
-        return null;
-    }
-
-    @Override
-    public SeekableByteChannel openFile(ServerSession session, SftpSubsystemProxy subsystem, FileHandle fileHandle, Path file, String handle, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException
-    {
-        logger.info("openFile");
-        return null;
-    }
-
-    @Override
-    public FileLock tryLock(ServerSession session, SftpSubsystemProxy subsystem, FileHandle fileHandle, Path file, String handle, Channel channel, long position, long size, boolean shared) throws IOException
-    {
-        logger.info("tryLock");
-        return null;
-    }
-
-    @Override
-    public void syncFileData(ServerSession session, SftpSubsystemProxy subsystem, FileHandle fileHandle, Path file, String handle, Channel channel) throws IOException
-    {
-        logger.info("syncFileData");
+        logger.info("closeDirectory");
     }
 
     @Override
@@ -58,67 +37,9 @@ public class FileSystemAccessor implements SftpFileSystemAccessor
     }
 
     @Override
-    public DirectoryStream<Path> openDirectory(ServerSession session, SftpSubsystemProxy subsystem, DirectoryHandle dirHandle, Path dir, String handle) throws IOException
+    public void copyFile(ServerSession session, SftpSubsystemProxy subsystem, Path src, Path dst, Collection<CopyOption> opts) throws IOException
     {
-        logger.info("openDirectory");
-        return null;
-    }
-
-    @Override
-    public void closeDirectory(ServerSession session, SftpSubsystemProxy subsystem, DirectoryHandle dirHandle, Path dir, String handle, DirectoryStream<Path> ds) throws IOException
-    {
-        logger.info("closeDirectory");
-    }
-
-    @Override
-    public Map<String, ?> readFileAttributes(ServerSession session, SftpSubsystemProxy subsystem, Path file, String view, LinkOption... options) throws IOException
-    {
-        logger.info("readFileAttributes");
-        return null;
-    }
-
-    @Override
-    public void setFileAttribute(ServerSession session, SftpSubsystemProxy subsystem, Path file, String view, String attribute, Object value, LinkOption... options) throws IOException
-    {
-        logger.info("setFileAttribute");
-    }
-
-    @Override
-    public UserPrincipal resolveFileOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, UserPrincipal name) throws IOException
-    {
-        logger.info("resolveFileOwner");
-        return null;
-    }
-
-    @Override
-    public void setFileOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, Principal value, LinkOption... options) throws IOException
-    {
-        logger.info("setFileOwner");
-    }
-
-    @Override
-    public GroupPrincipal resolveGroupOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, GroupPrincipal name) throws IOException
-    {
-        logger.info("resolveGroupOwner");
-        return null;
-    }
-
-    @Override
-    public void setGroupOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, Principal value, LinkOption... options) throws IOException
-    {
-        logger.info("setGroupOwner");
-    }
-
-    @Override
-    public void setFilePermissions(ServerSession session, SftpSubsystemProxy subsystem, Path file, Set<PosixFilePermission> perms, LinkOption... options) throws IOException
-    {
-        logger.info("setFilePermissions");
-    }
-
-    @Override
-    public void setFileAccessControl(ServerSession session, SftpSubsystemProxy subsystem, Path file, List<AclEntry> acl, LinkOption... options) throws IOException
-    {
-        logger.info("setFileAccessControl");
+        logger.info("copyFile");
     }
 
     @Override
@@ -134,10 +55,30 @@ public class FileSystemAccessor implements SftpFileSystemAccessor
     }
 
     @Override
-    public String resolveLinkTarget(ServerSession session, SftpSubsystemProxy subsystem, Path link) throws IOException
+    public DirectoryStream<Path> openDirectory(ServerSession session, SftpSubsystemProxy subsystem, DirectoryHandle dirHandle, Path dir, String handle) throws IOException
     {
-        logger.info("resolveLinkTarget");
+        logger.info("openDirectory");
         return null;
+    }
+
+    @Override
+    public SeekableByteChannel openFile(ServerSession session, SftpSubsystemProxy subsystem, FileHandle fileHandle, Path file, String handle, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException
+    {
+        logger.info("openFile");
+        return null;
+    }
+
+    @Override
+    public Map<String, ?> readFileAttributes(ServerSession session, SftpSubsystemProxy subsystem, Path file, String view, LinkOption... options) throws IOException
+    {
+        logger.info("readFileAttributes");
+        return null;
+    }
+
+    @Override
+    public void removeFile(ServerSession session, SftpSubsystemProxy subsystem, Path path, boolean isDirectory) throws IOException
+    {
+        logger.info("removeFile");
     }
 
     @Override
@@ -147,15 +88,74 @@ public class FileSystemAccessor implements SftpFileSystemAccessor
     }
 
     @Override
-    public void copyFile(ServerSession session, SftpSubsystemProxy subsystem, Path src, Path dst, Collection<CopyOption> opts) throws IOException
+    public UserPrincipal resolveFileOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, UserPrincipal name) throws IOException
     {
-        logger.info("copyFile");
+        logger.info("resolveFileOwner");
+        return null;
     }
 
     @Override
-    public void removeFile(ServerSession session, SftpSubsystemProxy subsystem, Path path, boolean isDirectory) throws IOException
+    public GroupPrincipal resolveGroupOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, GroupPrincipal name) throws IOException
     {
-        logger.info("removeFile");
+        logger.info("resolveGroupOwner");
+        return null;
+    }
+
+    @Override
+    public String resolveLinkTarget(ServerSession session, SftpSubsystemProxy subsystem, Path link) throws IOException
+    {
+        logger.info("resolveLinkTarget");
+        return null;
+    }
+
+    @Override
+    public Path resolveLocalFilePath(ServerSession session, SftpSubsystemProxy subsystem, Path rootDir, String remotePath) throws IOException, InvalidPathException
+    {
+        logger.info("resolveLocalFilePath");
+        return null;
+    }
+
+    @Override
+    public void setFileAccessControl(ServerSession session, SftpSubsystemProxy subsystem, Path file, List<AclEntry> acl, LinkOption... options) throws IOException
+    {
+        logger.info("setFileAccessControl");
+    }
+
+    @Override
+    public void setFileAttribute(ServerSession session, SftpSubsystemProxy subsystem, Path file, String view, String attribute, Object value, LinkOption... options) throws IOException
+    {
+        logger.info("setFileAttribute");
+    }
+
+    @Override
+    public void setFileOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, Principal value, LinkOption... options) throws IOException
+    {
+        logger.info("setFileOwner");
+    }
+
+    @Override
+    public void setFilePermissions(ServerSession session, SftpSubsystemProxy subsystem, Path file, Set<PosixFilePermission> perms, LinkOption... options) throws IOException
+    {
+        logger.info("setFilePermissions");
+    }
+
+    @Override
+    public void setGroupOwner(ServerSession session, SftpSubsystemProxy subsystem, Path file, Principal value, LinkOption... options) throws IOException
+    {
+        logger.info("setGroupOwner");
+    }
+
+    @Override
+    public void syncFileData(ServerSession session, SftpSubsystemProxy subsystem, FileHandle fileHandle, Path file, String handle, Channel channel) throws IOException
+    {
+        logger.info("syncFileData");
+    }
+
+    @Override
+    public FileLock tryLock(ServerSession session, SftpSubsystemProxy subsystem, FileHandle fileHandle, Path file, String handle, Channel channel, long position, long size, boolean shared) throws IOException
+    {
+        logger.info("tryLock");
+        return null;
     }
 
 }

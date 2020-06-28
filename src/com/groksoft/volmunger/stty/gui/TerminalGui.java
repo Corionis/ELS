@@ -2,7 +2,7 @@ package com.groksoft.volmunger.stty.gui;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.stty.Terminal;
+import com.groksoft.volmunger.stty.SttyClient;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,15 +26,15 @@ public class TerminalGui implements WindowListener, ActionListener
     private Repository myRepo;
     private Repository theirRepo;
 
-    Terminal terminal;
+    SttyClient terminal;
     JFrame frame;
     JTextArea textArea;
     JTextField commandField;
     JScrollPane scroll;
 
-    public TerminalGui(Terminal terminal, Configuration cfg, DataInputStream in, DataOutputStream out)
+    public TerminalGui(SttyClient sttyClient, Configuration cfg, DataInputStream in, DataOutputStream out)
     {
-        this.terminal = terminal;
+        this.terminal = sttyClient;
         this.cfg = cfg;
         this.in = in;
         this.out = out;

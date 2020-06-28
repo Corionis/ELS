@@ -291,7 +291,7 @@ public class Configuration
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
         logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherCollectionFilename());
-        logger.info("  cfg: -r Terminal session = " + getRemoteType());
+        logger.info("  cfg: -r SttyClient session = " + getRemoteType());
         logger.info("  cfg: -s Server Library filename = " + getSubscriberLibrariesFileName());
         logger.info("  cfg: -S Server Collection import filename = " + getSubscriberCollectionFilename());
         logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
@@ -321,7 +321,7 @@ public class Configuration
     /**
      * Gets Authorized password.
      *
-     * @return the password required to access Authorized mode when using a Terminal
+     * @return the password required to access Authorized mode when using a SttyClient
      */
     public String getAuthorizedPassword()
     {
@@ -331,7 +331,7 @@ public class Configuration
     /**
      * Sets Authorized password.
      *
-     * @param password the password required to access Authorized mode with a Terminal
+     * @param password the password required to access Authorized mode with a SttyClient
      */
     public void setAuthorizedPassword(String password)
     {

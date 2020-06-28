@@ -26,10 +26,10 @@ publisher must have full access to perform matches correctly.
 ```
   -r P = pub-process        // publish process with -r S
   -r L = pub-listener       // publish listener for -r T
-  -r M = pub-terminal       // manual terminal with -r S
+  -r M = pub-sttyClient     // manual sttyClient with -r S
 
   -r S = sub-listener       // subscriber listener for -r P|M
-  -r T = sub-terminal       // subscriber terminal with -r L
+  -r T = sub-sttyClient     // subscriber sttyClient with -r L
   
   The mode letter is case insensitive.
 ```

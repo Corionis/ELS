@@ -2,12 +2,13 @@ package com.groksoft.volmunger;
 
 // see https://logging.apache.org/log4j/2.x/
 
+import com.groksoft.volmunger.sftp.Client;
 import com.groksoft.volmunger.sftp.Server;
+import com.groksoft.volmunger.stty.Stty;
+import com.groksoft.volmunger.stty.SttyClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.volmunger.stty.CommManager;
-import com.groksoft.volmunger.stty.Terminal;
 import com.groksoft.volmunger.repository.Repository;
 
 import java.io.IOException;
@@ -23,8 +24,13 @@ public class Main
 {
     private boolean isListening = false;
     private Logger logger = null;
-    CommManager commManager = null;
-    Server sftpServer = null;
+
+    public Repository publisherRepo;
+    public Client sftpClient;
+    public Server sftp;
+    public Stty stty;
+    public SttyClient sttyClient;
+    public Repository subscriberRepo;
 
     /**
      * Instantiates the Main application
@@ -50,8 +56,6 @@ public class Main
         ThreadGroup sessionThreads = null;
         Configuration cfg = new Configuration();
         Process proc;
-        Repository publisherRepo;
-        Repository subscriberRepo;
 
         // HAVE CHANGED:
         // -t and added -T where existing scripts and batch files need to be edited changing -t to -T
@@ -104,20 +108,20 @@ public class Main
                     if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
                         throw new MungerException("-t file not found: " + cfg.getTargetsFilename());
 
-                    publisherRepo = readRepo(cfg, true);
-                    subscriberRepo = readRepo(cfg, false);
-
-                    String host = Utils.parseHost(subscriberRepo.getLibraryData().libraries.site);
-                    String port = Utils.parsePort(subscriberRepo.getLibraryData().libraries.site);
-                    sftpServer = new Server(host, port);
-                    sftpServer.startServer();
-
-                    sessionThreads = new ThreadGroup("Server");
-                    commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
+                    publisherRepo = readRepo(cfg, false);
+                    subscriberRepo = readRepo(cfg, true);
 
                     if (subscriberRepo.getJsonFilename() != null && !subscriberRepo.getJsonFilename().isEmpty())
                     {
-                        commManager.startListening(subscriberRepo);
+                        // start stty server
+                        sessionThreads = new ThreadGroup("SServer");
+                        stty = new Stty(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
+                        stty.startListening(subscriberRepo);
+
+                        // start sftp server
+                        sftp = new Server(publisherRepo, subscriberRepo);
+                        sftp.startServer();
+
                         isListening = true;
                     }
                     else
@@ -147,22 +151,27 @@ public class Main
                     }
                     break;
 
-                // handle -r B publisher terminal
+                // handle -r M publisher terminal
                 case PUBLISHER_TERMINAL:
-                    logger.info("+ VolMunger Publisher Terminal begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Publisher SttyClient begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     publisherRepo = readRepo(cfg, true);
                     subscriberRepo = readRepo(cfg, false);
 
-                    Terminal pubTerminal = new Terminal(cfg, true);
-                    if (pubTerminal.connect(publisherRepo, subscriberRepo))
+                    // start the sftp client
+                    sftpClient = new Client(publisherRepo, subscriberRepo);
+                    sftpClient.startClient();
+
+                    // start the stty client interactively
+                    sttyClient = new SttyClient(cfg, true);
+                    if (sttyClient.connect(publisherRepo, subscriberRepo))
                     {
-                        pubTerminal.session();
+                        sttyClient.guiSession();
                     }
                     else
                     {
-                        throw new MungerException("Publisher Terminal failed to connect");
+                        throw new MungerException("Publisher SttyClient failed to connect");
                     }
                     break;
 
@@ -174,32 +183,46 @@ public class Main
                     publisherRepo = readRepo(cfg, true);
                     subscriberRepo = readRepo(cfg, false);
 
-                    sessionThreads = new ThreadGroup("Server");
-                    commManager = new CommManager(sessionThreads, 10, cfg, publisherRepo, subscriberRepo);
-
                     if (publisherRepo.getJsonFilename() != null && !publisherRepo.getJsonFilename().isEmpty())
                     {
-                        commManager.startListening(publisherRepo);
+                        // start stty server
+                        sessionThreads = new ThreadGroup("PServer");
+                        stty = new Stty(sessionThreads, 10, cfg, subscriberRepo, publisherRepo);
+                        stty.startListening(publisherRepo);
+
+                        // start sftp server
+                        sftp = new Server(subscriberRepo, publisherRepo);
+                        sftp.startServer();
+
                         isListening = true;
+                    }
+                    else
+                    {
+                        throw new MungerException("A publisher library (-p) or collection file (-P) is required for -r L");
                     }
                     break;
 
                 // handle -r T subscriber terminal
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("+ VolMunger Subscriber Terminal begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Subscriber SttyClient begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
-                    publisherRepo = readRepo(cfg, true);
-                    subscriberRepo = readRepo(cfg, false);
+                    publisherRepo = readRepo(cfg, false);
+                    subscriberRepo = readRepo(cfg, true);
 
-                    Terminal subTerminal = new Terminal(cfg, true);
-                    if (subTerminal.connect(publisherRepo, subscriberRepo))
+                    // start the sftp client
+                    sftpClient = new Client(subscriberRepo, publisherRepo);
+                    sftpClient.startClient();
+
+                    // start the stty client interactively
+                    sttyClient = new SttyClient(cfg, true);
+                    if (sttyClient.connect(subscriberRepo, publisherRepo))
                     {
-                        subTerminal.session();
+                        sttyClient.guiSession();
                     }
                     else
                     {
-                        throw new MungerException("Subscriber Terminal failed to connect");
+                        throw new MungerException("Subscriber SttyClient failed to connect");
                     }
                     break;
 
@@ -222,11 +245,11 @@ public class Main
         }
         finally
         {
-            if (commManager != null)
+            if (stty != null)       // LEFTOFF
             {
                 if (!isListening)
                 {
-                    commManager.stopCommManager();
+                    stty.stopServer();
                 }
                 else
                 {
@@ -240,16 +263,9 @@ public class Main
                                 logger.info("Shutting down communications ...");
 
                                 // some clean up code...
-                                commManager.stopCommManager();
-
-                                if (sftpServer != null)
-                                    sftpServer.stop();
+                                stty.stopServer();
                             }
                             catch (InterruptedException e)
-                            {
-                                logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
-                            }
-                            catch (IOException e)
                             {
                                 logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
                             }
@@ -258,6 +274,30 @@ public class Main
                 }
             }
 
+            // stop the stty client
+            if (sttyClient != null)
+            {
+                sttyClient.disconnect();
+            }
+
+            // stop the sftp client
+            if (sftpClient != null)
+            {
+                sftpClient.stopClient();
+            }
+
+            // stop the sftp server
+            if (sftp != null)
+            {
+                try
+                {
+                    sftp.stopServer();
+                }
+                catch (IOException e)
+                {
+                    // ignore any exception
+                }
+            }
         }
 
         return returnValue;

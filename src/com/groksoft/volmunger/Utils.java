@@ -3,6 +3,9 @@ package com.groksoft.volmunger;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Key;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -187,6 +190,31 @@ public class Utils
         return path;
     }
 
+    /**
+     * O/S independent way of setting file permissions<br/>
+     *
+     * @param thing String of local file to check
+     * @return int permissions
+     */
+    public static int getLocalPermissions(String thing)
+    {
+        int perms = 000;
+        Path p = Paths.get(thing);
+
+        //if (Files.notExists(p))
+
+        //if (Files.isReadable(p))
+        //    perms = 444;
+
+        if (Files.isWritable(p))
+            perms = 644;
+
+        if (Files.isExecutable(p))
+            perms = 755;
+
+        return perms;
+    }
+
     public static int getPort(String site)
     {
         int port = 0;
@@ -234,6 +262,8 @@ public class Utils
         {
             host = a[0];
         }
+        if (host.length() < 1)
+            host = "localhost";
         return host;
     }
 
@@ -247,13 +277,13 @@ public class Utils
      */
     public static String parsePort(String location)
     {
-        String sport = "";
+        String port = "";
         String[] a = location.split(":");
         if (a.length == 2)
         {
-            sport = a[1];
+            port = a[1];
         }
-        return sport;
+        return port;
     }
 
     public static String read(DataInputStream in, String key)

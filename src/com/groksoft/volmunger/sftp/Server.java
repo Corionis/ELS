@@ -3,13 +3,12 @@ package com.groksoft.volmunger.sftp;
 import java.io.IOException;
 import java.util.Collections;
 
-import org.apache.sshd.client.SshClient;
-import org.apache.sshd.common.NamedFactory;
+import com.groksoft.volmunger.Utils;
+import com.groksoft.volmunger.repository.Repository;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.AsyncAuthException;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
-import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
 
@@ -33,23 +32,28 @@ public class Server implements SftpErrorStatusDataHandler
     private transient Logger logger = LogManager.getLogger("applog");
 
     private String hostname;
-    private String hostport;
+    private int hostport;
+    private String password;
+    private Repository publisherRepo;
     private SshServer sshd;
+    private Repository subscriberRepo;
+    private String user;
 
     private Server()
     {
         // hide default constructor
     }
 
-    public Server(String name, String port)
+    public Server(Repository publisherRep, Repository subscriberRep)
     {
-        hostname = name;
-        if (hostname.length() < 1)
-            hostname = "localhost";
+        subscriberRepo = subscriberRep;
+        publisherRepo = publisherRep;
 
-        hostport = port;
-        if (port.length() < 1)
-            hostport = "50271";
+        hostname = Utils.parseHost(subscriberRepo.getLibraryData().libraries.site);
+        hostport = Utils.getPort(subscriberRepo.getLibraryData().libraries.site) + 1;
+
+        user = publisherRepo.getLibraryData().libraries.key;
+        password = subscriberRepo.getLibraryData().libraries.key;
     }
 
     public void startServer()
@@ -58,7 +62,7 @@ public class Server implements SftpErrorStatusDataHandler
         {
             sshd = SshServer.setUpDefaultServer();
             sshd.setHost(hostname);
-            sshd.setPort(Integer.valueOf(hostport) + 1);
+            sshd.setPort(hostport);
             sshd.setPublickeyAuthenticator(null);
             sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
 
@@ -67,9 +71,8 @@ public class Server implements SftpErrorStatusDataHandler
                     .withSftpErrorStatusDataHandler(this)
                     .build();
 
-            factory.addSftpEventListener(new EventListener());
+            //factory.addSftpEventListener(new EventListener());
 
-            //sshd.setSubsystemFactories(Collections.<NamedFactory<Command>>singletonList(factory));
             sshd.setSubsystemFactories(Collections.singletonList(factory));
 
             sshd.setPasswordAuthenticator(new PasswordAuthenticator()
@@ -82,7 +85,7 @@ public class Server implements SftpErrorStatusDataHandler
                 }
             });
 
-            logger.info("Sftp server starting secure channel listener ...");
+            //logger.info("Sftp server starting secure channel listener");
             sshd.start();
             logger.info("Sftp server is listening on " + sshd.getHost() + ":" + sshd.getPort());
         }
@@ -93,7 +96,7 @@ public class Server implements SftpErrorStatusDataHandler
         }
     }
 
-    public void stop() throws IOException
+    public void stopServer() throws IOException
     {
         logger.info("Sftp server listener stopping");
         sshd.stop();

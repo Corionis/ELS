@@ -3,7 +3,7 @@ package com.groksoft.volmunger.stty.subscriber;
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.stty.CommManager;
+import com.groksoft.volmunger.stty.Stty;
 import com.groksoft.volmunger.stty.ServerBase;
 import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
@@ -128,7 +128,7 @@ public class Server extends ServerBase
 
         if (isTerminal)
         {
-            response = "Enter 'help' for information\r\n"; // "Enter " checked in Terminal.checkBannerCommands()
+            response = "Enter 'help' for information\r\n"; // "Enter " checked in SttyClient.checkBannerCommands()
         }
         else // is automation
         {
@@ -287,7 +287,7 @@ public class Server extends ServerBase
                         response = "not authorized\r\n";
                     } else
                     {
-                        response = CommManager.getInstance().dumpStatistics();
+                        response = Stty.getInstance().dumpStatistics();
                         response += dumpStatistics();
                     }
                     continue;

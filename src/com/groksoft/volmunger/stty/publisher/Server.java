@@ -2,7 +2,7 @@ package com.groksoft.volmunger.stty.publisher;
 
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.stty.CommManager;
+import com.groksoft.volmunger.stty.Stty;
 import com.groksoft.volmunger.stty.ServerBase;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -209,7 +209,7 @@ public class Server extends ServerBase
                     if (!authorized) {
                         response = "not authorized\r\n";
                     } else {
-                        response = CommManager.getInstance().dumpStatistics();
+                        response = Stty.getInstance().dumpStatistics();
                         response += dumpStatistics();
                     }
                     continue;

@@ -78,7 +78,6 @@ public class Listener extends Thread
 	 */
 	public void run ()
 	{
-		logger.info("VolMunger is listening on port " + port);
 		while (stop == false)
 		{
 			try
@@ -89,7 +88,7 @@ public class Listener extends Thread
                 //theSocket.setSoLinger(false, -1);
                 theSocket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
 
-				CommManager.getInstance().addConnection(theSocket);
+				Stty.getInstance().addConnection(theSocket);
 			}
 			catch (SocketTimeoutException e)
 			{

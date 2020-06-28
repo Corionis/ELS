@@ -15,17 +15,17 @@ import java.util.*;
 /**
  * Manage all connections and enforce limits.
  * <p>
- * The CommManager class is a subclass of Thread. It keeps a list of all
+ * The Stty class is a subclass of Thread. It keeps a list of all
  * connections, and enforces the maximum connection limit.
  * <p>
  * Each connection uses a separate thread.
  * <p>
- * There is one CommManager for the entire server.
+ * There is one Stty for the entire server.
  * <p>
- * The CommManager uses another thread to remove dead connections from the
+ * The Stty uses another thread to remove dead connections from the
  * allConnections list.
  */
-public class CommManager extends Thread
+public class Stty extends Thread
 {
     private transient Logger logger = LogManager.getLogger("applog");
 
@@ -36,7 +36,7 @@ public class CommManager extends Thread
     /**
      * The single instance of this class
      */
-    private static CommManager instance = null;
+    private static Stty instance = null;
     /**
      * The maximum connections allowed for this entire server instance
      */
@@ -61,14 +61,14 @@ public class CommManager extends Thread
     private int listenPort;
 
     /**
-     * Instantiates the CommManager object and set it as a daemon so the Java
+     * Instantiates the Stty object and set it as a daemon so the Java
      * Virtual Machine does not wait for it to exit.
      */
-    public CommManager(ThreadGroup aGroup, int aMaxConnections, Configuration config, Repository pubRepo, Repository subRepo)
+    public Stty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Repository pubRepo, Repository subRepo)
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
-        super(aGroup, "CommManager");
+        super(aGroup, "Stty");
 
         instance = this;
 
@@ -152,7 +152,7 @@ public class CommManager extends Thread
                 repo.getLibraryData().libraries != null &&
                 repo.getLibraryData().libraries.site != null)
         {
-            startCommManager(repo.getLibraryData().libraries.site);
+            startServer(repo.getLibraryData().libraries.site);
         } else
         {
             throw new MungerException("cannot get site from -r specified remote library");
@@ -162,7 +162,7 @@ public class CommManager extends Thread
     /**
      * End a client connection.
      * <p>
-     * Notifies the CommManager that this connection has been closed. Called
+     * Notifies the Stty that this connection has been closed. Called
      * from the run() method of the Connection thread created by addConnection()
      * when the connection is closed for any reason.
      *
@@ -170,14 +170,14 @@ public class CommManager extends Thread
      */
     public synchronized void endConnection()
     {
-        // notify the CommManager thread that this connection has closed
+        // notify the Stty thread that this connection has closed
         this.notify();
     }
 
     /**
      * Get this instance.
      */
-    public static CommManager getInstance()
+    public static Stty getInstance()
     {
         return instance;
     }
@@ -246,7 +246,7 @@ public class CommManager extends Thread
     public void run()
     {
         // log it
-        logger.info("Starting CommManager listener for incoming connections, " + maxConnections + " max");
+        logger.info("Starting Stty server for up to " + maxConnections + " incoming connections");
         while (_stop == false)
         {
             for (int index = 0; index < allConnections.size(); ++index)
@@ -269,10 +269,10 @@ public class CommManager extends Thread
                 }
             } catch (InterruptedException e)
             {
-                logger.info("CommManager interrupted, stop=" + ((_stop) ? "true" : "false"));
+                logger.info("Stty interrupted, stop=" + ((_stop) ? "true" : "false"));
             }
         } // while (true)
-        logger.info("Stopped CommManager");
+        logger.info("Stopped Stty");
     }
 
     protected void addListener(String host, int aPort) throws Exception
@@ -290,13 +290,13 @@ public class CommManager extends Thread
         allSessions.put("Listener:" + host + ":" + aPort, listener);
 
         // log it
-        logger.info("Starting Server listener on host: " + (host == null ? "localhost" : host) + " port " + aPort);
+        logger.info("Stty server is listening on " + (host == null ? "localhost" : host) + ":" + aPort);
 
         // fire it up
         listener.start();
     }
 
-    public void startCommManager(String site) throws Exception
+    public void startServer(String site) throws Exception
     {
         String host = Utils.parseHost(site);
         if (host == null || host.isEmpty())
@@ -304,14 +304,7 @@ public class CommManager extends Thread
             host = null;
             logger.info("Host not defined, using default: localhost");
         }
-        listenPort = 0;
-        String sport = Utils.parsePort(site);
-        if (sport == null || sport.length() < 1)
-        {
-            sport = "50271";                    // SPOT Server Default Server port
-            logger.info("Port not defined, using default: " + sport);
-        }
-        listenPort = Integer.valueOf(sport);
+        listenPort = Utils.getPort(site);
         if (listenPort > 0)
         {
             this.start();
@@ -319,11 +312,11 @@ public class CommManager extends Thread
         }
         if (listenPort < 1)
         {
-            logger.info("CommManager is disabled");
+            logger.info("Stty is disabled");
         }
     }
 
-    public void stopCommManager()
+    public void stopServer()
     {
         if (allSessions != null)
         {
@@ -349,4 +342,4 @@ public class CommManager extends Thread
     }
 
 
-} // CommManager
+} // Stty
