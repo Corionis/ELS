@@ -1,5 +1,12 @@
 package com.groksoft.volmunger;
 
+import com.groksoft.volmunger.repository.Item;
+import com.groksoft.volmunger.repository.Library;
+import com.groksoft.volmunger.storage.Storage;
+import com.groksoft.volmunger.storage.Target;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,17 +17,6 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
-import com.groksoft.volmunger.sftp.Client;
-import com.groksoft.volmunger.stty.SttyClient;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.groksoft.volmunger.stty.Stty;
-import com.groksoft.volmunger.storage.Target;
-import com.groksoft.volmunger.repository.Item;
-import com.groksoft.volmunger.repository.Library;
-import com.groksoft.volmunger.repository.Repository;
-import com.groksoft.volmunger.storage.Storage;
 
 /**
  * VolMunger Process
@@ -32,221 +28,28 @@ public class Process
      * Setup formatter for number
      */
     DecimalFormat formatter = new DecimalFormat("#,###");
-
-    private transient Logger logger = LogManager.getLogger("applog");
     private Configuration cfg = null;
-    private SttyClient sttyClient = null;
-    private Repository publisherRepository = null;
-    private Repository subscriberRepository = null;
-    private Storage storageTargets = null;
+    private Main.Context context;
+    private int copyCount = 0;
+    private String currentGroupName = "";
+    private int errorCount = 0;
     private long grandTotalItems = 0L;
     private long grandTotalSize = 0L;
-    private String currentGroupName = "";
-    private String lastGroupName = "";
-    private long whatsNewTotal = 0;
     private int ignoreTotal = 0;
-    private int errorCount = 0;
-    private int copyCount = 0;
     private ArrayList<String> ignoredList = new ArrayList<>();
-    private boolean isListening = false;
-    Stty stty = null;
-    Client sftpClient = null;
+    private String lastGroupName = "";
+    private transient Logger logger = LogManager.getLogger("applog");
+    private Storage storageTargets = null;
+    private long whatsNewTotal = 0;
 
     /**
      * Instantiates the class
      */
-    public Process()
+    public Process(Configuration config, Main.Context ctxt)
     {
+        this.cfg = config;
+        this.context = ctxt;
     }
-
-    /**
-     * Process everything
-     * <p>
-     * This is the where a munge run starts and ends based on configuration
-     *
-     * @param config Configuration, null allowed
-     */
-    public int process(Configuration config)
-    {
-        int returnValue = 0;
-        ThreadGroup sessionThreads = null;
-
-        try
-        {
-            cfg = config;
-
-            // create primary objects
-            publisherRepository = new Repository(cfg);
-            subscriberRepository = new Repository(cfg);
-            storageTargets = new Storage();
-
-            try
-            {
-                // get -p Publisher libraries
-                if (cfg.getPublisherLibrariesFileName().length() > 0)
-                {
-                    readRepository(cfg.getPublisherLibrariesFileName(), publisherRepository, true);
-                }
-                else
-                {
-                    // get -P Publisher collection
-                    if (cfg.getPublisherCollectionFilename().length() > 0)
-                    {
-                        readRepository(cfg.getPublisherCollectionFilename(), publisherRepository, false);
-                    }
-                }
-
-                // For -r P connect to remote subscriber -r S
-                if (cfg.isPublisherProcess())
-                {
-                    // get subscriber connection information
-                    if (cfg.getSubscriberLibrariesFileName().length() > 0)
-                    {
-                        readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, false);
-                    }
-                    else if (cfg.getSubscriberCollectionFilename().length() > 0)
-                    {
-                        readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, false);
-                    }
-                    else
-                        throw new MungerException("-r P requires a subscriber -s or -S");
-
-                    sttyClientInit();
-
-                    // check for opening commands from Subscriber
-                    // *** might change cfg options for subscriber and targets that are handled below ***
-                    if (sttyClient != null)
-                    {
-                        if (sttyClient.checkBannerCommands())
-                        {
-                            logger.info("Received subscriber requests:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
-                        }
-                    }
-
-                    // connect sftp client to subscriber server
-//                    sftpClient = new Client()
-                }
-
-                // get -s Subscriber libraries
-                if (cfg.getSubscriberLibrariesFileName().length() > 0)
-                {
-                    if (cfg.isRemoteSession() && cfg.isRequestCollection())
-                    {
-                        // request complete collection data from remote subscriber
-                        if (sttyClient == null)
-                            sttyClientInit();
-                        String location = sttyClient.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
-                        cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
-                        cfg.setSubscriberCollectionFilename(location);
-
-                        readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, false);
-                    }
-                    else
-                    {
-                        readRepository(cfg.getSubscriberLibrariesFileName(), subscriberRepository, true);
-                    }
-                }
-
-                // get -S Subscriber collection
-                if (cfg.getSubscriberCollectionFilename().length() > 0 && !cfg.isRequestCollection())
-                {
-                    readRepository(cfg.getSubscriberCollectionFilename(), subscriberRepository, true);
-                }
-
-                // process -e export text, publisher only
-                if (cfg.getExportTextFilename().length() > 0)
-                {
-                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
-                    {
-                        exportText();
-                    }
-                    else
-                    {
-                        throw new MungerException("-e option requires the -p and/or -P options");
-                    }
-                }
-
-                // process -i export collection items, publisher only
-                if (cfg.getExportCollectionFilename().length() > 0)
-                {
-                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
-                    {
-                        exportCollection();
-                    }
-                    else
-                    {
-                        throw new MungerException("-i option requires the -p and/or -P options");
-                    }
-                }
-
-                // get -t|T Targets
-                if (cfg.getTargetsFilename().length() > 0)
-                {
-                    String location = cfg.getTargetsFilename();
-
-                    if (cfg.isRemoteSession() && cfg.isRequestTargets())
-                    {
-                        // request target data from remote subscriber
-                        if (sttyClient == null)
-                            sttyClientInit();
-                        location = sttyClient.retrieveRemoteData(location, "targets");
-                        cfg.setTargetsFilename(location);
-                    }
-                    readTargets(location, storageTargets);
-                }
-                else
-                {
-                    if (!cfg.isDryRun())
-                    {
-                        logger.warn("NOTE: No targets file was specified - performing a dry run");
-                        cfg.setDryRun(true);
-                    }
-                }
-
-                // if all the pieces are specified munge the collections
-                if ((cfg.getPublisherLibrariesFileName().length() > 0 ||
-                        cfg.getPublisherCollectionFilename().length() > 0) &&
-                        (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                cfg.getSubscriberCollectionFilename().length() > 0) &&
-                        cfg.getTargetsFilename().length() > 0)
-                {
-                    munge(); // this is the full munge process
-                }
-                else
-                {
-                    logger.info("Munge not performed");
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.error(ex.getMessage() + " toString=" + ex.toString());
-                returnValue = 2;
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error(e.getMessage());
-            returnValue = 1;
-            cfg = null;
-        }
-        finally
-        {
-            if (sttyClient != null)
-            {
-                logger.info("closing sttyClient connections");
-                sttyClient.disconnect();
-            }
-
-            // the - makes searching for the ending of a run easier
-            if (logger != null)
-            {
-                logger.info("- Process end" + " ------------------------------------------");
-                LogManager.shutdown();
-            }
-        }
-
-        return returnValue;
-    } // process
 
     /**
      * Copy file.
@@ -291,15 +94,73 @@ public class Process
         return true;
     }
 
+    /**
+     * Copy group of files.
+     *
+     * @param group     the group
+     * @param totalSize the total size
+     * @throws MungerException the volmunger exception
+     */
+    private void copyGroup(ArrayList<Item> group, long totalSize) throws MungerException
+    {
+        try
+        {
+            if (group.size() > 0)
+            {
+                for (Item groupItem : group)
+                {
+                    if (cfg.isDryRun())
+                    {
+                        // -D Dry run option
+                        ++copyCount;
+                        logger.info("    Would copy #" + copyCount + " " + groupItem.getFullPath());
+                    }
+                    else
+                    {
+                        String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
+                        if (targetPath != null)
+                        {
+                            // copy item(s) to targetPath
+                            ++copyCount;
+                            String to = targetPath + File.separator + groupItem.getItemPath();
+                            logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
+
+                            // LEFTOFF
+
+                            if (!copyFile(groupItem.getFullPath(), to))
+                            {
+                                ++errorCount;
+                            }
+                        }
+                        else
+                        {
+                            logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
+                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                        }
+                    }
+                }
+            }
+            grandTotalItems = grandTotalItems + group.size();
+            group.clear();
+            grandTotalSize = grandTotalSize + totalSize;
+            totalSize = 0L;
+            lastGroupName = currentGroupName;
+        }
+        catch (Exception e)
+        {
+            throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
+        }
+    }
+
     private void exportCollection()
     {
         try
         {
-            for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography)
+            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
             {
-                publisherRepository.scan(pubLib.name);
+                context.publisherRepo.scan(pubLib.name);
             }
-            publisherRepository.exportCollection();
+            context.publisherRepo.exportCollection();
         }
         catch (MungerException e)
         {
@@ -312,11 +173,11 @@ public class Process
     {
         try
         {
-            for (Library pubLib : publisherRepository.getLibraryData().libraries.bibliography)
+            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
             {
-                publisherRepository.scan(pubLib.name);
+                context.publisherRepo.scan(pubLib.name);
             }
-            publisherRepository.exportText();
+            context.publisherRepo.exportText();
         }
         catch (MungerException e)
         {
@@ -376,13 +237,13 @@ public class Process
         }
 
         // see if there is an "original" directory the new content will fit in
-        String path = subscriberRepository.hasDirectory(library, item.getItemPath());
+        String path = context.subscriberRepo.hasDirectory(library, item.getItemPath());
         if (path != null)
         {
             if (cfg.isRemoteSession())
             {
                 // remote subscriber
-                space = sttyClient.availableSpace(path);
+                space = context.clientStty.availableSpace(path);
             }
             else
             {
@@ -414,7 +275,7 @@ public class Process
                 String candidate = tar.locations[j];
                 if (cfg.isRemoteSession())
                 { // remote subscriber
-                    space = sttyClient.availableSpace(candidate);
+                    space = context.clientStty.availableSpace(candidate);
                 }
                 else
                 {
@@ -461,7 +322,7 @@ public class Process
         String str1 = "";
         boolean ret = false;
 
-        for (Pattern patt : publisherRepository.getLibraryData().libraries.compiledPatterns)
+        for (Pattern patt : context.publisherRepo.getLibraryData().libraries.compiledPatterns)
         {
             str = patt.toString();
             str1 = str.replace("?", ".?").replace("*", ".*?");
@@ -526,8 +387,8 @@ public class Process
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
 
-        String header = "Munging " + publisherRepository.getLibraryData().libraries.description + " to " +
-                subscriberRepository.getLibraryData().libraries.description;
+        String header = "Munging " + context.publisherRepo.getLibraryData().libraries.description + " to " +
+                context.subscriberRepo.getLibraryData().libraries.description;
 
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0)
@@ -567,25 +428,29 @@ public class Process
 
         try
         {
-            for (Library subLib : subscriberRepository.getLibraryData().libraries.bibliography)
+            for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
             {
                 boolean scanned = false;
                 Library pubLib = null;
 
                 // TODO Add filtering which library to process by -l option, isSpecificPublisherLibrary() & getPublisherLibraryNames()
 
-                if ((pubLib = publisherRepository.getLibrary(subLib.name)) != null)
+                if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                 {
 
                     // Do the libraries have items or do we need to be scanned?
                     if (pubLib.items == null || pubLib.items.size() < 1)
                     {
-                        publisherRepository.scan(pubLib.name);
+                        context.publisherRepo.scan(pubLib.name);
                         scanned = true;
                     }
                     if (subLib.items == null || subLib.items.size() < 1)
                     {
-                        subscriberRepository.scan(subLib.name);
+                        if (cfg.isRemoteSession())
+                        {
+                            throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
+                        }
+                        context.subscriberRepo.scan(subLib.name);
                     }
 
                     logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
@@ -600,7 +465,7 @@ public class Process
                         }
                         else
                         {
-                            boolean has = subscriberRepository.hasItem(subLib.name, item.getItemPath());
+                            boolean has = context.subscriberRepo.hasItem(subLib.name, item.getItemPath());
                             if (has)
                             {
                                 logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
@@ -741,87 +606,118 @@ public class Process
     }
 
     /**
-     * Copy group of files.
-     *
-     * @param group     the group
-     * @param totalSize the total size
-     * @throws MungerException the volmunger exception
+     * Process everything
+     * <p>
+     * This is the where a munge run starts and ends based on configuration
      */
-    private void copyGroup(ArrayList<Item> group, long totalSize) throws MungerException
+    public int process()
     {
+        int returnValue = 0;
+
         try
         {
-            if (group.size() > 0)
+            storageTargets = new Storage();
+
+            try
             {
-                for (Item groupItem : group)
+                // For -r P connect to remote subscriber -r S
+                if (cfg.isRemotePublish())
                 {
-                    if (cfg.isDryRun())
+                    // check for opening commands from Subscriber
+                    // *** might change cfg options for subscriber and targets that are handled below ***
+                    if (context.clientStty.checkBannerCommands())
                     {
-                        // -D Dry run option
-                        ++copyCount;
-                        logger.info("    Would copy #" + copyCount + " " + groupItem.getFullPath());
-                    }
-                    else
-                    {
-                        String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
-                        if (targetPath != null)
-                        {
-                            // copy item(s) to targetPath
-                            ++copyCount;
-                            String to = targetPath + File.separator + groupItem.getItemPath();
-                            logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
-                            if (!copyFile(groupItem.getFullPath(), to))
-                            {
-                                ++errorCount;
-                            }
-                        }
-                        else
-                        {
-                            logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
-                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
-                        }
+                        logger.info("Received subscriber requests:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
                     }
                 }
+
+                // get -s Subscriber libraries
+                if (cfg.getSubscriberLibrariesFileName().length() > 0)
+                {
+                    if (cfg.isRemoteSession() && cfg.isRequestCollection())
+                    {
+                        // request complete collection data from remote subscriber
+                        String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
+                        cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
+                        cfg.setSubscriberCollectionFilename(location);
+
+                        context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
+                    }
+                }
+
+                // process -e export text, publisher only
+                if (cfg.getExportTextFilename().length() > 0)
+                {
+                    exportText();
+                }
+
+                // process -i export collection items, publisher only
+                if (cfg.getExportCollectionFilename().length() > 0)
+                {
+                    exportCollection();
+                }
+
+                // get -t|T Targets
+                if (cfg.getTargetsFilename().length() > 0)
+                {
+                    String location = cfg.getTargetsFilename();
+
+                    if (cfg.isRemoteSession() && cfg.isRequestTargets())
+                    {
+                        // request target data from remote subscriber
+                        location = context.clientStty.retrieveRemoteData(location, "targets");
+                        cfg.setTargetsFilename(location);
+                    }
+                    storageTargets.read(location);
+                    if (!cfg.isRemoteSession())
+                        storageTargets.validate();
+                }
+                else
+                {
+                    if (!cfg.isDryRun())
+                    {
+                        logger.warn("NOTE: No targets file was specified - performing a dry run");
+                        cfg.setDryRun(true);
+                    }
+                }
+
+                // if all the pieces are specified munge the collections
+                if ((cfg.getPublisherLibrariesFileName().length() > 0 ||
+                        cfg.getPublisherCollectionFilename().length() > 0) &&
+                        (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                                cfg.getSubscriberCollectionFilename().length() > 0) &&
+                        cfg.getTargetsFilename().length() > 0)
+                {
+                    munge(); // this is the full munge process
+                }
+                else
+                {
+                    logger.info("Munge not performed");
+                }
             }
-            grandTotalItems = grandTotalItems + group.size();
-            group.clear();
-            grandTotalSize = grandTotalSize + totalSize;
-            totalSize = 0L;
-            lastGroupName = currentGroupName;
+            catch (Exception ex)
+            {
+                logger.error(ex.getMessage() + " toString=" + ex.toString());
+                returnValue = 2;
+            }
         }
         catch (Exception e)
         {
-            throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
+            logger.error(e.getMessage());
+            returnValue = 1;
+            cfg = null;
         }
-    }
-
-    /**
-     * Read repository.
-     *
-     * @param filename the filename
-     * @param repo     the repo
-     * @throws MungerException the volmunger exception
-     */
-    private void readRepository(String filename, Repository repo, boolean validate) throws MungerException
-    {
-        repo.read(filename);
-        if (validate)
+        finally
         {
-            repo.validate();
+            // the - makes searching for the ending of a run easier
+            if (logger != null)
+            {
+                logger.info("- Process end" + " ------------------------------------------");
+                //LogManager.shutdown();
+            }
         }
-    } // readRepository
 
-    /**
-     * Read targets.
-     *
-     * @param filename the filename
-     * @param storage  the storage
-     * @throws MungerException the volmunger exception
-     */
-    public void readTargets(String filename, Storage storage) throws MungerException
-    {
-        storage.read(filename);
-        storage.validate();
-    }
+        return returnValue;
+    } // process
 
 } // Process

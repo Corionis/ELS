@@ -28,6 +28,11 @@ public class Repository
     private transient Logger logger = LogManager.getLogger("applog");
     private transient Configuration cfg = null;
 
+    public static final boolean PUBLISHER = true;
+    public static final boolean SUBSCRIBER = false;
+    public static final boolean VALIDATE = true;
+    public static final boolean NO_VALIDATE = false;
+
     // LibraryData members
     private LibraryData libraryData = null;
     private String jsonFilename = "";
@@ -315,6 +320,21 @@ public class Repository
         }
         return retLib;
     }
+
+    /**
+     * Is Initialized indicator
+     *
+     * @returns boolean true/false
+     */
+    public boolean isInitialized()
+    {
+        if (this.libraryData != null &&
+                (this.jsonFilename != null && this.jsonFilename.length() > 0))
+            return true;
+        else
+            return false;
+    }
+
 
     /**
      * Read library.

@@ -19,7 +19,7 @@ public class Connection extends Thread
 	protected static Logger logger = LogManager.getLogger("applog");//
 
 	/** The service for the connection */
-	protected ServerBase service;
+	protected DaemonBase service;
 	/** The socket for the connection */
 	protected Socket socket;
 
@@ -33,17 +33,17 @@ public class Connection extends Thread
 	 * @param aSocket Socket for connection
 	 * @param aService Service for connection
 	 */
-	public Connection (Socket aSocket, ServerBase aService)
+	public Connection (Socket aSocket, DaemonBase aService)
 	{
-		super("Server.Connection:" + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+		super("Daemon.Connection:" + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 		this.socket = aSocket;
 		this.service = aService;
 	} // constructor
 	
 	/**
-	 * Get the associated Server instance
+	 * Get the associated Daemon instance
 	 */
-	public ServerBase getConsole ()
+	public DaemonBase getConsole ()
 	{
 		return service;
 	}
@@ -77,7 +77,7 @@ public class Connection extends Thread
 		finally
 		{
 			// notify the ConnectionManager that this connection has closed
-			Stty cm = Stty.getInstance();
+			ServeStty cm = ServeStty.getInstance();
 			if (cm != null)
 			{
 				cm.endConnection();

@@ -24,14 +24,14 @@ publisher must have full access to perform matches correctly.
 
 ### Remote modes
 ```
-  -r P = pub-process        // publish process with -r S
+  -r P = remote-publish     // automated publish process to -r S
   -r L = pub-listener       // publish listener for -r T
-  -r M = pub-sttyClient     // manual sttyClient with -r S
+  -r M = pub-manual         // publisher stty manual connect to -r S
 
   -r S = sub-listener       // subscriber listener for -r P|M
-  -r T = sub-sttyClient     // subscriber sttyClient with -r L
+  -r T = sub-terminal       // subscriber stty manual connect to -r L
   
-  The mode letter is case insensitive.
+  The mode letter is case-insensitive.
 ```
 
 ### When the -r P|S "Remote" option is used:
@@ -54,6 +54,9 @@ publisher must have full access to perform matches correctly.
      subscriber's -T targets file
     5. -T the Subscriber will import a subscriber JSON targets file
 
+ 3. The combination of behavior changes when using -r cause and require
+    the Process.munge() method to start with a complete collection
+    file. Therefore mid-munge scans are not done on the subscribe-side. 
 
 ## Commands
 

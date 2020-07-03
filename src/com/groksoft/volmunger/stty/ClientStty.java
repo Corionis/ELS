@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * SttyClient -to- Stty server, used for both manual (interactive) and automated sessions
+ * ClientStty -to- ServeStty server, used for both manual (interactive) and automated sessions
  */
-public class SttyClient
+public class ClientStty
 {
     private transient Logger logger = LogManager.getLogger("applog");
 
@@ -37,15 +37,15 @@ public class SttyClient
     private String theirKey;
 
     /**
-     * Instantiate a SttyClient.<br>
+     * Instantiate a ClientStty.<br>
      *
      * @param config     The Configuration object
      * @param isTerminal True if an interactive client, false if an automated client
      */
-    public SttyClient(Configuration config, boolean isTerminal)
+    public ClientStty(Configuration config, boolean isManualTerminal)
     {
         this.cfg = config;
-        this.isTerminal = isTerminal;
+        this.isTerminal = isManualTerminal;
     }
 
     public long availableSpace(String location)

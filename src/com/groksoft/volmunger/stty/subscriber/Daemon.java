@@ -3,8 +3,8 @@ package com.groksoft.volmunger.stty.subscriber;
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.stty.Stty;
-import com.groksoft.volmunger.stty.ServerBase;
+import com.groksoft.volmunger.stty.DaemonBase;
+import com.groksoft.volmunger.stty.ServeStty;
 import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -19,26 +19,26 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
- * Subscriber Server service.
+ * Subscriber Daemon service.
  * <p>
- * The Server service is the command interface used to communicate between
+ * The Daemon service is the command interface used to communicate between
  * the endpoints.
  */
-public class Server extends ServerBase
+public class Daemon extends DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
     private boolean isTerminal = false;
 
     /**
-     * Instantiate the Server service
+     * Instantiate the Daemon service
      *
      * @param config
      * @param pubRepo
      * @param subRepo
      */
 
-    public Server(Configuration config, Repository pubRepo, Repository subRepo)
+    public Daemon(Configuration config, Repository pubRepo, Repository subRepo)
     {
         super(config, pubRepo, subRepo);
     } // constructor
@@ -49,7 +49,7 @@ public class Server extends ServerBase
      */
     public synchronized String dumpStatistics()
     {
-        String data = "\r\nServer currently connected: " + ((connected) ? "true" : "false") + "\r\n";
+        String data = "\r\nDaemon currently connected: " + ((connected) ? "true" : "false") + "\r\n";
         data += "  Connected on port: " + port + "\r\n";
         data += "  Connected to: " + address + "\r\n";
         return data;
@@ -62,7 +62,7 @@ public class Server extends ServerBase
      */
     public String getName()
     {
-        return "Server";
+        return "Daemon";
     } // getName
 
     public boolean handshake()
@@ -95,9 +95,9 @@ public class Server extends ServerBase
     } // handshake
 
     /**
-     * Process a connection request to the Server service.
+     * Process a connection request to the Daemon service.
      * <p>
-     * The Server service provides an interface for this instance.
+     * The Daemon service provides an interface for this instance.
      */
     @SuppressWarnings("Duplicates")
     public void process(Socket aSocket) throws IOException
@@ -128,7 +128,7 @@ public class Server extends ServerBase
 
         if (isTerminal)
         {
-            response = "Enter 'help' for information\r\n"; // "Enter " checked in SttyClient.checkBannerCommands()
+            response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
         }
         else // is automation
         {
@@ -287,7 +287,7 @@ public class Server extends ServerBase
                         response = "not authorized\r\n";
                     } else
                     {
-                        response = Stty.getInstance().dumpStatistics();
+                        response = ServeStty.getInstance().dumpStatistics();
                         response += dumpStatistics();
                     }
                     continue;
@@ -358,7 +358,7 @@ public class Server extends ServerBase
     } // process
 
     /**
-     * Request the Server service to stop
+     * Request the Daemon service to stop
      */
     public void requestStop()
     {
@@ -366,4 +366,4 @@ public class Server extends ServerBase
         logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
     } // requestStop
 
-} // Server
+} // Daemon

@@ -221,7 +221,7 @@ public class Utils
         String sport = parsePort(site);
         if (sport == null || sport.length() < 1)
         {
-            sport = "50271";                    // SPOT Server Default Server port
+            sport = "50271";                    // SPOT Daemon Default Daemon port
             logger.info(site + " port not defined, using default: " + sport);
         }
         port = Integer.valueOf(sport);

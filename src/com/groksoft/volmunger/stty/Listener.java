@@ -88,7 +88,7 @@ public class Listener extends Thread
                 //theSocket.setSoLinger(false, -1);
                 theSocket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
 
-				Stty.getInstance().addConnection(theSocket);
+				ServeStty.getInstance().addConnection(theSocket);
 			}
 			catch (SocketTimeoutException e)
 			{

@@ -9,12 +9,12 @@ import java.io.*;
 import java.net.*;
 
 /**
- * Server service.
+ * Daemon service.
  *
- * The Server service is the command interface used to communicate between
+ * The Daemon service is the command interface used to communicate between
  * the endpoints.
  */
-public abstract class ServerBase
+public abstract class DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
@@ -36,9 +36,9 @@ public abstract class ServerBase
     protected String subscriberKey;
 
     /**
-     * Instantiate the Server service
+     * Instantiate the Daemon service
      */
-    public ServerBase(Configuration config, Repository pubRepo, Repository subRepo)
+    public DaemonBase(Configuration config, Repository pubRepo, Repository subRepo)
     {
         this.cfg = config;
         this.publisherRepo = pubRepo;
@@ -55,7 +55,7 @@ public abstract class ServerBase
     public synchronized void dumpStatistics (PrintWriter aWriter)
     {
 		/*
-		aWriter.println("\r\Server currently connected: " + ((connected) ? "true" : "false"));
+		aWriter.println("\r\Daemon currently connected: " + ((connected) ? "true" : "false"));
 		aWriter.println("  Connected on port: " + port);
 		aWriter.println("  Connected to: " + address);
 		try
@@ -77,11 +77,11 @@ public abstract class ServerBase
      */
     public String getName ()
     {
-        return "ServerBase";
+        return "DaemonBase";
     }
 
     /**
-     * Request the Server service to stop
+     * Request the Daemon service to stop
      */
     public void requestStop ()
     {
@@ -90,7 +90,7 @@ public abstract class ServerBase
     }
 
     /**
-     * Process a connection request to the Server service.
+     * Process a connection request to the Daemon service.
      *
      */
     public abstract void process(Socket aSocket) throws IOException;
@@ -101,4 +101,4 @@ public abstract class ServerBase
      */
     public abstract boolean handshake();
 
-} // ServerBase
+} // DaemonBase

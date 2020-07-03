@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Publisher export" type="Application" factoryName="Application">
+  <configuration default="false" name="Publisher export collection" type="Application" factoryName="Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <option name="MAIN_CLASS_NAME" value="com.groksoft.volmunger.Main" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:../lib/log4j2.xml" />

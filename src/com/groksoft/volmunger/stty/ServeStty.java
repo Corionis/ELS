@@ -4,6 +4,7 @@ import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Repository;
+import com.groksoft.volmunger.stty.subscriber.Daemon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 //import org.apache.log4j.Logger;
@@ -15,17 +16,17 @@ import java.util.*;
 /**
  * Manage all connections and enforce limits.
  * <p>
- * The Stty class is a subclass of Thread. It keeps a list of all
+ * The ServeStty class is a subclass of Thread. It keeps a list of all
  * connections, and enforces the maximum connection limit.
  * <p>
  * Each connection uses a separate thread.
  * <p>
- * There is one Stty for the entire server.
+ * There is one ServeStty for the entire server.
  * <p>
- * The Stty uses another thread to remove dead connections from the
+ * The ServeStty uses another thread to remove dead connections from the
  * allConnections list.
  */
-public class Stty extends Thread
+public class ServeStty extends Thread
 {
     private transient Logger logger = LogManager.getLogger("applog");
 
@@ -36,7 +37,7 @@ public class Stty extends Thread
     /**
      * The single instance of this class
      */
-    private static Stty instance = null;
+    private static ServeStty instance = null;
     /**
      * The maximum connections allowed for this entire server instance
      */
@@ -54,30 +55,30 @@ public class Stty extends Thread
     private ThreadGroup allSessionThreads;
 
     private Configuration cfg;
-    private Repository publisherRepo;
-    private Repository subscriberRepo;
+    private Repository myRepo;
+    private Repository theirRepo;
     private String publisherKey;
     private String subscriberKey;
     private int listenPort;
 
     /**
-     * Instantiates the Stty object and set it as a daemon so the Java
+     * Instantiates the ServeStty object and set it as a daemon so the Java
      * Virtual Machine does not wait for it to exit.
      */
-    public Stty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Repository pubRepo, Repository subRepo)
+    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Repository mine, Repository theirs)
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
-        super(aGroup, "Stty");
+        super(aGroup, "ServeStty");
 
         instance = this;
 
         // make it a daemon so the JVM does not wait for it to exit
         cfg = config;
-        publisherRepo = pubRepo;
-        publisherKey = publisherRepo.getLibraryData().libraries.key;
-        subscriberRepo = subRepo;
-        subscriberKey = subscriberRepo.getLibraryData().libraries.key;
+        myRepo = mine;
+        publisherKey = myRepo.getLibraryData().libraries.key;
+        theirRepo = theirs;
+        subscriberKey = theirRepo.getLibraryData().libraries.key;
 
         // QUESTION how to handle persistent listener AND properly close the socket when application is killed
         this.setDaemon(true);
@@ -123,10 +124,10 @@ public class Stty extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Server(cfg, publisherRepo, subscriberRepo));
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Daemon(cfg, myRepo, theirRepo));
             } else if (cfg.isSubscriberListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.subscriber.Server(cfg, publisherRepo, subscriberRepo));
+                theConnection = new Connection(aSocket, new Daemon(cfg, myRepo, theirRepo));
             } else
             {
                 throw new MungerException("FATAL: Unknown connection type");
@@ -134,7 +135,7 @@ public class Stty extends Thread
             allConnections.add(theConnection);
 
             // log it
-            logger.info("Server opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+            logger.info("Daemon opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 
             // start the connection thread
             theConnection.start();
@@ -145,14 +146,14 @@ public class Stty extends Thread
     /**
      * Start a session listener
      */
-    public void startListening(Repository repo) throws Exception
+    public void startListening(Repository listenerRepo) throws Exception
     {
-        if (repo != null &&
-                repo.getLibraryData() != null &&
-                repo.getLibraryData().libraries != null &&
-                repo.getLibraryData().libraries.site != null)
+        if (listenerRepo != null &&
+                listenerRepo.getLibraryData() != null &&
+                listenerRepo.getLibraryData().libraries != null &&
+                listenerRepo.getLibraryData().libraries.site != null)
         {
-            startServer(repo.getLibraryData().libraries.site);
+            startServer(listenerRepo.getLibraryData().libraries.site);
         } else
         {
             throw new MungerException("cannot get site from -r specified remote library");
@@ -162,7 +163,7 @@ public class Stty extends Thread
     /**
      * End a client connection.
      * <p>
-     * Notifies the Stty that this connection has been closed. Called
+     * Notifies the ServeStty that this connection has been closed. Called
      * from the run() method of the Connection thread created by addConnection()
      * when the connection is closed for any reason.
      *
@@ -170,14 +171,14 @@ public class Stty extends Thread
      */
     public synchronized void endConnection()
     {
-        // notify the Stty thread that this connection has closed
+        // notify the ServeStty thread that this connection has closed
         this.notify();
     }
 
     /**
      * Get this instance.
      */
-    public static Stty getInstance()
+    public static ServeStty getInstance()
     {
         return instance;
     }
@@ -246,7 +247,7 @@ public class Stty extends Thread
     public void run()
     {
         // log it
-        logger.info("Starting Stty server for up to " + maxConnections + " incoming connections");
+        logger.info("Starting ServeStty server for up to " + maxConnections + " incoming connections");
         while (_stop == false)
         {
             for (int index = 0; index < allConnections.size(); ++index)
@@ -269,10 +270,10 @@ public class Stty extends Thread
                 }
             } catch (InterruptedException e)
             {
-                logger.info("Stty interrupted, stop=" + ((_stop) ? "true" : "false"));
+                logger.info("ServeStty interrupted, stop=" + ((_stop) ? "true" : "false"));
             }
         } // while (true)
-        logger.info("Stopped Stty");
+        logger.info("Stopped ServeStty");
     }
 
     protected void addListener(String host, int aPort) throws Exception
@@ -290,7 +291,7 @@ public class Stty extends Thread
         allSessions.put("Listener:" + host + ":" + aPort, listener);
 
         // log it
-        logger.info("Stty server is listening on " + (host == null ? "localhost" : host) + ":" + aPort);
+        logger.info("ServeStty server is listening on " + (host == null ? "localhost" : host) + ":" + aPort);
 
         // fire it up
         listener.start();
@@ -312,7 +313,7 @@ public class Stty extends Thread
         }
         if (listenPort < 1)
         {
-            logger.info("Stty is disabled");
+            logger.info("ServeStty is disabled");
         }
     }
 
@@ -342,4 +343,4 @@ public class Stty extends Thread
     }
 
 
-} // Stty
+} // ServeStty

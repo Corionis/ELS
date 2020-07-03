@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 
-public class Client implements SftpErrorStatusDataHandler
+public class ClientSftp implements SftpErrorStatusDataHandler
 {
     private transient Logger logger = LogManager.getLogger("applog");
     private transient byte[] buffer;
@@ -35,12 +35,12 @@ public class Client implements SftpErrorStatusDataHandler
     private final int BUFFER_SIZE = 1048576;
 // todo    private final int BUFFER_SIZE = 10485760;
 
-    private Client()
+    private ClientSftp()
     {
         // hide default constructor
     }
 
-    public Client(Repository mine, Repository theirs)
+    public ClientSftp(Repository mine, Repository theirs)
     {
         myRepo = mine;
         theirRepo = theirs;
@@ -114,7 +114,7 @@ public class Client implements SftpErrorStatusDataHandler
             }
             catch (IOException e)
             {
-                if (!e.toString().trim().toLowerCase().startsWith("sftp error (ssh_fx_ok):"))
+                if (!e.toString().trim().toLowerCase().startsWith("serveSftp error (ssh_fx_ok):"))
                 {
                     throw e;
                 }

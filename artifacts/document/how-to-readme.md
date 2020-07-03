@@ -26,43 +26,50 @@ at runtime. Whereas the uppcase variation will import the data from a file.
 
 ## Command Line Options
 
- * -a password : The password required to access Authorize mode
-      when allowing -r remote sttyClient access
+### Actions
 
- * -c level : Console logging level, default debug
- 
- * -d level : File logging level, default info 
-      Levels= off, fatal, error, warn, info, debug, trace, all.
-      If level = info then Java method and line number are not added.
- 
  * -D : Dry run, validate, scan, and match but do not make any changes
  
  * -e file : Export publisher items to flat text file
  
- * -f file : Log file, default VolMunger.log in directory where "run" is executed
- 
- * -g item : Get the specific item from the -l library, -l required
-             An "item" is the granularity of a movie (directory) or a tv season (directory).
-
- * -k : Keep volmunger.json files, default is to delete them as they are processed
- 
  * -i file : Export publisher items to collection file
  
- * -l library : Publisher library to process, default all
+ * -r P|L|M|S|T : This is a remote session, see comm.md for details 
+
+### Parameters
+
+ * -a password : The password required to access Authorize mode
+      when allowing -r remote clientStty access
+
+ * -c level : Console logging level, default debug
+ 
+ * -d level : File logging level, default info.
+      Levels= off, fatal, error, warn, info, debug, trace, all.
+      If level = info then Java method and line number are not added.
+ 
+ * -f file : Log file, default VolMunger.log in directory where "run" is executed
+ 
+ * -g item : Get the specific item from the -l library, -l required.
+      An "item" is the granularity of a movie (directory) or a tv season (directory).
+      Not implemented yet.
+
+ * -k : Keep volmunger.json files, default is to delete them as they are processed.
+      Not implemented yet.
+
+  * -l library : Publisher library to process, default all.
+      Not implemented yet.
  
  * -m file : Mismatch output file (differences)
 
- * -n file : Show What's new in a readable format, to send to your Plex users
+ * -n file : What's New output file
 
  * -p file : Publisher JSON libraries file
  
- * -P file : Publisher JSON collection import items file
-
- * -r P|S : This is a remote session and this is the Publisher or Subscriber, P|S is case insensitive 
+ * -P file : Publisher JSON collection items file
 
  * -s file : Subscriber JSON libraries file
  
- * -S file : Subscriber JSON collection import items file
+ * -S file : Subscriber JSON collection items file
  
  * -t file : Targets filename, see Notes
  
