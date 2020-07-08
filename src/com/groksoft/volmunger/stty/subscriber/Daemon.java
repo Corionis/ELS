@@ -3,20 +3,23 @@ package com.groksoft.volmunger.stty.subscriber;
 import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.stty.DaemonBase;
-import com.groksoft.volmunger.stty.ServeStty;
 import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
+import com.groksoft.volmunger.stty.DaemonBase;
+import com.groksoft.volmunger.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.StringTokenizer;
 
 /**
  * Subscriber Daemon service.
@@ -87,7 +90,8 @@ public class Daemon extends DaemonBase
                     valid = true;
                 }
             }
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             logger.error(e.getMessage());
         }
@@ -196,7 +200,8 @@ public class Daemon extends DaemonBase
                         authorized = true;
                         prompt = "$ ";
                         logger.info("Command auth accepted");
-                    } else
+                    }
+                    else
                     {
                         logger.warn("Auth password attempt failed using: " + pw);
                         if (attempts >= 3) // disconnect on too many attempts
@@ -220,14 +225,24 @@ public class Daemon extends DaemonBase
                         String location = subscriberRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
-                        for (Library subLib : subscriberRepo.getLibraryData().libraries.bibliography)
+                        // if -s then scan
+                        if (cfg.getSubscriberLibrariesFileName().length() > 0)
                         {
-                            subscriberRepo.scan(subLib.name);
+                            for (Library subLib : subscriberRepo.getLibraryData().libraries.bibliography)
+                            {
+                                if (subLib.items != null)
+                                {
+                                    subLib.items = null; // clear any existing data
+                                }
+                                subscriberRepo.scan(subLib.name);
+                            }
                         }
+                        // otherwise it must be -S so do not scan
                         subscriberRepo.exportCollection();
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
-                    } catch (MungerException e)
+                    }
+                    catch (MungerException e)
                     {
                         logger.error(e.getMessage());
                     }
@@ -242,7 +257,8 @@ public class Daemon extends DaemonBase
                         authorized = false;
                         prompt = basePrompt;
                         continue;
-                    } else
+                    }
+                    else
                     {
                         theCommand = "quit";
                         // let the logic fall through to the 'quit' handler below
@@ -268,11 +284,13 @@ public class Daemon extends DaemonBase
                         if (isTerminal)
                         {
                             response = Utils.formatLong(space);
-                        } else
+                        }
+                        else
                         {
                             response = String.valueOf(space);
                         }
-                    } else
+                    }
+                    else
                     {
                         response = (isTerminal ? "space command requires a location\r\n" : "0");
                     }
@@ -285,7 +303,8 @@ public class Daemon extends DaemonBase
                     if (!authorized)
                     {
                         response = "not authorized\r\n";
-                    } else
+                    }
+                    else
                     {
                         response = ServeStty.getInstance().dumpStatistics();
                         response += dumpStatistics();
@@ -299,7 +318,8 @@ public class Daemon extends DaemonBase
                     try
                     {
                         response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
-                    } catch (Exception e)
+                    }
+                    catch (Exception e)
                     {
                         logger.error(e.getMessage());
                     }

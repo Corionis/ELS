@@ -73,14 +73,14 @@ public class ServeStty extends Thread
 
         instance = this;
 
-        // make it a daemon so the JVM does not wait for it to exit
+        // QUESTION how to handle persistent listener AND properly close the socket when application is killed
         cfg = config;
         myRepo = mine;
         publisherKey = myRepo.getLibraryData().libraries.key;
         theirRepo = theirs;
         subscriberKey = theirRepo.getLibraryData().libraries.key;
 
-        // QUESTION how to handle persistent listener AND properly close the socket when application is killed
+        // make it a daemon so the JVM does not wait for it to exit
         this.setDaemon(true);
         this.setMaxConnections(aMaxConnections);
         this.allConnections = new Vector<Connection>();

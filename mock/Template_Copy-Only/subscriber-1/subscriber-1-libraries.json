@@ -2,6 +2,7 @@
     "libraries": {
         "description": "Test Subscriber-1",
         "site": ":30000",
+        "flavor": "windows",
         "terminal_allowed": "true",
         "key": "94eb0321-8a3d-4c10-81e9-1d89733f6d64",
         "case_sensitive": false,
@@ -15,7 +16,8 @@
                 "sources": [
                     "TestRun/subscriber-1/media-a/media/MoviesA",
                     "TestRun/subscriber-1/media-b/media/MoviesB",
-                    "TestRun/subscriber-1/media-c/media/MoviesC"
+                    "TestRun/subscriber-1/media-c/media/MoviesC",
+                    "TestRun/subscriber-1/media-d/media/NewMovies"
                 ]
             },
             {
@@ -23,7 +25,8 @@
                 "sources": [
                     "TestRun/subscriber-1/media-a/media/TVShowsA",
                     "TestRun/subscriber-1/media-b/media/TVShowsB",
-                    "TestRun/subscriber-1/media-c/media/TVShowsC"
+                    "TestRun/subscriber-1/media-c/media/TVShowsC",
+                    "TestRun/subscriber-1/media-d/media/NewTVShows"
                 ]
             }
         ]

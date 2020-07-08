@@ -105,7 +105,7 @@ public class ClientStty
     public boolean connect(Repository mine, Repository theirs) throws MungerException
     {
         this.myRepo = mine;
-        this.theirRepo = theirRepo;
+        this.theirRepo = theirs;
 
         if (this.theirRepo != null &&
                 this.theirRepo.getLibraryData() != null &&

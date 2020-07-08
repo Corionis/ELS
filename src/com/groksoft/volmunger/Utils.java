@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.groksoft.volmunger.repository.Libraries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -109,6 +110,35 @@ public class Utils
     }
 
     /**
+     * Get the file separator for the flavor of operating system
+     *
+     * @param flavor
+     * @return String containing matching file separator character
+     * @throws MungerException
+     */
+    public static String getFileSeparator(String flavor) throws MungerException
+    {
+        String separator;
+        if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
+        {
+            separator = "\\";
+        }
+        else if (flavor.equalsIgnoreCase(Libraries.LINUX))
+        {
+            separator = "/";
+        }
+        else if (flavor.equalsIgnoreCase(Libraries.APPLE))
+        {
+            separator = ":";
+        }
+        else
+        {
+            throw new MungerException("unknown flavor '" + flavor + "'");
+        }
+        return separator;
+    }
+
+    /**
      * Gets scaled value.
      *
      * @param size the string to parse
@@ -160,7 +190,7 @@ public class Utils
         {
             response += ", " + shorterFormatter.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
         }
-        return response + "\r\n";
+        return response;
     }
 
     /**

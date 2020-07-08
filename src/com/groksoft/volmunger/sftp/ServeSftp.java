@@ -60,15 +60,15 @@ public class ServeSftp implements SftpErrorStatusDataHandler
     @Override
     public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id, Throwable e, int subStatus, int cmd, Object... args)
     {
-        logger.info("resolveErrorMessage: " + cmd + " " + args.toString() + "\r\n" + e.getMessage());
-        return null;
+        //logger.info("resolveErrorMessage command: " + cmd + " " + args.toString() + "\r\n" + e.toString());
+        return e.toString();
     }
 
     @Override
     public int resolveSubStatus(SftpSubsystemEnvironment sftpSubsystem, int id, Throwable e, int cmd, Object... args)
     {
-        logger.info("resolveSubStatus: " + cmd + " " + args.toString() + "\r\n" + e.getMessage());
-        return 0;
+        //logger.info("resolveSubStatus: " + cmd + " " + args.toString() + "\r\n" + e.getMessage());
+        return 1;
     }
 
     public void startServer()

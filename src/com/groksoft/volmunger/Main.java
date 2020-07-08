@@ -89,8 +89,6 @@ public class Main
             // get the named logger
             logger = LogManager.getLogger("applog");
 
-            // todo Add sanity checks for option combinations that do not make sense
-
             // an execution of this program can only be configured as one of these
             switch (cfg.getRemoteFlag())
             {
@@ -107,70 +105,31 @@ public class Main
                     returnValue = proc.process();
                     break;
 
-                // handle -r S subscriber listener for publisher -r P|M connections
-                case SUBSCRIBER_LISTENER:
-                    logger.info("+ VolMunger Subscriber Listener begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
-                    cfg.dump();
-
-                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
-                        throw new MungerException("Targets -t file not found: " + cfg.getTargetsFilename());
-
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
-
-                    // start servers
-                    if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
-                    {
-                        // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.publisherRepo, context.subscriberRepo);
-                        context.serveSftp.startServer();
-
-                        // start serveStty server
-                        sessionThreads = new ThreadGroup("SServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.publisherRepo, context.subscriberRepo);
-                        context.serveStty.startListening(context.subscriberRepo);
-
-                        isListening = true;
-                    }
-                    else
-                    {
-                        throw new MungerException("Subscriber and publisher options are required for -r S");
-                    }
-                    break;
-
-                // handle -r P execute the automated process to remote subscriber -r S
-                case REMOTE_PUBLISH:
-                    logger.info("+ VolMunger Publish Process to Remote Subscriber begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                // handle -r L publisher listener for remote subscriber -r T connections
+                case PUBLISHER_LISTENER:
+                    logger.info("+ VolMunger Publisher Listener begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
-                    // start clients
+                    // start servers
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
-                        // start the serveSftp client
-                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo);
-                        context.clientSftp.startClient();
+                        // start serveSftp server
+                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo);
+                        context.serveSftp.startServer();
 
-                        // start the serveStty automation client interactively
-                        context.clientStty = new ClientStty(cfg, true);
-                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
-                        {
-                            throw new MungerException("Publisher ClientStty failed to connect");
-                        }
+                        // start serveStty server
+                        sessionThreads = new ThreadGroup("PServer");
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.subscriberRepo, context.publisherRepo);
+                        context.serveStty.startListening(context.publisherRepo);
 
-                        // the Process class handles the VolMunger process
-                        proc = new Process(cfg, context);
-                        returnValue = proc.process();
-                        if (returnValue == 0)
-                        {
-                            Thread.sleep(Long.MAX_VALUE);
-                        }
+                        isListening = true;
                     }
                     else
                     {
-                        throw new MungerException("Publisher and subscriber options are required for -r P");
+                        throw new MungerException("A publisher library (-p) or collection file (-P) is required for -r L");
                     }
                     break;
 
@@ -202,30 +161,70 @@ public class Main
                     }
                     break;
 
-                // handle -r L publisher listener for remote subscriber -r T connections
-                case PUBLISHER_LISTENER:
-                    logger.info("+ VolMunger Publisher Listener begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                // handle -r P execute the automated process to remote subscriber -r S
+                case REMOTE_PUBLISH:
+                    logger.info("+ VolMunger Publish Process to Remote Subscriber begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
+                    // start clients
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
+                        // start the serveSftp client
+                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo);
+                        context.clientSftp.startClient();
+
+                        // start the serveStty client for automation
+                        context.clientStty = new ClientStty(cfg, false);
+                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                        {
+                            throw new MungerException("Publisher ClientStty failed to connect");
+                        }
+
+                        // the Process class handles the VolMunger process
+                        proc = new Process(cfg, context);
+                        returnValue = proc.process();
+                        if (returnValue == 0)
+                        {
+                            Thread.sleep(Long.MAX_VALUE);
+                        }
+                    }
+                    else
+                    {
+                        throw new MungerException("Publisher and subscriber options are required for -r P");
+                    }
+                    break;
+
+                // handle -r S subscriber listener for publisher -r P|M connections
+                case SUBSCRIBER_LISTENER:
+                    logger.info("+ VolMunger Subscriber Listener begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    cfg.dump();
+
+                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
+                        throw new MungerException("Targets -t file not found: " + cfg.getTargetsFilename());
+
+                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
+                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
+
+                    // start servers
+                    if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
+                    {
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo);
+                        context.serveSftp = new ServeSftp(context.publisherRepo, context.subscriberRepo);
                         context.serveSftp.startServer();
 
                         // start serveStty server
-                        sessionThreads = new ThreadGroup("PServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.subscriberRepo, context.publisherRepo);
-                        context.serveStty.startListening(context.publisherRepo);
+                        sessionThreads = new ThreadGroup("SServer");
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.publisherRepo, context.subscriberRepo);
+                        context.serveStty.startListening(context.subscriberRepo);
 
                         isListening = true;
                     }
                     else
                     {
-                        throw new MungerException("A publisher library (-p) or collection file (-P) is required for -r L");
+                        throw new MungerException("Subscriber and publisher options are required for -r S");
                     }
                     break;
 
@@ -297,10 +296,22 @@ public class Main
                                 Thread.sleep(200);
                                 logger.info("Shutting down communications ...");
 
-                                context.serveStty.stopServer();
-                                context.serveStty = null;
-                                context.serveSftp.stopServer();
-                                context.serveSftp = null;
+                                if (context.clientStty != null)
+                                {
+                                    context.clientStty.disconnect();
+                                }
+                                if (context.serveStty != null)
+                                {
+                                    context.serveStty.stopServer();
+                                }
+                                if (context.clientSftp != null)
+                                {
+                                    context.clientSftp.stopClient();
+                                }
+                                if (context.serveSftp != null)
+                                {
+                                    context.serveSftp.stopServer();
+                                }
                             }
                             catch (Exception e)
                             {
@@ -308,31 +319,6 @@ public class Main
                             }
                         }
                     });
-                }
-            }
-
-            // stop the serveStty client
-            if (context.clientStty != null)
-            {
-                context.clientStty.disconnect();
-            }
-
-            // stop the serveSftp client
-            if (context.clientSftp != null)
-            {
-                context.clientSftp.stopClient();
-            }
-
-            // if above fails force stop the serveSftp server
-            if (context.serveSftp != null)
-            {
-                try
-                {
-                    context.serveSftp.stopServer();
-                }
-                catch (IOException e)
-                {
-                    // ignore any exception
                 }
             }
         }
@@ -367,6 +353,7 @@ public class Main
             if (cfg.getPublisherLibrariesFileName().length() > 0)
             {
                 repo.read(cfg.getPublisherLibrariesFileName());
+
             }
             // get -P Publisher collection
             if (cfg.getPublisherCollectionFilename().length() > 0)

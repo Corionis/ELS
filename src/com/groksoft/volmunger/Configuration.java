@@ -278,6 +278,7 @@ public class Configuration
                     throw new MungerException("Error: unknown option " + args[index]);
             }
         }
+
     }
 
     /**

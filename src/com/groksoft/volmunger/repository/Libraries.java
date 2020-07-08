@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
  */
 public class Libraries
 {
+    public static final String WINDOWS = "windows";
+    public static final String LINUX = "linux";
+    public static final String APPLE = "apple";
+
     /**
      * The compiled patterns of ignore_patterns.
      */
@@ -24,6 +28,11 @@ public class Libraries
      * Default port is 50271 if not specified
      */
     public String site;
+
+    /**
+     * Flavor of system: Windows, Linux, or Mac (only)
+     */
+    public String flavor;
 
     /**
      * If remote terminal session is allowed then true, else false

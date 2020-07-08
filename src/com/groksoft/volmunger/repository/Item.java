@@ -63,7 +63,6 @@ public class Item implements Serializable
         this.itemPath = itemPath;
     }
 
-
     /**
      * Gets full path.
      *
@@ -135,7 +134,6 @@ public class Item implements Serializable
     public void setSymLink(boolean symLink) {
         this.symLink = symLink;
     }
-
 
     public String getName() {
         String path = getItemPath();

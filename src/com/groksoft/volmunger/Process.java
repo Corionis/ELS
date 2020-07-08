@@ -39,6 +39,7 @@ public class Process
     private ArrayList<String> ignoredList = new ArrayList<>();
     private String lastGroupName = "";
     private transient Logger logger = LogManager.getLogger("applog");
+    private long grandTotalOriginalLocation = 0L;
     private Storage storageTargets = null;
     private long whatsNewTotal = 0;
 
@@ -62,14 +63,21 @@ public class Process
     {
         try
         {
-            File f = new File(to);
-            if (f != null)
-            {
-                f.getParentFile().mkdirs();
-            }
             Path fromPath = Paths.get(from).toRealPath();
             Path toPath = Paths.get(to);  //.toRealPath();
-            Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
+            if (cfg.isRemoteSession())
+            {
+                context.clientSftp.transmitFile(from, to);
+            }
+            else
+            {
+                File f = new File(to);
+                if (f != null)
+                {
+                    f.getParentFile().mkdirs();
+                }
+                Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
+            }
         }
         catch (UnsupportedOperationException e)
         {
@@ -124,9 +132,6 @@ public class Process
                             ++copyCount;
                             String to = targetPath + File.separator + groupItem.getItemPath();
                             logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
-
-                            // LEFTOFF
-
                             if (!copyFile(groupItem.getFullPath(), to))
                             {
                                 ++errorCount;
@@ -249,14 +254,17 @@ public class Process
             {
                 space = Utils.availableSpace(path);
             }
-            logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") + " path " + path + " == " + (space / (1024 * 1024)) + " for " +
-                    (size / (1024 * 1024)) + " minimum " + (minimum / (1024 * 1024)) + " MB");
+            logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
+                    " path " + path + " == " + (Utils.formatLong(space)) +
+                    " for " + (Utils.formatLong(size)) +
+                    " minimum " + Utils.formatLong(minimum));
             if (space > (size + minimum))
             {
                 logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
                 //
                 // inline return
                 //
+                ++grandTotalOriginalLocation;
                 return path;
             }
             else
@@ -274,7 +282,8 @@ public class Process
                 // check space on the candidate target
                 String candidate = tar.locations[j];
                 if (cfg.isRemoteSession())
-                { // remote subscriber
+                {
+                    // remote subscriber
                     space = context.clientStty.availableSpace(candidate);
                 }
                 else
@@ -349,8 +358,8 @@ public class Process
         int i = publisherItem.getItemPath().lastIndexOf(File.separator);
         if (i < 0)
         {
-            logger.warn("File pathsep: '" + File.separator + "'");
-            logger.warn("File     sep: '" + File.separator + "'");
+            //logger.info("File pathsep: '" + File.separator + "'");
+            //logger.info("File     sep: '" + File.separator + "'");
             logger.warn("No subdirectory in path : " + publisherItem.getItemPath());
             return true;
         }
@@ -438,7 +447,7 @@ public class Process
                 if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                 {
 
-                    // Do the libraries have items or do we need to be scanned?
+                    // Do the libraries have items or do they need to be scanned?
                     if (pubLib.items == null || pubLib.items.size() < 1)
                     {
                         context.publisherRepo.scan(pubLib.name);
@@ -537,7 +546,7 @@ public class Process
                                         }
                                     }
                                     long size = 0L;
-                                    if (scanned)
+                                    if (scanned || item.getSize() < 0)
                                     {
                                         size = getItemSize(item);
                                         item.setSize(size);
@@ -565,7 +574,6 @@ public class Process
             {
                 // Process the last group
                 logger.info("Processing last group '" + currentGroupName + "'");
-                // There is another group - process it
                 copyGroup(group, totalSize);
                 totalSize = 0L;
             }
@@ -574,9 +582,9 @@ public class Process
             if (mismatchFile != null)
             {
                 mismatchFile.println("----------------------------------------------------");
-                mismatchFile.println("Grand total items: " + grandTotalItems);
+                mismatchFile.println("Total items: " + grandTotalItems);
                 double gb = grandTotalSize / (1024 * 1024 * 1024);
-                mismatchFile.println("Grand total size : " + formatter.format(grandTotalSize) + " bytes, " + gb + " GB");
+                mismatchFile.println("Total size : " + Utils.formatLong(grandTotalSize));
                 mismatchFile.close();
             }
             if (whatsNewFile != null)
@@ -597,12 +605,12 @@ public class Process
                 logger.info("    " + s);
             }
         }
-        logger.info("Grand total copies: " + copyCount);
-        logger.info("Grand total errors: " + errorCount);
-        logger.info("Grand total ignored: " + ignoreTotal);
-        logger.info("Grand total items: " + grandTotalItems);
+        logger.info("Total copies: " + copyCount + ", of those " + grandTotalOriginalLocation + " went to original locations");
+        logger.info("Total errors: " + errorCount);
+        logger.info("Total ignored: " + ignoreTotal);
+        logger.info("Total items: " + grandTotalItems);
         double gb = grandTotalSize / (1024 * 1024 * 1024);
-        logger.info("Grand total size : " + formatter.format(grandTotalSize) + " bytes, " + gb + " GB");
+        logger.info("Total size : " + Utils.formatLong(grandTotalSize));
     }
 
     /**
@@ -623,6 +631,19 @@ public class Process
                 // For -r P connect to remote subscriber -r S
                 if (cfg.isRemotePublish())
                 {
+                    // sanity checks
+                    if (context.publisherRepo.getLibraryData().libraries.flavor == null ||
+                        context.publisherRepo.getLibraryData().libraries.flavor.length() < 1)
+                    {
+                        throw new MungerException("Publisher data incomplete, missing 'flavor'");
+                    }
+
+                    if (context.subscriberRepo.getLibraryData().libraries.flavor == null ||
+                            context.subscriberRepo.getLibraryData().libraries.flavor.length() < 1)
+                    {
+                        throw new MungerException("Subscriber data incomplete, missing 'flavor'");
+                    }
+
                     // check for opening commands from Subscriber
                     // *** might change cfg options for subscriber and targets that are handled below ***
                     if (context.clientStty.checkBannerCommands())

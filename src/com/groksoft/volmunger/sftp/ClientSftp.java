@@ -1,6 +1,8 @@
 package com.groksoft.volmunger.sftp;
 
+import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
+import com.groksoft.volmunger.repository.Libraries;
 import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +12,7 @@ import org.apache.sshd.client.subsystem.sftp.SftpClient;
 import org.apache.sshd.client.subsystem.sftp.impl.DefaultSftpClientFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,20 +22,19 @@ import java.util.EnumSet;
 
 public class ClientSftp implements SftpErrorStatusDataHandler
 {
-    private transient Logger logger = LogManager.getLogger("applog");
+    private final int BUFFER_SIZE = 1048576;
     private transient byte[] buffer;
 
     private String hostname;
     private int hostport;
-    private String password;
+    private transient Logger logger = LogManager.getLogger("applog");
     private Repository myRepo;
-    private Repository theirRepo;
+    private String password;
+    private ClientSession session;
     private SftpClient sftpClient;
     private SshClient sshClient;
-    private ClientSession session;
+    private Repository theirRepo;
     private String user;
-
-    private final int BUFFER_SIZE = 1048576;
 // todo    private final int BUFFER_SIZE = 10485760;
 
     private ClientSftp()
@@ -50,6 +52,70 @@ public class ClientSftp implements SftpErrorStatusDataHandler
 
         user = myRepo.getLibraryData().libraries.key;
         password = theirRepo.getLibraryData().libraries.key;
+    }
+
+    /**
+     * Make a remote directory tree
+     *
+     * @param pathname Path and filename. Note that a filename is required but is removed
+     * @return True if any directories were created
+     * @throws IOException
+     */
+    public String makeRemoteDirectory(String pathname) throws Exception
+    {
+        String remotePath = "";
+
+        // filename might have mixed separators
+        pathname = pathname.replace('\\', '/');
+        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
+            pathname = pathname.replace('/', ':');
+
+        File f = new File(pathname);
+        String dir = f.getParentFile().getAbsolutePath(); // get parent of file
+
+        // filename might have mixed separators, normalize to forward-slash for split()
+        dir = dir.replace('\\', '/');
+        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
+            dir = dir.replace(':', '/');
+        String[] parts = dir.split("/");
+
+        String sep = Utils.getFileSeparator(theirRepo.getLibraryData().libraries.flavor);
+        String whole = "";
+        for (int i = 0; i < parts.length; ++i)
+        {
+            try
+            {
+                // is it a Windows drive letter: ?
+                if (i == 0 && parts[i].endsWith(":"))
+                {
+                    // don't try to create a Windows root directory, e.g. C:\
+                    if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS) &&
+                            parts[i].length() == 2)
+                    {
+                        whole = parts[i];
+                        continue;
+                    }
+                }
+                whole = whole + sep + parts[i];
+
+                // protect the root of drives
+                if (whole.equals(sep))
+                    continue;
+
+                // try to create next directory segment
+                sftpClient.mkdir(whole);
+            }
+            catch (IOException e)
+            {
+                String msg = e.toString().trim().toLowerCase();
+                if (msg.startsWith("sftp error"))
+                {
+                    if (!msg.contains("alreadyexists")) // ignore "already exists" errors
+                        throw e;
+                }
+            }
+        }
+        return remotePath;
     }
 
     public void startClient()
@@ -91,8 +157,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
     {
         try
         {
-            SftpClient.Attributes destAttr;
-            SftpClient.Attributes srcAttr;
+            SftpClient.Attributes destAttr = null;
             int readOffset = 0;
             long writeOffset = 0L;
 
@@ -114,11 +179,18 @@ public class ClientSftp implements SftpErrorStatusDataHandler
             }
             catch (IOException e)
             {
-                if (!e.toString().trim().toLowerCase().startsWith("serveSftp error (ssh_fx_ok):"))
+                String msg = e.toString().trim().toLowerCase();
+                if (msg.startsWith("sftp error"))
                 {
-                    throw e;
+                    if (!msg.contains("nosuchfileexception"))
+                        throw e;
                 }
                 destAttr = null;
+            }
+
+            if (destAttr == null) // file does not exist, try making directory tree
+            {
+                makeRemoteDirectory(copyDest);
             }
 
             // append to existing file, otherwise create
@@ -177,7 +249,12 @@ public class ClientSftp implements SftpErrorStatusDataHandler
             }
             catch (IOException e)
             {
-                logger.error(e.getMessage());
+                String msg = e.toString().trim().toLowerCase();
+                if (msg.startsWith("sftp error"))
+                {
+                    if (!msg.contains("nosuchfileexception"))
+                        throw e;
+                }
             }
 
             // rename .part file

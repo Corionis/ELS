@@ -104,7 +104,7 @@ public class Storage
             }
             long min = Utils.getScaledValue(t.minimum);
             if (min < minimumBytes) {               // non-fatal warning
-                logger.warn("storage.minimum [" + i + "] " + t.name + " of " + t.minimum + " is less than minimum of " + (minimumBytes / 1024 / 1024) + "MB. Using minimum.");
+                logger.warn("Storage.minimum [" + i + "] " + t.name + " of " + t.minimum + " is less than allowed minimum of " + (minimumBytes / 1024 / 1024) + "MB. Using allowed minimum.");
             }
             if (t.locations == null || t.locations.length == 0) {
                 throw new MungerException("storage.locations [" + i + "] " + t.name + " must be defined");

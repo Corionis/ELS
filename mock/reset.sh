@@ -17,6 +17,7 @@ if [ "$1" != "-f" ]; then
 fi
 
 rm -rf ./TestRun
+rm -f ./logmunger.log
 
 cp -rpv ./Template_Copy-Only ./TestRun
 
