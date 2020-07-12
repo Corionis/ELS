@@ -121,7 +121,7 @@ public class Process
                     {
                         // -D Dry run option
                         ++copyCount;
-                        logger.info("    Would copy #" + copyCount + " " + groupItem.getFullPath());
+                        logger.info("  > Would copy #" + copyCount + " " + groupItem.getFullPath());
                     }
                     else
                     {
@@ -648,7 +648,7 @@ public class Process
                     // *** might change cfg options for subscriber and targets that are handled below ***
                     if (context.clientStty.checkBannerCommands())
                     {
-                        logger.info("Received subscriber requests:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
+                        logger.info("Received subscriber commands:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
                     }
                 }
 
@@ -658,6 +658,7 @@ public class Process
                     if (cfg.isRemoteSession() && cfg.isRequestCollection())
                     {
                         // request complete collection data from remote subscriber
+
                         String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
                         cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
                         cfg.setSubscriberCollectionFilename(location);

@@ -110,7 +110,6 @@ public class Daemon extends DaemonBase
         port = aSocket.getPort();
         address = aSocket.getInetAddress();
         int attempts = 0;
-        int secattempts = 0;
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
@@ -138,14 +137,14 @@ public class Daemon extends DaemonBase
         {
             response = "CMD";
 
-            //  -s Subscriber libraries
-            if (cfg.getSubscriberLibrariesFileName().length() > 0)
+            //  -S Subscriber collection file
+            if (cfg.isForceCollection())
             {
                 response = response + ":RequestCollection";
             }
 
             //  -t Subscriber targets
-            if (cfg.getTargetsFilename().length() > 0)
+            if (cfg.isForceTargets())
             {
                 response = response + ":RequestTargets";
             }
@@ -193,8 +192,7 @@ public class Daemon extends DaemonBase
                     String pw = "";
                     if (t.hasMoreTokens())
                         pw = t.nextToken(); // get the password
-                    if ((cfg.getAuthorizedPassword().length() == 0 && pw.length() == 0) ||
-                            cfg.getAuthorizedPassword().equals(pw.trim()))
+                    if (cfg.getAuthorizedPassword().equals(pw.trim()))
                     {
                         response = "password accepted\r\n";
                         authorized = true;

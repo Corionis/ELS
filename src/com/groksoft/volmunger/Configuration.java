@@ -15,270 +15,49 @@ import java.util.ArrayList;
 public class Configuration
 {
     public static final int NOT_REMOTE = 0;
+    public static final int PUBLISHER_LISTENER = 4;
+    public static final int PUBLISHER_MANUAL = 3;
     public static final int REMOTE_PUBLISH = 1;
     public static final int SUBSCRIBER_LISTENER = 2;
-    public static final int PUBLISHER_MANUAL = 3;
-    public static final int PUBLISHER_LISTENER = 4;
     public static final int SUBSCRIBER_TERMINAL = 5;
     private final String VOLMUNGER_VERSION = "2.0.0";
-
+    // remote
+    private String authorizedPassword = "";
     // debug
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
-
+    // other
+    private boolean dryRun = false;
     // files
     private String exportCollectionFilename = "";
     private String exportTextFilename = "";
+    private boolean forceCollection = false;
+    private boolean forceTargets = false;
+    private boolean keepVolMungerFiles = false;
+    private String logFilename = "volmunger.log";
     private String mismatchFilename = "";
+    private String[] originalArgs;
+    private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
-    private String subscriberCollectionFilename = "";
-    private String targetsFilename = "";
-    private String whatsNewFilename = "";
-
     // publisher & subscriber
     private String publisherLibrariesFileName = "";
     private ArrayList<String> publisherLibraryName = new ArrayList<>();
-    private boolean specificPublisherLibrary = false;
-    private String subscriberLibrariesFileName = "";
-
-    // other
-    private boolean dryRun = false;
-    private boolean keepVolMungerFiles = false;
-    private String logFilename = "volmunger.log";
-    private String[] originalArgs;
-
-    private boolean publishOperation = true;
-    private boolean validationRun = false;
-
-    // remote
-    private String authorizedPassword = "";
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
     private boolean requestCollection = false;
     private boolean requestTargets = false;
+    private boolean specificPublisherLibrary = false;
+    private String subscriberCollectionFilename = "";
+    private String subscriberLibrariesFileName = "";
+    private String targetsFilename = "";
+    private boolean validationRun = false;
+    private String whatsNewFilename = "";
 
     /**
      * Instantiates a new Configuration.
      */
     public Configuration()
     {
-    }
-
-    /**
-     * Parse command line.
-     * <p>
-     * This populates the rest.
-     *
-     * @param args the args
-     * @return the boolean
-     * @throws MungerException the volmunger exception
-     */
-    public void parseCommandLine(String[] args) throws MungerException
-    {
-        int index;
-        boolean success = true;
-        originalArgs = args;
-
-        for (index = 0; index < args.length; ++index)
-        {
-            switch (args[index])
-            {
-                case "-a":                                             // authorize mode password
-                    if (index <= args.length - 2)
-                    {
-                        setAuthorizedPassword(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -a requires a password value");
-                    }
-                    break;
-                case "-c":                                             // console level
-                    if (index <= args.length - 2)
-                    {
-                        setConsoleLevel(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
-                    }
-                    break;
-                case "-D":                                             // Dry run
-                    setDryRun(true);
-                    break;
-                case "-d":                                             // debug level
-                    if (index <= args.length - 2)
-                    {
-                        setDebugLevel(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
-                    }
-                    break;
-                case "-e":                                             // export publisher items to flat text file
-                    if (index <= args.length - 2)
-                    {
-                        setExportTextFilename(args[index + 1]);
-                        ++index;
-                        setPublishOperation(false);
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -e requires an export path output filename");
-                    }
-                    break;
-                case "-f":                                             // log filename
-                    if (index <= args.length - 2)
-                    {
-                        setLogFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -f requires a log filename");
-                    }
-                    break;
-                case "-i":                                             // export publisher items to collection file
-                    if (index <= args.length - 2)
-                    {
-                        setExportCollectionFilename(args[index + 1]);
-                        ++index;
-                        setPublishOperation(false);
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -i requires a collection output filename");
-                    }
-                    break;
-                case "-k":                                             // keep .volmunger files
-                    setKeepVolMungerFiles(true);
-                    break;
-                case "-l":                                             // publisher library to process
-                    if (index <= args.length - 2)
-                    {
-                        addPublisherLibraryName(args[index + 1]);
-                        setSpecificPublisherLibrary(true);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -l requires a publisher library name");
-                    }
-                    break;
-                case "-m":                                             // Mismatch output filename
-                    if (index <= args.length - 2)
-                    {
-                        setMismatchFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -m requires a mismatches output filename");
-                    }
-                    break;
-                case "-n":                                             // What's New output filename
-                    if (index <= args.length - 2)
-                    {
-                        setWhatsNewFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -n requires a What's New output filename");
-                    }
-                    break;
-                case "-p":                                             // publisher JSON libraries file
-                    if (index <= args.length - 2)
-                    {
-                        setPublisherLibrariesFileName(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -p requires a publisher libraries filename");
-                    }
-                    break;
-                case "-P":                                             // publisher JSON collection items file
-                    if (index <= args.length - 2)
-                    {
-                        setPublisherCollectionFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -P requires an publisher collection filename");
-                    }
-                    break;
-                case "-r":                                             // remote session
-                    if (index <= args.length - 2)
-                    {
-                        setRemoteType(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -r must be followed by |P|L|M|S|T, case-insensitive");
-                    }
-                    break;
-                case "-s":                                             // subscriber JSON libraries file
-                    if (index <= args.length - 2)
-                    {
-                        setRequestCollection(true);
-                        setSubscriberLibrariesFileName(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -s requires a subscriber libraries filename");
-                    }
-                    break;
-                case "-S":                                             // subscriber JSON collection items file
-                    if (index <= args.length - 2)
-                    {
-                        setSubscriberCollectionFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -S requires an subscriber collection filename");
-                    }
-                    break;
-                case "-t":                                             // targets filename
-                    if (index <= args.length - 2)
-                    {
-                        setRequestTargets(true);
-                        setTargetsFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -t requires a targets filename");
-                    }
-                    break;
-                case "-T":                                             // targets filename
-                    if (index <= args.length - 2)
-                    {
-                        setRequestTargets(false);
-                        setTargetsFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -T requires a targets filename");
-                    }
-                    break;
-                case "-v":                                             // validate collections files
-                    setValidationRun(true);
-                    break;
-                default:
-                    throw new MungerException("Error: unknown option " + args[index]);
-            }
-        }
-
     }
 
     /**
@@ -689,6 +468,26 @@ public class Configuration
         this.dryRun = dryRun;
     }
 
+    public boolean isForceCollection()
+    {
+        return forceCollection;
+    }
+
+    public void setForceCollection(boolean forceCollection)
+    {
+        this.forceCollection = forceCollection;
+    }
+
+    public boolean isForceTargets()
+    {
+        return forceTargets;
+    }
+
+    public void setForceTargets(boolean forceTargets)
+    {
+        this.forceTargets = forceTargets;
+    }
+
     /**
      * Is keep vol volmunger files boolean.
      *
@@ -728,19 +527,19 @@ public class Configuration
     }
 
     /**
-     * Returns true if this is a publisher process, automatically execute the process
-     */
-    public boolean isRemotePublish()
-    {
-        return (getRemoteFlag() == REMOTE_PUBLISH);
-    }
-
-    /**
      * Returns true if this publisher is in terminal mode
      */
     public boolean isPublisherTerminal()
     {
         return (getRemoteFlag() == PUBLISHER_MANUAL);
+    }
+
+    /**
+     * Returns true if this is a publisher process, automatically execute the process
+     */
+    public boolean isRemotePublish()
+    {
+        return (getRemoteFlag() == REMOTE_PUBLISH);
     }
 
     /**
@@ -827,6 +626,228 @@ public class Configuration
     public void setValidationRun(boolean validationRun)
     {
         this.validationRun = validationRun;
+    }
+
+    /**
+     * Parse command line.
+     * <p>
+     * This populates the rest.
+     *
+     * @param args the args
+     * @return the boolean
+     * @throws MungerException the volmunger exception
+     */
+    public void parseCommandLine(String[] args) throws MungerException
+    {
+        int index;
+        boolean success = true;
+        originalArgs = args;
+
+        for (index = 0; index < args.length; ++index)
+        {
+            switch (args[index])
+            {
+                case "-a":                                             // authorize mode password
+                    if (index <= args.length - 2)
+                    {
+                        setAuthorizedPassword(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -a requires a password value");
+                    }
+                    break;
+                case "-c":                                             // console level
+                    if (index <= args.length - 2)
+                    {
+                        setConsoleLevel(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                    }
+                    break;
+                case "-D":                                             // Dry run
+                    setDryRun(true);
+                    break;
+                case "-d":                                             // debug level
+                    if (index <= args.length - 2)
+                    {
+                        setDebugLevel(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
+                    }
+                    break;
+                case "-e":                                             // export publisher items to flat text file
+                    if (index <= args.length - 2)
+                    {
+                        setExportTextFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -e requires an export path output filename");
+                    }
+                    break;
+                case "-f":                                             // log filename
+                    if (index <= args.length - 2)
+                    {
+                        setLogFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -f requires a log filename");
+                    }
+                    break;
+                case "-i":                                             // export publisher items to collection file
+                    if (index <= args.length - 2)
+                    {
+                        setExportCollectionFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -i requires a collection output filename");
+                    }
+                    break;
+                case "-k":                                             // keep .volmunger files
+                    setKeepVolMungerFiles(true);
+                    break;
+                case "-l":                                             // publisher library to process
+                    if (index <= args.length - 2)
+                    {
+                        addPublisherLibraryName(args[index + 1]);
+                        setSpecificPublisherLibrary(true);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -l requires a publisher library name");
+                    }
+                    break;
+                case "-m":                                             // Mismatch output filename
+                    if (index <= args.length - 2)
+                    {
+                        setMismatchFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -m requires a mismatches output filename");
+                    }
+                    break;
+                case "-n":                                             // What's New output filename
+                    if (index <= args.length - 2)
+                    {
+                        setWhatsNewFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -n requires a What's New output filename");
+                    }
+                    break;
+                case "-p":                                             // publisher JSON libraries file
+                    if (index <= args.length - 2)
+                    {
+                        setPublisherLibrariesFileName(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -p requires a publisher libraries filename");
+                    }
+                    break;
+                case "-P":                                             // publisher JSON collection items file
+                    if (index <= args.length - 2)
+                    {
+                        setPublisherCollectionFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -P requires an publisher collection filename");
+                    }
+                    break;
+                case "-r":                                             // remote session
+                    if (index <= args.length - 2)
+                    {
+                        setRemoteType(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
+                    }
+                    break;
+                case "-s":                                             // subscriber JSON libraries file
+                    if (index <= args.length - 2)
+                    {
+                        setForceCollection(false);
+                        setRequestCollection(true);
+                        setSubscriberLibrariesFileName(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -s requires a subscriber libraries filename");
+                    }
+                    break;
+                case "-S":                                             // subscriber JSON collection items file
+                    if (index <= args.length - 2)
+                    {
+                        setForceCollection(true);
+                        setRequestCollection(false);
+                        setSubscriberCollectionFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -S requires an subscriber collection filename");
+                    }
+                    break;
+                case "-t":                                             // targets filename
+                    if (index <= args.length - 2)
+                    {
+                        setForceTargets(false);
+                        setRequestTargets(true);
+                        setTargetsFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -t requires a targets filename");
+                    }
+                    break;
+                case "-T":                                             // targets filename
+                    if (index <= args.length - 2)
+                    {
+                        setForceTargets(true);
+                        setRequestTargets(false);
+                        setTargetsFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -T requires a targets filename");
+                    }
+                    break;
+                case "-v":                                             // validate collections files
+                    setValidationRun(true);
+                    break;
+                default:
+                    throw new MungerException("Error: unknown option " + args[index]);
+            }
+        }
+
     }
 
 }

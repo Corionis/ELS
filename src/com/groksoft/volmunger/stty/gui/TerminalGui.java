@@ -87,7 +87,7 @@ public class TerminalGui implements WindowListener, ActionListener
                 commandField.requestFocus();
                 break;
         }
-        if (response.equalsIgnoreCase("End-Execution"))
+        if ((response != null) && response.equalsIgnoreCase("End-Execution"))
         {
             logger.info("Handling End-Execution from server");
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));

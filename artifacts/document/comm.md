@@ -53,7 +53,8 @@ Manual terminal "authorized" commands:
  1. For the Publisher (-r P):
     1. -p causes the Publisher to dynamically generate new JSON data
     2. -P the Publisher will import a local JSON collection file
-    3. -s causes the Publisher to request the subscriber's -i JSON
+    3. -s causes the Publisher to import a local JSON library file
+    for site-related data then request the subscriber's -i JSON
     collection data
     4. -S the Publisher will import a local JSON collection file
     5. -t causes the Publisher to request the subscriber's -T targets file
@@ -61,13 +62,15 @@ Manual terminal "authorized" commands:
 
  2. For the Subscriber (-r S):
     1. -p and -P are equivalent; only site-related data is used
-    2. -s causes the Subscriber to load a JSON libraries file
+    2. -s causes the Subscriber to load a JSON libraries file,
+    and will do a full scan for the collection if requested by
+    the publisher
     3. -S the Subscriber will import a local JSON collection file
-    will FORCE the publisher to take that 
-    JSON export file when a connection is made by the publisher
-    4. -t causes the Subscriber to FORCE the publisher to take a new
+    and will FORCE the publisher to take that JSON export file
+    when a connection is made by the publisher
+    4. -t the Subscriber will import a subscriber JSON targets file
+    5. -T causes the Subscriber to FORCE the publisher to take a new
      subscriber's -T targets file
-    5. -T the Subscriber will import a subscriber JSON targets file
 
  3. The combination of behavior changes when using -r cause and require
     the Process.munge() method to start with a complete collection
