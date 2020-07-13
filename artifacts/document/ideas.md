@@ -214,3 +214,5 @@ This is a file-for-file matching/synchronization process.
 
  3. volmunger.json, Moves do not matter, this is location inspecific with a library
 
+ 4. volmunger.json, Move to library, e.g. Movies to Documentary Movies
+ 
