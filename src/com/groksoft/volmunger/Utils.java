@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.groksoft.volmunger.repository.Libraries;
+import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -38,7 +39,7 @@ public class Utils
     }
 
     /**
-     * Available space on target.
+     * Available space on local target.
      *
      * @param location the path to the target
      * @return the long space available on target in bytes
@@ -121,7 +122,7 @@ public class Utils
         String separator;
         if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
         {
-            separator = "\\";
+            separator = "\\\\";
         }
         else if (flavor.equalsIgnoreCase(Libraries.LINUX))
         {
@@ -199,16 +200,16 @@ public class Utils
      * @param full the full
      * @return the last path
      */
-    public static String getLastPath(String full)
+    public static String getLastPath(String full, String sep) throws MungerException
     {
         String path = "";
-        int p = full.indexOf("\\");
+        int p = full.indexOf(sep);
         if (p >= 0)
         {
             path = full.substring(0, p);
         } else
         {
-            p = full.indexOf(File.separator);
+            p = full.indexOf(sep);
             if (p >= 0)
             {
                 path = full.substring(0, p);
@@ -314,6 +315,12 @@ public class Utils
             port = a[1];
         }
         return port;
+    }
+
+    public static String pipe(Repository repo, String path) throws MungerException
+    {
+        String p = path.replaceAll(repo.getWriteSeparator(), "|");
+        return p;
     }
 
     public static String read(DataInputStream in, String key)

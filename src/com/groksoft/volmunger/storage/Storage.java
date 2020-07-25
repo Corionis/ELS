@@ -7,6 +7,9 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;                    // see https://github.com/google/gson
 
 // see https://logging.apache.org/log4j/2.x/
+import com.groksoft.volmunger.repository.Item;
+import com.groksoft.volmunger.repository.Libraries;
+import com.groksoft.volmunger.repository.Library;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -57,12 +60,45 @@ public class Storage
     }
 
     /**
+     * Normalize target paths based on "flavor"
+     *
+     */
+    public void normalize(String flavor)
+    {
+        if (targetData != null)
+        {
+            String from = "";
+            String to = "";
+            switch (flavor)
+            {
+                case Libraries.WINDOWS:
+                    from = "/";
+                    to = "\\\\";
+                    break;
+
+                case Libraries.LINUX:
+                    from = "\\\\";
+                    to = "/";
+                    break;
+            }
+
+            for (Target tar : targetData.targets.storage)
+            {
+                for (int j = 0; j < tar.locations.length; ++j)
+                {
+                    tar.locations[j] = tar.locations[j].replaceAll(from, to);;
+                }
+            }
+        }
+    }
+
+    /**
      * Read Targets.
      *
      * @param filename The JSON Libraries filename
      * @throws MungerException the volmunger exception
      */
-    public void read(String filename) throws MungerException {
+    public void read(String filename, String flavor) throws MungerException {
         try {
             String json;
             Gson gson = new Gson();
@@ -70,7 +106,7 @@ public class Storage
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             targetData = gson.fromJson(json, TargetData.class);
-            String p = targetData.targets.storage[0].locations[0];
+            normalize(flavor);
         } catch (IOException ioe) {
             throw new MungerException("Exception while reading targets: " + filename + " trace: " + Utils.getStackTrace(ioe));
         }

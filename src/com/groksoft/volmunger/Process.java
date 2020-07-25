@@ -35,7 +35,6 @@ public class Process
     private int errorCount = 0;
     private long grandTotalItems = 0L;
     private long grandTotalSize = 0L;
-    private int ignoreTotal = 0;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private String lastGroupName = "";
     private transient Logger logger = LogManager.getLogger("applog");
@@ -130,7 +129,7 @@ public class Process
                         {
                             // copy item(s) to targetPath
                             ++copyCount;
-                            String to = targetPath + File.separator + groupItem.getItemPath();
+                            String to = targetPath + context.subscriberRepo.getWriteSeparator() + groupItem.getItemPath();
                             logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
                             if (!copyFile(groupItem.getFullPath(), to))
                             {
@@ -242,7 +241,7 @@ public class Process
         }
 
         // see if there is an "original" directory the new content will fit in
-        String path = context.subscriberRepo.hasDirectory(library, item.getItemPath());
+        String path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, item.getItemPath()));
         if (path != null)
         {
             if (cfg.isRemoteSession())
@@ -320,53 +319,26 @@ public class Process
     }
 
     /**
-     * Determine if item should be ignored.
-     *
-     * @param item
-     * @return true if it should be ignored
-     */
-    private boolean ignore(Item item)
-    {
-        String str = "";
-        String str1 = "";
-        boolean ret = false;
-
-        for (Pattern patt : context.publisherRepo.getLibraryData().libraries.compiledPatterns)
-        {
-            str = patt.toString();
-            str1 = str.replace("?", ".?").replace("*", ".*?");
-            if (item.getName().matches(str1))
-            {
-                //logger.info(">>>>>>Ignoring '" + item.getName());
-                ignoreTotal++;
-                ret = true;
-                break;
-            }
-        }
-        return ret;
-    }
-
-    /**
      * Is new grouping boolean.
      *
      * @param publisherItem the publisher item
      * @return the boolean
      */
-    private boolean isNewGrouping(Item publisherItem)
+    private boolean isNewGrouping(Item publisherItem) throws MungerException
     {
         boolean ret = true;
-        int i = publisherItem.getItemPath().lastIndexOf(File.separator);
+        String p = publisherItem.getItemPath();
+        String s = context.publisherRepo.getSeparator();
+        int i = publisherItem.getItemPath().lastIndexOf(context.publisherRepo.getSeparator());
         if (i < 0)
         {
-            //logger.info("File pathsep: '" + File.separator + "'");
-            //logger.info("File     sep: '" + File.separator + "'");
             logger.warn("No subdirectory in path : " + publisherItem.getItemPath());
             return true;
         }
         String path = publisherItem.getItemPath().substring(0, i);
         if (path.length() < 1)
         {
-            path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf(File.separator));
+            path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf(context.publisherRepo.getSeparator()));
         }
         if (currentGroupName.equalsIgnoreCase(path))
         {
@@ -446,7 +418,6 @@ public class Process
 
                 if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                 {
-
                     // Do the libraries have items or do they need to be scanned?
                     if (pubLib.items == null || pubLib.items.size() < 1)
                     {
@@ -467,14 +438,14 @@ public class Process
 
                     for (Item item : pubLib.items)
                     {
-                        if (ignore(item))
+                        if (context.publisherRepo.ignore(item))
                         {
                             logger.info("  ! Ignoring '" + item.getItemPath() + "'");
                             ignoredList.add(item.getFullPath());
                         }
                         else
                         {
-                            boolean has = context.subscriberRepo.hasItem(subLib.name, item.getItemPath());
+                            boolean has = context.subscriberRepo.hasItem(subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
                             if (has)
                             {
                                 logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
@@ -507,7 +478,7 @@ public class Process
                                         whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
                                     }
                                     String path;
-                                    path = Utils.getLastPath(item.getItemPath());
+                                    path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
                                     if (!currentWhatsNew.equalsIgnoreCase(path))
                                     {
                                         assert whatsNewFile != null;
@@ -583,7 +554,6 @@ public class Process
             {
                 mismatchFile.println("----------------------------------------------------");
                 mismatchFile.println("Total items: " + grandTotalItems);
-                double gb = grandTotalSize / (1024 * 1024 * 1024);
                 mismatchFile.println("Total size : " + Utils.formatLong(grandTotalSize));
                 mismatchFile.close();
             }
@@ -605,11 +575,9 @@ public class Process
                 logger.info("    " + s);
             }
         }
-        logger.info("Total copies: " + copyCount + ", of those " + grandTotalOriginalLocation + " went to original locations");
+        logger.info("Total copies: " + copyCount + ((!cfg.isDryRun()) ? ", of those " + grandTotalOriginalLocation + " went to original locations" : ""));
         logger.info("Total errors: " + errorCount);
-        logger.info("Total ignored: " + ignoreTotal);
         logger.info("Total items: " + grandTotalItems);
-        double gb = grandTotalSize / (1024 * 1024 * 1024);
         logger.info("Total size : " + Utils.formatLong(grandTotalSize));
     }
 
@@ -690,7 +658,7 @@ public class Process
                         location = context.clientStty.retrieveRemoteData(location, "targets");
                         cfg.setTargetsFilename(location);
                     }
-                    storageTargets.read(location);
+                    storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
                     if (!cfg.isRemoteSession())
                         storageTargets.validate();
                 }
@@ -698,7 +666,7 @@ public class Process
                 {
                     if (!cfg.isDryRun())
                     {
-                        logger.warn("NOTE: No targets file was specified - performing a dry run");
+                        logger.warn("NOTE: No targets file was specified - performing -D a dry run");
                         cfg.setDryRun(true);
                     }
                 }

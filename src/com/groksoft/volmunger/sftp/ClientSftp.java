@@ -66,20 +66,20 @@ public class ClientSftp implements SftpErrorStatusDataHandler
         String remotePath = "";
 
         // filename might have mixed separators
-        pathname = pathname.replace('\\', '/');
-        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
-            pathname = pathname.replace('/', ':');
+//        pathname = pathname.replace('\\', '/');
+//        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
+//            pathname = pathname.replace('/', ':');
 
         File f = new File(pathname);
         String dir = f.getParentFile().getAbsolutePath(); // get parent of file
 
         // filename might have mixed separators, normalize to forward-slash for split()
-        dir = dir.replace('\\', '/');
-        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
-            dir = dir.replace(':', '/');
-        String[] parts = dir.split("/");
+//        dir = dir.replace('\\', '/');
+//        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
+//            dir = dir.replace(':', '/');
+        String[] parts = dir.split(myRepo.getSeparator());
 
-        String sep = Utils.getFileSeparator(theirRepo.getLibraryData().libraries.flavor);
+        String sep = theirRepo.getSeparator();
         String whole = "";
         for (int i = 0; i < parts.length; ++i)
         {
