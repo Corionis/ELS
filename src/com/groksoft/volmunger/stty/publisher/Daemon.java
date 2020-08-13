@@ -41,7 +41,7 @@ public class Daemon extends DaemonBase
      * Dump statistics from all available internal sources.
      */
     public synchronized String dumpStatistics() {
-        String data = "\r\nDaemon currently connected: " + ((connected) ? "true" : "false") + "\r\n";
+        String data = "\r\nConsole currently connected: " + ((connected) ? "true" : "false") + "\r\n";
         data += "  Connected on port: " + port + "\r\n";
         data += "  Connected to: " + address + "\r\n";
         return data;

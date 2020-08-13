@@ -136,10 +136,17 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         }
     }
 
-    public void stopServer() throws IOException
+    public void stopServer()
     {
-        logger.info("ServeSftp server listener stopping");
-        sshd.stop();
+        try
+        {
+            logger.info("ServeSftp server listener stopping");
+            sshd.stop();
+        }
+        catch (Exception e)
+        {
+            // ignore any exception
+        }
     }
 
 }

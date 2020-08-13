@@ -57,31 +57,23 @@ public class ClientSftp implements SftpErrorStatusDataHandler
     /**
      * Make a remote directory tree
      *
-     * @param pathname Path and filename. Note that a filename is required but is removed
+     * @param pathname Path and filename. Note that an ending filename is required but not used
      * @return True if any directories were created
      * @throws IOException
      */
     public String makeRemoteDirectory(String pathname) throws Exception
     {
-        String remotePath = "";
+        if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS))
+        {
+            pathname = pathname.replaceAll("\\\\", "\\\\\\\\");
+        }
 
-        // filename might have mixed separators
-//        pathname = pathname.replace('\\', '/');
-//        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
-//            pathname = pathname.replace('/', ':');
+        String sep = theirRepo.getWriteSeparator();
+        String[] parts = pathname.split(sep);
 
-        File f = new File(pathname);
-        String dir = f.getParentFile().getAbsolutePath(); // get parent of file
-
-        // filename might have mixed separators, normalize to forward-slash for split()
-//        dir = dir.replace('\\', '/');
-//        if (myRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.APPLE))
-//            dir = dir.replace(':', '/');
-        String[] parts = dir.split(myRepo.getSeparator());
-
-        String sep = theirRepo.getSeparator();
+        sep = theirRepo.getSeparator();
         String whole = "";
-        for (int i = 0; i < parts.length; ++i)
+        for (int i = 0; i < parts.length - 1; ++i)
         {
             try
             {
@@ -96,7 +88,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                         continue;
                     }
                 }
-                whole = whole + sep + parts[i];
+                whole = whole + ((i > 0) ? sep : "") + parts[i];
 
                 // protect the root of drives
                 if (whole.equals(sep))
@@ -115,7 +107,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                 }
             }
         }
-        return remotePath;
+        return whole;
     }
 
     public void startClient()
@@ -125,6 +117,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
             sshClient = SshClient.setUpDefaultClient();
             sshClient.start();
 
+            logger.info("Opening sftp connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
             session = sshClient.connect(user, hostname, hostport).verify(180000L).getSession();
             session.addPasswordIdentity(password);
             session.auth().verify(180000L).await();

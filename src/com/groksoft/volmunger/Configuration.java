@@ -84,7 +84,7 @@ public class Configuration
         }
         logger.info(msg);
 
-        logger.info("  cfg: -c Daemon logging level = " + getConsoleLevel());
+        logger.info("  cfg: -c Console logging level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export paths filename = " + getExportTextFilename());
@@ -100,9 +100,9 @@ public class Configuration
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
         logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherCollectionFilename());
-        logger.info("  cfg: -r ClientStty session = " + getRemoteType());
-        logger.info("  cfg: -s Daemon Library filename = " + getSubscriberLibrariesFileName());
-        logger.info("  cfg: -S Daemon Collection import filename = " + getSubscriberCollectionFilename());
+        logger.info("  cfg: -r Remote session = " + getRemoteType());
+        logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
+        logger.info("  cfg: -S Subscriber Collection import filename = " + getSubscriberCollectionFilename());
         logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
         logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
     }

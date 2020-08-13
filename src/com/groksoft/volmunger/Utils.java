@@ -332,15 +332,25 @@ public class Utils
             try
             {
                 int count = in.readInt();
+                int pos = 0;
                 if (count > 0)
                 {
                     buf = new byte[count];
-                    int readCount = in.read(buf);
-                    if (count != readCount)
+                    int remaining = count;
+                    while (true)
                     {
-                        logger.warn("read buffer counts do not match " + count + " size, " + readCount + " actually read");
+                        int readCount = in.read(buf, pos, remaining);
+                        if (readCount < 0)
+                            break;
+                        pos += readCount;
+                        remaining -= readCount;
+                        if (pos == count)
+                            break;
                     }
-                    input += decrypt(key, buf);
+                    if (pos != count)
+                    {
+                        logger.warn("Read counts do not match, expected " + count + ", received " + pos);
+                    }
                 }
                 break;
             } catch (SocketTimeoutException e)
@@ -362,6 +372,8 @@ public class Utils
                 break;
             }
         }
+        if (buf.length > 0)
+            input = decrypt(key, buf);
         return input;
     }
 

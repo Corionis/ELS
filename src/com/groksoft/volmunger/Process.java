@@ -14,7 +14,6 @@ import java.io.PrintWriter;
 import java.nio.file.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 // see https://logging.apache.org/log4j/2.x/
 
@@ -34,11 +33,11 @@ public class Process
     private String currentGroupName = "";
     private int errorCount = 0;
     private long grandTotalItems = 0L;
+    private long grandTotalOriginalLocation = 0L;
     private long grandTotalSize = 0L;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private String lastGroupName = "";
     private transient Logger logger = LogManager.getLogger("applog");
-    private long grandTotalOriginalLocation = 0L;
     private Storage storageTargets = null;
     private long whatsNewTotal = 0;
 
@@ -62,14 +61,14 @@ public class Process
     {
         try
         {
-            Path fromPath = Paths.get(from).toRealPath();
-            Path toPath = Paths.get(to);  //.toRealPath();
             if (cfg.isRemoteSession())
             {
                 context.clientSftp.transmitFile(from, to);
             }
             else
             {
+                Path fromPath = Paths.get(from).toRealPath();
+                Path toPath = Paths.get(to);  //.toRealPath();
                 File f = new File(to);
                 if (f != null)
                 {
@@ -129,7 +128,9 @@ public class Process
                         {
                             // copy item(s) to targetPath
                             ++copyCount;
-                            String to = targetPath + context.subscriberRepo.getWriteSeparator() + groupItem.getItemPath();
+
+                            String to = targetPath + context.subscriberRepo.getWriteSeparator();
+                            to += context.publisherRepo.normalize(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
                             logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
                             if (!copyFile(groupItem.getFullPath(), to))
                             {
@@ -588,6 +589,7 @@ public class Process
      */
     public int process()
     {
+        boolean noTargs = false;
         int returnValue = 0;
 
         try
@@ -601,7 +603,7 @@ public class Process
                 {
                     // sanity checks
                     if (context.publisherRepo.getLibraryData().libraries.flavor == null ||
-                        context.publisherRepo.getLibraryData().libraries.flavor.length() < 1)
+                            context.publisherRepo.getLibraryData().libraries.flavor.length() < 1)
                     {
                         throw new MungerException("Publisher data incomplete, missing 'flavor'");
                     }
@@ -626,8 +628,9 @@ public class Process
                     if (cfg.isRemoteSession() && cfg.isRequestCollection())
                     {
                         // request complete collection data from remote subscriber
-
                         String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
+                        if (location == null || location.length() < 1)
+                            throw new MungerException("Could not retrieve remote collections file");
                         cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
                         cfg.setSubscriberCollectionFilename(location);
 
@@ -666,8 +669,8 @@ public class Process
                 {
                     if (!cfg.isDryRun())
                     {
-                        logger.warn("NOTE: No targets file was specified - performing -D a dry run");
                         cfg.setDryRun(true);
+                        noTargs = true;
                     }
                 }
 
@@ -678,11 +681,10 @@ public class Process
                                 cfg.getSubscriberCollectionFilename().length() > 0) &&
                         cfg.getTargetsFilename().length() > 0)
                 {
+                    if (noTargs)
+                        logger.warn("NOTE: No targets file was specified - performing -D a dry run");
+
                     munge(); // this is the full munge process
-                }
-                else
-                {
-                    logger.info("Munge not performed");
                 }
             }
             catch (Exception ex)
@@ -703,6 +705,12 @@ public class Process
             if (logger != null)
             {
                 logger.info("- Process end" + " ------------------------------------------");
+
+                String resp = context.clientStty.roundTrip("quit");
+                if (resp != null && !resp.equalsIgnoreCase("End-Execution"))
+                {
+                    logger.warn("Remote subscriber might not have quit");
+                }
                 //LogManager.shutdown();
             }
         }

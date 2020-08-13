@@ -40,7 +40,7 @@ public class ClientStty
      * Instantiate a ClientStty.<br>
      *
      * @param config     The Configuration object
-     * @param isTerminal True if an interactive client, false if an automated client
+     * @param isManualTerminal True if an interactive client, false if an automated client
      */
     public ClientStty(Configuration config, boolean isManualTerminal)
     {
@@ -122,7 +122,7 @@ public class ClientStty
                 host = null;
             }
             int port = Utils.getPort(this.theirRepo.getLibraryData().libraries.site);
-            logger.info("Opening connection to: " + (host == null ? "localhost" : host) + ":" + port);
+            logger.info("Opening stty connection to: " + (host == null ? "localhost" : host) + ":" + port);
 
             try
             {
@@ -146,10 +146,6 @@ public class ClientStty
                 {
                     logger.error("Connection to " + this.theirRepo.getLibraryData().libraries.site + " failed handshake");
                 }
-            }
-            else
-            {
-                logger.error("Could not make connection to " + this.theirRepo.getLibraryData().libraries.site);
             }
         }
         else
@@ -186,11 +182,23 @@ public class ClientStty
             {
                 Utils.write(out, theirKey, myKey);
 
+                // get the subscriber's flavor
                 input = Utils.read(in, theirKey);
-                if (input.equals("ACK"))
+                try
                 {
+                    // if Utils.getFileSeparator() does not throw an exception
+                    // the subscriber's flavor is valid
+                    Utils.getFileSeparator(input);
+
                     logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
                     valid = true;
+
+                    // override what we THINK the subscriber flavor is with what we are told
+                    theirRepo.getLibraryData().libraries.flavor = input;
+                }
+                catch (Exception e)
+                {
+                    // ignore
                 }
             }
         }

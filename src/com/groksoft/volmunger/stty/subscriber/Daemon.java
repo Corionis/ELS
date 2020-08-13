@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -52,7 +51,7 @@ public class Daemon extends DaemonBase
      */
     public synchronized String dumpStatistics()
     {
-        String data = "\r\nDaemon currently connected: " + ((connected) ? "true" : "false") + "\r\n";
+        String data = "\r\nConsole currently connected: " + ((connected) ? "true" : "false") + "\r\n";
         data += "  Connected on port: " + port + "\r\n";
         data += "  Connected to: " + address + "\r\n";
         return data;
@@ -84,7 +83,8 @@ public class Daemon extends DaemonBase
                 input = Utils.read(in, subscriberKey);
                 if (input.equals(publisherKey))
                 {
-                    Utils.write(out, subscriberKey, "ACK");
+                    // send my flavor
+                    Utils.write(out, subscriberKey, subscriberRepo.getLibraryData().libraries.flavor);
 
                     logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + publisherRepo.getLibraryData().libraries.description);
                     valid = true;
@@ -166,6 +166,7 @@ public class Daemon extends DaemonBase
                 line = Utils.read(in, subscriberKey);
                 if (line == null)
                 {
+                    logger.info("EOF line");
                     stop = true;
                     break; // exit on EOF
                 }
@@ -355,24 +356,25 @@ public class Daemon extends DaemonBase
             catch (Exception e)
             {
                 Utils.write(out, subscriberKey, e.getMessage());
+                connected = false;
                 break;
             }
         } // while
 
-        connected = false;
-
         if (stop)
         {
-            // cannot write anything to remote, connection is closed
+            // all done, close everything
+            if (logger != null)
+            {
+                logger.info("Close connection on port " + port + " to " + address.getHostAddress());
+            }
+            out.close();
+            in.close();
+
+//            logger.info("stopping services");
+            Runtime.getRuntime().exit(0);
         }
 
-        // all done, close everything
-        if (logger != null)
-        {
-            logger.info("Close connection on port " + port + " to " + address.getHostAddress());
-        }
-        out.close();
-        in.close();
     } // process
 
     /**

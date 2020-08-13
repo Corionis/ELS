@@ -408,6 +408,24 @@ public class Repository
         }
     }
 
+    /**
+     * Normalize a path
+     * <p>
+     * @param toFlavor Desired flavor of separators
+     * @param path Path to normalize
+     * @return path Normalized path for desired flavor
+     * @throws MungerException
+     */
+    public String normalize(String toFlavor, String path) throws MungerException
+    {
+        if (!toFlavor.equalsIgnoreCase(libraryData.libraries.flavor))
+        {
+            String to = Utils.getFileSeparator(toFlavor);
+            path = normalizeSubst(path, Utils.getFileSeparator(libraryData.libraries.flavor), to);
+        }
+        return path;
+    }
+
     private String normalizeSubst(String path, String from, String to)
     {
         return path.replaceAll(from, to);

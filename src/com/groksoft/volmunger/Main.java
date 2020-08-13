@@ -10,7 +10,6 @@ import com.groksoft.volmunger.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -22,18 +21,8 @@ import static com.groksoft.volmunger.Configuration.*;
 public class Main
 {
     public boolean isListening = false;
+    Context context = new Context();
     private Logger logger = null;
-
-    // easier way to pass these data
-    public class Context
-    {
-        public Repository publisherRepo;
-        public Repository subscriberRepo;
-        public ClientSftp clientSftp;
-        public ServeSftp serveSftp;
-        public ClientStty clientStty;
-        public ServeStty serveStty;
-    }
 
     /**
      * Instantiates the Main application
@@ -58,7 +47,6 @@ public class Main
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
         Configuration cfg = new Configuration();
-        Context context = new Context();
         Process proc;
 
         // HAVE CHANGED:
@@ -153,10 +141,11 @@ public class Main
                         if (context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             context.clientStty.guiSession();
+                            isListening = true; // fake listener to wait for shutdown
                         }
                         else
                         {
-                            throw new MungerException("Publisher ClientStty failed to connect");
+                            throw new MungerException("Publisher console failed to connect");
                         }
                     }
                     break;
@@ -180,7 +169,7 @@ public class Main
                         context.clientStty = new ClientStty(cfg, false);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
-                            throw new MungerException("Publisher ClientStty failed to connect");
+                            throw new MungerException("Publisher remote failed to connect");
                         }
 
                         // the Process class handles the VolMunger process
@@ -188,7 +177,8 @@ public class Main
                         returnValue = proc.process();
                         if (returnValue == 0)
                         {
-                            Thread.sleep(Long.MAX_VALUE);
+//                            logger.info("sleeping (1)");
+//                            Thread.sleep(Long.MAX_VALUE);
                         }
                     }
                     else
@@ -248,10 +238,11 @@ public class Main
                         if (context.clientStty.connect(context.subscriberRepo, context.publisherRepo))
                         {
                             context.clientStty.guiSession();
+                            isListening = true; // fake listener to wait for shutdown
                         }
                         else
                         {
-                            throw new MungerException("Subscriber ClientStty failed to connect");
+                            throw new MungerException("Subscriber remote failed to connect");
                         }
                     }
                     else
@@ -275,51 +266,33 @@ public class Main
             {
                 System.out.println(e.getMessage());
             }
+            isListening = false; // force stop
             returnValue = 1;
         }
         finally
         {
-            if (context.serveStty != null)
+            if (!isListening)
             {
-                if (!isListening)
+                stopServices();
+            }
+            else
+            {
+                Runtime.getRuntime().addShutdownHook(new Thread()
                 {
-                    context.serveStty.stopServer();
-                }
-                else
-                {
-                    Runtime.getRuntime().addShutdownHook(new Thread()
+                    public void run()
                     {
-                        public void run()
+                        try
                         {
-                            try
-                            {
-                                Thread.sleep(200);
-                                logger.info("Shutting down communications ...");
-
-                                if (context.clientStty != null)
-                                {
-                                    context.clientStty.disconnect();
-                                }
-                                if (context.serveStty != null)
-                                {
-                                    context.serveStty.stopServer();
-                                }
-                                if (context.clientSftp != null)
-                                {
-                                    context.clientSftp.stopClient();
-                                }
-                                if (context.serveSftp != null)
-                                {
-                                    context.serveSftp.stopServer();
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
-                            }
+                            //logger.info("sleeping 10 seconds");
+                            Thread.sleep(10000L);
+                            stopServices();
                         }
-                    });
-                }
+                        catch (Exception e)
+                        {
+                            logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
+                        }
+                    }
+                });
             }
         }
 
@@ -402,6 +375,38 @@ public class Main
             repo.validate();
         }
         return repo;
+    }
+
+    public void stopServices()
+    {
+//        logger.info("stopping services");
+        if (context.clientStty != null)
+        {
+            context.clientStty.disconnect();
+        }
+        if (context.serveStty != null)
+        {
+            context.serveStty.stopServer();
+        }
+        if (context.clientSftp != null)
+        {
+            context.clientSftp.stopClient();
+        }
+        if (context.serveSftp != null)
+        {
+            context.serveSftp.stopServer();
+        }
+    }
+
+    // easier way to pass these data
+    public class Context
+    {
+        public ClientSftp clientSftp;
+        public ClientStty clientStty;
+        public Repository publisherRepo;
+        public ServeSftp serveSftp;
+        public ServeStty serveStty;
+        public Repository subscriberRepo;
     }
 
 } // Main
