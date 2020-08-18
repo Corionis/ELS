@@ -5,8 +5,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 
-// see https://logging.apache.org/log4j/2.x/
-
 /**
  * Configuration
  * <p>
@@ -54,14 +52,14 @@ public class Configuration
     private String whatsNewFilename = "";
 
     /**
-     * Instantiates a new Configuration.
+     * Instantiates a new Configuration
      */
     public Configuration()
     {
     }
 
     /**
-     * Add a publisher library name.
+     * Add a publisher library name
      *
      * @param publisherLibraryName the publisher library name
      */
@@ -108,7 +106,7 @@ public class Configuration
     }
 
     /**
-     * Gets Authorized password.
+     * Gets Authorized password
      *
      * @return the password required to access Authorized mode when using a ClientStty
      */
@@ -118,7 +116,7 @@ public class Configuration
     }
 
     /**
-     * Sets Authorized password.
+     * Sets Authorized password
      *
      * @param password the password required to access Authorized mode with a ClientStty
      */
@@ -128,7 +126,7 @@ public class Configuration
     }
 
     /**
-     * Gets console level.
+     * Gets console level
      *
      * @return the console level
      */
@@ -138,7 +136,7 @@ public class Configuration
     }
 
     /**
-     * Sets console level.
+     * Sets console level
      *
      * @param consoleLevel the console level
      */
@@ -148,7 +146,7 @@ public class Configuration
     }
 
     /**
-     * Gets debug level.
+     * Gets debug level
      *
      * @return the debug level
      */
@@ -158,7 +156,7 @@ public class Configuration
     }
 
     /**
-     * Sets debug level.
+     * Sets debug level
      *
      * @param debugLevel the debug level
      */
@@ -168,9 +166,9 @@ public class Configuration
     }
 
     /**
-     * Gets retrieveRemoteCollectionExport filename.
+     * Gets the export collection filename
      *
-     * @return the retrieveRemoteCollectionExport filename
+     * @return the export filename
      */
     public String getExportCollectionFilename()
     {
@@ -178,9 +176,9 @@ public class Configuration
     }
 
     /**
-     * Sets retrieveRemoteCollectionExport filename.
+     * Sets export collection filename
      *
-     * @param exportCollectionFilename the retrieveRemoteCollectionExport filename
+     * @param exportCollectionFilename the export collection filename
      */
     public void setExportCollectionFilename(String exportCollectionFilename)
     {
@@ -188,7 +186,9 @@ public class Configuration
     }
 
     /**
-     * @return exportTextFilename
+     * Gets the export text filename
+     *
+     * @return exportTextFilename the export text filename
      */
     public String getExportTextFilename()
     {
@@ -196,7 +196,9 @@ public class Configuration
     }
 
     /**
-     * @param exportTextFilename
+     * Sets the export text filename
+     *
+     * @param exportTextFilename the export text filename
      */
     public void setExportTextFilename(String exportTextFilename)
     {
@@ -204,7 +206,7 @@ public class Configuration
     }
 
     /**
-     * Gets log filename.
+     * Gets log filename
      *
      * @return the log filename
      */
@@ -214,7 +216,7 @@ public class Configuration
     }
 
     /**
-     * Sets log filename.
+     * Sets log filename
      *
      * @param logFilename the log filename
      */
@@ -224,7 +226,7 @@ public class Configuration
     }
 
     /**
-     * Gets mismatch filename.
+     * Gets mismatch filename
      *
      * @return the mismatch filename
      */
@@ -234,7 +236,7 @@ public class Configuration
     }
 
     /**
-     * Sets mismatch filename.
+     * Sets mismatch filename
      *
      * @param mismatchFilename the mismatch filename
      */
@@ -244,7 +246,7 @@ public class Configuration
     }
 
     /**
-     * Gets PatternLayout for log4j2.
+     * Gets PatternLayout for log4j2
      * <p>
      * Call this method AFTER setDebugLevel() has been called.
      *
@@ -262,7 +264,7 @@ public class Configuration
     }
 
     /**
-     * Gets publisher import filename.
+     * Gets publisher import filename
      *
      * @return the publisher import filename
      */
@@ -272,7 +274,7 @@ public class Configuration
     }
 
     /**
-     * Sets publisher collection filename.
+     * Sets publisher collection filename
      *
      * @param publisherCollectionFilename the publisher import filename
      */
@@ -282,7 +284,7 @@ public class Configuration
     }
 
     /**
-     * Gets publisher configuration file name.
+     * Gets publisher configuration file name
      *
      * @return the publisher configuration file name
      */
@@ -292,7 +294,7 @@ public class Configuration
     }
 
     /**
-     * Sets publisher libraries file name.
+     * Sets publisher libraries file name
      *
      * @param publisherLibrariesFileName the publisher configuration file name
      */
@@ -302,7 +304,7 @@ public class Configuration
     }
 
     /**
-     * Gets publisher library name.
+     * Gets publisher library name
      *
      * @return the publisher library name
      */
@@ -312,7 +314,7 @@ public class Configuration
     }
 
     /**
-     * Gets remote flag.
+     * Gets remote flag
      *
      * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal
      */
@@ -322,7 +324,7 @@ public class Configuration
     }
 
     /**
-     * Gets remote type.
+     * Gets remote type
      *
      * @return the remote type from the command line
      */
@@ -332,7 +334,7 @@ public class Configuration
     }
 
     /**
-     * Sets remote type.
+     * Sets remote type
      *
      * @param type the remote type and remote flag
      */
@@ -359,7 +361,7 @@ public class Configuration
     }
 
     /**
-     * Gets subscriber import filename.
+     * Gets subscriber import filename
      *
      * @return the import filename
      */
@@ -369,7 +371,7 @@ public class Configuration
     }
 
     /**
-     * Sets subscriber collection filename.
+     * Sets subscriber collection filename
      *
      * @param subscriberCollectionFilename the import filename
      */
@@ -379,7 +381,7 @@ public class Configuration
     }
 
     /**
-     * Gets subscriber configuration file name.
+     * Gets subscriber configuration file name
      *
      * @return the subscriber configuration file name
      */
@@ -389,7 +391,7 @@ public class Configuration
     }
 
     /**
-     * Sets subscriber libraries file name.
+     * Sets subscriber libraries file name
      *
      * @param subscriberLibrariesFileName the subscriber configuration file name
      */
@@ -399,7 +401,7 @@ public class Configuration
     }
 
     /**
-     * Gets targets filename.
+     * Gets targets filename
      *
      * @return the targets filename
      */
@@ -409,7 +411,7 @@ public class Configuration
     }
 
     /**
-     * Sets targets filename.
+     * Sets targets filename
      *
      * @param targetsFilename the targets filename
      */
@@ -419,7 +421,7 @@ public class Configuration
     }
 
     /**
-     * Gets Main version.
+     * Gets Main version
      *
      * @return the Main version
      */
@@ -429,7 +431,7 @@ public class Configuration
     }
 
     /**
-     * Gets whats new filename.
+     * Gets whats new filename
      *
      * @return the whats new filename
      */
@@ -439,7 +441,7 @@ public class Configuration
     }
 
     /**
-     * Sets whats new filename.
+     * Sets whats new filename
      *
      * @param whatsNewFilename the whats new filename
      */
@@ -449,7 +451,7 @@ public class Configuration
     }
 
     /**
-     * Is dry run boolean.
+     * Is dry run boolean
      *
      * @return the boolean
      */
@@ -459,7 +461,7 @@ public class Configuration
     }
 
     /**
-     * Sets dry run.
+     * Sets dry run
      *
      * @param dryRun true/false boolean
      */
@@ -468,21 +470,41 @@ public class Configuration
         this.dryRun = dryRun;
     }
 
+    /**
+     * Is this a "forced collection" operation?
+     *
+     * @return true/false
+     */
     public boolean isForceCollection()
     {
         return forceCollection;
     }
 
+    /**
+     * Set if this is a "forced collection" operation
+     *
+     * @param forceCollection true/false
+     */
     public void setForceCollection(boolean forceCollection)
     {
         this.forceCollection = forceCollection;
     }
 
+    /**
+     * Is this a "forced targets" operation
+     *
+     * @return true/false
+     */
     public boolean isForceTargets()
     {
         return forceTargets;
     }
 
+    /**
+     * Set if this is a "forced targets" operation
+     *
+     * @param forceTargets
+     */
     public void setForceTargets(boolean forceTargets)
     {
         this.forceTargets = forceTargets;
@@ -508,11 +530,21 @@ public class Configuration
         this.keepVolMungerFiles = keepVolMungerFiles;
     }
 
+    /**
+     * Is this a publish operation?
+     *
+     * @return true/false
+     */
     public boolean isPublishOperation()
     {
         return publishOperation;
     }
 
+    /**
+     * Set if this is a publish operation
+     *
+     * @param publishOperation
+     */
     public void setPublishOperation(boolean publishOperation)
     {
         this.publishOperation = publishOperation;
@@ -520,6 +552,8 @@ public class Configuration
 
     /**
      * Returns true if this publisher is in listener mode
+     *
+     * @return true/false
      */
     public boolean isPublisherListener()
     {
@@ -536,6 +570,8 @@ public class Configuration
 
     /**
      * Returns true if this is a publisher process, automatically execute the process
+     *
+     * @return true/false
      */
     public boolean isRemotePublish()
     {
@@ -552,21 +588,41 @@ public class Configuration
         return (this.remoteFlag != NOT_REMOTE);
     }
 
+    /**
+     * Is this a "request collection" operation?
+     *
+     * @return true/false
+     */
     public boolean isRequestCollection()
     {
         return requestCollection;
     }
 
+    /**
+     * Set if this is a "request collection" operation
+     *
+     * @param requestCollection true/false
+     */
     public void setRequestCollection(boolean requestCollection)
     {
         this.requestCollection = requestCollection;
     }
 
+    /**
+     * Is this a "request targets" operation?
+     *
+     * @return true/false
+     */
     public boolean isRequestTargets()
     {
         return requestTargets;
     }
 
+    /**
+     * Set if this is a "request targets" operation
+     *
+     * @param requestTargets true/false
+     */
     public void setRequestTargets(boolean requestTargets)
     {
         this.requestTargets = requestTargets;
@@ -583,7 +639,7 @@ public class Configuration
     }
 
     /**
-     * Sets specific publisher library.
+     * Sets specific publisher library
      *
      * @param specificPublisherLibrary the specific publisher library
      */
@@ -609,7 +665,7 @@ public class Configuration
     }
 
     /**
-     * Is validation run boolean.
+     * Is validation run boolean
      *
      * @return the boolean
      */
@@ -619,7 +675,7 @@ public class Configuration
     }
 
     /**
-     * Sets validation run.
+     * Sets validation run
      *
      * @param validationRun the validation run
      */
@@ -629,7 +685,7 @@ public class Configuration
     }
 
     /**
-     * Parse command line.
+     * Parse command line
      * <p>
      * This populates the rest.
      *

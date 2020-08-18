@@ -113,7 +113,7 @@ public class ClientStty
                 this.theirRepo.getLibraryData().libraries.site != null)
         {
 
-            this.myKey = mine.getLibraryData().libraries.key;
+            this.myKey = myRepo.getLibraryData().libraries.key;
             this.theirKey = theirRepo.getLibraryData().libraries.key;
 
             String host = Utils.parseHost(this.theirRepo.getLibraryData().libraries.site);

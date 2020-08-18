@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-// see https://logging.apache.org/log4j/2.x/
-
 /**
  * The type Repository.
  */
@@ -356,8 +354,7 @@ public class Repository
      */
     public boolean isInitialized()
     {
-        if (this.libraryData != null &&
-                (this.jsonFilename != null && this.jsonFilename.length() > 0))
+        if (this.libraryData != null && (this.jsonFilename != null && this.jsonFilename.length() > 0))
             return true;
         else
             return false;

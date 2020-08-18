@@ -30,21 +30,21 @@ public abstract class DaemonBase
     protected String response = "";
 
     protected Configuration cfg;
-    protected Repository publisherRepo;
-    protected String publisherKey;
-    protected Repository subscriberRepo;
-    protected String subscriberKey;
+    protected Repository myRepo;
+    protected String myKey;
+    protected Repository theirRepo;
+    protected String theirKey;
 
     /**
      * Instantiate the Daemon service
      */
-    public DaemonBase(Configuration config, Repository pubRepo, Repository subRepo)
+    public DaemonBase(Configuration config, Repository mine, Repository theirs)
     {
         this.cfg = config;
-        this.publisherRepo = pubRepo;
-        this.subscriberRepo = subRepo;
-        this.subscriberKey = subscriberRepo.getLibraryData().libraries.key;
-        this.publisherKey = publisherRepo.getLibraryData().libraries.key;
+        this.myRepo = mine;
+        this.theirRepo = theirs;
+        this.theirKey = theirRepo.getLibraryData().libraries.key;
+        this.myKey = myRepo.getLibraryData().libraries.key;
     } // constructor
 
     /**

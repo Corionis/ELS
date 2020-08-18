@@ -4,10 +4,8 @@ import com.groksoft.volmunger.Configuration;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Repository;
-import com.groksoft.volmunger.stty.subscriber.Daemon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.*;
@@ -57,8 +55,6 @@ public class ServeStty extends Thread
     private Configuration cfg;
     private Repository myRepo;
     private Repository theirRepo;
-    private String publisherKey;
-    private String subscriberKey;
     private int listenPort;
 
     /**
@@ -70,15 +66,10 @@ public class ServeStty extends Thread
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
         super(aGroup, "ServeStty");
-
         instance = this;
-
-        // QUESTION how to handle persistent listener AND properly close the socket when application is killed
         cfg = config;
         myRepo = mine;
-        publisherKey = myRepo.getLibraryData().libraries.key;
         theirRepo = theirs;
-        subscriberKey = theirRepo.getLibraryData().libraries.key;
 
         // make it a daemon so the JVM does not wait for it to exit
         this.setDaemon(true);
@@ -127,7 +118,7 @@ public class ServeStty extends Thread
                 theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Daemon(cfg, myRepo, theirRepo));
             } else if (cfg.isSubscriberListener())
             {
-                theConnection = new Connection(aSocket, new Daemon(cfg, myRepo, theirRepo));
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.subscriber.Daemon(cfg, myRepo, theirRepo));
             } else
             {
                 throw new MungerException("FATAL: Unknown connection type");
@@ -135,7 +126,7 @@ public class ServeStty extends Thread
             allConnections.add(theConnection);
 
             // log it
-            logger.info("Daemon opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+            logger.info((cfg.isPublisherListener() ? "Publisher" : "Subscriber") + " daemon opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 
             // start the connection thread
             theConnection.start();

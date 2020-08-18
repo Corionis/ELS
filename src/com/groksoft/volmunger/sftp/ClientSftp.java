@@ -1,6 +1,5 @@
 package com.groksoft.volmunger.sftp;
 
-import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Libraries;
 import com.groksoft.volmunger.repository.Repository;
@@ -12,7 +11,6 @@ import org.apache.sshd.client.subsystem.sftp.SftpClient;
 import org.apache.sshd.client.subsystem.sftp.impl.DefaultSftpClientFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,13 +33,18 @@ public class ClientSftp implements SftpErrorStatusDataHandler
     private SshClient sshClient;
     private Repository theirRepo;
     private String user;
-// todo    private final int BUFFER_SIZE = 10485760;
 
     private ClientSftp()
     {
         // hide default constructor
     }
 
+    /**
+     * Instantiate this class.
+     *
+     * @param mine   Repository of local system
+     * @param theirs Repository of remote system
+     */
     public ClientSftp(Repository mine, Repository theirs)
     {
         myRepo = mine;
@@ -110,6 +113,9 @@ public class ClientSftp implements SftpErrorStatusDataHandler
         return whole;
     }
 
+    /**
+     * Start this sftp client
+     */
     public void startClient()
     {
         try
@@ -130,6 +136,9 @@ public class ClientSftp implements SftpErrorStatusDataHandler
         }
     }
 
+    /**
+     * Stop this sftp client
+     */
     public void stopClient()
     {
         try
@@ -146,6 +155,13 @@ public class ClientSftp implements SftpErrorStatusDataHandler
         }
     }
 
+    /**
+     * Transmit a file from local to remote system
+     *
+     * @param src  Source file path with local separators
+     * @param dest Destination file path with remove separators
+     * @throws IOException
+     */
     public void transmitFile(String src, String dest) throws IOException
     {
         try

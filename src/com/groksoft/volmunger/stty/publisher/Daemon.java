@@ -1,16 +1,25 @@
 package com.groksoft.volmunger.stty.publisher;
 
 import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
-import com.groksoft.volmunger.stty.ServeStty;
-import com.groksoft.volmunger.stty.DaemonBase;
+import com.groksoft.volmunger.repository.Item;
+import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
+import com.groksoft.volmunger.stty.DaemonBase;
+import com.groksoft.volmunger.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.StringTokenizer;
 
 /**
  * Publisher Daemon service.
@@ -18,6 +27,7 @@ import java.util.*;
  * The Daemon service is the command interface used to communicate between
  * the endpoints.
  */
+@SuppressWarnings("Duplicates")
 public class Daemon extends DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
@@ -28,19 +38,21 @@ public class Daemon extends DaemonBase
      * Instantiate the Daemon service
      *
      * @param config
-     * @param pubRepo
-     * @param subRepo
+     * @param mine
+     * @param theirs
      */
 
-    public Daemon(Configuration config, Repository pubRepo, Repository subRepo) {
-        super(config, pubRepo, subRepo);
+    public Daemon(Configuration config, Repository mine, Repository theirs)
+    {
+        super(config, mine, theirs);
     } // constructor
 
 
     /**
      * Dump statistics from all available internal sources.
      */
-    public synchronized String dumpStatistics() {
+    public synchronized String dumpStatistics()
+    {
         String data = "\r\nConsole currently connected: " + ((connected) ? "true" : "false") + "\r\n";
         data += "  Connected on port: " + port + "\r\n";
         data += "  Connected to: " + address + "\r\n";
@@ -52,32 +64,37 @@ public class Daemon extends DaemonBase
      *
      * @return Short name of this service.
      */
-    public String getName() {
+    public String getName()
+    {
         return "Daemon";
     } // getName
 
-    public boolean handshake() {
+    public boolean handshake()
+    {
         boolean valid = false;
-        try {
-            Utils.write(out, publisherKey, "HELO");
+        try
+        {
+            Utils.write(out, myKey, "HELO");
 
-            String input = Utils.read(in, publisherKey);
-            if (input.equals("DribNit") || input.equals("DribNlt")) {
+            String input = Utils.read(in, myKey);
+            if (input.equals("DribNit") || input.equals("DribNlt"))
+            {
                 isTerminal = input.equals("DribNit");
-                // make sure subscriber terminal access is allowed
-                if (isTerminal && publisherRepo.getLibraryData().libraries.terminal_allowed.equalsIgnoreCase("true")) {
-					Utils.write(out, publisherKey, publisherKey);
+                Utils.write(out, myKey, myKey);
 
-					input = Utils.read(in, publisherKey);
-					if (input.equals(subscriberKey)) {
-						Utils.write(out, publisherKey, "ACK");
+                input = Utils.read(in, myKey);
+                if (input.equals(theirKey))
+                {
+                    // send my flavor
+                    Utils.write(out, myKey, myRepo.getLibraryData().libraries.flavor);
 
-						logger.info("Authenticated: " + subscriberRepo.getLibraryData().libraries.description);
-						valid = true;
-					}
-				}
+                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
+                    valid = true;
+                }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             logger.error(e.getMessage());
         }
         return valid;
@@ -88,13 +105,12 @@ public class Daemon extends DaemonBase
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    @SuppressWarnings("Duplicates")
-    public void process(Socket aSocket) throws IOException {
+    public void process(Socket aSocket) throws IOException
+    {
         socket = aSocket;
         port = aSocket.getPort();
         address = aSocket.getInetAddress();
         int attempts = 0;
-        int secattempts = 0;
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
@@ -108,33 +124,61 @@ public class Daemon extends DaemonBase
 
         connected = true;
 
-        if (!handshake()) {
+        if (!handshake())
+        {
             stop = true; // just hang-up on the connection
-            logger.info("Connection to " + publisherRepo.getLibraryData().libraries.site + " failed handshake");
+            logger.info("Connection to " + theirRepo.getLibraryData().libraries.site + " failed handshake");
         }
 
-        response = "Enter 'help' for information\r\n";
+        if (isTerminal)
+        {
+            response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
+        }
+        else // is automation
+        {
+            response = "CMD";
+
+            //  -S Subscriber collection file
+            if (cfg.isForceCollection())
+            {
+                response = response + ":RequestCollection";
+            }
+
+            //  -t Subscriber targets
+            if (cfg.isForceTargets())
+            {
+                response = response + ":RequestTargets";
+            }
+        }
 
         // prompt for & process interactive commands
-        while (stop == false) {
-            try {
+        while (stop == false)
+        {
+            try
+            {
                 // prompt the user for a command
-                if (!tout) {
-                    Utils.write(out, publisherKey, response + (isTerminal ? prompt : ""));
+                if (!tout)
+                {
+                    Utils.write(out, myKey, response + (isTerminal ? prompt : ""));
                 }
                 tout = false;
                 response = "";
 
-                line = Utils.read(in, publisherKey);
-                if (line == null) {
+                line = Utils.read(in, myKey);
+                if (line == null)
+                {
+                    logger.info("EOF line");
                     stop = true;
                     break; // exit on EOF
                 }
 
-                if (line.trim().length() < 1) {
+                if (line.trim().length() < 1)
+                {
                     response = "\r";
                     continue;
                 }
+
+                logger.info("Processing command: " + line);
 
                 // parse the command
                 StringTokenizer t = new StringTokenizer(line);
@@ -144,19 +188,21 @@ public class Daemon extends DaemonBase
                 String theCommand = t.nextToken();
 
                 // -------------- authorized level password -----------------
-                if (theCommand.equalsIgnoreCase("auth")) {
+                if (theCommand.equalsIgnoreCase("auth"))
+                {
                     ++attempts;
                     String pw = "";
                     if (t.hasMoreTokens())
                         pw = t.nextToken(); // get the password
-                    if ((cfg.getAuthorizedPassword().length() == 0 && pw.length() == 0) ||
-                            cfg.getAuthorizedPassword().equals(pw.trim()))
+                    if (cfg.getAuthorizedPassword().equals(pw.trim()))
                     {
                         response = "password accepted\r\n";
                         authorized = true;
                         prompt = "$ ";
                         logger.info("Command auth accepted");
-                    } else {
+                    }
+                    else
+                    {
                         logger.warn("Auth password attempt failed using: " + pw);
                         if (attempts >= 3) // disconnect on too many attempts
                         {
@@ -167,21 +213,102 @@ public class Daemon extends DaemonBase
                     continue;
                 }
 
+                // -------------- return collection file --------------------
+                if (theCommand.equalsIgnoreCase("collection"))
+                {
+                    try
+                    {
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                        LocalDateTime now = LocalDateTime.now();
+                        String stamp = dtf.format(now);
+
+                        String location = myRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
+                        cfg.setExportCollectionFilename(location);
+
+                        // if -s then scan
+                        if (cfg.getSubscriberLibrariesFileName().length() > 0)
+                        {
+                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                            {
+                                if (subLib.items != null)
+                                {
+                                    subLib.items = null; // clear any existing data
+                                }
+                                myRepo.scan(subLib.name);
+                            }
+                        }
+                        // otherwise it must be -S so do not scan
+                        myRepo.exportCollection();
+
+                        response = new String(Files.readAllBytes(Paths.get(location)));
+                    }
+                    catch (MungerException e)
+                    {
+                        logger.error(e.getMessage());
+                    }
+                    continue;
+                }
+
+                // -------------- find --------------------------------------
+                if (theCommand.equalsIgnoreCase("find"))
+                {
+                    if (!authorized)
+                    {
+                        response = "not authorized\r\n";
+                    }
+                    else
+                    {
+                        String find = remainingTokens(t);
+                        find = find.toLowerCase();
+                        logger.info("find: " + find);
+                        for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                        {
+                            boolean titled = false;
+                            if (subLib.items == null)
+                            {
+                                myRepo.scan(subLib.name);
+                            }
+                            for (Item item : subLib.items)
+                            {
+                                if (item.getItemPath().toLowerCase().contains(find))
+                                {
+                                    if (!titled)
+                                    {
+                                        response += "  In library: " + subLib.name + "\r\n";
+                                        titled = true;
+                                    }
+                                    response += "    " + item.getItemPath() + "\r\n";
+                                }
+                            }
+                        }
+                        if (response.length() < 1)
+                        {
+                            response = "No results found\r\n";
+                        }
+                    }
+                    continue;
+                }
+
                 // -------------- logout ------------------------------------
-                if (theCommand.equalsIgnoreCase("logout")) {
-                    if (authorized) {
+                if (theCommand.equalsIgnoreCase("logout"))
+                {
+                    if (authorized)
+                    {
                         authorized = false;
                         prompt = basePrompt;
                         continue;
-                    } else {
+                    }
+                    else
+                    {
                         theCommand = "quit";
                         // let the logic fall through to the 'quit' handler below
                     }
                 }
 
                 // -------------- quit, bye, exit ---------------------------
-                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit")) {
-                    Utils.write(out, publisherKey, "\r\n" + theCommand);
+                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
+                {
+                    Utils.write(out, myKey, "End-Execution");
                     stop = true;
                     break; // break the loop
                 }
@@ -190,43 +317,75 @@ public class Daemon extends DaemonBase
                 if (theCommand.equalsIgnoreCase("space"))
                 {
                     String location = "";
-                    if (t.hasMoreTokens()) {
+                    if (t.hasMoreTokens())
+                    {
                         location = t.nextToken();
                         long space = Utils.availableSpace(location);
-                        if (isTerminal) {
+                        if (isTerminal)
+                        {
                             response = Utils.formatLong(space);
-                        } else {
+                        }
+                        else
+                        {
                             response = String.valueOf(space);
                         }
-                    } else {
+                    }
+                    else
+                    {
                         response = (isTerminal ? "space command requires a location\r\n" : "0");
                     }
                     continue;
                 }
 
                 // -------------- status information ------------------------
-                if (theCommand.equalsIgnoreCase("status")) {
-                    if (!authorized) {
+                if (theCommand.equalsIgnoreCase("status"))
+                {
+                    if (!authorized)
+                    {
                         response = "not authorized\r\n";
-                    } else {
+                    }
+                    else
+                    {
                         response = ServeStty.getInstance().dumpStatistics();
                         response += dumpStatistics();
                     }
                     continue;
                 }
 
+                // -------------- return targets file -----------------------
+                if (theCommand.equalsIgnoreCase("targets"))
+                {
+                    try
+                    {
+                        response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                    }
+                    catch (Exception e)
+                    {
+                        logger.error(e.getMessage());
+                    }
+                    continue;
+                }
+
                 // -------------- help! -------------------------------------
-                if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?")) {
+                if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
+                {
                     // @formatter:off
                     response = "\r\nAvailable commands, not case sensitive:\r\n";
 
-                    if (authorized) {
-                        response += "  logout = to exit current level\r\n" +
-                                "  status = server and console status information" +
-                                "\r\n\r\n And:\r\n";
+                    if (authorized)
+                    {
+                        response += "  find [text] = search collection for all matching text, use collection command to refresh\r\n" +
+                                "  status = server and console status information\r\n" +
+                                "\r\n" + "" +
+                                " And:\r\n";
                     }
 
-                    response += "  help or ? = this list\r\n" +
+                    response += "  auth [password] = access Authorized commands\r\n" +
+                            "  collection = get collection data from remote\r\n" +
+                            "  space [location] = free space at location on remote\r\n" +
+                            "  targets = get targets file from remote\r\n" +
+                            "\r\n  help or ? = this list\r\n" +
+                            "  logout = exit current level\r\n" +
                             "  quit, bye, exit = disconnect\r\n" +
                             "\r\n";
                     // @formatter:on
@@ -236,30 +395,45 @@ public class Daemon extends DaemonBase
                 response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
 
             } // try
-            catch (Exception e) {
-                Utils.write(out, publisherKey, e.getMessage());
+            catch (Exception e)
+            {
+                Utils.write(out, myKey, e.getMessage());
+                connected = false;
                 break;
             }
         } // while
 
-        connected = false;
+        if (stop)
+        {
+            // all done, close everything
+            if (logger != null)
+            {
+                logger.info("Close connection on port " + port + " to " + address.getHostAddress());
+            }
+            out.close();
+            in.close();
 
-        if (stop) {
-            Utils.write(out, publisherKey, "\r\n\r\nSession is disconnecting\r\n");
+//            logger.info("stopping services");
+            Runtime.getRuntime().exit(0);
         }
 
-        // all done, close everything
-        if (logger != null) {
-            logger.info("Close connection on port " + port + " to " + address.getHostAddress());
-        }
-        out.close();
-        in.close();
     } // process
+
+    public String remainingTokens(StringTokenizer t)
+    {
+        String result = "";
+        while (t.hasMoreTokens())
+        {
+            result += t.nextToken() + " ";
+        }
+        return result.trim();
+    }
 
     /**
      * Request the Daemon service to stop
      */
-    public void requestStop() {
+    public void requestStop()
+    {
         this.stop = true;
         logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
     } // requestStop

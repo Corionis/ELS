@@ -84,7 +84,6 @@ public class Listener extends Thread
 			{
 				Socket theSocket = (Socket) listenSocket.accept();
 				theSocket.setTcpNoDelay(true);
-                // QUESTION how to handle persistent listener AND properly close the socket when application is killed
                 //theSocket.setSoLinger(false, -1);
                 theSocket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
 

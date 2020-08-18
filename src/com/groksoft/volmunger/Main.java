@@ -1,7 +1,5 @@
 package com.groksoft.volmunger;
 
-// see https://logging.apache.org/log4j/2.x/
-
 import com.groksoft.volmunger.repository.Repository;
 import com.groksoft.volmunger.sftp.ClientSftp;
 import com.groksoft.volmunger.sftp.ServeSftp;
@@ -42,6 +40,12 @@ public class Main
         int returnValue = volmunger.process(args);
     } // main
 
+    /**
+     * execute the process
+     *
+     * @param args the input arguments
+     * @return
+     */
     public int process(String[] args)
     {
         int returnValue = 0;
@@ -105,14 +109,13 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo);
+                        context.serveSftp = new ServeSftp(context.publisherRepo, context.subscriberRepo);
                         context.serveSftp.startServer();
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("PServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.subscriberRepo, context.publisherRepo);
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.publisherRepo, context.subscriberRepo);
                         context.serveStty.startListening(context.publisherRepo);
-
                         isListening = true;
                     }
                     else
@@ -145,7 +148,7 @@ public class Main
                         }
                         else
                         {
-                            throw new MungerException("Publisher console failed to connect");
+                            throw new MungerException("Publisher manual console failed to connect");
                         }
                     }
                     break;
@@ -175,11 +178,6 @@ public class Main
                         // the Process class handles the VolMunger process
                         proc = new Process(cfg, context);
                         returnValue = proc.process();
-                        if (returnValue == 0)
-                        {
-//                            logger.info("sleeping (1)");
-//                            Thread.sleep(Long.MAX_VALUE);
-                        }
                     }
                     else
                     {
@@ -202,14 +200,13 @@ public class Main
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
                     {
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.publisherRepo, context.subscriberRepo);
+                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo);
                         context.serveSftp.startServer();
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("SServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.publisherRepo, context.subscriberRepo);
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.subscriberRepo, context.publisherRepo);
                         context.serveStty.startListening(context.subscriberRepo);
-
                         isListening = true;
                     }
                     else
@@ -242,7 +239,7 @@ public class Main
                         }
                         else
                         {
-                            throw new MungerException("Subscriber remote failed to connect");
+                            throw new MungerException("Subscriber terminal console failed to connect");
                         }
                     }
                     else
@@ -299,6 +296,15 @@ public class Main
         return returnValue;
     } // process
 
+    /**
+     * Read a repository
+     *
+     * @param cfg         Loaded configuration
+     * @param isPublisher Is this the publisher? true/false
+     * @param validate    Validate repository against actual directories and files true/false
+     * @return Repository object
+     * @throws Exception
+     */
     private Repository readRepo(Configuration cfg, boolean isPublisher, boolean validate) throws Exception
     {
         Repository repo = new Repository(cfg);
@@ -377,6 +383,9 @@ public class Main
         return repo;
     }
 
+    /**
+     * Stop all service that are in use
+     */
     public void stopServices()
     {
 //        logger.info("stopping services");
@@ -398,7 +407,9 @@ public class Main
         }
     }
 
-    // easier way to pass these data
+    /**
+     * Class to make passing these data easier
+     */
     public class Context
     {
         public ClientSftp clientSftp;

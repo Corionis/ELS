@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 /*
+ * SFTP server class
+ *
  *  See:
  *  https://mina.apache.org/sshd-project
  *  https://github.com/apache/mina-sshd/blob/master/docs/sftp.md
@@ -45,16 +47,22 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         // hide default constructor
     }
 
+    /**
+     * Instantiate this class.
+     *
+     * @param mine   Repository of local system
+     * @param theirs Repository of remote system
+     */
     public ServeSftp(Repository mine, Repository theirs)
     {
         myRepo = mine;
         theirRepo = theirs;
 
-        hostname = Utils.parseHost(theirRepo.getLibraryData().libraries.site);
-        hostport = Utils.getPort(theirRepo.getLibraryData().libraries.site) + 1;
+        hostname = Utils.parseHost(myRepo.getLibraryData().libraries.site);
+        hostport = Utils.getPort(myRepo.getLibraryData().libraries.site) + 1;
 
-        user = myRepo.getLibraryData().libraries.key;
-        password = theirRepo.getLibraryData().libraries.key;
+        user = theirRepo.getLibraryData().libraries.key;
+        password = myRepo.getLibraryData().libraries.key;
     }
 
     @Override

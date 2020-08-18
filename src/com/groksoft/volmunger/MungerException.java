@@ -10,7 +10,8 @@ public class MungerException extends Exception
      *
      * @param message the message
      */
-    public MungerException(String message) {
+    public MungerException(String message)
+    {
         super(message);
     }
 }

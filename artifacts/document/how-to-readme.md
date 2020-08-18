@@ -2,7 +2,7 @@
 # VolMunger: How To Read Me
 
 VolMunger uses a publish/subscribe conceptual model. VolMunger compares
-one or more Plex libraries from a media publisher with those on a 
+one or more libraries from a media publisher with those on a 
 media subscriber. VolMunger can then synchronize the subscriber with
 the publisher.
 
@@ -22,7 +22,7 @@ A collection JSON file may be generated using the -i item export option.
 
 Collection data are required to perform a munge. Generally the lowercase
 variation of an option will cause the needed data to be dynamically generated
-at runtime. Whereas the uppcase variation will import the data from a file.
+at runtime. Whereas the uppercase variation will import the data from a file.
 
 ## Command Line Options
 

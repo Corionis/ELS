@@ -12,21 +12,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.*;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-
-// see https://logging.apache.org/log4j/2.x/
 
 /**
  * VolMunger Process
  */
 public class Process
 {
-    /**
-     * The Formatter.
-     * Setup formatter for number
-     */
-    DecimalFormat formatter = new DecimalFormat("#,###");
     private Configuration cfg = null;
     private Main.Context context;
     private int copyCount = 0;
@@ -51,7 +43,7 @@ public class Process
     }
 
     /**
-     * Copy file.
+     * Copy a file, local or remote
      *
      * @param from the from
      * @param to   the to
@@ -101,7 +93,7 @@ public class Process
     }
 
     /**
-     * Copy group of files.
+     * Copy group of files
      *
      * @param group     the group
      * @param totalSize the total size
@@ -157,6 +149,9 @@ public class Process
         }
     }
 
+    /**
+     * Export publisher collection data to configured file as JSON
+     */
     private void exportCollection()
     {
         try
@@ -174,6 +169,9 @@ public class Process
         }
     }
 
+    /**
+     * Export publisher collection data to configured file as plain text
+     */
     private void exportText()
     {
         try
@@ -192,7 +190,7 @@ public class Process
     }
 
     /**
-     * Get item size long.
+     * Get item size as long
      *
      * @param item the item root node
      * @return the long size of the item(s) in bytes
@@ -212,10 +210,13 @@ public class Process
     }
 
     /**
-     * Gets a subscriber target.
+     * Gets a subscriber target
      * <p>
-     * Will return one of the subscriber targets for the library of the item that is
-     * large enough to hold the size specified, otherwise an empty string is returned.
+     * Will return the original directory where existing files are located if one
+     * exists and that location has enough space.
+     * <p>
+     * Otherwise will return one of the subscriber targets for the library of the item
+     * that has enough space to hold the item, otherwise an empty string is returned.
      *
      * @param item    the item
      * @param library the publisher library.definition.name
@@ -320,7 +321,11 @@ public class Process
     }
 
     /**
-     * Is new grouping boolean.
+     * Is new grouping boolean
+     * <p>
+     * True if the item "group" is different than the current "group".
+     * A group is a set of files within the same movie directory or
+     * television season.
      *
      * @param publisherItem the publisher item
      * @return the boolean
@@ -354,6 +359,8 @@ public class Process
 
     /**
      * Munge two collections
+     * <p>
+     * This is the full munge process.
      *
      * @throws MungerException the volmunger exception
      */
@@ -585,7 +592,9 @@ public class Process
     /**
      * Process everything
      * <p>
-     * This is the where a munge run starts and ends based on configuration
+     * This is the where a munge run starts and ends based on configuration.
+     * <p>
+     * What is done depends on the combination of options specified on the command line.
      */
     public int process()
     {

@@ -26,6 +26,7 @@ import java.util.StringTokenizer;
  * The Daemon service is the command interface used to communicate between
  * the endpoints.
  */
+@SuppressWarnings("Duplicates")
 public class Daemon extends DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
@@ -36,13 +37,13 @@ public class Daemon extends DaemonBase
      * Instantiate the Daemon service
      *
      * @param config
-     * @param pubRepo
-     * @param subRepo
+     * @param mine
+     * @param theirs
      */
 
-    public Daemon(Configuration config, Repository pubRepo, Repository subRepo)
+    public Daemon(Configuration config, Repository mine, Repository theirs)
     {
-        super(config, pubRepo, subRepo);
+        super(config, mine, theirs);
     } // constructor
 
 
@@ -72,21 +73,21 @@ public class Daemon extends DaemonBase
         boolean valid = false;
         try
         {
-            Utils.write(out, subscriberKey, "HELO");
+            Utils.write(out, myKey, "HELO");
 
-            String input = Utils.read(in, subscriberKey);
+            String input = Utils.read(in, myKey);
             if (input.equals("DribNit") || input.equals("DribNlt"))
             {
                 isTerminal = input.equals("DribNit");
-                Utils.write(out, subscriberKey, subscriberKey);
+                Utils.write(out, myKey, myKey);
 
-                input = Utils.read(in, subscriberKey);
-                if (input.equals(publisherKey))
+                input = Utils.read(in, myKey);
+                if (input.equals(theirKey))
                 {
                     // send my flavor
-                    Utils.write(out, subscriberKey, subscriberRepo.getLibraryData().libraries.flavor);
+                    Utils.write(out, myKey, myRepo.getLibraryData().libraries.flavor);
 
-                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + publisherRepo.getLibraryData().libraries.description);
+                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
                     valid = true;
                 }
             }
@@ -103,7 +104,6 @@ public class Daemon extends DaemonBase
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    @SuppressWarnings("Duplicates")
     public void process(Socket aSocket) throws IOException
     {
         socket = aSocket;
@@ -126,7 +126,7 @@ public class Daemon extends DaemonBase
         if (!handshake())
         {
             stop = true; // just hang-up on the connection
-            logger.info("Connection to " + publisherRepo.getLibraryData().libraries.site + " failed handshake");
+            logger.info("Connection to " + theirRepo.getLibraryData().libraries.site + " failed handshake");
         }
 
         if (isTerminal)
@@ -158,12 +158,12 @@ public class Daemon extends DaemonBase
                 // prompt the user for a command
                 if (!tout)
                 {
-                    Utils.write(out, subscriberKey, response + (isTerminal ? prompt : ""));
+                    Utils.write(out, myKey, response + (isTerminal ? prompt : ""));
                 }
                 tout = false;
                 response = "";
 
-                line = Utils.read(in, subscriberKey);
+                line = Utils.read(in, myKey);
                 if (line == null)
                 {
                     logger.info("EOF line");
@@ -221,23 +221,23 @@ public class Daemon extends DaemonBase
                         LocalDateTime now = LocalDateTime.now();
                         String stamp = dtf.format(now);
 
-                        String location = subscriberRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
+                        String location = myRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
                         // if -s then scan
                         if (cfg.getSubscriberLibrariesFileName().length() > 0)
                         {
-                            for (Library subLib : subscriberRepo.getLibraryData().libraries.bibliography)
+                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                             {
                                 if (subLib.items != null)
                                 {
                                     subLib.items = null; // clear any existing data
                                 }
-                                subscriberRepo.scan(subLib.name);
+                                myRepo.scan(subLib.name);
                             }
                         }
                         // otherwise it must be -S so do not scan
-                        subscriberRepo.exportCollection();
+                        myRepo.exportCollection();
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
                     }
@@ -267,7 +267,7 @@ public class Daemon extends DaemonBase
                 // -------------- quit, bye, exit ---------------------------
                 if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
                 {
-                    Utils.write(out, subscriberKey, "End-Execution");
+                    Utils.write(out, myKey, "End-Execution");
                     stop = true;
                     break; // break the loop
                 }
@@ -355,7 +355,7 @@ public class Daemon extends DaemonBase
             } // try
             catch (Exception e)
             {
-                Utils.write(out, subscriberKey, e.getMessage());
+                Utils.write(out, myKey, e.getMessage());
                 connected = false;
                 break;
             }
