@@ -590,6 +590,8 @@ public class Repository
         {
             throw new MungerException("libraries.bibliography must be defined");
         }
+
+        logger.info("Validating Libraries " + getJsonFilename());
         for (int i = 0; i < lbs.bibliography.length; i++)
         {
             Library lib = lbs.bibliography[i];
@@ -621,7 +623,6 @@ public class Repository
                 }
             }
         }
-        logger.info("Library validation successful: " + getJsonFilename());
     }
 
 }

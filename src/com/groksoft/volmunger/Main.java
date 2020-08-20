@@ -114,7 +114,7 @@ public class Main
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("PServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.publisherRepo, context.subscriberRepo);
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context);
                         context.serveStty.startListening(context.publisherRepo);
                         isListening = true;
                     }
@@ -205,7 +205,7 @@ public class Main
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("SServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context.subscriberRepo, context.publisherRepo);
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context);
                         context.serveStty.startListening(context.subscriberRepo);
                         isListening = true;
                     }

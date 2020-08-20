@@ -1,7 +1,9 @@
 package com.groksoft.volmunger.stty.publisher;
 
 import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.Main;
 import com.groksoft.volmunger.MungerException;
+import com.groksoft.volmunger.Process;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Item;
 import com.groksoft.volmunger.repository.Library;
@@ -19,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 
 /**
@@ -32,21 +35,22 @@ public class Daemon extends DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
+    private Main.Context context;
     private boolean isTerminal = false;
+    private Process process;
 
     /**
      * Instantiate the Daemon service
      *
      * @param config
-     * @param mine
-     * @param theirs
+     * @param ctxt
      */
 
-    public Daemon(Configuration config, Repository mine, Repository theirs)
+    public Daemon(Configuration config, Main.Context ctxt)
     {
-        super(config, mine, theirs);
+        super(config, ctxt.publisherRepo, ctxt.subscriberRepo);
+        context = ctxt;
     } // constructor
-
 
     /**
      * Dump statistics from all available internal sources.
@@ -114,7 +118,13 @@ public class Daemon extends DaemonBase
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
+        long size;
         boolean tout = false;
+
+        // for get command
+        long totalSize = 0L;
+        ArrayList<Item> group = new ArrayList<>();
+        process = new Process(cfg, context);
 
         // setup i/o
         aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
@@ -193,7 +203,7 @@ public class Daemon extends DaemonBase
                     ++attempts;
                     String pw = "";
                     if (t.hasMoreTokens())
-                        pw = t.nextToken(); // get the password
+                        pw = remainingTokens(t);
                     if (cfg.getAuthorizedPassword().equals(pw.trim()))
                     {
                         response = "password accepted\r\n";
@@ -258,32 +268,114 @@ public class Daemon extends DaemonBase
                     }
                     else
                     {
-                        String find = remainingTokens(t);
-                        find = find.toLowerCase();
-                        logger.info("find: " + find);
-                        for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                        if (t.hasMoreTokens())
                         {
-                            boolean titled = false;
-                            if (subLib.items == null)
+                            String find = remainingTokens(t);
+                            find = find.toLowerCase();
+                            logger.info("find: " + find);
+                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                             {
-                                myRepo.scan(subLib.name);
-                            }
-                            for (Item item : subLib.items)
-                            {
-                                if (item.getItemPath().toLowerCase().contains(find))
+                                boolean titled = false;
+                                if (subLib.items == null)
                                 {
-                                    if (!titled)
+                                    myRepo.scan(subLib.name);
+                                }
+                                for (Item item : subLib.items)
+                                {
+                                    if (item.getItemPath().toLowerCase().contains(find))
                                     {
-                                        response += "  In library: " + subLib.name + "\r\n";
-                                        titled = true;
+                                        if (!titled)
+                                        {
+                                            response += "  In library: " + subLib.name + "\r\n";
+                                            titled = true;
+                                        }
+                                        response += "    " + item.getItemPath() + "\r\n";
                                     }
-                                    response += "    " + item.getItemPath() + "\r\n";
                                 }
                             }
                         }
                         if (response.length() < 1)
                         {
-                            response = "No results found\r\n";
+                            response = "No results found, try collection command if refresh is needed\r\n";
+                        }
+                    }
+                    continue;
+                }
+
+                // -------------- get ---------------------------------------
+                if (theCommand.equalsIgnoreCase("get"))
+                {
+                    if (!authorized)
+                    {
+                        response = "not authorized\r\n";
+                    }
+                    else
+                    {
+                        if (t.hasMoreTokens())
+                        {
+                            String find = remainingTokens(t);
+                            find = find.toLowerCase();
+                            logger.info("get: " + find);
+                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                            {
+                                boolean titled = false;
+                                if (subLib.items == null)
+                                {
+                                    myRepo.scan(subLib.name);
+                                }
+// RESET RESULTS
+                                for (Item item : subLib.items)
+                                {
+                                    if (item.getItemPath().toLowerCase().contains(find))
+                                    {
+                                        if (!item.isDirectory())
+                                        {
+                                            if (!titled)
+                                            {
+                                                response += "  In library: " + subLib.name + "\r\n";
+                                                titled = true;
+                                            }
+                                            response += "    " + item.getItemPath() + "\r\n";
+                                            if (item.getSize() < 0)
+                                            {
+                                                size = process.getItemSize(item);
+                                                item.setSize(size);
+                                                totalSize += size;
+                                            }
+                                            group.add(item);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (response.length() < 1)
+                        {
+                            response = "No results found, try collection command if refresh is needed\r\n";
+                        }
+                        else
+                        {
+                            response += "  Total size: ";
+                            response += Utils.formatLong(totalSize) + "\r\n";
+                            response += "Copy listed items (y/N)? ";
+                            Utils.write(out, myKey, response);
+
+                            line = Utils.read(in, myKey);
+                            if (line == null)
+                            {
+                                logger.info("EOF line");
+                                stop = true;
+                                break; // exit on EOF
+                            }
+
+                            if (line.equalsIgnoreCase("Y"))
+                            {
+                                process.copyGroup(group, totalSize, true);
+                                response = "copy files here\r\n";
+                            }
+                            else
+                            {
+                                response = "skipping get of items\r\n";
+                            }
                         }
                     }
                     continue;
@@ -319,7 +411,7 @@ public class Daemon extends DaemonBase
                     String location = "";
                     if (t.hasMoreTokens())
                     {
-                        location = t.nextToken();
+                        location = remainingTokens(t);
                         long space = Utils.availableSpace(location);
                         if (isTerminal)
                         {
@@ -375,6 +467,7 @@ public class Daemon extends DaemonBase
                     if (authorized)
                     {
                         response += "  find [text] = search collection for all matching text, use collection command to refresh\r\n" +
+                                "  get [text] = like find but offers the option to get/copy the listed items in overwrite mode\r\n" +
                                 "  status = server and console status information\r\n" +
                                 "\r\n" + "" +
                                 " And:\r\n";

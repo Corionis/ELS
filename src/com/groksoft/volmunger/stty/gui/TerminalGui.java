@@ -47,7 +47,7 @@ public class TerminalGui implements WindowListener, ActionListener
         String response = "";
         JScrollBar sb;
 
-        logger.info("Processing action: " + action + " = " + commandField.getText());
+        logger.info("Processing input: " + action + " = " + commandField.getText());
 
         switch (action)
         {

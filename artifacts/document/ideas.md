@@ -3,6 +3,9 @@
  * Test large files.
  * BUG: Library name in JSON has to match physical directory name.
  * Duplicate finder
+ * In detecting new group, or maybe looking for an existing location,
+   we are mixing library names and directories
+ * For TV Shows do searches ignoring season folders
 
 ## Media
  * Mark all not-so-good movies with fubar, or whatever

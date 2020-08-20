@@ -34,6 +34,13 @@ public class Process
     private long whatsNewTotal = 0;
 
     /**
+     * Hide default constructor
+     */
+    private Process()
+    {
+    }
+
+    /**
      * Instantiates the class
      */
     public Process(Configuration config, Main.Context ctxt)
@@ -49,13 +56,13 @@ public class Process
      * @param to   the to
      * @return the boolean
      */
-    public boolean copyFile(String from, String to)
+    public boolean copyFile(String from, String to, boolean overwrite)
     {
         try
         {
             if (cfg.isRemoteSession())
             {
-                context.clientSftp.transmitFile(from, to);
+                context.clientSftp.transmitFile(from, to, overwrite);
             }
             else
             {
@@ -94,13 +101,26 @@ public class Process
 
     /**
      * Copy group of files
+     * <p>
+     * The overwrite parameter is false for normal Process munge operations, and
+     * true for Subscriber terminal (-r T) to Publisher listener (-r L) operations.
      *
      * @param group     the group
      * @param totalSize the total size
+     * @param overwrite whether to overwrite any existing target file
      * @throws MungerException the volmunger exception
      */
-    private void copyGroup(ArrayList<Item> group, long totalSize) throws MungerException
+    public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite) throws MungerException
     {
+        String response = "";
+        if (storageTargets == null && cfg.getTargetsFilename().length() > 0)
+        {
+            getStorageTargets();
+        }
+        else
+        {
+            throw new MungerException("-t or -T target are required for this operation");
+        }
         try
         {
             if (group.size() > 0)
@@ -123,8 +143,12 @@ public class Process
 
                             String to = targetPath + context.subscriberRepo.getWriteSeparator();
                             to += context.publisherRepo.normalize(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
-                            logger.info("  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to);
-                            if (!copyFile(groupItem.getFullPath(), to))
+
+                            String msg = "  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to;
+                            logger.info(msg);
+                            response += (msg + "\r\n");
+
+                            if (!copyFile(groupItem.getFullPath(), to, overwrite))
                             {
                                 ++errorCount;
                             }
@@ -147,6 +171,8 @@ public class Process
         {
             throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
         }
+
+        return response;
     }
 
     /**
@@ -189,6 +215,11 @@ public class Process
         }
     }
 
+    public int getCopyCount()
+    {
+        return copyCount;
+    }
+
     /**
      * Get item size as long
      *
@@ -207,6 +238,22 @@ public class Process
             logger.error("Exception '" + e.getMessage() + "' getting size of item " + item.getFullPath());
         }
         return size;
+    }
+
+    public void getStorageTargets() throws MungerException
+    {
+        String location = cfg.getTargetsFilename();
+
+        if (cfg.isRemoteSession() && cfg.isRequestTargets())
+        {
+            // request target data from remote subscriber
+            location = context.clientStty.retrieveRemoteData(location, "targets");
+            cfg.setTargetsFilename(location);
+        }
+
+        storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
+        if (!cfg.isRemoteSession())
+            storageTargets.validate();
     }
 
     /**
@@ -366,7 +413,6 @@ public class Process
      */
     private void munge() throws MungerException
     {
-        boolean iWin = false;
         Item lastDirectoryItem = null;
         PrintWriter mismatchFile = null;
         PrintWriter whatsNewFile = null;
@@ -511,7 +557,7 @@ public class Process
                                     {
                                         logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
                                         // There is a new group - process the old group
-                                        copyGroup(group, totalSize);
+                                        copyGroup(group, totalSize, false);
                                         totalSize = 0L;
 
                                         // Flush the output files
@@ -553,7 +599,7 @@ public class Process
             {
                 // Process the last group
                 logger.info("Processing last group '" + currentGroupName + "'");
-                copyGroup(group, totalSize);
+                copyGroup(group, totalSize, false);
                 totalSize = 0L;
             }
 
@@ -603,8 +649,6 @@ public class Process
 
         try
         {
-            storageTargets = new Storage();
-
             try
             {
                 // For -r P connect to remote subscriber -r S
@@ -662,17 +706,7 @@ public class Process
                 // get -t|T Targets
                 if (cfg.getTargetsFilename().length() > 0)
                 {
-                    String location = cfg.getTargetsFilename();
-
-                    if (cfg.isRemoteSession() && cfg.isRequestTargets())
-                    {
-                        // request target data from remote subscriber
-                        location = context.clientStty.retrieveRemoteData(location, "targets");
-                        cfg.setTargetsFilename(location);
-                    }
-                    storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
-                    if (!cfg.isRemoteSession())
-                        storageTargets.validate();
+                    getStorageTargets();
                 }
                 else
                 {
@@ -726,5 +760,10 @@ public class Process
 
         return returnValue;
     } // process
+
+    public void resetCopyCount()
+    {
+        copyCount = 0;
+    }
 
 } // Process

@@ -1,6 +1,7 @@
 package com.groksoft.volmunger.stty;
 
 import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.Main;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Repository;
@@ -53,23 +54,21 @@ public class ServeStty extends Thread
     private ThreadGroup allSessionThreads;
 
     private Configuration cfg;
-    private Repository myRepo;
-    private Repository theirRepo;
+    private Main.Context context;
     private int listenPort;
 
     /**
      * Instantiates the ServeStty object and set it as a daemon so the Java
      * Virtual Machine does not wait for it to exit.
      */
-    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Repository mine, Repository theirs)
+    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Main.Context ctxt)
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
         super(aGroup, "ServeStty");
         instance = this;
         cfg = config;
-        myRepo = mine;
-        theirRepo = theirs;
+        context = ctxt;
 
         // make it a daemon so the JVM does not wait for it to exit
         this.setDaemon(true);
@@ -115,10 +114,10 @@ public class ServeStty extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Daemon(cfg, myRepo, theirRepo));
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Daemon(cfg, context));
             } else if (cfg.isSubscriberListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.subscriber.Daemon(cfg, myRepo, theirRepo));
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.subscriber.Daemon(cfg, context));
             } else
             {
                 throw new MungerException("FATAL: Unknown connection type");

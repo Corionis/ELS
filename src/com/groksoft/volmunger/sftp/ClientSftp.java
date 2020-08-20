@@ -18,6 +18,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 
+/**
+ * ClientSftp -to- ServerSftp
+ */
 public class ClientSftp implements SftpErrorStatusDataHandler
 {
     private final int BUFFER_SIZE = 1048576;
@@ -162,7 +165,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
      * @param dest Destination file path with remove separators
      * @throws IOException
      */
-    public void transmitFile(String src, String dest) throws IOException
+    public void transmitFile(String src, String dest, boolean overwrite) throws IOException
     {
         try
         {
@@ -181,8 +184,11 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                 {
                     if (destAttr.isRegularFile() && destAttr.getSize() > 0)
                     {
-                        readOffset = (int) destAttr.getSize();
-                        writeOffset = readOffset;
+                        if (!overwrite)
+                        {
+                            readOffset = (int) destAttr.getSize();
+                            writeOffset = readOffset;
+                        }
                     }
                 }
             }

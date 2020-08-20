@@ -1,6 +1,7 @@
 package com.groksoft.volmunger.stty.subscriber;
 
 import com.groksoft.volmunger.Configuration;
+import com.groksoft.volmunger.Main;
 import com.groksoft.volmunger.MungerException;
 import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Library;
@@ -31,21 +32,21 @@ public class Daemon extends DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
+    private Main.Context context;
     private boolean isTerminal = false;
 
     /**
      * Instantiate the Daemon service
      *
      * @param config
-     * @param mine
-     * @param theirs
+     * @param ctxt
      */
 
-    public Daemon(Configuration config, Repository mine, Repository theirs)
+    public Daemon(Configuration config, Main.Context ctxt)
     {
-        super(config, mine, theirs);
+        super(config, ctxt.publisherRepo, ctxt.subscriberRepo);
+        context = ctxt;
     } // constructor
-
 
     /**
      * Dump statistics from all available internal sources.

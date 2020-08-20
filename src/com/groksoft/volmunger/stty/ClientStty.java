@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * ClientStty -to- ServeStty server, used for both manual (interactive) and automated sessions
+ * ClientStty -to- ServeStty, used for both manual (interactive) and automated sessions
  */
 public class ClientStty
 {
