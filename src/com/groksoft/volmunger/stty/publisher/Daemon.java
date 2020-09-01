@@ -1,13 +1,12 @@
 package com.groksoft.volmunger.stty.publisher;
 
-import com.groksoft.volmunger.Configuration;
-import com.groksoft.volmunger.Main;
-import com.groksoft.volmunger.MungerException;
+import com.groksoft.volmunger.*;
 import com.groksoft.volmunger.Process;
-import com.groksoft.volmunger.Utils;
 import com.groksoft.volmunger.repository.Item;
 import com.groksoft.volmunger.repository.Library;
 import com.groksoft.volmunger.repository.Repository;
+import com.groksoft.volmunger.sftp.ClientSftp;
+import com.groksoft.volmunger.stty.ClientStty;
 import com.groksoft.volmunger.stty.DaemonBase;
 import com.groksoft.volmunger.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
@@ -37,7 +36,7 @@ public class Daemon extends DaemonBase
 
     private Main.Context context;
     private boolean isTerminal = false;
-    private Process process;
+    private Process process; // munge process for get command
 
     /**
      * Instantiate the Daemon service
@@ -45,10 +44,9 @@ public class Daemon extends DaemonBase
      * @param config
      * @param ctxt
      */
-
-    public Daemon(Configuration config, Main.Context ctxt)
+    public Daemon(Configuration config, Main.Context ctxt, Repository mine, Repository theirs)
     {
-        super(config, ctxt.publisherRepo, ctxt.subscriberRepo);
+        super(config, mine, theirs);
         context = ctxt;
     } // constructor
 
@@ -124,7 +122,7 @@ public class Daemon extends DaemonBase
         // for get command
         long totalSize = 0L;
         ArrayList<Item> group = new ArrayList<>();
-        process = new Process(cfg, context);
+        process = new Process(cfg, context); // munge process for get command
 
         // setup i/o
         aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
@@ -139,25 +137,27 @@ public class Daemon extends DaemonBase
             stop = true; // just hang-up on the connection
             logger.info("Connection to " + theirRepo.getLibraryData().libraries.site + " failed handshake");
         }
-
-        if (isTerminal)
+        else
         {
-            response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
-        }
-        else // is automation
-        {
-            response = "CMD";
-
-            //  -S Subscriber collection file
-            if (cfg.isForceCollection())
+            if (isTerminal)
             {
-                response = response + ":RequestCollection";
+                response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
             }
-
-            //  -t Subscriber targets
-            if (cfg.isForceTargets())
+            else // is automation
             {
-                response = response + ":RequestTargets";
+                response = "CMD";
+
+                //  -S Subscriber collection file
+                if (cfg.isForceCollection())
+                {
+                    response = response + ":RequestCollection";
+                }
+
+                //  -t Subscriber targets
+                if (cfg.isForceTargets())
+                {
+                    response = response + ":RequestTargets";
+                }
             }
         }
 
@@ -235,18 +235,15 @@ public class Daemon extends DaemonBase
                         String location = myRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
-                        // if -s then scan
-                        if (cfg.getSubscriberLibrariesFileName().length() > 0)
+                        for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                         {
-                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                            if (subLib.items != null)
                             {
-                                if (subLib.items != null)
-                                {
-                                    subLib.items = null; // clear any existing data
-                                }
-                                myRepo.scan(subLib.name);
+                                subLib.items = null; // clear any existing data
                             }
+                            myRepo.scan(subLib.name);
                         }
+
                         // otherwise it must be -S so do not scan
                         myRepo.exportCollection();
 
@@ -311,6 +308,7 @@ public class Daemon extends DaemonBase
                     }
                     else
                     {
+                        boolean found = false;
                         if (t.hasMoreTokens())
                         {
                             String find = remainingTokens(t);
@@ -323,9 +321,13 @@ public class Daemon extends DaemonBase
                                 {
                                     myRepo.scan(subLib.name);
                                 }
-// RESET RESULTS
                                 for (Item item : subLib.items)
                                 {
+                                    if (myRepo.ignore(item))
+                                    {
+                                        response += "  ! Ignoring '" + item.getItemPath() + "'\r\n";
+                                        continue;
+                                    }
                                     if (item.getItemPath().toLowerCase().contains(find))
                                     {
                                         if (!item.isDirectory())
@@ -343,14 +345,15 @@ public class Daemon extends DaemonBase
                                                 totalSize += size;
                                             }
                                             group.add(item);
+                                            found = true;
                                         }
                                     }
                                 }
                             }
                         }
-                        if (response.length() < 1)
+                        if (!found)
                         {
-                            response = "No results found, try collection command if refresh is needed\r\n";
+                            response += "No results found, try collection command if refresh is needed\r\n";
                         }
                         else
                         {
@@ -369,8 +372,24 @@ public class Daemon extends DaemonBase
 
                             if (line.equalsIgnoreCase("Y"))
                             {
-                                process.copyGroup(group, totalSize, true);
-                                response = "copy files here\r\n";
+                                if (context.clientStty == null)
+                                {
+                                    // start the serveSftp client
+                                    context.clientSftp = new ClientSftp(myRepo, theirRepo, false);
+                                    if (!context.clientSftp.startClient())
+                                    {
+                                        throw new MungerException("Publisher sftp client failed to connect");
+                                    }
+
+                                    // start the serveStty client for automation
+                                    context.clientStty = new ClientStty(cfg, false, false);
+                                    if (!context.clientStty.connect(myRepo, theirRepo))
+                                    {
+                                        throw new MungerException("Publisher stty client failed to connect");
+                                    }
+                                }
+                                response = process.copyGroup(group, totalSize, true);
+                                group.clear();
                             }
                             else
                             {

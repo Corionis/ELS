@@ -105,16 +105,16 @@ public class Main
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
-                    // start servers
+                    // start servers for -r T & clients for get command in stty.publisher.Daemon
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.publisherRepo, context.subscriberRepo);
+                        context.serveSftp = new ServeSftp(context.publisherRepo, context.subscriberRepo, true);
                         context.serveSftp.startServer();
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("PServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context);
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
                         context.serveStty.startListening(context.publisherRepo);
                         isListening = true;
                     }
@@ -136,11 +136,14 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo);
-                        context.clientSftp.startClient();
+                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
+                        if (!context.clientSftp.startClient())
+                        {
+                            throw new MungerException("Publisher sftp client failed to connect");
+                        }
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(cfg, true);
+                        context.clientStty = new ClientStty(cfg, true, true);
                         if (context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             context.clientStty.guiSession();
@@ -165,11 +168,14 @@ public class Main
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo);
-                        context.clientSftp.startClient();
+                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
+                        if (!context.clientSftp.startClient())
+                        {
+                            throw new MungerException("Publisher sftp client failed to connect");
+                        }
 
                         // start the serveStty client for automation
-                        context.clientStty = new ClientStty(cfg, false);
+                        context.clientStty = new ClientStty(cfg, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             throw new MungerException("Publisher remote failed to connect");
@@ -200,12 +206,12 @@ public class Main
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
                     {
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo);
+                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo, true);
                         context.serveSftp.startServer();
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("SServer");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context);
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
                         context.serveStty.startListening(context.subscriberRepo);
                         isListening = true;
                     }
@@ -220,18 +226,24 @@ public class Main
                     logger.info("+ VolMunger Subscriber Manual Terminal begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
+                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
+                        throw new MungerException("Targets -t file not found: " + cfg.getTargetsFilename());
+
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
 
-                    // start clients
+                    // start clients & servers for -r L for get command
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
                     {
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(context.subscriberRepo, context.publisherRepo);
-                        context.clientSftp.startClient();
+                        context.clientSftp = new ClientSftp(context.subscriberRepo, context.publisherRepo, true);
+                        if (!context.clientSftp.startClient())
+                        {
+                            throw new MungerException("Publisher sftp client failed to connect");
+                        }
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(cfg, true);
+                        context.clientStty = new ClientStty(cfg, true, true);
                         if (context.clientStty.connect(context.subscriberRepo, context.publisherRepo))
                         {
                             context.clientStty.guiSession();
@@ -241,6 +253,16 @@ public class Main
                         {
                             throw new MungerException("Subscriber terminal console failed to connect");
                         }
+
+                        // start serveSftp server
+                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo, false);
+                        context.serveSftp.startServer();
+
+                        // start serveStty server
+                        sessionThreads = new ThreadGroup("SServer");
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, false);
+                        context.serveStty.startListening(context.subscriberRepo);
+                        isListening = true;
                     }
                     else
                     {

@@ -6,6 +6,7 @@ import com.groksoft.volmunger.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.subsystem.sftp.SftpClient;
 import org.apache.sshd.client.subsystem.sftp.impl.DefaultSftpClientFactory;
@@ -14,6 +15,8 @@ import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.SocketAddress;
+import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -48,13 +51,13 @@ public class ClientSftp implements SftpErrorStatusDataHandler
      * @param mine   Repository of local system
      * @param theirs Repository of remote system
      */
-    public ClientSftp(Repository mine, Repository theirs)
+    public ClientSftp(Repository mine, Repository theirs, boolean primaryServers)
     {
         myRepo = mine;
         theirRepo = theirs;
 
         hostname = Utils.parseHost(theirRepo.getLibraryData().libraries.site);
-        hostport = Utils.getPort(theirRepo.getLibraryData().libraries.site) + 1;
+        hostport = Utils.getPort(theirRepo.getLibraryData().libraries.site) + ((primaryServers) ? 1 : 3);
 
         user = myRepo.getLibraryData().libraries.key;
         password = theirRepo.getLibraryData().libraries.key;
@@ -119,11 +122,22 @@ public class ClientSftp implements SftpErrorStatusDataHandler
     /**
      * Start this sftp client
      */
-    public void startClient()
+    public boolean startClient()
     {
         try
         {
             sshClient = SshClient.setUpDefaultClient();
+
+            sshClient.setServerKeyVerifier(new ServerKeyVerifier()
+            {
+                @Override
+                public boolean verifyServerKey(ClientSession clientSession, SocketAddress socketAddress, PublicKey publicKey)
+                {
+                    // IDEA Cross-key verification could be added plus keys in the JSON library file if higher security is needed
+                    return true;
+                }
+            });
+
             sshClient.start();
 
             logger.info("Opening sftp connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
@@ -136,7 +150,9 @@ public class ClientSftp implements SftpErrorStatusDataHandler
         catch (Exception e)
         {
             logger.error(e.getMessage());
+            return false;
         }
+        return true;
     }
 
     /**
@@ -230,8 +246,6 @@ public class ClientSftp implements SftpErrorStatusDataHandler
 
             // open remote file
             SftpClient.Handle handle = sftpClient.open(copyDest, mode);
-            SftpClient.Attributes attr = new SftpClient.Attributes().perms(Utils.getLocalPermissions(src));
-            sftpClient.setStat(handle, attr);
 
             // open local file
             FileInputStream srcStream = new FileInputStream(src);
@@ -249,6 +263,11 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                 Arrays.fill(buffer, (byte) 0);
                 writeOffset += size;
             }
+
+            //SftpClient.Attributes attr = new SftpClient.Attributes().perms(Utils.getLocalPermissions(src));
+            //if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.LINUX))
+            //    attr.setPermissions(0x644);
+            //sftpClient.setStat(handle, attr);
 
             srcStream.close();
             sftpClient.close(handle);

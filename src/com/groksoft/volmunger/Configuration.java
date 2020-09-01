@@ -19,14 +19,10 @@ public class Configuration
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
     private final String VOLMUNGER_VERSION = "2.0.0";
-    // remote
     private String authorizedPassword = "";
-    // debug
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
-    // other
     private boolean dryRun = false;
-    // files
     private String exportCollectionFilename = "";
     private String exportTextFilename = "";
     private boolean forceCollection = false;
@@ -37,7 +33,6 @@ public class Configuration
     private String[] originalArgs;
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
-    // publisher & subscriber
     private String publisherLibrariesFileName = "";
     private ArrayList<String> publisherLibraryName = new ArrayList<>();
     private int remoteFlag = NOT_REMOTE;
@@ -48,7 +43,6 @@ public class Configuration
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
     private String targetsFilename = "";
-    private boolean validationRun = false;
     private String whatsNewFilename = "";
 
     /**
@@ -82,12 +76,14 @@ public class Configuration
         }
         logger.info(msg);
 
+        if (getAuthorizedPassword().length() > 0)
+            logger.info("  cfg: -a Authorize mode password has been specified");
         logger.info("  cfg: -c Console logging level = " + getConsoleLevel());
         logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
-        logger.info("  cfg: -e Export paths filename = " + getExportTextFilename());
+        logger.info("  cfg: -e Export text filename = " + getExportTextFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
-        logger.info("  cfg: -i Export JSON filename = " + getExportCollectionFilename());
+        logger.info("  cfg: -i Export items (collection) JSON filename = " + getExportCollectionFilename());
         logger.info("  cfg: -k Keep .volmunger files = " + Boolean.toString(isKeepVolMungerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames())
@@ -97,12 +93,11 @@ public class Configuration
         logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
         logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
-        logger.info("  cfg: -P Publisher Collection import filename = " + getPublisherCollectionFilename());
-        logger.info("  cfg: -r Remote session = " + getRemoteType());
+        logger.info("  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        logger.info("  cfg: -r Remote session type = " + getRemoteType());
         logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
-        logger.info("  cfg: -S Subscriber Collection import filename = " + getSubscriberCollectionFilename());
-        logger.info("  cfg: -t Targets filename = " + getTargetsFilename());
-        logger.info("  cfg: -v Validation run = " + Boolean.toString(isValidationRun()));
+        logger.info("  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
+        logger.info("  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
     }
 
     /**
@@ -665,26 +660,6 @@ public class Configuration
     }
 
     /**
-     * Is validation run boolean
-     *
-     * @return the boolean
-     */
-    public boolean isValidationRun()
-    {
-        return validationRun;
-    }
-
-    /**
-     * Sets validation run
-     *
-     * @param validationRun the validation run
-     */
-    public void setValidationRun(boolean validationRun)
-    {
-        this.validationRun = validationRun;
-    }
-
-    /**
      * Parse command line
      * <p>
      * This populates the rest.
@@ -704,6 +679,7 @@ public class Configuration
             switch (args[index])
             {
                 case "-a":                                             // authorize mode password
+                case "--authorize":
                     if (index <= args.length - 2)
                     {
                         setAuthorizedPassword(args[index + 1]);
@@ -715,6 +691,7 @@ public class Configuration
                     }
                     break;
                 case "-c":                                             // console level
+                case "--console-level":
                     if (index <= args.length - 2)
                     {
                         setConsoleLevel(args[index + 1]);
@@ -726,9 +703,11 @@ public class Configuration
                     }
                     break;
                 case "-D":                                             // Dry run
+                case "--dry-run":
                     setDryRun(true);
                     break;
                 case "-d":                                             // debug level
+                case "--debug-level":
                     if (index <= args.length - 2)
                     {
                         setDebugLevel(args[index + 1]);
@@ -740,6 +719,7 @@ public class Configuration
                     }
                     break;
                 case "-e":                                             // export publisher items to flat text file
+                case "--export-text":
                     if (index <= args.length - 2)
                     {
                         setExportTextFilename(args[index + 1]);
@@ -752,6 +732,7 @@ public class Configuration
                     }
                     break;
                 case "-f":                                             // log filename
+                case "--log-file":
                     if (index <= args.length - 2)
                     {
                         setLogFilename(args[index + 1]);
@@ -763,6 +744,7 @@ public class Configuration
                     }
                     break;
                 case "-i":                                             // export publisher items to collection file
+                case "--export-items":
                     if (index <= args.length - 2)
                     {
                         setExportCollectionFilename(args[index + 1]);
@@ -775,9 +757,11 @@ public class Configuration
                     }
                     break;
                 case "-k":                                             // keep .volmunger files
+                case "--keep":
                     setKeepVolMungerFiles(true);
                     break;
                 case "-l":                                             // publisher library to process
+                case "--library":
                     if (index <= args.length - 2)
                     {
                         addPublisherLibraryName(args[index + 1]);
@@ -790,6 +774,7 @@ public class Configuration
                     }
                     break;
                 case "-m":                                             // Mismatch output filename
+                case "--mismatches":
                     if (index <= args.length - 2)
                     {
                         setMismatchFilename(args[index + 1]);
@@ -801,6 +786,7 @@ public class Configuration
                     }
                     break;
                 case "-n":                                             // What's New output filename
+                case "--whatsnew":
                     if (index <= args.length - 2)
                     {
                         setWhatsNewFilename(args[index + 1]);
@@ -812,6 +798,7 @@ public class Configuration
                     }
                     break;
                 case "-p":                                             // publisher JSON libraries file
+                case "--publisher-libraries":
                     if (index <= args.length - 2)
                     {
                         setPublisherLibrariesFileName(args[index + 1]);
@@ -823,6 +810,7 @@ public class Configuration
                     }
                     break;
                 case "-P":                                             // publisher JSON collection items file
+                case "--publisher-collection":
                     if (index <= args.length - 2)
                     {
                         setPublisherCollectionFilename(args[index + 1]);
@@ -830,10 +818,11 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -P requires an publisher collection filename");
+                        throw new MungerException("Error: -P requires a publisher collection filename");
                     }
                     break;
                 case "-r":                                             // remote session
+                case "--remote":
                     if (index <= args.length - 2)
                     {
                         setRemoteType(args[index + 1]);
@@ -845,6 +834,7 @@ public class Configuration
                     }
                     break;
                 case "-s":                                             // subscriber JSON libraries file
+                case "--subscriber-libraries":
                     if (index <= args.length - 2)
                     {
                         setForceCollection(false);
@@ -858,6 +848,7 @@ public class Configuration
                     }
                     break;
                 case "-S":                                             // subscriber JSON collection items file
+                case "--subscriber-collection":
                     if (index <= args.length - 2)
                     {
                         setForceCollection(true);
@@ -871,6 +862,7 @@ public class Configuration
                     }
                     break;
                 case "-t":                                             // targets filename
+                case "--targets":
                     if (index <= args.length - 2)
                     {
                         setForceTargets(false);
@@ -883,7 +875,8 @@ public class Configuration
                         throw new MungerException("Error: -t requires a targets filename");
                     }
                     break;
-                case "-T":                                             // targets filename
+                case "-T":                                             // targets filename - force to publisher
+                case "--force-targets":
                     if (index <= args.length - 2)
                     {
                         setForceTargets(true);
@@ -896,14 +889,10 @@ public class Configuration
                         throw new MungerException("Error: -T requires a targets filename");
                     }
                     break;
-                case "-v":                                             // validate collections files
-                    setValidationRun(true);
-                    break;
                 default:
                     throw new MungerException("Error: unknown option " + args[index]);
             }
         }
-
     }
 
 }

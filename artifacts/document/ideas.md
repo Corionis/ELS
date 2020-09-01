@@ -1,42 +1,23 @@
 
 ## To Do
- * Test large files.
- * BUG: Library name in JSON has to match physical directory name.
  * Duplicate finder
- * In detecting new group, or maybe looking for an existing location,
-   we are mixing library names and directories
  * For TV Shows do searches ignoring season folders
 
 ## Media
  * Mark all not-so-good movies with fubar, or whatever
  * Mark Korean Subtitled movies with R6 at end of filename
- * Deal with SRTs
  * Go over how to handle Director cuts See Underworld
- x Fix Avatar & its extended edition
  * Search function
  * REMEMBER - Put NEW Targets in library so they are scanned
 
 ## Code
- * Library name in JSON and physical directory names must match
  * Auto Renamer - xpaus
  * Add library name option so only certain libraries are processed
    -l Partially done, see TODO's
- * Add a find dupes in collection
- * Avoid cascading errors if all targets are full
  * For .volmunger actions:
    - transcode option for high resource demand items, 
      e.g. Bring It On, Sons of Anarchy
  * Add a time metric.
- * Add "double-dash" option equivalents to make commands more readable
-    * Examples:
-       * -p and --publisher-library
-       * -P and --publisher-collection
-       * -D and --dry-run
-       * -e and --export-text
-       * -i and --export-collection
-       * -r P and --remote-publisher
-       * -r S and --remote-subscriber
-       * -g and --get-item
 
 # Ideas
 
@@ -79,33 +60,15 @@ the conflict is resolved it is easier to complete the synch.
    directory. Items are synchronized by group.
    - This works for a movie and that directory's contents,
    - and works for a TV show and a season directory.
- 
-
-## Assumptions
- * The exact locations of the contents of each library is
-   not known at the beginning of a VolMunger run.
- * A directory of only one collection or the other will be
-   modified between mungings.
- * To munge two operational systems will require one to use
-   a collection file for the target system configured from
-   its own connection perspective, e.g. drive letters, etc.  
 
 ### Collection Files
  * No two library names may be the same, i.e. library names must be unique
 
 ### Target Files
  * One or more may be specified
- * Space check perform before copying
- * Automatic roll-over to the next target
+ * Space check is performed before copying
+ * Automatically rolls-over to the next target
    
----
-
-## Other
-
-### Convenience Utilities
- * [Sent-To utility](send-to utility.md) volmunger.json file generator.
- * [Plex-to-VolMunger generator](plex-to-VolMunger.md) for automated collection file generation.
-
 ---
 
 ## volmunger.json control file Use Cases

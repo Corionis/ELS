@@ -27,9 +27,10 @@ General parameters:
    Dry run munger importing publisher collection file, scanning subscriber<br/> 
    -D -P TestRun/publisher-export.json -s TestRun/subscriber-1/subscriber-1-libraries.json
 
-6. Targets validate<br/> 
-   -c off -D -d debug -T TestRun/targets-1.json
-	
+
+
+
+
 7. Remote subscriber -r S listener<br/>
    Subscriber listening, will scan when requested by publisher (next)<br/> 
    -a 1234 -d debug -r S -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -t TestRun/targets-1.json -f TestRun/volmunger-subscriber.log

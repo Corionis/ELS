@@ -35,6 +35,7 @@ public class ClientStty
     private Repository theirRepo;
     private String myKey;
     private String theirKey;
+    private boolean primaryServers;
 
     /**
      * Instantiate a ClientStty.<br>
@@ -42,10 +43,11 @@ public class ClientStty
      * @param config     The Configuration object
      * @param isManualTerminal True if an interactive client, false if an automated client
      */
-    public ClientStty(Configuration config, boolean isManualTerminal)
+    public ClientStty(Configuration config, boolean isManualTerminal, boolean primaryServers)
     {
         this.cfg = config;
         this.isTerminal = isManualTerminal;
+        this.primaryServers = primaryServers;
     }
 
     public long availableSpace(String location)
@@ -121,7 +123,7 @@ public class ClientStty
             {
                 host = null;
             }
-            int port = Utils.getPort(this.theirRepo.getLibraryData().libraries.site);
+            int port = Utils.getPort(this.theirRepo.getLibraryData().libraries.site) + ((primaryServers) ? 0 : 2);
             logger.info("Opening stty connection to: " + (host == null ? "localhost" : host) + ":" + port);
 
             try
@@ -144,7 +146,7 @@ public class ClientStty
                 }
                 else
                 {
-                    logger.error("Connection to " + this.theirRepo.getLibraryData().libraries.site + " failed handshake");
+                    logger.error("Connection to " + host + ":" + port + " failed handshake");
                 }
             }
         }

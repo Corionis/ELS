@@ -250,24 +250,31 @@ public class Repository
             if (lib.name.equalsIgnoreCase(libraryName))
             {
                 foundItem = null;
-                for (Item item : lib.items)
+                if (lib.items != null)
                 {
-                    if (libraryData.libraries.case_sensitive)
+                    for (Item item : lib.items)
                     {
-                        if (Utils.pipe(this, item.getItemPath()).equals(match))
+                        if (libraryData.libraries.case_sensitive)
                         {
-                            foundItem = item;
-                            break;
+                            if (Utils.pipe(this, item.getItemPath()).equals(match))
+                            {
+                                foundItem = item;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(match))
+                            {
+                                foundItem = item;
+                                break;
+                            }
                         }
                     }
-                    else
-                    {
-                        if (Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(match))
-                        {
-                            foundItem = item;
-                            break;
-                        }
-                    }
+                }
+                else
+                {
+                    logger.warn("Subscriber library '" + lib.name + "' has no items. Is command-line configured correctly?");
                 }
                 if (foundItem != null && foundItem.isDirectory())
                 {

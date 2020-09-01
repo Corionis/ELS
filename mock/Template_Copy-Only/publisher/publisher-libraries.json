@@ -1,7 +1,7 @@
 {
     "libraries": {
         "description": "Test Publisher",
-        "site": "clavius:30000",
+        "site": ":30000",
         "flavor": "windows",
         "terminal_allowed": "true",
         "key": "025e2ddb-942a-4206-8458-902a87e42e62",

@@ -54,7 +54,6 @@ public class Listener extends Thread
 
 		listenSocket = new ServerSocket(this.port, 5, addr);
 
-        // QUESTION how to handle persistent listener AND properly close the socket when application is killed
 		// set a non-zero timeout on the socket so accept() may be interrupted
 		listenSocket.setSoTimeout(socketTimeout);
 	} // constructor

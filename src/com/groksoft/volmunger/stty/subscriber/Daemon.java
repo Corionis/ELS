@@ -41,10 +41,9 @@ public class Daemon extends DaemonBase
      * @param config
      * @param ctxt
      */
-
-    public Daemon(Configuration config, Main.Context ctxt)
+    public Daemon(Configuration config, Main.Context ctxt, Repository mine, Repository theirs)
     {
-        super(config, ctxt.publisherRepo, ctxt.subscriberRepo);
+        super(config, mine, theirs);
         context = ctxt;
     } // constructor
 
@@ -129,25 +128,27 @@ public class Daemon extends DaemonBase
             stop = true; // just hang-up on the connection
             logger.info("Connection to " + theirRepo.getLibraryData().libraries.site + " failed handshake");
         }
-
-        if (isTerminal)
+        else
         {
-            response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
-        }
-        else // is automation
-        {
-            response = "CMD";
-
-            //  -S Subscriber collection file
-            if (cfg.isForceCollection())
+            if (isTerminal)
             {
-                response = response + ":RequestCollection";
+                response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
             }
-
-            //  -t Subscriber targets
-            if (cfg.isForceTargets())
+            else // is automation
             {
-                response = response + ":RequestTargets";
+                response = "CMD";
+
+                //  -S Subscriber collection file
+                if (cfg.isForceCollection())
+                {
+                    response = response + ":RequestCollection";
+                }
+
+                //  -t Subscriber targets
+                if (cfg.isForceTargets())
+                {
+                    response = response + ":RequestTargets";
+                }
             }
         }
 
@@ -225,18 +226,15 @@ public class Daemon extends DaemonBase
                         String location = myRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
-                        // if -s then scan
-                        if (cfg.getSubscriberLibrariesFileName().length() > 0)
+                        for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                         {
-                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                            if (subLib.items != null)
                             {
-                                if (subLib.items != null)
-                                {
-                                    subLib.items = null; // clear any existing data
-                                }
-                                myRepo.scan(subLib.name);
+                                subLib.items = null; // clear any existing data
                             }
+                            myRepo.scan(subLib.name);
                         }
+
                         // otherwise it must be -S so do not scan
                         myRepo.exportCollection();
 

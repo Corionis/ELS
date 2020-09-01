@@ -11,14 +11,16 @@ a wide variety of operations.
 
 ## Basic Command
 
-Once the JSON library-definition files are created and validated a basic
-munge operation requires a publisher's library or collection file and
-the same for the subscriber.
+Once the JSON library files are created and validated a basic
+munge operation requires a publisher and subscriber library or collection
+files and a targets file that describes where each library's new items
+will be copied to the subscriber.
 
 A "library" file lists the libraries only, a "collection" file also contains
 all the individual items in each library. Both are JSON files.
 
-A collection JSON file may be generated using the -i item export option.
+A collection JSON file may be generated using the -i or --export-items option
+and specifying a publisher file.
 
 Collection data are required to perform a munge. Generally the lowercase
 variation of an option will cause the needed data to be dynamically generated
@@ -28,54 +30,49 @@ at runtime. Whereas the uppercase variation will import the data from a file.
 
 ### Actions
 
- * -D : Dry run, validate, scan, and match but do not make any changes
+ * -D | --dry-run : Do everything except actually copy
  
- * -e file : Export publisher items to flat text file
+ * -e | --export-text file : Export publisher collection as text to file 
  
- * -i file : Export publisher items to collection file
- 
- * -r P|L|M|S|T : This is a remote session, see comm.md for details 
+ * -i | --export-items file : Export publisher collection as JSON to file
+
+ * -r | --remote P|L|M|S|T : This is a remote session, see comm.md for details 
 
 ### Parameters
 
- * -a password : The password required to access Authorize mode
-      when allowing -r remote clientStty access
+ * -a | --authorize password : The password required to access Authorized mode
+      when allowing -r remote clientStty manual access
 
- * -c level : Console logging level, default debug
+ * -c | --console-level level : Console logging level, default debug
  
- * -d level : File logging level, default info.
+ * -d | --debug-level level : File logging level, default info.
       Levels= off, fatal, error, warn, info, debug, trace, all.
       If level = info then Java method and line number are not added.
  
- * -f file : Log file, default VolMunger.log in directory where "run" is executed
+ * -f | --log-file file : Log file, default VolMunger.log in directory where "run" is executed
  
- * -g item : Get the specific item from the -l library, -l required.
-      An "item" is the granularity of a movie (directory) or a tv season (directory).
+ * -k | --keep : Keep volmunger.json files, default is to delete them as they are processed.
       Not implemented yet.
 
- * -k : Keep volmunger.json files, default is to delete them as they are processed.
-      Not implemented yet.
-
-  * -l library : Publisher library to process, default all.
+  * -l | --library library : Publisher library to process, default all.
       Not implemented yet.
  
- * -m file : Mismatch output file (differences)
+ * -m | --mismatches file : Mismatches output file (differences)
 
- * -n file : What's New output file
+ * -n | --whatsnew file : What's New output file
 
- * -p file : Publisher JSON libraries file
+ * -p | --publisher-libraries file : Publisher JSON libraries file
  
- * -P file : Publisher JSON collection items file
+ * -P | --publisher-collection file : Publisher JSON collection items file
 
- * -s file : Subscriber JSON libraries file
+ * -s | --subscriber-libraries file : Subscriber JSON libraries file
  
- * -S file : Subscriber JSON collection items file
+ * -S | --subscriber-collection file : Subscriber JSON collection items file
  
- * -t file : Targets filename, see Notes
+ * -t | --targets file : Targets filename, see Notes
  
- * -T file : Targets import filename, see Notes
+ * -T | --force-targets file : Targets import filename, see Notes
 
- * -v : Validate collections files only then exit
 
 ### Notes
 

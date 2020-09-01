@@ -8,6 +8,8 @@ import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.AsyncAuthException;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
+import org.apache.sshd.server.auth.pubkey.AuthorizedKeyEntriesPublickeyAuthenticator;
+import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
 import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
@@ -15,6 +17,8 @@ import org.apache.sshd.server.subsystem.sftp.SftpSubsystemEnvironment;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
 import java.util.Collections;
 
 /*
@@ -53,13 +57,13 @@ public class ServeSftp implements SftpErrorStatusDataHandler
      * @param mine   Repository of local system
      * @param theirs Repository of remote system
      */
-    public ServeSftp(Repository mine, Repository theirs)
+    public ServeSftp(Repository mine, Repository theirs, boolean primaryServers)
     {
         myRepo = mine;
         theirRepo = theirs;
 
         hostname = Utils.parseHost(myRepo.getLibraryData().libraries.site);
-        hostport = Utils.getPort(myRepo.getLibraryData().libraries.site) + 1;
+        hostport = Utils.getPort(myRepo.getLibraryData().libraries.site) + ((primaryServers) ? 1 : 3);
 
         user = theirRepo.getLibraryData().libraries.key;
         password = myRepo.getLibraryData().libraries.key;
@@ -86,7 +90,23 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             sshd = SshServer.setUpDefaultServer();
             sshd.setHost(hostname);
             sshd.setPort(hostport);
-            sshd.setPublickeyAuthenticator(null);
+            try
+            {
+                sshd.setPublickeyAuthenticator(new PublickeyAuthenticator()
+                {
+                    @Override
+                    public boolean authenticate(String s, PublicKey publicKey, ServerSession serverSession) throws AsyncAuthException
+                    {
+                        // IDEA Cross-key verification could be added plus keys in the JSON library file if higher security is needed
+                        return true;
+                    }
+                });
+            }
+            catch (AsyncAuthException aae)
+            {
+                logger.warn("AsyncAuthException");
+            }
+
             sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
 
             SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder()

@@ -60,8 +60,8 @@ public class Connection extends Thread
 	 * Run the service for this connection.
 	 * 
 	 * Creates input and output streams for the connection and calls the
-	 * serveIt() interface method for the Service. Calls endConnection() when
-	 * the serveIt() method returns for any reason.
+	 * interface method for the Service. Calls endConnection() when
+	 * the method returns for any reason.
 	 * 
 	 */
 	public void run ()

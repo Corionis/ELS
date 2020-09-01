@@ -89,11 +89,9 @@ public class TerminalGui implements WindowListener, ActionListener
         }
         if ((response != null) && response.equalsIgnoreCase("End-Execution"))
         {
-            logger.info("Handling End-Execution from server");
+            logger.info("End-Execution command received from server");
             frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         }
-
-
     }
 
     private int build()
@@ -154,6 +152,7 @@ public class TerminalGui implements WindowListener, ActionListener
         textArea.setBackground(Color.BLACK);
         textArea.setForeground(Color.WHITE);
         textArea.setEditable(false);
+        textArea.setLineWrap(true);
         scroll = new JScrollPane(textArea);
 
         frame.getContentPane().add(BorderLayout.NORTH, mb);

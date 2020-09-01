@@ -56,19 +56,21 @@ public class ServeStty extends Thread
     private Configuration cfg;
     private Main.Context context;
     private int listenPort;
+    private boolean primaryServers;
 
     /**
      * Instantiates the ServeStty object and set it as a daemon so the Java
      * Virtual Machine does not wait for it to exit.
      */
-    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Main.Context ctxt)
+    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Main.Context ctxt, boolean primaryServers)
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
         super(aGroup, "ServeStty");
         instance = this;
-        cfg = config;
-        context = ctxt;
+        instance.cfg = config;
+        instance.context = ctxt;
+        instance.primaryServers = primaryServers;
 
         // make it a daemon so the JVM does not wait for it to exit
         this.setDaemon(true);
@@ -114,10 +116,10 @@ public class ServeStty extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Daemon(cfg, context));
-            } else if (cfg.isSubscriberListener())
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.publisher.Daemon(cfg, context, context.publisherRepo, context.subscriberRepo));
+            } else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.subscriber.Daemon(cfg, context));
+                theConnection = new Connection(aSocket, new com.groksoft.volmunger.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
             } else
             {
                 throw new MungerException("FATAL: Unknown connection type");
@@ -295,7 +297,7 @@ public class ServeStty extends Thread
             host = null;
             logger.info("Host not defined, using default: localhost");
         }
-        listenPort = Utils.getPort(site);
+        listenPort = Utils.getPort(site) + ((primaryServers) ? 0 : 2);
         if (listenPort > 0)
         {
             this.start();
