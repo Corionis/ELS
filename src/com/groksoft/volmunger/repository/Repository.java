@@ -51,7 +51,8 @@ public class Repository
     {
         System.out.println("  Libraries from " + getJsonFilename());
         System.out.println("    Description: " + libraryData.libraries.description);
-        System.out.println("           Site: " + libraryData.libraries.site);
+        System.out.println("           Host: " + libraryData.libraries.host);
+        System.out.println("         Listen: " + libraryData.libraries.listen);
         System.out.println("            Key: " + libraryData.libraries.key);
         System.out.println("    Case-sensitive: " + libraryData.libraries.case_sensitive);
         System.out.println("    Ignore patterns:");
@@ -80,7 +81,7 @@ public class Repository
     {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        ;
+
         logger.info("Writing collection file " + cfg.getExportCollectionFilename());
         json = gson.toJson(libraryData);
         try
@@ -102,9 +103,7 @@ public class Repository
      */
     public void exportText() throws MungerException
     {
-        String path;
         logger.info("Writing paths file " + cfg.getExportTextFilename());
-
 
         try
         {
@@ -375,6 +374,13 @@ public class Repository
     {
         if (libraryData != null)
         {
+            // if listen is empty use host
+            if (libraryData.libraries.listen == null ||
+                libraryData.libraries.listen.length() < 1)
+            {
+                libraryData.libraries.listen = libraryData.libraries.host;
+            }
+
             String flavor = libraryData.libraries.flavor.toLowerCase();
             String from = "";
             String to = "";

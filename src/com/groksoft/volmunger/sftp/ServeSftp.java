@@ -8,7 +8,6 @@ import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.AsyncAuthException;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
-import org.apache.sshd.server.auth.pubkey.AuthorizedKeyEntriesPublickeyAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
@@ -17,7 +16,6 @@ import org.apache.sshd.server.subsystem.sftp.SftpSubsystemEnvironment;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.util.Collections;
 
@@ -37,7 +35,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
     private transient Logger logger = LogManager.getLogger("applog");
 
     private String hostname;
-    private int hostport;
+    private int listenport;
     private int loginAttempts = 1;
     private String loginAttemptAddress = "";
     private Repository myRepo;
@@ -62,8 +60,8 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         myRepo = mine;
         theirRepo = theirs;
 
-        hostname = Utils.parseHost(myRepo.getLibraryData().libraries.site);
-        hostport = Utils.getPort(myRepo.getLibraryData().libraries.site) + ((primaryServers) ? 1 : 3);
+        hostname = Utils.parseHost(myRepo.getLibraryData().libraries.listen);
+        listenport = Utils.getPort(myRepo.getLibraryData().libraries.listen) + ((primaryServers) ? 1 : 3);
 
         user = theirRepo.getLibraryData().libraries.key;
         password = myRepo.getLibraryData().libraries.key;
@@ -89,7 +87,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         {
             sshd = SshServer.setUpDefaultServer();
             sshd.setHost(hostname);
-            sshd.setPort(hostport);
+            sshd.setPort(listenport);
             try
             {
                 sshd.setPublickeyAuthenticator(new PublickeyAuthenticator()

@@ -56,8 +56,8 @@ public class ClientSftp implements SftpErrorStatusDataHandler
         myRepo = mine;
         theirRepo = theirs;
 
-        hostname = Utils.parseHost(theirRepo.getLibraryData().libraries.site);
-        hostport = Utils.getPort(theirRepo.getLibraryData().libraries.site) + ((primaryServers) ? 1 : 3);
+        hostname = Utils.parseHost(theirRepo.getLibraryData().libraries.host);
+        hostport = Utils.getPort(theirRepo.getLibraryData().libraries.host) + ((primaryServers) ? 1 : 3);
 
         user = myRepo.getLibraryData().libraries.key;
         password = theirRepo.getLibraryData().libraries.key;

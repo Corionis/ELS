@@ -43,6 +43,7 @@ public class Configuration
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
     private String targetsFilename = "";
+    private boolean validation = false;
     private String whatsNewFilename = "";
 
     /**
@@ -659,6 +660,16 @@ public class Configuration
         return (getRemoteFlag() == SUBSCRIBER_TERMINAL);
     }
 
+    public boolean isValidation()
+    {
+        return validation;
+    }
+
+    public void setValidation(boolean validation)
+    {
+        this.validation = validation;
+    }
+
     /**
      * Parse command line
      * <p>
@@ -888,6 +899,10 @@ public class Configuration
                     {
                         throw new MungerException("Error: -T requires a targets filename");
                     }
+                    break;
+                case "-v":                                             // validation run
+                case "--validate":
+                    setValidation(true);
                     break;
                 default:
                     throw new MungerException("Error: unknown option " + args[index]);

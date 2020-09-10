@@ -90,7 +90,10 @@ public class Main
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    if (!cfg.isValidation()) // only publisher needed for a JSON file validation
+                    {
+                        context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    }
 
                     // the Process class handles the VolMunger process
                     proc = new Process(cfg, context);

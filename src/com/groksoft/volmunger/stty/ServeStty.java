@@ -143,9 +143,9 @@ public class ServeStty extends Thread
         if (listenerRepo != null &&
                 listenerRepo.getLibraryData() != null &&
                 listenerRepo.getLibraryData().libraries != null &&
-                listenerRepo.getLibraryData().libraries.site != null)
+                listenerRepo.getLibraryData().libraries.listen != null)
         {
-            startServer(listenerRepo.getLibraryData().libraries.site);
+            startServer(listenerRepo.getLibraryData().libraries.listen);
         } else
         {
             throw new MungerException("cannot get site from -r specified remote library");
@@ -289,15 +289,15 @@ public class ServeStty extends Thread
         listener.start();
     }
 
-    public void startServer(String site) throws Exception
+    public void startServer(String listen) throws Exception
     {
-        String host = Utils.parseHost(site);
+        String host = Utils.parseHost(listen);
         if (host == null || host.isEmpty())
         {
             host = null;
             logger.info("Host not defined, using default: localhost");
         }
-        listenPort = Utils.getPort(site) + ((primaryServers) ? 0 : 2);
+        listenPort = Utils.getPort(listen) + ((primaryServers) ? 0 : 2);
         if (listenPort > 0)
         {
             this.start();

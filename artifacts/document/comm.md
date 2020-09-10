@@ -81,14 +81,21 @@ Manual terminal to publisher (-r L and -r T) "authorized" commands:
 
 ## Configuration
 Some items are required in the JSON library file configuration to
-support communications.
+support communications. Some are optional.
 
- 1. site : The hostname:port to used. If a port is not specified
-    50271 is used as the BASE port number, e.g. mybox.home.com:29999
- 2. flavor : The flavor of operating system: windows, linux or apple (only)
- 3. terminal_allowed : true or false (only). If an interactive manual
+ 1. host : The hostname:port to connect to for outgoing connections,
+    e.g. mybox.home.com:29900. If a port is not specified 50271 is
+    used as the BASE port number. An IP address may be used instead
+    of a hostname.
+ 2. listen : Optional. If specified the hostname:port to listen for
+    incoming connections as a listen, e.g. mybox.home.com:30000.
+    If a port is not specified 50271 is used as the BASE port number. 
+    An IP address may be used instead of a hostname. If not specified
+    the "host" value will be used.
+ 3. flavor : The flavor of operating system: windows, linux or apple (only)
+ 4. terminal_allowed : true or false (only). If an interactive manual
     terminal connection is allowed
- 4. key : A formatted universally unique ID (UUID), e.g. "025e2ddb-942a-4206-8458-902a87e42e62"
+ 5. key : A formatted universally unique ID (UUID), e.g. "025e2ddb-942a-4206-8458-902a87e42e62"
 
 ### Port Numbers and Servers
 Two servers are started for each session, one for commands using STTY

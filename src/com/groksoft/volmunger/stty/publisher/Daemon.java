@@ -135,7 +135,7 @@ public class Daemon extends DaemonBase
         if (!handshake())
         {
             stop = true; // just hang-up on the connection
-            logger.info("Connection to " + theirRepo.getLibraryData().libraries.site + " failed handshake");
+            logger.info("Connection to " + theirRepo.getLibraryData().libraries.host + " failed handshake");
         }
         else
         {

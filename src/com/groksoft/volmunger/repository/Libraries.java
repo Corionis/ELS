@@ -24,10 +24,16 @@ public class Libraries
     public String description;
 
     /**
-     * The site for communications, [host name|IP address]:[port]
+     * The host for outgoing connections, [host name|IP address]:[port]
      * Default port is 50271 if not specified
      */
-    public String site;
+    public String host;
+
+    /**
+     * The listen for incoming connections, [host name|IP address]:[port]
+     * Default port is 50271 if not specified
+     */
+    public String listen;
 
     /**
      * Flavor of system: Windows, Linux, or Mac (only)

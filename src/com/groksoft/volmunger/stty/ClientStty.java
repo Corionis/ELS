@@ -112,18 +112,18 @@ public class ClientStty
         if (this.theirRepo != null &&
                 this.theirRepo.getLibraryData() != null &&
                 this.theirRepo.getLibraryData().libraries != null &&
-                this.theirRepo.getLibraryData().libraries.site != null)
+                this.theirRepo.getLibraryData().libraries.host != null)
         {
 
             this.myKey = myRepo.getLibraryData().libraries.key;
             this.theirKey = theirRepo.getLibraryData().libraries.key;
 
-            String host = Utils.parseHost(this.theirRepo.getLibraryData().libraries.site);
+            String host = Utils.parseHost(this.theirRepo.getLibraryData().libraries.host);
             if (host == null || host.isEmpty())
             {
                 host = null;
             }
-            int port = Utils.getPort(this.theirRepo.getLibraryData().libraries.site) + ((primaryServers) ? 0 : 2);
+            int port = Utils.getPort(this.theirRepo.getLibraryData().libraries.host) + ((primaryServers) ? 0 : 2);
             logger.info("Opening stty connection to: " + (host == null ? "localhost" : host) + ":" + port);
 
             try
