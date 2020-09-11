@@ -28,6 +28,8 @@ at runtime. Whereas the uppercase variation will import the data from a file.
 
 ## Command Line Options
 
+Options for short and long versions are case-sensitive.
+
 ### Actions
 
  * -D | --dry-run : Do everything except actually copy

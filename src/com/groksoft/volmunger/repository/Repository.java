@@ -103,7 +103,7 @@ public class Repository
      */
     public void exportText() throws MungerException
     {
-        logger.info("Writing paths file " + cfg.getExportTextFilename());
+        logger.info("Writing text file " + cfg.getExportTextFilename());
 
         try
         {
