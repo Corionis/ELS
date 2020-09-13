@@ -305,6 +305,10 @@ public class Main
                     {
                         try
                         {
+                            if (context.clientStty != null)
+                            {
+                                context.clientStty.disconnect();
+                            }
                             logger.info("stopping services");
                             Thread.sleep(10000L);
                             stopServices();

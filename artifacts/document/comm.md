@@ -116,3 +116,17 @@ FileZilla.
 
 The protocol is SFTP, the user name is connecting-end's (-r M or -r T)
 UUID key, and the password is the server-end's (-r S or -r L) UUID key.
+
+## Manual/Terminal Look 'n Feel
+The Java Look 'n Feel used by default depends on the operating system
+Java is installed on, Windows, Linux or Macintosh.
+
+The default Look 'n Feel can be overridden by adding an argument to
+the Java command line to -D define the desired value.
+
+Valid values, depending on the operating system, are:
+ * Linux : -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel
+ * Windows : -Dswing.defaultlaf=com.sun.java.swing.plaf.windows.WindowsLookAndFeel
+ * Any : -Dswing.defaultlaf=com.sun.java.swing.plaf.motif.MotifLookAndFeel
+ * Any : -Dswing.defaultlaf=com.sun.java.swing.plaf.metal.MetalLookAndFeel
+

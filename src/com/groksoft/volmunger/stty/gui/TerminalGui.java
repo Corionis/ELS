@@ -97,14 +97,14 @@ public class TerminalGui implements WindowListener, ActionListener
     private int build()
     {
         frame = new JFrame("VolMunger " + cfg.getVOLMUNGER_VERSION() + " connected to " + theirRepo.getLibraryData().libraries.description);
-        try
-        {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-        } catch (Exception e)
-        {
-            logger.error(e.getMessage());
-            return 1;
-        }
+//        try
+//        {
+//            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+//        } catch (Exception e)
+//        {
+//            logger.error(e.getMessage());
+//            return 1;
+//        }
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1024, 768);
@@ -153,6 +153,7 @@ public class TerminalGui implements WindowListener, ActionListener
         textArea.setForeground(Color.WHITE);
         textArea.setEditable(false);
         textArea.setLineWrap(true);
+        textArea.setFont(new Font("monospaced", Font.PLAIN, 12));
         scroll = new JScrollPane(textArea);
 
         frame.getContentPane().add(BorderLayout.NORTH, mb);
@@ -202,6 +203,11 @@ public class TerminalGui implements WindowListener, ActionListener
         return 0;
     }
 
+    public void stop()
+    {
+        frame.setVisible(false);
+    }
+
     @Override
     public void windowOpened(WindowEvent e)
     {
@@ -212,7 +218,7 @@ public class TerminalGui implements WindowListener, ActionListener
     @Override
     public void windowClosing(WindowEvent e)
     {
-        //JOptionPane.showMessageDialog(frame, "Window Closing");
+        stop();
     }
 
     @Override

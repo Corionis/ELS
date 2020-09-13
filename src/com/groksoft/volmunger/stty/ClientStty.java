@@ -30,6 +30,7 @@ public class ClientStty
 
     DataInputStream in = null;
     DataOutputStream out = null;
+    TerminalGui gui = null;
 
     private Repository myRepo;
     private Repository theirRepo;
@@ -162,6 +163,7 @@ public class ClientStty
     {
         try
         {
+            gui.stop();
             out.flush();
             out.close();
             in.close();
@@ -169,6 +171,14 @@ public class ClientStty
         catch (Exception e)
         {
         }
+    }
+
+    public int guiSession()
+    {
+        int returnValue = 0;
+        gui = new TerminalGui(this, cfg, in, out);
+        returnValue = gui.run(myRepo, theirRepo);
+        return returnValue;
     }
 
     private boolean handshake()
@@ -254,14 +264,6 @@ public class ClientStty
     public void send(String command)
     {
         Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
-    }
-
-    public int guiSession()
-    {
-        int returnValue = 0;
-        TerminalGui gui = new TerminalGui(this, cfg, in, out);
-        returnValue = gui.run(myRepo, theirRepo);
-        return returnValue;
     }
 
 }
