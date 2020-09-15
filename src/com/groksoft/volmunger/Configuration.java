@@ -34,7 +34,7 @@ public class Configuration
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
-    private ArrayList<String> publisherLibraryName = new ArrayList<>();
+    private ArrayList<String> publisherLibraryNames = new ArrayList<>();
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
     private boolean requestCollection = false;
@@ -44,6 +44,7 @@ public class Configuration
     private String subscriberLibrariesFileName = "";
     private String targetsFilename = "";
     private boolean validation = false;
+    private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
 
     /**
@@ -60,7 +61,7 @@ public class Configuration
      */
     public void addPublisherLibraryName(String publisherLibraryName)
     {
-        this.publisherLibraryName.add(publisherLibraryName);
+        this.publisherLibraryNames.add(publisherLibraryName);
     }
 
     /**
@@ -84,15 +85,15 @@ public class Configuration
         logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info("  cfg: -e Export text filename = " + getExportTextFilename());
         logger.info("  cfg: -f Log filename = " + getLogFilename());
-        logger.info("  cfg: -i Export items (collection) JSON filename = " + getExportCollectionFilename());
+        logger.info("  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
         logger.info("  cfg: -k Keep .volmunger files = " + Boolean.toString(isKeepVolMungerFiles()));
         logger.info("  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames())
         {
-            logger.info("    cfg:     " + ln);
+            logger.info("        " + ln);
         }
         logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
-        logger.info("  cfg: -n What's New output filename = " + getWhatsNewFilename());
+        logger.info("  cfg: -" + (whatsNewAll ? "N" : "n") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
         logger.info("  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
         logger.info("  cfg: -r Remote session type = " + getRemoteType());
@@ -306,7 +307,7 @@ public class Configuration
      */
     public ArrayList<String> getPublisherLibraryNames()
     {
-        return publisherLibraryName;
+        return publisherLibraryNames;
     }
 
     /**
@@ -499,7 +500,7 @@ public class Configuration
     /**
      * Set if this is a "forced targets" operation
      *
-     * @param forceTargets
+     * @param forceTargets true/false
      */
     public void setForceTargets(boolean forceTargets)
     {
@@ -539,7 +540,7 @@ public class Configuration
     /**
      * Set if this is a publish operation
      *
-     * @param publishOperation
+     * @param publishOperation true/false
      */
     public void setPublishOperation(boolean publishOperation)
     {
@@ -558,6 +559,8 @@ public class Configuration
 
     /**
      * Returns true if this publisher is in terminal mode
+     *
+     * @return true/false
      */
     public boolean isPublisherTerminal()
     {
@@ -625,6 +628,23 @@ public class Configuration
     }
 
     /**
+     * Is the current library one that has been specified on the command line?
+     *
+     * @return isSelected true/false
+     */
+    public boolean isSelectedPublisherLibrary(String name)
+    {
+        for (String library : publisherLibraryNames)
+        {
+            if (library.equalsIgnoreCase(name))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Is specific publisher library boolean.
      *
      * @return the boolean
@@ -671,18 +691,36 @@ public class Configuration
     }
 
     /**
+     * Is What's New an "all" option?
+     *
+     * @return true/false
+     */
+    public boolean isWhatsNewAll()
+    {
+        return this.whatsNewAll;
+    }
+
+    /**
+     * Set What's New "all" option
+     *
+     * @param isWhatsNewAll true = all option
+     */
+    public void setWhatsNewAll(boolean isWhatsNewAll)
+    {
+        this.whatsNewAll = isWhatsNewAll;
+    }
+
+    /**
      * Parse command line
      * <p>
      * This populates the rest.
      *
      * @param args the args
-     * @return the boolean
      * @throws MungerException the volmunger exception
      */
     public void parseCommandLine(String[] args) throws MungerException
     {
         int index;
-        boolean success = true;
         originalArgs = args;
 
         for (index = 0; index < args.length; ++index)
@@ -802,6 +840,19 @@ public class Configuration
                     {
                         setWhatsNewFilename(args[index + 1]);
                         ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -n requires a What's New output filename");
+                    }
+                    break;
+                case "-N":                                             // What's New output filename, set "all" option
+                case "--whatsnew-all":
+                    if (index <= args.length - 2)
+                    {
+                        setWhatsNewFilename(args[index + 1]);
+                        ++index;
+                        setWhatsNewAll(true);
                     }
                     else
                     {

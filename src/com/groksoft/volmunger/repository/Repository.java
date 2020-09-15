@@ -294,7 +294,7 @@ public class Repository
      * @param match       the match
      * @return the boolean
      */
-    public boolean hasItem(String libraryName, String match) throws MungerException
+    public Item hasItem(String libraryName, String match) throws MungerException
     {
         Item has = null;
         for (Library lib : libraryData.libraries.bibliography)
@@ -326,10 +326,12 @@ public class Repository
                 }
             }
         }
-        return has != null;
+        return has;
     }
 
     /**
+     * Determine if item should be ignored
+     *
      * @param item
      * @return
      */
@@ -503,6 +505,7 @@ public class Repository
         Item item = null;
         String fullPath = "";
         String itemPath = "";
+        long size = 0;
         boolean isDir = false;
         boolean isSym = false;
         Path path = Paths.get(directory);
@@ -522,6 +525,8 @@ public class Repository
                 path = Paths.get(fullPath);
                 isDir = Files.isDirectory(path);                        // is directory check
                 item.setDirectory(isDir);
+                size = (isDir ? 0L : Files.size(path));                 // size
+                item.setSize(size);
                 itemPath = fullPath.substring(base.length() + 1);       // item path
                 item.setItemPath(itemPath);
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check

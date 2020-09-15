@@ -340,9 +340,14 @@ public class Daemon extends DaemonBase
                                             response += "    " + item.getItemPath() + "\r\n";
                                             if (item.getSize() < 0)
                                             {
-                                                size = process.getItemSize(item);
+                                                logger.warn("File size was < 0 during get command, getting");
+                                                size = Files.size(Paths.get(item.getFullPath()));
                                                 item.setSize(size);
                                                 totalSize += size;
+                                            }
+                                            else
+                                            {
+                                                totalSize += item.getSize();
                                             }
                                             group.add(item);
                                             found = true;

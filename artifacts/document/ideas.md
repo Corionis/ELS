@@ -1,6 +1,6 @@
 
 ## To Do
- * BUG: Restart of download will fail because the file
+ * DONE- BUG: Restart of download will fail because the file
    already exists. Need to get file sizes during scan.
  * DONE- BUG: Look 'n Feel in TerminalGui.java
  * ADD: -N for What's New ALL

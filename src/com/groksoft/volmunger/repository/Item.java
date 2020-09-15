@@ -8,13 +8,12 @@ import java.io.Serializable;
  */
 public class Item implements Serializable
 {
-    private transient long size = -1;
-
     // JSON output will be in the order defined here
     private String itemPath;
     private String fullPath;
     private String library;
     private boolean directory = false;
+    private long size = -1L;
     private boolean symLink = false;
 
     /**

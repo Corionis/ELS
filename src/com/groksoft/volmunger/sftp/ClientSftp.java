@@ -203,7 +203,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                         if (!overwrite)
                         {
                             readOffset = (int) destAttr.getSize();
-                            writeOffset = readOffset;
+                            writeOffset = readOffset + 1;
                         }
                     }
                 }

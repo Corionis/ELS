@@ -39,6 +39,7 @@ public class Process
      */
     private Process()
     {
+        // hide fault constructor
     }
 
     /**
@@ -221,26 +222,6 @@ public class Process
         return copyCount;
     }
 
-    /**
-     * Get item size as long
-     *
-     * @param item the item root node
-     * @return the long size of the item(s) in bytes
-     */
-    public long getItemSize(Item item)
-    {
-        long size = 0;
-        try
-        {
-            size = Files.size(Paths.get(item.getFullPath()));
-        }
-        catch (IOException e)
-        {
-            logger.error("Exception '" + e.getMessage() + "' getting size of item " + item.getFullPath());
-        }
-        return size;
-    }
-
     public void getStorageTargets() throws MungerException
     {
         String location = cfg.getTargetsFilename();
@@ -307,9 +288,9 @@ public class Process
                 space = Utils.availableSpace(path);
             }
             logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                    " path " + path + " == " + (Utils.formatLong(space)) +
-                    " for " + (Utils.formatLong(size)) +
-                    " minimum " + Utils.formatLong(minimum));
+                    " path " + path + " = (" + (Utils.formatLong(space)) +
+                    ") for " + (Utils.formatLong(size)) +
+                    ", minimum " + Utils.formatLong(minimum));
             if (space > (size + minimum))
             {
                 logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
@@ -549,124 +530,143 @@ public class Process
                 boolean scanned = false;
                 Library pubLib = null;
 
-                // TODO Add filtering which library to process by -l option, isSpecificPublisherLibrary() & getPublisherLibraryNames()
-
-                if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
+                // if processing all libraries, or this one was specified on the command line with -l
+                if (!cfg.isSpecificPublisherLibrary() || cfg.isSelectedPublisherLibrary(subLib.name))
                 {
-                    // Do the libraries have items or do they need to be scanned?
-                    if (pubLib.items == null || pubLib.items.size() < 1)
+                    // if the publisher has a matching library
+                    if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                     {
-                        context.publisherRepo.scan(pubLib.name);
-                        scanned = true;
-                    }
-                    if (subLib.items == null || subLib.items.size() < 1)
-                    {
-                        if (cfg.isRemoteSession())
+                        // do the libraries have items or do they need to be scanned?
+                        if (pubLib.items == null || pubLib.items.size() < 1)
                         {
-                            throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
+                            context.publisherRepo.scan(pubLib.name);
+                            scanned = true;
                         }
-                        context.subscriberRepo.scan(subLib.name);
-                    }
-
-                    logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
-                            subLib.items.size() + " subscriber items");
-
-                    for (Item item : pubLib.items)
-                    {
-                        if (context.publisherRepo.ignore(item))
+                        if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            logger.info("  ! Ignoring '" + item.getItemPath() + "'");
-                            ignoredList.add(item.getFullPath());
-                        }
-                        else
-                        {
-                            boolean has = context.subscriberRepo.hasItem(subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
-                            if (has)
+                            if (cfg.isRemoteSession())
                             {
-                                logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
+                                throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
+                            }
+                            context.subscriberRepo.scan(subLib.name);
+                        }
+
+                        logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
+                                subLib.items.size() + " subscriber items");
+
+                        // iterate the publisher's items
+                        for (Item item : pubLib.items)
+                        {
+                            if (context.publisherRepo.ignore(item))
+                            {
+                                logger.info("  ! Ignoring '" + item.getItemPath() + "'");
+                                ignoredList.add(item.getFullPath());
                             }
                             else
                             {
-
-                                if (cfg.getWhatsNewFilename().length() > 0)
+                                // does the subscriber have a matching name?
+                                Item has = context.subscriberRepo.hasItem(subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                                if (has != null && (has.getSize() == item.getSize()))
                                 {
-                                    /*
-                                     * Only show the left side of mismatches file. And Only show it once.
-                                     * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                                     * Big Bang Theory
-                                     * Lucifer
-                                     * Legion
-                                     */
-                                    if (!item.getLibrary().equals(currLib))
-                                    {
-                                        // If not first time display and reset the whatsNewTotal
-                                        if (!currLib.equals(""))
-                                        {
-                                            whatsNewFile.println("--------------------------------");
-                                            whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
-                                            whatsNewFile.println("================================");
-                                            whatsNewTotal = 0;
-                                        }
-                                        currLib = item.getLibrary();
-                                        whatsNewFile.println("");
-                                        whatsNewFile.println(currLib);
-                                        whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
-                                    }
-                                    String path;
-                                    path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
-                                    if (!currentWhatsNew.equalsIgnoreCase(path))
-                                    {
-                                        assert whatsNewFile != null;
-                                        whatsNewFile.println("    " + path);
-                                        currentWhatsNew = path;
-                                        whatsNewTotal++;
-                                    }
+                                    logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
                                 }
-
-                                logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
-
-                                if (!item.isDirectory())
+                                else if (has != null && (item.getSize() < has.getSize()))
                                 {
-                                    if (cfg.getMismatchFilename().length() > 0)
+                                    // target file is larger than the source file; otherwise a download-restart is assumed
+                                    logger.warn("  ! Subscriber " + subLib.name + " has " + item.getItemPath() + ", that is larger!");
+                                }
+                                else
+                                {
+                                    if (cfg.getWhatsNewFilename().length() > 0)
                                     {
-                                        assert mismatchFile != null;
-                                        mismatchFile.println(item.getFullPath());
+                                        /*
+                                         * Unless the -N or --whatsnew-all option is used:
+                                         * Only show the left side of mismatches file. And Only show it once.
+                                         * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                                         * Big Bang Theory
+                                         * Lucifer
+                                         * Legion
+                                         */
+                                        if (!item.getLibrary().equals(currLib))
+                                        {
+                                            // If not first time display and reset the whatsNewTotal
+                                            if (!currLib.equals(""))
+                                            {
+                                                whatsNewFile.println("    --------------------------------");
+                                                whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
+                                                whatsNewFile.println("    ================================");
+                                                whatsNewTotal = 0;
+                                            }
+                                            currLib = item.getLibrary();
+                                            whatsNewFile.println("");
+                                            whatsNewFile.println(currLib);
+                                            whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
+                                        }
+                                        String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
+                                        if (cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
+                                        {
+                                            whatsNewFile.println("    " + (cfg.isWhatsNewAll() ? item.getItemPath() : path));
+                                            currentWhatsNew = path;
+                                            whatsNewTotal++;
+                                        }
                                     }
 
-                                    /* If the group is switching, process the current one. */
-                                    if (isNewGrouping(item))
-                                    {
-                                        logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
-                                        // There is a new group - process the old group
-                                        copyGroup(group, totalSize, false);
-                                        totalSize = 0L;
+                                    if (has != null)
+                                        logger.info(" ++ Subscriber " + subLib.name + " missing complete " + item.getItemPath() + ", source is larger, restart-download assumed");
+                                    else
+                                        logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
 
-                                        // Flush the output files
-                                        if (cfg.getWhatsNewFilename().length() > 0)
-                                        {
-                                            whatsNewFile.flush();
-                                        }
+                                    if (!item.isDirectory())
+                                    {
                                         if (cfg.getMismatchFilename().length() > 0)
                                         {
-                                            mismatchFile.flush();
+                                            assert mismatchFile != null;
+                                            mismatchFile.println(item.getFullPath());
                                         }
+
+                                        /* If the group is switching, process the current one. */
+                                        if (isNewGrouping(item))
+                                        {
+                                            logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
+                                            // There is a new group - process the old group
+                                            copyGroup(group, totalSize, false);
+                                            totalSize = 0L;
+
+                                            // Flush the output files
+                                            if (cfg.getWhatsNewFilename().length() > 0)
+                                            {
+                                                whatsNewFile.flush();
+                                            }
+                                            if (cfg.getMismatchFilename().length() > 0)
+                                            {
+                                                mismatchFile.flush();
+                                            }
+                                        }
+                                        if (item.getSize() < 0)
+                                        {
+                                            logger.warn("File size was < 0 during process, getting");
+                                            long size = Files.size(Paths.get(item.getFullPath()));
+                                            item.setSize(size);
+                                            totalSize += size;
+                                        }
+                                        else
+                                        {
+                                            totalSize += item.getSize();
+                                        }
+                                        group.add(item);
                                     }
-                                    long size = 0L;
-                                    if (scanned || item.getSize() < 0)
-                                    {
-                                        size = getItemSize(item);
-                                        item.setSize(size);
-                                        totalSize += size;
-                                    }
-                                    group.add(item);
                                 }
                             }
                         }
+                    }
+                    else
+                    {
+                        throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
                     }
                 }
                 else
                 {
-                    throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
+                    logger.info("Skipping library: " + subLib.name);
                 }
             }
         }
@@ -694,9 +694,9 @@ public class Process
             }
             if (whatsNewFile != null)
             {
-                whatsNewFile.println("--------------------------------");
-                whatsNewFile.println("Total for " + currLib + " = " + whatsNewTotal);
-                whatsNewFile.println("================================");
+                whatsNewFile.println("    --------------------------------");
+                whatsNewFile.println("    Total for " + currLib + " = " + whatsNewTotal);
+                whatsNewFile.println("    ================================");
                 whatsNewFile.close();
             }
         }
@@ -740,7 +740,7 @@ public class Process
                 if ((cfg.getPublisherLibrariesFileName().length() > 0 ||
                         cfg.getPublisherCollectionFilename().length() > 0) &&
                         (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                        cfg.getSubscriberCollectionFilename().length() > 0) &&
+                                cfg.getSubscriberCollectionFilename().length() > 0) &&
                         cfg.getTargetsFilename().length() > 0)
                 {
                     munge(); // this is the full munge process
@@ -779,10 +779,5 @@ public class Process
 
         return returnValue;
     } // process
-
-    public void resetCopyCount()
-    {
-        copyCount = 0;
-    }
 
 } // Process

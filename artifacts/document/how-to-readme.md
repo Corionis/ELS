@@ -56,12 +56,14 @@ Options for short and long versions are case-sensitive.
  * -k | --keep : Keep volmunger.json files, default is to delete them as they are processed.
       Not implemented yet.
 
-  * -l | --library library : Publisher library to process, default all.
-      Not implemented yet.
+  * -l | --library libraryname : Publisher library to process, default all.
+      This option may be specified more than once for each desired library.
  
  * -m | --mismatches file : Mismatches output file (differences)
 
  * -n | --whatsnew file : What's New output file
+
+ * -N | --whatsnew-all file : What's New output file showing all new items
 
  * -p | --publisher-libraries file : Publisher JSON libraries file
  
