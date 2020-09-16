@@ -9,6 +9,7 @@ as [Plex](https://plex.tv). Each item must be contained in a unique directory
 within a library directory and that directory is described in a library.
 
 For example:
+
 ![library directory structure](artifacts/document/library-directory.jpg "Library directory") 
 
 ELS uses two JSON files to describe the bibliographies of one or more libraries
