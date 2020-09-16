@@ -18,7 +18,7 @@ public class Configuration
     public static final int REMOTE_PUBLISH = 1;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
-    private final String VOLMUNGER_VERSION = "2.0.1";
+    private final String PROGRAM_VERSION = "2.0.1";
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
@@ -422,9 +422,9 @@ public class Configuration
      *
      * @return the Main version
      */
-    public String getVOLMUNGER_VERSION()
+    public String getPROGRAM_VERSION()
     {
-        return VOLMUNGER_VERSION;
+        return PROGRAM_VERSION;
     }
 
     /**

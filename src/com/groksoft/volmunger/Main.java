@@ -86,7 +86,7 @@ public class Main
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    logger.info("+ VolMunger Local Process begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Local Process begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -102,7 +102,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("+ VolMunger Publisher Listener begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Publisher Listener begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -129,7 +129,7 @@ public class Main
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("+ VolMunger Publisher Manual Terminal begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Publisher Manual Terminal begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -161,7 +161,7 @@ public class Main
 
                 // handle -r P execute the automated process to remote subscriber -r S
                 case REMOTE_PUBLISH:
-                    logger.info("+ VolMunger Publish Process to Remote Subscriber begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Publish Process to Remote Subscriber begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -196,7 +196,7 @@ public class Main
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("+ VolMunger Subscriber Listener begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Subscriber Listener begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
@@ -226,7 +226,7 @@ public class Main
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("+ VolMunger Subscriber Manual Terminal begin, version " + cfg.getVOLMUNGER_VERSION() + " ------------------------------------------");
+                    logger.info("+ VolMunger Subscriber Manual Terminal begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
                     cfg.dump();
 
                     if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
