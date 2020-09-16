@@ -18,4 +18,4 @@ location(s) for new content.
  
 This software is written in Java and operates on Windows, Linux, and Apple systems.
 
-See the [Wiki](https://github.com/GrokSoft/ELS/wiki) for details and downloads.
+See the [ELS Wiki](https://github.com/GrokSoft/ELS/wiki) for details and downloads.
