@@ -1,12 +1,12 @@
 
-# VolMunger: How To Read Me
+# ELS: How To Read Me
 
-VolMunger uses a publish/subscribe conceptual model. VolMunger compares
+ELS uses a publish/subscribe conceptual model. ELS compares
 one or more libraries from a media publisher with those on a 
-media subscriber. VolMunger can then synchronize the subscriber with
+media subscriber. ELS can then synchronize the subscriber with
 the publisher.
 
-VolMunger has many options and ways of combining those options to perform
+ELS has many options and ways of combining those options to perform
 a wide variety of operations.
 
 ## Basic Command
@@ -51,9 +51,9 @@ Options for short and long versions are case-sensitive.
       Levels= off, fatal, error, warn, info, debug, trace, all.
       If level = info then Java method and line number are not added.
  
- * -f | --log-file file : Log file, default VolMunger.log in directory where "run" is executed
+ * -f | --log-file file : Log file, default ELS.log in directory where "run" is executed
  
- * -k | --keep : Keep volmunger.json files, default is to delete them as they are processed.
+ * -k | --keep : Keep els.json files, default is to delete them as they are processed.
       Not implemented yet.
 
   * -l | --library libraryname : Publisher library to process, default all.
@@ -88,7 +88,7 @@ similar file.
 The -e and -i options require either -p or -P option. Also -e and -i do
 immediate scans based on configuration. 
 
-The -k option applies to the Provider. Subscriber volmunger.json files are not
+The -k option applies to the Provider. Subscriber els.json files are not
 involved in a run.
 
 The -t and -T options are equivalent unless the -r option is enabled. Then

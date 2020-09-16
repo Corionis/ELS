@@ -16,7 +16,7 @@ goto Cancel
 
 :Execute
 rmdir /s /q .\TestRun
-if exist .\volmunger.log del /q .\volmunger.log
+if exist .\els.log del /q .\els.log
 
 :NoDir
 xcopy /I /E .\Template_Copy-Only .\TestRun

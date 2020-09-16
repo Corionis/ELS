@@ -18,25 +18,25 @@
  * Auto Renamer - xpaus
  * Add library name option so only certain libraries are processed
    -l Partially done, see TODO's
- * For .volmunger actions:
+ * For .els actions:
    - transcode option for high resource demand items, 
      e.g. Bring It On, Sons of Anarchy
  * Add a time metric.
 
 # Ideas
 
-The existence of an empty (or not) volmunger.json file triggers the
+The existence of an empty (or not) els.json file triggers the
 "I Win" behavior.
 
 "I Win" means - make the target look like my source - including any
 deletions necessary.
 
-If volmunger.json files exist on both systems it is a conflict.
+If els.json files exist on both systems it is a conflict.
 The conflict is flagged, logged into a input file for re-rerun purposes,
 then skipped for that munge run.
 
 Because volumes can be quite large there should be a mechanism
-to feed the conflicts back into another VolMunger run so once
+to feed the conflicts back into another ELS run so once
 the conflict is resolved it is easier to complete the synch.
 
 
@@ -75,15 +75,15 @@ the conflict is resolved it is easier to complete the synch.
    
 ---
 
-## volmunger.json control file Use Cases
+## els.json control file Use Cases
 
- 1. volmunger.json, Deletes, very rare. 
+ 1. els.json, Deletes, very rare. 
 
- 2. volmunger.json, Changes of existing file(s)
+ 2. els.json, Changes of existing file(s)
    - Different image, subtitles ... any file
    - Cannot trust dates
 
- 3. volmunger.json, Moves do not matter, this is location inspecific with a library
+ 3. els.json, Moves do not matter, this is location inspecific with a library
 
- 4. volmunger.json, Move to library, e.g. Movies to Documentary Movies
+ 4. els.json, Move to library, e.g. Movies to Documentary Movies
  

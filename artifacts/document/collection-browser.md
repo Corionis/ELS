@@ -3,11 +3,11 @@
 ## The Idea
 
 Write an client-server application where the server runs along-side
-the Plex Media Server and uses a VolMunger collection file as the
+the Plex Media Server and uses a ELS collection file as the
 definition of the file structure. The client-side would present
 a navigable GUI to allow the user to see, browse, and manipulate
 their collection from anywhere. Any manipulation would also handle
-creating any needed *.volmunger.control files.
+creating any needed *.els.control files.
 
 ## Proposed Architecture
 

@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="els">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/log4j-core-2.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-api-2.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/gson-2.8.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-jdk14-1.7.25.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mina-core-2.0.19.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sshd-common-2.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sshd-core-2.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sshd-mina-2.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/sshd-sftp-2.5.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-core-2.8.1-javadoc" />
+      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-api-2.8.1-javadoc" />
+      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/gson-2.8.0-javadoc" />
+      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/sshd-sftp-2.5.0-javadoc" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>
