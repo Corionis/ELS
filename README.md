@@ -1,3 +1,5 @@
+![ELS logo](https://github.com/GrokSoft/ELS/blob/master/artifacts/document/els-logo-98px.jpg)
+
 # ELS : Entertainment Library Synchronizer
 
 Entertainment Library Synchronizer is a media back-up tool that synchronizes
