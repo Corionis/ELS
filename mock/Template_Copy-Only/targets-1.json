@@ -1,6 +1,6 @@
 {
     "targets": {
-        "description": "Targets-1",
+        "description": "Subscriber Targets",
         "storage": [
             {
                 "name": "Movies",

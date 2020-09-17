@@ -1,7 +1,7 @@
 {
     "libraries": {
         "description": "Test Subscriber-1",
-        "host": "rockplex:30000",
+        "host": "localhost:30000",
         "flavor": "windows",
         "terminal_allowed": "true",
         "key": "94eb0321-8a3d-4c10-81e9-1d89733f6d64",

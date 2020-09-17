@@ -1,7 +1,7 @@
 {
     "libraries": {
         "description": "Test Publisher",
-        "host": "clavius:30000",
+        "host": "localhost:30000",
         "flavor": "windows",
         "terminal_allowed": "true",
         "key": "025e2ddb-942a-4206-8458-902a87e42e62",

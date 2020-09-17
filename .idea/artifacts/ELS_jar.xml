@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact type="jar" name="ELS:jar">
+  <artifact type="jar" build-on-make="true" name="ELS:jar">
     <output-path>$PROJECT_DIR$/deploy</output-path>
     <root id="archive" name="ELS.jar">
       <element id="module-output" name="ELS" />
