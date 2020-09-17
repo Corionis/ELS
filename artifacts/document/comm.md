@@ -1,11 +1,12 @@
-# ELS: Communications Notes
-This discusses using the -r option.
+This document discusses using the -r option.
+
+This approach may be used to synchronize a media library over
+and LAN or the Internet. All data traffic is encrypted. 
 
 Communication follows the publisher/subscriber paradigm. The
-publisher sends content to the subscriber.
-
-## Changes From Original Code
- 1. Changed -t to -T ... be sure to update batch/script files
+publisher sends content to the subscriber. In this scenario
+the subscriber is the server-side and the publisher is the
+client-side.
 
 ## Parameter Handling
 ### Authorization
@@ -77,7 +78,7 @@ Manual terminal to publisher (-r L and -r T) "authorized" commands:
 
  3. The combination of behavior changes when using -r cause and require
     the Process.munge() method to start with a complete collection
-    file. Therefore mid-munge scans are not done on the subscribe-side. 
+    file. Therefore mid-back-up scans are not done on the subscribe-side. 
 
 ## Configuration
 Some items are required in the JSON library file configuration to
@@ -130,3 +131,11 @@ Valid values, depending on the operating system, are:
  * Any : -Dswing.defaultlaf=com.sun.java.swing.plaf.motif.MotifLookAndFeel
  * Any : -Dswing.defaultlaf=com.sun.java.swing.plaf.metal.MetalLookAndFeel
 
+## Linux - Caution!
+On Linux-based system ELS should be executed as the user that owns the
+media to ensure the ownership and permissions of copied content have
+the appropriate attributes.
+
+In addition, it is not possible to login as 'root' then sudo ELS in
+-r M (manual) or -r T (terminal) modes because the program will not
+have the necessary permissions to open the display.

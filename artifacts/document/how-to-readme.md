@@ -1,6 +1,3 @@
-
-# ELS: How To Read Me
-
 ELS uses a publish/subscribe conceptual model. ELS compares
 one or more libraries from a media publisher with those on a 
 media subscriber. ELS can then synchronize the subscriber with
@@ -38,7 +35,7 @@ Options for short and long versions are case-sensitive.
  
  * -i | --export-items file : Export publisher collection as JSON to file
 
- * -r | --remote P|L|M|S|T : This is a remote session, see comm.md for details 
+ * -r | --remote P|L|M|S|T : This is a remote session, see [Communications How-To](Communications-How-To) for details 
 
 ### Parameters
 
