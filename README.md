@@ -15,6 +15,11 @@ For example:
 ELS uses two JSON files to describe the bibliographies of one or more libraries
 spread across multiple hard drives. Another JSON file describes the target
 location(s) for new content.
+
+Movies, TV shows with seasons, music and more are handled by ELS. And if new content
+is added, for instance another episode of a TV show, a check is made whether it will
+fit in the original location as the other episodes. If not it is copied to the matching
+target.
  
 This software is written in Java and operates on Windows, Linux, and Apple systems.
 
