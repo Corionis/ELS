@@ -104,7 +104,7 @@ and one for transferring files using SFTP. For -r L + -r T a second set
 of servers is started on the subscriber end.
 
 The port numbers are sequential starting with the port specified in the
-"site" parameter. For example if the site is mybox.home.com:30000 that
+"host" and "listen" parameters. For example if the site is mybox.home.com:30000 that
 port is used for STTY and 30001 is used for SFTP.
 
 If it is a -r L + -r T publisher/subscriber session then the extra
