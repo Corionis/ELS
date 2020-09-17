@@ -15,8 +15,8 @@ For example:
 ![library directory structure](artifacts/document/library-directory.jpg "Library directory") 
 
 ELS uses two JSON files to describe the bibliographies of one or more libraries
-spread across multiple hard drives. Another JSON file describes the target
-location(s) for new content.
+spread across multiple hard drives, one for the source and the other for the
+back-up. Another JSON file describes the target location(s) for new content.
 
 Movies, TV shows with seasons, music and more are handled by ELS. And if new content
 is added, for instance another episode of a TV show, a check is made whether it will
