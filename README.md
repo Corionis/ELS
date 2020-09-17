@@ -1,4 +1,4 @@
-# ELS - Entertainment Library Synchronizer
+# ELS : Entertainment Library Synchronizer
 
 Entertainment Library Synchronizer is a media back-up tool that synchronizes
 a set of hard drive(s) with another set of hard drive(s) where the locations
