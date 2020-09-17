@@ -20,6 +20,8 @@ Movies, TV shows with seasons, music and more are handled by ELS. And if new con
 is added, for instance another episode of a TV show, a check is made whether it will
 fit in the original location as the other episodes. If not it is copied to the matching
 target.
+
+ELS can run locally with attached hard drives or over a LAN or the Internet.
  
 This software is written in Java and operates on Windows, Linux, and Apple systems.
 
