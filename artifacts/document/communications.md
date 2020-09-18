@@ -1,7 +1,7 @@
 This document discusses using the -r option.
 
 This approach may be used to synchronize a media library over
-and LAN or the Internet. All data traffic is encrypted. 
+a LAN or the Internet. All data traffic is encrypted. 
 
 Communication follows the publisher/subscriber paradigm. The
 publisher sends content to the subscriber. In this scenario
