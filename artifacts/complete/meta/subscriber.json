@@ -1,0 +1,35 @@
+{
+    "libraries": {
+        "description": "My Subscriber",
+        "host": "localhost:50271",
+        "listen": "localhost:50271",
+        "flavor": "linux",
+        "terminal_allowed": "true",
+        "key": "21611850-f8a8-11ea-adc1-0242ac120002",
+        "case_sensitive": false,
+        "ignore_patterns": [
+            "desktop.ini",
+            "Thumbs.db"
+        ],
+        "bibliography": [
+            {
+                "name": "Movies",
+                "sources": [
+                    "TestRun/subscriber-1/media-1/vids/MoviesA",
+                    "TestRun/subscriber-1/media-b/media/MoviesB",
+                    "TestRun/subscriber-1/media-c/media/MoviesC",
+                    "TestRun/subscriber-1/media-d/media/NewMovies"
+                ]
+            },
+            {
+                "name": "TV Shows",
+                "sources": [
+                    "TestRun/subscriber-1/media-1/vids/TVShowsA",
+                    "TestRun/subscriber-1/media-b/media/TVShowsB",
+                    "TestRun/subscriber-1/media-c/media/TVShowsC",
+                    "TestRun/subscriber-1/media-d/media/NewTVShows"
+                ]
+            }
+        ]
+    }
+}

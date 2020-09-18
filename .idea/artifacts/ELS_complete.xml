@@ -4,12 +4,16 @@
     <root id="root">
       <element id="archive" name="ELS-complete.zip">
         <element id="artifact" artifact-name="ELS:jar" />
-        <element id="directory" name="bin">
-          <element id="dir-copy" path="$PROJECT_DIR$/artifacts/bin" />
-        </element>
         <element id="directory" name="meta">
-          <element id="dir-copy" path="$PROJECT_DIR$/artifacts/meta" />
+          <element id="dir-copy" path="$PROJECT_DIR$/artifacts/complete/meta" />
         </element>
+        <element id="directory" name="linux">
+          <element id="dir-copy" path="$PROJECT_DIR$/artifacts/complete/linux" />
+        </element>
+        <element id="directory" name="windows">
+          <element id="dir-copy" path="$PROJECT_DIR$/artifacts/complete/windows" />
+        </element>
+        <element id="file-copy" path="$PROJECT_DIR$/artifacts/complete/README.txt" />
       </element>
     </root>
   </artifact>

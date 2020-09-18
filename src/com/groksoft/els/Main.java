@@ -53,19 +53,6 @@ public class Main
         Configuration cfg = new Configuration();
         Process proc;
 
-        // HAVE CHANGED:
-        // -t and added -T where existing scripts and batch files need to be edited changing -t to -T
-
-        // ideas for adds & changes --
-        // 1. add -g to get/request a specific item
-        // 2. add "double-dash" equivalent options to make command lines more readable
-        //    examples: -E and --export-collection, -r and --remote-subscriber
-        //    It's just adding more case statements in Configuration.parseCommandLine()
-        //
-        // With -l to spec the library, and -g to get the item we have a way to make a request.
-        // An "item" is the granularity of a movie (directory) or a tv season (directory).
-        //
-
         try
         {
             cfg.parseCommandLine(args);
