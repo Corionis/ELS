@@ -23,7 +23,7 @@ is added, for instance another episode of a TV show, a check is made whether it 
 fit in the original location as the other episodes. If not it is copied to the matching
 target library.
 
-ELS can run locally with attached hard drives as a single process on one computer, or
+ELS can run locally with attached storage devices as a single process on one computer, or
 over a LAN or the Internet using two computers and built-in communications options.
  
 This software is written in Java and operates on Windows, Linux, and Apple systems.
