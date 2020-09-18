@@ -28,4 +28,4 @@ over a LAN or the Internet using two computers and built-in communications optio
  
 This software is written in Java and operates on Windows, Linux, and Apple systems.
 
-See the [ELS Wiki](https://github.com/GrokSoft/ELS/wiki) for features, downloads and information.
+See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for features, downloads and information.
