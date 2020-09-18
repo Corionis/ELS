@@ -1,4 +1,4 @@
-![ELS logo](https://github.com/GrokSoft/ELS/blob/master/artifacts/document/els-logo-98px.jpg)
+![ELS logo](https://github.com/GrokSoft/ELS/blob/master/artifacts/images/els-logo-98px.jpg)
 
 # ELS : Entertainment Library Synchronizer
 
