@@ -1,4 +1,4 @@
-# ELS Complete READ ME
+# ELS : Entertainment Library Synchronizer
 
 This directory contains an example set of JSON files that describe
 the entertainment libraries on the media server system and it's
