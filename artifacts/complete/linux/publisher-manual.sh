@@ -2,6 +2,8 @@
 
 # Run ELS as a remote publisher manual (interactive) process
 #
+# Use -d to add a date/time on the end of output filenames.
+#
 # Run subscriber-listener.bat first.
 #
 # Requests new collection and targets files from the subscriber.
@@ -17,6 +19,11 @@ cd "$base"
 
 name=`basename $0 .sh`
 
+stamp=""
+if [ "X${1}" != "X" -a "$1" == "-d" ]; then
+    stamp="_`date +%Y%m%d-%H%m%S`"
+fi
+
 if [ ! -e ../output ]; then
     mkdir ../output
 fi
@@ -25,4 +32,4 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug --remote M -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/targets.json -f ../output/${name}.log
+java -jar ${base}/../ELS.jar -d debug --remote M -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/subscriber-targets.json -f ../output/${name}${stamp}.log

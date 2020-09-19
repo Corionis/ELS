@@ -1,6 +1,8 @@
 @echo off
 REM Run ELS as a remote publisher back-up process
 REM
+REM Use -d to add a date/time on the end of output filenames.
+REM
 REM Run subscriber-listener.bat first.
 REM
 REM Requests new collection and targets files from the subscriber.
@@ -20,4 +22,7 @@ if not exist ..\output mkdir ..\output
 
 if exist ..\output\%name%.log del /q ..\output\%name%.log
 
-java -jar %base%\..\ELS.jar -d debug --remote P -p ..\meta\publisher.json -s  ..\meta\subscriber.json -t ..\meta\targets.json -m ..\output\%name%-Mismatches.txt -n ..\output\%name%-WhatsNew.txt -f ..\output\%name%.log
+set dtime=
+if %1z == -dz set dtime=%date:~-4%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%
+
+java -jar %base%\..\ELS.jar -d debug --remote P -p ..\meta\publisher.json -s  ..\meta\subscriber.json -t ..\meta\targets.json -m ..\output\%name%-Mismatches%dtime%.txt -n ..\output\%name%-WhatsNew%dtime%.txt -f ..\output\%name%%dtime%.log

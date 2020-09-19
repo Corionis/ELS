@@ -2,7 +2,9 @@
 
 # Run ELS as a remote publisher listener process
 #
-# Run this before any #ote subscriber process.
+# Use -d to add a date/time on the end of output filenames.
+#
+# Run this before any remote subscriber process.
 #
 # Requests new collection and targets files from the subscriber.
 # This allows the subscriber to make changes without sending those
@@ -17,6 +19,11 @@ cd "$base"
 
 name=`basename $0 .sh`
 
+stamp=""
+if [ "X${1}" != "X" -a "$1" == "-d" ]; then
+    stamp="_`date +%Y%m%d-%H%m%S`"
+fi
+
 if [ ! -e ../output ]; then
     mkdir ../output
 fi
@@ -25,4 +32,4 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug --#ote L --authorize password -p ../meta/publisher.json -S  ../meta/subscriber.json -T ../meta/targets.json -f ../output/${name}.log
+java -jar ${base}/../ELS.jar -d debug --remote L --authorize password -p ../meta/publisher.json -S  ../meta/subscriber.json -T ../meta/subscriber-targets.json -f ../output/${name}${stamp}.log

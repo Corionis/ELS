@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Run ELS as a stand-alone local back-up process
+# Run ELS as a stand-alone local export-text and export-items process
 #
 # Use -d to add a date/time on the end of output filenames.
 #
 # This script may be executed from a file browser.
-# All logging, Mismatches, and What's New files are written to the ../output directory.
+# All logging, text and JSON files are written to the ../output directory.
 # Any existing log file is deleted first.
 
 base=`dirname $0`
@@ -26,5 +26,5 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug -p ../meta/publisher.json -s  ../meta/subscriber.json -T ../meta/subscriber-targets.json -m ../output/${name}-Mismatches${stamp}.txt -n ../output/${name}-WhatsNew${stamp}.txt -f ../output/${name}${stamp}.log
+java -jar ${base}/../ELS.jar -d debug --dry-run -p ../meta/publisher.json -s  ../meta/subscriber.json -e ../output/${name}-text${stamp}.txt -i ../output/${name}-collection${stamp}.json -f ../output/${name}${stamp}.log
 
