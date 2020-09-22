@@ -32,7 +32,7 @@ It is recommended to start with the ELS-complete.zip. These instructions are bas
  3. Edit the files in the meta directory for your publisher, subscriber and targets.
     1. Be sure to change the key UUID.
     2. Describe each library and its sources.
-    3. See the [JSON Structure](../JSON-Structure) wiki page for details.
+    3. See the [JSON Structure](JSON-Structure) wiki page for details.
  4. Edit the listener scripts.
     1. Change the *password* value of the "--authorize" parameter used by the built-in interactive terminal (-r M or -r T).
        1. The --authorize value is used interactively with the "auth" command to enable access to authorized commands.
