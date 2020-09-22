@@ -8,7 +8,6 @@ import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -130,6 +129,14 @@ public class Repository
         }
     }
 
+    public String getItemName(Item item) throws MungerException
+    {
+        String path = item.getItemPath();
+        String sep = getSeparator();
+        String name = path.substring(path.lastIndexOf(sep) + 1, path.length());
+        return name;
+    }
+
     /**
      * Gets LibraryData filename.
      *
@@ -203,20 +210,13 @@ public class Repository
 
     /**
      * Get file separator for writing
+     *
      * @return file separator string, may be multiple characters, e.g. \\
      * @throws MungerException
      */
     public String getWriteSeparator() throws MungerException
     {
         return Utils.getFileSeparator(libraryData.libraries.flavor);
-    }
-
-    public String getItemName(Item item) throws MungerException
-    {
-        String path = item.getItemPath();
-        String sep = getSeparator();
-        String name = path.substring(path.lastIndexOf(sep) + 1, path.length());
-        return name;
     }
 
     /**
@@ -370,7 +370,6 @@ public class Repository
 
     /**
      * Normalize all JSON paths based on "flavor"
-     *
      */
     public void normalize()
     {
@@ -378,7 +377,7 @@ public class Repository
         {
             // if listen is empty use host
             if (libraryData.libraries.listen == null ||
-                libraryData.libraries.listen.length() < 1)
+                    libraryData.libraries.listen.length() < 1)
             {
                 libraryData.libraries.listen = libraryData.libraries.host;
             }
@@ -423,8 +422,9 @@ public class Repository
     /**
      * Normalize a path
      * <p>
+     *
      * @param toFlavor Desired flavor of separators
-     * @param path Path to normalize
+     * @param path     Path to normalize
      * @return path Normalized path for desired flavor
      * @throws MungerException
      */
@@ -559,7 +559,7 @@ public class Repository
      *
      * @throws MungerException the els exception
      */
-    public void validate() throws MungerException
+    public void validate() throws MungerException, Exception
     {
         long minimumSize;
 
@@ -617,27 +617,51 @@ public class Repository
             {
                 throw new MungerException("bibliography.name " + i + " must be defined");
             }
-            if (lib.items == null || lib.items.size() == 0)
+            if (lib.sources == null || lib.sources.length == 0)
             {
-                if (lib.sources == null || lib.sources.length == 0)
+                throw new MungerException("bibliography.sources " + i + " must be defined");
+            }
+            else
+            {
+                logger.info("  library: " + lib.name +
+                        ", " + lib.sources.length + " sources" +
+                        (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " items" : ""));
+                // validate sources paths
+                for (int j = 0; j < lib.sources.length; j++)
                 {
-                    throw new MungerException("bibliography.sources " + i + " must be defined");
-                }
-                else
-                {
-                    // Verify paths
-                    for (int j = 0; j < lib.sources.length; j++)
+                    if (lib.sources[j].length() == 0)
                     {
-                        if (lib.sources[j].length() == 0)
-                        {
-                            throw new MungerException("bibliography[" + i + "].sources[" + j + "] must be defined");
-                        }
-                        if (Files.notExists(Paths.get(lib.sources[j])))
-                        {
-                            throw new MungerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
-                        }
-                        logger.debug("  src: " + lib.sources[j]);
+                        throw new MungerException("bibliography[" + i + "].sources[" + j + "] must be defined");
                     }
+                    if (Files.notExists(Paths.get(lib.sources[j])))
+                    {
+                        throw new MungerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
+                    }
+                    logger.info("    src: " + lib.sources[j]);
+
+                    // validate item path
+                    if (lib.items != null && lib.items.size() > 0)
+                    {
+                        for (Item item : lib.items)
+                        {
+                            if (Files.notExists(Paths.get(item.getFullPath())))
+                            {
+                                logger.error("File does not exist: " + item.getFullPath());
+                            }
+                            else
+                            {
+                                if (!item.isDirectory() && Files.size(Paths.get(item.getFullPath())) != item.getSize())
+                                {
+                                    logger.error("File size does not match, file is " + Files.size(Paths.get(item.getFullPath())) + ", data has " + item.getSize() + ": " + item.getFullPath());
+                                }
+                            }
+                            if (!item.getLibrary().equals(lib.name))
+                            {
+                                logger.error("File library does not match, file is in " + lib.name + ", data has " + item.getLibrary() + ": " + item.getFullPath());
+                            }
+                        }
+                    }
+
                 }
             }
         }

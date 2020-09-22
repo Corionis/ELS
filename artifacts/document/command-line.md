@@ -73,6 +73,8 @@ Options for short and long versions are case-sensitive.
  * -t | --targets file : Targets filename, see Notes
  
  * -T | --force-targets file : Targets import filename, see Notes
+ 
+ * -v | --validate : Validate/verify publisher library or collection file
 
 
 ### Notes

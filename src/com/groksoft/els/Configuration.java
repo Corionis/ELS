@@ -100,6 +100,7 @@ public class Configuration
         logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
         logger.info("  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
         logger.info("  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+        logger.info("  cfg: -v Validate = " + Boolean.toString(isValidation()));
     }
 
     /**

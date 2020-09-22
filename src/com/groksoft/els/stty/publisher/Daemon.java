@@ -498,7 +498,7 @@ public class Daemon extends DaemonBase
                     }
 
                     response += "  auth [password] = access Authorized commands\r\n" +
-                            "  collection = get collection data from remote\r\n" +
+                            "  collection = get collection data from remote, can take a few moments to scan\r\n" +
                             "  space [location] = free space at location on remote\r\n" +
                             "  targets = get targets file from remote\r\n" +
                             "\r\n  help or ? = this list\r\n" +

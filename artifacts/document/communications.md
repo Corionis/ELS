@@ -140,7 +140,21 @@ FileZilla.
 The protocol is SFTP, the user name is connecting-end's (-r M or -r T)
 UUID key, and the password is the server-end's (-r S or -r L) UUID key.
 
-## Manual/Terminal Look 'n Feel
+## Manual/Terminal
+
+### Interactive Sessions
+The publisher (-p M) and subscriber (-p T) command-line terminals have
+commands that for interacting with the ELS STTY server.
+
+### Remote Desktop (RDP) Access to Linux Systems
+If you are accessing a Linux media system with RDP there have been issues
+with the GUI displaying correctly on some systems. This is due to the RDP
+color depth and it not caused by Java or ELS.
+
+Solution: In RDP go to the Options, then the Display tab. Change the color
+depth to 16-bit instead of 32-bit.
+
+### Look 'n Feel
 The Java Look 'n Feel used by default depends on the operating system
 Java is installed on, Windows, Linux or Macintosh.
 
