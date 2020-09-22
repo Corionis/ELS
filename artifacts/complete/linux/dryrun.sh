@@ -26,5 +26,5 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-# This is the same as the publisher.bat with the addition of --dry-run
-java -jar ${base}/../ELS.jar -d debug --dry-run -p ../meta/publisher.json -s  ../meta/subscriber.json -T ../meta/targets.json -m ../output/${name}-Mismatches${stamp}.txt -n ../output/${name}-WhatsNew${stamp}.txt -f ../output/${name}${stamp}.log
+# This is the same as the publisher.sh with the addition of --dry-run
+java -jar ${base}/../ELS.jar -d debug --dry-run -p ../meta/publisher.json -s  ../meta/subscriber.json -T ../meta/targets.json -m ../output/${name}-Mismatches-${stamp}.txt -n ../output/${name}-WhatsNew-${stamp}.txt -f ../output/${name}-${stamp}.log

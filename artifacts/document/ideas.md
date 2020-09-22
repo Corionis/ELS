@@ -1,23 +1,14 @@
 
-## To Do
- * DONE- BUG: Restart of download will fail because the file
-   already exists. Need to get file sizes during scan.
- * DONE- BUG: Look 'n Feel in TerminalGui.java
- * ADD: -N for What's New ALL
- * Duplicate finder
- * For TV Shows do searches ignoring season folders
-
 ## Media
  * Mark all not-so-good movies with fubar, or whatever
- * Mark Korean Subtitled movies with R6 at end of filename
  * Go over how to handle Director cuts See Underworld
  * Search function
  * REMEMBER - Put NEW Targets in library so they are scanned
 
 ## Code
  * Auto Renamer - xpaus
- * Add library name option so only certain libraries are processed
-   -l Partially done, see TODO's
+ * Duplicate finder
+ * For TV Shows do searches ignoring season folders
  * For .els actions:
    - transcode option for high resource demand items, 
      e.g. Bring It On, Sons of Anarchy

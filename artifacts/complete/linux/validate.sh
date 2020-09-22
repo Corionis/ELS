@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Run ELS as a stand-alone local export-text and export-items process
+# Run ELS as a stand-alone local validate process
 #
 # Use -d to add a date/time on the end of output filenames.
 #
@@ -26,5 +26,4 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug --dry-run -p ../meta/publisher.json -s  ../meta/subscriber.json -e ../output/${name}-text-${stamp}.txt -i ../output/${name}-collection-${stamp}.json -f ../output/${name}-${stamp}.log
-
+java -jar ${base}/../ELS.jar -d debug --validate -p ../meta/publisher.json -f ../output/${name}-${stamp}.log

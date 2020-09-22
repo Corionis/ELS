@@ -1,0 +1,30 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="ELS-complete.zip">
+    <output-path>$PROJECT_DIR$/deploy</output-path>
+    <root id="root">
+      <element id="archive" name="ELS-complete.zip">
+        <element id="directory" name="els">
+          <element id="artifact" artifact-name="ELS:jar" />
+          <element id="directory" name="linux">
+            <element id="dir-copy" path="$PROJECT_DIR$/artifacts/complete/linux" />
+          </element>
+          <element id="directory" name="meta">
+            <element id="dir-copy" path="$PROJECT_DIR$/artifacts/complete/meta" />
+          </element>
+          <element id="directory" name="windows">
+            <element id="dir-copy" path="$PROJECT_DIR$/artifacts/complete/windows" />
+          </element>
+          <element id="file-copy" path="$PROJECT_DIR$/artifacts/complete/README.txt" />
+          <element id="directory" name="docs">
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/command-line.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/communications.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/developer.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/json-structure.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/modes.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/downloads.md" />
+          </element>
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

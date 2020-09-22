@@ -33,4 +33,4 @@ if [ -e ../output/${name}.log ]; then
 fi
 
 # This is the same as the publisher-backup.bat with the addition of --dry-run
-java -jar ${base}/../ELS.jar -d debug --dry-run --remote P -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/targets.json -m ../output/${name}-Mismatches${stamp}.txt -n ../output/${name}-WhatsNew${stamp}.txt -f ../output/${name}${stamp}.log
+java -jar ${base}/../ELS.jar -d debug --dry-run --remote P -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/targets.json -m ../output/${name}-Mismatches-${stamp}.txt -n ../output/${name}-WhatsNew-${stamp}.txt -f ../output/${name}-${stamp}.log

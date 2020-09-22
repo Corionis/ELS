@@ -25,4 +25,4 @@ if exist ..\output\%name%.log del /q ..\output\%name%.log
 set dtime=
 if %1z == -dz set dtime=%date:~-4%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%
 
-java -jar %base%\..\ELS.jar -d debug --remote L --authorize password -p ..\meta\publisher.json -S  ..\meta\subscriber.json -T ..\meta\targets.json -f ..\output\%name%%dtime%.log
+java -jar %base%\..\ELS.jar -d debug --remote L --authorize password -p ..\meta\publisher.json -S  ..\meta\subscriber.json -T ..\meta\targets.json -f ..\output\%name%-%dtime%.log
