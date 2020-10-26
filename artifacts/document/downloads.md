@@ -14,7 +14,7 @@ Entertainment Library Synchronizer is distributed as a single Java jar file, eit
 Any software downloaded from this site is free and without warranty or guarantee of any kind expressed or implied. The software may not work or serve any intended or particular purpose. Use at your own risk. If you break it you own both parts.
 
 # Downloads
-The current version of ELS is: **2.0.2.**
+The current version of ELS is: **2.0.3.**
 
  * Latest build, software only: [ELS.jar](../blob/master/deploy/ELS.jar?raw=true)
  * Latest build, with examples: [ELS-complete.zip](../blob/master/deploy/ELS-complete.zip?raw=true)
