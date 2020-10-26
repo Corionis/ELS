@@ -4,7 +4,9 @@
 
 Entertainment Library Synchronizer is a media back-up tool that synchronizes
 a set of hard drive(s) with another set of hard drive(s) where the locations
-of files are different on the two sets.
+of files are different on the two sets. ELS views the media on a logical library
+basis, such as Movies or TV, and logically combines the contents of each library
+from across multiple storage devices.
 
 ELS relies on a common directory structure used by modern home media systems such
 as [Plex](https://plex.tv). Each item must be contained in a unique directory
