@@ -18,7 +18,7 @@ public class Configuration
     public static final int REMOTE_PUBLISH = 1;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
-    private final String PROGRAM_VERSION = "2.0.2";
+    private final String PROGRAM_VERSION = "2.0.3";
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";
@@ -31,6 +31,7 @@ public class Configuration
     private String logFilename = "els.log";
     private String mismatchFilename = "";
     private String[] originalArgs;
+    private boolean overwrite = false;
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
@@ -94,6 +95,7 @@ public class Configuration
         }
         logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
         logger.info("  cfg: -" + (whatsNewAll ? "N" : "n") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+        logger.info("  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
         logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
         logger.info("  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
         logger.info("  cfg: -r Remote session type = " + getRemoteType());
@@ -241,6 +243,23 @@ public class Configuration
     public void setMismatchFilename(String mismatchFilename)
     {
         this.mismatchFilename = mismatchFilename;
+    }
+
+    /**
+     * Sets overwrite mode
+     */
+    public void setOverwrite()
+    {
+        overwrite = true;
+    }
+
+    /**
+     * Gets overwrite mode
+     * @return true/false
+     */
+    public boolean isOverwrite()
+    {
+        return overwrite == true;
     }
 
     /**
@@ -859,6 +878,10 @@ public class Configuration
                     {
                         throw new MungerException("Error: -n requires a What's New output filename");
                     }
+                    break;
+                case "-o":
+                case "--overwrite":
+                    setOverwrite();
                     break;
                 case "-p":                                             // publisher JSON libraries file
                 case "--publisher-libraries":

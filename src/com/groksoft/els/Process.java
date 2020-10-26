@@ -629,7 +629,7 @@ public class Process
                                         {
                                             logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
                                             // There is a new group - process the old group
-                                            copyGroup(group, totalSize, false);
+                                            copyGroup(group, totalSize, cfg.isOverwrite());
                                             totalSize = 0L;
 
                                             // Flush the output files
@@ -680,7 +680,7 @@ public class Process
             {
                 // Process the last group
                 logger.info("Processing last group '" + currentGroupName + "'");
-                copyGroup(group, totalSize, false);
+                copyGroup(group, totalSize, cfg.isOverwrite());
                 totalSize = 0L;
             }
 

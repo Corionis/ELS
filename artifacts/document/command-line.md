@@ -62,6 +62,9 @@ Options for short and long versions are case-sensitive.
 
  * -N | --whatsnew-all file : What's New output file showing all new items
 
+ * -o | --overwrite : Overwrite any existing files instead of resuming an remote transfer.
+      This option only applies to remote sessions. Local operation always overwrites.
+
  * -p | --publisher-libraries file : Publisher JSON libraries file
  
  * -P | --publisher-collection file : Publisher JSON collection items file

@@ -128,7 +128,7 @@ IP address and port.
 
 ### Firewall Rules
 ELS uses two TCP ports, one each for STTY and SFTP. The STTY port
-is the port defined in the parameters, the SFTP port is that + 1.
+is the port defined in the parameters, the SFTP port is that +1.
 All port numbers must be > 1024, and > 20000 is recommended. The
 maximum port number is 65533.
 
@@ -144,7 +144,7 @@ UUID key, and the password is the server-end's (-r S or -r L) UUID key.
 
 ### Interactive Sessions
 The publisher (-p M) and subscriber (-p T) command-line terminals have
-commands that for interacting with the ELS STTY server.
+commands for interacting with the ELS STTY server.
 
 ### Remote Desktop (RDP) Access to Linux Systems
 If you are accessing a Linux media system with RDP there have been issues
