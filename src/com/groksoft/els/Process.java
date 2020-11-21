@@ -566,6 +566,8 @@ public class Process
                             {
                                 // does the subscriber have a matching name?
                                 Item has = context.subscriberRepo.hasItem(subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+
+                                // decide what to do
                                 if (has != null && (has.getSize() == item.getSize()))
                                 {
                                     logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
@@ -577,6 +579,9 @@ public class Process
                                 }
                                 else
                                 {
+                                    // remember anything subscriber has, only on items to be copied
+                                    item.setHas(has);
+
                                     if (cfg.getWhatsNewFilename().length() > 0)
                                     {
                                         /*

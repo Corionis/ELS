@@ -307,26 +307,44 @@ public class Repository
                     {
                         if (Utils.pipe(this, item.getItemPath()).equals(match))
                         {
-                            has = item;
-                            break;
+                            if (!hasItemDuplicate(has, item))
+                            {
+                                has = item;
+                            }
+                            //204 break;
                         }
                     }
                     else
                     {
                         if (Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(match))
                         {
-                            has = item;
-                            break;
+                            if (!hasItemDuplicate(has, item))
+                            {
+                                has = item;
+                            }
+                            //204 break;
                         }
                     }
                 }
+/*204
                 if (has != null)
                 {
                     break;  // break outer loop also
                 }
+*/
             }
         }
         return has;
+    }
+
+    private boolean hasItemDuplicate(Item has, Item item)
+    {
+        if (has != null)
+        {
+            logger.warn("  ! Duplicate of \"" + has.getItemPath() + "\" found at \"" + item.getFullPath() + "\"");
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -462,6 +480,7 @@ public class Repository
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
             normalize();
+            logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
         }
         catch (IOException ioe)
         {

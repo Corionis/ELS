@@ -12,13 +12,15 @@ import java.util.ArrayList;
  */
 public class Configuration
 {
+    private final String PROGRAM_VERSION = "2.0.4";
+
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
     public static final int REMOTE_PUBLISH = 1;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
-    private final String PROGRAM_VERSION = "2.0.3";
+
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private String debugLevel = "info";

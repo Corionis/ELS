@@ -1,7 +1,7 @@
 package com.groksoft.els.repository;
 
-import java.io.File;
 import java.io.Serializable;
+import java.util.*;
 
 /**
  * The type Item.
@@ -16,11 +16,14 @@ public class Item implements Serializable
     private long size = -1L;
     private boolean symLink = false;
 
+    private transient List<Item> hasList = null;
+
     /**
      * Instantiates a new Item.
      */
     public Item() {
         super();
+        this.hasList = new ArrayList<>();
     }
 
     /**
@@ -78,6 +81,26 @@ public class Item implements Serializable
      */
     public void setFullPath(String fullPath) {
         this.fullPath = fullPath;
+    }
+
+    /**
+     * Get has item.
+     *
+     * @return the matching item or null
+     */
+    public List<Item> getHas()
+    {
+        return hasList;
+    }
+
+    /**
+     * Set has.
+     *
+     * @param Item The matching item
+     */
+    public void addHas(Item item)
+    {
+        hasList.add(item);
     }
 
     /**
