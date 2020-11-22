@@ -16,7 +16,9 @@ public class Item implements Serializable
     private long size = -1L;
     private boolean symLink = false;
 
+    // duplicate tracking
     private transient List<Item> hasList = null;
+    private transient boolean reported = false;
 
     /**
      * Instantiates a new Item.
@@ -94,9 +96,9 @@ public class Item implements Serializable
     }
 
     /**
-     * Set has.
+     * Add has.
      *
-     * @param Item The matching item
+     * @param a matching item
      */
     public void addHas(Item item)
     {
@@ -119,6 +121,26 @@ public class Item implements Serializable
      */
     public void setLibrary(String library) {
         this.library = library;
+    }
+
+    /**
+     * Has this item been reported?
+     *
+     * @return reported boolean, initially false
+     */
+    public boolean isReported()
+    {
+        return reported;
+    }
+
+    /**
+     * Set when this item has been reported
+     *
+     * @param reported If this has been reported
+     */
+    public void setReported(boolean reported)
+    {
+        this.reported = reported;
     }
 
     /**

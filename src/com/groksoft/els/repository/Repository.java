@@ -288,45 +288,44 @@ public class Repository
     /**
      * Has specific item true/false.
      * <p>
-     * Does this Library have a particular item?
+     * String match is expected to have been converted to pipe character file separators using Utils.pipe().
      *
+     * @param pubItem     the publisher item being found, for adding 'has' items
      * @param libraryName the library name
-     * @param match       the match
+     * @param itemPath    the itemPath() of the item to find
      * @return the boolean
      */
-    public Item hasItem(String libraryName, String match) throws MungerException
+    public Item hasItem(Item pubItem, String libraryName, String itemPath) throws MungerException
     {
         Item has = null;
+
         for (Library lib : libraryData.libraries.bibliography)
         {
+            // TODO Add cross-library search option and add here
             if (lib.name.equalsIgnoreCase(libraryName))
             {
                 for (Item item : lib.items)
                 {
-                    if (libraryData.libraries.case_sensitive)
+                    boolean match = (libraryData.libraries.case_sensitive) ?
+                            Utils.pipe(this, item.getItemPath()).equals(itemPath) :
+                            Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
+
+                    if (match)
                     {
-                        if (Utils.pipe(this, item.getItemPath()).equals(match))
+                        pubItem.addHas(item); // add match and any duplicate for cross-reference
+
+                        // is it a duplicate?
+                        if (has != null)
                         {
-                            if (!hasItemDuplicate(has, item))
-                            {
-                                has = item;
-                            }
-                            //204 break;
+                            logger.warn("  ! Duplicate of \"" + has.getItemPath() + "\" found at \"" + item.getFullPath() + "\"");
                         }
-                    }
-                    else
-                    {
-                        if (Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(match))
+                        else
                         {
-                            if (!hasItemDuplicate(has, item))
-                            {
-                                has = item;
-                            }
-                            //204 break;
+                            has = item; // return first match
                         }
                     }
                 }
-/*204
+/*204 --------------------------------------------
                 if (has != null)
                 {
                     break;  // break outer loop also
@@ -334,17 +333,8 @@ public class Repository
 */
             }
         }
-        return has;
-    }
 
-    private boolean hasItemDuplicate(Item has, Item item)
-    {
-        if (has != null)
-        {
-            logger.warn("  ! Duplicate of \"" + has.getItemPath() + "\" found at \"" + item.getFullPath() + "\"");
-            return true;
-        }
-        return false;
+        return has;
     }
 
     /**

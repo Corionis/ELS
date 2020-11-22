@@ -29,6 +29,7 @@ public class Process
     private long grandTotalSize = 0L;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
+    private boolean justScannedPublisher = false;
     private String lastGroupName = "";
     private transient Logger logger = LogManager.getLogger("applog");
     private Storage storageTargets = null;
@@ -39,7 +40,7 @@ public class Process
      */
     private Process()
     {
-        // hide fault constructor
+        // hide default constructor
     }
 
     /**
@@ -184,11 +185,15 @@ public class Process
     {
         try
         {
-            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+            if (!justScannedPublisher)
             {
-                context.publisherRepo.scan(pubLib.name);
+                for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+                {
+                    context.publisherRepo.scan(pubLib.name);
+                }
             }
             context.publisherRepo.exportCollection();
+            justScannedPublisher = true;
         }
         catch (MungerException e)
         {
@@ -204,11 +209,15 @@ public class Process
     {
         try
         {
-            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+            if (!justScannedPublisher)
             {
-                context.publisherRepo.scan(pubLib.name);
+                for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+                {
+                    context.publisherRepo.scan(pubLib.name);
+                }
             }
             context.publisherRepo.exportText();
+            justScannedPublisher = true;
         }
         catch (MungerException e)
         {
@@ -565,7 +574,7 @@ public class Process
                             else
                             {
                                 // does the subscriber have a matching name?
-                                Item has = context.subscriberRepo.hasItem(subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                                Item has = context.subscriberRepo.hasItem(item, subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
 
                                 // decide what to do
                                 if (has != null && (has.getSize() == item.getSize()))
@@ -579,9 +588,6 @@ public class Process
                                 }
                                 else
                                 {
-                                    // remember anything subscriber has, only on items to be copied
-                                    item.setHas(has);
-
                                     if (cfg.getWhatsNewFilename().length() > 0)
                                     {
                                         /*
@@ -616,13 +622,13 @@ public class Process
                                         }
                                     }
 
-                                    if (has != null)
-                                        logger.info(" ++ Subscriber " + subLib.name + " missing complete " + item.getItemPath() + ", source is larger, restart-download assumed");
-                                    else
-                                        logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
-
                                     if (!item.isDirectory())
                                     {
+                                        if (has != null)
+                                            logger.info(" ++ Subscriber " + subLib.name + " missing complete " + item.getItemPath() + ", source is larger, restart-download assumed");
+                                        else
+                                            logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
+
                                         if (cfg.getMismatchFilename().length() > 0)
                                         {
                                             assert mismatchFile != null;
@@ -647,6 +653,7 @@ public class Process
                                                 mismatchFile.flush();
                                             }
                                         }
+
                                         if (item.getSize() < 0)
                                         {
                                             logger.warn("File size was < 0 during process, getting");
@@ -658,6 +665,8 @@ public class Process
                                         {
                                             totalSize += item.getSize();
                                         }
+
+                                        // add item to current group
                                         group.add(item);
                                     }
                                 }
@@ -709,12 +718,44 @@ public class Process
         logger.info("-----------------------------------------------------");
         if (ignoredList.size() > 0)
         {
-            logger.info("Ignored " + ignoredList.size() + " files: ");
+            logger.info("Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {
                 logger.info("    " + s);
             }
         }
+
+        int duplicates = 0;
+        for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+        {
+            for (Item item : pubLib.items)
+            {
+                if (item.getHas().size() > 1)
+                {
+                    boolean newDupes = false;
+                    for (Item dupe : item.getHas())
+                    {
+                        if (!dupe.isReported())
+                        {
+                            if (duplicates == 0)
+                            {
+                                logger.info("-----------------------------------------------------");
+                                logger.info("Subscriber duplicate filenames found:");
+                            }
+                            ++duplicates;
+                            logger.info("  " + dupe.getFullPath());
+                            dupe.setReported(true);
+                            newDupes = true;
+                        }
+                    }
+                    if (newDupes)
+                        logger.info(""); // add a blank line
+                }
+            }
+        }
+        if (duplicates > 0)
+            logger.info("Total duplicates: " + duplicates);
+
         logger.info("Total copies: " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
         logger.info("Total errors: " + errorCount);
         logger.info("Total items: " + grandTotalItems);
