@@ -23,8 +23,10 @@ public class Configuration
 
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
+    private boolean crossCheck = false;
     private String debugLevel = "info";
     private boolean dryRun = false;
+    private boolean duplicateCheck = false;
     private String exportCollectionFilename = "";
     private String exportTextFilename = "";
     private boolean forceCollection = false;
@@ -104,7 +106,9 @@ public class Configuration
         logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
         logger.info("  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
         logger.info("  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+        logger.info("  cfg: -u Duplicates = " + Boolean.toString(isDuplicateCheck()));
         logger.info("  cfg: -v Validate = " + Boolean.toString(isValidation()));
+        logger.info("  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
     }
 
     /**
@@ -147,6 +151,16 @@ public class Configuration
         this.consoleLevel = consoleLevel;
     }
 
+    public boolean isCrossCheck()
+    {
+        return crossCheck;
+    }
+
+    public void setCrossCheck(boolean crossCheck)
+    {
+        this.crossCheck = crossCheck;
+    }
+
     /**
      * Gets debug level
      *
@@ -165,6 +179,16 @@ public class Configuration
     public void setDebugLevel(String debugLevel)
     {
         this.debugLevel = debugLevel;
+    }
+
+    public boolean isDuplicateCheck()
+    {
+        return duplicateCheck;
+    }
+
+    public void setDuplicateCheck(boolean duplicateCheck)
+    {
+        this.duplicateCheck = duplicateCheck;
     }
 
     /**
@@ -977,9 +1001,17 @@ public class Configuration
                         throw new MungerException("Error: -T requires a targets filename");
                     }
                     break;
+                case "-u":                                             // publisher duplicate check
+                case "--duplicates":
+                    setDuplicateCheck(true);
+                    break;
                 case "-v":                                             // validation run
                 case "--validate":
                     setValidation(true);
+                    break;
+                case "-x":                                             // cross-library duplicate check
+                case "--cross-check":
+                    setCrossCheck(true);
                     break;
                 default:
                     throw new MungerException("Error: unknown option " + args[index]);

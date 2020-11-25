@@ -179,6 +179,42 @@ public class Process
     }
 
     /**
+     * Check publisher collection data for duplicates
+     */
+    private void duplicatesCheck()
+    {
+        try
+        {
+            if (!justScannedPublisher)
+            {
+                for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+                {
+                    context.publisherRepo.scan(pubLib.name);
+                }
+            }
+            justScannedPublisher = true;
+
+            int duplicates = 0;
+            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+            {
+                for (Item item : pubLib.items)
+                {
+                    Item has = context.publisherRepo.hasItem(item, pubLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                    if (item.getHas().size() > 1)
+                    {
+                        duplicates = reportDuplicates("Publisher", item, duplicates);
+                    }
+                }
+            }
+        }
+        catch (MungerException e)
+        {
+            // no logger yet to just print to the screen
+            System.out.println(e.getMessage());
+        }
+    }
+
+    /**
      * Export publisher collection data to configured file as JSON
      */
     private void exportCollection()
@@ -427,11 +463,15 @@ public class Process
             }
             else
             {
-                if (!cfg.isDryRun())
-                {
-                    cfg.setDryRun(true);
-                }
+                cfg.setDryRun(true);
             }
+
+            // check for publisher duplicates
+            if (cfg.isDuplicateCheck())
+            {
+                duplicatesCheck();
+            }
+
         }
         catch (Exception ex)
         {
@@ -568,66 +608,59 @@ public class Process
                         {
                             if (context.publisherRepo.ignore(item))
                             {
-                                logger.info("  ! Ignoring '" + item.getItemPath() + "'");
+                                logger.info("  ! Ignoring " + item.getItemPath());
                                 ignoredList.add(item.getFullPath());
                             }
                             else
                             {
-                                // does the subscriber have a matching name?
+                                // does the subscriber have a matching item?
                                 Item has = context.subscriberRepo.hasItem(item, subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
-
-                                // decide what to do
-                                if (has != null && (has.getSize() == item.getSize()))
+                                if (has != null)
                                 {
-                                    logger.info("  = Subscriber " + subLib.name + " has " + item.getItemPath());
-                                }
-                                else if (has != null && (item.getSize() < has.getSize()))
-                                {
-                                    // target file is larger than the source file; otherwise a download-restart is assumed
-                                    logger.warn("  ! Subscriber " + subLib.name + " has " + item.getItemPath() + ", that is larger!");
+                                    if (item.getSize() != has.getSize())
+                                        logger.warn("  ! Subscriber " + subLib.name + " has different size " + item.getItemPath());
+                                    else
+                                        logger.debug("  = Subscriber " + subLib.name + " has " + item.getItemPath());
                                 }
                                 else
                                 {
-                                    if (cfg.getWhatsNewFilename().length() > 0)
-                                    {
-                                        /*
-                                         * Unless the -N or --whatsnew-all option is used:
-                                         * Only show the left side of mismatches file. And Only show it once.
-                                         * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                                         * Big Bang Theory
-                                         * Lucifer
-                                         * Legion
-                                         */
-                                        if (!item.getLibrary().equals(currLib))
-                                        {
-                                            // If not first time display and reset the whatsNewTotal
-                                            if (!currLib.equals(""))
-                                            {
-                                                whatsNewFile.println("    --------------------------------");
-                                                whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
-                                                whatsNewFile.println("    ================================");
-                                                whatsNewTotal = 0;
-                                            }
-                                            currLib = item.getLibrary();
-                                            whatsNewFile.println("");
-                                            whatsNewFile.println(currLib);
-                                            whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
-                                        }
-                                        String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
-                                        if (cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
-                                        {
-                                            whatsNewFile.println("    " + (cfg.isWhatsNewAll() ? item.getItemPath() : path));
-                                            currentWhatsNew = path;
-                                            whatsNewTotal++;
-                                        }
-                                    }
-
                                     if (!item.isDirectory())
                                     {
-                                        if (has != null)
-                                            logger.info(" ++ Subscriber " + subLib.name + " missing complete " + item.getItemPath() + ", source is larger, restart-download assumed");
-                                        else
+                                        if (cfg.getWhatsNewFilename().length() > 0)
+                                        {
                                             logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
+
+                                            /*
+                                             * Unless the -N or --whatsnew-all option is used:
+                                             * Only show the left side of mismatches file. And Only show it once.
+                                             * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                                             * Big Bang Theory
+                                             * Lucifer
+                                             * Legion
+                                             */
+                                            if (!item.getLibrary().equals(currLib))
+                                            {
+                                                // If not first time display and reset the whatsNewTotal
+                                                if (!currLib.equals(""))
+                                                {
+                                                    whatsNewFile.println("    --------------------------------");
+                                                    whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
+                                                    whatsNewFile.println("    ================================");
+                                                    whatsNewTotal = 0;
+                                                }
+                                                currLib = item.getLibrary();
+                                                whatsNewFile.println("");
+                                                whatsNewFile.println(currLib);
+                                                whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
+                                            }
+                                            String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
+                                            if (cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
+                                            {
+                                                whatsNewFile.println("    " + (cfg.isWhatsNewAll() ? item.getItemPath() : path));
+                                                currentWhatsNew = path;
+                                                whatsNewTotal++;
+                                            }
+                                        }
 
                                         if (cfg.getMismatchFilename().length() > 0)
                                         {
@@ -638,7 +671,7 @@ public class Process
                                         /* If the group is switching, process the current one. */
                                         if (isNewGrouping(item))
                                         {
-                                            logger.info("Switching groups from '" + lastGroupName + "' to '" + currentGroupName + "'");
+                                            logger.info("Switching groups from " + lastGroupName + " to " + currentGroupName);
                                             // There is a new group - process the old group
                                             copyGroup(group, totalSize, cfg.isOverwrite());
                                             totalSize = 0L;
@@ -693,7 +726,7 @@ public class Process
             if (group.size() > 0)
             {
                 // Process the last group
-                logger.info("Processing last group '" + currentGroupName + "'");
+                logger.info("Processing last group " + currentGroupName);
                 copyGroup(group, totalSize, cfg.isOverwrite());
                 totalSize = 0L;
             }
@@ -732,31 +765,36 @@ public class Process
             {
                 if (item.getHas().size() > 1)
                 {
-                    boolean newDupes = false;
-                    for (Item dupe : item.getHas())
-                    {
-                        if (!dupe.isReported())
-                        {
-                            if (duplicates == 0)
-                            {
-                                logger.info("-----------------------------------------------------");
-                                logger.info("Subscriber duplicate filenames found:");
-                            }
-                            ++duplicates;
-                            logger.info("  " + dupe.getFullPath());
-                            dupe.setReported(true);
-                            newDupes = true;
-                        }
-                    }
-                    if (newDupes)
-                        logger.info(""); // add a blank line
+                    duplicates = reportDuplicates("Subscriber", item, duplicates);
                 }
             }
         }
-        if (duplicates > 0)
-            logger.info("Total duplicates: " + duplicates);
+
+        int empties = 0;
+        for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
+        {
+            for (Item item : subLib.items)
+            {
+                if (item.isDirectory() && item.getSize() == 0)
+                {
+                    if (empties == 0)
+                    {
+                        logger.info("-----------------------------------------------------");
+                        logger.info("Subscriber empty directories found:");
+                    }
+                    ++empties;
+                    logger.info("  " + item.getFullPath());
+                }
+            }
+        }
 
         logger.info("Total copies: " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
+        if (ignoredList.size() > 0)
+            logger.info("Total ignores: " + ignoredList.size());
+        if (duplicates > 0)
+            logger.info("Total duplicates: " + duplicates);
+        if (empties > 0)
+            logger.info("Total empty directories: " + empties);
         logger.info("Total errors: " + errorCount);
         logger.info("Total items: " + grandTotalItems);
         logger.info("Total size : " + Utils.formatLong(grandTotalSize));
@@ -825,5 +863,29 @@ public class Process
 
         return returnValue;
     } // process
+
+    private int reportDuplicates(String type, Item item, int duplicates)
+    {
+        boolean newDupes = false;
+        for (Item dupe : item.getHas())
+        {
+            if (!dupe.isReported())
+            {
+                if (duplicates == 0)
+                {
+                    logger.info("-----------------------------------------------------");
+                    logger.info(type + " duplicate filenames found:");
+                }
+                ++duplicates;
+                logger.info("  " + dupe.getFullPath());
+                dupe.setReported(true);
+                newDupes = true;
+            }
+        }
+        if (newDupes)
+            logger.info(""); // add a blank line
+
+        return duplicates;
+    }
 
 } // Process

@@ -5,8 +5,10 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -64,6 +66,19 @@ public class Main
             System.setProperty("pattern", cfg.getPattern());
             org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
             ctx.reconfigure();
+
+            org.apache.logging.log4j.core.config.Configuration ccfg = ctx.getConfiguration();
+
+            LoggerConfig lcfg = ccfg.getRootLogger();
+            lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
+
+            lcfg = ccfg.getLoggerConfig("Console");
+            lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
+
+            lcfg = ccfg.getLoggerConfig("applog");
+            lcfg.setLevel(Level.toLevel(cfg.getDebugLevel()));
+
+            ctx.updateLoggers();
 
             // get the named logger
             logger = LogManager.getLogger("applog");

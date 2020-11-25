@@ -301,36 +301,32 @@ public class Repository
 
         for (Library lib : libraryData.libraries.bibliography)
         {
-            // TODO Add cross-library search option and add here
-            if (lib.name.equalsIgnoreCase(libraryName))
+            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(libraryName))
             {
                 for (Item item : lib.items)
                 {
-                    boolean match = (libraryData.libraries.case_sensitive) ?
-                            Utils.pipe(this, item.getItemPath()).equals(itemPath) :
-                            Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
-
-                    if (match)
+                    if (!item.isDirectory())
                     {
-                        pubItem.addHas(item); // add match and any duplicate for cross-reference
+                        boolean match = (libraryData.libraries.case_sensitive) ?
+                                Utils.pipe(this, item.getItemPath()).equals(itemPath) :
+                                Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
 
-                        // is it a duplicate?
-                        if (has != null)
+                        if (match)
                         {
-                            logger.warn("  ! Duplicate of \"" + has.getItemPath() + "\" found at \"" + item.getFullPath() + "\"");
-                        }
-                        else
-                        {
-                            has = item; // return first match
+                            pubItem.addHas(item); // add match and any duplicate for cross-reference
+
+                            // is it a duplicate?
+                            if (has != null)
+                            {
+                                logger.warn("  ! Duplicate of \"" + has.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
+                            }
+                            else
+                            {
+                                has = item; // return first match
+                            }
                         }
                     }
                 }
-/*204 --------------------------------------------
-                if (has != null)
-                {
-                    break;  // break outer loop also
-                }
-*/
             }
         }
 
@@ -509,8 +505,9 @@ public class Repository
      * @param directory the directory
      * @throws MungerException the els exception
      */
-    private void scanDirectory(Library library, String base, String directory) throws MungerException
+    private int scanDirectory(Library library, String base, String directory) throws MungerException
     {
+        int count = 0;
         Item item = null;
         String fullPath = "";
         String itemPath = "";
@@ -528,6 +525,7 @@ public class Repository
         {
             for (Path entry : directoryStream)
             {
+                ++count;
                 item = new Item();
                 fullPath = entry.toString();                            // full path
                 item.setFullPath(fullPath);
@@ -542,10 +540,10 @@ public class Repository
                 item.setSymLink(isSym);
                 item.setLibrary(library.name);                          // the library name
                 library.items.add(item);
-                //logger.debug(entry.toString());
                 if (isDir)
                 {
-                    scanDirectory(library, base, item.getFullPath());
+                    // track item count in a directory item's size
+                    item.setSize(scanDirectory(library, base, item.getFullPath()));
                 }
             }
         }
@@ -553,6 +551,7 @@ public class Repository
         {
             throw new MungerException("Exception reading directory " + directory + " trace: " + Utils.getStackTrace(ioe));
         }
+        return count;
     }
 
     /**
@@ -595,21 +594,23 @@ public class Repository
         if (lbs.ignore_patterns.length > 0)
         {
             Pattern patt = null;
+            String src = null;
             try
             {
                 for (String s : lbs.ignore_patterns)
                 {
+                    src = s;
                     patt = Pattern.compile(s);
                     lbs.compiledPatterns.add(patt);
                 }
             }
             catch (PatternSyntaxException pe)
             {
-                throw new MungerException("Pattern " + patt + " has bad regular expression (regex) syntax");
+                throw new MungerException("Ignore pattern '" + src + "' has bad regular expression (regex) syntax");
             }
             catch (IllegalArgumentException iae)
             {
-                throw new MungerException("Pattern " + patt + " has bad flags");
+                throw new MungerException("Ignore pattern '" + src + "' has bad flags");
             }
         }
 

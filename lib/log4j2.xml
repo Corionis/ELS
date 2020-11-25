@@ -16,12 +16,12 @@
         </Console>
     </Appenders>
     <Loggers>
-        <!-- Levels: TRACE, DEBUG, INFO, WARN, ERROR, and FATAL -->
-        <Logger name="applog" level="${sys:debugLevel}">
-            <AppenderRef ref="applog"/>
-        </Logger>
-        <Root level="${sys:consoleLevel}">
-            <AppenderRef ref="Console"/>
+        <!-- Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL and OFF -->
+        <Root level="trace">
+            <AppenderRef ref="Console" level="${sys:consoleLevel}" />
         </Root>
+        <Logger name="applog">
+            <AppenderRef ref="applog"  level="${sys:debugLevel}"/>
+        </Logger>
     </Loggers>
 </Configuration>

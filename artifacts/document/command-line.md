@@ -77,7 +77,11 @@ Options for short and long versions are case-sensitive.
  
  * -T | --force-targets file : Targets import filename, see Notes
  
+ * -u | --duplicates : Performs publisher duplicate check
+ 
  * -v | --validate : Validate/verify publisher library or collection file
+ 
+ * -x | --cross-check : Cross-check ALL libraries for duplicates, instead of within a library. 
 
 
 ### Notes
