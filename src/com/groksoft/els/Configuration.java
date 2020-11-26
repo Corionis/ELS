@@ -2,6 +2,8 @@ package com.groksoft.els;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.util.ArrayList;
 
@@ -24,7 +26,7 @@ public class Configuration
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean crossCheck = false;
-    private String debugLevel = "info";
+    private String debugLevel = "debug";
     private boolean dryRun = false;
     private boolean duplicateCheck = false;
     private String exportCollectionFilename = "";
@@ -75,40 +77,41 @@ public class Configuration
     public void dump()
     {
         Logger logger = LogManager.getLogger("applog");
+        Marker SHORT = MarkerManager.getMarker("SHORT");
 
         String msg = "Arguments: ";
         for (int index = 0; index < originalArgs.length; ++index)
         {
             msg = msg + originalArgs[index] + " ";
         }
-        logger.info(msg);
+        logger.info(SHORT, msg);
 
         if (getAuthorizedPassword().length() > 0)
-            logger.info("  cfg: -a Authorize mode password has been specified");
-        logger.info("  cfg: -c Console logging level = " + getConsoleLevel());
-        logger.info("  cfg: -d Debug logging level = " + getDebugLevel());
-        logger.info("  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
-        logger.info("  cfg: -e Export text filename = " + getExportTextFilename());
-        logger.info("  cfg: -f Log filename = " + getLogFilename());
-        logger.info("  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
-        logger.info("  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
-        logger.info("  cfg: -l Publisher library name(s):");
+            logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
+        logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
+        logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
+        logger.info(SHORT, "  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
+        logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
+        logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
+        logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
+        logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
+        logger.info(SHORT, "  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames())
         {
-            logger.info("        " + ln);
+            logger.info(SHORT, "        " + ln);
         }
-        logger.info("  cfg: -m Mismatches output filename = " + getMismatchFilename());
-        logger.info("  cfg: -" + (whatsNewAll ? "N" : "n") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
-        logger.info("  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
-        logger.info("  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
-        logger.info("  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
-        logger.info("  cfg: -r Remote session type = " + getRemoteType());
-        logger.info("  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
-        logger.info("  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
-        logger.info("  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
-        logger.info("  cfg: -u Duplicates = " + Boolean.toString(isDuplicateCheck()));
-        logger.info("  cfg: -v Validate = " + Boolean.toString(isValidation()));
-        logger.info("  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
+        logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "N" : "n") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+        logger.info(SHORT, "  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
+        logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
+        logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
+        logger.info(SHORT, "  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
+        logger.info(SHORT, "  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
+        logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+        logger.info(SHORT, "  cfg: -u Duplicates = " + Boolean.toString(isDuplicateCheck()));
+        logger.info(SHORT, "  cfg: -v Validate = " + Boolean.toString(isValidation()));
+        logger.info(SHORT, "  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
     }
 
     /**

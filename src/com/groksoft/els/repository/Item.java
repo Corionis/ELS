@@ -145,6 +145,8 @@ public class Item implements Serializable
 
     /**
      * Gets size.
+     * <p>
+     * This is the physical size of each file, or the item count for a directory
      *
      * @return the size
      */
@@ -154,6 +156,8 @@ public class Item implements Serializable
 
     /**
      * Sets size.
+     * <p>
+     * This is the physical size of each file, or the item count for a directory
      *
      * @param size the size
      */

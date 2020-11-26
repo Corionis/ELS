@@ -6,6 +6,8 @@ import com.groksoft.els.storage.Storage;
 import com.groksoft.els.storage.Target;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,6 +35,8 @@ public class Process
     private String lastGroupName = "";
     private transient Logger logger = LogManager.getLogger("applog");
     private Storage storageTargets = null;
+    private long totalDirectories = 0;
+    private long totalItems = 0;
     private long whatsNewTotal = 0;
 
     /**
@@ -185,6 +189,8 @@ public class Process
     {
         try
         {
+            Marker SHORT = MarkerManager.getMarker("SHORT");
+
             if (!justScannedPublisher)
             {
                 for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
@@ -194,18 +200,44 @@ public class Process
             }
             justScannedPublisher = true;
 
+            logger.info("Analyzing for duplicates");
+            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+            {
+                for (Item item : pubLib.items)
+                {
+                    // populate the item.hasList
+                    context.publisherRepo.hasItem(item, pubLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                }
+            }
+
             int duplicates = 0;
             for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
             {
                 for (Item item : pubLib.items)
                 {
-                    Item has = context.publisherRepo.hasItem(item, pubLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
                     if (item.getHas().size() > 1)
                     {
                         duplicates = reportDuplicates("Publisher", item, duplicates);
                     }
                 }
             }
+
+            int empties = 0;
+            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+            {
+                for (Item item : pubLib.items)
+                {
+                    if (item.isDirectory() && item.getSize() == 0)
+                    {
+                        empties = reportEmpties("Publisher", item, empties);
+                    }
+                }
+            }
+
+            if (duplicates > 0)
+                logger.info(SHORT, "Total duplicates: " + duplicates);
+            if (empties > 0)
+                logger.info(SHORT, "Total empty directories: " + empties);
         }
         catch (MungerException e)
         {
@@ -532,6 +564,7 @@ public class Process
         String currLib = "";
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
+        Marker SHORT = MarkerManager.getMarker("SHORT");
 
         String header = "Munging " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description;
@@ -608,23 +641,28 @@ public class Process
                         {
                             if (context.publisherRepo.ignore(item))
                             {
-                                logger.info("  ! Ignoring " + item.getItemPath());
+                                logger.debug("  ! Ignoring " + item.getItemPath());
                                 ignoredList.add(item.getFullPath());
                             }
                             else
                             {
-                                // does the subscriber have a matching item?
-                                Item has = context.subscriberRepo.hasItem(item, subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
-                                if (has != null)
+                                if (!item.isDirectory())
                                 {
-                                    if (item.getSize() != has.getSize())
-                                        logger.warn("  ! Subscriber " + subLib.name + " has different size " + item.getItemPath());
+                                    ++totalItems;
+
+                                    // does the subscriber have a matching item?
+                                    Item has = context.subscriberRepo.hasItem(item, subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                                    if (has != null)
+                                    {
+                                        if (item.getHas().size() == 1) // no duplicates?
+                                        {
+                                            if (item.getSize() != has.getSize())
+                                                logger.warn("  ! Subscriber " + subLib.name + " has different size " + item.getItemPath());
+                                            else
+                                                logger.debug("  = Subscriber " + subLib.name + " has " + item.getItemPath());
+                                        } // otherwise duplicates were logged in hasItem(), do not log again
+                                    }
                                     else
-                                        logger.debug("  = Subscriber " + subLib.name + " has " + item.getItemPath());
-                                }
-                                else
-                                {
-                                    if (!item.isDirectory())
                                     {
                                         if (cfg.getWhatsNewFilename().length() > 0)
                                         {
@@ -703,6 +741,10 @@ public class Process
                                         group.add(item);
                                     }
                                 }
+                                else
+                                {
+                                    ++totalDirectories;
+                                }
                             }
                         }
                     }
@@ -751,10 +793,10 @@ public class Process
         logger.info("-----------------------------------------------------");
         if (ignoredList.size() > 0)
         {
-            logger.info("Ignored " + ignoredList.size() + " files:");
+            logger.info(SHORT, "Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {
-                logger.info("    " + s);
+                logger.info(SHORT, "    " + s);
             }
         }
 
@@ -777,27 +819,23 @@ public class Process
             {
                 if (item.isDirectory() && item.getSize() == 0)
                 {
-                    if (empties == 0)
-                    {
-                        logger.info("-----------------------------------------------------");
-                        logger.info("Subscriber empty directories found:");
-                    }
-                    ++empties;
-                    logger.info("  " + item.getFullPath());
+                    empties = reportEmpties("Subscriber", item, empties);
                 }
             }
         }
 
-        logger.info("Total copies: " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
-        if (ignoredList.size() > 0)
-            logger.info("Total ignores: " + ignoredList.size());
         if (duplicates > 0)
-            logger.info("Total duplicates: " + duplicates);
+        logger.info(SHORT, "Duplicates       : " + duplicates);
         if (empties > 0)
-            logger.info("Total empty directories: " + empties);
-        logger.info("Total errors: " + errorCount);
-        logger.info("Total items: " + grandTotalItems);
-        logger.info("Total size : " + Utils.formatLong(grandTotalSize));
+        logger.info(SHORT, "Empty directories: " + empties);
+        if (ignoredList.size() > 0)
+        logger.info(SHORT, "Ignored files    : " + ignoredList.size());
+        logger.info(SHORT, "Directories      : " + totalDirectories);
+        logger.info(SHORT, "Files            : " + totalItems);
+        logger.info(SHORT, "Copies           : " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
+        logger.info(SHORT, "Errors           : " + errorCount);
+        logger.info(SHORT, "Items processed  : " + grandTotalItems);
+        logger.info(SHORT, "Total size       : " + Utils.formatLong(grandTotalSize));
     }
 
     /**
@@ -867,25 +905,39 @@ public class Process
     private int reportDuplicates(String type, Item item, int duplicates)
     {
         boolean newDupes = false;
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
         for (Item dupe : item.getHas())
         {
             if (!dupe.isReported())
             {
                 if (duplicates == 0)
                 {
-                    logger.info("-----------------------------------------------------");
-                    logger.info(type + " duplicate filenames found:");
+                    logger.info(SIMPLE, "-----------------------------------------------------");
+                    logger.info(SIMPLE, type + " duplicate filenames found:");
                 }
                 ++duplicates;
-                logger.info("  " + dupe.getFullPath());
+                logger.info(SIMPLE, "  " + dupe.getFullPath());
                 dupe.setReported(true);
                 newDupes = true;
             }
         }
         if (newDupes)
-            logger.info(""); // add a blank line
+            logger.info(SIMPLE, "  -------"); // add a blank line
 
         return duplicates;
+    }
+
+    private int reportEmpties(String type, Item item, int empties)
+    {
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+        if (empties == 0)
+        {
+            logger.info(SIMPLE, "-----------------------------------------------------");
+            logger.info(SIMPLE, type + " empty directories found:");
+        }
+        ++empties;
+        logger.info(SIMPLE, "  " + item.getFullPath());
+        return empties;
     }
 
 } // Process

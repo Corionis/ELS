@@ -68,16 +68,10 @@ public class Main
             ctx.reconfigure();
 
             org.apache.logging.log4j.core.config.Configuration ccfg = ctx.getConfiguration();
-
-            LoggerConfig lcfg = ccfg.getRootLogger();
+            LoggerConfig lcfg = ccfg.getLoggerConfig("Console");
             lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
-
-            lcfg = ccfg.getLoggerConfig("Console");
-            lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
-
             lcfg = ccfg.getLoggerConfig("applog");
             lcfg.setLevel(Level.toLevel(cfg.getDebugLevel()));
-
             ctx.updateLoggers();
 
             // get the named logger

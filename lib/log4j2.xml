@@ -3,25 +3,33 @@
     <Appenders>
         <RollingFile name="applog" fileName="${sys:logFilename}" filePattern="${sys:logFilename}.zip" append="true">
             <PatternLayout>
-                <Pattern>%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m [%t]:%C.%M:%L%n</Pattern>
+                <MarkerPatternSelector defaultPattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m [%t]:%C.%M:%L%n">
+                    <PatternMatch key="SHORT" pattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n"/>
+                    <PatternMatch key="SIMPLE" pattern="    %m%n"/>
+                </MarkerPatternSelector>
             </PatternLayout>
             <Policies>
                 <!-- Roll if log larger than size -->
-                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
             </Policies>
         </RollingFile>
         <Console name="Console" target="SYSTEM_OUT">
-            <!-- PatternLayout pattern="${sys:pattern}"/ -->
-            <PatternLayout pattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n"/>
+            <PatternLayout>
+                <!-- PatternLayout pattern="${sys:pattern}"/ -->
+                <MarkerPatternSelector defaultPattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n">
+                    <PatternMatch key="SHORT" pattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n"/>
+                    <PatternMatch key="SIMPLE" pattern="    %m%n"/>
+                </MarkerPatternSelector>
+            </PatternLayout>
         </Console>
     </Appenders>
     <Loggers>
         <!-- Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL and OFF -->
-        <Root level="trace">
-            <AppenderRef ref="Console" level="${sys:consoleLevel}" />
-        </Root>
         <Logger name="applog">
-            <AppenderRef ref="applog"  level="${sys:debugLevel}"/>
+            <AppenderRef ref="applog" level="${sys:debugLevel}"/>
         </Logger>
+        <Root level="trace">
+            <AppenderRef ref="Console" level="${sys:consoleLevel}"/>
+        </Root>
     </Loggers>
 </Configuration>
