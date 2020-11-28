@@ -286,22 +286,60 @@ public class Repository
     }
 
     /**
-     * Has specific item true/false.
+     * Has duplicate true/false.
      * <p>
      * String match is expected to have been converted to pipe character file separators using Utils.pipe().
+     * The item "has" member contains only duplicates and -not- self.
      *
-     * @param pubItem     the publisher item being found, for adding 'has' items
-     * @param libraryName the library name
-     * @param itemPath    the itemPath() of the item to find
+     * @param pubItem  the publisher item being found, for adding 'has' items
+     * @param itemPath the itemPath() of the item to find
      * @return the boolean
      */
-    public Item hasItem(Item pubItem, String libraryName, String itemPath) throws MungerException
+    public void hasPublisherDuplicate(Item pubItem, String itemPath) throws MungerException
     {
         Item has = null;
 
         for (Library lib : libraryData.libraries.bibliography)
         {
-            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(libraryName))
+            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
+            {
+                for (Item item : lib.items)
+                {
+                    // do not match self or directories
+                    if (item != pubItem && !item.isDirectory())
+                    {
+                        boolean match = (libraryData.libraries.case_sensitive) ?
+                                Utils.pipe(this, item.getItemPath()).equals(itemPath) :
+                                Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
+
+                        if (match)
+                        {
+                            pubItem.addHas(item); // add match and any duplicate for cross-reference
+                            logger.warn("  ! Duplicate of \"" + pubItem.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Has specific item true/false.
+     * <p>
+     * String match is expected to have been converted to pipe character file separators using Utils.pipe().
+     * The item "has" member contains all instances including self.
+     *
+     * @param pubItem  the publisher item being found, for adding 'has' items
+     * @param itemPath the itemPath() of the item to find
+     * @return the boolean
+     */
+    public Item hasItem(Item pubItem, String itemPath) throws MungerException
+    {
+        Item has = null;
+
+        for (Library lib : libraryData.libraries.bibliography)
+        {
+            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
             {
                 for (Item item : lib.items)
                 {
@@ -318,7 +356,7 @@ public class Repository
                             // is it a duplicate?
                             if (has != null)
                             {
-                                logger.warn("  ! Duplicate of \"" + has.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
+                                logger.warn("  ! Duplicate of \"" + itemPath + "\" found at \"" + item.getFullPath() + "\"");
                             }
                             else
                             {

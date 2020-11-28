@@ -7,7 +7,6 @@
 
 ## Code
  * Auto Renamer - xpaus
- * Duplicate finder
  * For TV Shows do searches ignoring season folders
  * For .els actions:
    - transcode option for high resource demand items, 

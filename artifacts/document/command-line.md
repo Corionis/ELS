@@ -101,7 +101,9 @@ The -t and -T options are equivalent unless the -r option is enabled. Then
 -T will use a local file and -t will request the targets file from
 the subscriber.
 
-Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF.
+Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF. The debug level is
+the controller of the level. The console level may show less but not more than
+the debug level.
 
 ### Rules
  * -e is only performed then it stops, so other options like -s or -m do not make sense

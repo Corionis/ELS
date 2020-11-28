@@ -206,7 +206,7 @@ public class Process
                 for (Item item : pubLib.items)
                 {
                     // populate the item.hasList
-                    context.publisherRepo.hasItem(item, pubLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                    context.publisherRepo.hasPublisherDuplicate(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
                 }
             }
 
@@ -215,7 +215,7 @@ public class Process
             {
                 for (Item item : pubLib.items)
                 {
-                    if (item.getHas().size() > 1)
+                    if (item.getHas().size() > 0)
                     {
                         duplicates = reportDuplicates("Publisher", item, duplicates);
                     }
@@ -651,7 +651,7 @@ public class Process
                                     ++totalItems;
 
                                     // does the subscriber have a matching item?
-                                    Item has = context.subscriberRepo.hasItem(item, subLib.name, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                                    Item has = context.subscriberRepo.hasItem(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
                                     if (has != null)
                                     {
                                         if (item.getHas().size() == 1) // no duplicates?
@@ -904,7 +904,6 @@ public class Process
 
     private int reportDuplicates(String type, Item item, int duplicates)
     {
-        boolean newDupes = false;
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
         for (Item dupe : item.getHas())
         {
@@ -918,12 +917,8 @@ public class Process
                 ++duplicates;
                 logger.info(SIMPLE, "  " + dupe.getFullPath());
                 dupe.setReported(true);
-                newDupes = true;
             }
         }
-        if (newDupes)
-            logger.info(SIMPLE, "  -------"); // add a blank line
-
         return duplicates;
     }
 
