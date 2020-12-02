@@ -36,6 +36,7 @@ public class Configuration
     private boolean keepELSFiles = false;
     private String logFilename = "els.log";
     private String mismatchFilename = "";
+    private boolean noBackFill = false;
     private String[] originalArgs;
     private boolean overwrite = false;
     private boolean publishOperation = true;
@@ -49,6 +50,7 @@ public class Configuration
     private boolean specificPublisherLibrary = false;
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
+    private boolean renaming = false;
     private String targetsFilename = "";
     private boolean validation = false;
     private boolean whatsNewAll = false;
@@ -88,20 +90,21 @@ public class Configuration
 
         if (getAuthorizedPassword().length() > 0)
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
+        logger.info(SHORT, "  cfg: -b No back fill = " + Boolean.toString(isNoBackFill()));
         logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
         logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info(SHORT, "  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
         logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
         logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
-        logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
+        //logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
         logger.info(SHORT, "  cfg: -l Publisher library name(s):");
         for (String ln : getPublisherLibraryNames())
         {
             logger.info(SHORT, "        " + ln);
         }
         logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
-        logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "N" : "n") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+        logger.info(SHORT, "  cfg: -n Renaming = " + Boolean.toString(isRenaming()));
         logger.info(SHORT, "  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
         logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
         logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
@@ -111,6 +114,7 @@ public class Configuration
         logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
         logger.info(SHORT, "  cfg: -u Duplicates = " + Boolean.toString(isDuplicateCheck()));
         logger.info(SHORT, "  cfg: -v Validate = " + Boolean.toString(isValidation()));
+        logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
         logger.info(SHORT, "  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
     }
 
@@ -272,6 +276,16 @@ public class Configuration
     public void setMismatchFilename(String mismatchFilename)
     {
         this.mismatchFilename = mismatchFilename;
+    }
+
+    public boolean isNoBackFill()
+    {
+        return noBackFill;
+    }
+
+    public void setNoBackFill(boolean noBackFill)
+    {
+        this.noBackFill = noBackFill;
     }
 
     /**
@@ -637,6 +651,23 @@ public class Configuration
     }
 
     /**
+     * Returns true if the -n | --rename options is specified
+     */
+    public boolean isRenaming()
+    {
+        return renaming;
+    }
+
+    /**
+     * Enable or disable performing renaming
+     * @param renaming true to enable
+     */
+    public void setRenaming(boolean renaming)
+    {
+        this.renaming = renaming;
+    }
+
+    /**
      * Is this a "request collection" operation?
      *
      * @return true/false
@@ -788,6 +819,10 @@ public class Configuration
                         throw new MungerException("Error: -a requires a password value");
                     }
                     break;
+                case "-b":                                             // disable back-filling
+                case "--no-back-fill":
+                    setNoBackFill(true);
+                    break;
                 case "-c":                                             // console level
                 case "--console-level":
                     if (index <= args.length - 2)
@@ -883,30 +918,9 @@ public class Configuration
                         throw new MungerException("Error: -m requires a mismatches output filename");
                     }
                     break;
-                case "-n":                                             // What's New output filename
-                case "--whatsnew":
-                    if (index <= args.length - 2)
-                    {
-                        setWhatsNewFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -n requires a What's New output filename");
-                    }
-                    break;
-                case "-N":                                             // What's New output filename, set "all" option
-                case "--whatsnew-all":
-                    if (index <= args.length - 2)
-                    {
-                        setWhatsNewFilename(args[index + 1]);
-                        ++index;
-                        setWhatsNewAll(true);
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -n requires a What's New output filename");
-                    }
+                case "-n":                                             // perform renaming
+                case "--rename":
+                    setRenaming(true);
                     break;
                 case "-o":
                 case "--overwrite":
@@ -1011,6 +1025,31 @@ public class Configuration
                 case "-v":                                             // validation run
                 case "--validate":
                     setValidation(true);
+                    break;
+                case "-w":                                             // What's New output filename
+                case "--whatsnew":
+                    if (index <= args.length - 2)
+                    {
+                        setWhatsNewFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -w requires a What's New output filename");
+                    }
+                    break;
+                case "-W":                                             // What's New output filename, set "all" option
+                case "--whatsnew-all":
+                    if (index <= args.length - 2)
+                    {
+                        setWhatsNewFilename(args[index + 1]);
+                        ++index;
+                        setWhatsNewAll(true);
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -W requires a What's New output filename");
+                    }
                     break;
                 case "-x":                                             // cross-library duplicate check
                 case "--cross-check":

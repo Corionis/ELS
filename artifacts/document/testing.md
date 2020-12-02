@@ -13,11 +13,11 @@ General parameters:
 
 2. Full munge dry run<br/>
    Dry run munge with scans of publisher and subscriber<br/>
-   -c off -D -d info -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -T TestRun/targets-1.json -m TestRun/mismatches.txt -n TestRun/whatsnew.txt
+   -c off -D -d info -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -T TestRun/targets-1.json -m TestRun/mismatches.txt -w TestRun/whatsnew.txt
 
 3. Full munge<br/> 
    Full munge with scans of publisher and subscriber<br/>
-   -c off -d debug -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -T TestRun/targets-1.json -m TestRun/mismatches.txt -n TestRun/whatsnew.txt
+   -c off -d debug -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -T TestRun/targets-1.json -m TestRun/mismatches.txt -w TestRun/whatsnew.txt
 
 4. Publisher export collection<br/>
    Export publisher collection for next test<br/>
@@ -37,7 +37,7 @@ General parameters:
 
 8. Remote publisher -r P request collection and targets<br/>
    Publisher munge, local scan, requesting subscriber collection and targets<br/>
-   -d debug -r P -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -t TestRun/targets-1.json -m TestRun/mismatches.txt -n TestRun/whatsnew.txt -f TestRun/els-publisher.log
+   -d debug -r P -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -t TestRun/targets-1.json -m TestRun/mismatches.txt -w TestRun/whatsnew.txt -f TestRun/els-publisher.log
 
 9. Subscriber export collection<br/> 
    Export subscriber collection for next test<br/>
@@ -49,7 +49,7 @@ General parameters:
 
 11. Remote publisher -r P publish<br/>
     Publisher munge, local subscriber libraries overridden by forced subscriber collection and forced targets<br/>
-   -d debug -r P -p TestRun/publisher/publisher-libraries.json -S TestRun/subscriber-1/subscriber-1-libraries.json -T TestRun/targets-1.json -m TestRun/mismatches.txt -n TestRun/whatsnew.txt -f TestRun/els-publisher.log
+   -d debug -r P -p TestRun/publisher/publisher-libraries.json -S TestRun/subscriber-1/subscriber-1-libraries.json -T TestRun/targets-1.json -m TestRun/mismatches.txt -w TestRun/whatsnew.txt -f TestRun/els-publisher.log
 
 12. Remote publisher manually -r M<br/>
     Interactive (manual) terminal to a remote subscriber<br/>

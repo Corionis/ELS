@@ -14,7 +14,7 @@ public class Libraries
     public static final String APPLE = "apple";
 
     /**
-     * The compiled patterns of ignore_patterns.
+     * Compiled patterns of ignore_patterns.
      */
     public transient List<Pattern> compiledPatterns = new ArrayList<>();
 
@@ -56,12 +56,18 @@ public class Libraries
     public Boolean case_sensitive;
 
     /**
-     * Ignore patterns.
+     * Ignore patterns. Regular expressions are supported.
      */
     public String[] ignore_patterns;
+
+    /**
+     * Substitutions. From-side regular expressions are supported.
+     */
+    public Renaming[] renaming;
 
     /**
      * The list of libraries.
      */
     public Library[] bibliography;
+
 }

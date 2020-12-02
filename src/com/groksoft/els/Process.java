@@ -74,7 +74,7 @@ public class Process
             else
             {
                 Path fromPath = Paths.get(from).toRealPath();
-                Path toPath = Paths.get(to);  //.toRealPath();
+                Path toPath = Paths.get(to);
                 File f = new File(to);
                 if (f != null)
                 {
@@ -127,6 +127,8 @@ public class Process
         if (!isInitialized)
         {
             initialize();
+            if (!isInitialized)
+                throw new MungerException("initialize() failed");
         }
         try
         {
@@ -185,113 +187,80 @@ public class Process
     /**
      * Check publisher collection data for duplicates
      */
-    private void duplicatesCheck()
+    private void duplicatesCheck() throws Exception
     {
-        try
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+
+        if (!justScannedPublisher)
         {
-            Marker SHORT = MarkerManager.getMarker("SHORT");
-
-            if (!justScannedPublisher)
-            {
-                for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
-                {
-                    context.publisherRepo.scan(pubLib.name);
-                }
-            }
-            justScannedPublisher = true;
-
-            logger.info("Analyzing for duplicates");
-            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
-            {
-                for (Item item : pubLib.items)
-                {
-                    // populate the item.hasList
-                    context.publisherRepo.hasPublisherDuplicate(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
-                }
-            }
-
-            int duplicates = 0;
-            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
-            {
-                for (Item item : pubLib.items)
-                {
-                    if (item.getHas().size() > 0)
-                    {
-                        duplicates = reportDuplicates("Publisher", item, duplicates);
-                    }
-                }
-            }
-
-            int empties = 0;
-            for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
-            {
-                for (Item item : pubLib.items)
-                {
-                    if (item.isDirectory() && item.getSize() == 0)
-                    {
-                        empties = reportEmpties("Publisher", item, empties);
-                    }
-                }
-            }
-
-            if (duplicates > 0)
-                logger.info(SHORT, "Total duplicates: " + duplicates);
-            if (empties > 0)
-                logger.info(SHORT, "Total empty directories: " + empties);
+            context.publisherRepo.scan();
         }
-        catch (MungerException e)
+        justScannedPublisher = true;
+
+        logger.info("Analyzing for duplicates" + (cfg.isRenaming() ? " and performing any substitution renames" : ""));
+        for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
         {
-            // no logger yet to just print to the screen
-            System.out.println(e.getMessage());
+            for (Item item : pubLib.items)
+            {
+                // populate the item.hasList
+                context.publisherRepo.hasPublisherDuplicate(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
+            }
         }
+
+        int duplicates = 0;
+        for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+        {
+            for (Item item : pubLib.items)
+            {
+                if (item.getHas().size() > 0)
+                {
+                    duplicates = reportDuplicates("Publisher", item, duplicates);
+                }
+            }
+        }
+
+        int empties = 0;
+        for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
+        {
+            for (Item item : pubLib.items)
+            {
+                if (item.isDirectory() && item.getSize() == 0)
+                {
+                    empties = reportEmpties("Publisher", item, empties);
+                }
+            }
+        }
+
+        if (duplicates > 0)
+            logger.info(SIMPLE, "Total duplicates: " + duplicates);
+        if (empties > 0)
+            logger.info(SIMPLE, "Total empty directories: " + empties);
     }
 
     /**
      * Export publisher collection data to configured file as JSON
      */
-    private void exportCollection()
+    private void exportCollection() throws Exception
     {
-        try
+        if (!justScannedPublisher)
         {
-            if (!justScannedPublisher)
-            {
-                for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
-                {
-                    context.publisherRepo.scan(pubLib.name);
-                }
-            }
-            context.publisherRepo.exportCollection();
-            justScannedPublisher = true;
+            context.publisherRepo.scan();
         }
-        catch (MungerException e)
-        {
-            // no logger yet to just print to the screen
-            System.out.println(e.getMessage());
-        }
+        context.publisherRepo.exportCollection();
+        justScannedPublisher = true;
     }
 
     /**
      * Export publisher collection data to configured file as plain text
      */
-    private void exportText()
+    private void exportText() throws Exception
     {
-        try
+        if (!justScannedPublisher)
         {
-            if (!justScannedPublisher)
-            {
-                for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
-                {
-                    context.publisherRepo.scan(pubLib.name);
-                }
-            }
-            context.publisherRepo.exportText();
-            justScannedPublisher = true;
+            context.publisherRepo.scan();
         }
-        catch (MungerException e)
-        {
-            // no logger yet to just print to the screen
-            System.out.println(e.getMessage());
-        }
+        context.publisherRepo.exportText();
+        justScannedPublisher = true;
     }
 
     public int getCopyCount()
@@ -352,34 +321,37 @@ public class Process
         }
 
         // see if there is an "original" directory the new content will fit in
-        String path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, item.getItemPath()));
-        if (path != null)
+        if (!cfg.isNoBackFill())
         {
-            if (cfg.isRemoteSession())
+            String path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, item.getItemPath()));
+            if (path != null)
             {
-                // remote subscriber
-                space = context.clientStty.availableSpace(path);
-            }
-            else
-            {
-                space = Utils.availableSpace(path);
-            }
-            logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                    " path " + path + " = (" + (Utils.formatLong(space)) +
-                    ") for " + (Utils.formatLong(size)) +
-                    ", minimum " + Utils.formatLong(minimum));
-            if (space > (size + minimum))
-            {
-                logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
-                //
-                // inline return
-                //
-                ++grandTotalOriginalLocation;
-                return path;
-            }
-            else
-            {
-                logger.info("Original storage location too full for " + item.getItemPath() + " (" + size + ") at " + path);
+                if (cfg.isRemoteSession())
+                {
+                    // remote subscriber
+                    space = context.clientStty.availableSpace(path);
+                }
+                else
+                {
+                    space = Utils.availableSpace(path);
+                }
+                logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
+                        " path " + path + " = (" + (Utils.formatLong(space)) +
+                        ") for " + (Utils.formatLong(size)) +
+                        ", minimum " + Utils.formatLong(minimum));
+                if (space > (size + minimum))
+                {
+                    logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
+                    //
+                    // inline return
+                    //
+                    ++grandTotalOriginalLocation;
+                    return path;
+                }
+                else
+                {
+                    logger.info("Original storage location too full for " + item.getItemPath() + " (" + size + ") at " + path);
+                }
             }
         }
 
@@ -476,34 +448,42 @@ public class Process
                 }
             }
 
-            // process -e export text, publisher only
-            if (cfg.getExportTextFilename().length() > 0)
+            // process renames first
+            if (cfg.isRenaming())
             {
-                exportText();
+                rename();
             }
 
-            // process -i export collection items, publisher only
-            if (cfg.getExportCollectionFilename().length() > 0)
+            if (isInitialized)
             {
-                exportCollection();
-            }
+                // process -e export text, publisher only
+                if (cfg.getExportTextFilename().length() > 0)
+                {
+                    exportText();
+                }
 
-            // get -t|T Targets
-            if (cfg.getTargetsFilename().length() > 0)
-            {
-                getStorageTargets();
-            }
-            else
-            {
-                cfg.setDryRun(true);
-            }
+                // process -i export collection items, publisher only
+                if (cfg.getExportCollectionFilename().length() > 0)
+                {
+                    exportCollection();
+                }
 
-            // check for publisher duplicates
-            if (cfg.isDuplicateCheck())
-            {
-                duplicatesCheck();
-            }
+                // get -t|T Targets
+                if (cfg.getTargetsFilename().length() > 0)
+                {
+                    getStorageTargets();
+                }
+                else
+                {
+                    cfg.setDryRun(true);
+                }
 
+                // check for publisher duplicates
+                if (cfg.isDuplicateCheck())
+                {
+                    duplicatesCheck();
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -565,6 +545,7 @@ public class Process
         ArrayList<Item> group = new ArrayList<>();
         long totalSize = 0;
         Marker SHORT = MarkerManager.getMarker("SHORT");
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
 
         String header = "Munging " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description;
@@ -586,7 +567,7 @@ public class Process
             }
         }
 
-        // setup the -n What's New output file
+        // setup the -w What's New output file
         if (cfg.getWhatsNewFilename().length() > 0)
         {
             try
@@ -669,7 +650,7 @@ public class Process
                                             logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
 
                                             /*
-                                             * Unless the -N or --whatsnew-all option is used:
+                                             * Unless the -W or --whatsnew-all option is used:
                                              * Only show the left side of mismatches file. And Only show it once.
                                              * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
                                              * Big Bang Theory
@@ -790,13 +771,13 @@ public class Process
             }
         }
 
-        logger.info("-----------------------------------------------------");
         if (ignoredList.size() > 0)
         {
-            logger.info(SHORT, "Ignored " + ignoredList.size() + " files:");
+            logger.info(SIMPLE, "-----------------------------------------------------");
+            logger.info(SIMPLE, "Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {
-                logger.info(SHORT, "    " + s);
+                logger.info(SIMPLE, "    " + s);
             }
         }
 
@@ -825,17 +806,17 @@ public class Process
         }
 
         if (duplicates > 0)
-        logger.info(SHORT, "Duplicates       : " + duplicates);
+            logger.info(SHORT, "# Duplicates       : " + duplicates);
         if (empties > 0)
-        logger.info(SHORT, "Empty directories: " + empties);
+            logger.info(SHORT, "# Empty directories: " + empties);
         if (ignoredList.size() > 0)
-        logger.info(SHORT, "Ignored files    : " + ignoredList.size());
-        logger.info(SHORT, "Directories      : " + totalDirectories);
-        logger.info(SHORT, "Files            : " + totalItems);
-        logger.info(SHORT, "Copies           : " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
-        logger.info(SHORT, "Errors           : " + errorCount);
-        logger.info(SHORT, "Items processed  : " + grandTotalItems);
-        logger.info(SHORT, "Total size       : " + Utils.formatLong(grandTotalSize));
+            logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
+        logger.info(SHORT, "# Directories      : " + totalDirectories);
+        logger.info(SHORT, "# Files            : " + totalItems);
+        logger.info(SHORT, "# Copies           : " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
+        logger.info(SHORT, "# Errors           : " + errorCount);
+        logger.info(SHORT, "# Items processed  : " + grandTotalItems);
+        logger.info(SHORT, "# Total size       : " + Utils.formatLong(grandTotalSize));
     }
 
     /**
@@ -858,14 +839,17 @@ public class Process
                     initialize();
                 }
 
-                // if all the pieces are specified munge the collections
-                if ((cfg.getPublisherLibrariesFileName().length() > 0 ||
-                        cfg.getPublisherCollectionFilename().length() > 0) &&
-                        (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                cfg.getSubscriberCollectionFilename().length() > 0) &&
-                        cfg.getTargetsFilename().length() > 0)
+                if (isInitialized)
                 {
-                    munge(); // this is the full munge process
+                    // if all the pieces are specified munge the collections
+                    if ((cfg.getPublisherLibrariesFileName().length() > 0 ||
+                            cfg.getPublisherCollectionFilename().length() > 0) &&
+                            (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                                    cfg.getSubscriberCollectionFilename().length() > 0) &&
+                            cfg.getTargetsFilename().length() > 0)
+                    {
+                        munge(); // this is the full munge process
+                    }
                 }
             }
             catch (Exception ex)
@@ -901,6 +885,27 @@ public class Process
 
         return returnValue;
     } // process
+
+    /**
+     * Search publisher collection for string substitutions for renaming items
+     */
+    private void rename() throws Exception
+    {
+        // scan the collection
+        if (!justScannedPublisher)
+        {
+            context.publisherRepo.scan();
+        }
+
+        // see if there are any renames performed
+        if (context.publisherRepo.renameContent())
+        {
+            // reset and rescan so JSON data reflects reality
+            context.publisherRepo.resetItems();
+            context.publisherRepo.scan();
+        }
+        justScannedPublisher = true;
+    }
 
     private int reportDuplicates(String type, Item item, int duplicates)
     {

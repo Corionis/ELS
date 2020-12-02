@@ -64,6 +64,7 @@ For publisher and subscriber library JSON files:
  2. If a :port number is not specified 50271 is used as the BASE port number.
  3. The listen element is optional. It is useful for NAT/port forwarding. If not specified the host is used.
  4. The flavor element may only be: apple, linux, or windows.
+    1. Flavor is defined instead of being "discovered" so it may be forced.
  5. The terminal_allowed can disable interactive access. However, a complex automatic handshake is done so it is relatively safe.
  6. The key element ***must be unique*** for each publisher and subscriber. It is a version-1 UUID, is below.
  7. The case_sensitive element controls the type of comparison that is done between publisher and subscriber content.

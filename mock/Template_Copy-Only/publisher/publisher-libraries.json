@@ -10,6 +10,16 @@
             "desktop.ini",
             "Thumbs.db"
         ],
+        "renaming": [
+            {
+                "from": "(?i) Moms dvd",
+                "to": " DVD"
+            },
+            {
+                "from": "(?i) Moms Bluray",
+                "to": ""
+            }
+        ],
         "bibliography": [
             {
                 "name": "Movies",

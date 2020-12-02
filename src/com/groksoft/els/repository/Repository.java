@@ -44,34 +44,6 @@ public class Repository
     }
 
     /**
-     * Dump collection.
-     */
-    public void dump()
-    {
-        System.out.println("  Libraries from " + getJsonFilename());
-        System.out.println("    Description: " + libraryData.libraries.description);
-        System.out.println("           Host: " + libraryData.libraries.host);
-        System.out.println("         Listen: " + libraryData.libraries.listen);
-        System.out.println("            Key: " + libraryData.libraries.key);
-        System.out.println("    Case-sensitive: " + libraryData.libraries.case_sensitive);
-        System.out.println("    Ignore patterns:");
-        for (String patt : libraryData.libraries.ignore_patterns)
-        {
-            System.out.println("      " + patt);
-        }
-        System.out.println("    Bibliography:");
-        for (Library lib : libraryData.libraries.bibliography)
-        {
-            System.out.println("      Name: " + lib.name);
-            System.out.println("      Sources:");
-            for (String src : lib.sources)
-            {
-                System.out.println("        " + src);
-            }
-        }
-    }
-
-    /**
      * Export libraries to JSON.
      *
      * @throws MungerException the els exception
@@ -286,44 +258,6 @@ public class Repository
     }
 
     /**
-     * Has duplicate true/false.
-     * <p>
-     * String match is expected to have been converted to pipe character file separators using Utils.pipe().
-     * The item "has" member contains only duplicates and -not- self.
-     *
-     * @param pubItem  the publisher item being found, for adding 'has' items
-     * @param itemPath the itemPath() of the item to find
-     * @return the boolean
-     */
-    public void hasPublisherDuplicate(Item pubItem, String itemPath) throws MungerException
-    {
-        Item has = null;
-
-        for (Library lib : libraryData.libraries.bibliography)
-        {
-            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
-            {
-                for (Item item : lib.items)
-                {
-                    // do not match self or directories
-                    if (item != pubItem && !item.isDirectory())
-                    {
-                        boolean match = (libraryData.libraries.case_sensitive) ?
-                                Utils.pipe(this, item.getItemPath()).equals(itemPath) :
-                                Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
-
-                        if (match)
-                        {
-                            pubItem.addHas(item); // add match and any duplicate for cross-reference
-                            logger.warn("  ! Duplicate of \"" + pubItem.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Has specific item true/false.
      * <p>
      * String match is expected to have been converted to pipe character file separators using Utils.pipe().
@@ -369,6 +303,44 @@ public class Repository
         }
 
         return has;
+    }
+
+    /**
+     * Has duplicate true/false.
+     * <p>
+     * String match is expected to have been converted to pipe character file separators using Utils.pipe().
+     * The item "has" member contains only duplicates and -not- self.
+     *
+     * @param pubItem  the publisher item being found, for adding 'has' items
+     * @param itemPath the itemPath() of the item to find
+     * @return the boolean
+     */
+    public void hasPublisherDuplicate(Item pubItem, String itemPath) throws MungerException
+    {
+        Item has = null;
+
+        for (Library lib : libraryData.libraries.bibliography)
+        {
+            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
+            {
+                for (Item item : lib.items)
+                {
+                    // do not match self or directories
+                    if (item != pubItem && !item.isDirectory())
+                    {
+                        boolean match = (libraryData.libraries.case_sensitive) ?
+                                Utils.pipe(this, item.getItemPath()).equals(itemPath) :
+                                Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
+
+                        if (match)
+                        {
+                            pubItem.addHas(item); // add match and any duplicate for cross-reference
+                            logger.warn("  ! Duplicate of \"" + pubItem.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -513,6 +485,93 @@ public class Repository
     }
 
     /**
+     * Perform renaming on entire repository
+     */
+    public boolean renameContent() throws Exception
+    {
+        boolean renameDone = false;
+
+        // rename files first
+        if (renamer(false))
+            renameDone = true;
+
+        // then rename directories
+        if (renamer(true))
+            renameDone = true;
+
+        return renameDone;
+    }
+
+    /**
+     * Perform renaming on either files or directories
+     */
+    private boolean renamer(boolean directories) throws Exception
+    {
+        String from = "";
+        String fromFixed = "";
+        boolean renameDone = false;
+
+        for (Library pubLib : getLibraryData().libraries.bibliography)
+        {
+            for (Item item : pubLib.items)
+            {
+                if ((!directories && !item.isDirectory()) || (directories && item.isDirectory()))
+                {
+                    String name = getItemName(item);
+
+                    // run through all the substitution patterns
+                    for (Renaming subst : libraryData.libraries.renaming)
+                    {
+                        if (subst.from.length() > 0 && subst.compiledPattern != null)
+                        {
+                            from = subst.compiledPattern.toString(); // precompiled 'from' during validate()
+                            fromFixed = from; //.replace("?", ".?").replace("*", ".*?");
+                            name = name.replaceAll(fromFixed, subst.to);
+                        }
+                    }
+
+                    // did the name change?
+                    if (!name.equals(getItemName(item)))
+                    {
+                        if (item.isDirectory())
+                        {
+                            if (cfg.isDryRun())
+                            {
+                                logger.info("Would rename directory: '" + getItemName(item) + "' to '" + name + "'");
+                            }
+                        }
+                        else // it's a file
+                        {
+                            if (cfg.isDryRun())
+                            {
+                                logger.info("Would rename file: '" + getItemName(item) + "' to '" + name + "'");
+                            }
+                        }
+                        renameDone = true;
+                    }
+                }
+            }
+        }
+        return renameDone;
+    }
+
+    public void resetItems()
+    {
+        for (Library lib : libraryData.libraries.bibliography)
+        {
+            lib.items = null;
+        }
+    }
+
+    public void scan() throws Exception
+    {
+        for (Library lib : getLibraryData().libraries.bibliography)
+        {
+            scan(lib.name);
+        }
+    }
+
+    /**
      * Scan a specific library name.
      *
      * @throws MungerException the els exception
@@ -600,6 +659,7 @@ public class Repository
         lib.items.sort((item1, item2) -> item1.getItemPath().compareToIgnoreCase(item2.getItemPath()));
     }
 
+
     /**
      * Validate LibraryData.
      *
@@ -638,8 +698,31 @@ public class Repository
                 for (String s : lbs.ignore_patterns)
                 {
                     src = s;
-                    patt = Pattern.compile(s);
+                    patt = Pattern.compile(src);
                     lbs.compiledPatterns.add(patt);
+                }
+            }
+            catch (PatternSyntaxException pe)
+            {
+                throw new MungerException("Ignore pattern '" + src + "' has bad regular expression (regex) syntax");
+            }
+            catch (IllegalArgumentException iae)
+            {
+                throw new MungerException("Ignore pattern '" + src + "' has bad flags");
+            }
+        }
+
+        if (lbs.renaming.length > 0)
+        {
+            Pattern patt = null;
+            String src = null;
+            try
+            {
+                for (Renaming subst : lbs.renaming)
+                {
+                    src = subst.from;
+                    patt = Pattern.compile(src);
+                    subst.compiledPattern = patt;
                 }
             }
             catch (PatternSyntaxException pe)

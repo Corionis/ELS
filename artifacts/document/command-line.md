@@ -23,24 +23,37 @@ Collection data are required to perform a munge. Generally the lowercase
 variation of an option will cause the needed data to be dynamically generated
 at runtime. Whereas the uppercase variation will import the data from a file.
 
+Example basic back-up operation:
+```
+    java -jar ELS.jar -p publisher.json -s subscriber.json -t targets.json -f els.log
+```
+
 ## Command Line Options
 
 Options for short and long versions are case-sensitive.
 
 ### Actions
 
- * -D | --dry-run : Do everything except actually copy
+ * -D | --dry-run : Do everything except actually copy, used in -n and
+     back-up operations.
  
  * -e | --export-text file : Export publisher collection as text to file 
  
  * -i | --export-items file : Export publisher collection as JSON to file
 
+ * -n | --rename : Perform any defined renaming from the publisher library file
+ 
  * -r | --remote P|L|M|S|T : This is a remote session, see [Communications How-To](Communications-How-To) for details 
 
+ * -u | --duplicates : Performs publisher duplicates and empty directories check
+ 
 ### Parameters
 
  * -a | --authorize password : The password required to access Authorized mode
       when allowing -r remote clientStty manual access
+
+ * -b | --no-back-fill : Disables attempting to "back fill" original media locations
+     with new files, e.g. new TV episode. Always uses the targets.
 
  * -c | --console-level level : Console logging level, default debug
  
@@ -53,16 +66,12 @@ Options for short and long versions are case-sensitive.
  * -k | --keep : Keep els.json files, default is to delete them as they are processed.
       Not implemented yet.
 
-  * -l | --library libraryname : Publisher library to process, default all.
+ * -l | --library libraryname : Publisher library to process, default all.
       This option may be specified more than once for each desired library.
  
  * -m | --mismatches file : Mismatches output file (differences)
 
- * -n | --whatsnew file : What's New output file
-
- * -N | --whatsnew-all file : What's New output file showing all new items
-
- * -o | --overwrite : Overwrite any existing files instead of resuming an remote transfer.
+ * -o | --overwrite : Overwrite any existing files instead of resuming a remote transfer.
       This option only applies to remote sessions. Local operation always overwrites.
 
  * -p | --publisher-libraries file : Publisher JSON libraries file
@@ -77,14 +86,23 @@ Options for short and long versions are case-sensitive.
  
  * -T | --force-targets file : Targets import filename, see Notes
  
- * -u | --duplicates : Performs publisher duplicate check
- 
  * -v | --validate : Validate/verify publisher library or collection file
  
+ * -w | --whatsnew file : What's New output file
+
+ * -W | --whatsnew-all file : What's New output file showing all new items
+
  * -x | --cross-check : Cross-check ALL libraries for duplicates, instead of within a library. 
 
 
 ### Notes
+
+The -b | --no-back-fill option disables the default behavior of attempting
+to place new files for an existing item in the original location that might
+not be a location in the targets file. For instance another episode of a
+TV show.
+
+The -D option applies to -n | --rename and back-up operations.
 
 The -e export paths option lists each individual file in the desired
 libraries. But that data is not used by any other operation. It is 
@@ -104,6 +122,17 @@ the subscriber.
 Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF. The debug level is
 the controller of the level. The console level may show less but not more than
 the debug level.
+
+### Multiple actions
+
+Different actions can be performed during one execution, i.e. actions may be
+combined. The order of processing of the actions is:
+
+ 1. Renaming with -n | --rename
+ 2. Text export with -e | --export-text 
+ 3. Item export with -i | --export-items
+ 4. Duplicates check with -u | --duplicates
+ 5. Finally a back-up operation if all necessary arguments are provided. 
 
 ### Rules
  * -e is only performed then it stops, so other options like -s or -m do not make sense
