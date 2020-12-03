@@ -236,7 +236,7 @@ public class Daemon extends DaemonBase
                         }
 
                         // otherwise it must be -S so do not scan
-                        myRepo.exportCollection();
+                        myRepo.exportItems();
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
                     }

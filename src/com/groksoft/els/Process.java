@@ -191,11 +191,12 @@ public class Process
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
 
-        if (!justScannedPublisher)
+        // scan the collection if library file specified
+        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
+            justScannedPublisher = true;
         }
-        justScannedPublisher = true;
 
         logger.info("Analyzing for duplicates" + (cfg.isRenaming() ? " and performing any substitution renames" : ""));
         for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
@@ -242,12 +243,13 @@ public class Process
      */
     private void exportCollection() throws Exception
     {
-        if (!justScannedPublisher)
+        // scan the collection if library file specified
+        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
+            justScannedPublisher = true;
         }
-        context.publisherRepo.exportCollection();
-        justScannedPublisher = true;
+        context.publisherRepo.exportItems();
     }
 
     /**
@@ -255,12 +257,13 @@ public class Process
      */
     private void exportText() throws Exception
     {
-        if (!justScannedPublisher)
+        // scan the collection if library file specified
+        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
+            justScannedPublisher = true;
         }
         context.publisherRepo.exportText();
-        justScannedPublisher = true;
     }
 
     public int getCopyCount()
@@ -454,7 +457,7 @@ public class Process
                 rename();
             }
 
-            if (isInitialized)
+            if (isInitialized) // just in case
             {
                 // process -e export text, publisher only
                 if (cfg.getExportTextFilename().length() > 0)
@@ -594,7 +597,7 @@ public class Process
                 Library pubLib = null;
 
                 // if processing all libraries, or this one was specified on the command line with -l
-                if (!cfg.isSpecificPublisherLibrary() || cfg.isSelectedPublisherLibrary(subLib.name))
+                if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name))
                 {
                     // if the publisher has a matching library
                     if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
@@ -891,20 +894,27 @@ public class Process
      */
     private void rename() throws Exception
     {
-        // scan the collection
-        if (!justScannedPublisher)
+        // scan the collection if library file specified
+        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
+            justScannedPublisher = true;
         }
 
         // see if there are any renames performed
         if (context.publisherRepo.renameContent())
         {
-            // reset and rescan so JSON data reflects reality
-            context.publisherRepo.resetItems();
-            context.publisherRepo.scan();
+/* Not necessary; data updated OTF
+            // rescan if library file specified (as opposed to a possibly-edited collection file)
+            if (cfg.getPublisherLibrariesFileName().length() > 0)
+            {
+                // reset and rescan
+                context.publisherRepo.resetItems();
+                context.publisherRepo.scan();
+                justScannedPublisher = true;
+            }
+*/
         }
-        justScannedPublisher = true;
     }
 
     private int reportDuplicates(String type, Item item, int duplicates)

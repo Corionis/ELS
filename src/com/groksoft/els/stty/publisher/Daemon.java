@@ -237,15 +237,11 @@ public class Daemon extends DaemonBase
 
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                         {
-                            if (subLib.items != null)
-                            {
-                                subLib.items = null; // clear any existing data
-                            }
                             myRepo.scan(subLib.name);
                         }
 
                         // otherwise it must be -S so do not scan
-                        myRepo.exportCollection();
+                        myRepo.exportItems();
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
                     }

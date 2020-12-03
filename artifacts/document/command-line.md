@@ -8,16 +8,26 @@ a wide variety of operations.
 
 ## Basic Command
 
-Once the JSON library files are created and validated a basic
-munge operation requires a publisher and subscriber library or collection
-files and a targets file that describes where each library's new items
-will be copied to the subscriber.
+A basic back-up operation requires publisher and subscriber library or
+collection files and a targets file that describes where each library's
+new items will be copied to the subscriber.
+
+### Library JSON Files
 
 A "library" file lists the libraries only, a "collection" file also contains
-all the individual items in each library. Both are JSON files.
+the individual items in each library. Both are JSON files and the same format.
+
+If a library file is specified automatic scans of that libraries sources are
+performed.
+
+### Collection JSON Files
 
 A collection JSON file may be generated using the -i or --export-items option
-and specifying a publisher file.
+and specifying a publisher library file.
+
+If a collection file is specified only the items in that file are processed.
+
+### Basic Example
 
 Collection data are required to perform a munge. Generally the lowercase
 variation of an option will cause the needed data to be dynamically generated
@@ -34,16 +44,15 @@ Options for short and long versions are case-sensitive.
 
 ### Actions
 
- * -D | --dry-run : Do everything except actually copy, used in -n and
-     back-up operations.
- 
  * -e | --export-text file : Export publisher collection as text to file 
  
  * -i | --export-items file : Export publisher collection as JSON to file
 
- * -n | --rename : Perform any defined renaming from the publisher library file
+ * -n | --rename F|D|B : Perform any defined renaming from the publisher library file 
+     on Files, Directories or Both
  
- * -r | --remote P|L|M|S|T : This is a remote session, see [Communications How-To](Communications-How-To) for details 
+ * -r | --remote P|L|M|S|T : This is a remote session, as opposed to local, 
+     see [Communications How-To](Communications-How-To) for details 
 
  * -u | --duplicates : Performs publisher duplicates and empty directories check
  
@@ -61,9 +70,12 @@ Options for short and long versions are case-sensitive.
       Levels= off, fatal, error, warn, info, debug, trace, all.
       If level = info then Java method and line number are not added.
  
+ * -D | --dry-run : Do everything except actually copy, used in -n and
+     back-up operations.
+ 
  * -f | --log-file file : Log file, default ELS.log in directory where "run" is executed
  
- * -k | --keep : Keep els.json files, default is to delete them as they are processed.
+ * -k | --keep : Keep .els files, default is to delete them as they are processed.
       Not implemented yet.
 
  * -l | --library libraryname : Publisher library to process, default all.
@@ -115,9 +127,16 @@ immediate scans based on configuration.
 The -k option applies to the Provider. Subscriber els.json files are not
 involved in a run.
 
+The -m | --mismatches option applies to back-up operations.
+
+The -n | --rename with the B (Both) type will rename files then directories.
+
 The -t and -T options are equivalent unless the -r option is enabled. Then
 -T will use a local file and -t will request the targets file from
 the subscriber.
+
+The -w | --whatsnew and -W | --whatsnew-all options apply to back-up
+operations.
 
 Log Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF. The debug level is
 the controller of the level. The console level may show less but not more than

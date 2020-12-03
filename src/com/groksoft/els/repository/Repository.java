@@ -8,6 +8,7 @@ import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,11 +45,11 @@ public class Repository
     }
 
     /**
-     * Export libraries to JSON.
+     * Export library items to JSON collection file.
      *
      * @throws MungerException the els exception
      */
-    public void exportCollection() throws MungerException
+    public void exportItems() throws MungerException
     {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -68,7 +69,7 @@ public class Repository
     }
 
     /**
-     * Export libraries to text.
+     * Export library items to text file.
      *
      * @throws MungerException the els exception
      */
@@ -81,13 +82,16 @@ public class Repository
             PrintWriter outputStream = new PrintWriter(cfg.getExportTextFilename());
             for (Library lib : libraryData.libraries.bibliography)
             {
-                for (Item item : lib.items)
+                if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name))
                 {
-                    if (!item.isDirectory())
+                    for (Item item : lib.items)
                     {
-                        if (!ignore(item))
+                        if (!item.isDirectory())
                         {
-                            outputStream.println(item.getItemPath());
+                            if (!ignore(item))
+                            {
+                                outputStream.println(item.getItemPath());
+                            }
                         }
                     }
                 }
@@ -492,62 +496,87 @@ public class Repository
         boolean renameDone = false;
 
         // rename files first
-        if (renamer(false))
-            renameDone = true;
+        if (cfg.getRenamingType() == cfg.RENAME_FILES || cfg.getRenamingType() == cfg.RENAME_BOTH)
+        {
+            if (renameItems(false))
+                renameDone = true;
+        }
 
         // then rename directories
-        if (renamer(true))
-            renameDone = true;
-
+        if (cfg.getRenamingType() == cfg.RENAME_DIRECTORIES || cfg.getRenamingType() == cfg.RENAME_BOTH)
+        {
+            if (renameItems(true))
+                renameDone = true;
+        }
         return renameDone;
     }
 
     /**
      * Perform renaming on either files or directories
      */
-    private boolean renamer(boolean directories) throws Exception
+    private boolean renameItems(boolean directories) throws Exception
     {
         String from = "";
         String fromFixed = "";
+        String name = "";
+        String old = "";
         boolean renameDone = false;
 
         for (Library pubLib : getLibraryData().libraries.bibliography)
         {
-            for (Item item : pubLib.items)
+            if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(pubLib.name))
             {
-                if ((!directories && !item.isDirectory()) || (directories && item.isDirectory()))
+                for (Item item : pubLib.items)
                 {
-                    String name = getItemName(item);
-
-                    // run through all the substitution patterns
-                    for (Renaming subst : libraryData.libraries.renaming)
+                    if ((!directories && !item.isDirectory()) || (directories && item.isDirectory()))
                     {
-                        if (subst.from.length() > 0 && subst.compiledPattern != null)
+                        old = getItemName(item);
+                        name = old;
+
+                        // run through all the substitution patterns
+                        for (Renaming subst : libraryData.libraries.renaming)
                         {
-                            from = subst.compiledPattern.toString(); // precompiled 'from' during validate()
-                            fromFixed = from; //.replace("?", ".?").replace("*", ".*?");
-                            name = name.replaceAll(fromFixed, subst.to);
+                            if (subst.from.length() > 0 && subst.compiledPattern != null)
+                            {
+                                from = subst.compiledPattern.toString(); // precompiled 'from' during validate()
+                                fromFixed = from; //.replace("?", ".?").replace("*", ".*?");
+                                name = name.replaceAll(fromFixed, subst.to);
+                            }
                         }
-                    }
 
-                    // did the name change?
-                    if (!name.equals(getItemName(item)))
-                    {
-                        if (item.isDirectory())
+                        // did the name change?
+                        if (!old.equals(name))
                         {
                             if (cfg.isDryRun())
                             {
-                                logger.info("Would rename directory: '" + getItemName(item) + "' to '" + name + "'");
+                                logger.info("Would rename " + (item.isDirectory() ? "directory" : "file") +
+                                        ": '" + old + "' to '" + name + "'");
                             }
-                        }
-                        else // it's a file
-                        {
-                            if (cfg.isDryRun())
+                            else
                             {
-                                logger.info("Would rename file: '" + getItemName(item) + "' to '" + name + "'");
+                                // replace the name on the end of the item and full paths
+                                String path = item.getItemPath();
+                                path = path.substring(0, path.length() - old.length());
+                                path = path + name;
+
+                                String full = item.getFullPath();
+                                full = full.substring(0, full.length() - old.length());
+                                full = full + name;
+
+                                // do rename
+                                File existing = new File(item.getFullPath());
+                                File newFile = new File(full);
+                                existing.renameTo(newFile);
+
+                                // update data
+                                item.setItemPath(path);
+                                item.setFullPath(full);
+
+                                logger.info("Renamed " + (item.isDirectory() ? "directory" : "file") +
+                                        ": '" + old + "' to '" + name + "'");
                             }
+                            renameDone = true;
                         }
-                        renameDone = true;
                     }
                 }
             }
@@ -555,20 +584,22 @@ public class Repository
         return renameDone;
     }
 
-    public void resetItems()
-    {
-        for (Library lib : libraryData.libraries.bibliography)
-        {
-            lib.items = null;
-        }
-    }
-
+    /**
+     * Scan all or libraries selected with -l.
+     *
+     * @throws Exception
+     */
     public void scan() throws Exception
     {
         for (Library lib : getLibraryData().libraries.bibliography)
         {
-            scan(lib.name);
+            if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name))
+            {
+                scanSources(lib);
+                sort(lib);
+            }
         }
+        normalize();
     }
 
     /**
@@ -580,18 +611,11 @@ public class Repository
     {
         for (Library lib : libraryData.libraries.bibliography)
         {
-            if (libraryName.length() > 0)
+            if (libraryName.length() > 0 && libraryName.equalsIgnoreCase(lib.name))
             {
-                if (!libraryName.equalsIgnoreCase(lib.name))
-                    continue;
+                scanSources(lib);
+                sort(lib);
             }
-            logger.info("Scanning " + getLibraryData().libraries.description + ": " + lib.name);
-            for (String src : lib.sources)
-            {
-                logger.info("  " + src);
-                scanDirectory(lib, src, src);
-            }
-            sort(lib);
         }
         normalize();
     }
@@ -649,6 +673,17 @@ public class Repository
             throw new MungerException("Exception reading directory " + directory + " trace: " + Utils.getStackTrace(ioe));
         }
         return count;
+    }
+
+    private void scanSources(Library lib) throws MungerException
+    {
+        logger.info("Scanning " + getLibraryData().libraries.description + ": " + lib.name);
+        lib.items = null;
+        for (String src : lib.sources)
+        {
+            logger.info("  " + src);
+            scanDirectory(lib, src, src);
+        }
     }
 
     /**
@@ -754,45 +789,47 @@ public class Repository
             }
             else
             {
-                logger.info("  library: " + lib.name +
-                        ", " + lib.sources.length + " sources" +
-                        (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " items" : ""));
-                // validate sources paths
-                for (int j = 0; j < lib.sources.length; j++)
+                if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name))
                 {
-                    if (lib.sources[j].length() == 0)
+                    logger.info("  library: " + lib.name +
+                            ", " + lib.sources.length + " sources" +
+                            (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " items" : ""));
+                    // validate sources paths
+                    for (int j = 0; j < lib.sources.length; j++)
                     {
-                        throw new MungerException("bibliography[" + i + "].sources[" + j + "] must be defined");
-                    }
-                    if (Files.notExists(Paths.get(lib.sources[j])))
-                    {
-                        throw new MungerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
-                    }
-                    logger.info("    src: " + lib.sources[j]);
-
-                    // validate item path
-                    if (lib.items != null && lib.items.size() > 0)
-                    {
-                        for (Item item : lib.items)
+                        if (lib.sources[j].length() == 0)
                         {
-                            if (Files.notExists(Paths.get(item.getFullPath())))
+                            throw new MungerException("bibliography[" + i + "].sources[" + j + "] must be defined");
+                        }
+                        if (Files.notExists(Paths.get(lib.sources[j])))
+                        {
+                            throw new MungerException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
+                        }
+                        logger.info("    src: " + lib.sources[j]);
+
+                        // validate item path
+                        if (lib.items != null && lib.items.size() > 0)
+                        {
+                            for (Item item : lib.items)
                             {
-                                logger.error("File does not exist: " + item.getFullPath());
-                            }
-                            else
-                            {
-                                if (!item.isDirectory() && Files.size(Paths.get(item.getFullPath())) != item.getSize())
+                                if (Files.notExists(Paths.get(item.getFullPath())))
                                 {
-                                    logger.error("File size does not match, file is " + Files.size(Paths.get(item.getFullPath())) + ", data has " + item.getSize() + ": " + item.getFullPath());
+                                    logger.error("File does not exist: " + item.getFullPath());
                                 }
-                            }
-                            if (!item.getLibrary().equals(lib.name))
-                            {
-                                logger.error("File library does not match, file is in " + lib.name + ", data has " + item.getLibrary() + ": " + item.getFullPath());
+                                else
+                                {
+                                    if (!item.isDirectory() && Files.size(Paths.get(item.getFullPath())) != item.getSize())
+                                    {
+                                        logger.error("File size does not match, file is " + Files.size(Paths.get(item.getFullPath())) + ", data has " + item.getSize() + ": " + item.getFullPath());
+                                    }
+                                }
+                                if (!item.getLibrary().equals(lib.name))
+                                {
+                                    logger.error("File library does not match, file is in " + lib.name + ", data has " + item.getLibrary() + ": " + item.getFullPath());
+                                }
                             }
                         }
                     }
-
                 }
             }
         }

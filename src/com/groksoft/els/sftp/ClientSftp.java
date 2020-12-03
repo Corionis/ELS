@@ -189,7 +189,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
             int readOffset = 0;
             long writeOffset = 0L;
 
-            String copyDest = dest + ".part";
+            String copyDest = dest + ".els-part";
 
             // does the destination already exist?
             // automatically resume/continue transfer
@@ -291,7 +291,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                 }
             }
 
-            // rename .part file
+            // rename .els-part file
             sftpClient.rename(copyDest, dest);
         }
         catch (Exception e)

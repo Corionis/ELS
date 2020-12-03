@@ -23,6 +23,11 @@ public class Configuration
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
 
+    public static final int RENAME_NONE = 0;
+    public static final int RENAME_FILES = 1;
+    public static final int RENAME_DIRECTORIES = 2;
+    public static final int RENAME_BOTH = 3;
+
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean crossCheck = false;
@@ -42,15 +47,16 @@ public class Configuration
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
-    private ArrayList<String> publisherLibraryNames = new ArrayList<>();
+    private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
     private boolean requestCollection = false;
     private boolean requestTargets = false;
-    private boolean specificPublisherLibrary = false;
+    private boolean specificLibrary = false;
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
     private boolean renaming = false;
+    private int renamingType = RENAME_NONE;
     private String targetsFilename = "";
     private boolean validation = false;
     private boolean whatsNewAll = false;
@@ -70,7 +76,7 @@ public class Configuration
      */
     public void addPublisherLibraryName(String publisherLibraryName)
     {
-        this.publisherLibraryNames.add(publisherLibraryName);
+        this.selectedLibraryNames.add(publisherLibraryName);
     }
 
     /**
@@ -99,7 +105,7 @@ public class Configuration
         logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
         //logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
         logger.info(SHORT, "  cfg: -l Publisher library name(s):");
-        for (String ln : getPublisherLibraryNames())
+        for (String ln : getSelectedLibraryNames())
         {
             logger.info(SHORT, "        " + ln);
         }
@@ -368,9 +374,9 @@ public class Configuration
      *
      * @return the publisher library name
      */
-    public ArrayList<String> getPublisherLibraryNames()
+    public ArrayList<String> getSelectedLibraryNames()
     {
-        return publisherLibraryNames;
+        return selectedLibraryNames;
     }
 
     /**
@@ -668,6 +674,35 @@ public class Configuration
     }
 
     /**
+     * Set the type of renaming to perform
+     */
+    public int getRenamingType()
+    {
+        return this.renamingType;
+    }
+
+    /**
+     * Set the type of renaming to perform
+     */
+    public void setRenamingType(String type) throws MungerException
+    {
+        switch (type.toLowerCase())
+        {
+            case "d":
+                this.renamingType = RENAME_DIRECTORIES;
+                break;
+            case "f":
+                this.renamingType = RENAME_FILES;
+                break;
+            case "b":
+                this.renamingType = RENAME_BOTH;
+                break;
+            default:
+                throw new MungerException("unknown -n | --rename type of rename; requires F | D | B");
+        }
+    }
+
+    /**
      * Is this a "request collection" operation?
      *
      * @return true/false
@@ -712,9 +747,9 @@ public class Configuration
      *
      * @return isSelected true/false
      */
-    public boolean isSelectedPublisherLibrary(String name)
+    public boolean isSelectedLibrary(String name)
     {
-        for (String library : publisherLibraryNames)
+        for (String library : selectedLibraryNames)
         {
             if (library.equalsIgnoreCase(name))
             {
@@ -729,19 +764,19 @@ public class Configuration
      *
      * @return the boolean
      */
-    public boolean isSpecificPublisherLibrary()
+    public boolean isSpecificLibrary()
     {
-        return specificPublisherLibrary;
+        return specificLibrary;
     }
 
     /**
      * Sets specific publisher library
      *
-     * @param specificPublisherLibrary the specific publisher library
+     * @param specificLibrary the specific publisher library
      */
-    public void setSpecificPublisherLibrary(boolean specificPublisherLibrary)
+    public void setSpecificLibrary(boolean specificLibrary)
     {
-        this.specificPublisherLibrary = specificPublisherLibrary;
+        this.specificLibrary = specificLibrary;
     }
 
     /**
@@ -898,7 +933,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         addPublisherLibraryName(args[index + 1]);
-                        setSpecificPublisherLibrary(true);
+                        setSpecificLibrary(true);
                         ++index;
                     }
                     else
@@ -921,6 +956,15 @@ public class Configuration
                 case "-n":                                             // perform renaming
                 case "--rename":
                     setRenaming(true);
+                    if (index <= args.length - 2)
+                    {
+                        setRenamingType(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -n requires the type F | D | B");
+                    }
                     break;
                 case "-o":
                 case "--overwrite":
