@@ -32,4 +32,6 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug --remote P -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/targets.json -m ../output/${name}-Mismatches-${stamp}.txt -n ../output/${name}-WhatsNew-${stamp}.txt -f ../output/${name}-${stamp}.log
+# This is the same as the publisher-dryrun.bat without the --dry-run
+java -jar ${base}/../ELS.jar -c info -d debug --remote P -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/targets.json -i ../output/publisher-export${stamp}.json -m ../output/${name}-Mismatches${stamp}.txt -W ../output/${name}-WhatsNew${stamp}.txt -f ../output/${name}${stamp}.log
+

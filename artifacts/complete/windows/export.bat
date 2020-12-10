@@ -19,4 +19,4 @@ if exist ..\output\%name%.log del /q ..\output\%name%.log
 set dtime=
 if %1z == -dz set dtime=%date:~-4%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%
 
-java -jar %base%\..\ELS.jar -d debug --dry-run -p ..\meta\publisher.json -s  ..\meta\subscriber.json -e ..\output\%name%-text-%dtime%.txt -i ..\output\%name%-collection-%dtime%.json -f ..\output\%name%-%dtime%.log
+java -jar %base%\..\ELS.jar -d debug --dry-run -p ..\meta\publisher.json -e ..\output\%name%-text-%dtime%.txt -i ..\output\%name%-collection-%dtime%.json -f ..\output\%name%-%dtime%.log

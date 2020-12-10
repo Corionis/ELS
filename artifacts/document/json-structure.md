@@ -1,10 +1,10 @@
-ELS uses two JSON files to describe the bibliographies of one or
-more libraries spread across multiple hard drives, one for the source,
-or publisher, and the other for the back-up, or the subscriber. Another
-JSON file describes the target location(s) for new content.
+ELS uses two JSON files to describe the bibliographies of one or more 
+libraries spread across multiple hard drives, one for the publisher, and 
+the other for the subscriber, or back-up. Another JSON file describes 
+the target location(s) for new content. 
 
 These files require correct JSON syntax. JSON is a simple text format
-to name elements and values.
+to name keyword/value pairs.
 
 A "library" file lists the libraries only, a "collection" file also contains
 all the individual items in each library. Both are JSON files of the same
@@ -16,9 +16,9 @@ to a library file, then only that data is used. This allows for generating a col
 file then hand-adjusting what ELS will use. A collection JSON file may be generated
 using the -i or --export-items option and specifying a publisher library file. 
 
-**IMPORTANT**: The JSON data here are example files with // comments. This is *NOT*
-valid JSON format and is used here for informational purposes. Don't copy 'n paste
-without removing from // to the end of each line. Better is to use the ELS Complete
+**IMPORTANT**: The JSON data here are example files with // comments. This is ***NOT***
+valid JSON format and is used here for informational purposes. Do not copy 'n paste
+without removing from // to the end of each line. Better to use the ELS Complete
 download file that contains valid example files.
 
 ## Library File Structure
@@ -37,6 +37,16 @@ For publisher and subscriber library JSON files:
         "ignore_patterns": [                            // one or more filenames to ignore/skip,
             "desktop.ini",                              //   separated by commas
             "Thumbs.db"
+        ],
+        "renaming": [                                   // optional substitution(s) for renaming
+            {
+                "from": "(?i) Moms dvd",                // regular expressions supported
+                "to": " DVD"                            // plain text or empty ""
+            },
+            {
+                "from": "(?i) Moms Bluray",
+                "to": ""
+            }
         ],
         "bibliography": [                               // required literal
             {
@@ -60,6 +70,7 @@ For publisher and subscriber library JSON files:
 ````
 
 ### Library Element Notes
+
  1. The host element is only used with the -r or --remote option.
  2. If a :port number is not specified 50271 is used as the BASE port number.
  3. The listen element is optional. It is useful for NAT/port forwarding. If not specified the host is used.
@@ -68,10 +79,14 @@ For publisher and subscriber library JSON files:
  5. The terminal_allowed can disable interactive access. However, a complex automatic handshake is done so it is relatively safe.
  6. The key element ***must be unique*** for each publisher and subscriber. It is a version-1 UUID, is below.
  7. The case_sensitive element controls the type of comparison that is done between publisher and subscriber content.
- 8. Any number of libraries may be added to the bibliography.
- 9. Library names must match between publisher, subscriber and targets.
- 10. Paths may be absolute, e.g. C:\Media\... or relative, e.g. ..\Media\...
+ 8. ignore_patterns and renaming sections are optional.
+    1. ignore_patterns and renaming 'from' support regular expressions, see [Regular Expressions](Regular-Expressions).
+ 9. Any number of libraries may be added to the bibliography.
+ 10. Library names must match between publisher, subscriber and targets.
+ 11. Paths may be absolute, e.g. C:\Media\... or relative, e.g. ..\Media\...
     1. Paths are relative to the location of ELS.jar.
+
+A collection file is the same as a library file with each directory and file included in each libary.
 
 ## Targets File Structure
 
@@ -102,15 +117,17 @@ For targets JSON file:
 ````
 
 ### Targets Elements Notes
+
  1. Library names must match between publisher, subscriber and targets.
  2. If the minimum element is not specified it defaults to 1 GB.
  3. There may be any number of locations for a library, separated by commas.
  4. Targets are processed in order. When the first is "full" based on the minimum
     the next location is used.
- 5. BE SURE to include the target locations as sources in the library files otherwise
+ 5. **BE SURE** to include the target locations as sources in the library files otherwise
     the content there will not be found and items will be re-copied.
 
 ## UUID Generation
+
 Library JSON files for each publisher and subscriber must have a unique key 
 UUID (Universally Unique ID).
 
@@ -118,5 +135,6 @@ There are many tools and ways to generate a version-1 UUID for the "key" element
 this [Online UUID Generator](https://www.uuidgenerator.net/) works well.
 
 ## References
+
  * [json.org](https://www.json.org/json-en.html). 
  * [w3school.com : What is JSON?](https://www.w3schools.com/whatis/whatis_json.asp)

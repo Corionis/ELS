@@ -4,16 +4,18 @@
         "storage": [
             {
                 "name": "Movies",
-                "minimum": "50kb",
+                "minimum": "50MB",
                 "locations": [
-                    "TestRun/subscriber-1/media-d/media/NewMovies"
+                    "/media/next1/Movies",
+                    "/media/next2/Movies"
                 ]
             },
             {
                 "name": "TV Shows",
                 "minimum": "1GB",
                 "locations": [
-                    "TestRun/subscriber-1/media-d/media/NewTVShows"
+                    "/media/next1/TV Shows",
+                    "/media/next2/TV Shows"
                 ]
             }
         ]

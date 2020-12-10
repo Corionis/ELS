@@ -5,29 +5,39 @@
         "listen": "localhost:50271",
         "flavor": "linux",
         "terminal_allowed": "true",
-        "key": "21611850-f8a8-11ea-adc1-0242ac120002",
+        "key": "767c6aa1-0189-4f77-a545-1f3dd7ec7966",
         "case_sensitive": false,
         "ignore_patterns": [
             "desktop.ini",
             "Thumbs.db"
         ],
+        "renaming": [
+            {
+                "from": "(?i) Moms dvd",
+                "to": " DVD"
+            },
+            {
+                "from": "(?i) Moms Bluray",
+                "to": " Bluray"
+            }
+        ],
         "bibliography": [
             {
                 "name": "Movies",
                 "sources": [
-                    "TestRun/subscriber-1/media-1/vids/MoviesA",
-                    "TestRun/subscriber-1/media-b/media/MoviesB",
-                    "TestRun/subscriber-1/media-c/media/MoviesC",
-                    "TestRun/subscriber-1/media-d/media/NewMovies"
+                    "/media/vids/MoviesA",
+                    "/media/media-b/MoviesB",
+                    "/media/media-c/MoviesC",
+                    "/media/media-d/NewMovies"
                 ]
             },
             {
                 "name": "TV Shows",
                 "sources": [
-                    "TestRun/subscriber-1/media-1/vids/TVShowsA",
-                    "TestRun/subscriber-1/media-b/media/TVShowsB",
-                    "TestRun/subscriber-1/media-c/media/TVShowsC",
-                    "TestRun/subscriber-1/media-d/media/NewTVShows"
+                    "/media/vids/TVShowsA",
+                    "/media/media-b/TVShowsB",
+                    "/media/media-c/TVShowsC",
+                    "/media/media-d/NewTVShows"
                 ]
             }
         ]

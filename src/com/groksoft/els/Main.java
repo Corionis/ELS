@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import static com.groksoft.els.Configuration.*;
 
 /**
- * Main ELS program
+ * ELS main program
  */
 public class Main
 {
@@ -322,7 +322,7 @@ public class Main
     } // process
 
     /**
-     * Read a repository
+     * Read either publisher or subscriber repository
      *
      * @param cfg         Loaded configuration
      * @param isPublisher Is this the publisher? true/false
@@ -401,10 +401,13 @@ public class Main
                 repo.read(cfg.getSubscriberCollectionFilename());
             }
         }
+
+        // -v | --validate option
         if (validate && repo.isInitialized())
         {
             repo.validate();
         }
+
         return repo;
     }
 

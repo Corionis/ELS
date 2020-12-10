@@ -11,21 +11,31 @@
             "desktop.ini",
             "Thumbs.db"
         ],
+        "renaming": [
+            {
+                "from": "(?i) Moms dvd",
+                "to": " DVD"
+            },
+            {
+                "from": "(?i) Moms Bluray",
+                "to": " Bluray"
+            }
+        ],
         "bibliography": [
             {
                 "name": "Movies",
                 "sources": [
-                    "TestRun/publisher/media-a/media/MyMovies",
-                    "TestRun/publisher/media-b/media/MoreMovies",
-                    "TestRun/publisher/media-c/media/YetMoreMovies"
+                    "/media/media-a/MyMovies",
+                    "/media/media-b/MoreMovies",
+                    "/media/media-c/YetMoreMovies"
                 ]
             },
             {
                 "name": "TV Shows",
                 "sources": [
-                    "TestRun/publisher/media-a/media/MyTVShows",
-                    "TestRun/publisher/media-b/media/MoreTVShows",
-                    "TestRun/publisher/media-c/media/YetMoreTVShows"
+                    "/media/media-a/MyTVShows",
+                    "/media/media-b/MoreTVShows",
+                    "/media/media-c/YetMoreTVShows"
                 ]
             }
         ]

@@ -22,6 +22,8 @@
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/json-structure.md" />
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/modes.md" />
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/downloads.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/els-plex-generator.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/regular-expressions.md" />
           </element>
         </element>
       </element>

@@ -1,20 +1,24 @@
 Entertainment Library Synchronizer is distributed as a single Java jar file, either complete with example JSON files and scripts or just the software.
 
 # Requirements
+
  * Media directory structure as described in these pages.
  * Supported operating systems:
    * Windows
    * Linux
    * Apple Macintosh
  * Java version 1.8 or greater.
+ * Memory requirements depend on the size of the media library
+   * For 50,000 files about 1.5-2.0 GB
  * Two computers are required to use remote communications with the -r option.
    * The two computers do not need to be running the same operating system.
 
 # Disclaimer
+
 Any software downloaded from this site is free and without warranty or guarantee of any kind expressed or implied. The software may not work or serve any intended or particular purpose. Use at your own risk. If you break it you own both parts.
 
 # Downloads
-The current version of ELS is: **2.0.3.**
+The current version of ELS is: **2.1.0.**
 
  * Latest build, software only: [ELS.jar](../blob/master/deploy/ELS.jar?raw=true)
  * Latest build, with examples: [ELS-complete.zip](../blob/master/deploy/ELS-complete.zip?raw=true)
@@ -40,8 +44,13 @@ It is recommended to start with the ELS-complete.zip. These instructions are bas
  6. For a remote connection copy the entire ELS directory to the subscriber computer.
     1. Publisher-side runs publisher scripts.
     2. Subscriber-side runs subscriber scripts.
- 7. Run the appropriate dryrun or backup script for Windows or Linux (Apple).
+ 7. Run the appropriate validate, dryrun or backup script for Windows or Linux (Apple).
  8. Explore the other options and possibilities!
+
+An add-on tool is available to generate a basic ELS JSON file from a
+[Plex Media Server](www.plex.tv), see the [ELS Plex
+Generator](https://github.com/GrokSoft/ELS-Plex-Generator). However ELS
+supports any modern media system that uses the same directory structure.
 
 ELS has many options that may be used in different combinations. Only a
 few are shown in the example files.

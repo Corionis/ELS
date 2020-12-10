@@ -21,7 +21,7 @@ name=`basename $0 .sh`
 
 stamp=""
 if [ "X${1}" != "X" -a "$1" == "-d" ]; then
-    stamp="_`date +%Y%m%d-%H%m%S`"
+    stamp="_`date +%Y%m%d-%H%M%S`"
 fi
 
 if [ ! -e ../output ]; then
@@ -32,4 +32,5 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug --remote L --authorize password -p ../meta/publisher.json -S  ../meta/subscriber.json -T ../meta/targets.json -f ../output/${name}-${stamp}.log
+java -jar ${base}/../ELS.jar -d debug --remote L --authorize gr33nz0n3 -p ../meta/publisher.json -S  ../meta/subscriber.json -T ../meta/targets.json -f ../output/${name}${stamp}.log
+

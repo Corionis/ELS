@@ -1,4 +1,4 @@
-ELS is basic Java version 1.8 and supporting libraries. The resulting jar
+ELS is written in Java version 1.8 and supporting libraries. The resulting jar
 is completely self-contained.
 
 ELS was developed using [JetBrains Intellij IDEA](https://www.jetbrains.com/idea/). Eclipse
@@ -13,7 +13,7 @@ technology.
 
 The STTY implementation is entirely custom. The command set available is
 easily extensible. Commands are used by both automated and interactive (-r M and -r T) sessions
-in a request/response (REST) style. Interactive sessions display a pseudo-terminal developed
+in a request/response REST style. Interactive sessions display a built-in terminal developed
 in Java Swing. The Look 'n Feel of the terminal depends on the operating system. The default LnF
 supported by the installed Java VM is used by default. The LnF used may be changed, see the
 Communications How-To for details.

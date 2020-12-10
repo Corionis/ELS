@@ -1,6 +1,8 @@
 
 # ELS: Testing Notes
 
+These are rough note.
+
 ## Command lines
 General parameters:
  * Start from the "mock" directory

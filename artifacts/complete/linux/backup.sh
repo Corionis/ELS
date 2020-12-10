@@ -15,7 +15,7 @@ name=`basename $0 .sh`
 
 stamp=""
 if [ "X${1}" != "X" -a "$1" == "-d" ]; then
-    stamp="_`date +%Y%m%d-%H%m%S`"
+    stamp="_`date +%Y%m%d-%H%M%S`"
 fi
 
 if [ ! -e ../output ]; then
@@ -26,4 +26,6 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug -p ../meta/publisher.json -s  ../meta/subscriber.json -T ../meta/targets.json -m ../output/${name}-Mismatches-${stamp}.txt -n ../output/${name}-WhatsNew-${stamp}.txt -f ../output/${name}-${stamp}.log
+# This is the same as the dryrun.bat without the --dry-run
+java -jar ${base}/../ELS.jar -d debug -p ../meta/publisher.json -s  ../meta/subscriber.json -T ../meta/targets.json -m ../output/${name}-Mismatches${stamp}.txt -W ../output/${name}-WhatsNew${stamp}.txt -f ../output/${name}${stamp}.log
+

@@ -554,7 +554,7 @@ public class Repository
                             }
                             else
                             {
-                                // replace the name on the end of the item and full paths
+                                // replace the name on the end of the item and fullpath
                                 String path = item.getItemPath();
                                 path = path.substring(0, path.length() - old.length());
                                 path = path + name;
@@ -622,6 +622,8 @@ public class Repository
 
     /**
      * Scan a specific directory, recursively.
+     * <P>
+     * Used by the public scan methods.
      *
      * @param directory the directory
      * @throws MungerException the els exception
@@ -675,6 +677,14 @@ public class Repository
         return count;
     }
 
+    /**
+     * Scan the sources of a library.
+     * <P>
+     * Used by the public scan methods.
+     *
+     * @param lib
+     * @throws MungerException
+     */
     private void scanSources(Library lib) throws MungerException
     {
         logger.info("Scanning " + getLibraryData().libraries.description + ": " + lib.name);
@@ -702,8 +712,6 @@ public class Repository
      */
     public void validate() throws MungerException, Exception
     {
-        long minimumSize;
-
         if (libraryData == null)
         {
             throw new MungerException("Libraries are null");
@@ -724,7 +732,7 @@ public class Repository
             throw new MungerException("libraries.case_sensitive true/false must be defined");
         }
 
-        if (lbs.ignore_patterns.length > 0)
+        if (lbs.ignore_patterns != null && lbs.ignore_patterns.length > 0)
         {
             Pattern patt = null;
             String src = null;
@@ -747,7 +755,7 @@ public class Repository
             }
         }
 
-        if (lbs.renaming.length > 0)
+        if (lbs.renaming != null && lbs.renaming.length > 0)
         {
             Pattern patt = null;
             String src = null;

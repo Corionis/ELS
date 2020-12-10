@@ -59,9 +59,9 @@ public class Process
     /**
      * Copy a file, local or remote
      *
-     * @param from the from
-     * @param to   the to
-     * @return the boolean
+     * @param from the full from path
+     * @param to   the full to path
+     * @return success boolean
      */
     private boolean copyFile(String from, String to, boolean overwrite)
     {
@@ -122,7 +122,7 @@ public class Process
         String response = "";
         if (cfg.getTargetsFilename().length() < 1)
         {
-            throw new MungerException("-t or -T target are required for this operation");
+            throw new MungerException("-t or -T target is required for this operation");
         }
         if (!isInitialized)
         {
