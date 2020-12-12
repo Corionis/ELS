@@ -1,6 +1,8 @@
 package com.groksoft.els.repository;
 
-import java.util.List;
+import com.google.common.collect.Multimap;
+
+import java.util.Vector;
 
 /**
  * The type Library.
@@ -8,17 +10,20 @@ import java.util.List;
 public class Library
 {
     /**
+     * Transient hash map for item look-ups
+     */
+    public transient Multimap<String, Integer> itemMap;
+    /**
+     * One or more Items.
+     */
+    public Vector<Item> items;
+    /**
      * The library Name.
      */
     public String name;
-
     /**
      * One or more Sources.
      */
     public String[] sources;
 
-    /**
-     * One or more Items.
-     */
-    public List<Item> items;
 }

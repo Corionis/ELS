@@ -11,6 +11,7 @@
       <root url="jar://$PROJECT_DIR$/lib/sshd-core-2.5.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sshd-mina-2.5.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sshd-sftp-2.5.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/guava-30.0-jre.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-core-2.8.1-javadoc" />

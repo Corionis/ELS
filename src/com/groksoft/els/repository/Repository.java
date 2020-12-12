@@ -1,5 +1,6 @@
 package com.groksoft.els.repository;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.groksoft.els.Configuration;
@@ -16,7 +17,9 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -171,6 +174,28 @@ public class Repository
     }
 
     /**
+     * Gets an item collection from the itemMap hash map
+     */
+    private Collection getMapItem(Library lib, String itemPath) throws MungerException
+    {
+        Collection collection = null;
+        try
+        {
+            String key = itemPath;
+            if (!libraryData.libraries.case_sensitive)
+            {
+                key = key.toLowerCase();
+            }
+            collection = lib.itemMap.get(key);
+        }
+        catch (Exception e)
+        {
+            throw new MungerException("itemMap.get '" + itemPath + "' failed");
+        }
+        return collection;
+    }
+
+    /**
      * Get file separator
      *
      * @return File separator string single character
@@ -227,6 +252,7 @@ public class Repository
                 foundItem = null;
                 if (lib.items != null)
                 {
+                    // has to be a linear search because directories are not placed in the itemMap hash map
                     for (Item item : lib.items)
                     {
                         if (libraryData.libraries.case_sensitive)
@@ -275,10 +301,47 @@ public class Repository
     {
         Item has = null;
 
-        for (Library lib : libraryData.libraries.bibliography)
+        if (!pubItem.isDirectory())
         {
-            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
+            for (Library lib : libraryData.libraries.bibliography)
             {
+                if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
+                {
+                    if (lib.itemMap != null)
+                    {
+                        // hash map technique
+                        Collection collection = getMapItem(lib, itemPath);
+                        if (collection != null)
+                        {
+                            Iterator it = collection.iterator();
+                            for (int i = 0; i < collection.size(); ++i)
+                            {
+                                Integer j = (Integer) it.next();
+                                Item item = lib.items.elementAt(j);
+                                if (!item.isDirectory())
+                                {
+                                    pubItem.addHas(item); // add match and any duplicate for cross-reference
+
+                                    // is it a duplicate?
+                                    if (has != null)
+                                    {
+                                        logger.warn("  ! Duplicate of \"" + itemPath + "\" found at \"" + item.getFullPath() + "\"");
+                                    }
+                                    else
+                                    {
+                                        has = item; // return first match
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        throw new MungerException("itemMap is null for library " + lib.name);
+                    }
+                 }
+/*
+                // original linear search technique
                 for (Item item : lib.items)
                 {
                     if (!item.isDirectory())
@@ -303,6 +366,7 @@ public class Repository
                         }
                     }
                 }
+*/
             }
         }
 
@@ -321,12 +385,37 @@ public class Repository
      */
     public void hasPublisherDuplicate(Item pubItem, String itemPath) throws MungerException
     {
-        Item has = null;
-
+        String key;
         for (Library lib : libraryData.libraries.bibliography)
         {
             if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
             {
+                if (lib.itemMap != null)
+                {
+                    // hash map technique
+                    Collection collection = getMapItem(lib, itemPath);
+                    if (collection != null)
+                    {
+                        Iterator it = collection.iterator();
+                        for (int i = 0; i < collection.size(); ++i)
+                        {
+                            Integer j = (Integer) it.next();
+                            Item item = lib.items.elementAt(j);
+                            if (item != pubItem && !item.isDirectory())
+                            {
+                                pubItem.addHas(item); // add match and any duplicate for cross-reference
+                                logger.warn("  ! Duplicate of \"" + pubItem.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    throw new MungerException("itemMap is null for library " + lib.name);
+                }
+
+/*
+                // original linear search technique
                 for (Item item : lib.items)
                 {
                     // do not match self or directories
@@ -343,6 +432,7 @@ public class Repository
                         }
                     }
                 }
+*/
             }
         }
     }
@@ -389,7 +479,7 @@ public class Repository
     /**
      * Normalize all JSON paths based on "flavor"
      */
-    public void normalize()
+    public void normalize() throws MungerException
     {
         if (libraryData != null)
         {
@@ -427,10 +517,25 @@ public class Repository
                 }
                 if (lib.items != null)
                 {
-                    for (Item item : lib.items)
+                    // setup the hash map for this library
+                    if (lib.itemMap == null)
+                        lib.itemMap = ArrayListMultimap.create();
+                    else
+                        lib.itemMap.clear();
+
+                    for (int i = 0; i < lib.items.size(); ++i)
                     {
+                        Item item = lib.items.elementAt(i);
                         item.setItemPath(normalizeSubst(item.getItemPath(), from, to));
                         item.setFullPath(normalizeSubst(item.getFullPath(), from, to));
+
+                        // add itemPath & the item's index in the Vector to the hash map
+                        String key = item.getItemPath();
+                        if (!libraryData.libraries.case_sensitive)
+                        {
+                            key = key.toLowerCase();
+                        }
+                        lib.itemMap.put(Utils.pipe(this, key), i);
                     }
                 }
             }
@@ -622,7 +727,7 @@ public class Repository
 
     /**
      * Scan a specific directory, recursively.
-     * <P>
+     * <p>
      * Used by the public scan methods.
      *
      * @param directory the directory
@@ -641,7 +746,7 @@ public class Repository
 
         if (library.items == null)
         {
-            library.items = new ArrayList<>();
+            library.items = new Vector<>();
         }
 
         try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path))
@@ -679,7 +784,7 @@ public class Repository
 
     /**
      * Scan the sources of a library.
-     * <P>
+     * <p>
      * Used by the public scan methods.
      *
      * @param lib

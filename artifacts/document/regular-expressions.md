@@ -41,7 +41,8 @@ x	The character x
 \0mnn	The character with octal value 0mnn (0 <= m <= 3, 0 <= n <= 7)
 \xhh	The character with hexadecimal value 0xhh
 \uhhhh	The character with hexadecimal value 0xhhhh
-\x{h...h}	The character with hexadecimal value 0xh...h (Character.MIN_CODE_POINT  <= 0xh...h <=  Character.MAX_CODE_POINT)
+\x{h...h}	The character with hexadecimal value 0xh...h (Character.MIN_CODE_POINT
+    <= 0xh...h <=  Character.MAX_CODE_POINT)
 \t	The tab character ('\u0009')
 \n	The newline (line feed) character ('\u000A')
 \r	The carriage-return character ('\u000D')
@@ -119,7 +120,8 @@ $	The end of a line
  
 Linebreak matcher:
 
-\R	Any Unicode linebreak sequence, is equivalent to \u000D\u000A|[\u000A\u000B\u000C\u000D\u0085\u2028\u2029]
+\R	Any Unicode linebreak sequence, is equivalent to \u000D\u000A|[\u000A\u000B
+    \u000C\u000D\u0085\u2028\u2029]
  
 Greedy quantifiers:
 
@@ -167,15 +169,32 @@ Quotation:
  
 Backslashes, escapes, and quoting:
 
-The backslash character ('\') serves to introduce escaped constructs, as defined in the table above, as well as to quote characters that otherwise would be interpreted as unescaped constructs. Thus the expression \\ matches a single backslash and \{ matches a left brace.
+The backslash character ('\') serves to introduce escaped constructs, as defined in the 
+table above, as well as to quote characters that otherwise would be interpreted as 
+unescaped constructs. Thus the expression \\ matches a single backslash and \{ matches 
+a left brace.
 
-It is an error to use a backslash prior to any alphabetic character that does not denote an escaped construct; these are reserved for future extensions to the regular-expression language. A backslash may be used prior to a non-alphabetic character regardless of whether that character is part of an unescaped construct.
+It is an error to use a backslash prior to any alphabetic character that does not denote 
+an escaped construct; these are reserved for future extensions to the regular-expression 
+language. A backslash may be used prior to a non-alphabetic character regardless of whether 
+that character is part of an unescaped construct.
 
-Backslashes within string literals in Java source code are interpreted as required by The Java™ Language Specification as either Unicode escapes (section 3.3) or other character escapes (section 3.10.6) It is therefore necessary to double backslashes in string literals that represent regular expressions to protect them from interpretation by the Java bytecode compiler. The string literal "\b", for example, matches a single backspace character when interpreted as a regular expression, while "\\b" matches a word boundary. The string literal "\(hello\)" is illegal and leads to a compile-time error; in order to match the string (hello) the string literal "\\(hello\\)" must be used.
+Backslashes within string literals in Java source code are interpreted as required by 
+The Java™ Language Specification as either Unicode escapes (section 3.3) or other 
+character escapes (section 3.10.6) It is therefore necessary to double backslashes in 
+string literals that represent regular expressions to protect them from interpretation 
+by the Java bytecode compiler. The string literal "\b", for example, matches a single 
+backspace character when interpreted as a regular expression, while "\\b" matches a 
+word boundary. The string literal "\(hello\)" is illegal and leads to a compile-time 
+error; in order to match the string (hello) the string literal "\\(hello\\)" must be used.
 
 Character Classes:
 
-Character classes may appear within other character classes, and may be composed by the union operator (implicit) and the intersection operator (&&). The union operator denotes a class that contains every character that is in at least one of its operand classes. The intersection operator denotes a class that contains every character that is in both of its operand classes.
+Character classes may appear within other character classes, and may be composed by 
+the union operator (implicit) and the intersection operator (&&). The union operator 
+denotes a class that contains every character that is in at least one of its operand 
+classes. The intersection operator denotes a class that contains every character that 
+is in both of its operand classes.
 
 The precedence of character-class operators is as follows, from highest to lowest:
 
@@ -184,7 +203,11 @@ The precedence of character-class operators is as follows, from highest to lowes
 3    	Range	a-z
 4    	Union	[a-e][i-u]
 5    	Intersection	[a-z&&[aeiou]]
-Note that a different set of metacharacters are in effect inside a character class than outside a character class. For instance, the regular expression . loses its special meaning inside a character class, while the expression - becomes a range forming metacharacter.
+
+Note that a different set of metacharacters are in effect inside a character class than 
+outside a character class. For instance, the regular expression . loses its special 
+meaning inside a character class, while the expression - becomes a range forming 
+metacharacter.
 
 Classes	Matches:
 

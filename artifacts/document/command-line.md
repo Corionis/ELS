@@ -36,7 +36,7 @@ file are used, no scans are performed.
 
 A library file may be edited by hand. Also, an add-on tool is available 
 to generate a basic ELS library file from a [Plex Media 
-Server](www.plex.tv), see the [ELS Plex 
+Server](https://www.plex.tv), see the [ELS Plex 
 Generator](https://github.com/GrokSoft/ELS-Plex-Generator). However ELS 
 supports any modern media system that uses the same directory structure. 
 

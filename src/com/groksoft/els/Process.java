@@ -198,11 +198,18 @@ public class Process
             justScannedPublisher = true;
         }
 
-        logger.info("Analyzing for duplicates" + (cfg.isRenaming() ? " and performing any substitution renames" : ""));
+        totalDirectories = 0;
+        totalItems = 0;
         for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
         {
+            logger.info("Analyzing library '" + pubLib.name + "' for duplicates" + (cfg.isRenaming() ? " and performing any substitution renames" : ""));
             for (Item item : pubLib.items)
             {
+                if (item.isDirectory())
+                    ++totalDirectories;
+                else
+                    ++totalItems;
+
                 // populate the item.hasList
                 context.publisherRepo.hasPublisherDuplicate(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
             }
@@ -232,10 +239,11 @@ public class Process
             }
         }
 
-        if (duplicates > 0)
-            logger.info(SIMPLE, "Total duplicates: " + duplicates);
-        if (empties > 0)
-            logger.info(SIMPLE, "Total empty directories: " + empties);
+        logger.info(SIMPLE, "# Total files: " + totalItems);
+        logger.info(SIMPLE, "# Total directories: " + totalDirectories);
+        logger.info(SIMPLE, "# Total items: " + (totalItems + totalDirectories));
+        logger.info(SIMPLE, "# Total duplicates: " + duplicates);
+        logger.info(SIMPLE, "# Total empty directories: " + empties);
     }
 
     /**
@@ -313,10 +321,10 @@ public class Process
         long space = 0L;
         long minimum = 0L;
 
-        Target tar = storageTargets.getLibraryTarget(library);
-        if (tar != null)
+        Target storage = storageTargets.getLibraryTarget(library);
+        if (storage != null)
         {
-            minimum = Utils.getScaledValue(tar.minimum);
+            minimum = Utils.getScaledValue(storage.minimum);
         }
         else
         {
@@ -359,13 +367,13 @@ public class Process
         }
 
         // find a matching target
-        if (tar != null)
+        if (storage != null)
         {
             notFound = false;
-            for (int j = 0; j < tar.locations.length; ++j)
+            for (int j = 0; j < storage.locations.length; ++j)
             {
                 // check space on the candidate target
-                String candidate = tar.locations[j];
+                String candidate = storage.locations[j];
                 if (cfg.isRemoteSession())
                 {
                     // remote subscriber
@@ -389,7 +397,7 @@ public class Process
             }
             if (allFull)
             {
-                logger.error("All locations for library " + library + " are below specified minimum of " + tar.minimum);
+                logger.error("All locations for library " + library + " are below specified minimum of " + storage.minimum);
 
                 // todo Should this be a throw ??
                 System.exit(2);     // EXIT the program
