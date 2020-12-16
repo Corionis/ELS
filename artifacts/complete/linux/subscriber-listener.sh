@@ -26,7 +26,7 @@ if [ "X${1}" != "X" -a "$1" == "-d" ]; then
     stamp="_`date +%Y%m%d-%H%M%S`"
 fi
 
-if [ ! -e ../output ]; then
+if [ ! -d ../output ]; then
     mkdir ../output
 fi
 
@@ -34,5 +34,5 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug --remote S --authorize gr33nz0n3 -p ../meta/publisher.json -s ../meta/subscriber.json -T ../meta/targets.json -f ../output/${name}${stamp}.log
+java -jar ${base}/../ELS.jar -d debug --remote S --authorize passw0rd -p ../meta/publisher.json -s ../meta/subscriber.json -T ../meta/targets.json -f ../output/${name}${stamp}.log
 

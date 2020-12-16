@@ -26,6 +26,7 @@ public class Process
     private int copyCount = 0;
     private String currentGroupName = "";
     private int errorCount = 0;
+    private boolean fault = false;
     private long grandTotalItems = 0L;
     private long grandTotalOriginalLocation = 0L;
     private long grandTotalSize = 0L;
@@ -164,7 +165,8 @@ public class Process
                         }
                         else
                         {
-                            logger.error("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
+                            fault = true;
+                            throw new MungerException("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
                                     lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
                         }
                     }
@@ -178,6 +180,7 @@ public class Process
         }
         catch (Exception e)
         {
+            fault = true;
             throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
         }
 
@@ -498,6 +501,7 @@ public class Process
         }
         catch (Exception ex)
         {
+            fault = true;
             logger.error(Utils.getStackTrace(ex));
         }
     }
@@ -572,6 +576,7 @@ public class Process
             }
             catch (FileNotFoundException fnf)
             {
+                fault = true;
                 String s = "File not found exception for Mismatches output file " + cfg.getMismatchFilename();
                 logger.error(s);
                 throw new MungerException(s);
@@ -589,6 +594,7 @@ public class Process
             }
             catch (FileNotFoundException fnf)
             {
+                fault = true;
                 String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
                 logger.error(s);
                 throw new MungerException(s);
@@ -753,6 +759,7 @@ public class Process
         }
         catch (Exception e)
         {
+            fault = true;
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
         }
         finally
@@ -865,23 +872,26 @@ public class Process
             }
             catch (Exception ex)
             {
+                fault = true;
                 logger.error("Inner: " + Utils.getStackTrace(ex));
                 returnValue = 2;
             }
         }
         catch (Exception e)
         {
+            fault = true;
             logger.error("Outer: " + Utils.getStackTrace(e));
             returnValue = 1;
             cfg = null;
         }
         finally
         {
-            // the - makes searching for the ending of a run easier
             if (logger != null)
             {
+                // the - makes searching for the ending of a run easier
                 logger.info("- Process end" + " ------------------------------------------");
 
+                // tell remote end to exit
                 if (context.clientStty != null)
                 {
                     String resp = context.clientStty.roundTrip("quit");
@@ -890,7 +900,10 @@ public class Process
                         logger.warn("Remote subscriber might not have quit");
                     }
                 }
-                //LogManager.shutdown();
+
+                // mark the process as successful so it may be detected with automation
+                if (!fault)
+                    logger.error("Process completed normally");
             }
         }
 

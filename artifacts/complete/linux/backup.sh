@@ -18,7 +18,7 @@ if [ "X${1}" != "X" -a "$1" == "-d" ]; then
     stamp="_`date +%Y%m%d-%H%M%S`"
 fi
 
-if [ ! -e ../output ]; then
+if [ ! -d ../output ]; then
     mkdir ../output
 fi
 

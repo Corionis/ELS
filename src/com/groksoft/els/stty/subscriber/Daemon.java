@@ -33,6 +33,7 @@ public class Daemon extends DaemonBase
     protected static Logger logger = LogManager.getLogger("applog");
 
     private Main.Context context;
+    private boolean fault = false;
     private boolean isTerminal = false;
 
     /**
@@ -94,6 +95,7 @@ public class Daemon extends DaemonBase
         }
         catch (Exception e)
         {
+            fault = true;
             logger.error(e.getMessage());
         }
         return valid;
@@ -354,6 +356,7 @@ public class Daemon extends DaemonBase
             } // try
             catch (Exception e)
             {
+                fault = true;
                 Utils.write(out, myKey, e.getMessage());
                 connected = false;
                 break;
@@ -366,11 +369,14 @@ public class Daemon extends DaemonBase
             if (logger != null)
             {
                 logger.info("Close connection on port " + port + " to " + address.getHostAddress());
+
+                // mark the process as successful so it may be detected with automation
+                if (!fault)
+                    logger.error("Process completed normally");
             }
             out.close();
             in.close();
 
-//            logger.info("stopping services");
             Runtime.getRuntime().exit(0);
         }
 
