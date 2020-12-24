@@ -624,11 +624,16 @@ public class Process
                         }
                         if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            if (cfg.isRemoteSession())
+                            //if (cfg.isRemoteSession())
+                            //{
+                            //    throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
+                            //}
+                            //context.subscriberRepo.scan(subLib.name);
+
+                            if (!cfg.isRemoteSession()) // remote collection already loaded and may be empty
                             {
-                                throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
+                                context.subscriberRepo.scan(subLib.name);
                             }
-                            context.subscriberRepo.scan(subLib.name);
                         }
 
                         logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +

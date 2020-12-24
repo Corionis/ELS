@@ -10,12 +10,14 @@ import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.subsystem.sftp.SftpClient;
 import org.apache.sshd.client.subsystem.sftp.impl.DefaultSftpClientFactory;
+import org.apache.sshd.client.subsystem.sftp.impl.SftpOutputStreamAsync;
 import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.channels.FileChannel;
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Collection;
@@ -141,9 +143,9 @@ public class ClientSftp implements SftpErrorStatusDataHandler
             sshClient.start();
 
             logger.info("Opening sftp connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
-            session = sshClient.connect(user, hostname, hostport).verify(180000L).getSession();
+            session = sshClient.connect(user, hostname, hostport).verify(300000L).getSession();
             session.addPasswordIdentity(password);
-            session.auth().verify(180000L).await();
+            session.auth().verify(300000L).await();
 
             sftpClient = DefaultSftpClientFactory.INSTANCE.createSftpClient(session);
         }
@@ -247,6 +249,8 @@ public class ClientSftp implements SftpErrorStatusDataHandler
             // open remote file
             SftpClient.Handle handle = sftpClient.open(copyDest, mode);
 
+//            SftpOutputStreamAsync sosa = null;
+
             // open local file
             FileInputStream srcStream = new FileInputStream(src);
             srcStream.skip(readOffset);
@@ -259,6 +263,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                 size = srcStream.read(buffer, 0, BUFFER_SIZE);
                 if (size < 1)
                     break;
+
                 sftpClient.write(handle, writeOffset, buffer, 0, size);
                 Arrays.fill(buffer, (byte) 0);
                 writeOffset += size;
