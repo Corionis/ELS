@@ -2,35 +2,33 @@ package com.groksoft.els.stty.gui;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Utils;
-import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.repository.Repository;
+import com.groksoft.els.stty.ClientStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import javax.swing.*;
-import java.awt.*;
 
 public class TerminalGui implements WindowListener, ActionListener
 {
-    private transient Logger logger = LogManager.getLogger("applog");
-
     Configuration cfg = null;
+    JTextField commandField;
+    JFrame frame;
     DataInputStream in = null;
     DataOutputStream out = null;
+    JScrollPane scroll;
+    ClientStty terminal;
+    JTextArea textArea;
+    private transient Logger logger = LogManager.getLogger("applog");
     private Repository myRepo;
     private Repository theirRepo;
-
-    ClientStty terminal;
-    JFrame frame;
-    JTextArea textArea;
-    JTextField commandField;
-    JScrollPane scroll;
 
     public TerminalGui(ClientStty clientStty, Configuration cfg, DataInputStream in, DataOutputStream out)
     {
@@ -49,43 +47,51 @@ public class TerminalGui implements WindowListener, ActionListener
 
         logger.info("Processing input: " + action + " = " + commandField.getText());
 
-        switch (action)
+        try
         {
-            case "clear":
-                textArea.setText("");
-                frame.revalidate();
-                sb = scroll.getVerticalScrollBar();
-                sb.setValue(sb.getMaximum());
-                commandField.setText("");
-                commandField.grabFocus();
-                commandField.requestFocus();
-                break;
-            case "command":
-                response = roundTrip(commandField.getText());
-                frame.revalidate();
-                sb = scroll.getVerticalScrollBar();
-                sb.setValue(sb.getMaximum());
-                commandField.setText("");
-                commandField.grabFocus();
-                commandField.requestFocus();
-                break;
-            case "exit":
-                frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-                break;
-            case "reset":
-                commandField.setText("");
-                commandField.grabFocus();
-                commandField.requestFocus();
-                break;
-            case "send":
-                response = roundTrip(commandField.getText());
-                frame.revalidate();
-                sb = scroll.getVerticalScrollBar();
-                sb.setValue(sb.getMaximum());
-                commandField.setText("");
-                commandField.grabFocus();
-                commandField.requestFocus();
-                break;
+            switch (action)
+            {
+                case "clear":
+                    textArea.setText("");
+                    frame.revalidate();
+                    sb = scroll.getVerticalScrollBar();
+                    sb.setValue(sb.getMaximum());
+                    commandField.setText("");
+                    commandField.grabFocus();
+                    commandField.requestFocus();
+                    break;
+                case "command":
+                    response = roundTrip(commandField.getText());
+                    frame.revalidate();
+                    sb = scroll.getVerticalScrollBar();
+                    sb.setValue(sb.getMaximum());
+                    commandField.setText("");
+                    commandField.grabFocus();
+                    commandField.requestFocus();
+                    break;
+                case "exit":
+                    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+                    break;
+                case "reset":
+                    commandField.setText("");
+                    commandField.grabFocus();
+                    commandField.requestFocus();
+                    break;
+                case "send":
+                    response = roundTrip(commandField.getText());
+                    frame.revalidate();
+                    sb = scroll.getVerticalScrollBar();
+                    sb.setValue(sb.getMaximum());
+                    commandField.setText("");
+                    commandField.grabFocus();
+                    commandField.requestFocus();
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.error(ex.getMessage());
+            response = ex.getMessage();
         }
         if ((response != null) && response.equalsIgnoreCase("End-Execution"))
         {
@@ -163,21 +169,21 @@ public class TerminalGui implements WindowListener, ActionListener
         return 0;
     }
 
-    public String receive()
+    public String receive() throws Exception
     {
         String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
         textArea.append(response);
         return response;
     }
 
-    public String roundTrip(String command)
+    public String roundTrip(String command) throws Exception
     {
         send(command);
         String response = receive();
         return response;
     }
 
-    public int run(Repository myRepo, Repository theirRepo)
+    public int run(Repository myRepo, Repository theirRepo) throws Exception
     {
         int returnValue = 0;
 
@@ -196,7 +202,7 @@ public class TerminalGui implements WindowListener, ActionListener
         return returnValue;
     }
 
-    public int send(String command)
+    public int send(String command) throws Exception
     {
         textArea.append(command + "\r\n");
         Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
@@ -209,16 +215,10 @@ public class TerminalGui implements WindowListener, ActionListener
     }
 
     @Override
-    public void windowOpened(WindowEvent e)
+    public void windowActivated(WindowEvent e)
     {
         commandField.grabFocus();
         commandField.requestFocus();
-    }
-
-    @Override
-    public void windowClosing(WindowEvent e)
-    {
-        stop();
     }
 
     @Override
@@ -228,7 +228,13 @@ public class TerminalGui implements WindowListener, ActionListener
     }
 
     @Override
-    public void windowIconified(WindowEvent e)
+    public void windowClosing(WindowEvent e)
+    {
+        stop();
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e)
     {
 
     }
@@ -241,15 +247,15 @@ public class TerminalGui implements WindowListener, ActionListener
     }
 
     @Override
-    public void windowActivated(WindowEvent e)
+    public void windowIconified(WindowEvent e)
     {
-        commandField.grabFocus();
-        commandField.requestFocus();
+
     }
 
     @Override
-    public void windowDeactivated(WindowEvent e)
+    public void windowOpened(WindowEvent e)
     {
-
+        commandField.grabFocus();
+        commandField.requestFocus();
     }
 }

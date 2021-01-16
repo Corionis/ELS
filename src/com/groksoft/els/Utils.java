@@ -364,7 +364,7 @@ public class Utils
      * @param key UUID key to decrypt the data stream
      * @return String read from stream; null if connection is closed
      */
-    public static String read(DataInputStream in, String key)
+    public static String read(DataInputStream in, String key) throws Exception
     {
         byte[] buf = {};
         String input = "";
@@ -410,10 +410,11 @@ public class Utils
                 {
                     logger.info("connection closed by client");
                     input = null;
-                    break;
+                    //break;
                 }
-                logger.error(e.getMessage());
-                break;
+                //logger.error(e.getMessage());
+                throw e;
+                //break;
             }
         }
         if (buf.length > 0)
@@ -428,22 +429,22 @@ public class Utils
      * @param key     UUID key to encrypt the string
      * @param message String to encrypted and write
      */
-    public static void write(DataOutputStream out, String key, String message)
+    public static void write(DataOutputStream out, String key, String message) throws Exception
     {
-        try
-        {
+//        try
+//        {
             byte[] buf = encrypt(key, message);
             out.writeInt(buf.length);
             out.write(buf);
             out.flush();
-        }
-        catch (IOException e)
-        {
-            if (!e.getMessage().toLowerCase().contains("connection reset"))
-            {
-                logger.error(e.getMessage());
-            }
-        }
+//        }
+//        catch (IOException e)
+//        {
+//            if (!e.getMessage().toLowerCase().contains("connection reset"))
+//            {
+//                logger.error(e.getMessage());
+//            }
+//        }
     }
 
 }

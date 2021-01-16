@@ -95,7 +95,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                     @Override
                     public boolean authenticate(String s, PublicKey publicKey, ServerSession serverSession) throws AsyncAuthException
                     {
-                        // IDEA Cross-key verification could be added plus keys in the JSON library file if higher security is needed
+                        // IDEA Public key verification could be added if higher security is needed
                         return true;
                     }
                 });
@@ -108,7 +108,6 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
 
             SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder()
-                    //.withFileSystemAccessor(new FileSystemAccessor())
                     .withSftpErrorStatusDataHandler(this)
                     .build();
 

@@ -51,7 +51,7 @@ public class ClientStty
         this.primaryServers = primaryServers;
     }
 
-    public long availableSpace(String location)
+    public long availableSpace(String location) throws Exception
     {
         long space = 0L;
         String response = roundTrip("space " + location);
@@ -62,7 +62,7 @@ public class ClientStty
         return space;
     }
 
-    public boolean checkBannerCommands() throws MungerException
+    public boolean checkBannerCommands() throws Exception
     {
         boolean hasCommands = false;
         String response = receive(); // read opening terminal banner
@@ -105,7 +105,7 @@ public class ClientStty
         return hasCommands;
     }
 
-    public boolean connect(Repository mine, Repository theirs) throws MungerException
+    public boolean connect(Repository mine, Repository theirs) throws Exception
     {
         this.myRepo = mine;
         this.theirRepo = theirs;
@@ -173,7 +173,7 @@ public class ClientStty
         }
     }
 
-    public int guiSession()
+    public int guiSession() throws Exception
     {
         int returnValue = 0;
         gui = new TerminalGui(this, cfg, in, out);
@@ -181,7 +181,7 @@ public class ClientStty
         return returnValue;
     }
 
-    private boolean handshake()
+    private boolean handshake() throws Exception
     {
         boolean valid = false;
         String input = Utils.read(in, theirKey);
@@ -222,13 +222,13 @@ public class ClientStty
         return isConnected;
     }
 
-    public String receive()
+    public String receive() throws Exception
     {
         String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
         return response;
     }
 
-    public String retrieveRemoteData(String filename, String command) throws MungerException
+    public String retrieveRemoteData(String filename, String command) throws Exception
     {
         String location = "";
         String response = "";
@@ -254,14 +254,14 @@ public class ClientStty
         return location;
     }
 
-    public String roundTrip(String command)
+    public String roundTrip(String command) throws Exception
     {
         send(command);
         String response = receive();
         return response;
     }
 
-    public void send(String command)
+    public void send(String command) throws Exception
     {
         Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
     }
