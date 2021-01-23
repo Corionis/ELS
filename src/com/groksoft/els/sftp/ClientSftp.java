@@ -3,40 +3,30 @@ package com.groksoft.els.sftp;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
+import com.jcraft.jsch.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.sshd.client.SshClient;
-import org.apache.sshd.client.keyverifier.ServerKeyVerifier;
-import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.client.subsystem.sftp.SftpClient;
-import org.apache.sshd.client.subsystem.sftp.impl.DefaultSftpClientFactory;
-import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.SocketAddress;
-import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
 
 /**
  * ClientSftp -to- ServerSftp
+ * <br/>
+ * This implementation uses the Jsch client library:
+ *      http://www.jcraft.com/jsch/
+ *      https://epaul.github.io/jsch-documentation/
  */
-public class ClientSftp implements SftpErrorStatusDataHandler
+public class ClientSftp
 {
-    private final int BUFFER_SIZE = 1048576;
-    private transient byte[] buffer;
-
     private String hostname;
     private int hostport;
+    private Channel jChannel;
+    private Session jSession;
+    private ChannelSftp jSftp;
+    private JSch jsch;
     private transient Logger logger = LogManager.getLogger("applog");
     private Repository myRepo;
     private String password;
-    private ClientSession session;
-    private SftpClient sftpClient;
-    private SshClient sshClient;
     private Repository theirRepo;
     private String user;
 
@@ -70,11 +60,15 @@ public class ClientSftp implements SftpErrorStatusDataHandler
      * @return True if any directories were created
      * @throws IOException
      */
-    public String makeRemoteDirectory(String pathname) throws Exception
+    private String makeRemoteDirectory(String pathname) throws Exception
     {
         if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS))
         {
             pathname = pathname.replaceAll("\\\\", "\\\\\\\\");
+        }
+        if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.LINUX))
+        {
+            pathname = pathname.replaceAll("//", "/");
         }
 
         String sep = theirRepo.getWriteSeparator();
@@ -100,20 +94,17 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                 whole = whole + ((i > 0) ? sep : "") + parts[i];
 
                 // protect the root of drives
-                if (whole.equals(sep))
+                if (whole.length() < 1 || whole.equals(sep))
                     continue;
 
                 // try to create next directory segment
-                sftpClient.mkdir(whole);
+                jSftp.mkdir(whole);
             }
-            catch (IOException e)
+            catch (SftpException e)
             {
                 String msg = e.toString().trim().toLowerCase();
-                if (msg.startsWith("sftp error"))
-                {
-                    if (!msg.contains("alreadyexists")) // ignore "already exists" errors
-                        throw e;
-                }
+                if (!msg.contains("alreadyexists")) // ignore "already exists" errors
+                    throw e;
             }
         }
         return whole;
@@ -126,26 +117,19 @@ public class ClientSftp implements SftpErrorStatusDataHandler
     {
         try
         {
-            sshClient = SshClient.setUpDefaultClient();
-
-            sshClient.setServerKeyVerifier(new ServerKeyVerifier()
-            {
-                @Override
-                public boolean verifyServerKey(ClientSession clientSession, SocketAddress socketAddress, PublicKey publicKey)
-                {
-                    // IDEA Cross-key verification could be added plus keys in the JSON library file if higher security is needed
-                    return true;
-                }
-            });
-
-            sshClient.start();
-
             logger.info("Opening sftp connection to: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
-            session = sshClient.connect(user, hostname, hostport).verify(180000L).getSession();
-            session.addPasswordIdentity(password);
-            session.auth().verify(180000L).await();
+            jsch = new JSch();
+            jSession = jsch.getSession(user, hostname, hostport);
+            jSession.setConfig("StrictHostKeyChecking", "no");
+            jSession.setPassword(password);
+            // IDEA Could implement strict key checking if more security is needed
+            //jsch.setKnownHosts("known_hosts");
+            //jsch.addIdentity("id_rsa");
+            jSession.connect(30000);
 
-            sftpClient = DefaultSftpClientFactory.INSTANCE.createSftpClient(session);
+            jChannel = jSession.openChannel("sftp");
+            jChannel.connect();
+            jSftp = (ChannelSftp) jChannel;
         }
         catch (Exception e)
         {
@@ -160,18 +144,11 @@ public class ClientSftp implements SftpErrorStatusDataHandler
      */
     public void stopClient()
     {
-        try
-        {
-            if (sftpClient != null)
-                session.close();
+        if (jChannel != null)
+            jChannel.disconnect();
 
-            if (sshClient != null)
-                sshClient.close();
-        }
-        catch (IOException e)
-        {
-
-        }
+        if (jSession != null)
+            jSession.disconnect();
     }
 
     /**
@@ -185,7 +162,7 @@ public class ClientSftp implements SftpErrorStatusDataHandler
     {
         try
         {
-            SftpClient.Attributes destAttr = null;
+            SftpATTRS destAttr = null;
             int readOffset = 0;
             long writeOffset = 0L;
 
@@ -195,10 +172,10 @@ public class ClientSftp implements SftpErrorStatusDataHandler
             // automatically resume/continue transfer
             try
             {
-                destAttr = sftpClient.stat(copyDest);
+                destAttr = jSftp.stat(copyDest);
                 if (destAttr != null)
                 {
-                    if (destAttr.isRegularFile() && destAttr.getSize() > 0)
+                    if (destAttr.isReg() && destAttr.getSize() > 0)
                     {
                         if (!overwrite)
                         {
@@ -208,14 +185,11 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                     }
                 }
             }
-            catch (IOException e)
+            catch (SftpException e)
             {
                 String msg = e.toString().trim().toLowerCase();
-                if (msg.startsWith("sftp error"))
-                {
-                    if (!msg.contains("nosuchfileexception"))
-                        throw e;
-                }
+                if (!msg.contains("nosuchfileexception"))
+                    throw e;
                 destAttr = null;
             }
 
@@ -224,75 +198,26 @@ public class ClientSftp implements SftpErrorStatusDataHandler
                 makeRemoteDirectory(copyDest);
             }
 
-            // append to existing file, otherwise create
-            Collection<SftpClient.OpenMode> mode;
-            if (writeOffset > 0L)
-            {
-                mode = EnumSet.of(
-                        SftpClient.OpenMode.Read,
-                        SftpClient.OpenMode.Write,
-                        SftpClient.OpenMode.Append,
-                        SftpClient.OpenMode.Exclusive);
-                logger.warn("Resuming partial transfer");
-            }
-            else
-            {
-                mode = EnumSet.of(
-                        SftpClient.OpenMode.Read,
-                        SftpClient.OpenMode.Write,
-                        SftpClient.OpenMode.Create,
-                        SftpClient.OpenMode.Exclusive);
-            }
+            int mode = jSftp.OVERWRITE;
+            if (writeOffset > 0)
+                mode = jSftp.RESUME;
 
-            // open remote file
-            SftpClient.Handle handle = sftpClient.open(copyDest, mode);
+            jSftp.put(src, copyDest, mode);
 
-            // open local file
-            FileInputStream srcStream = new FileInputStream(src);
-            srcStream.skip(readOffset);
-
-            // copy with chunks to avoid out of memory problems
-            buffer = new byte[BUFFER_SIZE];
-            int size = 0;
-            while (true)
-            {
-                size = srcStream.read(buffer, 0, BUFFER_SIZE);
-                if (size < 1)
-                    break;
-                sftpClient.write(handle, writeOffset, buffer, 0, size);
-                Arrays.fill(buffer, (byte) 0);
-                writeOffset += size;
-            }
-
-            //SftpClient.Attributes attr = new SftpClient.Attributes().perms(Utils.getLocalPermissions(src));
-            //if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.LINUX))
-            //    attr.setPermissions(0x644);
-            //sftpClient.setStat(handle, attr);
-
-            srcStream.close();
-            sftpClient.close(handle);
-
-            // delete old file
+            // delete any old file
             try
             {
-                sftpClient.remove(dest);
+                jSftp.rm(dest);
             }
-            catch (FileNotFoundException fnf)
-            {
-                // ignore FileNotFoundException
-            }
-            catch (IOException e)
+            catch (SftpException e)
             {
                 String msg = e.toString().trim().toLowerCase();
-                if (msg.startsWith("sftp error"))
-                {
-                    if (!msg.contains("nosuchfileexception"))
-                        throw e;
-                }
+                if (!msg.contains("nosuchfileexception"))
+                    throw e;
             }
 
             // rename .els-part file
-            sftpClient.rename(copyDest, dest);
+            jSftp.rename(copyDest, dest);
         }
         catch (Exception e)
         {

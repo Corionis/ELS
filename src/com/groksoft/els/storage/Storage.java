@@ -86,7 +86,11 @@ public class Storage
             {
                 for (int j = 0; j < tar.locations.length; ++j)
                 {
-                    tar.locations[j] = tar.locations[j].replaceAll(from, to);;
+                    tar.locations[j] = tar.locations[j].replaceAll(from, to);
+                    if (tar.locations[j].endsWith(to))
+                    {
+                        tar.locations[j].substring(0, tar.locations[j].length() - 2);
+                    }
                 }
             }
         }

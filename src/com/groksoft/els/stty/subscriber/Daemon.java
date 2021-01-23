@@ -357,8 +357,13 @@ public class Daemon extends DaemonBase
             catch (Exception e)
             {
                 fault = true;
-                Utils.write(out, myKey, e.getMessage());
                 connected = false;
+                stop = true;
+                try
+                {
+                    Utils.write(out, myKey, e.getMessage());
+                }
+                catch (Exception ex) {}
                 break;
             }
         } // while

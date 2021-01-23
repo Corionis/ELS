@@ -1,0 +1,21 @@
+{
+    "targets": {
+        "description": "Targets",
+        "storage": [
+            {
+                "name": "Movies",
+                "minimum": "50kb",
+                "locations": [
+                    "subscriber/media-d/media/NewMovies"
+                ]
+            },
+            {
+                "name": "TV Shows",
+                "minimum": "1GB",
+                "locations": [
+                    "subscriber/media-d/media/NewTVShows"
+                ]
+            }
+        ]
+    }
+}

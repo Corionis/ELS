@@ -33,6 +33,7 @@ public class Listener extends Thread
 	private boolean stop = false;
 
 	private Configuration cfg;
+	private InetAddress addr;
 
 	/**
 	 * Setup a new Listener on a specified port.
@@ -50,13 +51,18 @@ public class Listener extends Thread
 		// setup this listener
         this.cfg = config;
 		this.port = aPort;
-		InetAddress addr = Inet4Address.getByName(host);
+		addr = Inet4Address.getByName(host);
 
 		listenSocket = new ServerSocket(this.port, 5, addr);
 
 		// set a non-zero timeout on the socket so accept() may be interrupted
 		listenSocket.setSoTimeout(socketTimeout);
 	} // constructor
+
+    public String getInetAddr()
+    {
+        return addr.getHostAddress();
+    }
 
 	/**
 	 * Politely request the listener to stop.

@@ -283,7 +283,7 @@ public class ServeStty extends Thread
         allSessions.put("Listener:" + host + ":" + aPort, listener);
 
         // log it
-        logger.info("ServeStty server is listening on " + (host == null ? "localhost" : host) + ":" + aPort);
+        logger.info("ServeStty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);
 
         // fire it up
         listener.start();

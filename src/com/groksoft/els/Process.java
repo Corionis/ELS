@@ -166,6 +166,7 @@ public class Process
                         else
                         {
                             fault = true;
+                            ++errorCount;
                             throw new MungerException("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
                                     lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
                         }
@@ -181,6 +182,7 @@ public class Process
         catch (Exception e)
         {
             fault = true;
+            ++errorCount;
             throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
         }
 
@@ -282,7 +284,7 @@ public class Process
         return copyCount;
     }
 
-    public void getStorageTargets() throws MungerException
+    public void getStorageTargets() throws Exception
     {
         String location = cfg.getTargetsFilename();
 
@@ -316,7 +318,7 @@ public class Process
      * @return the target
      * @throws MungerException the els exception
      */
-    public String getTarget(Item item, String library, long size) throws MungerException
+    public String getTarget(Item item, String library, long size) throws Exception
     {
         String target = null;
         boolean allFull = true;
@@ -502,6 +504,7 @@ public class Process
         catch (Exception ex)
         {
             fault = true;
+            ++errorCount;
             logger.error(Utils.getStackTrace(ex));
         }
     }
@@ -577,6 +580,7 @@ public class Process
             catch (FileNotFoundException fnf)
             {
                 fault = true;
+                ++errorCount;
                 String s = "File not found exception for Mismatches output file " + cfg.getMismatchFilename();
                 logger.error(s);
                 throw new MungerException(s);
@@ -595,6 +599,7 @@ public class Process
             catch (FileNotFoundException fnf)
             {
                 fault = true;
+                ++errorCount;
                 String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
                 logger.error(s);
                 throw new MungerException(s);
@@ -624,11 +629,16 @@ public class Process
                         }
                         if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            if (cfg.isRemoteSession())
+                            //if (cfg.isRemoteSession())
+                            //{
+                            //    throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
+                            //}
+                            //context.subscriberRepo.scan(subLib.name);
+
+                            if (!cfg.isRemoteSession()) // remote collection already loaded and may be empty
                             {
-                                throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
+                                context.subscriberRepo.scan(subLib.name);
                             }
-                            context.subscriberRepo.scan(subLib.name);
                         }
 
                         logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
@@ -760,15 +770,25 @@ public class Process
         catch (Exception e)
         {
             fault = true;
+            ++errorCount;
             logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
         }
         finally
         {
             if (group.size() > 0)
             {
-                // Process the last group
-                logger.info("Processing last group " + currentGroupName);
-                copyGroup(group, totalSize, cfg.isOverwrite());
+                try
+                {
+                    // Process the last group
+                    logger.info("Processing last group " + currentGroupName);
+                    copyGroup(group, totalSize, cfg.isOverwrite());
+                }
+                catch (Exception e)
+                {
+                    fault = true;
+                    ++errorCount;
+                    logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
+                }
                 totalSize = 0L;
             }
 
@@ -873,6 +893,7 @@ public class Process
             catch (Exception ex)
             {
                 fault = true;
+                ++errorCount;
                 logger.error("Inner: " + Utils.getStackTrace(ex));
                 returnValue = 2;
             }
@@ -880,6 +901,7 @@ public class Process
         catch (Exception e)
         {
             fault = true;
+            ++errorCount;
             logger.error("Outer: " + Utils.getStackTrace(e));
             returnValue = 1;
             cfg = null;
@@ -894,10 +916,22 @@ public class Process
                 // tell remote end to exit
                 if (context.clientStty != null)
                 {
-                    String resp = context.clientStty.roundTrip("quit");
+                    String resp;
+                    try
+                    {
+                        resp = context.clientStty.roundTrip("quit");
+                    }
+                    catch (Exception e)
+                    {
+                        resp = null;
+                    }
                     if (resp != null && !resp.equalsIgnoreCase("End-Execution"))
                     {
                         logger.warn("Remote subscriber might not have quit");
+                    }
+                    else if (resp == null)
+                    {
+                        logger.warn("Remote subscriber is in an unknown state");
                     }
                 }
 
