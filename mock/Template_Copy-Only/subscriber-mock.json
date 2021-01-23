@@ -1,0 +1,34 @@
+{
+    "libraries": {
+        "description": "Mock Subscriber",
+        "host": "rockplex:30000",
+        "flavor": "linux",
+        "terminal_allowed": "true",
+        "key": "94eb0321-8a3d-4c10-81e9-1d89733f6d64",
+        "case_sensitive": false,
+        "ignore_patterns": [
+            "desktop.ini",
+            "Thumbs.db"
+        ],
+        "bibliography": [
+            {
+                "name": "Movies",
+                "sources": [
+                    "subscriber/media-1/vids/MoviesA",
+                    "subscriber/media-b/media/MoviesB",
+                    "subscriber/media-c/media/MoviesC",
+                    "subscriber/media-d/media/NewMovies"
+                ]
+            },
+            {
+                "name": "TV Shows",
+                "sources": [
+                    "subscriber/media-1/vids/TVShowsA",
+                    "subscriber/media-b/media/TVShowsB",
+                    "subscriber/media-c/media/TVShowsC",
+                    "subscriber/media-d/media/NewTVShows"
+                ]
+            }
+        ]
+    }
+}

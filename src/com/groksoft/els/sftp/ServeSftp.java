@@ -16,8 +16,10 @@ import org.apache.sshd.server.subsystem.sftp.SftpSubsystemEnvironment;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
 import java.io.IOException;
+import java.net.SocketAddress;
 import java.security.PublicKey;
 import java.util.Collections;
+import java.util.Set;
 
 /*
  * SFTP server class
@@ -127,7 +129,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                         authenticated = true;
                         loginAttempts = 1;
                         loginAttemptAddress = "";
-                        logger.info("ServeSftp server connected to " + serverSession.getClientAddress());
+                        logger.info("ServeSftp server connected to " + serverSession.getClientAddress().toString());
                     }
                     else
                     {
@@ -150,9 +152,17 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 }
             });
 
-            //logger.info("ServeSftp server starting secure channel listener");
             sshd.start();
-            logger.info("ServeSftp server is listening on " + sshd.getHost() + ":" + sshd.getPort());
+
+            // assemble listen IP(s)
+            String ips = "";
+            Set<SocketAddress> addrs;
+            addrs = sshd.getBoundAddresses();
+            for (SocketAddress a : addrs)
+            {
+                ips = ips + a.toString() + " ";
+            }
+            logger.info("ServeSftp server is listening on: " + ips);
         }
         catch (IOException e)
         {

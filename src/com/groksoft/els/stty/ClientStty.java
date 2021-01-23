@@ -132,7 +132,7 @@ public class ClientStty
                 this.socket = new Socket(host, port);
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
-
+                logger.info("Successfully connected to: " + this.socket.getInetAddress().toString());
             }
             catch (Exception e)
             {
