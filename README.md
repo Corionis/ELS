@@ -7,19 +7,19 @@ media systems. ELS views media spanning multiple hard drives the same
 way modern media systems do - on a logical library basis, such as movies
 or TV shows. ELS combines the content for each library and performs name
 comparisons to determine what needs to be backed-up. The exact location
-of files for each library do not have to match on the back-up allowing
+of files in each library do not have to match on the back-up allowing
 a media library to grow "organically".
 
 Movies, TV shows with seasons, music and more are handled by ELS. When
 new content is added, for example another episode of a TV show, a check
-is made whether it will fit in an original location as other episodes.
-If it is something new or will not fit it is copied to a matching target
-location for that library.
+is made whether it will fit in the original location as other episodes.
+If it will not fit it is copied to a matching target location for new
+content for that library.
 
 ELS relies on a common directory structure used by modern home media
-systems such as [Plex Media Server](https://plex.tv). Each movie or
-television show is contained in a unique directory within a library
-directory.
+systems such as [Plex Media Server](https://plex.tv). Each media type,
+such as a movie or television show, is contained in a unique directory
+within a library directory.
 
 For example:
 

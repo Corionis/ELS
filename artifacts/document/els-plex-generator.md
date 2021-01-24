@@ -9,4 +9,4 @@ to gather the necessary data.
 
 A PMS X-Plex-Token is required for authentication, see [Finding an authentication token / X-Plex-Token](https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/) on the Plex support site.
 
-However ELS supports any modern media system that uses the same directory structure.
+This is an optional tool specifically for Plex. ELS supports any modern media system that uses the same directory structure.

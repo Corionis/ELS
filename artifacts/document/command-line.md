@@ -1,40 +1,38 @@
 ELS uses a publish/subscribe conceptual model. ELS compares one or more 
-libraries from a media publisher (the home media system) with those on a 
-media subscriber (the back-up). ELS then synchronizes each subscriber 
-library with the publisher. 
+libraries from a media subscriber (the back-up) with those on a media 
+publisher (the home media system). ELS then synchronizes each subscriber 
+library with the publisher.
 
 ELS has many options and ways of combining those to perform a wide 
 variety of operations. 
 
 ## Basic Command
 
-A basic back-up requires publisher and subscriber library or
-collection files and a targets file that describes where each library's
-new items will be copied to the subscriber. 
+A basic back-up requires publisher and subscriber library or collection
+files and a targets file that describes the locations for each library's
+new content. 
 
 Using the publish/subscribe paradigm ELS goes through the subscriber's 
 libraries (subscriptions) looking for new items from the publisher. That 
 is, the subscriber controls which libraries are backed-up to its 
-storage. So different libraies from the media system could be backed-up 
-to different family home computers on a LAN reducing the potential risk 
-of loss and spreading-out the storage load. 
+storage. 
 
 ### Library & Collection JSON Files
 
 Different options are available for specifying either a library file 
 or collection file for the publisher and subscriber.
 
-A "library" file has basic information describing the media server and 
-lists the libraries and their locations. It is the minimum required.
+A *"library"* file has basic information describing the media server and 
+lists the libraries and their sources. It is the minimum required.
 
-A "collection" file also includes the individual items in each library,
+A *"collection"* file also includes the individual items in each library,
 files and directories.
 
 If a library file is specified automatic scans of those library sources
 are performed. If a collection file is specified only the items in the
 file are used, no scans are performed.
 
-A library file may be edited by hand. Also, an add-on tool is available 
+A library file may be created by hand. Also, an add-on tool is available 
 to generate a basic ELS library file from a [Plex Media 
 Server](https://www.plex.tv), see the [ELS Plex 
 Generator](https://github.com/GrokSoft/ELS-Plex-Generator). However ELS 
@@ -46,8 +44,10 @@ A collection JSON file may be generated using the -i or --export-items option
 and specifying a publisher library file as input.
 
 If a collection file is specified only the items in that file are processed.
+This allows the file to be edited if desired.
 
-Note however that a collection file is not required to run ELS.
+Note however that a collection file is not required to run ELS. Only a
+library file is required.
 
 ### Basic Example
 
@@ -73,51 +73,52 @@ Options for short and long versions are case-sensitive.
 The default action is to perform a back-up if the publisher, subscriber and targets
 files have been specified.
 
- * -e | --export-text file : Export publisher collection as text to a file 
+ * -e | --export-text [file] : Export publisher collection as text to file 
  
- * -i | --export-items file : Export publisher collection as JSON to a file
+ * -i | --export-items [file] : Export publisher collection as JSON to file
 
  * -n | --rename [F|D|B] : Perform any defined renaming from a publisher JSON file 
      on **F**iles, **D**irectories or **B**oth
  
- * -u | --duplicates : Scans a publisher for duplicate items and empty directories
+ * -u | --duplicates : Scan a publisher for duplicate items and empty directories
  
  * -v | --validate : Validate a publisher library or collection file
  
 ### Parameters
 
  * -a | --authorize [password] : The password required for authorized accesss
-      when in -r | --remote mode and allowing STTY interactive access
+      when in -r | --remote mode and allowing STTY interactive access to a listener
 
- * -b | --no-back-fill : Disables attempting to "back fill" original media locations
-     with new files, e.g. a new TV episode. Always uses the targets
+ * -b | --no-back-fill : Disables attempting to "back fill" original media sources
+     with new files, e.g. a new TV episode. Always uses the target locations
 
  * -c | --console-level [level] : Console logging level, default debug
  
  * -d | --debug-level [level] : File logging level, default info.
  
- * -D | --dry-run : Do everything except actually copy, used in --rename and
+ * -D | --dry-run : Do everything except the actual action, used in --rename and
      back-up actions
  
- * -f | --log-file [file] : Log file, default ELS.log in the directory where ELS is executed
+ * -f | --log-file [file] : Log file, default ELS.log in the directory where
+      ELS is executed
  
- * -l | --library [libraryname] : Publisher library to process, default all of them.
-      This option may be specified more than once
+ * -l | --library [libraryname] : Library to process, if not specified process
+      all libraries. This option may be specified more than once
  
  * -m | --mismatches [file] : Mismatches list of differences output text file
 
  * -o | --overwrite : Overwrite any existing files instead of resuming a remote transfer.
-      This option only applies to remote sessions. Local actions always overwrite
+      This option only applies to remote sessions.
 
- * -p | --publisher-libraries [file] : Publisher JSON libraries file
+ * -p | --publisher-libraries [file] : Publisher JSON library file
  
  * -P | --publisher-collection [file] : Publisher JSON collection file
 
- * -s | --subscriber-libraries [file] : Subscriber JSON libraries file
+ * -s | --subscriber-libraries [file] : Subscriber JSON library file
  
  * -S | --subscriber-collection [file] : Subscriber JSON collection file
  
- * -t | --targets [file] : Targets filename, see Notes
+ * -t | --targets [file] : Targets JSON file, see Notes
  
  * -T | --force-targets [file] : Forced targets for -r | --remote, see Notes
  
@@ -140,8 +141,8 @@ The default is local mode where all storage locations are accessible to one ELS 
 ## Notes
 
 The -b | --no-back-fill option disables the default behavior of attempting
-to place new files for an existing item in the original location as related
-items. That might not be a location from the targets file. For instance
+to place new files for an existing item in the original source as related
+items. For instance
 another episode of a TV show.
 
 The -D | --dry-run option applies to -n | --rename and back-up actions.
@@ -151,7 +152,7 @@ libraries. That data is not used by any other action. It is
 intended for visual information and possible comparison with a
 similar file.
 
-The -i | --export-items option generates a collection file.
+The -i | --export-items option generates a collection JSON file.
 
 Both the -e | --export-text and -i | --export-items options require a 
 publisher JSON file.
@@ -198,3 +199,14 @@ combined. The order of processing of the actions is:
  5. Finally a back-up if all necessary arguments are provided. 
 
 Note that --dry-run applies to --rename and back-up actions.
+
+## Linux Caution
+
+On Linux-based systems ELS should be executed as the user that owns the
+media to ensure the ownership and permissions of copied content have
+the appropriate attributes.
+
+In addition, it is not possible to login as 'root' then sudo ELS in
+-r M (manual) or -r T (terminal) modes because the program will not
+have the necessary permissions to open the display.
+

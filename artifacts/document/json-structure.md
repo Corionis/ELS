@@ -1,12 +1,12 @@
 ELS uses two JSON files to describe the bibliographies of one or more 
-libraries spread across multiple hard drives, one for the publisher, and 
+libraries spread across storage devices, one for the publisher and 
 the other for the subscriber, or back-up. Another JSON file describes 
 the target location(s) for new content. 
 
 These files require correct JSON syntax. JSON is a simple text format
 to name keyword/value pairs.
 
-A "library" file lists the libraries only, a "collection" file also contains
+A ```"library"``` file lists the libraries only, a ```"collection"``` file also contains
 all the individual items in each library. Both are JSON files of the same
 format.
 
@@ -14,7 +14,7 @@ ELS will automatically scan the libraries as needed at runtime so a collection f
 is not required to run it. However if a collection file is specified, as opposed
 to a library file, then only that data is used. This allows for generating a collection
 file then hand-adjusting what ELS will use. A collection JSON file may be generated
-using the -i or --export-items option and specifying a publisher library file. 
+using the -i or --export-items option and specifying a publisher library file as input. 
 
 **IMPORTANT**: The JSON data here are example files with // comments. This is ***NOT***
 valid JSON format and is used here for informational purposes. Do not copy 'n paste
@@ -50,7 +50,7 @@ For publisher and subscriber library JSON files:
         ],
         "bibliography": [                               // required literal
             {
-                "name": "Movies",                       // library name, much match in publisher and subscriber
+                "name": "Movies",                       // library name
                 "sources": [                            // required literal
                     "C:/media/MyMovies",                // absolute or relative path,
                     "D:/media/MoreMovies",              //   paths are relative to location of ELS.jar
@@ -77,16 +77,14 @@ For publisher and subscriber library JSON files:
  4. The flavor element may only be: apple, linux, or windows.
     1. Flavor is defined instead of being "discovered" so it may be forced.
  5. The terminal_allowed can disable interactive access. However, a complex automatic handshake is done so it is relatively safe.
- 6. The key element ***must be unique*** for each publisher and subscriber. It is a version-1 UUID, is below.
+ 6. The key element ***must be unique*** for each publisher and subscriber. It is a version-1 UUID, see below.
  7. The case_sensitive element controls the type of comparison that is done between publisher and subscriber content.
  8. ignore_patterns and renaming sections are optional.
     1. ignore_patterns and renaming 'from' support regular expressions, see [Regular Expressions](Regular-Expressions).
  9. Any number of libraries may be added to the bibliography.
  10. Library names must match between publisher, subscriber and targets.
- 11. Paths may be absolute, e.g. C:\Media\... or relative, e.g. ..\Media\...
+ 11. Paths may be absolute, e.g. C:\Media\Movies or relative, e.g. ..\Media\Movies\
     1. Paths are relative to the location of ELS.jar.
-
-A collection file is the same as a library file with each directory and file included in each libary.
 
 ## Targets File Structure
 
@@ -97,7 +95,7 @@ For targets JSON file:
         "description": "My Subscriber Targets",         // anything useful
         "storage": [                                    // required literal
             {
-                "name": "Movies",                       // library name, much match in subscriber
+                "name": "Movies",                       // library name
                 "minimum": "50mb",                      // minimum space in kb, mb, gb, or tb
                 "locations": [                          // required literal
                     "D:/media/MoreMovies",              // absolute or relative path

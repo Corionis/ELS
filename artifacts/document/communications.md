@@ -18,9 +18,9 @@ The publisher and subscriber perform a complex automated "handshake"
 when a new connection is initiated so no manual "login" is required.
 
 However, when using the built-in manual terminal to access more 
-sensitive commands authorization is required. The command: ```auth 
-[password]``` is used where the password is the one specified by the 
-listener with the -a | --authorize option.
+sensitive commands authorization is required. The interactive command:
+```auth [password]``` is used where the password is the one specified by the 
+listener with the -a | --authorize parameter.
 
 ### Remote Modes
 
@@ -50,7 +50,7 @@ listener with the -a | --authorize option.
     1. -p and -P are equivalent; only site-related data is used
     2. -s causes the subscriber to scan for the latest media data
     3. -S the subscriber will import a local collection file
-       and will FORCE the publisher to take that JSON data
+       and will FORCE the publisher to take that media data
        when a connection is made
     4. -t the subscriber will import a local subscriber targets file
     5. -T causes the subscriber to FORCE the publisher to take the 
@@ -62,18 +62,20 @@ Some items are required in the JSON library file to support
 communications. Some are optional. 
 
  1. host : The hostname:port to connect to for outgoing connections,
-    e.g. mybox.home.com:29900. If a port is not specified 50271 is
+    e.g. mybox.home.local:29900. If a port is not specified 50271 is
     used as the BASE port number. An IP address may be used instead
-    of a hostname.
+    of a hostname.    
  2. listen : Optional. If specified the hostname:port to listen for
-    incoming connections as a listener, e.g. mybox.home.com:30000.
+    incoming connections as a listener, e.g. mybox.home.local:30000.
     If a port is not specified 50271 is used as the BASE port number.
     An IP address may be used instead of a hostname. If not specified
     the "host" value will be used.
  3. flavor : The flavor of operating system: windows, linux or apple (only)
  4. terminal_allowed : true or false (only). If an interactive manual
     terminal connection is allowed
- 5. key : A formatted universally unique ID (UUID), e.g. "025e2ddb-942a-4206-8458-902a87e42e62"
+ 5. key : A formatted universally unique ID (UUID), e.g. 
+    "025e2ddb-942a-4206-8458-902a87e42e62". The key for each publisher
+    and subscriber must be unique.
 
 Caution: Be sure DNS resolves a hostname correctly to ensure the correct
 IP address is used for both outgoing connections and incoming listeners.
@@ -166,21 +168,18 @@ Valid values, depending on the operating system, are:
  * Any : -Dswing.defaultlaf=com.sun.java.swing.plaf.motif.MotifLookAndFeel
  * Any : -Dswing.defaultlaf=com.sun.java.swing.plaf.metal.MetalLookAndFeel
 
-### Linux - Caution!
-
-On Linux-based systems ELS should be executed as the user that owns the
-media to ensure the ownership and permissions of copied content have
-the appropriate attributes.
-
-In addition, it is not possible to login as 'root' then sudo ELS in
--r M (manual) or -r T (terminal) modes because the program will not
-have the necessary permissions to open the display.
-
 ## Using SFTP
 
 When either a subscriber -r S listener or publisher -r L listener is
 running it may also be accessed using a standard SFTP client such as
-FileZilla.
+[FileZilla](https://filezilla-project.org/).
 
-The protocol is SFTP, the user name is connecting-end's (-r M or -r T)
-UUID key, and the password is the server-end's (-r S or -r L) UUID key.
+### Parameters
+
+ * Protocol: SFTP 
+ * Port: The listen or host port **+ 1**
+ * Login type: Normal
+ * User name: Connecting-end (-r M or -r T) UUID key
+ * Password: Server-end (-r S or -r L) UUID key
+
+The session will be opened in the directory where the ELS.jar is located.

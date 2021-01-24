@@ -18,6 +18,3 @@ subscriber computer is the listener. The client or publisher computer
 attaches to the listener. Therefore the subscriber-side ELS must be 
 running before the publisher-side is started. All data communication is 
 encrypted. 
-
-Of course in communications mode ELS can still access any attached 
-storage device.

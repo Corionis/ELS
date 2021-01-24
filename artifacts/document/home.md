@@ -7,7 +7,7 @@ media systems. ELS views media spanning multiple hard drives the same
 way modern media systems do - on a logical library basis, such as movies 
 or TV shows. ELS combines the content for each library and performs name 
 comparisons to determine what needs to be backed-up. The exact location 
-of files for each library do not have to match on the back-up allowing 
+of files in each library do not have to match on the back-up allowing 
 a media library to grow "organically". 
 
 ## Features
@@ -23,7 +23,7 @@ a media library to grow "organically".
  * Optionally generates a Mismatches text file of the detailed differences between the publisher and subscriber.
  * Stand-alone and client/server modes of operation are supported.
  * An interactive terminal is available for both publisher and subscriber.
- * Standard SFTP may interactively connect to ELS when in listener mode.
+ * Standard SFTP such as [Filezilla](https://filezilla-project.org/) may interactively connect to ELS when in listener mode.
  * May be scheduled using operating system tools, e.g. Windows Task Scheduler or Linux cron.
  * Nothing is added, no overhead.
  * Runs on Windows, Linux and Mac.
@@ -36,9 +36,21 @@ For example:
 
 ![library directory structure](artifacts/images/library-directory.jpg "Library directory")
 
+## Scenarios
+
+ELS can be used in a variety of ways. Some ideas are:
+
+ * Basic local back-up with locally-attached storage devices. The back-up device could
+   be removable for better protection.
+ * LAN back-up to family home computers where each subscriber carries a portion
+   of the media collection reducing the potential risk of loss and spreading-out
+   the storage load.
+ * Cloud back-up to an external storage location such as DropBox. The cloud drive
+   must be mounted locally.
+
 ## Wiki Pages
 
-|                                                      |                                                      |
+|                                                |                                                      |
 |------------------------------------------------|------------------------------------------------------|
 |[Command-Line How-To](Command-Line-How-To)      | Describes the various command-line options.          |
 |[Communications How-To](Communications-How-To)  | Describes the use of ELS over a LAN or the Internet. |
