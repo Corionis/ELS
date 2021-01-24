@@ -2,7 +2,7 @@
 
 # ELS : Entertainment Library Synchronizer
 
-Entertainment Library Synchronizer (ELS) is a back-up tool for home
+Entertainment Library Synchronizer (ELS) is a backup tool for home
 media systems. ELS views media spanning multiple hard drives the same
 way modern media systems do - on a logical library basis, such as movies
 or TV shows. ELS combines the content for each library and performs name
