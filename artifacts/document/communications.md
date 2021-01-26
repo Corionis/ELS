@@ -177,7 +177,7 @@ running it may also be accessed using a standard SFTP client such as
 ### Parameters
 
  * Protocol: SFTP 
- * Port: The listen or host port **+ 1**
+ * Port: The host port **+ 1**
  * Login type: Normal
  * User name: Connecting-end (-r M or -r T) UUID key
  * Password: Server-end (-r S or -r L) UUID key
