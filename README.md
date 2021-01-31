@@ -16,6 +16,24 @@ is made whether it will fit in the original location as other episodes.
 If it will not fit it is copied to a matching target location for new
 content for that library.
 
+## Features
+
+ * Supports movies, television shows with season subdirectories, 
+   music with artists and albums, etc.
+ * Supports any mix of storage devices of different sizes.
+ * Optionally copies new files to an existing movie or TV show if space is 
+   available (back-fill).
+ * Multiple targets may be defined for each library, e.g. movies. As 
+   one reaches a minimum available space the next target is used (automatic roll-over).
+ * Optionally generates a What's New text file of what items were copied.
+ * Optionally generates a Mismatches text file of the detailed differences between the publisher and subscriber.
+ * Stand-alone and client/server modes of operation are supported.
+ * An interactive terminal is available for both publisher and subscriber.
+ * Standard SFTP such as [Filezilla](https://filezilla-project.org/) may interactively connect to ELS when in listener mode.
+ * May be scheduled using operating system tools, e.g. Windows Task Scheduler or Linux cron.
+ * Nothing is added, no overhead.
+ * Runs on Windows, Linux and Mac.
+
 ELS relies on a common directory structure used by modern home media
 systems such as [Plex Media Server](https://plex.tv). Each media type,
 such as a movie or television show, is contained in a unique directory
