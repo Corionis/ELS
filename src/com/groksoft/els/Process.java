@@ -809,9 +809,9 @@ public class Process
             }
         }
 
+        logger.info("--------------------------------------------------------");
         if (ignoredList.size() > 0)
         {
-            logger.info(SIMPLE, "-----------------------------------------------------");
             logger.info(SIMPLE, "Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {
@@ -822,11 +822,14 @@ public class Process
         int duplicates = 0;
         for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
         {
-            for (Item item : pubLib.items)
+            if (pubLib.items != null)
             {
-                if (item.getHas().size() > 1)
+                for (Item item : pubLib.items)
                 {
-                    duplicates = reportDuplicates("Subscriber", item, duplicates);
+                    if (item.getHas().size() > 1)
+                    {
+                        duplicates = reportDuplicates("Subscriber", item, duplicates);
+                    }
                 }
             }
         }
@@ -834,11 +837,14 @@ public class Process
         int empties = 0;
         for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
         {
-            for (Item item : subLib.items)
+            if (subLib.items != null)
             {
-                if (item.isDirectory() && item.getSize() == 0)
+                for (Item item : subLib.items)
                 {
-                    empties = reportEmpties("Subscriber", item, empties);
+                    if (item.isDirectory() && item.getSize() == 0)
+                    {
+                        empties = reportEmpties("Subscriber", item, empties);
+                    }
                 }
             }
         }
