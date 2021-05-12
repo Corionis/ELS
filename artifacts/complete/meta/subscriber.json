@@ -8,8 +8,9 @@
         "key": "767c6aa1-0189-4f77-a545-1f3dd7ec7966",
         "case_sensitive": false,
         "ignore_patterns": [
-            "desktop.ini",
-            "Thumbs.db"
+            "(?)desktop\\.ini",
+            ".*\\.fuse.*",
+            "Thumbs\\.db"
         ],
         "renaming": [
             {

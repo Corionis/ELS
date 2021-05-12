@@ -453,8 +453,7 @@ public class Repository
         for (Pattern patt : getLibraryData().libraries.compiledPatterns)
         {
             str = patt.toString();
-            str1 = str.replace("?", ".?").replace("*", ".*?");
-            if (name.matches(str1))
+            if (name.matches(str))
             {
                 ret = true;
                 break;

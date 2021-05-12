@@ -103,7 +103,8 @@ files have been specified.
       ELS is executed
  
  * -l | --library [libraryname] : Library to process, if not specified process
-      all libraries. This option may be specified more than once
+      all libraries. Applies to publisher-side only. This option may be specified 
+      more than once
  
  * -m | --mismatches [file] : Mismatches list of differences output text file
 
