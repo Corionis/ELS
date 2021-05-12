@@ -64,7 +64,7 @@ public class Process
      * @param to   the full to path
      * @return success boolean
      */
-    private boolean copyFile(String from, String to, boolean overwrite)
+    private void copyFile(String from, String to, boolean overwrite) throws MungerException
     {
         try
         {
@@ -84,27 +84,10 @@ public class Process
                 Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
             }
         }
-        catch (UnsupportedOperationException e)
+        catch (Exception e)
         {
-            logger.error("Copy problem UnsupportedOperationException: " + e.getMessage());
-            return false;
+            throw new MungerException(e.getMessage());
         }
-        catch (FileAlreadyExistsException e)
-        {
-            logger.error("Copy problem FileAlreadyExistsException: " + e.getMessage());
-            return false;
-        }
-        catch (DirectoryNotEmptyException e)
-        {
-            logger.error("Copy problem DirectoryNotEmptyException: " + e.getMessage());
-            return false;
-        }
-        catch (IOException e)
-        {
-            logger.error("Copy problem IOException: " + e.getMessage());
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -141,11 +124,11 @@ public class Process
                     {
                         // -D Dry run option
                         ++copyCount;
-                        logger.info("  > Would copy #" + copyCount + " " + groupItem.getFullPath());
+                        logger.info("  > Would copy #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath());
                     }
                     else
                     {
-                        String targetPath = getTarget(groupItem, groupItem.getLibrary(), totalSize);
+                        String targetPath = getTarget(groupItem.getLibrary(), totalSize, groupItem);
                         if (targetPath != null)
                         {
                             // copy item(s) to targetPath
@@ -154,21 +137,17 @@ public class Process
                             String to = targetPath + context.subscriberRepo.getWriteSeparator();
                             to += context.publisherRepo.normalize(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
 
-                            String msg = "  > Copying #" + copyCount + " " + groupItem.getFullPath() + " to " + to;
+                            String msg = "  > Copying #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath() + " to " + to;
                             logger.info(msg);
                             response += (msg + "\r\n");
 
-                            if (!copyFile(groupItem.getFullPath(), to, overwrite))
-                            {
-                                ++errorCount;
-                            }
+                            copyFile(groupItem.getFullPath(), to, overwrite);
                         }
                         else
                         {
                             fault = true;
-                            ++errorCount;
-                            throw new MungerException("    No space on any targetPath " + group.get(0).getLibrary() + " for " +
-                                    lastGroupName + " that is " + totalSize / (1024 * 1024) + " MB");
+                            throw new MungerException("No space on any target location of " + group.get(0).getLibrary() + " for " +
+                                    lastGroupName + " that is " + Utils.formatLong(totalSize, false));
                         }
                     }
                 }
@@ -182,8 +161,7 @@ public class Process
         catch (Exception e)
         {
             fault = true;
-            ++errorCount;
-            throw new MungerException(e.getMessage() + " trace: " + Utils.getStackTrace(e));
+            throw new MungerException(e.getMessage());
         }
 
         return response;
@@ -318,7 +296,7 @@ public class Process
      * @return the target
      * @throws MungerException the els exception
      */
-    public String getTarget(Item item, String library, long size) throws Exception
+    public String getTarget(String library, long size, Item item) throws Exception
     {
         String target = null;
         boolean allFull = true;
@@ -352,9 +330,10 @@ public class Process
                     space = Utils.availableSpace(path);
                 }
                 logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                        " path " + path + " = (" + (Utils.formatLong(space)) +
-                        ") for " + (Utils.formatLong(size)) +
-                        ", minimum " + Utils.formatLong(minimum));
+                        " path " + path + " is " + (Utils.formatLong(space, false)) +
+                        " for " + (Utils.formatLong(size, false)) +
+                        " with minimum " + Utils.formatLong(minimum, false));
+                // check size of item(s) to be copied
                 if (space > (size + minimum))
                 {
                     logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
@@ -366,7 +345,7 @@ public class Process
                 }
                 else
                 {
-                    logger.info("Original storage location too full for " + item.getItemPath() + " (" + size + ") at " + path);
+                    logger.info("Original storage location too full for " + item.getItemPath() + " " + Utils.formatLong(size, false) + " at " + path);
                 }
             }
         }
@@ -388,24 +367,27 @@ public class Process
                 {
                     space = Utils.availableSpace(candidate);
                 }
-                if (space > minimum)
+                logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
+                        " path " + candidate + " is " + (Utils.formatLong(space, false)) +
+                        " for " + (Utils.formatLong(size, false)) +
+                        " with minimum " + Utils.formatLong(minimum, false));
+                // check size of item(s) to be copied
+                if (space > (size + minimum))
                 {
-                    // check target space minimum
                     allFull = false;
-                    if (space > (size + minimum))
-                    {
-                        // check size of item(s) to be copied
-                        target = candidate;             // has space, use it
-                        break;
-                    }
+                    target = candidate;             // has space, use it
+                    break;
                 }
             }
             if (allFull)
             {
-                logger.error("All locations for library " + library + " are below specified minimum of " + storage.minimum);
+//                logger.error("All locations for library " + library + " are below specified minimum of " + storage.minimum);
+//
+//                // todo Should this be a throw ??
+//                System.exit(2);     // EXIT the program
 
-                // todo Should this be a throw ??
-                System.exit(2);     // EXIT the program
+//                throw new MungerException("No location for library " + library + " is above specified minimum of " + storage.minimum + " for group items");
+                target = null;
             }
         }
         if (notFound)
@@ -580,7 +562,6 @@ public class Process
             catch (FileNotFoundException fnf)
             {
                 fault = true;
-                ++errorCount;
                 String s = "File not found exception for Mismatches output file " + cfg.getMismatchFilename();
                 logger.error(s);
                 throw new MungerException(s);
@@ -599,7 +580,6 @@ public class Process
             catch (FileNotFoundException fnf)
             {
                 fault = true;
-                ++errorCount;
                 String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
                 logger.error(s);
                 throw new MungerException(s);
@@ -771,11 +751,11 @@ public class Process
         {
             fault = true;
             ++errorCount;
-            logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
+            logger.error(Utils.getStackTrace(e));
         }
         finally
         {
-            if (group.size() > 0)
+            if (!fault && group.size() > 0)
             {
                 try
                 {
@@ -797,7 +777,7 @@ public class Process
             {
                 mismatchFile.println("----------------------------------------------------");
                 mismatchFile.println("Total items: " + grandTotalItems);
-                mismatchFile.println("Total size : " + Utils.formatLong(grandTotalSize));
+                mismatchFile.println("Total size : " + Utils.formatLong(grandTotalSize, true));
                 mismatchFile.close();
             }
             if (whatsNewFile != null)
@@ -809,13 +789,13 @@ public class Process
             }
         }
 
-        logger.info("--------------------------------------------------------");
         if (ignoredList.size() > 0)
         {
-            logger.info(SIMPLE, "Ignored " + ignoredList.size() + " files:");
+            logger.debug(SIMPLE, "--------------------------------------------------------");
+            logger.debug(SIMPLE, "Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {
-                logger.info(SIMPLE, "    " + s);
+                logger.debug(SIMPLE, "    " + s);
             }
         }
 
@@ -849,18 +829,16 @@ public class Process
             }
         }
 
-        if (duplicates > 0)
-            logger.info(SHORT, "# Duplicates       : " + duplicates);
-        if (empties > 0)
-            logger.info(SHORT, "# Empty directories: " + empties);
-        if (ignoredList.size() > 0)
-            logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
+        logger.info(SHORT, "--------------------------------------------------------");
+        logger.info(SHORT, "# Duplicates       : " + duplicates);
+        logger.info(SHORT, "# Empty directories: " + empties);
+        logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
         logger.info(SHORT, "# Directories      : " + totalDirectories);
         logger.info(SHORT, "# Files            : " + totalItems);
         logger.info(SHORT, "# Copies           : " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
         logger.info(SHORT, "# Errors           : " + errorCount);
         logger.info(SHORT, "# Items processed  : " + grandTotalItems);
-        logger.info(SHORT, "# Total size       : " + Utils.formatLong(grandTotalSize));
+        logger.info(SHORT, "# Total size       : " + Utils.formatLong(grandTotalSize, true));
     }
 
     /**
@@ -872,6 +850,7 @@ public class Process
      */
     public int process()
     {
+        Marker SHORT = MarkerManager.getMarker("SHORT");
         int returnValue = 0;
 
         try
@@ -917,7 +896,7 @@ public class Process
             if (logger != null)
             {
                 // the - makes searching for the ending of a run easier
-                logger.info("- Process end" + " ------------------------------------------");
+                logger.info(SHORT, "- Process end" + " ------------------------------------------");
 
                 // tell remote end to exit
                 if (context.clientStty != null)
@@ -943,7 +922,7 @@ public class Process
 
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
-                    logger.error("Process completed normally");
+                    logger.fatal(SHORT,"Process completed normally");
             }
         }
 
@@ -987,11 +966,11 @@ public class Process
             {
                 if (duplicates == 0)
                 {
-                    logger.info(SIMPLE, "-----------------------------------------------------");
-                    logger.info(SIMPLE, type + " duplicate filenames found:");
+                    logger.debug(SIMPLE, "-----------------------------------------------------");
+                    logger.debug(SIMPLE, type + " duplicate filenames found:");
                 }
                 ++duplicates;
-                logger.info(SIMPLE, "  " + dupe.getFullPath());
+                logger.debug(SIMPLE, "  " + dupe.getFullPath());
                 dupe.setReported(true);
             }
         }
@@ -1003,11 +982,11 @@ public class Process
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
         if (empties == 0)
         {
-            logger.info(SIMPLE, "-----------------------------------------------------");
-            logger.info(SIMPLE, type + " empty directories found:");
+            logger.debug(SIMPLE, "-----------------------------------------------------");
+            logger.debug(SIMPLE, type + " empty directories found:");
         }
         ++empties;
-        logger.info(SIMPLE, "  " + item.getFullPath());
+        logger.debug(SIMPLE, "  " + item.getFullPath());
         return empties;
     }
 

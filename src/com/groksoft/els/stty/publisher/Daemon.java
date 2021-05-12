@@ -193,11 +193,11 @@ public class Daemon extends DaemonBase
                 logger.info("Processing command: " + line);
 
                 // parse the command
-                StringTokenizer t = new StringTokenizer(line);
+                StringTokenizer t = new StringTokenizer(line, "\"");
                 if (!t.hasMoreTokens())
                     continue; // ignore if empty
 
-                String theCommand = t.nextToken();
+                String theCommand = t.nextToken().trim();
 
                 // -------------- authorized level password -----------------
                 if (theCommand.equalsIgnoreCase("auth"))
@@ -361,7 +361,7 @@ public class Daemon extends DaemonBase
                         else
                         {
                             response += "  Total size: ";
-                            response += Utils.formatLong(totalSize) + "\r\n";
+                            response += Utils.formatLong(totalSize, true) + "\r\n";
                             response += "Copy listed items (y/N)? ";
                             Utils.write(out, myKey, response);
 
@@ -433,11 +433,12 @@ public class Daemon extends DaemonBase
                     String location = "";
                     if (t.hasMoreTokens())
                     {
-                        location = remainingTokens(t);
+                        location = t.nextToken();
                         long space = Utils.availableSpace(location);
+                        logger.info("  space: " + Utils.formatLong(space, true) + " at " + location);
                         if (isTerminal)
                         {
-                            response = Utils.formatLong(space);
+                            response = Utils.formatLong(space, true);
                         }
                         else
                         {
@@ -533,7 +534,7 @@ public class Daemon extends DaemonBase
 
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
-                    logger.error("Process completed normally");
+                    logger.fatal("Process completed normally");
             }
             out.close();
             in.close();

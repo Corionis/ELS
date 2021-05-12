@@ -17,6 +17,7 @@ import java.security.Key;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,11 +49,11 @@ public class Utils
         try
         {
             File f = new File(location);
-            space = f.getFreeSpace();
+            space = f.getUsableSpace();
         }
         catch (SecurityException e)
         {
-            logger.error("Exception '" + e.getMessage() + "' getting available space from " + location);
+            logger.error("Exception '" + e.getMessage() + "' getting usable space from " + location);
         }
         return space;
     }
@@ -131,29 +132,77 @@ public class Utils
      * @param value Long value to format
      * @return String Formatting text
      */
-    public static String formatLong(long value)
+    public static String formatLong(long value, boolean isFull)
     {
-        String response;
+        String full;
+        String brief;
         DecimalFormat shorterFormatter = new DecimalFormat("###,###,###,###,###,###,###,###.###");
         DecimalFormat longerFormatter = new DecimalFormat("###,###,###,###,###,###,###,###");
-        response = longerFormatter.format(value) + " bytes";
-        if (value > (1024))
+
+        brief = longerFormatter.format(value) + " bytes";
+        full = brief;
+        if (value >= (1024))
         {
-            response += ", " + longerFormatter.format(value / 1024.0) + " KB";
+            brief = longerFormatter.format(value / 1024.0) + " KB";
+            full +=  ", " + brief;
         }
-        if (value > (1024.0 * 1024.0))
+        if (value >= (1024.0 * 1024.0))
         {
-            response += ", " + longerFormatter.format(value / (1024.0 * 1024.0)) + " MB";
+            brief = longerFormatter.format(value / (1024.0 * 1024.0)) + " MB";
+            full +=  ", " + brief;
         }
-        if (value > (1024.0 * 1024.0 * 1024.0))
+        if (value >= (1024.0 * 1024.0 * 1024.0))
         {
-            response += ", " + longerFormatter.format(value / (1024.0 * 1024.0 * 1024.0)) + " GB";
+            brief = longerFormatter.format(value / (1024.0 * 1024.0 * 1024.0)) + " GB";
+            full +=  ", " + brief;
         }
-        if (value > (1024.0 * 1024.0 * 1024.0 * 1024.0))
+        if (value >= (1024.0 * 1024.0 * 1024.0 * 1024.0))
         {
-            response += ", " + shorterFormatter.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
+            brief = shorterFormatter.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
+            full +=  ", " + brief;
         }
-        return response;
+        return (isFull ? full : brief);
+    }
+
+    /**
+     * Get the duration string
+     *
+     * @param millis
+     * @return String
+     */
+    public static String getDuration(long millis) {
+        if(millis < 0) {
+            throw new IllegalArgumentException("Duration must be greater than zero!");
+        }
+
+        long days = TimeUnit.MILLISECONDS.toDays(millis);
+        millis -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        millis -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis);
+        millis -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis);
+
+        StringBuilder sb = new StringBuilder(64);
+        if (days > 0)
+        {
+            sb.append(days);
+            sb.append(" days ");
+        }
+        if (hours > 0)
+        {
+            sb.append(hours);
+            sb.append(" hrs ");
+        }
+        if (minutes > 0)
+        {
+            sb.append(minutes);
+            sb.append(" mins ");
+        }
+        sb.append(seconds);
+        sb.append(" secs");
+
+        return(sb.toString());
     }
 
     /**

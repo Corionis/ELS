@@ -54,9 +54,10 @@ public class ClientStty
     public long availableSpace(String location) throws Exception
     {
         long space = 0L;
-        String response = roundTrip("space " + location);
+        String response = roundTrip("space \"" + location + "\"");
         if (response != null && response.length() > 0)
         {
+            logger.debug("space command returned: " + response);
             space = Long.parseLong(response);
         }
         return space;

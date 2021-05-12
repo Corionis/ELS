@@ -491,7 +491,7 @@ public class Configuration
      *
      * @return the Main version
      */
-    public String getPROGRAM_VERSION()
+    public String getProgramVersionN()
     {
         return PROGRAM_VERSION;
     }

@@ -184,11 +184,11 @@ public class Daemon extends DaemonBase
                 logger.info("Processing command: " + line);
 
                 // parse the command
-                StringTokenizer t = new StringTokenizer(line);
+                StringTokenizer t = new StringTokenizer(line, "\"");
                 if (!t.hasMoreTokens())
                     continue; // ignore if empty
 
-                String theCommand = t.nextToken();
+                String theCommand = t.nextToken().trim();
 
                 // -------------- authorized level password -----------------
                 if (theCommand.equalsIgnoreCase("auth"))
@@ -281,9 +281,10 @@ public class Daemon extends DaemonBase
                     {
                         location = t.nextToken();
                         long space = Utils.availableSpace(location);
+                        logger.info("  space: " + Utils.formatLong(space, true) + " at " + location);
                         if (isTerminal)
                         {
-                            response = Utils.formatLong(space);
+                            response = Utils.formatLong(space, true);
                         }
                         else
                         {
@@ -377,7 +378,7 @@ public class Daemon extends DaemonBase
 
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
-                    logger.error("Process completed normally");
+                    logger.fatal("Process completed normally");
             }
             out.close();
             in.close();
