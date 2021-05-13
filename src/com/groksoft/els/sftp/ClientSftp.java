@@ -202,9 +202,10 @@ public class ClientSftp
             if (writeOffset > 0)
                 mode = jSftp.RESUME;
 
+            // copy the .els-part file
             jSftp.put(src, copyDest, mode);
 
-            // delete any old file
+            // delete any old original file
             try
             {
                 jSftp.rm(dest);
@@ -216,7 +217,7 @@ public class ClientSftp
                     throw e;
             }
 
-            // rename .els-part file
+            // rename .els-part file to original
             jSftp.rename(copyDest, dest);
         }
         catch (Exception e)

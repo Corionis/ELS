@@ -12,6 +12,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Date;
 
 import static com.groksoft.els.Configuration.*;
 
@@ -54,6 +55,7 @@ public class Main
         ThreadGroup sessionThreads = null;
         Configuration cfg = new Configuration();
         Process proc;
+        Date stamp = new Date();
 
         try
         {
@@ -82,7 +84,7 @@ public class Main
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    logger.info("+ ELS Local Process begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
+                    logger.info("+ ELS Local Process begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -98,7 +100,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("+ ELS Publisher Listener begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
+                    logger.info("+ ELS Publisher Listener begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -125,7 +127,7 @@ public class Main
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("+ ELS Publisher Manual Terminal begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
+                    logger.info("+ ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -157,7 +159,7 @@ public class Main
 
                 // handle -r P execute the automated process to remote subscriber -r S
                 case REMOTE_PUBLISH:
-                    logger.info("+ ELS Publish Process to Remote Subscriber begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
+                    logger.info("+ ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -192,7 +194,7 @@ public class Main
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("+ ELS Subscriber Listener begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
+                    logger.info("+ ELS Subscriber Listener begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
                     cfg.dump();
 
                     if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
@@ -222,7 +224,7 @@ public class Main
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("+ ELS Subscriber Manual Terminal begin, version " + cfg.getPROGRAM_VERSION() + " ------------------------------------------");
+                    logger.info("+ ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
                     cfg.dump();
 
                     if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
@@ -289,9 +291,12 @@ public class Main
         }
         finally
         {
-            if (!isListening)
+            if ( ! isListening)
             {
                 stopServices();
+                Date done = new Date();
+                long millis = Math.abs(done.getTime() - stamp.getTime());
+                logger.fatal("Runtime: " + Utils.getDuration(millis));
             }
             else
             {
@@ -305,6 +310,11 @@ public class Main
                             {
                                 context.clientStty.disconnect();
                             }
+
+                            Date done = new Date();
+                            long millis = Math.abs(done.getTime() - stamp.getTime());
+                            logger.fatal("Runtime: " + Utils.getDuration(millis));
+
                             logger.info("stopping services");
                             Thread.sleep(10000L);
                             stopServices();
@@ -416,7 +426,6 @@ public class Main
      */
     public void stopServices()
     {
-//        logger.info("stopping services");
         if (context.clientStty != null)
         {
             context.clientStty.disconnect();

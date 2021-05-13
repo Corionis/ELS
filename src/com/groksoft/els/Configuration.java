@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class Configuration
 {
-    private final String PROGRAM_VERSION = "2.1.2";
+    private final String PROGRAM_VERSION = "2.2.0";
 
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
@@ -491,7 +491,7 @@ public class Configuration
      *
      * @return the Main version
      */
-    public String getPROGRAM_VERSION()
+    public String getProgramVersionN()
     {
         return PROGRAM_VERSION;
     }
