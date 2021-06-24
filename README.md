@@ -53,7 +53,7 @@ reaches a specified minimum amount of free space the next target is
 used.
 
 An add-on tool is available to generate a basic ELS JSON file from a
-[Plex Media Server](www.plex.tv), see the [ELS Plex
+[Plex Media Server](https://www.plex.tv), see the [ELS Plex
 Generator](https://github.com/GrokSoft/ELS-Plex-Generator). However ELS
 will support any modern media system that uses the same directory structure.
 
