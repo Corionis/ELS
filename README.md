@@ -17,7 +17,7 @@ If it will not fit it is copied to a matching target location for new
 content for that library.
 
 The pre-built executable and a Zip including examples are available
-on the wiki Downloads page.
+on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** page.
 
 ## Features
 
