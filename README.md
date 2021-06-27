@@ -16,6 +16,9 @@ is made whether it will fit in the original location as other episodes.
 If it will not fit it is copied to a matching target location for new
 content for that library.
 
+The pre-built executable and a Zip including examples are available
+on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** page.
+
 ## Features
 
  * Supports movies, television shows with season subdirectories, 
@@ -53,7 +56,7 @@ reaches a specified minimum amount of free space the next target is
 used.
 
 An add-on tool is available to generate a basic ELS JSON file from a
-[Plex Media Server](www.plex.tv), see the [ELS Plex
+[Plex Media Server](https://www.plex.tv), see the [ELS Plex
 Generator](https://github.com/GrokSoft/ELS-Plex-Generator). However ELS
 will support any modern media system that uses the same directory structure.
 
