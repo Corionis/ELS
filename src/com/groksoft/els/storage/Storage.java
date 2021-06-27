@@ -7,13 +7,10 @@ import java.nio.file.Paths;
 import com.google.gson.Gson;                    // see https://github.com/google/gson
 
 // see https://logging.apache.org/log4j/2.x/
-import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Libraries;
-import com.groksoft.els.repository.Library;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.MungerException;
 import com.groksoft.els.Utils;
 
@@ -28,7 +25,7 @@ public class Storage
     private TargetData targetData = null;
     private String jsonFilename = "";
 
-    public static final long minimumBytes = 1073741824L;      // minimum minimum bytes (1GB)
+    public static final long MINIMUM_BYTES = 1073741824L;      // minimum minimum bytes (1GB)
 
     /**
      * Instantiates a new Storage instance.
@@ -45,15 +42,21 @@ public class Storage
      * @return the Target
      */
     public Target getLibraryTarget(String libraryName) throws MungerException {
-        boolean has = false;
         Target target = null;
-        for (Target tar : targetData.targets.storage) {
-            if (tar.name.equalsIgnoreCase(libraryName)) {
-                if (has) {
-                    throw new MungerException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
+        if (targetData != null)
+        {
+            boolean has = false;
+            for (Target tar : targetData.targets.storage)
+            {
+                if (tar.name.equalsIgnoreCase(libraryName))
+                {
+                    if (has) // check for duplicate library
+                    {
+                        throw new MungerException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
+                    }
+                    has = true;
+                    target = tar;
                 }
-                has = true;
-                target = tar;
             }
         }
         return target;
@@ -63,7 +66,7 @@ public class Storage
      * Normalize target paths based on "flavor"
      *
      */
-    public void normalize(String flavor)
+    private void normalize(String flavor)
     {
         if (targetData != null)
         {
@@ -124,7 +127,7 @@ public class Storage
     public void validate() throws MungerException {
         long minimumSize;
 
-        if (getTargetData() == null) {
+        if (targetData == null) {
             throw new MungerException("TargetData are null");
         }
 
@@ -143,8 +146,8 @@ public class Storage
                 throw new MungerException("storage.minimum [" + i + "] must be defined");
             }
             long min = Utils.getScaledValue(t.minimum);
-            if (min < minimumBytes) {               // non-fatal warning
-                logger.warn("Storage.minimum [" + i + "] " + t.name + " of " + t.minimum + " is less than allowed minimum of " + (minimumBytes / 1024 / 1024) + "MB. Using allowed minimum.");
+            if (min < MINIMUM_BYTES) {               // non-fatal warning
+                logger.warn("Storage.minimum [" + i + "] " + t.name + " of " + t.minimum + " is less than allowed minimum of " + (MINIMUM_BYTES / 1024 / 1024) + "MB. Using allowed minimum.");
             }
             if (t.locations == null || t.locations.length == 0) {
                 throw new MungerException("storage.locations [" + i + "] " + t.name + " must be defined");
@@ -178,15 +181,6 @@ public class Storage
      */
     public void setJsonFilename(String jsonFilename) {
         this.jsonFilename = jsonFilename;
-    }
-
-    /**
-     * Gets targetData.
-     *
-     * @return the target data
-     */
-    public TargetData getTargetData() {
-        return targetData;
     }
 
 }

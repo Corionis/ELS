@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class Configuration
 {
     private final String PROGRAM_VERSION = "3.0.0";
+    private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
 
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
@@ -50,14 +51,15 @@ public class Configuration
     private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
+    private boolean renaming = false;
+    private int renamingType = RENAME_NONE;
     private boolean requestCollection = false;
     private boolean requestTargets = false;
     private boolean specificLibrary = false;
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
-    private boolean renaming = false;
-    private int renamingType = RENAME_NONE;
     private String targetsFilename = "";
+    private boolean targetsEnabled = false;
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
@@ -477,6 +479,14 @@ public class Configuration
     }
 
     /**
+     * Set targets enabled
+     */
+    public void setTargetsEnabled(boolean sense)
+    {
+        targetsEnabled = sense;
+    }
+
+    /**
      * Sets targets filename
      *
      * @param targetsFilename the targets filename
@@ -788,6 +798,14 @@ public class Configuration
     }
 
     /**
+     * Have targets been enabled?
+     */
+    public boolean isTargetsEnabled()
+    {
+        return targetsEnabled;
+    }
+
+    /**
      * Returns true if this subscriber is in terminal mode
      */
     public boolean isSubscriberTerminal()
@@ -910,6 +928,15 @@ public class Configuration
                     {
                         throw new MungerException("Error: -f requires a log filename");
                     }
+                    break;
+                case "-h":
+                case "--version":
+                    System.out.println("");
+                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);
+                    System.out.println("See the ELS wiki on GitHub for documentation at:");
+                    System.out.println("  https://github.com/GrokSoft/ELS/wiki");
+                    System.out.println("");
+                    System.exit(1);
                     break;
                 case "-i":                                             // export publisher items to collection file
                 case "--export-items":
@@ -1036,30 +1063,24 @@ public class Configuration
                     break;
                 case "-t":                                             // targets filename
                 case "--targets":
-                    if (index <= args.length - 2)
+                    setTargetsEnabled(true);
+                    setForceTargets(false);
+                    setRequestTargets(true);
+                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
-                        setForceTargets(false);
-                        setRequestTargets(true);
                         setTargetsFilename(args[index + 1]);
                         ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -t requires a targets filename");
                     }
                     break;
                 case "-T":                                             // targets filename - force to publisher
                 case "--force-targets":
-                    if (index <= args.length - 2)
+                    setTargetsEnabled(true);
+                    setForceTargets(true);
+                    setRequestTargets(false);
+                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
-                        setForceTargets(true);
-                        setRequestTargets(false);
                         setTargetsFilename(args[index + 1]);
                         ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -T requires a targets filename");
                     }
                     break;
                 case "-u":                                             // publisher duplicate check

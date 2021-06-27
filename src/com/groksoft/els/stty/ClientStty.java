@@ -231,7 +231,7 @@ public class ClientStty
 
     public String retrieveRemoteData(String filename, String command) throws Exception
     {
-        String location = "";
+        String location = null;
         String response = "";
 
         response = roundTrip(command);

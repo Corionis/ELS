@@ -66,25 +66,26 @@ public class Main
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
             System.setProperty("debugLevel", cfg.getDebugLevel());
             System.setProperty("pattern", cfg.getPattern());
-            org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
-            ctx.reconfigure();
+            org.apache.logging.log4j.core.LoggerContext lctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+            lctx.reconfigure();
 
-            org.apache.logging.log4j.core.config.Configuration ccfg = ctx.getConfiguration();
+            org.apache.logging.log4j.core.config.Configuration ccfg = lctx.getConfiguration();
             LoggerConfig lcfg = ccfg.getLoggerConfig("Console");
             lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
             lcfg = ccfg.getLoggerConfig("applog");
             lcfg.setLevel(Level.toLevel(cfg.getDebugLevel()));
-            ctx.updateLoggers();
+            lctx.updateLoggers();
 
             // get the named logger
             logger = LogManager.getLogger("applog");
 
             // an execution of this program can only be configured as one of these
+            logger.info("+------------------------------------------");
             switch (cfg.getRemoteFlag())
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    logger.info("+ ELS Local Process begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Local Process begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -100,7 +101,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("+ ELS Publisher Listener begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Publisher Listener begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -127,7 +128,7 @@ public class Main
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("+ ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -159,7 +160,7 @@ public class Main
 
                 // handle -r P execute the automated process to remote subscriber -r S
                 case REMOTE_PUBLISH:
-                    logger.info("+ ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -194,11 +195,11 @@ public class Main
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("+ ELS Subscriber Listener begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Subscriber Listener begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
-                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
-                        throw new MungerException("Targets -t file not found: " + cfg.getTargetsFilename());
+                    if (!cfg.isTargetsEnabled())
+                        throw new MungerException("Targets -t | -T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
@@ -224,11 +225,11 @@ public class Main
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("+ ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
-                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
-                        throw new MungerException("Targets -t file not found: " + cfg.getTargetsFilename());
+                    if (!cfg.isTargetsEnabled())
+                        throw new MungerException("Targets -t | -T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);

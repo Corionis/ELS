@@ -2,6 +2,7 @@ package com.groksoft.els;
 
 import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
+import com.groksoft.els.repository.Location;
 import com.groksoft.els.storage.Storage;
 import com.groksoft.els.storage.Target;
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +12,6 @@ import org.apache.logging.log4j.MarkerManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -104,7 +104,7 @@ public class Process
     public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite) throws MungerException
     {
         String response = "";
-        if (cfg.getTargetsFilename().length() < 1)
+        if (!cfg.isTargetsEnabled())
         {
             throw new MungerException("-t or -T target is required for this operation");
         }
@@ -262,23 +262,48 @@ public class Process
         return copyCount;
     }
 
+    public long getLocationMinimum(String path)
+    {
+        long minimum = 0L;
+        for (Location loc : context.subscriberRepo.getLibraryData().libraries.locations)
+        {
+            if (path.startsWith(loc.location))
+            {
+                minimum = Utils.getScaledValue(loc.minimum);
+                break;
+            }
+        }
+        if (minimum == 0L)
+        {
+            minimum = Storage.MINIMUM_BYTES;
+        }
+        return minimum;
+    }
+
     public void getStorageTargets() throws Exception
     {
         String location = cfg.getTargetsFilename();
 
         if (cfg.isRemoteSession() && cfg.isRequestTargets())
         {
+            if (location == null || location.length() < 1)
+            {
+                location = "subscriber-targets";
+            }
             // request target data from remote subscriber
             location = context.clientStty.retrieveRemoteData(location, "targets");
             cfg.setTargetsFilename(location);
         }
 
-        if (storageTargets == null)
-            storageTargets = new Storage();
+        if (location != null) // v3.00 allow targets to be empty to use sources as target locations
+        {
+            if (storageTargets == null)
+                storageTargets = new Storage();
 
-        storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
-        if (!cfg.isRemoteSession())
-            storageTargets.validate();
+            storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
+            if (!cfg.isRemoteSession())
+                storageTargets.validate();
+        }
     }
 
     /**
@@ -298,43 +323,32 @@ public class Process
      */
     public String getTarget(String library, long size, Item item) throws Exception
     {
-        String target = null;
-        boolean allFull = true;
+        String path = null;
         boolean notFound = true;
-        long space = 0L;
         long minimum = 0L;
+        Target target = null;
 
-        Target storage = storageTargets.getLibraryTarget(library);
-        if (storage != null)
+        if (storageTargets != null)
         {
-            minimum = Utils.getScaledValue(storage.minimum);
+            target = storageTargets.getLibraryTarget(library);
+        }
+        if (target != null)
+        {
+            minimum = Utils.getScaledValue(target.minimum);
         }
         else
         {
-            minimum = Storage.minimumBytes;
+            minimum = Storage.MINIMUM_BYTES;
         }
 
         // see if there is an "original" directory the new content will fit in
         if (!cfg.isNoBackFill())
         {
-            String path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, item.getItemPath()));
+            path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, item.getItemPath()));
             if (path != null)
             {
-                if (cfg.isRemoteSession())
-                {
-                    // remote subscriber
-                    space = context.clientStty.availableSpace(path);
-                }
-                else
-                {
-                    space = Utils.availableSpace(path);
-                }
-                logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                        " path " + path + " is " + (Utils.formatLong(space, false)) +
-                        " for " + (Utils.formatLong(size, false)) +
-                        " with minimum " + Utils.formatLong(minimum, false));
                 // check size of item(s) to be copied
-                if (space > (size + minimum))
+                if (itFits(path, size, minimum, target != null))
                 {
                     logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
                     //
@@ -343,58 +357,46 @@ public class Process
                     ++grandTotalOriginalLocation;
                     return path;
                 }
-                else
-                {
-                    logger.info("Original storage location too full for " + item.getItemPath() + " " + Utils.formatLong(size, false) + " at " + path);
-                }
+                logger.info("Original storage location too full for " + item.getItemPath() + " " + Utils.formatLong(size, false) + " at " + path);
+                path = null;
             }
         }
 
-        // find a matching target
-        if (storage != null)
+        if (target != null) // a defined target is the default
         {
             notFound = false;
-            for (int j = 0; j < storage.locations.length; ++j)
+            for (int j = 0; j < target.locations.length; ++j)
             {
-                // check space on the candidate target
-                String candidate = storage.locations[j];
-                if (cfg.isRemoteSession())
-                {
-                    // remote subscriber
-                    space = context.clientStty.availableSpace(candidate);
-                }
-                else
-                {
-                    space = Utils.availableSpace(candidate);
-                }
-                logger.info("Checking space on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                        " path " + candidate + " is " + (Utils.formatLong(space, false)) +
-                        " for " + (Utils.formatLong(size, false)) +
-                        " with minimum " + Utils.formatLong(minimum, false));
+                String candidate = target.locations[j];
                 // check size of item(s) to be copied
-                if (space > (size + minimum))
+                if (itFits(candidate, size, minimum, true))
                 {
-                    allFull = false;
-                    target = candidate;             // has space, use it
+                    path = candidate;             // has space, use it
                     break;
                 }
             }
-            if (allFull)
+        }
+        else // v3.00, use sources for target locations
+        {
+            notFound = false;
+            // this is the library being processed so it will exist
+            Library lib = context.subscriberRepo.getLibrary(library);
+            for (int j = 0; j < lib.sources.length; ++j)
             {
-//                logger.error("All locations for library " + library + " are below specified minimum of " + storage.minimum);
-//
-//                // todo Should this be a throw ??
-//                System.exit(2);     // EXIT the program
-
-//                throw new MungerException("No location for library " + library + " is above specified minimum of " + storage.minimum + " for group items");
-                target = null;
+                String candidate = lib.sources[j];
+                // check size of item(s) to be copied
+                if (itFits(candidate, size, minimum, false))
+                {
+                    path = candidate;             // has space, use it
+                    break;
+                }
             }
         }
         if (notFound)
         {
-            logger.error("No target library match found for publisher library " + library);
+            logger.error("No target library match found for library " + library);
         }
-        return target;
+        return path;
     }
 
     /**
@@ -467,7 +469,7 @@ public class Process
                 }
 
                 // get -t|T Targets
-                if (cfg.getTargetsFilename().length() > 0)
+                if (cfg.isTargetsEnabled())
                 {
                     getStorageTargets();
                 }
@@ -489,6 +491,44 @@ public class Process
             ++errorCount;
             logger.error(Utils.getStackTrace(ex));
         }
+    }
+
+    /**
+     * Will the needed size fit?
+     */
+    private boolean itFits(String path, long size, long minimum, boolean hasTarget) throws Exception
+    {
+        boolean fit = false;
+        long space;
+        if (cfg.isRemoteSession())
+        {
+            // remote subscriber
+            space = context.clientStty.availableSpace(path);
+        }
+        else
+        {
+            space = Utils.availableSpace(path);
+        }
+
+        if (!hasTarget) // provided target file overrides subscriber file locations minimum values
+        {
+            if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
+                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.00
+            {
+                minimum = getLocationMinimum(path);
+            }
+        }
+
+        logger.info("Check available space for " + (Utils.formatLong(size, false)) +
+                " with minimum " + Utils.formatLong(minimum, false) +
+                " on " + (cfg.isRemoteSession() ? "remote" : "local") +
+                " path " + path + " has " + (Utils.formatLong(space, false)));
+
+        if (space > (size + minimum))
+        {
+            fit = true;
+        }
+        return fit;
     }
 
     /**
@@ -791,7 +831,7 @@ public class Process
 
         if (ignoredList.size() > 0)
         {
-            logger.debug(SIMPLE, "--------------------------------------------------------");
+            logger.info(SHORT, "+------------------------------------------");
             logger.debug(SIMPLE, "Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {
@@ -829,7 +869,7 @@ public class Process
             }
         }
 
-        logger.info(SHORT, "--------------------------------------------------------");
+        logger.info(SHORT, "+------------------------------------------");
         logger.info(SHORT, "# Duplicates       : " + duplicates);
         logger.info(SHORT, "# Empty directories: " + empties);
         logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
@@ -865,11 +905,12 @@ public class Process
                 if (isInitialized)
                 {
                     // if all the pieces are specified munge the collections
-                    if ((cfg.getPublisherLibrariesFileName().length() > 0 ||
-                            cfg.getPublisherCollectionFilename().length() > 0) &&
+                    if (cfg.isTargetsEnabled() &&
+                            (cfg.getPublisherLibrariesFileName().length() > 0 ||
+                                    cfg.getPublisherCollectionFilename().length() > 0) &&
                             (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                    cfg.getSubscriberCollectionFilename().length() > 0) &&
-                            cfg.getTargetsFilename().length() > 0)
+                                    cfg.getSubscriberCollectionFilename().length() > 0)
+                    )
                     {
                         munge(); // this is the full munge process
                     }
@@ -896,7 +937,7 @@ public class Process
             if (logger != null)
             {
                 // the - makes searching for the ending of a run easier
-                logger.info(SHORT, "- Process end" + " ------------------------------------------");
+                logger.info(SHORT, "Process end" + " ------------------------------------------");
 
                 // tell remote end to exit
                 if (context.clientStty != null)
@@ -922,7 +963,7 @@ public class Process
 
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
-                    logger.fatal(SHORT,"Process completed normally");
+                    logger.fatal(SHORT, "Process completed normally");
             }
         }
 
@@ -966,7 +1007,7 @@ public class Process
             {
                 if (duplicates == 0)
                 {
-                    logger.debug(SIMPLE, "-----------------------------------------------------");
+                    logger.debug(SIMPLE, "+------------------------------------------");
                     logger.debug(SIMPLE, type + " duplicate filenames found:");
                 }
                 ++duplicates;
@@ -982,7 +1023,7 @@ public class Process
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
         if (empties == 0)
         {
-            logger.debug(SIMPLE, "-----------------------------------------------------");
+            logger.debug(SIMPLE, "+------------------------------------------");
             logger.debug(SIMPLE, type + " empty directories found:");
         }
         ++empties;

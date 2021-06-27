@@ -472,7 +472,14 @@ public class Daemon extends DaemonBase
                 {
                     try
                     {
-                        response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                        if (cfg.getTargetsFilename().length() > 0)
+                        {
+                            response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                        }
+                        else
+                        {
+                            response = ""; // let it default to sources as target locations v3.00
+                        }
                     }
                     catch (Exception e)
                     {

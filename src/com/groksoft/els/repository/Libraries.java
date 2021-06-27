@@ -66,6 +66,11 @@ public class Libraries
     public Renaming[] renaming;
 
     /**
+     * Storage. v3.00
+     */
+    public Location[] locations;
+
+    /**
      * The list of libraries.
      */
     public Library[] bibliography;

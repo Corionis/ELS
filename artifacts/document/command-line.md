@@ -101,7 +101,7 @@ files have been specified.
  
  * -f | --log-file [file] : Log file, default ELS.log in the directory where
       ELS is executed
- 
+   
  * -l | --library [libraryname] : Library to process, if not specified process
       all libraries. Applies to publisher-side only. This option may be specified 
       more than once
