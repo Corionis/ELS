@@ -85,7 +85,8 @@ public class Repository
             PrintWriter outputStream = new PrintWriter(cfg.getExportTextFilename());
             for (Library lib : libraryData.libraries.bibliography)
             {
-                if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name))
+                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                 {
                     for (Item item : lib.items)
                     {
@@ -580,7 +581,8 @@ public class Repository
 
         for (Library pubLib : getLibraryData().libraries.bibliography)
         {
-            if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(pubLib.name))
+            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(pubLib.name)) &&
+                (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(pubLib.name)))
             {
                 for (Item item : pubLib.items)
                 {
@@ -649,7 +651,8 @@ public class Repository
     {
         for (Library lib : getLibraryData().libraries.bibliography)
         {
-            if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name))
+            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
             {
                 scanSources(lib);
                 sort(lib);
@@ -738,8 +741,8 @@ public class Repository
      * <p>
      * Used by the public scan methods.
      *
-     * @param lib
-     * @throws MungerException
+     * @param lib Library to scan
+     * @throws MungerException From scanDirectory()
      */
     private void scanSources(Library lib) throws MungerException
     {
@@ -766,7 +769,7 @@ public class Repository
      *
      * @throws MungerException the els exception
      */
-    public void validate() throws MungerException, Exception
+    public void validate() throws Exception
     {
         if (libraryData == null)
         {
@@ -853,7 +856,8 @@ public class Repository
             }
             else
             {
-                if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name))
+                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                 {
                     logger.info("  library: " + lib.name +
                             ", " + lib.sources.length + " sources" +

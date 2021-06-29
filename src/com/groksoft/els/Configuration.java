@@ -51,7 +51,9 @@ public class Configuration
     private int renamingType = RENAME_NONE;
     private boolean requestCollection = false;
     private boolean requestTargets = false;
+    private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
     private ArrayList<String> selectedLibraryNames = new ArrayList<>();
+    private boolean specificExclude = false;
     private boolean specificLibrary = false;
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
@@ -66,6 +68,16 @@ public class Configuration
      */
     public Configuration()
     {
+    }
+
+    /**
+     * Add an excluded publisher library name
+     *
+     * @param publisherLibraryName the publisher library name
+     */
+    public void addExcludedLibraryName(String publisherLibraryName)
+    {
+        this.selectedLibraryExcludes.add(publisherLibraryName);
     }
 
     /**
@@ -105,6 +117,11 @@ public class Configuration
         //logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
         logger.info(SHORT, "  cfg: -l Publisher library name(s):");
         for (String ln : getSelectedLibraryNames())
+        {
+            logger.info(SHORT, "        " + ln);
+        }
+        logger.info(SHORT, "  cfg: -L Excluded library name(s):");
+        for (String ln : getExcludedLibraryNames())
         {
             logger.info(SHORT, "        " + ln);
         }
@@ -181,6 +198,16 @@ public class Configuration
     public void setDebugLevel(String debugLevel)
     {
         this.debugLevel = debugLevel;
+    }
+
+    /**
+     * Gets excluded library names
+     *
+     * @return the excluded library names collection
+     */
+    public ArrayList<String> getExcludedLibraryNames()
+    {
+        return selectedLibraryExcludes;
     }
 
     /**
@@ -408,9 +435,9 @@ public class Configuration
     }
 
     /**
-     * Gets publisher library name
+     * Gets publisher library names
      *
-     * @return the publisher library name
+     * @return the publisher library names collection
      */
     public ArrayList<String> getSelectedLibraryNames()
     {
@@ -535,6 +562,23 @@ public class Configuration
     public void setDuplicateCheck(boolean duplicateCheck)
     {
         this.duplicateCheck = duplicateCheck;
+    }
+
+    /**
+     * Is the current library one that has been excluded on the command line?
+     *
+     * @return isSelected true/false
+     */
+    public boolean isExcludedLibrary(String name)
+    {
+        for (String library : selectedLibraryExcludes)
+        {
+            if (library.equalsIgnoreCase(name))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -761,6 +805,24 @@ public class Configuration
     }
 
     /**
+     * Is specific publisher library exclude flag set?
+     */
+    public boolean isSpecificExclude()
+    {
+        return this.specificExclude;
+    }
+
+    /**
+     * Sets specific publisher library exclude flag
+     *
+     * @param sense true/false
+     */
+    public void setSpecificExclude(boolean sense)
+    {
+        this.specificExclude = sense;
+    }
+
+    /**
      * Is specific publisher library boolean.
      *
      * @return the boolean
@@ -771,13 +833,13 @@ public class Configuration
     }
 
     /**
-     * Sets specific publisher library
+     * Sets specific publisher library flag
      *
-     * @param specificLibrary the specific publisher library
+     * @param sense true/false
      */
-    public void setSpecificLibrary(boolean specificLibrary)
+    public void setSpecificLibrary(boolean sense)
     {
-        this.specificLibrary = specificLibrary;
+        this.specificLibrary = sense;
     }
 
     /**
@@ -965,6 +1027,19 @@ public class Configuration
                     else
                     {
                         throw new MungerException("Error: -l requires a publisher library name");
+                    }
+                    break;
+                case "-L":                                             // publisher library to exclude
+                case "--exclude":
+                    if (index <= args.length - 2)
+                    {
+                        addExcludedLibraryName(args[index + 1]);
+                        setSpecificExclude(true);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -L requires a publisher library name to exclude");
                     }
                     break;
                 case "-m":                                             // Mismatch output filename

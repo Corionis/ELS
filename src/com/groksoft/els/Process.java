@@ -624,7 +624,8 @@ public class Process
                 Library pubLib = null;
 
                 // if processing all libraries, or this one was specified on the command line with -l
-                if (!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name))
+                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
                 {
                     // if the publisher has a matching library
                     if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
