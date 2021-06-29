@@ -25,6 +25,7 @@ public class Process
     private Main.Context context;
     private int copyCount = 0;
     private String currentGroupName = "";
+    private int differentSizes = 0;
     private int errorCount = 0;
     private boolean fault = false;
     private long grandTotalItems = 0L;
@@ -64,29 +65,22 @@ public class Process
      * @param to   the full to path
      * @return success boolean
      */
-    private void copyFile(String from, String to, boolean overwrite) throws MungerException
+    private void copyFile(String from, String to, boolean overwrite) throws Exception
     {
-        try
+        if (cfg.isRemoteSession())
         {
-            if (cfg.isRemoteSession())
-            {
-                context.clientSftp.transmitFile(from, to, overwrite);
-            }
-            else
-            {
-                Path fromPath = Paths.get(from).toRealPath();
-                Path toPath = Paths.get(to);
-                File f = new File(to);
-                if (f != null)
-                {
-                    f.getParentFile().mkdirs();
-                }
-                Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
-            }
+            context.clientSftp.transmitFile(from, to, overwrite);
         }
-        catch (Exception e)
+        else
         {
-            throw new MungerException(e.getMessage());
+            Path fromPath = Paths.get(from).toRealPath();
+            Path toPath = Paths.get(to);
+            File f = new File(to);
+            if (f != null)
+            {
+                f.getParentFile().mkdirs();
+            }
+            Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
         }
     }
 
@@ -101,7 +95,7 @@ public class Process
      * @param overwrite whether to overwrite any existing target file
      * @throws MungerException the els exception
      */
-    public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite) throws MungerException
+    public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite) throws Exception
     {
         String response = "";
         if (!cfg.isTargetsEnabled())
@@ -145,7 +139,6 @@ public class Process
                         }
                         else
                         {
-                            fault = true;
                             throw new MungerException("No space on any target location of " + group.get(0).getLibrary() + " for " +
                                     lastGroupName + " that is " + Utils.formatLong(totalSize, false));
                         }
@@ -161,7 +154,7 @@ public class Process
         catch (Exception e)
         {
             fault = true;
-            throw new MungerException(e.getMessage());
+            throw e;
         }
 
         return response;
@@ -257,11 +250,6 @@ public class Process
         context.publisherRepo.exportText();
     }
 
-    public int getCopyCount()
-    {
-        return copyCount;
-    }
-
     public long getLocationMinimum(String path)
     {
         long minimum = 0L;
@@ -273,7 +261,7 @@ public class Process
                 break;
             }
         }
-        if (minimum == 0L)
+        if (minimum < 1L)
         {
             minimum = Storage.MINIMUM_BYTES;
         }
@@ -378,9 +366,11 @@ public class Process
         }
         else // v3.00, use sources for target locations
         {
-            notFound = false;
-            // this is the library being processed so it will exist
             Library lib = context.subscriberRepo.getLibrary(library);
+            if (lib != null)
+            {
+                notFound = false;
+            }
             for (int j = 0; j < lib.sources.length; ++j)
             {
                 String candidate = lib.sources[j];
@@ -454,35 +444,32 @@ public class Process
                 rename();
             }
 
-            if (isInitialized) // just in case
+            // process -e export text, publisher only
+            if (cfg.getExportTextFilename().length() > 0)
             {
-                // process -e export text, publisher only
-                if (cfg.getExportTextFilename().length() > 0)
-                {
-                    exportText();
-                }
+                exportText();
+            }
 
-                // process -i export collection items, publisher only
-                if (cfg.getExportCollectionFilename().length() > 0)
-                {
-                    exportCollection();
-                }
+            // process -i export collection items, publisher only
+            if (cfg.getExportCollectionFilename().length() > 0)
+            {
+                exportCollection();
+            }
 
-                // get -t|T Targets
-                if (cfg.isTargetsEnabled())
-                {
-                    getStorageTargets();
-                }
-                else
-                {
-                    cfg.setDryRun(true);
-                }
+            // get -t|T Targets
+            if (cfg.isTargetsEnabled())
+            {
+                getStorageTargets();
+            }
+            else
+            {
+                cfg.setDryRun(true);
+            }
 
-                // check for publisher duplicates
-                if (cfg.isDuplicateCheck())
-                {
-                    duplicatesCheck();
-                }
+            // check for publisher duplicates
+            if (cfg.isDuplicateCheck())
+            {
+                duplicatesCheck();
             }
         }
         catch (Exception ex)
@@ -649,12 +636,6 @@ public class Process
                         }
                         if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            //if (cfg.isRemoteSession())
-                            //{
-                            //    throw new MungerException("Subscriber collection missing data for subscriber library " + subLib.name);
-                            //}
-                            //context.subscriberRepo.scan(subLib.name);
-
                             if (!cfg.isRemoteSession()) // remote collection already loaded and may be empty
                             {
                                 context.subscriberRepo.scan(subLib.name);
@@ -685,7 +666,10 @@ public class Process
                                         if (item.getHas().size() == 1) // no duplicates?
                                         {
                                             if (item.getSize() != has.getSize())
+                                            {
                                                 logger.warn("  ! Subscriber " + subLib.name + " has different size " + item.getItemPath());
+                                                ++differentSizes;
+                                            }
                                             else
                                                 logger.debug("  = Subscriber " + subLib.name + " has " + item.getItemPath());
                                         } // otherwise duplicates were logged in hasItem(), do not log again
@@ -870,6 +854,7 @@ public class Process
         }
 
         logger.info(SHORT, "+------------------------------------------");
+        logger.info(SHORT, "# Different sizes  : " + differentSizes);
         logger.info(SHORT, "# Duplicates       : " + duplicates);
         logger.info(SHORT, "# Empty directories: " + empties);
         logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
@@ -899,7 +884,7 @@ public class Process
             {
                 if (!isInitialized)
                 {
-                    initialize();
+                    initialize(); // handles actions other than munge()
                 }
 
                 if (isInitialized)
@@ -936,7 +921,6 @@ public class Process
         {
             if (logger != null)
             {
-                // the - makes searching for the ending of a run easier
                 logger.info(SHORT, "Process end" + " ------------------------------------------");
 
                 // tell remote end to exit
@@ -980,21 +964,6 @@ public class Process
         {
             context.publisherRepo.scan();
             justScannedPublisher = true;
-        }
-
-        // see if there are any renames performed
-        if (context.publisherRepo.renameContent())
-        {
-/* Not necessary; data updated OTF
-            // rescan if library file specified (as opposed to a possibly-edited collection file)
-            if (cfg.getPublisherLibrariesFileName().length() > 0)
-            {
-                // reset and rescan
-                context.publisherRepo.resetItems();
-                context.publisherRepo.scan();
-                justScannedPublisher = true;
-            }
-*/
         }
     }
 

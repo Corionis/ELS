@@ -13,8 +13,8 @@ import java.io.IOException;
  * ClientSftp -to- ServerSftp
  * <br/>
  * This implementation uses the Jsch client library:
- *      http://www.jcraft.com/jsch/
- *      https://epaul.github.io/jsch-documentation/
+ * http://www.jcraft.com/jsch/
+ * https://epaul.github.io/jsch-documentation/
  */
 public class ClientSftp
 {
@@ -158,72 +158,65 @@ public class ClientSftp
      * @param dest Destination file path with remove separators
      * @throws IOException
      */
-    public void transmitFile(String src, String dest, boolean overwrite) throws IOException
+    public void transmitFile(String src, String dest, boolean overwrite) throws Exception
     {
+        SftpATTRS destAttr = null;
+        int readOffset = 0;
+        long writeOffset = 0L;
+
+        String copyDest = dest + ".els-part";
+
+        // does the destination already exist?
+        // automatically resume/continue transfer
         try
         {
-            SftpATTRS destAttr = null;
-            int readOffset = 0;
-            long writeOffset = 0L;
-
-            String copyDest = dest + ".els-part";
-
-            // does the destination already exist?
-            // automatically resume/continue transfer
-            try
+            destAttr = jSftp.stat(copyDest);
+            if (destAttr != null)
             {
-                destAttr = jSftp.stat(copyDest);
-                if (destAttr != null)
+                if (destAttr.isReg() && destAttr.getSize() > 0)
                 {
-                    if (destAttr.isReg() && destAttr.getSize() > 0)
+                    if (!overwrite)
                     {
-                        if (!overwrite)
-                        {
-                            readOffset = (int) destAttr.getSize();
-                            writeOffset = readOffset + 1;
-                        }
+                        readOffset = (int) destAttr.getSize();
+                        writeOffset = readOffset + 1;
                     }
                 }
             }
-            catch (SftpException e)
-            {
-                String msg = e.toString().trim().toLowerCase();
-                if (!msg.contains("nosuchfileexception"))
-                    throw e;
-                destAttr = null;
-            }
-
-            if (destAttr == null) // file does not exist, try making directory tree
-            {
-                makeRemoteDirectory(copyDest);
-            }
-
-            int mode = jSftp.OVERWRITE;
-            if (writeOffset > 0)
-                mode = jSftp.RESUME;
-
-            // copy the .els-part file
-            jSftp.put(src, copyDest, mode);
-
-            // delete any old original file
-            try
-            {
-                jSftp.rm(dest);
-            }
-            catch (SftpException e)
-            {
-                String msg = e.toString().trim().toLowerCase();
-                if (!msg.contains("nosuchfileexception"))
-                    throw e;
-            }
-
-            // rename .els-part file to original
-            jSftp.rename(copyDest, dest);
         }
-        catch (Exception e)
+        catch (SftpException e)
         {
-            logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
+            String msg = e.toString().trim().toLowerCase();
+            if (!msg.contains("nosuchfileexception"))
+                throw e;
+            destAttr = null;
         }
+
+        if (destAttr == null) // file does not exist, try making directory tree
+        {
+            makeRemoteDirectory(copyDest);
+        }
+
+        int mode = jSftp.OVERWRITE;
+        if (writeOffset > 0)
+            mode = jSftp.RESUME;
+
+        // copy the .els-part file
+        jSftp.put(src, copyDest, mode);
+
+        // delete any old original file
+        try
+        {
+            jSftp.rm(dest);
+        }
+        catch (SftpException e)
+        {
+            String msg = e.toString().trim().toLowerCase();
+            if (!msg.contains("nosuchfileexception"))
+                throw e;
+        }
+
+        // rename .els-part file to original
+        jSftp.rename(copyDest, dest);
     }
 
 }

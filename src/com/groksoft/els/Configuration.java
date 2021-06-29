@@ -14,21 +14,18 @@ import java.util.ArrayList;
  */
 public class Configuration
 {
-    private final String PROGRAM_VERSION = "3.0.0";
-    private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
-
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
     public static final int REMOTE_PUBLISH = 1;
+    public static final int RENAME_BOTH = 3;
+    public static final int RENAME_DIRECTORIES = 2;
+    public static final int RENAME_FILES = 1;
+    public static final int RENAME_NONE = 0;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
-
-    public static final int RENAME_NONE = 0;
-    public static final int RENAME_FILES = 1;
-    public static final int RENAME_DIRECTORIES = 2;
-    public static final int RENAME_BOTH = 3;
-
+    private final String PROGRAM_VERSION = "3.0.0";
+    private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean crossCheck = false;
@@ -48,18 +45,18 @@ public class Configuration
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
-    private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
     private boolean renaming = false;
     private int renamingType = RENAME_NONE;
     private boolean requestCollection = false;
     private boolean requestTargets = false;
+    private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private boolean specificLibrary = false;
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
-    private String targetsFilename = "";
     private boolean targetsEnabled = false;
+    private String targetsFilename = "";
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
@@ -166,16 +163,6 @@ public class Configuration
         this.consoleLevel = consoleLevel;
     }
 
-    public boolean isCrossCheck()
-    {
-        return crossCheck;
-    }
-
-    public void setCrossCheck(boolean crossCheck)
-    {
-        this.crossCheck = crossCheck;
-    }
-
     /**
      * Gets debug level
      *
@@ -194,16 +181,6 @@ public class Configuration
     public void setDebugLevel(String debugLevel)
     {
         this.debugLevel = debugLevel;
-    }
-
-    public boolean isDuplicateCheck()
-    {
-        return duplicateCheck;
-    }
-
-    public void setDuplicateCheck(boolean duplicateCheck)
-    {
-        this.duplicateCheck = duplicateCheck;
     }
 
     /**
@@ -286,33 +263,6 @@ public class Configuration
         this.mismatchFilename = mismatchFilename;
     }
 
-    public boolean isNoBackFill()
-    {
-        return noBackFill;
-    }
-
-    public void setNoBackFill(boolean noBackFill)
-    {
-        this.noBackFill = noBackFill;
-    }
-
-    /**
-     * Sets overwrite mode
-     */
-    public void setOverwrite()
-    {
-        overwrite = true;
-    }
-
-    /**
-     * Gets overwrite mode
-     * @return true/false
-     */
-    public boolean isOverwrite()
-    {
-        return overwrite == true;
-    }
-
     /**
      * Gets PatternLayout for log4j2
      * <p>
@@ -329,6 +279,16 @@ public class Configuration
             return withoutMethod;
         }
         return withMethod;
+    }
+
+    /**
+     * Gets Main version
+     *
+     * @return the Main version
+     */
+    public String getProgramVersionN()
+    {
+        return PROGRAM_VERSION;
     }
 
     /**
@@ -369,16 +329,6 @@ public class Configuration
     public void setPublisherLibrariesFileName(String publisherLibrariesFileName)
     {
         this.publisherLibrariesFileName = publisherLibrariesFileName;
-    }
-
-    /**
-     * Gets publisher library name
-     *
-     * @return the publisher library name
-     */
-    public ArrayList<String> getSelectedLibraryNames()
-    {
-        return selectedLibraryNames;
     }
 
     /**
@@ -426,6 +376,45 @@ public class Configuration
             this.remoteFlag = SUBSCRIBER_TERMINAL;
         else
             throw new MungerException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
+    }
+
+    /**
+     * Set the type of renaming to perform
+     */
+    public int getRenamingType()
+    {
+        return this.renamingType;
+    }
+
+    /**
+     * Set the type of renaming to perform
+     */
+    public void setRenamingType(String type) throws MungerException
+    {
+        switch (type.toLowerCase())
+        {
+            case "d":
+                this.renamingType = RENAME_DIRECTORIES;
+                break;
+            case "f":
+                this.renamingType = RENAME_FILES;
+                break;
+            case "b":
+                this.renamingType = RENAME_BOTH;
+                break;
+            default:
+                throw new MungerException("unknown -n | --rename type of rename; requires F | D | B");
+        }
+    }
+
+    /**
+     * Gets publisher library name
+     *
+     * @return the publisher library name
+     */
+    public ArrayList<String> getSelectedLibraryNames()
+    {
+        return selectedLibraryNames;
     }
 
     /**
@@ -479,14 +468,6 @@ public class Configuration
     }
 
     /**
-     * Set targets enabled
-     */
-    public void setTargetsEnabled(boolean sense)
-    {
-        targetsEnabled = sense;
-    }
-
-    /**
      * Sets targets filename
      *
      * @param targetsFilename the targets filename
@@ -494,16 +475,6 @@ public class Configuration
     public void setTargetsFilename(String targetsFilename)
     {
         this.targetsFilename = targetsFilename;
-    }
-
-    /**
-     * Gets Main version
-     *
-     * @return the Main version
-     */
-    public String getProgramVersionN()
-    {
-        return PROGRAM_VERSION;
     }
 
     /**
@@ -526,6 +497,16 @@ public class Configuration
         this.whatsNewFilename = whatsNewFilename;
     }
 
+    public boolean isCrossCheck()
+    {
+        return crossCheck;
+    }
+
+    public void setCrossCheck(boolean crossCheck)
+    {
+        this.crossCheck = crossCheck;
+    }
+
     /**
      * Is dry run boolean
      *
@@ -544,6 +525,16 @@ public class Configuration
     public void setDryRun(boolean dryRun)
     {
         this.dryRun = dryRun;
+    }
+
+    public boolean isDuplicateCheck()
+    {
+        return duplicateCheck;
+    }
+
+    public void setDuplicateCheck(boolean duplicateCheck)
+    {
+        this.duplicateCheck = duplicateCheck;
     }
 
     /**
@@ -604,6 +595,34 @@ public class Configuration
     public void setKeepELSFiles(boolean keepELSFiles)
     {
         this.keepELSFiles = keepELSFiles;
+    }
+
+    public boolean isNoBackFill()
+    {
+        return noBackFill;
+    }
+
+    public void setNoBackFill(boolean noBackFill)
+    {
+        this.noBackFill = noBackFill;
+    }
+
+    /**
+     * Gets overwrite mode
+     *
+     * @return true/false
+     */
+    public boolean isOverwrite()
+    {
+        return overwrite == true;
+    }
+
+    /**
+     * Sets overwrite mode
+     */
+    public void setOverwrite(boolean sense)
+    {
+        overwrite = sense;
     }
 
     /**
@@ -676,40 +695,12 @@ public class Configuration
 
     /**
      * Enable or disable performing renaming
+     *
      * @param renaming true to enable
      */
     public void setRenaming(boolean renaming)
     {
         this.renaming = renaming;
-    }
-
-    /**
-     * Set the type of renaming to perform
-     */
-    public int getRenamingType()
-    {
-        return this.renamingType;
-    }
-
-    /**
-     * Set the type of renaming to perform
-     */
-    public void setRenamingType(String type) throws MungerException
-    {
-        switch (type.toLowerCase())
-        {
-            case "d":
-                this.renamingType = RENAME_DIRECTORIES;
-                break;
-            case "f":
-                this.renamingType = RENAME_FILES;
-                break;
-            case "b":
-                this.renamingType = RENAME_BOTH;
-                break;
-            default:
-                throw new MungerException("unknown -n | --rename type of rename; requires F | D | B");
-        }
     }
 
     /**
@@ -798,6 +789,14 @@ public class Configuration
     }
 
     /**
+     * Returns true if this subscriber is in terminal mode
+     */
+    public boolean isSubscriberTerminal()
+    {
+        return (getRemoteFlag() == SUBSCRIBER_TERMINAL);
+    }
+
+    /**
      * Have targets been enabled?
      */
     public boolean isTargetsEnabled()
@@ -806,11 +805,11 @@ public class Configuration
     }
 
     /**
-     * Returns true if this subscriber is in terminal mode
+     * Set targets enabled
      */
-    public boolean isSubscriberTerminal()
+    public void setTargetsEnabled(boolean sense)
     {
-        return (getRemoteFlag() == SUBSCRIBER_TERMINAL);
+        targetsEnabled = sense;
     }
 
     public boolean isValidation()
@@ -995,7 +994,7 @@ public class Configuration
                     break;
                 case "-o":
                 case "--overwrite":
-                    setOverwrite();
+                    setOverwrite(true);
                     break;
                 case "-p":                                             // publisher JSON libraries file
                 case "--publisher-libraries":

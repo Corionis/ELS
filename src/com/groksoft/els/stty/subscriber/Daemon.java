@@ -74,19 +74,19 @@ public class Daemon extends DaemonBase
         boolean valid = false;
         try
         {
-            Utils.write(out, myKey, "HELO");
+            Utils.writeStream(out, myKey, "HELO");
 
-            String input = Utils.read(in, myKey);
+            String input = Utils.readStream(in, myKey);
             if (input.equals("DribNit") || input.equals("DribNlt"))
             {
                 isTerminal = input.equals("DribNit");
-                Utils.write(out, myKey, myKey);
+                Utils.writeStream(out, myKey, myKey);
 
-                input = Utils.read(in, myKey);
+                input = Utils.readStream(in, myKey);
                 if (input.equals(theirKey))
                 {
                     // send my flavor
-                    Utils.write(out, myKey, myRepo.getLibraryData().libraries.flavor);
+                    Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
 
                     logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
                     valid = true;
@@ -162,15 +162,16 @@ public class Daemon extends DaemonBase
                 // prompt the user for a command
                 if (!tout)
                 {
-                    Utils.write(out, myKey, response + (isTerminal ? prompt : ""));
+                    Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
                 }
                 tout = false;
                 response = "";
 
-                line = Utils.read(in, myKey);
+                line = Utils.readStream(in, myKey);
                 if (line == null)
                 {
-                    logger.info("EOF line");
+                    logger.info("EOF line. Process ended prematurely.");
+                    fault = true;
                     stop = true;
                     break; // exit on EOF
                 }
@@ -268,7 +269,7 @@ public class Daemon extends DaemonBase
                 // -------------- quit, bye, exit ---------------------------
                 if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
                 {
-                    Utils.write(out, myKey, "End-Execution");
+                    Utils.writeStream(out, myKey, "End-Execution");
                     stop = true;
                     break; // break the loop
                 }
@@ -369,7 +370,7 @@ public class Daemon extends DaemonBase
                 stop = true;
                 try
                 {
-                    Utils.write(out, myKey, e.getMessage());
+                    Utils.writeStream(out, myKey, e.getMessage());
                 }
                 catch (Exception ex) {}
                 break;

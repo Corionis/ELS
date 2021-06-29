@@ -116,7 +116,6 @@ public class ClientStty
                 this.theirRepo.getLibraryData().libraries != null &&
                 this.theirRepo.getLibraryData().libraries.host != null)
         {
-
             this.myKey = myRepo.getLibraryData().libraries.key;
             this.theirKey = theirRepo.getLibraryData().libraries.key;
 
@@ -185,18 +184,18 @@ public class ClientStty
     private boolean handshake() throws Exception
     {
         boolean valid = false;
-        String input = Utils.read(in, theirKey);
+        String input = Utils.readStream(in, theirKey);
         if (input.equals("HELO"))
         {
-            Utils.write(out, theirKey, (isTerminal ? "DribNit" : "DribNlt"));
+            Utils.writeStream(out, theirKey, (isTerminal ? "DribNit" : "DribNlt"));
 
-            input = Utils.read(in, theirKey);
+            input = Utils.readStream(in, theirKey);
             if (input.equals(theirKey))
             {
-                Utils.write(out, theirKey, myKey);
+                Utils.writeStream(out, theirKey, myKey);
 
                 // get the subscriber's flavor
-                input = Utils.read(in, theirKey);
+                input = Utils.readStream(in, theirKey);
                 try
                 {
                     // if Utils.getFileSeparator() does not throw an exception
@@ -225,7 +224,7 @@ public class ClientStty
 
     public String receive() throws Exception
     {
-        String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
+        String response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
         return response;
     }
 
@@ -264,7 +263,7 @@ public class ClientStty
 
     public void send(String command) throws Exception
     {
-        Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
+        Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, command);
     }
 
 }

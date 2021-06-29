@@ -10,8 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Date;
 
 import static com.groksoft.els.Configuration.*;

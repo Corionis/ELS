@@ -152,7 +152,7 @@ public class Repository
         {
             if (lib.name.equalsIgnoreCase(libraryName))
             {
-                if (has)
+                if (has) // check for a duplicate library name
                 {
                     throw new MungerException("Library " + lib.name + " found more than once in " + getJsonFilename());
                 }
@@ -340,36 +340,8 @@ public class Repository
                         throw new MungerException("itemMap is null for library " + lib.name);
                     }
                  }
-/*
-                // original linear search technique
-                for (Item item : lib.items)
-                {
-                    if (!item.isDirectory())
-                    {
-                        boolean match = (libraryData.libraries.case_sensitive) ?
-                                Utils.pipe(this, item.getItemPath()).equals(itemPath) :
-                                Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
-
-                        if (match)
-                        {
-                            pubItem.addHas(item); // add match and any duplicate for cross-reference
-
-                            // is it a duplicate?
-                            if (has != null)
-                            {
-                                logger.warn("  ! Duplicate of \"" + itemPath + "\" found at \"" + item.getFullPath() + "\"");
-                            }
-                            else
-                            {
-                                has = item; // return first match
-                            }
-                        }
-                    }
-                }
-*/
             }
         }
-
         return has;
     }
 
@@ -413,26 +385,6 @@ public class Repository
                 {
                     throw new MungerException("itemMap is null for library " + lib.name);
                 }
-
-/*
-                // original linear search technique
-                for (Item item : lib.items)
-                {
-                    // do not match self or directories
-                    if (item != pubItem && !item.isDirectory())
-                    {
-                        boolean match = (libraryData.libraries.case_sensitive) ?
-                                Utils.pipe(this, item.getItemPath()).equals(itemPath) :
-                                Utils.pipe(this, item.getItemPath()).equalsIgnoreCase(itemPath);
-
-                        if (match)
-                        {
-                            pubItem.addHas(item); // add match and any duplicate for cross-reference
-                            logger.warn("  ! Duplicate of \"" + pubItem.getFullPath() + "\" found at \"" + item.getFullPath() + "\"");
-                        }
-                    }
-                }
-*/
             }
         }
     }
@@ -946,5 +898,4 @@ public class Repository
             }
         }
     }
-
 }
