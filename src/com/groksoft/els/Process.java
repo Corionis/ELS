@@ -481,44 +481,6 @@ public class Process
     }
 
     /**
-     * Will the needed size fit?
-     */
-    private boolean itFits(String path, long size, long minimum, boolean hasTarget) throws Exception
-    {
-        boolean fit = false;
-        long space;
-        if (cfg.isRemoteSession())
-        {
-            // remote subscriber
-            space = context.clientStty.availableSpace(path);
-        }
-        else
-        {
-            space = Utils.availableSpace(path);
-        }
-
-        if (!hasTarget) // provided target file overrides subscriber file locations minimum values
-        {
-            if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
-                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.00
-            {
-                minimum = getLocationMinimum(path);
-            }
-        }
-
-        logger.info("Check available space for " + (Utils.formatLong(size, false)) +
-                " with minimum " + Utils.formatLong(minimum, false) +
-                " on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                " path " + path + " has " + (Utils.formatLong(space, false)));
-
-        if (space > (size + minimum))
-        {
-            fit = true;
-        }
-        return fit;
-    }
-
-    /**
      * Is new grouping boolean
      * <p>
      * True if the item "group" is different than the current "group".
@@ -553,6 +515,45 @@ public class Process
             currentGroupName = path;
         }
         return ret;
+    }
+
+    /**
+     * Will the needed size fit?
+     */
+    private boolean itFits(String path, long size, long minimum, boolean hasTarget) throws Exception
+    {
+        boolean fit = false;
+        long space;
+        if (cfg.isRemoteSession())
+        {
+            // remote subscriber
+            space = context.clientStty.availableSpace(path);
+        }
+        else
+        {
+            space = Utils.availableSpace(path);
+        }
+
+        if (!hasTarget) // provided target file overrides subscriber file locations minimum values
+        {
+            if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
+                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.00
+            {
+                minimum = getLocationMinimum(path);
+            }
+        }
+
+        logger.info("Checking " + (hasTarget ? "target location" : "library source") +
+                " for " + (Utils.formatLong(size, false)) +
+                " with minimum " + Utils.formatLong(minimum, false) +
+                " on " + (cfg.isRemoteSession() ? "remote" : "local") +
+                " path " + path + " has " + (Utils.formatLong(space, false)));
+
+        if (space > (size + minimum))
+        {
+            fit = true;
+        }
+        return fit;
     }
 
     /**
@@ -880,48 +881,37 @@ public class Process
 
         try
         {
-            try
+            if (!isInitialized)
             {
-                if (!isInitialized)
-                {
-                    initialize(); // handles actions other than munge()
-                }
-
-                if (isInitialized)
-                {
-                    // if all the pieces are specified munge the collections
-                    if (cfg.isTargetsEnabled() &&
-                            (cfg.getPublisherLibrariesFileName().length() > 0 ||
-                                    cfg.getPublisherCollectionFilename().length() > 0) &&
-                            (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                    cfg.getSubscriberCollectionFilename().length() > 0)
-                    )
-                    {
-                        munge(); // this is the full munge process
-                    }
-                }
+                initialize(); // handles actions other than munge()
             }
-            catch (Exception ex)
+
+            if (isInitialized)
             {
-                fault = true;
-                ++errorCount;
-                logger.error("Inner: " + Utils.getStackTrace(ex));
-                returnValue = 2;
+                // if all the pieces are specified munge the collections
+                if (cfg.isTargetsEnabled() &&
+                        (cfg.getPublisherLibrariesFileName().length() > 0 ||
+                                cfg.getPublisherCollectionFilename().length() > 0) &&
+                        (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                                cfg.getSubscriberCollectionFilename().length() > 0)
+                )
+                {
+                    munge(); // this is the full munge process
+                }
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
             fault = true;
             ++errorCount;
-            logger.error("Outer: " + Utils.getStackTrace(e));
-            returnValue = 1;
-            cfg = null;
+            logger.error("Inner: " + Utils.getStackTrace(ex));
+            returnValue = 2;
         }
         finally
         {
             if (logger != null)
             {
-                logger.info(SHORT, "Process end" + " ------------------------------------------");
+                logger.info(SHORT, "-------------------------------------------");
 
                 // tell remote end to exit
                 if (context.clientStty != null)
