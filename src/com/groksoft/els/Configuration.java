@@ -77,7 +77,7 @@ public class Configuration
      */
     public void addExcludedLibraryName(String publisherLibraryName)
     {
-        this.selectedLibraryExcludes.add(publisherLibraryName);
+        this.selectedLibraryExcludes.add(publisherLibraryName); // v3.00
     }
 
     /**
@@ -106,37 +106,72 @@ public class Configuration
         logger.info(SHORT, msg);
 
         if (getAuthorizedPassword().length() > 0)
+        {
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
+        }
         logger.info(SHORT, "  cfg: -b No back fill = " + Boolean.toString(isNoBackFill()));
         logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
         logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info(SHORT, "  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
-        logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
+        if (getExportTextFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
+        }
         logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
-        logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
+        if (getExportCollectionFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
+        }
         //logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
-        logger.info(SHORT, "  cfg: -l Publisher library name(s):");
-        for (String ln : getSelectedLibraryNames())
+        if (!getSelectedLibraryNames().isEmpty())
         {
-            logger.info(SHORT, "        " + ln);
+            logger.info(SHORT, "  cfg: -l Publisher library name(s):");
+            for (String ln : getSelectedLibraryNames())
+            {
+                logger.info(SHORT, "          " + ln);
+            }
         }
-        logger.info(SHORT, "  cfg: -L Excluded library name(s):");
-        for (String ln : getExcludedLibraryNames())
+        if (!getExcludedLibraryNames().isEmpty())
         {
-            logger.info(SHORT, "        " + ln);
+            logger.info(SHORT, "  cfg: -L Excluded library name(s):"); // v3.00
+            for (String ln : getExcludedLibraryNames())
+            {
+                logger.info(SHORT, "          " + ln);
+            }
         }
-        logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        if (getMismatchFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        }
         logger.info(SHORT, "  cfg: -n Renaming = " + Boolean.toString(isRenaming()));
         logger.info(SHORT, "  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
-        logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
-        logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        if (getPublisherLibrariesFileName().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
+        }
+        if (getPublisherCollectionFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        }
         logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
-        logger.info(SHORT, "  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
-        logger.info(SHORT, "  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
-        logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+        if (getSubscriberLibrariesFileName().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
+        }
+        if (getSubscriberCollectionFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
+        }
+        if (isForceCollection() || getTargetsFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+        }
         logger.info(SHORT, "  cfg: -u Duplicates = " + Boolean.toString(isDuplicateCheck()));
         logger.info(SHORT, "  cfg: -v Validate = " + Boolean.toString(isValidation()));
-        logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+        if (getWhatsNewFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+        }
         logger.info(SHORT, "  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
     }
 
@@ -207,7 +242,7 @@ public class Configuration
      */
     public ArrayList<String> getExcludedLibraryNames()
     {
-        return selectedLibraryExcludes;
+        return selectedLibraryExcludes; // v3.00
     }
 
     /**
@@ -571,7 +606,7 @@ public class Configuration
      */
     public boolean isExcludedLibrary(String name)
     {
-        for (String library : selectedLibraryExcludes)
+        for (String library : selectedLibraryExcludes) // v3.00
         {
             if (library.equalsIgnoreCase(name))
             {
@@ -809,7 +844,7 @@ public class Configuration
      */
     public boolean isSpecificExclude()
     {
-        return this.specificExclude;
+        return this.specificExclude; // v3.00
     }
 
     /**
@@ -819,7 +854,7 @@ public class Configuration
      */
     public void setSpecificExclude(boolean sense)
     {
-        this.specificExclude = sense;
+        this.specificExclude = sense; // v3.00
     }
 
     /**
@@ -1033,7 +1068,7 @@ public class Configuration
                 case "--exclude":
                     if (index <= args.length - 2)
                     {
-                        addExcludedLibraryName(args[index + 1]);
+                        addExcludedLibraryName(args[index + 1]); // v3.00
                         setSpecificExclude(true);
                         ++index;
                     }

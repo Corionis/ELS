@@ -350,12 +350,13 @@ public class Process
             }
         }
 
+        String candidate;
         if (target != null) // a defined target is the default
         {
             notFound = false;
             for (int j = 0; j < target.locations.length; ++j)
             {
-                String candidate = target.locations[j];
+                candidate = target.locations[j];
                 // check size of item(s) to be copied
                 if (itFits(candidate, size, minimum, true))
                 {
@@ -373,7 +374,7 @@ public class Process
             }
             for (int j = 0; j < lib.sources.length; ++j)
             {
-                String candidate = lib.sources[j];
+                candidate = lib.sources[j];
                 // check size of item(s) to be copied
                 if (itFits(candidate, size, minimum, false))
                 {
@@ -522,7 +523,7 @@ public class Process
      */
     private boolean itFits(String path, long size, long minimum, boolean hasTarget) throws Exception
     {
-        boolean fit = false;
+        boolean fits = false;
         long space;
         if (cfg.isRemoteSession())
         {
@@ -534,7 +535,7 @@ public class Process
             space = Utils.availableSpace(path);
         }
 
-        if (!hasTarget) // provided target file overrides subscriber file locations minimum values
+        if (!hasTarget) // provided targets file overrides subscriber file locations minimum values
         {
             if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
                     context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.00
@@ -551,9 +552,9 @@ public class Process
 
         if (space > (size + minimum))
         {
-            fit = true;
+            fits = true;
         }
-        return fit;
+        return fits;
     }
 
     /**
@@ -623,10 +624,19 @@ public class Process
                 boolean scanned = false;
                 Library pubLib = null;
 
-                // if processing all libraries, or this one was specified on the command line with -l
+                // if processing all libraries, or this one was specified on the command line with -l,
+                // and it has not been excluded with -L
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.00
                 {
+                    // if the subscriber has included and not excluded this library
+                    if (subLib.name.startsWith("ELS-SUBSCRIBER-SKIP_")) // v3.00
+                    {
+                        String n = subLib.name.replaceFirst("ELS-SUBSCRIBER-SKIP_", "");
+                        logger.info("Skipping subscriber library: " + n);
+                        continue;
+                    }
+
                     // if the publisher has a matching library
                     if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
                     {
@@ -645,7 +655,7 @@ public class Process
                         }
 
                         logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
-                                subLib.items.size() + " subscriber items");
+                                (subLib.items != null ? subLib.items.size() : 0) + " subscriber items");
 
                         // iterate the publisher's items
                         for (Item item : pubLib.items)
@@ -738,20 +748,7 @@ public class Process
                                                 mismatchFile.flush();
                                             }
                                         }
-
-                                        if (item.getSize() < 0)
-                                        {
-                                            logger.warn("File size was < 0 during process, getting");
-                                            long size = Files.size(Paths.get(item.getFullPath()));
-                                            item.setSize(size);
-                                            totalSize += size;
-                                        }
-                                        else
-                                        {
-                                            totalSize += item.getSize();
-                                        }
-
-                                        // add item to current group
+                                        totalSize += item.getSize();
                                         group.add(item);
                                     }
                                 }
@@ -769,7 +766,7 @@ public class Process
                 }
                 else
                 {
-                    logger.info("Skipping library: " + subLib.name);
+                    logger.info("Skipping publisher library: " + subLib.name);
                 }
             }
         }
@@ -939,6 +936,8 @@ public class Process
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
                     logger.fatal(SHORT, "Process completed normally");
+                else
+                    logger.fatal("Process failed");
             }
         }
 

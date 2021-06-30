@@ -314,7 +314,7 @@ public class Main
                             long millis = Math.abs(done.getTime() - stamp.getTime());
                             logger.fatal("Runtime: " + Utils.getDuration(millis));
 
-                            logger.info("stopping services");
+                            logger.info("Stopping ELS services");
                             Thread.sleep(10000L);
                             stopServices();
                         }

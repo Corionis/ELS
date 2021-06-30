@@ -231,11 +231,20 @@ public class Daemon extends DaemonBase
 
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                         {
-                            if (subLib.items != null)
+                            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
+                                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.00
                             {
-                                subLib.items = null; // clear any existing data
+                                if (subLib.items != null)
+                                {
+                                    subLib.items = null; // clear any existing data
+                                }
+                                myRepo.scan(subLib.name);
                             }
-                            myRepo.scan(subLib.name);
+                            else
+                            {
+                                logger.info("Skipping subscriber library: " + subLib.name);
+                                subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name; // v3.00
+                            }
                         }
 
                         // otherwise it must be -S so do not scan
@@ -387,6 +396,8 @@ public class Daemon extends DaemonBase
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
                     logger.fatal("Process completed normally");
+                else
+                    logger.fatal("Process failed");
             }
             out.close();
             in.close();

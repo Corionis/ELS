@@ -336,10 +336,6 @@ public class Repository
                             }
                         }
                     }
-                    else
-                    {
-                        throw new MungerException("itemMap is null for library " + lib.name);
-                    }
                  }
             }
         }
