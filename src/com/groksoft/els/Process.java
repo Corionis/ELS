@@ -283,7 +283,7 @@ public class Process
             cfg.setTargetsFilename(location);
         }
 
-        if (location != null) // v3.00 allow targets to be empty to use sources as target locations
+        if (location != null) // v3.0.0 allow targets to be empty to use sources as target locations
         {
             if (storageTargets == null)
                 storageTargets = new Storage();
@@ -365,7 +365,7 @@ public class Process
                 }
             }
         }
-        else // v3.00, use sources for target locations
+        else // v3.0.0, use sources for target locations
         {
             Library lib = context.subscriberRepo.getLibrary(library);
             if (lib != null)
@@ -538,7 +538,7 @@ public class Process
         if (!hasTarget) // provided targets file overrides subscriber file locations minimum values
         {
             if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
-                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.00
+                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.0.0
             {
                 minimum = getLocationMinimum(path);
             }
@@ -627,10 +627,10 @@ public class Process
                 // if processing all libraries, or this one was specified on the command line with -l,
                 // and it has not been excluded with -L
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.00
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
                 {
                     // if the subscriber has included and not excluded this library
-                    if (subLib.name.startsWith("ELS-SUBSCRIBER-SKIP_")) // v3.00
+                    if (subLib.name.startsWith("ELS-SUBSCRIBER-SKIP_")) // v3.0.0
                     {
                         String n = subLib.name.replaceFirst("ELS-SUBSCRIBER-SKIP_", "");
                         logger.info("Skipping subscriber library: " + n);

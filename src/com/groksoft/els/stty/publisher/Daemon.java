@@ -241,7 +241,7 @@ public class Daemon extends DaemonBase
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                         {
                             if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.00
+                                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
                             {
                                 if (subLib.items != null)
                                 {
@@ -252,7 +252,7 @@ public class Daemon extends DaemonBase
                             else
                             {
                                 logger.info("Skipping publisher library: " + subLib.name);
-                                subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name; // v3.00
+                                subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name; // v3.0.0
                             }
                         }
 
@@ -492,7 +492,7 @@ public class Daemon extends DaemonBase
                         }
                         else
                         {
-                            response = ""; // let it default to sources as target locations v3.00
+                            response = ""; // let it default to sources as target locations v3.0.0
                         }
                     }
                     catch (Exception e)

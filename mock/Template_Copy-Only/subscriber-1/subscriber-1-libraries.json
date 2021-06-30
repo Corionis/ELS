@@ -10,6 +10,12 @@
             "desktop.ini",
             "Thumbs.db"
         ],
+        "locations": [
+            {
+                "location": "TestRun/subscriber-1",
+                "minimum": "30GB"
+            }
+        ],
         "bibliography": [
             {
                 "name": "Movies",

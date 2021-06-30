@@ -77,7 +77,7 @@ public class Configuration
      */
     public void addExcludedLibraryName(String publisherLibraryName)
     {
-        this.selectedLibraryExcludes.add(publisherLibraryName); // v3.00
+        this.selectedLibraryExcludes.add(publisherLibraryName); // v3.0.0
     }
 
     /**
@@ -133,7 +133,7 @@ public class Configuration
         }
         if (!getExcludedLibraryNames().isEmpty())
         {
-            logger.info(SHORT, "  cfg: -L Excluded library name(s):"); // v3.00
+            logger.info(SHORT, "  cfg: -L Excluded library name(s):"); // v3.0.0
             for (String ln : getExcludedLibraryNames())
             {
                 logger.info(SHORT, "          " + ln);
@@ -242,7 +242,7 @@ public class Configuration
      */
     public ArrayList<String> getExcludedLibraryNames()
     {
-        return selectedLibraryExcludes; // v3.00
+        return selectedLibraryExcludes; // v3.0.0
     }
 
     /**
@@ -606,7 +606,7 @@ public class Configuration
      */
     public boolean isExcludedLibrary(String name)
     {
-        for (String library : selectedLibraryExcludes) // v3.00
+        for (String library : selectedLibraryExcludes) // v3.0.0
         {
             if (library.equalsIgnoreCase(name))
             {
@@ -844,7 +844,7 @@ public class Configuration
      */
     public boolean isSpecificExclude()
     {
-        return this.specificExclude; // v3.00
+        return this.specificExclude; // v3.0.0
     }
 
     /**
@@ -854,7 +854,7 @@ public class Configuration
      */
     public void setSpecificExclude(boolean sense)
     {
-        this.specificExclude = sense; // v3.00
+        this.specificExclude = sense; // v3.0.0
     }
 
     /**
@@ -1068,7 +1068,7 @@ public class Configuration
                 case "--exclude":
                     if (index <= args.length - 2)
                     {
-                        addExcludedLibraryName(args[index + 1]); // v3.00
+                        addExcludedLibraryName(args[index + 1]); // v3.0.0
                         setSpecificExclude(true);
                         ++index;
                     }
