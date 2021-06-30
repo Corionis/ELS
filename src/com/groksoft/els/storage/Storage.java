@@ -4,7 +4,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import com.google.gson.Gson;                    // see https://github.com/google/gson
+// see https://github.com/google/gson
+import com.google.gson.Gson;
 
 // see https://logging.apache.org/log4j/2.x/
 import com.groksoft.els.repository.Libraries;

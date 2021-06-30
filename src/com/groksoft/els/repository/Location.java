@@ -8,7 +8,9 @@ public class Location
     public String location;
 
     /**
-     * The Minimum space available limit.
+     * The Minimum space available limit, scaled value.
+     * <p>
+     * See: Utils.getScaledValue and Utils.formatLong
      */
     public String minimum;
 

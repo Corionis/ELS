@@ -334,5 +334,4 @@ public class ServeStty extends Thread
         }
     }
 
-
 } // ServeStty

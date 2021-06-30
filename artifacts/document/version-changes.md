@@ -79,6 +79,6 @@ Listed here are changes to ELS versions from 3.0.0 onward.
     libraries are to be skipped in a collection with many libraries.
     
     A change from version 2.2.0 is the -l | --library and -L | --exclude options
-    may also be specified on the subscriber-side to limit which libraries are
+    may now be specified on the subscriber-side to limit which libraries are
     processed. Previously -l | --library only applied to the publisher side.
 
