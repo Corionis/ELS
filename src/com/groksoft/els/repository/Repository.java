@@ -388,8 +388,8 @@ public class Repository
     /**
      * Determine if item should be ignored
      *
-     * @param item
-     * @return
+     * @param item The item to check
+     * @return true/false
      */
     public boolean ignore(Item item) throws MungerException
     {
@@ -398,13 +398,16 @@ public class Repository
         boolean ret = false;
         String name = getItemName(item);
 
-        for (Pattern patt : getLibraryData().libraries.compiledPatterns)
+        if ( ! name.toLowerCase().endsWith(".els")) // automatically exclude .els files
         {
-            str = patt.toString();
-            if (name.matches(str))
+            for (Pattern patt : getLibraryData().libraries.compiledPatterns)
             {
-                ret = true;
-                break;
+                str = patt.toString();
+                if (name.matches(str))
+                {
+                    ret = true;
+                    break;
+                }
             }
         }
         return ret;
@@ -421,6 +424,75 @@ public class Repository
             return true;
         else
             return false;
+    }
+
+    /**
+     * Perform move on either a file or directory
+     */
+    public boolean move(String fromLibName, String fromName, String toLibName, String toName) throws Exception
+    {
+        String from = "";
+        String fromFixed = "";
+        String name = "";
+        String old = "";
+        String fromPath = "";
+        boolean renameDone = false;
+
+        Library fromLib = getLibrary(fromLibName);
+        if (fromLib == null)
+        {
+            logger.info("    ! From library not found: " + fromLibName);
+            return false;
+        }
+        Library toLib = getLibrary(toLibName);
+        if (toLib == null)
+        {
+            logger.info("    ! To library not found: " + toLibName);
+            return false;
+        }
+
+        Collection collection = getMapItem(fromLib, fromName);
+        if (collection != null)
+        {
+            Iterator it = collection.iterator();
+            for (int i = 0; i < collection.size(); ++i)
+            {
+                Integer j = (Integer) it.next();
+                Item fromItem = fromLib.items.elementAt(j);
+                fromPath = fromItem.getFullPath();
+                logger.info("    From path: " + fromPath);
+
+                if ( ! toLibName.equalsIgnoreCase(fromLibName)) // move to a different library
+                {
+
+                }
+
+            }
+        }
+/*
+                                // replace the name on the end of the item and fullpath
+                                String path = item.getItemPath();
+                                path = path.substring(0, path.length() - old.length());
+                                path = path + name;
+
+                                String full = item.getFullPath();
+                                full = full.substring(0, full.length() - old.length());
+                                full = full + name;
+
+                                // do rename
+                                File existing = new File(item.getFullPath());
+                                File newFile = new File(full);
+                                existing.renameTo(newFile);
+
+                                // update data
+                                item.setItemPath(path);
+                                item.setFullPath(full);
+
+                                logger.info("Renamed " + (item.isDirectory() ? "directory" : "file") +
+                                        ": '" + old + "' to '" + name + "'");
+*/
+
+        return renameDone;
     }
 
     /**

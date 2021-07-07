@@ -36,7 +36,8 @@ public class Configuration
     private String exportTextFilename = "";
     private boolean forceCollection = false;
     private boolean forceTargets = false;
-    private boolean keepELSFiles = false;
+    private String hintKeysFile;
+    private boolean hintSkipMainProcess = false;
     private String logFilename = "els.log";
     private String mismatchFilename = "";
     private boolean noBackFill = false;
@@ -62,7 +63,6 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
-
     /**
      * Instantiates a new Configuration
      */
@@ -122,7 +122,10 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
         }
-        //logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
+        if (hintKeysFile != null && hintKeysFile.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: " + (isHintSkipMainProcess() ? "-K" : "-k") + " Hint keys file: " + hintKeysFile + ((isHintSkipMainProcess()) ? ", Skip main process" : ""));
+        }
         if (!getSelectedLibraryNames().isEmpty())
         {
             logger.info(SHORT, "  cfg: -l Publisher library name(s):");
@@ -283,6 +286,11 @@ public class Configuration
     public void setExportTextFilename(String exportTextFilename)
     {
         this.exportTextFilename = exportTextFilename;
+    }
+
+    public String getHintKeysFile()
+    {
+        return hintKeysFile;
     }
 
     /**
@@ -656,24 +664,14 @@ public class Configuration
         this.forceTargets = forceTargets;
     }
 
-    /**
-     * Is keep vol els files boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isKeepELSFiles()
+    public boolean isHintSkipMainProcess()
     {
-        return keepELSFiles;
+        return hintSkipMainProcess;
     }
 
-    /**
-     * Sets keep vol els files.
-     *
-     * @param keepELSFiles the keep vol els files
-     */
-    public void setKeepELSFiles(boolean keepELSFiles)
+    public void setHintSkipMainProcess(boolean hintSkipMainProcess)
     {
-        this.keepELSFiles = keepELSFiles;
+        this.hintSkipMainProcess = hintSkipMainProcess;
     }
 
     public boolean isNoBackFill()
@@ -1047,9 +1045,30 @@ public class Configuration
                         throw new MungerException("Error: -i requires a collection output filename");
                     }
                     break;
-                case "-k":                                             // keep .els files
-                case "--keep":
-                    setKeepELSFiles(true);
+                case "-k":                                             // ELS keys file
+                case "--keys":
+                    if (index <= args.length - 2)
+                    {
+                        hintKeysFile = args[index + 1];
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -k requires an ELS keys filename");
+                    }
+                    break;
+                case "-K":                                             // ELS keys file and skip main process munge
+                case "--keys-only":
+                    if (index <= args.length - 2)
+                    {
+                        hintKeysFile = args[index + 1];
+                        ++index;
+                        setHintSkipMainProcess(true);
+                    }
+                    else
+                    {
+                        throw new MungerException("Error: -K requires an ELS keys filename");
+                    }
                     break;
                 case "-l":                                             // publisher library to process
                 case "--library":

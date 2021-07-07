@@ -1,8 +1,6 @@
 package com.groksoft.els;
 
-import com.groksoft.els.repository.Item;
-import com.groksoft.els.repository.Library;
-import com.groksoft.els.repository.Location;
+import com.groksoft.els.repository.*;
 import com.groksoft.els.storage.Storage;
 import com.groksoft.els.storage.Target;
 import org.apache.logging.log4j.LogManager;
@@ -31,6 +29,8 @@ public class Process
     private long grandTotalItems = 0L;
     private long grandTotalOriginalLocation = 0L;
     private long grandTotalSize = 0L;
+    private Hints hints = null;
+    private HintKeys hintKeys = null;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
     private boolean justScannedPublisher = false;
@@ -248,6 +248,21 @@ public class Process
             justScannedPublisher = true;
         }
         context.publisherRepo.exportText();
+    }
+
+    public long getFreespace(String path) throws Exception
+    {
+        long space;
+        if (cfg.isRemoteSession())
+        {
+            // remote subscriber
+            space = context.clientStty.availableSpace(path);
+        }
+        else
+        {
+            space = Utils.availableSpace(path);
+        }
+        return space;
     }
 
     public long getLocationMinimum(String path)
@@ -524,16 +539,7 @@ public class Process
     private boolean itFits(String path, long size, long minimum, boolean hasTarget) throws Exception
     {
         boolean fits = false;
-        long space;
-        if (cfg.isRemoteSession())
-        {
-            // remote subscriber
-            space = context.clientStty.availableSpace(path);
-        }
-        else
-        {
-            space = Utils.availableSpace(path);
-        }
+        long space = getFreespace(path);
 
         if (!hasTarget) // provided targets file overrides subscriber file locations minimum values
         {
@@ -564,7 +570,7 @@ public class Process
      *
      * @throws MungerException the els exception
      */
-    private void munge() throws MungerException
+    private void munge() throws Exception
     {
         PrintWriter mismatchFile = null;
         PrintWriter whatsNewFile = null;
@@ -578,6 +584,14 @@ public class Process
 
         String header = "Munging " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description;
+
+        // Get ELS hints keys
+        if (cfg.getHintKeysFile() != null && cfg.getHintKeysFile().length() > 0) // v3.0.0
+        {
+            hintKeys = new HintKeys(context);
+            hintKeys.read(cfg.getHintKeysFile());
+            hints = new Hints(cfg, context, hintKeys);
+        }
 
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0)
@@ -654,109 +668,122 @@ public class Process
                             }
                         }
 
-                        logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
-                                (subLib.items != null ? subLib.items.size() : 0) + " subscriber items");
-
-                        // iterate the publisher's items
-                        for (Item item : pubLib.items)
+                        // Process hints
+                        if (hints != null) // v3.0.0
                         {
-                            if (context.publisherRepo.ignore(item))
+                            hints.process(pubLib, hints.TO_SUBSCRIBER);
+                        }
+
+                        if ( ! cfg.isHintSkipMainProcess()) // v3.0.0
+                        {
+                            logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
+                                    (subLib.items != null ? subLib.items.size() : 0) + " subscriber items");
+
+                            // iterate the publisher's items
+                            for (Item item : pubLib.items)
                             {
-                                logger.debug("  ! Ignoring " + item.getItemPath());
-                                ignoredList.add(item.getFullPath());
-                            }
-                            else
-                            {
-                                if (!item.isDirectory())
+                                if (context.publisherRepo.ignore(item))
                                 {
-                                    ++totalItems;
-
-                                    // does the subscriber have a matching item?
-                                    Item has = context.subscriberRepo.hasItem(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
-                                    if (has != null)
-                                    {
-                                        if (item.getHas().size() == 1) // no duplicates?
-                                        {
-                                            if (item.getSize() != has.getSize())
-                                            {
-                                                logger.warn("  ! Subscriber " + subLib.name + " has different size " + item.getItemPath());
-                                                ++differentSizes;
-                                            }
-                                            else
-                                                logger.debug("  = Subscriber " + subLib.name + " has " + item.getItemPath());
-                                        } // otherwise duplicates were logged in hasItem(), do not log again
-                                    }
-                                    else
-                                    {
-                                        if (cfg.getWhatsNewFilename().length() > 0)
-                                        {
-                                            logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
-
-                                            /*
-                                             * Unless the -W or --whatsnew-all option is used:
-                                             * Only show the left side of mismatches file. And Only show it once.
-                                             * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
-                                             * Big Bang Theory
-                                             * Lucifer
-                                             * Legion
-                                             */
-                                            if (!item.getLibrary().equals(currLib))
-                                            {
-                                                // If not first time display and reset the whatsNewTotal
-                                                if (!currLib.equals(""))
-                                                {
-                                                    whatsNewFile.println("    --------------------------------");
-                                                    whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
-                                                    whatsNewFile.println("    ================================");
-                                                    whatsNewTotal = 0;
-                                                }
-                                                currLib = item.getLibrary();
-                                                whatsNewFile.println("");
-                                                whatsNewFile.println(currLib);
-                                                whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
-                                            }
-                                            String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
-                                            if (cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
-                                            {
-                                                whatsNewFile.println("    " + (cfg.isWhatsNewAll() ? item.getItemPath() : path));
-                                                currentWhatsNew = path;
-                                                whatsNewTotal++;
-                                            }
-                                        }
-
-                                        if (cfg.getMismatchFilename().length() > 0)
-                                        {
-                                            assert mismatchFile != null;
-                                            mismatchFile.println(item.getFullPath());
-                                        }
-
-                                        /* If the group is switching, process the current one. */
-                                        if (isNewGrouping(item))
-                                        {
-                                            logger.info("Switching groups from " + lastGroupName + " to " + currentGroupName);
-                                            // There is a new group - process the old group
-                                            copyGroup(group, totalSize, cfg.isOverwrite());
-                                            totalSize = 0L;
-
-                                            // Flush the output files
-                                            if (cfg.getWhatsNewFilename().length() > 0)
-                                            {
-                                                whatsNewFile.flush();
-                                            }
-                                            if (cfg.getMismatchFilename().length() > 0)
-                                            {
-                                                mismatchFile.flush();
-                                            }
-                                        }
-                                        totalSize += item.getSize();
-                                        group.add(item);
-                                    }
+                                    logger.debug("  ! Ignoring " + item.getItemPath());
+                                    ignoredList.add(item.getFullPath());
                                 }
                                 else
                                 {
-                                    ++totalDirectories;
+                                    if (!item.isDirectory())
+                                    {
+                                        ++totalItems;
+
+                                        // does the subscriber have a matching item?
+                                        Item has = context.subscriberRepo.hasItem(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                                        if (has != null)
+                                        {
+                                            if (item.getHas().size() == 1) // no duplicates?
+                                            {
+                                                if (item.getSize() != has.getSize())
+                                                {
+                                                    logger.warn("  ! Subscriber " + subLib.name + " has different size " + item.getItemPath());
+                                                    ++differentSizes;
+                                                }
+                                                else
+                                                    logger.debug("  = Subscriber " + subLib.name + " has " + item.getItemPath());
+                                            } // otherwise duplicates were logged in hasItem(), do not log again
+                                        }
+                                        else
+                                        {
+                                            if (cfg.getWhatsNewFilename().length() > 0)
+                                            {
+                                                logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
+
+                                                /*
+                                                 * Unless the -W or --whatsnew-all option is used:
+                                                 * Only show the left side of mismatches file. And Only show it once.
+                                                 * So if you have 10 new episodes of Lucifer only the following will show in the what's new file
+                                                 * Big Bang Theory
+                                                 * Lucifer
+                                                 * Legion
+                                                 */
+                                                if (!item.getLibrary().equals(currLib))
+                                                {
+                                                    // If not first time display and reset the whatsNewTotal
+                                                    if (!currLib.equals(""))
+                                                    {
+                                                        whatsNewFile.println("    --------------------------------");
+                                                        whatsNewFile.println("    Number of " + currLib + " = " + whatsNewTotal);
+                                                        whatsNewFile.println("    ================================");
+                                                        whatsNewTotal = 0;
+                                                    }
+                                                    currLib = item.getLibrary();
+                                                    whatsNewFile.println("");
+                                                    whatsNewFile.println(currLib);
+                                                    whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
+                                                }
+                                                String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
+                                                if (cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
+                                                {
+                                                    whatsNewFile.println("    " + (cfg.isWhatsNewAll() ? item.getItemPath() : path));
+                                                    currentWhatsNew = path;
+                                                    whatsNewTotal++;
+                                                }
+                                            }
+
+                                            if (cfg.getMismatchFilename().length() > 0)
+                                            {
+                                                assert mismatchFile != null;
+                                                mismatchFile.println(item.getFullPath());
+                                            }
+
+                                            /* If the group is switching, process the current one. */
+                                            if (isNewGrouping(item))
+                                            {
+                                                logger.info("Switching groups from " + lastGroupName + " to " + currentGroupName);
+                                                // There is a new group - process the old group
+                                                copyGroup(group, totalSize, cfg.isOverwrite());
+                                                totalSize = 0L;
+
+                                                // Flush the output files
+                                                if (cfg.getWhatsNewFilename().length() > 0)
+                                                {
+                                                    whatsNewFile.flush();
+                                                }
+                                                if (cfg.getMismatchFilename().length() > 0)
+                                                {
+                                                    mismatchFile.flush();
+                                                }
+                                            }
+                                            totalSize += item.getSize();
+                                            group.add(item);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ++totalDirectories;
+                                    }
                                 }
                             }
+                        }
+                        else
+                        {
+                            logger.info("Skipping main process for " + subLib.name + ", -K | --keys-only enabled");
                         }
                     }
                     else
@@ -794,6 +821,12 @@ public class Process
                 }
                 totalSize = 0L;
             }
+
+            // Postprocess hints
+//            if (hints != null) // v3.0.0
+//            {
+//
+//            }
 
             // Close all the files and show the results
             if (mismatchFile != null)
