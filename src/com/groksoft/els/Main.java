@@ -87,9 +87,16 @@ public class Main
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    if (!cfg.isValidation()) // only publisher needed for a JSON file validation
+                    if (!cfg.isValidation() &&
+                            (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                                    cfg.getSubscriberCollectionFilename().length() > 0)
+                    )
                     {
                         context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    }
+                    else if (cfg.isTargetsEnabled())
+                    {
+                        context.subscriberRepo = context.publisherRepo; // v3.00 for publisher ELS Hints
                     }
 
                     // the Process class handles the ELS process
@@ -271,7 +278,7 @@ public class Main
                     break;
 
                 default:
-                    throw new MungerException("Unknown type of remote");
+                    throw new MungerException("Unknown type of execution");
             }
 
         }

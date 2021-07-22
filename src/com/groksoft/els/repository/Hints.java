@@ -1,9 +1,6 @@
 package com.groksoft.els.repository;
 
-import com.groksoft.els.Configuration;
-import com.groksoft.els.Main;
-import com.groksoft.els.MungerException;
-import com.groksoft.els.Utils;
+import com.groksoft.els.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,12 +13,16 @@ public class Hints
 {
     public final int TO_PUBLISHER = 1;
     public final int TO_SUBSCRIBER = 2;
-    Configuration cfg;
-    Main.Context context;
-    HintKeys keys;
-    Repository toRepo;
-    Repository fromRepo;
     private final transient Logger logger = LogManager.getLogger("applog");
+    private Configuration cfg;
+    private Main.Context context;
+    private Repository fromRepo;
+    private int grandDeletes = 0;
+    private int grandMoves = 0;
+    private int grandRenames = 0;
+    private HintKeys keys;
+    private Repository toRepo;
+    private Transfer transfer;
 
     private Hints()
     {
@@ -33,29 +34,28 @@ public class Hints
         cfg = config;
         context = ctx;
         keys = hintKeys;
+        transfer = new Transfer(config, ctx);
     }
 
-    private void copy(String from, String to, boolean overwrite) throws Exception
+    private void dumpTerms(String[] parts)
     {
-        if (cfg.isRemoteSession())
+        for (int i = 0; i < parts.length; ++i)
         {
-            context.clientSftp.transmitFile(from, to, overwrite);
-        }
-        else
-        {
-            Path fromPath = Paths.get(from).toRealPath();
-            Path toPath = Paths.get(to);
-            File f = new File(to);
-            if (f != null)
+            if (parts[i] != null && parts[i].length() > 0)
             {
-                f.getParentFile().mkdirs();
+                logger.debug("    " + parts[i]);
             }
-            Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
         }
     }
 
-    public void execute(Repository repo, Item item) throws Exception
+    private boolean execute(Repository repo, Item item) throws Exception
     {
+        boolean libAltered = false;
+        int totalMoves = 0;
+        int totalDeletes = 0;
+        int totalRenames = 0;
+
+        // read the ELS hint file, convert tabs to spaces and trim lines
         String file = item.getFullPath();
         List<String> lines = Files.readAllLines(Paths.get(file));
         for (int i = 0; i < lines.size(); ++i)
@@ -67,16 +67,16 @@ public class Hints
         HintKeys.HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
         if (hintKey == null)
         {
-            logger.info("Library not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
-            return;
+            logger.info("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
+            return libAltered;
         }
 
         // find the actor name in the .els file
         String statusLine = findNameLine(lines, hintKey.name);
         if (statusLine == null || (!statusLine.toLowerCase().startsWith("for")))
         {
-            logger.info("    > Skipping execution, not For " + hintKey.name);
-            return;
+            logger.info("  Skipping execution, not For " + hintKey.name);
+            return libAltered;
         }
 
         // process the command(s)
@@ -92,16 +92,15 @@ public class Hints
             // log & skip comments
             if (line.startsWith("#"))
             {
-                logger.info("    " + line);
+                logger.info("  " + line);
                 continue;
             }
 
-            // mv command, move command
+            // mv and ren, move and rename commands
             if (line.toLowerCase().startsWith("mv "))
             {
-                logger.info("    " + line);
-                String[] parts = parseCommand(line, lineNo, 3);
-                dumpTerms(parts);
+                String[] parts = parseCommand(line, lineNo, 3); // null never returned
+                //dumpTerms(parts);
 
                 String fromLib = parseLibrary(parts[1], lineNo);
                 if (fromLib == null)
@@ -119,31 +118,11 @@ public class Hints
                 if (toName.length() < 1)
                     throw new MungerException("Malformed to filename on line " + lineNo);
 
-                repo.move(fromLib, fromName, toLib, toName);
-                int i = 1;
-
-
-            }
-
-        }
-
-/*
-        for (String line : lines)
-        {
-        }
-*/
-
-    }
-
-    private void dumpTerms(String[] parts)
-    {
-        for (int i = 0; i < parts.length; ++i)
-        {
-            if (parts[i] != null && parts[i].length() > 0)
-            {
-                logger.debug("      " + parts[i]);
+                if (transfer.move(repo, fromLib, fromName, toLib, toName))
+                    libAltered = true;
             }
         }
+        return libAltered;
     }
 
     private String findNameLine(List<String> lines, String name)
@@ -164,21 +143,6 @@ public class Hints
         return null;
     }
 
-    private long getFreespace(String path) throws Exception
-    {
-        long space;
-        if (cfg.isRemoteSession())
-        {
-            // remote subscriber
-            space = context.clientStty.availableSpace(path);
-        }
-        else
-        {
-            space = Utils.availableSpace(path);
-        }
-        return space;
-    }
-
     private String getHintTarget(Item item, int direction) throws Exception
     {
         String target = null;
@@ -186,7 +150,7 @@ public class Hints
         Repository fromRepo = getRepository(direction, false);
 
         // does the target already have this hint?
-        Item entry = toRepo.hasItem(item, Utils.pipe(fromRepo, item.getItemPath()));
+        Item entry = toRepo.hasItem(item, item.getLibrary(), Utils.pipe(fromRepo, item.getItemPath()));
         if (entry != null)
         {
             // FixMe ! What about collision of changes?
@@ -211,7 +175,7 @@ public class Hints
                     {
                         candidate = lib.sources[j];
                         // check size of item(s) to be copied
-                        long space = getFreespace(candidate);
+                        long space = transfer.getFreespace(candidate);
                         if (space > (item.getSize() + (1024 * 1024 * 10)))
                         {
                             target = candidate + Utils.getFileSeparator(toRepo.getLibraryData().libraries.flavor) + item.getItemPath();
@@ -251,6 +215,33 @@ public class Hints
         return repo;
     }
 
+    public void munge(Library library, int direction) throws Exception
+    {
+        logger.info("Processing ELS Hints " + ((direction == TO_SUBSCRIBER) ? "to" : "from") + " subscriber");
+        toRepo = getRepository(direction, true);
+        fromRepo = getRepository(direction, false);
+
+        for (Item item : library.items)
+        {
+            if (!item.getItemPath().toLowerCase().endsWith(".els"))
+            {
+                continue;
+            }
+
+//             check if it needs to be done locally
+//            run(fromRepo, item);
+
+/*
+        // copy .els files
+            String path = getHintTarget(item, direction);
+            logger.info("    > Copying " + item.getFullPath() + " to " + path);
+            copy(item.getFullPath(), path, true);
+*/
+
+
+        }
+    }
+
     private String[] parseCommand(String line, int lineNo, int expected) throws Exception
     {
         int MAX_TERMS = 4;
@@ -262,7 +253,7 @@ public class Hints
         int i = 0;
         while (t.hasMoreTokens())
         {
-            String term =  t.nextToken().trim();
+            String term = t.nextToken().trim();
             if (term.length() > 0)
             {
                 cmd[i++] = term;
@@ -299,43 +290,63 @@ public class Hints
         return lib;
     }
 
-    public void process(Library library, int direction) throws Exception
+    public void process(Repository repo) throws Exception
     {
-        logger.info("Processing ELS Hints " + ((direction == TO_SUBSCRIBER) ? "to" : "from") + " subscriber");
-        toRepo = getRepository(direction, true);
-        fromRepo = getRepository(direction, false);
+        logger.info("Processing ELS Hints for " + repo.getLibraryData().libraries.description);
 
-        // copy .els files
-        for (Item item : library.items)
+        for (Library lib : repo.getLibraryData().libraries.bibliography)
         {
-            if (!item.getItemPath().toLowerCase().endsWith(".els"))
+            // if processing all libraries, or this one was specified on the command line with -l,
+            // and it has not been excluded with -L
+            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
             {
-                continue;
+                // does the library have items?
+                if (lib.items == null || lib.items.size() < 1)
+                {
+                    logger.info("  ! " + lib.name + " is empty, skipping");
+                    continue;
+                }
+
+                boolean repeat = true;
+                while (repeat)
+                {
+                    repeat = false;
+                    for (Item item : lib.items)
+                    {
+                        // only ELS Hints that have not been executed already
+                        if (!item.getItemPath().toLowerCase().endsWith(".els") || item.isHintsExecuted())
+                        {
+                            continue;
+                        }
+
+                        // check if it needs to be done locally
+                        if (run(repo, item))
+                        {
+                            repeat = true; // the library was altered, go over it again
+                            break;
+                        }
+                    }
+                }
             }
-
-            // check if it needs to be done locally
-            run(fromRepo, item);
-
-/*
-            String path = getHintTarget(item, direction);
-            logger.info("  > Copying " + item.getFullPath() + " to " + path);
-            copy(item.getFullPath(), path, true);
-*/
-
-
         }
     }
 
-    private void run(Repository repo, Item item) throws Exception
+    private boolean run(Repository repo, Item item) throws Exception
     {
+        boolean libAltered = false;
+
         if (cfg.isRemoteSession())
         {
         }
         else
         {
-            logger.info("  * Executing " + item.getFullPath() + " on " + repo.getLibraryData().libraries.description);
-            execute(repo, item);
+            logger.info("* Executing " + item.getFullPath() + " on " + repo.getLibraryData().libraries.description);
+            if (execute(repo, item))
+                libAltered = true;
+            item.setHintsExecuted(true);
         }
+        return libAltered;
     }
 
 }

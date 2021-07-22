@@ -14,11 +14,6 @@ public class Library
     public transient Multimap<String, Integer> itemMap;
 
     /**
-     * One or more Items.
-     */
-    public Vector<Item> items;
-
-    /**
      * The library Name.
      */
     public String name;
@@ -27,5 +22,10 @@ public class Library
      * One or more Sources.
      */
     public String[] sources;
+
+    /**
+     * One or more Items. Last member so name appears first in data.
+     */
+    public Vector<Item> items;
 
 }

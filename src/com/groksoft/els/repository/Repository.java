@@ -176,7 +176,7 @@ public class Repository
     /**
      * Gets an item collection from the itemMap hash map
      */
-    private Collection getMapItem(Library lib, String itemPath) throws MungerException
+    public Collection getMapItem(Library lib, String itemPath) throws MungerException
     {
         Collection collection = null;
         try
@@ -297,7 +297,7 @@ public class Repository
      * @param itemPath the itemPath() of the item to find
      * @return the boolean
      */
-    public Item hasItem(Item pubItem, String itemPath) throws MungerException
+    public Item hasItem(Item pubItem, String libName, String itemPath) throws MungerException
     {
         Item has = null;
 
@@ -305,7 +305,7 @@ public class Repository
         {
             for (Library lib : libraryData.libraries.bibliography)
             {
-                if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
+                if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(libName))
                 {
                     if (lib.itemMap != null)
                     {
@@ -398,7 +398,11 @@ public class Repository
         boolean ret = false;
         String name = getItemName(item);
 
-        if ( ! name.toLowerCase().endsWith(".els")) // automatically exclude .els files
+        if (name.toLowerCase().endsWith(".els")) // automatically exclude .els files v3.0.0
+        {
+            ret = true;
+        }
+        else
         {
             for (Pattern patt : getLibraryData().libraries.compiledPatterns)
             {
@@ -424,75 +428,6 @@ public class Repository
             return true;
         else
             return false;
-    }
-
-    /**
-     * Perform move on either a file or directory
-     */
-    public boolean move(String fromLibName, String fromName, String toLibName, String toName) throws Exception
-    {
-        String from = "";
-        String fromFixed = "";
-        String name = "";
-        String old = "";
-        String fromPath = "";
-        boolean renameDone = false;
-
-        Library fromLib = getLibrary(fromLibName);
-        if (fromLib == null)
-        {
-            logger.info("    ! From library not found: " + fromLibName);
-            return false;
-        }
-        Library toLib = getLibrary(toLibName);
-        if (toLib == null)
-        {
-            logger.info("    ! To library not found: " + toLibName);
-            return false;
-        }
-
-        Collection collection = getMapItem(fromLib, fromName);
-        if (collection != null)
-        {
-            Iterator it = collection.iterator();
-            for (int i = 0; i < collection.size(); ++i)
-            {
-                Integer j = (Integer) it.next();
-                Item fromItem = fromLib.items.elementAt(j);
-                fromPath = fromItem.getFullPath();
-                logger.info("    From path: " + fromPath);
-
-                if ( ! toLibName.equalsIgnoreCase(fromLibName)) // move to a different library
-                {
-
-                }
-
-            }
-        }
-/*
-                                // replace the name on the end of the item and fullpath
-                                String path = item.getItemPath();
-                                path = path.substring(0, path.length() - old.length());
-                                path = path + name;
-
-                                String full = item.getFullPath();
-                                full = full.substring(0, full.length() - old.length());
-                                full = full + name;
-
-                                // do rename
-                                File existing = new File(item.getFullPath());
-                                File newFile = new File(full);
-                                existing.renameTo(newFile);
-
-                                // update data
-                                item.setItemPath(path);
-                                item.setFullPath(full);
-
-                                logger.info("Renamed " + (item.isDirectory() ? "directory" : "file") +
-                                        ": '" + old + "' to '" + name + "'");
-*/
-
-        return renameDone;
     }
 
     /**

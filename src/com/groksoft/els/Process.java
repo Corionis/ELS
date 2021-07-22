@@ -1,17 +1,13 @@
 package com.groksoft.els;
 
 import com.groksoft.els.repository.*;
-import com.groksoft.els.storage.Storage;
-import com.groksoft.els.storage.Target;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.nio.file.*;
 import java.util.ArrayList;
 
 /**
@@ -21,24 +17,18 @@ public class Process
 {
     private Configuration cfg = null;
     private Main.Context context;
-    private int copyCount = 0;
-    private String currentGroupName = "";
     private int differentSizes = 0;
     private int errorCount = 0;
     private boolean fault = false;
-    private long grandTotalItems = 0L;
-    private long grandTotalOriginalLocation = 0L;
-    private long grandTotalSize = 0L;
-    private Hints hints = null;
     private HintKeys hintKeys = null;
+    private Hints hints = null;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
     private boolean justScannedPublisher = false;
-    private String lastGroupName = "";
     private transient Logger logger = LogManager.getLogger("applog");
-    private Storage storageTargets = null;
     private long totalDirectories = 0;
     private long totalItems = 0;
+    private Transfer transfer;
     private long whatsNewTotal = 0;
 
     /**
@@ -56,108 +46,6 @@ public class Process
     {
         this.cfg = config;
         this.context = ctxt;
-    }
-
-    /**
-     * Copy a file, local or remote
-     *
-     * @param from the full from path
-     * @param to   the full to path
-     * @return success boolean
-     */
-    private void copyFile(String from, String to, boolean overwrite) throws Exception
-    {
-        if (cfg.isRemoteSession())
-        {
-            context.clientSftp.transmitFile(from, to, overwrite);
-        }
-        else
-        {
-            Path fromPath = Paths.get(from).toRealPath();
-            Path toPath = Paths.get(to);
-            File f = new File(to);
-            if (f != null)
-            {
-                f.getParentFile().mkdirs();
-            }
-            Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
-        }
-    }
-
-    /**
-     * Copy group of files
-     * <p>
-     * The overwrite parameter is false for normal Process munge operations, and
-     * true for Subscriber terminal (-r T) to Publisher listener (-r L) operations.
-     *
-     * @param group     the group
-     * @param totalSize the total size
-     * @param overwrite whether to overwrite any existing target file
-     * @throws MungerException the els exception
-     */
-    public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite) throws Exception
-    {
-        String response = "";
-        if (!cfg.isTargetsEnabled())
-        {
-            throw new MungerException("-t or -T target is required for this operation");
-        }
-        if (!isInitialized)
-        {
-            initialize();
-            if (!isInitialized)
-                throw new MungerException("initialize() failed");
-        }
-        try
-        {
-            if (group.size() > 0)
-            {
-                for (Item groupItem : group)
-                {
-                    if (cfg.isDryRun())
-                    {
-                        // -D Dry run option
-                        ++copyCount;
-                        logger.info("  > Would copy #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath());
-                    }
-                    else
-                    {
-                        String targetPath = getTarget(groupItem.getLibrary(), totalSize, groupItem);
-                        if (targetPath != null)
-                        {
-                            // copy item(s) to targetPath
-                            ++copyCount;
-
-                            String to = targetPath + context.subscriberRepo.getWriteSeparator();
-                            to += context.publisherRepo.normalize(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
-
-                            String msg = "  > Copying #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath() + " to " + to;
-                            logger.info(msg);
-                            response += (msg + "\r\n");
-
-                            copyFile(groupItem.getFullPath(), to, overwrite);
-                        }
-                        else
-                        {
-                            throw new MungerException("No space on any target location of " + group.get(0).getLibrary() + " for " +
-                                    lastGroupName + " that is " + Utils.formatLong(totalSize, false));
-                        }
-                    }
-                }
-            }
-            grandTotalItems = grandTotalItems + group.size();
-            group.clear();
-            grandTotalSize = grandTotalSize + totalSize;
-            totalSize = 0L;
-            lastGroupName = currentGroupName;
-        }
-        catch (Exception e)
-        {
-            fault = true;
-            throw e;
-        }
-
-        return response;
     }
 
     /**
@@ -250,317 +138,18 @@ public class Process
         context.publisherRepo.exportText();
     }
 
-    public long getFreespace(String path) throws Exception
-    {
-        long space;
-        if (cfg.isRemoteSession())
-        {
-            // remote subscriber
-            space = context.clientStty.availableSpace(path);
-        }
-        else
-        {
-            space = Utils.availableSpace(path);
-        }
-        return space;
-    }
-
-    public long getLocationMinimum(String path)
-    {
-        long minimum = 0L;
-        for (Location loc : context.subscriberRepo.getLibraryData().libraries.locations)
-        {
-            if (path.startsWith(loc.location))
-            {
-                minimum = Utils.getScaledValue(loc.minimum);
-                break;
-            }
-        }
-        if (minimum < 1L)
-        {
-            minimum = Storage.MINIMUM_BYTES;
-        }
-        return minimum;
-    }
-
-    public void getStorageTargets() throws Exception
-    {
-        String location = cfg.getTargetsFilename();
-
-        if (cfg.isRemoteSession() && cfg.isRequestTargets())
-        {
-            if (location == null || location.length() < 1)
-            {
-                location = "subscriber-targets";
-            }
-            // request target data from remote subscriber
-            location = context.clientStty.retrieveRemoteData(location, "targets");
-            cfg.setTargetsFilename(location);
-        }
-
-        if (location != null) // v3.0.0 allow targets to be empty to use sources as target locations
-        {
-            if (storageTargets == null)
-                storageTargets = new Storage();
-
-            storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
-            if (!cfg.isRemoteSession())
-                storageTargets.validate();
-        }
-    }
-
     /**
-     * Gets a subscriber target
-     * <p>
-     * Will return the original directory where existing files are located if one
-     * exists and that location has enough space.
-     * <p>
-     * Otherwise will return one of the subscriber targets for the library of the item
-     * that has enough space to hold the item, otherwise an empty string is returned.
-     *
-     * @param item    the item
-     * @param library the publisher library.definition.name
-     * @param size    the total size of item(s) to be copied
-     * @return the target
-     * @throws MungerException the els exception
+     * Process ELS Hints for the local system (only)
      */
-    public String getTarget(String library, long size, Item item) throws Exception
+    private void localHints() throws Exception
     {
-        String path = null;
-        boolean notFound = true;
-        long minimum = 0L;
-        Target target = null;
-
-        if (storageTargets != null)
+        // scan the collection if library file specified
+        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
-            target = storageTargets.getLibraryTarget(library);
+            context.publisherRepo.scan();
+            justScannedPublisher = true;
         }
-        if (target != null)
-        {
-            minimum = Utils.getScaledValue(target.minimum);
-        }
-        else
-        {
-            minimum = Storage.MINIMUM_BYTES;
-        }
-
-        // see if there is an "original" directory the new content will fit in
-        if (!cfg.isNoBackFill())
-        {
-            path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, item.getItemPath()));
-            if (path != null)
-            {
-                // check size of item(s) to be copied
-                if (itFits(path, size, minimum, target != null))
-                {
-                    logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
-                    //
-                    // inline return
-                    //
-                    ++grandTotalOriginalLocation;
-                    return path;
-                }
-                logger.info("Original storage location too full for " + item.getItemPath() + " " + Utils.formatLong(size, false) + " at " + path);
-                path = null;
-            }
-        }
-
-        String candidate;
-        if (target != null) // a defined target is the default
-        {
-            notFound = false;
-            for (int j = 0; j < target.locations.length; ++j)
-            {
-                candidate = target.locations[j];
-                // check size of item(s) to be copied
-                if (itFits(candidate, size, minimum, true))
-                {
-                    path = candidate;             // has space, use it
-                    break;
-                }
-            }
-        }
-        else // v3.0.0, use sources for target locations
-        {
-            Library lib = context.subscriberRepo.getLibrary(library);
-            if (lib != null)
-            {
-                notFound = false;
-            }
-            for (int j = 0; j < lib.sources.length; ++j)
-            {
-                candidate = lib.sources[j];
-                // check size of item(s) to be copied
-                if (itFits(candidate, size, minimum, false))
-                {
-                    path = candidate;             // has space, use it
-                    break;
-                }
-            }
-        }
-        if (notFound)
-        {
-            logger.error("No target library match found for library " + library);
-        }
-        return path;
-    }
-
-    /**
-     * Initialize the configured data structures
-     */
-    private void initialize()
-    {
-        try
-        {
-            isInitialized = true;
-
-            // For -r P connect to remote subscriber -r S
-            if (cfg.isRemotePublish() || cfg.isPublisherListener())
-            {
-                // sanity checks
-                if (context.publisherRepo.getLibraryData().libraries.flavor == null ||
-                        context.publisherRepo.getLibraryData().libraries.flavor.length() < 1)
-                {
-                    throw new MungerException("Publisher data incomplete, missing 'flavor'");
-                }
-
-                if (context.subscriberRepo.getLibraryData().libraries.flavor == null ||
-                        context.subscriberRepo.getLibraryData().libraries.flavor.length() < 1)
-                {
-                    throw new MungerException("Subscriber data incomplete, missing 'flavor'");
-                }
-
-                // check for opening commands from Subscriber
-                // *** might change cfg options for subscriber and targets that are handled below ***
-                if (context.clientStty.checkBannerCommands())
-                {
-                    logger.info("Received subscriber commands:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
-                }
-            }
-
-            // get -s Subscriber libraries
-            if (cfg.getSubscriberLibrariesFileName().length() > 0)
-            {
-                if (cfg.isRemoteSession() && cfg.isRequestCollection())
-                {
-                    // request complete collection data from remote subscriber
-                    String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
-                    if (location == null || location.length() < 1)
-                        throw new MungerException("Could not retrieve remote collections file");
-                    cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
-                    cfg.setSubscriberCollectionFilename(location);
-
-                    context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
-                }
-            }
-
-            // process renames first
-            if (cfg.isRenaming())
-            {
-                rename();
-            }
-
-            // process -e export text, publisher only
-            if (cfg.getExportTextFilename().length() > 0)
-            {
-                exportText();
-            }
-
-            // process -i export collection items, publisher only
-            if (cfg.getExportCollectionFilename().length() > 0)
-            {
-                exportCollection();
-            }
-
-            // get -t|T Targets
-            if (cfg.isTargetsEnabled())
-            {
-                getStorageTargets();
-            }
-            else
-            {
-                cfg.setDryRun(true);
-            }
-
-            // check for publisher duplicates
-            if (cfg.isDuplicateCheck())
-            {
-                duplicatesCheck();
-            }
-        }
-        catch (Exception ex)
-        {
-            fault = true;
-            ++errorCount;
-            logger.error(Utils.getStackTrace(ex));
-        }
-    }
-
-    /**
-     * Is new grouping boolean
-     * <p>
-     * True if the item "group" is different than the current "group".
-     * A group is a set of files within the same movie directory or
-     * television season.
-     *
-     * @param publisherItem the publisher item
-     * @return the boolean
-     */
-    private boolean isNewGrouping(Item publisherItem) throws MungerException
-    {
-        boolean ret = true;
-        String p = publisherItem.getItemPath();
-        String s = context.publisherRepo.getSeparator();
-        int i = publisherItem.getItemPath().lastIndexOf(context.publisherRepo.getSeparator());
-        if (i < 0)
-        {
-            logger.warn("No subdirectory in path : " + publisherItem.getItemPath());
-            return true;
-        }
-        String path = publisherItem.getItemPath().substring(0, i);
-        if (path.length() < 1)
-        {
-            path = publisherItem.getItemPath().substring(0, publisherItem.getItemPath().lastIndexOf(context.publisherRepo.getSeparator()));
-        }
-        if (currentGroupName.equalsIgnoreCase(path))
-        {
-            ret = false;
-        }
-        else
-        {
-            currentGroupName = path;
-        }
-        return ret;
-    }
-
-    /**
-     * Will the needed size fit?
-     */
-    private boolean itFits(String path, long size, long minimum, boolean hasTarget) throws Exception
-    {
-        boolean fits = false;
-        long space = getFreespace(path);
-
-        if (!hasTarget) // provided targets file overrides subscriber file locations minimum values
-        {
-            if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
-                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.0.0
-            {
-                minimum = getLocationMinimum(path);
-            }
-        }
-
-        logger.info("Checking " + (hasTarget ? "target location" : "library source") +
-                " for " + (Utils.formatLong(size, false)) +
-                " with minimum " + Utils.formatLong(minimum, false) +
-                " on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                " path " + path + " has " + (Utils.formatLong(space, false)));
-
-        if (space > (size + minimum))
-        {
-            fits = true;
-        }
-        return fits;
+        hints.process(context.publisherRepo);
     }
 
     /**
@@ -584,14 +173,6 @@ public class Process
 
         String header = "Munging " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description;
-
-        // Get ELS hints keys
-        if (cfg.getHintKeysFile() != null && cfg.getHintKeysFile().length() > 0) // v3.0.0
-        {
-            hintKeys = new HintKeys(context);
-            hintKeys.read(cfg.getHintKeysFile());
-            hints = new Hints(cfg, context, hintKeys);
-        }
 
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0)
@@ -641,7 +222,7 @@ public class Process
                 // if processing all libraries, or this one was specified on the command line with -l,
                 // and it has not been excluded with -L
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
+                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
                 {
                     // if the subscriber has included and not excluded this library
                     if (subLib.name.startsWith("ELS-SUBSCRIBER-SKIP_")) // v3.0.0
@@ -671,10 +252,10 @@ public class Process
                         // Process hints
                         if (hints != null) // v3.0.0
                         {
-                            hints.process(pubLib, hints.TO_SUBSCRIBER);
+                            hints.munge(pubLib, hints.TO_SUBSCRIBER);
                         }
 
-                        if ( ! cfg.isHintSkipMainProcess()) // v3.0.0
+                        if (!cfg.isHintSkipMainProcess()) // v3.0.0
                         {
                             logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
                                     (subLib.items != null ? subLib.items.size() : 0) + " subscriber items");
@@ -694,7 +275,7 @@ public class Process
                                         ++totalItems;
 
                                         // does the subscriber have a matching item?
-                                        Item has = context.subscriberRepo.hasItem(item, Utils.pipe(context.publisherRepo, item.getItemPath()));
+                                        Item has = context.subscriberRepo.hasItem(item, item.getLibrary(), Utils.pipe(context.publisherRepo, item.getItemPath()));
                                         if (has != null)
                                         {
                                             if (item.getHas().size() == 1) // no duplicates?
@@ -753,11 +334,11 @@ public class Process
                                             }
 
                                             /* If the group is switching, process the current one. */
-                                            if (isNewGrouping(item))
+                                            if (transfer.isNewGrouping(item))
                                             {
-                                                logger.info("Switching groups from " + lastGroupName + " to " + currentGroupName);
+                                                logger.info("Switching groups from " + transfer.getLastGroupName() + " to " + transfer.getCurrentGroupName());
                                                 // There is a new group - process the old group
-                                                copyGroup(group, totalSize, cfg.isOverwrite());
+                                                transfer.copyGroup(group, totalSize, cfg.isOverwrite());
                                                 totalSize = 0L;
 
                                                 // Flush the output files
@@ -810,8 +391,8 @@ public class Process
                 try
                 {
                     // Process the last group
-                    logger.info("Processing last group " + currentGroupName);
-                    copyGroup(group, totalSize, cfg.isOverwrite());
+                    logger.info("Processing last group " + transfer.getCurrentGroupName());
+                    transfer.copyGroup(group, totalSize, cfg.isOverwrite());
                 }
                 catch (Exception e)
                 {
@@ -825,15 +406,15 @@ public class Process
             // Postprocess hints
 //            if (hints != null) // v3.0.0
 //            {
-//
+//                hints.munge(pubLib, hints.TO_SUBSCRIBER);
 //            }
 
             // Close all the files and show the results
             if (mismatchFile != null)
             {
                 mismatchFile.println("----------------------------------------------------");
-                mismatchFile.println("Total items: " + grandTotalItems);
-                mismatchFile.println("Total size : " + Utils.formatLong(grandTotalSize, true));
+                mismatchFile.println("Total items: " + transfer.getGrandTotalItems());
+                mismatchFile.println("Total size : " + Utils.formatLong(transfer.getGrandTotalSize(), true));
                 mismatchFile.close();
             }
             if (whatsNewFile != null)
@@ -892,10 +473,10 @@ public class Process
         logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
         logger.info(SHORT, "# Directories      : " + totalDirectories);
         logger.info(SHORT, "# Files            : " + totalItems);
-        logger.info(SHORT, "# Copies           : " + copyCount + ((!cfg.isDryRun()) ? ", " + grandTotalOriginalLocation + " of which went to original locations" : ""));
+        logger.info(SHORT, "# Copies           : " + transfer.getCopyCount() + ((!cfg.isDryRun()) ? ", " + transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : ""));
         logger.info(SHORT, "# Errors           : " + errorCount);
-        logger.info(SHORT, "# Items processed  : " + grandTotalItems);
-        logger.info(SHORT, "# Total size       : " + Utils.formatLong(grandTotalSize, true));
+        logger.info(SHORT, "# Items processed  : " + transfer.getGrandTotalItems());
+        logger.info(SHORT, "# Total size       : " + Utils.formatLong(transfer.getGrandTotalSize(), true));
     }
 
     /**
@@ -914,21 +495,63 @@ public class Process
         {
             if (!isInitialized)
             {
-                initialize(); // handles actions other than munge()
+                transfer = new Transfer(cfg, context);
+                transfer.initialize();
+                isInitialized = true;
             }
 
-            if (isInitialized)
+            // Get ELS hints keys
+            if (cfg.getHintKeysFile().length() > 0) // v3.0.0
             {
-                // if all the pieces are specified munge the collections
-                if (cfg.isTargetsEnabled() &&
-                        (cfg.getPublisherLibrariesFileName().length() > 0 ||
-                                cfg.getPublisherCollectionFilename().length() > 0) &&
-                        (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                cfg.getSubscriberCollectionFilename().length() > 0)
-                )
-                {
-                    munge(); // this is the full munge process
-                }
+                hintKeys = new HintKeys(context);
+                hintKeys.read(cfg.getHintKeysFile());
+                hints = new Hints(cfg, context, hintKeys);
+            }
+
+            // process renames first
+            if (cfg.isRenaming())
+            {
+                rename();
+            }
+
+            // local ELS Hints run with no subscriber
+            if (cfg.isTargetsEnabled() && !cfg.isRemoteSession() &&
+                    (cfg.getPublisherLibrariesFileName().length() > 0 ||
+                            cfg.getPublisherCollectionFilename().length() > 0) &&
+                    (cfg.getSubscriberLibrariesFileName().length() == 0 &&
+                            cfg.getSubscriberCollectionFilename().length() == 0)
+            )
+            {
+                localHints();
+            }
+
+            // process -e export text, publisher only
+            if (cfg.getExportTextFilename().length() > 0)
+            {
+                exportText();
+            }
+
+            // process -i export collection items, publisher only
+            if (cfg.getExportCollectionFilename().length() > 0)
+            {
+                exportCollection();
+            }
+
+            // check for publisher duplicates
+            if (cfg.isDuplicateCheck())
+            {
+                duplicatesCheck();
+            }
+
+            // if all the pieces are specified perform a full munge the collections
+            if (cfg.isTargetsEnabled() &&
+                    (cfg.getPublisherLibrariesFileName().length() > 0 ||
+                            cfg.getPublisherCollectionFilename().length() > 0) &&
+                    (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                            cfg.getSubscriberCollectionFilename().length() > 0)
+            )
+            {
+                munge();
             }
         }
         catch (Exception ex)

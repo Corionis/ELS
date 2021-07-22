@@ -36,7 +36,7 @@ public class Configuration
     private String exportTextFilename = "";
     private boolean forceCollection = false;
     private boolean forceTargets = false;
-    private String hintKeysFile;
+    private String hintKeysFile = "";
     private boolean hintSkipMainProcess = false;
     private String logFilename = "els.log";
     private String mismatchFilename = "";

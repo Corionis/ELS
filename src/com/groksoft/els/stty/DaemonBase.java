@@ -93,7 +93,7 @@ public abstract class DaemonBase
      * Process a connection request to the Daemon service.
      *
      */
-    public abstract void process(Socket aSocket) throws IOException;
+    public abstract void process(Socket aSocket) throws IOException, Exception;
 
     /**
      * Perform initial handshake for this session.

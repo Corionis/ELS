@@ -13,6 +13,8 @@
       <root url="jar://$PROJECT_DIR$/lib/sshd-mina-2.5.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sshd-sftp-2.5.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/jsch-0.1.55.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ant.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-lang3-3.12.0.jar!/" />
     </CLASSES>
     <JAVADOC>
       <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-core-2.8.1-javadoc" />

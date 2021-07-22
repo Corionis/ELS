@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Full munge" type="Application" factoryName="Application" folderName="Local">
+  <configuration default="false" name="Full munge" type="Application" factoryName="Application" folderName="TestRun">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-d debug -p TestRun/publisher/publisher-libraries.json -s TestRun/subscriber-1/subscriber-1-libraries.json -T TestRun/targets-1.json -m TestRun/mismatches.txt -W TestRun/whatsnew.txt" />

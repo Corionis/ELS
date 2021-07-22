@@ -1,7 +1,6 @@
 package com.groksoft.els.stty.publisher;
 
 import com.groksoft.els.*;
-import com.groksoft.els.Process;
 import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
@@ -37,7 +36,7 @@ public class Daemon extends DaemonBase
     private Main.Context context;
     private boolean fault = false;
     private boolean isTerminal = false;
-    private Process process; // munge process for get command
+    private Transfer transfer;
 
     /**
      * Instantiate the Daemon service
@@ -109,7 +108,7 @@ public class Daemon extends DaemonBase
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public void process(Socket aSocket) throws IOException
+    public void process(Socket aSocket) throws Exception, IOException
     {
         socket = aSocket;
         port = aSocket.getPort();
@@ -124,7 +123,8 @@ public class Daemon extends DaemonBase
         // for get command
         long totalSize = 0L;
         ArrayList<Item> group = new ArrayList<>();
-        process = new Process(cfg, context); // munge process for get command
+        transfer = new Transfer(cfg, context); // v3.0.0
+        transfer.initialize();
 
         // setup i/o
         aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
@@ -405,7 +405,7 @@ public class Daemon extends DaemonBase
                                         throw new MungerException("Publisher stty client failed to connect");
                                     }
                                 }
-                                response = process.copyGroup(group, totalSize, true);
+                                response = transfer.copyGroup(group, totalSize, true);
                                 group.clear();
                             }
                             else

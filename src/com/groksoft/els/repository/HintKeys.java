@@ -89,7 +89,8 @@ public class HintKeys
                     {
                         foundPublisher = true;
                     }
-                    else if (parts[2].equals(context.subscriberRepo.getLibraryData().libraries.key))
+
+                    if (parts[2].equals(context.subscriberRepo.getLibraryData().libraries.key))
                     {
                         foundSubscriber = true;
                     }
@@ -111,7 +112,7 @@ public class HintKeys
             throw new MungerException("No key line with first word 'For' was found. Disable ELS hints by removing the -k argument from the command line");
         if (!foundPublisher)
             throw new MungerException("The current publisher key was not found in ELS keys file: " + file);
-        if (!foundSubscriber)
+        if (context.subscriberRepo!= null && !foundSubscriber)
             throw new MungerException("The current subscriber key was not found in ELS keys file: " + file);
     }
 
