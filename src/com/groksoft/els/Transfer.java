@@ -9,16 +9,14 @@ import com.groksoft.els.storage.Target;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.tools.ant.DirectoryScanner;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static java.nio.file.StandardCopyOption.*;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 public class Transfer
 {
@@ -30,16 +28,17 @@ public class Transfer
     private long grandTotalItems = 0L;
     private long grandTotalOriginalLocation = 0L;
     private long grandTotalSize = 0L;
-    private int movedDirectories = 0;
-    private int movedFiles = 0;
     private boolean isInitialized = false;
     private String lastGroupName = "";
+    private int movedDirectories = 0;
+    private int movedFiles = 0;
     private int removedDirectories = 0;
     private int removedFiles = 0;
+    private int skippedDirectories = 0;
     private int skippedHints = 0;
     private int skippedMissing = 0;
-    private int skippedDirectories = 0;
     private Storage storageTargets = null;
+    private boolean toIsNew = false;
 
     private Transfer()
     {
@@ -115,7 +114,7 @@ public class Transfer
                         ++copyCount;
 
                         String to = targetPath + context.subscriberRepo.getWriteSeparator();
-                        to += context.publisherRepo.normalize(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
+                        to += context.publisherRepo.normalizePath(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
 
                         String msg = "  > Copying #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath() + " to " + to;
                         logger.info(msg);
@@ -464,13 +463,13 @@ public class Transfer
         Library fromLib = repo.getLibrary(fromLibName);
         if (fromLib == null)
         {
-            logger.info("    ! From library not found: " + fromLibName);
+            logger.info("  ! From library not found: " + fromLibName);
             return false;
         }
         Library toLib = repo.getLibrary(toLibName);
         if (toLib == null)
         {
-            logger.info("    ! To library not found: " + toLibName);
+            logger.info("  ! To library not found: " + toLibName);
             return false;
         }
 
@@ -489,20 +488,74 @@ public class Transfer
 
                     if (fromItem.isDirectory())
                     {
+                        // move to a different library
+                        if (!toLib.name.equalsIgnoreCase(fromLib.name))
+                        {
+                            boolean repeat = true;
+                            while (repeat)
+                            {
+                                // move directory's items
+                                repeat = false;
+                                for (Item nextItem : fromLib.items)
+                                {
+                                    if (nextItem.isDirectory())
+                                        continue;
 
-                    }
-                    else
-                    {
-                        if (cfg.isDryRun())
-                        {
-                            logger.info("  > Would mv " + fromLibName + "|" + fromName + " to " + toLibName + "|" + toName);
+                                    if (nextItem.getItemPath().startsWith(fromItem.getItemPath() + repo.getSeparator()))
+                                    {
+                                        String nextName = nextItem.getItemPath().substring(fromItem.getItemPath().length() + 1);
+                                        String nextPath = toName + repo.getSeparator() + nextName;
+                                        if (moveItem(repo, fromLib, nextItem, toLib, nextPath))
+                                        {
+                                            repeat = true; // the library was altered, go over it again
+                                            libAltered = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            // remove the physical directory
+                            File prevDir = new File(fromItem.getFullPath());
+                            if (Utils.removeDirectoryTree(prevDir))
+                            {
+                                logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                            }
+
                         }
-                        else
+                        else // logically it is a rename within same library
                         {
-                            logger.info("  > mv " + fromLibName + "|" + fromName + " to " + toLibName + "|" + toName);
+                            // rename the directory
                             if (moveItem(repo, fromLib, fromItem, toLib, toName))
                                 libAltered = true;
+
+                            boolean repeat = true;
+                            while (repeat)
+                            {
+                                repeat = false;
+                                // update the directory's items
+                                for (Item nextItem : fromLib.items)
+                                {
+                                    if (nextItem.getItemPath().startsWith(fromItem.getItemPath() + repo.getSeparator()))
+                                    {
+                                        String nextName = nextItem.getItemPath().substring(fromItem.getItemPath().length() + 1);
+                                        String nextPath = toName + repo.getSeparator() + nextName;
+                                        Item updateItem = setupToItem(repo, fromLib, nextItem, toLib, nextPath);
+                                        if (updateMetadata(repo, fromLib, nextItem, toLib, updateItem))
+                                        {
+                                            repeat = true; // the library was altered, go over it again
+                                            libAltered = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
                         }
+                    }
+                    else // it is a file
+                    {
+                        if (moveItem(repo, fromLib, fromItem, toLib, toName))
+                            libAltered = true;
                     }
                 }
             }
@@ -521,59 +574,19 @@ public class Transfer
         return libAltered;
     }
 
-    private void moveDirectory(Library fromLib, Item fromItem, Library toLib, String toName) throws Exception
-    {
-/*
-        DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setIncludes(new String[]{fromLib.name});
-        scanner.setBasedir(fromPath);
-        scanner.setCaseSensitive(repo.getLibraryData().libraries.case_sensitive);
-        scanner.scan();
-        String[] files = scanner.getIncludedFiles();
-
-        logger.info(files);
-*/
-
-    }
-
     private boolean moveItem(Repository repo, Library fromLib, Item fromItem, Library toLib, String toName) throws Exception
     {
         boolean libAltered = false;
         Item toItem = null;
-        boolean toIsNew = false;
 
-        // setup the To item
-        if (!toLib.name.equalsIgnoreCase(fromLib.name)) // move to a different library
+        if (cfg.isDryRun())
         {
-            toItem = repo.hasItem(fromItem, toLib.name, Utils.pipe(repo, fromItem.getItemPath()));
-            if (toItem == null) // does not exist
-            {
-                toIsNew = true;
-                toItem = SerializationUtils.clone(fromItem);
-                toItem.setLibrary(toLib.name);
-                toItem.setItemPath(toName);
-                String path = getTarget(toLib.name, toItem.getSize(), toItem);
-                path = path + repo.getSeparator() + toName;
-                toItem.setFullPath(path);
-            }
-            else // exists, use same object
-            {
-                toItem.setLibrary(toLib.name);
-                toItem.setItemPath(toName);
-                String base = toItem.getFullPath().substring(0, toItem.getFullPath().length() - toItem.getItemPath().length() - 1);
-                String path = base + toName;
-                toItem.setFullPath(path);
+            logger.info("  > Would mv " + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
+            return false;
+        }
+        logger.info("  > mv " + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
 
-            }
-        }
-        else // logically it is a rename
-        {
-            toItem = SerializationUtils.clone(fromItem);
-            toItem.setItemPath(toName);
-            String base = toItem.getFullPath().substring(0, toItem.getFullPath().length() - toItem.getItemPath().length() - 1);
-            String path = base + toName;
-            toItem.setFullPath(path);
-        }
+        toItem = setupToItem(repo, fromLib, fromItem, toLib, toName);
 
         // see if it still exists
         File fromFile = new File(fromItem.getFullPath());
@@ -585,59 +598,131 @@ public class Transfer
             {
                 logger.info("  ! Target exists, will overwrite: " + toItem.getFullPath());
             }
+            else if (toIsNew)
+            {
+                if (toFile.getParentFile().mkdirs())
+                {
+                    Item addedDir = new Item();
+                    addedDir.setFullPath(toFile.getParent());
+                    addedDir.setDirectory(true);
+                    addedDir.setSize(0L);
+                    String ipath = Utils.getLeftPath(toItem.getItemPath(), repo.getSeparator());
+                    addedDir.setItemPath(ipath);
+                    addedDir.setLibrary(toItem.getLibrary());
+                    toLib.items.add(addedDir);
+                    toLib.rescanNeeded = true;
+                    libAltered = true;
+                }
+            }
 
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
-            logger.info("  mv done"); // no exception thrown
 
-            // fix internal metadata
-            int fromIndex = fromLib.items.indexOf(fromItem);
-            int toIndex;
-
-            if (!toLib.name.equalsIgnoreCase(fromItem.getLibrary())) // moved to different library
-            {
-                fromLib.items.remove(fromItem);
-                libAltered = true;
-
-                if (toIsNew)
-                {
-                    toLib.items.add(toItem);
-                    toIndex = toLib.items.size() - 1;
-                }
-                else // not new
-                {
-                    toIndex = toLib.items.indexOf(toItem);
-                    toLib.items.setElementAt(toItem, toIndex);
-                }
-            }
-            else // logically it is a rename, use same Item object
-            {
-                toIndex = fromIndex;
-                toLib.items.setElementAt(toItem, toIndex);
-            }
-
-            // remove old itemMap key and value because one or both changed
-            String key = fromItem.getItemPath();
-            if (!repo.getLibraryData().libraries.case_sensitive)
-            {
-                key = key.toLowerCase();
-            }
-            fromLib.itemMap.remove(Utils.pipe(repo, key), fromIndex);
-
-            // add the updated itemMap key and value
-            key = toItem.getItemPath();
-            if (!repo.getLibraryData().libraries.case_sensitive)
-            {
-                key = key.toLowerCase();
-            }
-            toLib.itemMap.put(Utils.pipe(repo, key), toIndex);
-
+            // no exception thrown
+            logger.info("  mv done");
             ++movedFiles;
+
+            if (updateMetadata(repo, fromLib, fromItem, toLib, toItem))
+                libAltered = true;
         }
         else
         {
             logger.info("  ! Does not exist (C), skipping: " + fromItem.getFullPath());
             ++skippedMissing;
         }
+        return libAltered;
+    }
+
+    private Item setupToItem(Repository repo, Library fromLib, Item fromItem, Library toLib, String toName) throws Exception
+    {
+        String path;
+        Item toItem;
+        toIsNew = false;
+
+        // move to a different library
+        if (!toLib.name.equalsIgnoreCase(fromLib.name))
+        {
+            toItem = repo.hasItem(fromItem, toLib.name, Utils.pipe(repo, toName));
+            if (toItem == null) // does not exist
+            {
+                toIsNew = true;
+                toItem = SerializationUtils.clone(fromItem);
+                toItem.setLibrary(toLib.name);
+                toItem.setItemPath(toName);
+                path = getTarget(toLib.name, toItem.getSize(), toItem);
+                path = path + repo.getSeparator() + toName;
+            }
+            else // exists, use same object
+            {
+                toItem.setLibrary(toLib.name);
+                toItem.setItemPath(toName);
+                String base = toItem.getFullPath().substring(0, toItem.getFullPath().length() - fromItem.getItemPath().length());
+                path = base + toName;
+            }
+        }
+        else // logically it is a rename within same library
+        {
+            toItem = SerializationUtils.clone(fromItem);
+            toItem.setItemPath(toName);
+            String base = toItem.getFullPath().substring(0, toItem.getFullPath().length() - fromItem.getItemPath().length());
+            path = base + toName;
+        }
+        toItem.setFullPath(path);
+        return toItem;
+    }
+
+    private boolean updateMetadata(Repository repo, Library fromLib, Item fromItem, Library toLib, Item toItem) throws Exception
+    {
+        boolean libAltered = false;
+        int fromIndex = fromLib.items.indexOf(fromItem);
+        int toIndex;
+
+        // fix internal collection metadata
+        //
+        // moved to different library
+        if (!toLib.name.equalsIgnoreCase(fromItem.getLibrary()))
+        {
+            fromLib.items.remove(fromItem);
+            fromLib.rescanNeeded = true;
+            libAltered = true;
+
+            if (toIsNew)
+            {
+                toLib.items.add(toItem);
+                toLib.rescanNeeded = true;
+                toIndex = toLib.items.size() - 1;
+            }
+            else // not new
+            {
+                toIndex = toLib.items.indexOf(toItem);
+                toLib.items.setElementAt(toItem, toIndex);
+            }
+        }
+        else // logically it is a rename, use same Item object
+        {
+            toIndex = fromIndex;
+            toLib.items.setElementAt(toItem, toIndex);
+        }
+
+        // fix internal itemMap metadata
+        //
+        // remove old itemMap key and value because one or both changed
+        String key = fromItem.getItemPath();
+        if (!repo.getLibraryData().libraries.case_sensitive)
+        {
+            key = key.toLowerCase();
+        }
+        fromLib.itemMap.remove(Utils.pipe(repo, key), fromIndex);
+
+        /*
+        // add the updated itemMap key and value
+        key = toItem.getItemPath();
+        if (!repo.getLibraryData().libraries.case_sensitive)
+        {
+            key = key.toLowerCase();
+        }
+        toLib.itemMap.put(Utils.pipe(repo, key), toIndex);
+        */
+
         return libAltered;
     }
 

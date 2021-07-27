@@ -144,22 +144,22 @@ public class Utils
         if (value >= (1024))
         {
             brief = longerFormatter.format(value / 1024.0) + " KB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0))
         {
             brief = longerFormatter.format(value / (1024.0 * 1024.0)) + " MB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0 * 1024.0))
         {
             brief = longerFormatter.format(value / (1024.0 * 1024.0 * 1024.0)) + " GB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0 * 1024.0 * 1024.0))
         {
             brief = shorterFormatter.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         return (isFull ? full : brief);
     }
@@ -170,8 +170,10 @@ public class Utils
      * @param millis
      * @return String
      */
-    public static String getDuration(long millis) {
-        if(millis < 0) {
+    public static String getDuration(long millis)
+    {
+        if (millis < 0)
+        {
             throw new IllegalArgumentException("Duration must be greater than zero!");
         }
 
@@ -202,7 +204,7 @@ public class Utils
         sb.append(seconds);
         sb.append(" secs");
 
-        return(sb.toString());
+        return (sb.toString());
     }
 
     /**
@@ -250,15 +252,22 @@ public class Utils
         }
         else
         {
-            p = full.indexOf(sep);
-            if (p >= 0)
-            {
-                path = full.substring(0, p);
-            }
-            else
-            {
-                path = full;
-            }
+            path = full;
+        }
+        return path;
+    }
+
+    public static String getLeftPath(String full, String sep)
+    {
+        String path = "";
+        int p = full.lastIndexOf(sep);
+        if (p >= 0)
+        {
+            path = full.substring(0, p);
+        }
+        else
+        {
+            path = full;
         }
         return path;
     }
@@ -469,6 +478,32 @@ public class Utils
     }
 
     /**
+     * Remove a directory tree and contents
+     *
+     * @param directory The directory tree to be deleted
+     * @return true if not all directories, files were also deleted
+     */
+    public static boolean removeDirectoryTree(File directory)
+    {
+        boolean notAllDirectories = false;
+        File[] all = directory.listFiles();
+        for (File entry : all)
+        {
+            if (!entry.isDirectory())
+            {
+                notAllDirectories = true;
+                entry.delete();
+            }
+            else
+            {
+                removeDirectoryTree(entry);
+            }
+        }
+        directory.delete();
+        return notAllDirectories;
+    }
+
+    /**
      * Write an encrypted string to output stream
      *
      * @param out     DataOutputStream to write
@@ -477,10 +512,10 @@ public class Utils
      */
     public static void writeStream(DataOutputStream out, String key, String message) throws Exception
     {
-            byte[] buf = encrypt(key, message);
-            out.writeInt(buf.length);
-            out.write(buf);
-            out.flush();
+        byte[] buf = encrypt(key, message);
+        out.writeInt(buf.length);
+        out.write(buf);
+        out.flush();
     }
 
 }

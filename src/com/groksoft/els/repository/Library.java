@@ -14,6 +14,11 @@ public class Library
     public transient Multimap<String, Integer> itemMap;
 
     /**
+     * Library has been altered, transient
+     */
+    public transient boolean rescanNeeded = false;
+
+    /**
      * The library Name.
      */
     public String name;

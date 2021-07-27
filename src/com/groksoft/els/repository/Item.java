@@ -12,7 +12,7 @@ public class Item implements Serializable
     private boolean directory = false;
     private String fullPath;
     private transient List<Item> hasList = null;
-    private transient boolean hintsExecuted = false;
+    private transient boolean hintExecuted = false;
     private String itemPath;
     private String library;
     private transient boolean reported = false;
@@ -34,7 +34,8 @@ public class Item implements Serializable
      */
     public void addHas(Item item)
     {
-        hasList.add(item);
+        if (!hasList.contains(item))
+            hasList.add(item);
     }
 
     /**
@@ -154,14 +155,14 @@ public class Item implements Serializable
         this.directory = directory;
     }
 
-    public boolean isHintsExecuted()
+    public boolean isHintExecuted()
     {
-        return hintsExecuted;
+        return hintExecuted;
     }
 
-    public void setHintsExecuted(boolean hintsExecuted)
+    public void setHintExecuted(boolean hintExecuted)
     {
-        this.hintsExecuted = hintsExecuted;
+        this.hintExecuted = hintExecuted;
     }
 
     /**

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
+import java.io.File;
 import java.util.Date;
 
 import static com.groksoft.els.Configuration.*;
@@ -60,6 +61,11 @@ public class Main
             cfg.parseCommandLine(args);
 
             // setup the logger based on configuration
+            if (cfg.isLogOverwrite())
+            {
+                File aLog = new File(cfg.getLogFilename());
+                aLog.delete();
+            }
             System.setProperty("logFilename", cfg.getLogFilename());
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
             System.setProperty("debugLevel", cfg.getDebugLevel());

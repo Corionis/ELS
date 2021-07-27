@@ -82,7 +82,10 @@ Listed here are changes to ELS versions from 3.0.0 onward.
     may now be specified on the subscriber-side to limit which libraries are
     processed. Previously -l | --library only applied to the publisher side.
 
- 5. ELS Hints
+ 5. Added options -F | --log-overwrite that will delete the log file when starting.
+    Used instead of -f | --log-file.
+
+ 6. ELS Hints
 
     Option -x | --cross-check applies in hasItem().
 

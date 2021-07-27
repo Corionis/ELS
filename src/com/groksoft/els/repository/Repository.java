@@ -505,7 +505,7 @@ public class Repository
      * @return path Normalized path for desired flavor
      * @throws MungerException
      */
-    public String normalize(String toFlavor, String path) throws MungerException
+    public String normalizePath(String toFlavor, String path) throws MungerException
     {
         if (!toFlavor.equalsIgnoreCase(libraryData.libraries.flavor))
         {
@@ -724,17 +724,20 @@ public class Repository
                 item.setSymLink(isSym);
                 item.setLibrary(library.name);                          // the library name
                 library.items.add(item);
+
                 if (isDir)
                 {
                     // track item count in a directory item's size
-                    item.setSize(scanDirectory(library, base, item.getFullPath()));
+                    scanDirectory(library, base, item.getFullPath());
                 }
+
             }
         }
         catch (IOException ioe)
         {
             throw new MungerException("Exception reading directory " + directory + " trace: " + Utils.getStackTrace(ioe));
         }
+        library.rescanNeeded = false;
         return count;
     }
 

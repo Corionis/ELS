@@ -4,8 +4,10 @@ import com.groksoft.els.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -55,6 +57,15 @@ public class Hints
         int totalDeletes = 0;
         int totalRenames = 0;
 
+        if (cfg.isRemoteSession())
+        {
+            logger.info("* Executing " + item.getFullPath() + " to remote " + repo.getLibraryData().libraries.description);
+        }
+        else
+        {
+            logger.info("* Executing " + item.getFullPath() + " on " + repo.getLibraryData().libraries.description);
+        }
+
         // read the ELS hint file, convert tabs to spaces and trim lines
         String file = item.getFullPath();
         List<String> lines = Files.readAllLines(Paths.get(file));
@@ -73,7 +84,7 @@ public class Hints
 
         // find the actor name in the .els file
         String statusLine = findNameLine(lines, hintKey.name);
-        if (statusLine == null || (!statusLine.toLowerCase().startsWith("for")))
+        if (statusLine == null || !statusLine.toLowerCase().startsWith("for"))
         {
             logger.info("  Skipping execution, not For " + hintKey.name);
             return libAltered;
@@ -96,7 +107,7 @@ public class Hints
                 continue;
             }
 
-            // mv and ren, move and rename commands
+            // mv move
             if (line.toLowerCase().startsWith("mv "))
             {
                 String[] parts = parseCommand(line, lineNo, 3); // null never returned
@@ -118,9 +129,21 @@ public class Hints
                 if (toName.length() < 1)
                     throw new MungerException("Malformed to filename on line " + lineNo);
 
-                if (transfer.move(repo, fromLib, fromName, toLib, toName))
+                if (transfer.move(repo, fromLib.trim(), fromName.trim(), toLib.trim(), toName.trim()))
                     libAltered = true;
+
+                item.setHintExecuted(true);
             }
+
+            // rm remove
+
+            // update hint status
+            if (item.isHintExecuted())
+            {
+                updateNameLine(lines, hintKey.name, "Done");
+                Files.write(Paths.get(file), lines, StandardOpenOption.CREATE);
+            }
+
         }
         return libAltered;
     }
@@ -315,13 +338,16 @@ public class Hints
                     for (Item item : lib.items)
                     {
                         // only ELS Hints that have not been executed already
-                        if (!item.getItemPath().toLowerCase().endsWith(".els") || item.isHintsExecuted())
+                        // the hintExecuted boolean is runtime only (transient)
+                        if (!item.getItemPath().toLowerCase().endsWith(".els") || item.isHintExecuted())
                         {
                             continue;
                         }
 
                         // check if it needs to be done locally
-                        if (run(repo, item))
+                        boolean libAltered = execute(repo, item);
+                            lib.rescanNeeded = true;
+                        if (libAltered)
                         {
                             repeat = true; // the library was altered, go over it again
                             break;
@@ -330,23 +356,44 @@ public class Hints
                 }
             }
         }
+
+        for (Library lib : repo.getLibraryData().libraries.bibliography)
+        {
+            // if processing all libraries, or this one was specified on the command line with -l,
+            // and it has not been excluded with -L
+            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+            {
+                if (lib.rescanNeeded)
+                {
+                    repo.scan(lib.name);
+                }
+            }
+        }
     }
 
-    private boolean run(Repository repo, Item item) throws Exception
+    private String updateNameLine(List<String> lines, String name, String status)
     {
-        boolean libAltered = false;
-
-        if (cfg.isRemoteSession())
+        int i = 0;
+        for (String line : lines)
         {
+            String parts[] = line.split("[\\s]+");
+            if (parts.length == 2)
+            {
+                String word = parts[0].toLowerCase();
+                if (word.equals("for") || word.equals("done") || word.equals("seen"))
+                {
+                    if (parts[1].equalsIgnoreCase(name))
+                    {
+                        line = status + " " + parts[1];
+                        lines.set(i, line);
+                        return line;
+                    }
+                }
+            }
+            ++i;
         }
-        else
-        {
-            logger.info("* Executing " + item.getFullPath() + " on " + repo.getLibraryData().libraries.description);
-            if (execute(repo, item))
-                libAltered = true;
-            item.setHintsExecuted(true);
-        }
-        return libAltered;
+        return null;
     }
 
 }

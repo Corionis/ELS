@@ -38,7 +38,8 @@ public class Configuration
     private boolean forceTargets = false;
     private String hintKeysFile = "";
     private boolean hintSkipMainProcess = false;
-    private String logFilename = "els.log";
+    private String logFilename = "";
+    private boolean logOverwrite = false;
     private String mismatchFilename = "";
     private boolean noBackFill = false;
     private String[] originalArgs;
@@ -674,6 +675,16 @@ public class Configuration
         this.hintSkipMainProcess = hintSkipMainProcess;
     }
 
+    public boolean isLogOverwrite()
+    {
+        return logOverwrite;
+    }
+
+    public void setLogOverwrite(boolean logOverwrite)
+    {
+        this.logOverwrite = logOverwrite;
+    }
+
     public boolean isNoBackFill()
     {
         return noBackFill;
@@ -1012,7 +1023,13 @@ public class Configuration
                     }
                     break;
                 case "-f":                                             // log filename
+                case "-F":
                 case "--log-file":
+                case "--log-overwrite":
+                    if (getLogFilename().length() > 0)
+                        throw new MungerException("Error: -f and -F cannot be used at the same time");
+                    if (args[index].equals("-F") || args[index].equals("--log-overwrite"))
+                        setLogOverwrite(true);
                     if (index <= args.length - 2)
                     {
                         setLogFilename(args[index + 1]);

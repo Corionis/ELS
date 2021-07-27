@@ -99,8 +99,9 @@ files have been specified.
 * -D | --dry-run : Do everything except the actual action, used in --rename and
   back-up actions
 
-* -f | --log-file [file] : Log file, default ELS.log in the directory where
-  ELS is executed
+* -f | --log-file [file] : Log file, in append mode
+
+* -F | --log-overwrite [file] : Log file, in overwrite mode
 
 * -h | --version : Display version information
 
