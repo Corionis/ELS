@@ -18,6 +18,10 @@ import java.util.Iterator;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+/**
+ * The Transfer class handles copying content to the appropriate location and
+ * the local-only operations needed for ELS Hints.
+ */
 public class Transfer
 {
     private final transient Logger logger = LogManager.getLogger("applog");
@@ -34,8 +38,6 @@ public class Transfer
     private int movedFiles = 0;
     private int removedDirectories = 0;
     private int removedFiles = 0;
-    private int skippedDirectories = 0;
-    private int skippedHints = 0;
     private int skippedMissing = 0;
     private Storage storageTargets = null;
     private boolean toIsNew = false;
@@ -149,6 +151,13 @@ public class Transfer
         return currentGroupName;
     }
 
+    /**
+     * Get free space of a storage location either local or remote
+     *
+     * @param path
+     * @return available space
+     * @throws Exception
+     */
     public long getFreespace(String path) throws Exception
     {
         long space;
@@ -184,6 +193,12 @@ public class Transfer
         return lastGroupName;
     }
 
+    /**
+     * Get the minimum available space constraint from subscriber file
+     *
+     * @param path
+     * @return
+     */
     private long getLocationMinimum(String path)
     {
         long minimum = 0L;
@@ -202,6 +217,36 @@ public class Transfer
         return minimum;
     }
 
+    public int getMovedDirectories()
+    {
+        return movedDirectories;
+    }
+
+    public int getMovedFiles()
+    {
+        return movedFiles;
+    }
+
+    public int getRemovedDirectories()
+    {
+        return removedDirectories;
+    }
+
+    public int getRemovedFiles()
+    {
+        return removedFiles;
+    }
+
+    public int getSkippedMissing()
+    {
+        return skippedMissing;
+    }
+
+    /**
+     * Get the storage targets either local or remote
+     *
+     * @throws Exception
+     */
     private void getStorageTargets() throws Exception
     {
         String location = cfg.getTargetsFilename();
@@ -454,10 +499,11 @@ public class Transfer
 
     /**
      * Perform move on either a file or directory
+     * <p>
+     * This is a local-only method, v3.0.0
      */
     public boolean move(Repository repo, String fromLibName, String fromName, String toLibName, String toName) throws Exception
     {
-        String fromPath = "";
         boolean libAltered = false;
 
         Library fromLib = repo.getLibrary(fromLibName);
@@ -484,7 +530,6 @@ public class Transfer
                     Integer j = (Integer) it.next();
 
                     Item fromItem = fromLib.items.elementAt(j);
-                    fromPath = fromItem.getFullPath();
 
                     if (fromItem.isDirectory())
                     {
@@ -521,6 +566,7 @@ public class Transfer
                             {
                                 logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
                             }
+                            ++movedDirectories;
 
                         }
                         else // logically it is a rename within same library
@@ -574,24 +620,29 @@ public class Transfer
         return libAltered;
     }
 
+    /**
+     * Move an individual item, directory or file
+     * <p>
+     * This is a local-only method, v3.0.0
+     */
     private boolean moveItem(Repository repo, Library fromLib, Item fromItem, Library toLib, String toName) throws Exception
     {
         boolean libAltered = false;
-        Item toItem = null;
 
-        if (cfg.isDryRun())
-        {
-            logger.info("  > Would mv " + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
-            return false;
-        }
-        logger.info("  > mv " + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
-
-        toItem = setupToItem(repo, fromLib, fromItem, toLib, toName);
+        // setup the toItem
+        Item toItem = setupToItem(repo, fromLib, fromItem, toLib, toName);
 
         // see if it still exists
         File fromFile = new File(fromItem.getFullPath());
         if (fromFile.exists())
         {
+            if (cfg.isDryRun())
+            {
+                logger.info("  > Would mv " + (fromItem.isDirectory() ? "directory " : "file ") + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
+                return false;
+            }
+            logger.info("  > mv " + (fromItem.isDirectory() ? "directory " : "file ") + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
+
             // perform move / rename
             File toFile = new File(toItem.getFullPath());
             if (toFile.exists())
@@ -618,8 +669,16 @@ public class Transfer
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
 
             // no exception thrown
-            logger.info("  mv done");
-            ++movedFiles;
+            if (toFile.isDirectory())
+            {
+                logger.info("  mv directory done");
+                ++movedDirectories;
+            }
+            else
+            {
+                logger.info("  mv file done");
+                ++movedFiles;
+            }
 
             if (updateMetadata(repo, fromLib, fromItem, toLib, toItem))
                 libAltered = true;
@@ -632,6 +691,85 @@ public class Transfer
         return libAltered;
     }
 
+    /**
+     * Remove an item, directory or file
+     * <p>
+     * If a directory ALL contents are deleted recursively.
+     * <p>
+     * This is a local-only method, v3.0.0
+     */
+    public boolean remove(Repository repo, String fromLibName, String fromName) throws Exception
+    {
+        boolean libAltered = false;
+
+        Library fromLib = repo.getLibrary(fromLibName);
+        if (fromLib == null)
+        {
+            logger.info("  ! From library not found: " + fromLibName);
+            return false;
+        }
+
+        Collection collection = repo.getMapItem(fromLib, fromName);
+        if (collection != null)
+        {
+            Iterator it = collection.iterator();
+            if (collection.size() > 0)
+            {
+                for (int i = 0; i < collection.size(); ++i) // generally there is only one
+                {
+                    Integer j = (Integer) it.next();
+
+                    Item fromItem = fromLib.items.elementAt(j);
+
+                    if (fromItem.isDirectory())
+                    {
+                        // remove the physical directory
+                        File prevDir = new File(fromItem.getFullPath());
+                        if (Utils.removeDirectoryTree(prevDir))
+                        {
+                            logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                        }
+
+                        // FixMe - Remove all matching metadata !!!
+
+                        ++removedDirectories;
+                    }
+                    else // it is a file
+                    {
+                        File prevFile = new File(fromItem.getFullPath());
+                        if (prevFile.delete())
+                        {
+                            libAltered = true;
+                            ++removedFiles;
+
+
+                            // FixMe - Remove all matching metadata !!!
+
+
+                        }
+                    }
+                }
+            }
+            else
+            {
+                logger.info("  ! Does not exist (A), skipping: " + fromLibName + "|" + fromName);
+                ++skippedMissing;
+            }
+        }
+        else
+        {
+            logger.info("  ! Does not exist (B), skipping: " + fromLibName + "|" + fromName);
+            ++skippedMissing;
+        }
+
+        return libAltered;
+    }
+
+    /**
+     * Setup a To Item either new or a copy of an existing Item
+     * <p>
+     * This is a local-only method, v3.0.0
+     */
     private Item setupToItem(Repository repo, Library fromLib, Item fromItem, Library toLib, String toName) throws Exception
     {
         String path;
@@ -670,6 +808,11 @@ public class Transfer
         return toItem;
     }
 
+    /**
+     * Update the internal runtime metadata after a move or remove
+     * <p>
+     * This is a local-only method, v3.0.0
+     */
     private boolean updateMetadata(Repository repo, Library fromLib, Item fromItem, Library toLib, Item toItem) throws Exception
     {
         boolean libAltered = false;

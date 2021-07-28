@@ -3,26 +3,42 @@ package com.groksoft.els.repository;
 import com.groksoft.els.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.StringTokenizer;
 
+/**
+ * The Hints class handles finding and executing ELS Hints.
+ * <p>
+ * Todo Rethink command-line combinations
+ *  :: Hints local-only
+ *  :: Hints remote-only
+ *  :: Hints and munge process
+ * <p>
+ * ToDo Rethink internal keeping up internal metadata
+ *   :: Is it needed?
+ *   :: What about multiple ELS Hint files??
+ */
 public class Hints
 {
     public final int TO_PUBLISHER = 1;
     public final int TO_SUBSCRIBER = 2;
     private final transient Logger logger = LogManager.getLogger("applog");
+    private Marker SHORT = MarkerManager.getMarker("SHORT");
+    private Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private Configuration cfg;
     private Main.Context context;
+    private int doneHints = 0;
+    private int executedHints = 0;
     private Repository fromRepo;
-    private int grandDeletes = 0;
-    private int grandMoves = 0;
-    private int grandRenames = 0;
     private HintKeys keys;
+    private int seenHints = 0;
+    private int skippedHints = 0;
     private Repository toRepo;
     private Transfer transfer;
 
@@ -53,18 +69,8 @@ public class Hints
     private boolean execute(Repository repo, Item item) throws Exception
     {
         boolean libAltered = false;
-        int totalMoves = 0;
-        int totalDeletes = 0;
-        int totalRenames = 0;
 
-        if (cfg.isRemoteSession())
-        {
-            logger.info("* Executing " + item.getFullPath() + " to remote " + repo.getLibraryData().libraries.description);
-        }
-        else
-        {
-            logger.info("* Executing " + item.getFullPath() + " on " + repo.getLibraryData().libraries.description);
-        }
+        logger.info("* Executing " + item.getFullPath() + " on " + repo.getLibraryData().libraries.description);
 
         // read the ELS hint file, convert tabs to spaces and trim lines
         String file = item.getFullPath();
@@ -86,7 +92,15 @@ public class Hints
         String statusLine = findNameLine(lines, hintKey.name);
         if (statusLine == null || !statusLine.toLowerCase().startsWith("for"))
         {
+            if (statusLine != null)
+            {
+                if (statusLine.toLowerCase().startsWith("done"))
+                    ++doneHints;
+                if (statusLine.toLowerCase().startsWith("seen"))
+                    ++seenHints;
+            }
             logger.info("  Skipping execution, not For " + hintKey.name);
+            ++skippedHints;
             return libAltered;
         }
 
@@ -134,17 +148,34 @@ public class Hints
 
                 item.setHintExecuted(true);
             }
-
-            // rm remove
-
-            // update hint status
-            if (item.isHintExecuted())
+            else if (line.toLowerCase().startsWith("rm ")) // rm remove
             {
-                updateNameLine(lines, hintKey.name, "Done");
-                Files.write(Paths.get(file), lines, StandardOpenOption.CREATE);
-            }
+                String[] parts = parseCommand(line, lineNo, 2); // null never returned
+                //dumpTerms(parts);
 
+                String fromLib = parseLibrary(parts[1], lineNo);
+                if (fromLib == null)
+                    fromLib = item.getLibrary(); // use the library of the .els item
+
+                String fromName = parseFile(parts[1], lineNo);
+                if (fromName.length() < 1)
+                    throw new MungerException("Malformed from filename on line " + lineNo);
+
+                if (transfer.remove(repo, fromLib.trim(), fromName.trim()))
+                    libAltered = true;
+
+                item.setHintExecuted(true);
+            }
         }
+
+        // update hint status
+        if (item.isHintExecuted())
+        {
+            updateNameLine(lines, hintKey.name, "Done");
+            Files.write(Paths.get(file), lines, StandardOpenOption.CREATE);
+            ++executedHints;
+        }
+
         return libAltered;
     }
 
@@ -251,9 +282,6 @@ public class Hints
                 continue;
             }
 
-//             check if it needs to be done locally
-//            run(fromRepo, item);
-
 /*
         // copy .els files
             String path = getHintTarget(item, direction);
@@ -346,7 +374,7 @@ public class Hints
 
                         // check if it needs to be done locally
                         boolean libAltered = execute(repo, item);
-                            lib.rescanNeeded = true;
+                        lib.rescanNeeded = true;
                         if (libAltered)
                         {
                             repeat = true; // the library was altered, go over it again
@@ -356,6 +384,17 @@ public class Hints
                 }
             }
         }
+
+        logger.info(SHORT, "+------------------------------------------");
+        logger.info(SHORT, "# Executed Hints     : " + executedHints);
+        logger.info(SHORT, "# Done Hints         : " + doneHints);
+        logger.info(SHORT, "# Seen Hints         : " + seenHints);
+        logger.info(SHORT, "# Skipped Hints      : " + skippedHints);
+        logger.info(SHORT, "# Moved directories  : " + transfer.getMovedDirectories());
+        logger.info(SHORT, "# Moved files        : " + transfer.getMovedFiles());
+        logger.info(SHORT, "# Removed directories: " + transfer.getRemovedDirectories());
+        logger.info(SHORT, "# Removed files      : " + transfer.getRemovedFiles());
+        logger.info(SHORT, "# Skipped missing    : " + transfer.getSkippedMissing());
 
         for (Library lib : repo.getLibraryData().libraries.bibliography)
         {
