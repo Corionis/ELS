@@ -83,9 +83,35 @@ Listed here are changes to ELS versions from 3.0.0 onward.
     processed. Previously -l | --library only applied to the publisher side.
 
  5. Added options -F | --log-overwrite that will delete the log file when starting.
-    Used instead of -f | --log-file.
+    Used instead of -f | --log-file that will append to an existing file.
 
  6. ELS Hints
 
+    A "hint" is a special file used to keep track of manual changes to a collection.
+    The hint is used by ELS to coordinate those changes with one or more back-ups.
+
+    A hint file contains one or more status lines, one for each back-up, and one or
+    more commands. As each system processes the hint it's key status line is updated.
+    When all systems have executed the hint the file is automatically deleted.
+ 
+    To correlate publisher and subscriber collections with status keys in ELS hint
+    files a single keys file is needed.
+ 
+    Example:
+    ``
+        For MediaServer  b9aa28d7-5a89-41ef-87cc-d43c31827b06
+    ``
+
+    1. Enabling ELS Hints
+       Hint processing is enabled using the -k | --keys or -K | --keys-only options
+       and specifying a keys filename.
+
+    2. Hint Processing Modes
+       1. Local mode - Processes hint files locally only. Enabled by specifying a
+          keys file and publisher library files but not a subscriber file.
+       2. Publish mode - Processes hints publisher-to-subscriber.
+
+    Option -D | --dry-run applies.
+  
     Option -x | --cross-check applies in hasItem().
 

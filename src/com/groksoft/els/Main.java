@@ -61,6 +61,8 @@ public class Main
             cfg.parseCommandLine(args);
 
             // setup the logger based on configuration
+            if (cfg.getLogFilename().length() < 1)
+                cfg.setLogFilename("els.log");
             if (cfg.isLogOverwrite())
             {
                 File aLog = new File(cfg.getLogFilename());

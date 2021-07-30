@@ -139,9 +139,9 @@ public class Process
     }
 
     /**
-     * Process ELS Hints for the local system (only)
+     * Process ELS Hints for the local system
      */
-    private void localHints() throws Exception
+    private void hintsLocal() throws Exception
     {
         // scan the collection if library file specified
         if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
@@ -150,6 +150,21 @@ public class Process
             justScannedPublisher = true;
         }
         hints.process(context.publisherRepo);
+    }
+
+    /**
+     * Send ELS Hints to the remote system
+     * @throws Exception
+     */
+    private void hintsRemote() throws Exception
+    {
+        // Process hints
+        if (hints != null) // v3.0.0
+        {
+//            hints.munge(pubLib, hints.TO_SUBSCRIBER);
+        }
+
+
     }
 
     /**
@@ -247,12 +262,6 @@ public class Process
                             {
                                 context.subscriberRepo.scan(subLib.name);
                             }
-                        }
-
-                        // Process hints
-                        if (hints != null) // v3.0.0
-                        {
-                            hints.munge(pubLib, hints.TO_SUBSCRIBER);
                         }
 
                         if (!cfg.isHintSkipMainProcess()) // v3.0.0
@@ -403,12 +412,6 @@ public class Process
                 totalSize = 0L;
             }
 
-            // Postprocess hints
-//            if (hints != null) // v3.0.0
-//            {
-//                hints.munge(pubLib, hints.TO_SUBSCRIBER);
-//            }
-
             // Close all the files and show the results
             if (mismatchFile != null)
             {
@@ -500,7 +503,7 @@ public class Process
                 isInitialized = true;
             }
 
-            // Get ELS hints keys
+            // Get ELS hints keys if specified
             if (cfg.getHintKeysFile().length() > 0) // v3.0.0
             {
                 hintKeys = new HintKeys(context);
@@ -508,21 +511,21 @@ public class Process
                 hints = new Hints(cfg, context, hintKeys);
             }
 
-            // process renames first
-            if (cfg.isRenaming())
-            {
-                rename();
-            }
-
-            // local ELS Hints run with no subscriber
-            if (cfg.isTargetsEnabled() && !cfg.isRemoteSession() &&
+            // process ELS Hints locally, no subscriber
+            if (hints != null && cfg.isTargetsEnabled() && !cfg.isRemoteSession() &&
                     (cfg.getPublisherLibrariesFileName().length() > 0 ||
                             cfg.getPublisherCollectionFilename().length() > 0) &&
                     (cfg.getSubscriberLibrariesFileName().length() == 0 &&
                             cfg.getSubscriberCollectionFilename().length() == 0)
             )
             {
-                localHints();
+                hintsLocal();
+            }
+
+            // process renames
+            if (cfg.isRenaming())
+            {
+                rename();
             }
 
             // process -e export text, publisher only

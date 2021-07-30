@@ -14,15 +14,6 @@ import java.util.StringTokenizer;
 
 /**
  * The Hints class handles finding and executing ELS Hints.
- * <p>
- * Todo Rethink command-line combinations
- *  :: Hints local-only
- *  :: Hints remote-only
- *  :: Hints and munge process
- * <p>
- * ToDo Rethink internal keeping up internal metadata
- *   :: Is it needed?
- *   :: What about multiple ELS Hint files??
  */
 public class Hints
 {
@@ -359,10 +350,6 @@ public class Hints
                     continue;
                 }
 
-                boolean repeat = true;
-                while (repeat)
-                {
-                    repeat = false;
                     for (Item item : lib.items)
                     {
                         // only ELS Hints that have not been executed already
@@ -375,13 +362,7 @@ public class Hints
                         // check if it needs to be done locally
                         boolean libAltered = execute(repo, item);
                         lib.rescanNeeded = true;
-                        if (libAltered)
-                        {
-                            repeat = true; // the library was altered, go over it again
-                            break;
-                        }
                     }
-                }
             }
         }
 

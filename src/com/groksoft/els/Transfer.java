@@ -536,31 +536,24 @@ public class Transfer
                         // move to a different library
                         if (!toLib.name.equalsIgnoreCase(fromLib.name))
                         {
-                            boolean repeat = true;
-                            while (repeat)
+                            // move directory's items
+                            for (Item nextItem : fromLib.items)
                             {
-                                // move directory's items
-                                repeat = false;
-                                for (Item nextItem : fromLib.items)
-                                {
-                                    if (nextItem.isDirectory())
-                                        continue;
+                                if (nextItem.isDirectory())
+                                    continue;
 
-                                    if (nextItem.getItemPath().startsWith(fromItem.getItemPath() + repo.getSeparator()))
+                                if (nextItem.getItemPath().startsWith(fromItem.getItemPath() + repo.getSeparator()))
+                                {
+                                    String nextName = nextItem.getItemPath().substring(fromItem.getItemPath().length() + 1);
+                                    String nextPath = toName + repo.getSeparator() + nextName;
+                                    if (moveItem(repo, fromLib, nextItem, toLib, nextPath))
                                     {
-                                        String nextName = nextItem.getItemPath().substring(fromItem.getItemPath().length() + 1);
-                                        String nextPath = toName + repo.getSeparator() + nextName;
-                                        if (moveItem(repo, fromLib, nextItem, toLib, nextPath))
-                                        {
-                                            repeat = true; // the library was altered, go over it again
-                                            libAltered = true;
-                                            break;
-                                        }
+                                        libAltered = true;
                                     }
                                 }
                             }
 
-                            // remove the physical directory
+                            // remove the physical directory; should be empty at this point
                             File prevDir = new File(fromItem.getFullPath());
                             if (Utils.removeDirectoryTree(prevDir))
                             {
@@ -574,28 +567,6 @@ public class Transfer
                             // rename the directory
                             if (moveItem(repo, fromLib, fromItem, toLib, toName))
                                 libAltered = true;
-
-                            boolean repeat = true;
-                            while (repeat)
-                            {
-                                repeat = false;
-                                // update the directory's items
-                                for (Item nextItem : fromLib.items)
-                                {
-                                    if (nextItem.getItemPath().startsWith(fromItem.getItemPath() + repo.getSeparator()))
-                                    {
-                                        String nextName = nextItem.getItemPath().substring(fromItem.getItemPath().length() + 1);
-                                        String nextPath = toName + repo.getSeparator() + nextName;
-                                        Item updateItem = setupToItem(repo, fromLib, nextItem, toLib, nextPath);
-                                        if (updateMetadata(repo, fromLib, nextItem, toLib, updateItem))
-                                        {
-                                            repeat = true; // the library was altered, go over it again
-                                            libAltered = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                     else // it is a file
@@ -653,14 +624,6 @@ public class Transfer
             {
                 if (toFile.getParentFile().mkdirs())
                 {
-                    Item addedDir = new Item();
-                    addedDir.setFullPath(toFile.getParent());
-                    addedDir.setDirectory(true);
-                    addedDir.setSize(0L);
-                    String ipath = Utils.getLeftPath(toItem.getItemPath(), repo.getSeparator());
-                    addedDir.setItemPath(ipath);
-                    addedDir.setLibrary(toItem.getLibrary());
-                    toLib.items.add(addedDir);
                     toLib.rescanNeeded = true;
                     libAltered = true;
                 }
@@ -669,7 +632,7 @@ public class Transfer
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
 
             // no exception thrown
-            if (toFile.isDirectory())
+            if (toFile.isDirectory()) // directories should not reach here
             {
                 logger.info("  mv directory done");
                 ++movedDirectories;
@@ -679,9 +642,6 @@ public class Transfer
                 logger.info("  mv file done");
                 ++movedFiles;
             }
-
-            if (updateMetadata(repo, fromLib, fromItem, toLib, toItem))
-                libAltered = true;
         }
         else
         {
@@ -729,9 +689,9 @@ public class Transfer
                         {
                             logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
                         }
-
-                        // FixMe - Remove all matching metadata !!!
-
+                        logger.info("  rm directory done");
+                        fromLib.rescanNeeded = true;
+                        libAltered = true;
                         ++removedDirectories;
                     }
                     else // it is a file
@@ -739,13 +699,10 @@ public class Transfer
                         File prevFile = new File(fromItem.getFullPath());
                         if (prevFile.delete())
                         {
+                            logger.info("  rm file done");
+                            fromLib.rescanNeeded = true;
                             libAltered = true;
                             ++removedFiles;
-
-
-                            // FixMe - Remove all matching metadata !!!
-
-
                         }
                     }
                 }
@@ -806,67 +763,6 @@ public class Transfer
         }
         toItem.setFullPath(path);
         return toItem;
-    }
-
-    /**
-     * Update the internal runtime metadata after a move or remove
-     * <p>
-     * This is a local-only method, v3.0.0
-     */
-    private boolean updateMetadata(Repository repo, Library fromLib, Item fromItem, Library toLib, Item toItem) throws Exception
-    {
-        boolean libAltered = false;
-        int fromIndex = fromLib.items.indexOf(fromItem);
-        int toIndex;
-
-        // fix internal collection metadata
-        //
-        // moved to different library
-        if (!toLib.name.equalsIgnoreCase(fromItem.getLibrary()))
-        {
-            fromLib.items.remove(fromItem);
-            fromLib.rescanNeeded = true;
-            libAltered = true;
-
-            if (toIsNew)
-            {
-                toLib.items.add(toItem);
-                toLib.rescanNeeded = true;
-                toIndex = toLib.items.size() - 1;
-            }
-            else // not new
-            {
-                toIndex = toLib.items.indexOf(toItem);
-                toLib.items.setElementAt(toItem, toIndex);
-            }
-        }
-        else // logically it is a rename, use same Item object
-        {
-            toIndex = fromIndex;
-            toLib.items.setElementAt(toItem, toIndex);
-        }
-
-        // fix internal itemMap metadata
-        //
-        // remove old itemMap key and value because one or both changed
-        String key = fromItem.getItemPath();
-        if (!repo.getLibraryData().libraries.case_sensitive)
-        {
-            key = key.toLowerCase();
-        }
-        fromLib.itemMap.remove(Utils.pipe(repo, key), fromIndex);
-
-        /*
-        // add the updated itemMap key and value
-        key = toItem.getItemPath();
-        if (!repo.getLibraryData().libraries.case_sensitive)
-        {
-            key = key.toLowerCase();
-        }
-        toLib.itemMap.put(Utils.pipe(repo, key), toIndex);
-        */
-
-        return libAltered;
     }
 
 }
