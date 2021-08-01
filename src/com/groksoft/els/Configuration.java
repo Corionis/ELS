@@ -17,7 +17,7 @@ public class Configuration
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
-    public static final int REMOTE_PUBLISH = 1;
+    public static final int PUBLISH_REMOTE = 1;
     public static final int RENAME_BOTH = 3;
     public static final int RENAME_DIRECTORIES = 2;
     public static final int RENAME_FILES = 1;
@@ -436,7 +436,7 @@ public class Configuration
         this.remoteType = type;
         this.remoteFlag = NOT_REMOTE;
         if (type.equalsIgnoreCase("P"))
-            this.remoteFlag = REMOTE_PUBLISH;
+            this.remoteFlag = PUBLISH_REMOTE;
         else if (type.equalsIgnoreCase("S"))
             this.remoteFlag = SUBSCRIBER_LISTENER;
         else if (type.equalsIgnoreCase("M"))
@@ -760,7 +760,7 @@ public class Configuration
      */
     public boolean isRemotePublish()
     {
-        return (getRemoteFlag() == REMOTE_PUBLISH);
+        return (getRemoteFlag() == PUBLISH_REMOTE);
     }
 
     /**
@@ -1266,7 +1266,7 @@ public class Configuration
                     setCrossCheck(true);
                     break;
                 default:
-                    throw new MungerException("Error: unknown option " + args[index]);
+                    throw new MungerException("Error: unknown option: " + args[index]);
             }
         }
     }

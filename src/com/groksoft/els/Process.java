@@ -1,6 +1,9 @@
 package com.groksoft.els;
 
-import com.groksoft.els.repository.*;
+import com.groksoft.els.repository.HintKeys;
+import com.groksoft.els.repository.Hints;
+import com.groksoft.els.repository.Item;
+import com.groksoft.els.repository.Library;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -28,7 +31,6 @@ public class Process
     private transient Logger logger = LogManager.getLogger("applog");
     private long totalDirectories = 0;
     private long totalItems = 0;
-    private Transfer transfer;
     private long whatsNewTotal = 0;
 
     /**
@@ -149,22 +151,7 @@ public class Process
             context.publisherRepo.scan();
             justScannedPublisher = true;
         }
-        hints.process(context.publisherRepo);
-    }
-
-    /**
-     * Send ELS Hints to the remote system
-     * @throws Exception
-     */
-    private void hintsRemote() throws Exception
-    {
-        // Process hints
-        if (hints != null) // v3.0.0
-        {
-//            hints.munge(pubLib, hints.TO_SUBSCRIBER);
-        }
-
-
+        hints.hintsLocal();
     }
 
     /**
@@ -264,6 +251,7 @@ public class Process
                             }
                         }
 
+                        // FixMe this is in the wrong place
                         if (!cfg.isHintSkipMainProcess()) // v3.0.0
                         {
                             logger.info("Munge " + subLib.name + ": " + pubLib.items.size() + " publisher items with " +
@@ -343,11 +331,11 @@ public class Process
                                             }
 
                                             /* If the group is switching, process the current one. */
-                                            if (transfer.isNewGrouping(item))
+                                            if (context.transfer.isNewGrouping(item))
                                             {
-                                                logger.info("Switching groups from " + transfer.getLastGroupName() + " to " + transfer.getCurrentGroupName());
+                                                logger.info("Switching groups from " + context.transfer.getLastGroupName() + " to " + context.transfer.getCurrentGroupName());
                                                 // There is a new group - process the old group
-                                                transfer.copyGroup(group, totalSize, cfg.isOverwrite());
+                                                context.transfer.copyGroup(group, totalSize, cfg.isOverwrite());
                                                 totalSize = 0L;
 
                                                 // Flush the output files
@@ -400,8 +388,8 @@ public class Process
                 try
                 {
                     // Process the last group
-                    logger.info("Processing last group " + transfer.getCurrentGroupName());
-                    transfer.copyGroup(group, totalSize, cfg.isOverwrite());
+                    logger.info("Processing last group " + context.transfer.getCurrentGroupName());
+                    context.transfer.copyGroup(group, totalSize, cfg.isOverwrite());
                 }
                 catch (Exception e)
                 {
@@ -416,8 +404,8 @@ public class Process
             if (mismatchFile != null)
             {
                 mismatchFile.println("----------------------------------------------------");
-                mismatchFile.println("Total items: " + transfer.getGrandTotalItems());
-                mismatchFile.println("Total size : " + Utils.formatLong(transfer.getGrandTotalSize(), true));
+                mismatchFile.println("Total items: " + context.transfer.getGrandTotalItems());
+                mismatchFile.println("Total size : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true));
                 mismatchFile.close();
             }
             if (whatsNewFile != null)
@@ -476,10 +464,10 @@ public class Process
         logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
         logger.info(SHORT, "# Directories      : " + totalDirectories);
         logger.info(SHORT, "# Files            : " + totalItems);
-        logger.info(SHORT, "# Copies           : " + transfer.getCopyCount() + ((!cfg.isDryRun()) ? ", " + transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : ""));
+        logger.info(SHORT, "# Copies           : " + context.transfer.getCopyCount() + ((!cfg.isDryRun()) ? ", " + context.transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : ""));
         logger.info(SHORT, "# Errors           : " + errorCount);
-        logger.info(SHORT, "# Items processed  : " + transfer.getGrandTotalItems());
-        logger.info(SHORT, "# Total size       : " + Utils.formatLong(transfer.getGrandTotalSize(), true));
+        logger.info(SHORT, "# Items processed  : " + context.transfer.getGrandTotalItems());
+        logger.info(SHORT, "# Total size       : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true));
     }
 
     /**
@@ -498,8 +486,8 @@ public class Process
         {
             if (!isInitialized)
             {
-                transfer = new Transfer(cfg, context);
-                transfer.initialize();
+                context.transfer = new Transfer(cfg, context);
+                context.transfer.initialize();
                 isInitialized = true;
             }
 
@@ -516,8 +504,7 @@ public class Process
                     (cfg.getPublisherLibrariesFileName().length() > 0 ||
                             cfg.getPublisherCollectionFilename().length() > 0) &&
                     (cfg.getSubscriberLibrariesFileName().length() == 0 &&
-                            cfg.getSubscriberCollectionFilename().length() == 0)
-            )
+                            cfg.getSubscriberCollectionFilename().length() == 0))
             {
                 hintsLocal();
             }
@@ -546,13 +533,22 @@ public class Process
                 duplicatesCheck();
             }
 
+            // process ELS Hints to subscriber
+            if (hints != null && cfg.isTargetsEnabled() &&
+                    (cfg.getPublisherLibrariesFileName().length() > 0 ||
+                            cfg.getPublisherCollectionFilename().length() > 0) &&
+                    (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                            cfg.getSubscriberCollectionFilename().length() > 0))
+            {
+                hints.hintsMunge();
+            }
+
             // if all the pieces are specified perform a full munge the collections
             if (cfg.isTargetsEnabled() &&
                     (cfg.getPublisherLibrariesFileName().length() > 0 ||
                             cfg.getPublisherCollectionFilename().length() > 0) &&
                     (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                            cfg.getSubscriberCollectionFilename().length() > 0)
-            )
+                            cfg.getSubscriberCollectionFilename().length() > 0))
             {
                 munge();
             }

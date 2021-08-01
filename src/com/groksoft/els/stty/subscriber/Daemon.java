@@ -259,6 +259,17 @@ public class Daemon extends DaemonBase
                     continue;
                 }
 
+                // -------------- hint --------------------------------------
+                if (theCommand.equalsIgnoreCase("hint"))
+                {
+                    String location = "";
+                    if (t.hasMoreTokens())
+                    {
+                        location = t.nextToken();
+
+                    }
+                }
+
                 // -------------- logout ------------------------------------
                 if (theCommand.equalsIgnoreCase("logout"))
                 {

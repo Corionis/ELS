@@ -58,12 +58,20 @@ public class Main
 
         try
         {
-            cfg.parseCommandLine(args);
+            MungerException ce = null;
+            try
+            {
+                cfg.parseCommandLine(args);
+            }
+            catch (MungerException e)
+            {
+                ce = e; // configuration exception
+            }
 
-            // setup the logger based on configuration
+            // setup the logger based on configuration and/or defaults
             if (cfg.getLogFilename().length() < 1)
-                cfg.setLogFilename("els.log");
-            if (cfg.isLogOverwrite())
+                cfg.setLogFilename("els.log"); // make sure there's a filename
+            if (cfg.isLogOverwrite()) // optionally delete any existing log
             {
                 File aLog = new File(cfg.getLogFilename());
                 aLog.delete();
@@ -74,7 +82,6 @@ public class Main
             System.setProperty("pattern", cfg.getPattern());
             org.apache.logging.log4j.core.LoggerContext lctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
             lctx.reconfigure();
-
             org.apache.logging.log4j.core.config.Configuration ccfg = lctx.getConfiguration();
             LoggerConfig lcfg = ccfg.getLoggerConfig("Console");
             lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
@@ -84,6 +91,9 @@ public class Main
 
             // get the named logger
             logger = LogManager.getLogger("applog");
+
+            if (ce != null) // re-throw any configuration exception
+                throw ce;
 
             // an execution of this program can only be configured as one of these
             logger.info("+------------------------------------------");
@@ -97,8 +107,7 @@ public class Main
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
                     if (!cfg.isValidation() &&
                             (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                    cfg.getSubscriberCollectionFilename().length() > 0)
-                    )
+                                    cfg.getSubscriberCollectionFilename().length() > 0))
                     {
                         context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
@@ -172,7 +181,7 @@ public class Main
                     break;
 
                 // handle -r P execute the automated process to remote subscriber -r S
-                case REMOTE_PUBLISH:
+                case PUBLISH_REMOTE:
                     logger.info("ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
@@ -305,7 +314,7 @@ public class Main
         }
         finally
         {
-            if ( ! isListening)
+            if (!isListening)
             {
                 stopServices();
                 Date done = new Date();
@@ -469,6 +478,7 @@ public class Main
         public ServeSftp serveSftp;
         public ServeStty serveStty;
         public Repository subscriberRepo;
+        public Transfer transfer;
     }
 
 } // Main

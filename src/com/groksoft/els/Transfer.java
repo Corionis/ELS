@@ -59,7 +59,7 @@ public class Transfer
      * @param from the full from path
      * @param to   the full to path
      */
-    private void copyFile(String from, String to, boolean overwrite) throws Exception
+    public void copyFile(String from, String to, boolean overwrite) throws Exception
     {
         if (cfg.isRemoteSession())
         {
