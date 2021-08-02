@@ -716,7 +716,7 @@ public class Repository
                 path = Paths.get(fullPath);
                 isDir = Files.isDirectory(path);                        // is directory check
                 item.setDirectory(isDir);
-                size = (isDir ? 0L : Files.size(path));                 // size
+                size = (isDir ? -1 : Files.size(path));                 // size
                 item.setSize(size);
                 itemPath = fullPath.substring(base.length() + 1);       // item path
                 item.setItemPath(itemPath);

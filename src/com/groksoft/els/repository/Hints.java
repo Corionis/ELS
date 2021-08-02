@@ -1,6 +1,9 @@
 package com.groksoft.els.repository;
 
-import com.groksoft.els.*;
+import com.groksoft.els.Configuration;
+import com.groksoft.els.Main;
+import com.groksoft.els.MungerException;
+import com.groksoft.els.Utils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +45,20 @@ public class Hints
         cfg = config;
         context = ctx;
         keys = hintKeys;
+    }
+
+    private void dumpHintStats()
+    {
+        logger.info(SHORT, "+------------------------------------------");
+        logger.info(SHORT, "# Executed Hints     : " + executedHints + (cfg.isDryRun() ? " (--dry-run)" : ""));
+        logger.info(SHORT, "# Done Hints         : " + doneHints);
+        logger.info(SHORT, "# Seen Hints         : " + seenHints);
+        logger.info(SHORT, "# Skipped Hints      : " + skippedHints);
+        logger.info(SHORT, "# Moved directories  : " + context.transfer.getMovedDirectories());
+        logger.info(SHORT, "# Moved files        : " + context.transfer.getMovedFiles());
+        logger.info(SHORT, "# Removed directories: " + context.transfer.getRemovedDirectories());
+        logger.info(SHORT, "# Removed files      : " + context.transfer.getRemovedFiles());
+        logger.info(SHORT, "# Skipped missing    : " + context.transfer.getSkippedMissing());
     }
 
     private void dumpTerms(String[] parts)
@@ -160,9 +177,12 @@ public class Hints
         // update hint status
         if (item.isHintExecuted())
         {
-            if (updateNameLine(lines, hintKey.name, "Done") != null)
+            if (!cfg.isDryRun())
             {
-                Files.write(Paths.get(file), lines, StandardOpenOption.CREATE);
+                if (updateNameLine(lines, hintKey.name, "Done") != null)
+                {
+                    Files.write(Paths.get(file), lines, StandardOpenOption.CREATE);
+                }
             }
             ++executedHints;
         }
@@ -237,7 +257,8 @@ public class Hints
 
     public void hintsLocal() throws Exception
     {
-        logger.info("Processing ELS Hints for " + context.publisherRepo.getLibraryData().libraries.description);
+        boolean hintsFound = false;
+        logger.info("Processing ELS Hints for " + context.publisherRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : ""));
 
         for (Library lib : context.publisherRepo.getLibraryData().libraries.bibliography)
         {
@@ -263,42 +284,45 @@ public class Hints
                     }
 
                     // check if it needs to be done locally
+                    hintsFound = true;
                     boolean libAltered = execute(context.publisherRepo, item);
                     lib.rescanNeeded = true;
                 }
             }
         }
 
-        logger.info(SHORT, "+------------------------------------------");
-        logger.info(SHORT, "# Executed Hints     : " + executedHints);
-        logger.info(SHORT, "# Done Hints         : " + doneHints);
-        logger.info(SHORT, "# Seen Hints         : " + seenHints);
-        logger.info(SHORT, "# Skipped Hints      : " + skippedHints);
-        logger.info(SHORT, "# Moved directories  : " + context.transfer.getMovedDirectories());
-        logger.info(SHORT, "# Moved files        : " + context.transfer.getMovedFiles());
-        logger.info(SHORT, "# Removed directories: " + context.transfer.getRemovedDirectories());
-        logger.info(SHORT, "# Removed files      : " + context.transfer.getRemovedFiles());
-        logger.info(SHORT, "# Skipped missing    : " + context.transfer.getSkippedMissing());
-
-        for (Library lib : context.publisherRepo.getLibraryData().libraries.bibliography)
+        if (hintsFound)
         {
-            // if processing all libraries, or this one was specified on the command line with -l,
-            // and it has not been excluded with -L
-            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+            dumpHintStats();
+
+            if (!cfg.isDryRun())
             {
-                if (lib.rescanNeeded)
+                for (Library lib : context.publisherRepo.getLibraryData().libraries.bibliography)
                 {
-                    context.publisherRepo.scan(lib.name);
+                    // if processing all libraries, or this one was specified on the command line with -l,
+                    // and it has not been excluded with -L
+                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                    {
+                        if (lib.rescanNeeded)
+                        {
+                            context.publisherRepo.scan(lib.name);
+                        }
+                    }
                 }
             }
+        }
+        else
+        {
+            logger.info("No .els hint files found");
         }
     }
 
     public void hintsMunge() throws Exception
     {
+        boolean hintsFound = false;
         logger.info("Processing ELS Hints from " + context.publisherRepo.getLibraryData().libraries.description + " to " +
-                context.subscriberRepo.getLibraryData().libraries.description);
+                context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : ""));
 
         try
         {
@@ -346,6 +370,7 @@ public class Hints
                                 continue;
                             }
 
+                            hintsFound = true;
                             String toPath = getHintTarget(item);
                             context.transfer.copyFile(item.getFullPath(), toPath, true);
 
@@ -372,6 +397,39 @@ public class Hints
                 {
                     logger.info("Skipping publisher library: " + subLib.name);
                 }
+            }
+
+            if (hintsFound)
+            {
+                dumpHintStats();
+
+                if (!cfg.isDryRun())
+                {
+                    for (Library lib : context.subscriberRepo.getLibraryData().libraries.bibliography)
+                    {
+                        // if processing all libraries, or this one was specified on the command line with -l,
+                        // and it has not been excluded with -L
+                        if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                                (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                        {
+                            if (lib.rescanNeeded)
+                            {
+                                if (cfg.isRemoteSession())
+                                {
+
+                                }
+                                else
+                                {
+                                    context.subscriberRepo.scan(lib.name);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                logger.info("No .els hint files found");
             }
         }
         catch (Exception e)

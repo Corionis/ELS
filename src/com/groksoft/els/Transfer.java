@@ -56,8 +56,9 @@ public class Transfer
     /**
      * Copy a file, local or remote
      *
-     * @param from the full from path
-     * @param to   the full to path
+     * @param from      the full from path
+     * @param to        the full to path
+     * @param overwrite true/false
      */
     public void copyFile(String from, String to, boolean overwrite) throws Exception
     {
@@ -519,6 +520,12 @@ public class Transfer
             return false;
         }
 
+        // scan the toLib if necessary
+        if (!toLib.name.equalsIgnoreCase(fromLib.name) && toLib.items == null)
+        {
+            repo.scan(toLib.name);
+        }
+
         Collection collection = repo.getMapItem(fromLib, fromName);
         if (collection != null)
         {
@@ -536,6 +543,7 @@ public class Transfer
                         // move to a different library
                         if (!toLib.name.equalsIgnoreCase(fromLib.name))
                         {
+
                             // move directory's items
                             for (Item nextItem : fromLib.items)
                             {
@@ -554,13 +562,15 @@ public class Transfer
                             }
 
                             // remove the physical directory; should be empty at this point
-                            File prevDir = new File(fromItem.getFullPath());
-                            if (Utils.removeDirectoryTree(prevDir))
+                            if (!cfg.isDryRun())
                             {
-                                logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                                File prevDir = new File(fromItem.getFullPath());
+                                if (Utils.removeDirectoryTree(prevDir))
+                                {
+                                    logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                                }
+                                ++movedDirectories;
                             }
-                            ++movedDirectories;
-
                         }
                         else // logically it is a rename within same library
                         {
@@ -612,7 +622,6 @@ public class Transfer
                 logger.info("  > Would mv " + (fromItem.isDirectory() ? "directory " : "file ") + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
                 return false;
             }
-            logger.info("  > mv " + (fromItem.isDirectory() ? "directory " : "file ") + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
 
             // perform move / rename
             File toFile = new File(toItem.getFullPath());
@@ -629,17 +638,16 @@ public class Transfer
                 }
             }
 
+            logger.info("  > mv " + (fromItem.isDirectory() ? "directory " : "file ") + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
 
             // no exception thrown
             if (toFile.isDirectory()) // directories should not reach here
             {
-                logger.info("  mv directory done");
                 ++movedDirectories;
             }
             else
             {
-                logger.info("  mv file done");
                 ++movedFiles;
             }
         }
@@ -683,26 +691,40 @@ public class Transfer
 
                     if (fromItem.isDirectory())
                     {
-                        // remove the physical directory
-                        File prevDir = new File(fromItem.getFullPath());
-                        if (Utils.removeDirectoryTree(prevDir))
+                        if (cfg.isDryRun())
                         {
-                            logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                            logger.info("  > Would rm directory: " + fromItem.getFullPath());
                         }
-                        logger.info("  rm directory done");
-                        fromLib.rescanNeeded = true;
-                        libAltered = true;
-                        ++removedDirectories;
+                        else
+                        {
+                            // remove the physical directory
+                            File prevDir = new File(fromItem.getFullPath());
+                            if (Utils.removeDirectoryTree(prevDir))
+                            {
+                                logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                            }
+                            logger.info("  > rm directory: " + fromItem.getFullPath());
+                            fromLib.rescanNeeded = true;
+                            libAltered = true;
+                            ++removedDirectories;
+                        }
                     }
                     else // it is a file
                     {
-                        File prevFile = new File(fromItem.getFullPath());
-                        if (prevFile.delete())
+                        if (cfg.isDryRun())
                         {
-                            logger.info("  rm file done");
-                            fromLib.rescanNeeded = true;
-                            libAltered = true;
-                            ++removedFiles;
+                            logger.info("  > Would rm file: " + fromItem.getFullPath());
+                        }
+                        else
+                        {
+                            File prevFile = new File(fromItem.getFullPath());
+                            if (prevFile.delete())
+                            {
+                                logger.info("  > rm file: " + fromItem.getFullPath());
+                                fromLib.rescanNeeded = true;
+                                libAltered = true;
+                                ++removedFiles;
+                            }
                         }
                     }
                 }

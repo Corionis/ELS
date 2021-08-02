@@ -115,3 +115,11 @@ Listed here are changes to ELS versions from 3.0.0 onward.
   
     Option -x | --cross-check applies in hasItem().
 
+    When using the --dry-run option with hints in a back-up run:
+    1. The backup results may be wrong because the hints were not actually performed
+       on the subscriber.
+    2. The .els hint files are actually copied to the subscriber to have the necessary
+       context.
+
+    Filenames in .els hint files are relative to the directory containing the .els file.
+ 
