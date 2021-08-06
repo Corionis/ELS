@@ -175,6 +175,7 @@ public class Process
 
         String header = "Munging " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : "");
+        logger.info(header);
 
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0)
@@ -212,8 +213,6 @@ public class Process
             }
         }
 
-        logger.info(header);
-
         try
         {
             for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
@@ -227,9 +226,9 @@ public class Process
                         (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
                 {
                     // if the subscriber has included and not excluded this library
-                    if (subLib.name.startsWith("ELS-SUBSCRIBER-SKIP_")) // v3.0.0
+                    if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) // v3.0.0
                     {
-                        String n = subLib.name.replaceFirst("ELS-SUBSCRIBER-SKIP_", "");
+                        String n = subLib.name.replaceFirst(context.subscriberRepo.SUB_EXCLUDE, "");
                         logger.info("Skipping subscriber library: " + n);
                         continue;
                     }
@@ -330,8 +329,8 @@ public class Process
                                         /* If the group is switching, process the current one. */
                                         if (context.transfer.isNewGrouping(item))
                                         {
-                                            logger.info("Switching groups from " + context.transfer.getLastGroupName() + " to " + context.transfer.getCurrentGroupName());
                                             // There is a new group - process the old group
+                                            logger.info("Switching groups from " + context.transfer.getLastGroupName() + " to " + context.transfer.getCurrentGroupName());
                                             context.transfer.copyGroup(group, totalSize, cfg.isOverwrite());
                                             totalSize = 0L;
 
@@ -456,7 +455,7 @@ public class Process
         logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
         logger.info(SHORT, "# Directories      : " + totalDirectories);
         logger.info(SHORT, "# Files            : " + totalItems);
-        logger.info(SHORT, "# Copies           : " + context.transfer.getCopyCount() + ((!cfg.isDryRun()) ? ", " + context.transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : "") + (cfg.isDryRun() ? " (--dry-run)" : ""));
+        logger.info(SHORT, "# Copies           : " + context.transfer.getCopyCount() + ((!cfg.isDryRun() && context.transfer.getCopyCount() > 0) ? ", " + context.transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : "") + (cfg.isDryRun() ? " (--dry-run)" : ""));
         logger.info(SHORT, "# Errors           : " + errorCount);
         logger.info(SHORT, "# Items processed  : " + context.transfer.getGrandTotalItems());
         logger.info(SHORT, "# Total size       : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true));
@@ -495,7 +494,7 @@ public class Process
             if (hints != null && cfg.isTargetsEnabled() && !cfg.isRemoteSession() &&
                     (cfg.getPublisherLibrariesFileName().length() > 0 ||
                             cfg.getPublisherCollectionFilename().length() > 0) &&
-                    (cfg.getSubscriberLibrariesFileName().length() == 0 &&
+                    (cfg.getSubscriberLibrariesFileName().length() == 0 &&  // QUESTION Should these 2 be removed? Use -h for publisher hints only option?
                             cfg.getSubscriberCollectionFilename().length() == 0))
             {
                 hintsLocal();
@@ -535,6 +534,7 @@ public class Process
                 hints.hintsMunge();
             }
 
+
             if (!cfg.isHintSkipMainProcess()) // v3.0.0
             {
                 // if all the pieces are specified perform a full munge the collections
@@ -563,7 +563,7 @@ public class Process
 
                 if (cfg.isHintSkipMainProcess())
                 {
-                    logger.info("! Skipping main process, -K | --keys-only enabled");
+                    logger.info("! Skipping main process, hint processing with -K | --keys-only enabled");
                 }
 
                 // tell remote end to exit

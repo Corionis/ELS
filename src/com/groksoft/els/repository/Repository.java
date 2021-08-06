@@ -32,6 +32,7 @@ public class Repository
     public static final boolean PUBLISHER = true;
     public static final boolean SUBSCRIBER = false;
     public static final boolean VALIDATE = true;
+    public final String SUB_EXCLUDE = "ELS-SUBSCRIBER-SKIP_";
     private transient Configuration cfg = null;
     private String jsonFilename = "";
     private LibraryData libraryData = null;
@@ -86,7 +87,7 @@ public class Repository
             for (Library lib : libraryData.libraries.bibliography)
             {
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                 {
                     for (Item item : lib.items)
                     {
@@ -335,7 +336,7 @@ public class Repository
                             }
                         }
                     }
-                 }
+                }
             }
         }
         return has;
@@ -584,7 +585,7 @@ public class Repository
         for (Library pubLib : getLibraryData().libraries.bibliography)
         {
             if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(pubLib.name)) &&
-                (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(pubLib.name)))
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(pubLib.name)))
             {
                 for (Item item : pubLib.items)
                 {
@@ -654,7 +655,7 @@ public class Repository
         for (Library lib : getLibraryData().libraries.bibliography)
         {
             if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
             {
                 scanSources(lib);
                 sort(lib);
@@ -716,7 +717,7 @@ public class Repository
                 path = Paths.get(fullPath);
                 isDir = Files.isDirectory(path);                        // is directory check
                 item.setDirectory(isDir);
-                size = (isDir ? -1 : Files.size(path));                 // size
+                size = (isDir ? 0L : Files.size(path));                 // size
                 item.setSize(size);
                 itemPath = fullPath.substring(base.length() + 1);       // item path
                 item.setItemPath(itemPath);
@@ -728,7 +729,7 @@ public class Repository
                 if (isDir)
                 {
                     // track item count in a directory item's size
-                    scanDirectory(library, base, item.getFullPath());
+                    item.setSize(scanDirectory(library, base, item.getFullPath()));
                 }
 
             }
@@ -862,7 +863,7 @@ public class Repository
             else
             {
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                 {
                     logger.info("  library: " + lib.name +
                             ", " + lib.sources.length + " sources" +

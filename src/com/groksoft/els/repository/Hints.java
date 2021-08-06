@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -27,6 +28,7 @@ public class Hints
     private Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private Configuration cfg;
     private Main.Context context;
+    private int deletedHints = 0;
     private int doneHints = 0;
     private int executedHints = 0;
     private Repository fromRepo;
@@ -47,18 +49,21 @@ public class Hints
         keys = hintKeys;
     }
 
-    private void dumpHintStats()
+    private void dumpStats()
     {
         logger.info(SHORT, "+------------------------------------------");
-        logger.info(SHORT, "# Executed Hints     : " + executedHints + (cfg.isDryRun() ? " (--dry-run)" : ""));
-        logger.info(SHORT, "# Done Hints         : " + doneHints);
-        logger.info(SHORT, "# Seen Hints         : " + seenHints);
-        logger.info(SHORT, "# Skipped Hints      : " + skippedHints);
+        logger.info(SHORT, "# Executed hints     : " + executedHints + (cfg.isDryRun() ? " (--dry-run)" : ""));
+        logger.info(SHORT, "# Done hints         : " + doneHints);
+        logger.info(SHORT, "# Seen hints         : " + seenHints);
+        logger.info(SHORT, "# Skipped hints      : " + skippedHints);
+        logger.info(SHORT, "# Deleted hints      : " + deletedHints);
         logger.info(SHORT, "# Moved directories  : " + context.transfer.getMovedDirectories());
         logger.info(SHORT, "# Moved files        : " + context.transfer.getMovedFiles());
         logger.info(SHORT, "# Removed directories: " + context.transfer.getRemovedDirectories());
         logger.info(SHORT, "# Removed files      : " + context.transfer.getRemovedFiles());
         logger.info(SHORT, "# Skipped missing    : " + context.transfer.getSkippedMissing());
+        if (!cfg.isHintSkipMainProcess())
+            logger.info(SHORT, "-------------------------------------------");
     }
 
     private void dumpTerms(String[] parts)
@@ -78,33 +83,23 @@ public class Hints
 
         logger.info("* Executing " + item.getFullPath() + " on " + repo.getLibraryData().libraries.description);
 
-        // read the ELS hint file, convert tabs to spaces and trim lines
-        String file = item.getFullPath();
-        List<String> lines = Files.readAllLines(Paths.get(file));
-        for (int i = 0; i < lines.size(); ++i)
-        {
-            lines.set(i, lines.get(i).replaceAll("\\t", " ").trim());
-        }
+        // read the ELS hint file
+        List<String> lines = readHint(item);
 
         // find the ELS key for this repo
-        HintKeys.HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
-        if (hintKey == null)
-        {
-            logger.info("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
-            return libAltered;
-        }
+        HintKeys.HintKey hintKey = findHintKey(repo);
 
         // find the actor name in the .els file
         String statusLine = findNameLine(lines, hintKey.name);
-        if (statusLine == null || !statusLine.toLowerCase().startsWith("for"))
+        if (statusLine != null)
         {
-            if (statusLine != null)
-            {
-                if (statusLine.toLowerCase().startsWith("done"))
-                    ++doneHints;
-                if (statusLine.toLowerCase().startsWith("seen"))
-                    ++seenHints;
-            }
+            if (statusLine.toLowerCase().startsWith("done"))
+                ++doneHints;
+            else if (statusLine.toLowerCase().startsWith("seen"))
+                ++seenHints;
+        }
+        if (statusLine == null || !statusLine.toLowerCase().startsWith("for "))
+        {
             logger.info("  Skipping execution, not For " + hintKey.name);
             ++skippedHints;
             return libAltered;
@@ -124,6 +119,11 @@ public class Hints
             if (line.startsWith("#"))
             {
                 logger.info("  " + line);
+                continue;
+            }
+
+            if (line.startsWith("for ") || line.startsWith("done ") || line.startsWith("seen "))
+            {
                 continue;
             }
 
@@ -179,15 +179,23 @@ public class Hints
         {
             if (!cfg.isDryRun())
             {
-                if (updateNameLine(lines, hintKey.name, "Done") != null)
-                {
-                    Files.write(Paths.get(file), lines, StandardOpenOption.CREATE);
-                }
+                updateHintStatus(item, lines, hintKey.name, "Done");
             }
             ++executedHints;
         }
 
         return libAltered;
+    }
+
+    private HintKeys.HintKey findHintKey(Repository repo) throws Exception
+    {
+        // find the ELS key for this repo
+        HintKeys.HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
+        if (hintKey == null)
+        {
+            throw new MungerException("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
+        }
+        return hintKey;
     }
 
     private String findNameLine(List<String> lines, String name)
@@ -201,7 +209,7 @@ public class Hints
                 if (word.equals("for") || word.equals("done") || word.equals("seen"))
                 {
                     if (parts[1].equalsIgnoreCase(name))
-                        return line;
+                        return line.trim();
                 }
             }
         }
@@ -293,7 +301,7 @@ public class Hints
 
         if (hintsFound)
         {
-            dumpHintStats();
+            dumpStats();
 
             if (!cfg.isDryRun())
             {
@@ -324,119 +332,130 @@ public class Hints
         logger.info("Processing ELS Hints from " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : ""));
 
-        try
+        for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
         {
-            for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
-            {
-                boolean scanned = false;
-                Library pubLib = null;
+            boolean scanned = false;
+            Library pubLib = null;
+            Item toItem;
 
-                // if processing all libraries, or this one was specified on the command line with -l,
-                // and it has not been excluded with -L
-                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
+            // if processing all libraries, or this one was specified on the command line with -l,
+            // and it has not been excluded with -L
+            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
+            {
+                // if the subscriber has included and not excluded this library
+                if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) // v3.0.0
                 {
-                    // if the subscriber has included and not excluded this library
-                    if (subLib.name.startsWith("ELS-SUBSCRIBER-SKIP_")) // v3.0.0
+                    String n = subLib.name.replaceFirst(context.subscriberRepo.SUB_EXCLUDE, "");
+                    logger.info("Skipping subscriber library: " + n);
+                    continue;
+                }
+
+                // if the publisher has a matching library
+                if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
+                {
+                    // do the libraries have items or do they need to be scanned?
+                    if (subLib.items == null || subLib.items.size() < 1)
                     {
-                        String n = subLib.name.replaceFirst("ELS-SUBSCRIBER-SKIP_", "");
-                        logger.info("Skipping subscriber library: " + n);
-                        continue;
+                        if (!cfg.isRemoteSession()) // remote collection already loaded and may be empty
+                        {
+                            context.subscriberRepo.scan(subLib.name);
+                        }
+                    }
+                    if (pubLib.items == null || pubLib.items.size() < 1)
+                    {
+                        context.publisherRepo.scan(pubLib.name);
+                        scanned = true;
                     }
 
-                    // if the publisher has a matching library
-                    if ((pubLib = context.publisherRepo.getLibrary(subLib.name)) != null)
+                    // iterate the publisher's items
+                    for (Item item : pubLib.items)
                     {
-                        // do the libraries have items or do they need to be scanned?
-                        if (subLib.items == null || subLib.items.size() < 1)
+                        // only ELS Hints
+                        if (!item.getItemPath().toLowerCase().endsWith(".els"))
                         {
-                            if (!cfg.isRemoteSession()) // remote collection already loaded and may be empty
-                            {
-                                context.subscriberRepo.scan(subLib.name);
-                            }
-                        }
-                        if (pubLib.items == null || pubLib.items.size() < 1)
-                        {
-                            context.publisherRepo.scan(pubLib.name);
-                            scanned = true;
+                            continue;
                         }
 
-                        // iterate the publisher's items
-                        for (Item item : pubLib.items)
+                        hintsFound = true;
+                        String toPath = getHintTarget(item);
+                        context.transfer.copyFile(item.getFullPath(), toPath, true);
+
+                        boolean updatePubSide = false;
+                        if (cfg.isRemoteSession())
                         {
-                            // only ELS Hints
-                            if (!item.getItemPath().toLowerCase().endsWith(".els") || item.isHintExecuted())
-                            {
-                                continue;
-                            }
+                            toItem = SerializationUtils.clone(item);
+                            toItem.setFullPath(toPath);
+                        }
+                        else
+                        {
+                            toItem = SerializationUtils.clone(item);
+                            toItem.setFullPath(toPath);
+                            execute(context.subscriberRepo, toItem);
+                            if (toItem.isHintExecuted())
+                                updatePubSide = true;
+                        }
 
-                            hintsFound = true;
-                            String toPath = getHintTarget(item);
-                            context.transfer.copyFile(item.getFullPath(), toPath, true);
+                        if (updatePubSide && !cfg.isDryRun())
+                        {
+                            updateHintSubscriberOnPublisher(context.publisherRepo, item);
+                        }
 
+                        if (cfg.isRemoteSession())
+                        {
+                            // remotely postprocessHint(toItem);
+                            postprocessHint(item);
+                        }
+                        else
+                        {
+                            postprocessHint(toItem);
+                            postprocessHint(item);
+                        }
+                    }
+                }
+                else
+                {
+                    throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
+                }
+            }
+            else
+            {
+                logger.info("Skipping publisher library: " + subLib.name);
+            }
+        }
+
+        if (hintsFound)
+        {
+            dumpStats();
+
+            if (!cfg.isDryRun())
+            {
+                for (Library lib : context.subscriberRepo.getLibraryData().libraries.bibliography)
+                {
+                    // if processing all libraries, or this one was specified on the command line with -l,
+                    // and it has not been excluded with -L
+                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                    {
+                        if (lib.rescanNeeded)
+                        {
                             if (cfg.isRemoteSession())
                             {
 
                             }
                             else
                             {
-                                Item toItem = SerializationUtils.clone(item);
-                                toItem.setFullPath(toPath);
-                                execute(context.subscriberRepo, toItem);
-                            }
-
-
-                        }
-                    }
-                    else
-                    {
-                        throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
-                    }
-                }
-                else
-                {
-                    logger.info("Skipping publisher library: " + subLib.name);
-                }
-            }
-
-            if (hintsFound)
-            {
-                dumpHintStats();
-
-                if (!cfg.isDryRun())
-                {
-                    for (Library lib : context.subscriberRepo.getLibraryData().libraries.bibliography)
-                    {
-                        // if processing all libraries, or this one was specified on the command line with -l,
-                        // and it has not been excluded with -L
-                        if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                                (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
-                        {
-                            if (lib.rescanNeeded)
-                            {
-                                if (cfg.isRemoteSession())
-                                {
-
-                                }
-                                else
-                                {
-                                    context.subscriberRepo.scan(lib.name);
-                                }
+                                context.subscriberRepo.scan(lib.name);
                             }
                         }
                     }
                 }
-            }
-            else
-            {
-                logger.info("No .els hint files found");
             }
         }
-        catch (Exception e)
+        else
         {
-
+            logger.info("No .els hint files found");
         }
-
     }
 
     private String[] parseCommand(String line, int lineNo, int expected) throws Exception
@@ -486,9 +505,114 @@ public class Hints
         return lib;
     }
 
-    private String updateNameLine(List<String> lines, String name, String status)
+    private void postprocessHint(Item item) throws Exception
     {
-        int i = 0;
+        int doneWords = 0;
+        int forWords = 0;
+        int seenWords = 0;
+        String pubStat = "";
+        String subStat = "";
+        int totalWords = 0;
+
+        // read the ELS hint file
+        List<String> lines = readHint(item);
+
+        // find the ELS keys
+        HintKeys.HintKey pubHintKey = findHintKey(context.publisherRepo);
+        HintKeys.HintKey subHintKey = findHintKey(context.subscriberRepo);
+
+        for (String line : lines)
+        {
+            String parts[] = line.split("[\\s]+");
+            if (parts.length == 2)
+            {
+                String word = parts[0].toLowerCase();
+                String name = parts[1];
+                if (name.equalsIgnoreCase(pubHintKey.name))
+                {
+                    pubStat = word;
+                }
+                if (name.equalsIgnoreCase(subHintKey.name))
+                {
+                    subStat = word;
+                }
+                if (word.equals("for") || word.equals("done") || word.equals("seen"))
+                {
+                    ++totalWords;
+                    switch (word)
+                    {
+                        case "for":
+                            ++forWords;
+                            break;
+                        case "done":
+                            ++doneWords;
+                            break;
+                        case "seen":
+                            ++seenWords;
+                            break;
+                    }
+                }
+            }
+        }
+
+        if (forWords == 0)
+        {
+            if (doneWords > 0)
+            {
+                if (pubStat.equals("done"))
+                {
+                    updateHintStatus(item, lines, pubHintKey.name, "Seen");
+                    --doneWords;
+                    ++seenWords;
+                    --doneHints;
+                    ++seenHints;
+                }
+                if (subStat.equals("done"))
+                {
+                    updateHintStatus(item, lines, subHintKey.name, "Seen");
+                    --doneWords;
+                    ++seenWords;
+                    --doneHints;
+                    ++seenHints;
+                }
+            }
+
+            if (seenWords == totalWords)
+            {
+                File prevFile = new File(item.getFullPath());
+                if (prevFile.delete())
+                {
+                    logger.info("  > rm hint: " + item.getFullPath());
+                    ++deletedHints;
+                }
+            }
+        }
+    }
+
+    private List<String> readHint(Item item) throws Exception
+    {
+        // read the ELS hint file, convert tabs to spaces and trim lines
+        String file = item.getFullPath();
+        List<String> lines = Files.readAllLines(Paths.get(file));
+        for (int i = 0; i < lines.size(); ++i)
+        {
+            String line = lines.get(i);
+            line = line.replaceAll("\\t", " ").trim();
+            lines.set(i, line);
+
+            // syntax check
+            line = line.toLowerCase();
+            if (line.length() > 0 && !line.startsWith("#") &&
+                    !line.startsWith("for ") && !line.startsWith("done ") && !line.startsWith("seen ") &&
+                    !line.startsWith("mv ") && !line.startsWith("rm "))
+                throw new MungerException("malformed line " + (i + 1) + ": " + line);
+        }
+        return lines;
+    }
+
+    private void updateHintStatus(Item item, List<String> lines, String name, String status) throws Exception
+    {
+        int lineNo = 0;
         for (String line : lines)
         {
             String parts[] = line.split("[\\s]+");
@@ -500,14 +624,24 @@ public class Hints
                     if (parts[1].equalsIgnoreCase(name))
                     {
                         line = status + " " + parts[1];
-                        lines.set(i, line);
-                        return line;
+                        lines.set(lineNo, line);
                     }
                 }
             }
-            ++i;
+            ++lineNo;
         }
-        return null;
+        Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
+    }
+
+    private void updateHintSubscriberOnPublisher(Repository repo, Item item) throws Exception
+    {
+        // read the ELS hint file
+        List<String> lines = readHint(item);
+
+        // find the ELS key for this repo
+        HintKeys.HintKey hintKey = findHintKey(context.subscriberRepo);
+
+        updateHintStatus(item, lines, hintKey.name, "Done");
     }
 
 }

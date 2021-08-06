@@ -556,6 +556,7 @@ public class Transfer
                                     String nextPath = toName + repo.getSeparator() + nextName;
                                     if (moveItem(repo, fromLib, nextItem, toLib, nextPath))
                                     {
+                                        fromLib.rescanNeeded = true;
                                         libAltered = true;
                                     }
                                 }

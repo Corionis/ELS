@@ -123,3 +123,5 @@ Listed here are changes to ELS versions from 3.0.0 onward.
 
     Filenames in .els hint files are relative to the directory containing the .els file.
  
+    Changes made with ELS hints will trigger a rescan of the affected libraries.
+ 
