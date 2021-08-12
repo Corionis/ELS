@@ -103,7 +103,7 @@ files have been specified.
 
 * -F | --log-overwrite [file] : Log file, in overwrite mode
 
-* -h | --version : Display version information
+* -h | --hint-delete : Delete hints that are all "Seen"
 
 * -l | --library [libraryname] : Library to process, if not specified process
   all libraries. Applies to publisher-side only. This option may be specified
@@ -125,6 +125,8 @@ files have been specified.
 * -t | --targets [file] : Targets JSON file, see Notes
 
 * -T | --force-targets [file] : Forced targets for -r | --remote, see Notes
+
+* --version : Display version information
 
 * -w | --whatsnew [file] : What's New output text file as a summary
 

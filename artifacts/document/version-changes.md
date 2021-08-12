@@ -1,5 +1,7 @@
 Listed here are changes to ELS versions from 3.0.0 onward.
 
+Rough notes ... a work in progress.
+
 # Version 3.0.0
 
 ## Bug Fixes and Enhancements
@@ -85,7 +87,14 @@ Listed here are changes to ELS versions from 3.0.0 onward.
  5. Added options -F | --log-overwrite that will delete the log file when starting.
     Used instead of -f | --log-file that will append to an existing file.
 
- 6. ELS Hints
+ 6. The -h option has been repurposed for ELS Hints and --hint-delete added
+    to enable deleting hints where all the system statuses are "Seen". See
+    the ELS Hints section for more information.
+
+ 7. The -h change means the ONLY way to just get the ELS version is by 
+    using --version command-line option
+
+ 8. ELS Hints
 
     A "hint" is a special file used to keep track of manual changes to a collection.
     The hint is used by ELS to coordinate those changes with one or more back-ups.
@@ -103,23 +112,40 @@ Listed here are changes to ELS versions from 3.0.0 onward.
     ``
 
     1. Enabling ELS Hints
-       Hint processing is enabled using the -k | --keys or -K | --keys-only options
-       and specifying a keys filename.
 
+       Hint processing is enabled using the -k | --keys or -K | --keys-only options
+       and specifying a keys filename. The -K | --keys-only variants only process
+       hints and skip the main backup process.
+ 
     2. Hint Processing Modes
+
        1. Local mode - Processes hint files locally only. Enabled by specifying a
           keys file and publisher library files but not a subscriber file.
        2. Publish mode - Processes hints publisher-to-subscriber.
 
+    3. Local-only Hint Processing
+
+       Hints are generally "For" the back-up systems(s). However the media server
+       where manual changes are made may also execute hints locally (only), as
+       opposed to something being done manually then a hint created for that. In
+       other words a hint may be created then executed instead of doing the action
+       by hand.
+
+       Because targets are required for hint processing a special format command
+       line is used to execute hints locally (only).
+        1. The publisher's targets file is used instead of a subscriber's.
+        2. No subscriber file is specified.
+        3. All other options related to hint processing are the same.
+
     Option -D | --dry-run applies.
   
-    Option -x | --cross-check applies in hasItem().
-
     When using the --dry-run option with hints in a back-up run:
     1. The backup results may be wrong because the hints were not actually performed
        on the subscriber.
-    2. The .els hint files are actually copied to the subscriber to have the necessary
-       context.
+    2. Because hints are copied and processed immediately publisher hint files are
+       only validated during a --dry-run.
+
+    Option -x | --cross-check applies in hasItem().
 
     Filenames in .els hint files are relative to the directory containing the .els file.
  

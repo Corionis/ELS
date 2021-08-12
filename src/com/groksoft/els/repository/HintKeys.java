@@ -68,7 +68,7 @@ public class HintKeys
                     {
                         throw new MungerException("Malformed line " + count + " reading ELS keys file: " + file);
                     }
-                    if (part.equalsIgnoreCase("me"))
+                    if (part.equalsIgnoreCase("me")) // QUESTION: Is this needed?
                     {
                         if (foundMe)
                         {

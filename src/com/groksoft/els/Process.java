@@ -173,7 +173,7 @@ public class Process
         Marker SHORT = MarkerManager.getMarker("SHORT");
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
 
-        String header = "Munging " + context.publisherRepo.getLibraryData().libraries.description + " to " +
+        String header = "Munging collections " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : "");
         logger.info(header);
 
@@ -344,8 +344,11 @@ public class Process
                                                 mismatchFile.flush();
                                             }
                                         }
+
                                         totalSize += item.getSize();
                                         group.add(item);
+                                        if (!cfg.isDryRun())
+                                            subLib.rescanNeeded = true;
                                     }
                                 }
                                 else
@@ -471,6 +474,8 @@ public class Process
     public int process()
     {
         Marker SHORT = MarkerManager.getMarker("SHORT");
+        boolean lined = false;
+        boolean localHints = false;
         int returnValue = 0;
 
         try
@@ -490,13 +495,14 @@ public class Process
                 hints = new Hints(cfg, context, hintKeys);
             }
 
-            // process ELS Hints locally, no subscriber
+            // process ELS Hints locally, no subscriber, publisher's targets
             if (hints != null && cfg.isTargetsEnabled() && !cfg.isRemoteSession() &&
                     (cfg.getPublisherLibrariesFileName().length() > 0 ||
                             cfg.getPublisherCollectionFilename().length() > 0) &&
-                    (cfg.getSubscriberLibrariesFileName().length() == 0 &&  // QUESTION Should these 2 be removed? Use -h for publisher hints only option?
+                    (cfg.getSubscriberLibrariesFileName().length() == 0 &&
                             cfg.getSubscriberCollectionFilename().length() == 0))
             {
+                localHints = true; // skip munge, the targets are wrong for that
                 hintsLocal();
             }
 
@@ -534,10 +540,9 @@ public class Process
                 hints.hintsMunge();
             }
 
-
-            if (!cfg.isHintSkipMainProcess()) // v3.0.0
+            // if all the pieces are specified perform a full munge the collections
+            if (!localHints && !cfg.isHintSkipMainProcess()) // v3.0.0
             {
-                // if all the pieces are specified perform a full munge the collections
                 if (cfg.isTargetsEnabled() &&
                         (cfg.getPublisherLibrariesFileName().length() > 0 ||
                                 cfg.getPublisherCollectionFilename().length() > 0) &&
@@ -547,21 +552,35 @@ public class Process
                     munge();
                 }
             }
+
+            // clean-up ELS Hints on subscriber
+            if (hints != null && !localHints && !cfg.isDryRun() && cfg.isTargetsEnabled() &&
+                    (cfg.getPublisherLibrariesFileName().length() > 0 ||
+                            cfg.getPublisherCollectionFilename().length() > 0) &&
+                    (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                            cfg.getSubscriberCollectionFilename().length() > 0))
+            {
+                logger.info(SHORT, "-------------------------------------------");
+                lined = true;
+                hints.hintsSubscriberCleanup();
+            }
+
         }
         catch (Exception ex)
         {
             fault = true;
             ++errorCount;
-            logger.error("Inner: " + Utils.getStackTrace(ex));
+            logger.error(Utils.getStackTrace(ex));
             returnValue = 2;
         }
         finally
         {
             if (logger != null)
             {
-                logger.info(SHORT, "-------------------------------------------");
+                if (!lined)
+                    logger.info(SHORT, "-------------------------------------------");
 
-                if (cfg.isHintSkipMainProcess())
+                if (cfg.isHintSkipMainProcess() && !localHints)
                 {
                     logger.info("! Skipping main process, hint processing with -K | --keys-only enabled");
                 }

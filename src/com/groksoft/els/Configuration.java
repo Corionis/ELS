@@ -36,6 +36,7 @@ public class Configuration
     private String exportTextFilename = "";
     private boolean forceCollection = false;
     private boolean forceTargets = false;
+    private boolean hintDelete = false;
     private String hintKeysFile = "";
     private boolean hintSkipMainProcess = false;
     private String logFilename = "";
@@ -123,6 +124,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
         }
+        logger.info(SHORT, "  cfg: -h Hint delete = " + Boolean.toString(isHintDelete()));
         if (hintKeysFile != null && hintKeysFile.length() > 0)
         {
             logger.info(SHORT, "  cfg: " + (isHintSkipMainProcess() ? "-K" : "-k") + " Hint keys file: " + hintKeysFile + ((isHintSkipMainProcess()) ? ", Skip main process" : ""));
@@ -665,6 +667,16 @@ public class Configuration
         this.forceTargets = forceTargets;
     }
 
+    public boolean isHintDelete()
+    {
+        return hintDelete;
+    }
+
+    public void setHintDelete(boolean hintDelete)
+    {
+        this.hintDelete = hintDelete;
+    }
+
     public boolean isHintSkipMainProcess()
     {
         return hintSkipMainProcess;
@@ -1040,14 +1052,9 @@ public class Configuration
                         throw new MungerException("Error: -f requires a log filename");
                     }
                     break;
-                case "-h":
-                case "--version":
-                    System.out.println("");
-                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);
-                    System.out.println("See the ELS wiki on GitHub for documentation at:");
-                    System.out.println("  https://github.com/GrokSoft/ELS/wiki");
-                    System.out.println("");
-                    System.exit(1);
+                case "-h":                                              // hint delete
+                case "--hint-delete":
+                    setHintDelete(true);
                     break;
                 case "-i":                                             // export publisher items to collection file
                 case "--export-items":
@@ -1235,6 +1242,14 @@ public class Configuration
                 case "-v":                                             // validation run
                 case "--validate":
                     setValidation(true);
+                    break;
+                case "--version":                                       // version
+                    System.out.println("");
+                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);
+                    System.out.println("See the ELS wiki on GitHub for documentation at:");
+                    System.out.println("  https://github.com/GrokSoft/ELS/wiki");
+                    System.out.println("");
+                    System.exit(1);
                     break;
                 case "-w":                                             // What's New output filename
                 case "--whatsnew":

@@ -610,7 +610,7 @@ public class Repository
                         {
                             if (cfg.isDryRun())
                             {
-                                logger.info("Would rename " + (item.isDirectory() ? "directory" : "file") +
+                                logger.info(" > Would rename " + (item.isDirectory() ? "directory" : "file") +
                                         ": '" + old + "' to '" + name + "'");
                             }
                             else
