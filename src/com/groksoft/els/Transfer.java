@@ -162,7 +162,7 @@ public class Transfer
     public long getFreespace(String path) throws Exception
     {
         long space;
-        if (cfg.isRemoteSession())
+        if (cfg.isRemoteSession() &&  !context.hintMode)
         {
             // remote subscriber
             space = context.clientStty.availableSpace(path);
@@ -408,14 +408,7 @@ public class Transfer
             {
                 if (cfg.isRemoteSession() && cfg.isRequestCollection())
                 {
-                    // request complete collection data from remote subscriber
-                    String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
-                    if (location == null || location.length() < 1)
-                        throw new MungerException("Could not retrieve remote collections file");
-                    cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
-                    cfg.setSubscriberCollectionFilename(location);
-
-                    context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
+                    requestCollection();
                 }
             }
 
@@ -743,6 +736,17 @@ public class Transfer
         }
 
         return libAltered;
+    }
+
+    public void requestCollection() throws Exception
+    {
+        // request collection data from remote subscriber
+        String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
+        if (location == null || location.length() < 1)
+            throw new MungerException("Could not retrieve remote collection file");
+        cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
+        cfg.setSubscriberCollectionFilename(location);
+        context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
     }
 
     /**

@@ -57,7 +57,7 @@ public class ClientStty
         String response = roundTrip("space \"" + location + "\"");
         if (response != null && response.length() > 0)
         {
-            logger.debug("space command returned: " + response);
+            //logger.debug("space command returned: " + response);
             space = Long.parseLong(response);
         }
         return space;
@@ -86,7 +86,7 @@ public class ClientStty
                             else
                                 location = cfg.getSubscriberLibrariesFileName();
 
-                            // change cfg -S to -s so -s handling in Process.process retrieves the data
+                            // change cfg -S to -s so -s handling in Transfer.initialize retrieves the data
                             cfg.setSubscriberLibrariesFileName(location);
                             cfg.setSubscriberCollectionFilename("");
                         }

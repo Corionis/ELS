@@ -302,7 +302,7 @@ public class Repository
     {
         Item has = null;
 
-        if (!pubItem.isDirectory())
+        if (pubItem == null || !pubItem.isDirectory())
         {
             for (Library lib : libraryData.libraries.bibliography)
             {
@@ -321,7 +321,8 @@ public class Repository
                                 Item item = lib.items.elementAt(j);
                                 if (!item.isDirectory())
                                 {
-                                    pubItem.addHas(item); // add match and any duplicate for cross-reference
+                                    if (pubItem != null)
+                                        pubItem.addHas(item); // add match and any duplicate for cross-reference
 
                                     // is it a duplicate?
                                     if (has != null)

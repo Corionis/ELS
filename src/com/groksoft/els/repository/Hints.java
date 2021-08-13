@@ -12,6 +12,7 @@ import org.apache.logging.log4j.MarkerManager;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
@@ -156,8 +157,10 @@ public class Hints
                 if (toName.length() < 1)
                     throw new MungerException("Malformed to filename on line " + lineNo);
 
+                context.hintMode = true; // LEFTOFF
                 if (context.transfer.move(repo, fromLib.trim(), fromName.trim(), toLib.trim(), toName.trim()))
                     libAltered = true;
+                context.hintMode = false;
 
                 item.setHintExecuted(true);
             }
@@ -268,6 +271,45 @@ public class Hints
             throw new MungerException("Target for ELS hint file cannot be found: " + item.getFullPath());
         }
         return target;
+    }
+
+    public boolean hintExecute(String libName, String itemPath, String toPath) throws Exception
+    {
+        boolean sense = false;
+        Item toItem = null;
+
+        File toFile = new File(toPath + ".merge");
+        if (toFile.exists())
+        {
+            Item existingItem = context.subscriberRepo.hasItem(null, libName, itemPath);
+            if (existingItem != null)
+                toItem = SerializationUtils.clone(existingItem);
+        }
+
+        // merge
+        merge(toPath + ".merge", toPath);
+
+        // execute
+        if (toItem == null)
+        {
+            toItem = new Item();
+            toItem.setDirectory(false);
+            toItem.setItemPath(itemPath);
+            toItem.setSymLink(false);
+            toItem.setLibrary(libName);
+        }
+        Path entry = Paths.get(toPath);
+        toItem.setSize(Files.size(entry));
+        toItem.setFullPath(toPath);
+
+        List<String> lines = readHint(toItem);
+        execute(context.subscriberRepo, toItem, lines);
+        if (toItem.isHintExecuted())
+            sense = true;
+
+        postprocessHint(toItem);
+
+        return sense;
     }
 
     public void hintsLocal() throws Exception
@@ -422,9 +464,25 @@ public class Hints
                             {
                                 toItem = SerializationUtils.clone(item);
                                 toItem.setFullPath(toPath);
+                                logger.info("* Executing " + item.getFullPath() + " remotely on " + context.subscriberRepo.getLibraryData().libraries.description);
 
                                 // Send command to merge & execute
-                                // ???????
+                                String response = context.clientStty.roundTrip("execute \"" +
+                                        toItem.getLibrary() + "\" \"" + toItem.getItemPath() + "\" \"" + toPath + "\"");
+                                if (response != null && response.length() > 0)
+                                {
+                                    logger.debug("  > execute command returned: " + response);
+                                    updatePubSide = response.equalsIgnoreCase("true") ? true : false;
+                                    if (updatePubSide)
+                                    {
+                                        subLib.rescanNeeded = true;
+                                        ++executedHints;
+                                    }
+                                }
+                                else
+                                {
+                                    throw new MungerException("Subscriber disconnected");
+                                }
                             }
                             else
                             {
@@ -443,12 +501,7 @@ public class Hints
 
                             updateHintSubscriberOnPublisher(context.publisherRepo, item);
 
-                            if (cfg.isRemoteSession())
-                            {
-                                // remotely postprocessHint(toItem);
-//                                postprocessHint(item);
-                            }
-                            else
+                            if (!cfg.isRemoteSession()) // subscriber-side does this itself
                             {
                                 postprocessHint(toItem);
                                 postprocessHint(item);
@@ -473,6 +526,7 @@ public class Hints
 
             if (!cfg.isDryRun())
             {
+                boolean request = false;
                 for (Library lib : context.subscriberRepo.getLibraryData().libraries.bibliography)
                 {
                     // if processing all libraries, or this one was specified on the command line with -l,
@@ -484,7 +538,8 @@ public class Hints
                         {
                             if (cfg.isRemoteSession())
                             {
-
+                                request = true;
+                                break;
                             }
                             else
                             {
@@ -492,6 +547,12 @@ public class Hints
                             }
                         }
                     }
+                }
+                // request updated remote subscriber collection
+                if (request)
+                {
+                    logger.info("Requesting updated subscriber collection from: " + context.subscriberRepo.getLibraryData().libraries.description);
+                    context.transfer.requestCollection();
                 }
             }
         }
@@ -505,7 +566,21 @@ public class Hints
     {
         if (cfg.isRemoteSession())
         {
-            // tell subscriber to run it
+            if (executedHints > 0)  // LEFTOFF
+            {
+                logger.info("Sending hints cleanup command to remote on " + context.subscriberRepo.getLibraryData().libraries.description);
+
+                // Send command to merge & execute
+                String response = context.clientStty.roundTrip("cleanup");
+                if (response != null && response.length() > 0)
+                {
+                    logger.debug("  > cleanup command returned: " + response);
+                }
+                else
+                {
+                    throw new MungerException("Subscriber disconnected");
+                }
+            }
         }
         else
         {
@@ -813,14 +888,7 @@ public class Hints
                     }
                     else
                     {
-                        if (cfg.isRemoteSession())
-                        {
-//                                postprocessHint(item);
-                        }
-                        else
-                        {
-                            postprocessHint(item);
-                        }
+                        postprocessHint(item);
                     }
                 }
             }

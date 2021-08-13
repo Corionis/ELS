@@ -479,6 +479,7 @@ public class Main
         public ServeStty serveStty;
         public Repository subscriberRepo;
         public Transfer transfer;
+        public boolean hintMode = false;
     }
 
 } // Main
