@@ -1,7 +1,7 @@
 package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
-import com.groksoft.els.MungerException;
+import com.groksoft.els.MungeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -107,7 +107,7 @@ public class Listener extends Thread
 				logger.error(e);
 				stop = true;
 			}
-			catch (MungerException e)
+			catch (MungeException e)
 			{
 				logger.error(e);
 				stop = true;

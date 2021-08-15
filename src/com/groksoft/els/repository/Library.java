@@ -1,5 +1,6 @@
 package com.groksoft.els.repository;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Vector;
 
@@ -10,8 +11,9 @@ public class Library
 {
     /**
      * Transient hash map for item look-ups
+     * @see <a href="https://guava.dev/releases/snapshot-jre/api/docs/com/google/common/collect/ArrayListMultimap.html">ArrayListMultimap class API doc</a>
      */
-    public transient Multimap<String, Integer> itemMap;
+    public transient ArrayListMultimap<String, Integer> itemMap;
 
     /**
      * Library has been altered, transient

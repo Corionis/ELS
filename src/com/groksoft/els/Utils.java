@@ -212,9 +212,9 @@ public class Utils
      *
      * @param flavor
      * @return String containing matching file separator character
-     * @throws MungerException
+     * @throws MungeException
      */
-    public static String getFileSeparator(String flavor) throws MungerException
+    public static String getFileSeparator(String flavor) throws MungeException
     {
         String separator;
         if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
@@ -231,7 +231,7 @@ public class Utils
         }
         else
         {
-            throw new MungerException("unknown flavor '" + flavor + "'");
+            throw new MungeException("unknown flavor '" + flavor + "'");
         }
         return separator;
     }
@@ -242,7 +242,7 @@ public class Utils
      * @param full the full
      * @return the last path
      */
-    public static String getLastPath(String full, String sep) throws MungerException
+    public static String getLastPath(String full, String sep) throws MungeException
     {
         String path = "";
         int p = full.indexOf(sep);
@@ -407,9 +407,9 @@ public class Utils
      * @param repo Repository of source of path
      * @param path Path to modify with pipe characters
      * @return String Modified path
-     * @throws MungerException
+     * @throws MungeException
      */
-    public static String pipe(Repository repo, String path) throws MungerException
+    public static String pipe(Repository repo, String path) throws MungeException
     {
         String p = path.replaceAll(repo.getWriteSeparator(), "|");
         return p;

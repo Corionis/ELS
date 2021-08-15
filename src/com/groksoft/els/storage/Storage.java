@@ -12,7 +12,7 @@ import com.groksoft.els.repository.Libraries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.groksoft.els.MungerException;
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 
 /**
@@ -42,7 +42,8 @@ public class Storage
      * @param libraryName the library name
      * @return the Target
      */
-    public Target getLibraryTarget(String libraryName) throws MungerException {
+    public Target getLibraryTarget(String libraryName) throws MungeException
+    {
         Target target = null;
         if (targetData != null)
         {
@@ -53,7 +54,7 @@ public class Storage
                 {
                     if (has) // check for duplicate library
                     {
-                        throw new MungerException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
+                        throw new MungeException("Storage name " + tar.name + " found more than once in " + getJsonFilename());
                     }
                     has = true;
                     target = tar;
@@ -104,9 +105,10 @@ public class Storage
      * Read Targets.
      *
      * @param filename The JSON Libraries filename
-     * @throws MungerException the els exception
+     * @throws MungeException the els exception
      */
-    public void read(String filename, String flavor) throws MungerException {
+    public void read(String filename, String flavor) throws MungeException
+    {
         try {
             String json;
             Gson gson = new Gson();
@@ -116,49 +118,50 @@ public class Storage
             targetData = gson.fromJson(json, TargetData.class);
             normalize(flavor);
         } catch (IOException ioe) {
-            throw new MungerException("Exception while reading targets: " + filename + " trace: " + Utils.getStackTrace(ioe));
+            throw new MungeException("Exception while reading targets: " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
     }
 
     /**
      * Validate the Targets data.
      *
-     * @throws MungerException the els exception
+     * @throws MungeException the els exception
      */
-    public void validate() throws MungerException {
+    public void validate() throws MungeException
+    {
         long minimumSize;
 
         if (targetData == null) {
-            throw new MungerException("TargetData are null");
+            throw new MungeException("TargetData are null");
         }
 
         Targets targets = targetData.targets;
 
         if (targets.description == null || targets.description.length() == 0) {
-            throw new MungerException("targets.description must be defined");
+            throw new MungeException("targets.description must be defined");
         }
 
         for (int i = 0; i < targets.storage.length; ++i) {
             Target t = targets.storage[i];
             if (t.name == null || t.name.length() == 0) {
-                throw new MungerException("storage.name [" + i + "] must be defined");
+                throw new MungeException("storage.name [" + i + "] must be defined");
             }
             if (t.minimum == null || t.minimum.length() == 0) {
-                throw new MungerException("storage.minimum [" + i + "] must be defined");
+                throw new MungeException("storage.minimum [" + i + "] must be defined");
             }
             long min = Utils.getScaledValue(t.minimum);
             if (min < MINIMUM_BYTES) {               // non-fatal warning
                 logger.warn("Storage.minimum [" + i + "] " + t.name + " of " + t.minimum + " is less than allowed minimum of " + (MINIMUM_BYTES / 1024 / 1024) + "MB. Using allowed minimum.");
             }
             if (t.locations == null || t.locations.length == 0) {
-                throw new MungerException("storage.locations [" + i + "] " + t.name + " must be defined");
+                throw new MungeException("storage.locations [" + i + "] " + t.name + " must be defined");
             }
             for (int j = 0; j < t.locations.length; ++j) {
                 if (t.locations[j].length() == 0) {
-                    throw new MungerException("storage[" + i + "].locations[" + j + "] " + t.name + " must be defined");
+                    throw new MungeException("storage[" + i + "].locations[" + j + "] " + t.name + " must be defined");
                 }
                 if (Files.notExists(Paths.get(t.locations[j]))) {
-                    throw new MungerException("storage[" + i + "].locations[" + j + "]: " + t.locations[j] + " does not exist");
+                    throw new MungeException("storage[" + i + "].locations[" + j + "]: " + t.locations[j] + " does not exist");
                 }
                 logger.debug("  loc: " + t.locations[j]);
             }

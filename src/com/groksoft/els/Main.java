@@ -58,12 +58,12 @@ public class Main
 
         try
         {
-            MungerException ce = null;
+            MungeException ce = null;
             try
             {
                 cfg.parseCommandLine(args);
             }
-            catch (MungerException e)
+            catch (MungeException e)
             {
                 ce = e; // configuration exception
             }
@@ -144,7 +144,7 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("A publisher library (-p) or collection file (-P) is required for -r L");
+                        throw new MungeException("A publisher library (-p) or collection file (-P) is required for -r L");
                     }
                     break;
 
@@ -168,14 +168,14 @@ public class Main
                         }
                         else
                         {
-                            throw new MungerException("Publisher manual console failed to connect");
+                            throw new MungeException("Publisher manual console failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungerException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp client failed to connect");
                         }
                     }
                     break;
@@ -195,14 +195,14 @@ public class Main
                         context.clientStty = new ClientStty(cfg, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
-                            throw new MungerException("Publisher remote failed to connect");
+                            throw new MungeException("Publisher remote failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungerException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp client failed to connect");
                         }
 
                         // the Process class handles the ELS process
@@ -211,7 +211,7 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("Publisher and subscriber options are required for -r P");
+                        throw new MungeException("Publisher and subscriber options are required for -r P");
                     }
                     break;
 
@@ -221,7 +221,7 @@ public class Main
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
-                        throw new MungerException("Targets -t | -T required");
+                        throw new MungeException("Targets -t | -T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
@@ -241,7 +241,7 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("Subscriber and publisher options are required for -r S");
+                        throw new MungeException("Subscriber and publisher options are required for -r S");
                     }
                     break;
 
@@ -251,7 +251,7 @@ public class Main
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
-                        throw new MungerException("Targets -t | -T required");
+                        throw new MungeException("Targets -t | -T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
@@ -268,14 +268,14 @@ public class Main
                         }
                         else
                         {
-                            throw new MungerException("Subscriber terminal console failed to connect");
+                            throw new MungeException("Subscriber terminal console failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context.subscriberRepo, context.publisherRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungerException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp client failed to connect");
                         }
 
                         // start serveStty server
@@ -290,12 +290,12 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("A subscriber -s or -S file and publisher -p or -P) is required for -r T");
+                        throw new MungeException("A subscriber -s or -S file and publisher -p or -P) is required for -r T");
                     }
                     break;
 
                 default:
-                    throw new MungerException("Unknown type of execution");
+                    throw new MungeException("Unknown type of execution");
             }
 
         }
@@ -371,18 +371,18 @@ public class Main
             if (cfg.getPublisherLibrariesFileName().length() > 0 &&                     // both
                     cfg.getPublisherCollectionFilename().length() > 0)
             {
-                throw new MungerException("Cannot use both -p and -P");
+                throw new MungeException("Cannot use both -p and -P");
             }
             else if (cfg.getPublisherLibrariesFileName().length() == 0 &&               // neither
                     cfg.getPublisherCollectionFilename().length() == 0)
             {
                 if (cfg.isRemoteSession())
                 {
-                    throw new MungerException("A -p publisher library or -P collection file is required for -r P");
+                    throw new MungeException("A -p publisher library or -P collection file is required for -r P");
                 }
                 else
                 {
-                    throw new MungerException("A -p publisher library or -P collection file is required, or the filename missing from -p or -P");
+                    throw new MungeException("A -p publisher library or -P collection file is required, or the filename missing from -p or -P");
                 }
             }
 
@@ -403,20 +403,20 @@ public class Main
             if (cfg.getSubscriberLibrariesFileName().length() > 0 &&                    // both
                     cfg.getSubscriberCollectionFilename().length() > 0)
             {
-                throw new MungerException("Cannot use both -s and -S");
+                throw new MungeException("Cannot use both -s and -S");
             }
             else if (cfg.getSubscriberLibrariesFileName().length() == 0 &&              // neither
                     cfg.getSubscriberCollectionFilename().length() == 0)
             {
                 if (cfg.isRemoteSession())
                 {
-                    throw new MungerException("A -s subscriber library or -S collection file is required for -r S");
+                    throw new MungeException("A -s subscriber library or -S collection file is required for -r S");
                 }
                 else
                 {
                     if (cfg.isPublishOperation())
                     {
-                        throw new MungerException("A -s subscriber library or -S collection file is required, or the filename missing for -s or -S");
+                        throw new MungeException("A -s subscriber library or -S collection file is required, or the filename missing for -s or -S");
                     }
                     return null;
                 }

@@ -429,11 +429,11 @@ public class Configuration
      *
      * @param type the remote type and remote flag
      */
-    public void setRemoteType(String type) throws MungerException
+    public void setRemoteType(String type) throws MungeException
     {
         if (!this.remoteType.equals("-"))
         {
-            throw new MungerException("The -r option may only be used once");
+            throw new MungeException("The -r option may only be used once");
         }
         this.remoteType = type;
         this.remoteFlag = NOT_REMOTE;
@@ -448,7 +448,7 @@ public class Configuration
         else if (type.equalsIgnoreCase("T"))
             this.remoteFlag = SUBSCRIBER_TERMINAL;
         else
-            throw new MungerException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
+            throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
     }
 
     /**
@@ -462,7 +462,7 @@ public class Configuration
     /**
      * Set the type of renaming to perform
      */
-    public void setRenamingType(String type) throws MungerException
+    public void setRenamingType(String type) throws MungeException
     {
         switch (type.toLowerCase())
         {
@@ -476,7 +476,7 @@ public class Configuration
                 this.renamingType = RENAME_BOTH;
                 break;
             default:
-                throw new MungerException("unknown -n | --rename type of rename; requires F | D | B");
+                throw new MungeException("unknown -n | --rename type of rename; requires F | D | B");
         }
     }
 
@@ -966,9 +966,9 @@ public class Configuration
      * This populates the rest.
      *
      * @param args the args
-     * @throws MungerException the els exception
+     * @throws MungeException the els exception
      */
-    public void parseCommandLine(String[] args) throws MungerException
+    public void parseCommandLine(String[] args) throws MungeException
     {
         int index;
         originalArgs = args;
@@ -986,7 +986,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -a requires a password value");
+                        throw new MungeException("Error: -a requires a password value");
                     }
                     break;
                 case "-b":                                             // disable back-filling
@@ -1002,7 +1002,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungeException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
                 case "-D":                                             // Dry run
@@ -1018,7 +1018,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungeException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
                 case "-e":                                             // export publisher items to flat text file
@@ -1031,7 +1031,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -e requires an export path output filename");
+                        throw new MungeException("Error: -e requires an export path output filename");
                     }
                     break;
                 case "-f":                                             // log filename
@@ -1039,7 +1039,7 @@ public class Configuration
                 case "--log-file":
                 case "--log-overwrite":
                     if (getLogFilename().length() > 0)
-                        throw new MungerException("Error: -f and -F cannot be used at the same time");
+                        throw new MungeException("Error: -f and -F cannot be used at the same time");
                     if (args[index].equals("-F") || args[index].equals("--log-overwrite"))
                         setLogOverwrite(true);
                     if (index <= args.length - 2)
@@ -1049,7 +1049,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -f requires a log filename");
+                        throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
                 case "-h":                                              // hint delete
@@ -1066,7 +1066,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -i requires a collection output filename");
+                        throw new MungeException("Error: -i requires a collection output filename");
                     }
                     break;
                 case "-k":                                             // ELS keys file
@@ -1078,7 +1078,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -k requires an ELS keys filename");
+                        throw new MungeException("Error: -k requires an ELS keys filename");
                     }
                     break;
                 case "-K":                                             // ELS keys file and skip main process munge
@@ -1091,7 +1091,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -K requires an ELS keys filename");
+                        throw new MungeException("Error: -K requires an ELS keys filename");
                     }
                     break;
                 case "-l":                                             // publisher library to process
@@ -1104,7 +1104,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -l requires a publisher library name");
+                        throw new MungeException("Error: -l requires a publisher library name");
                     }
                     break;
                 case "-L":                                             // publisher library to exclude
@@ -1117,7 +1117,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -L requires a publisher library name to exclude");
+                        throw new MungeException("Error: -L requires a publisher library name to exclude");
                     }
                     break;
                 case "-m":                                             // Mismatch output filename
@@ -1129,7 +1129,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -m requires a mismatches output filename");
+                        throw new MungeException("Error: -m requires a mismatches output filename");
                     }
                     break;
                 case "-n":                                             // perform renaming
@@ -1142,7 +1142,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -n requires the type F | D | B");
+                        throw new MungeException("Error: -n requires the type F | D | B");
                     }
                     break;
                 case "-o":
@@ -1158,7 +1158,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -p requires a publisher libraries filename");
+                        throw new MungeException("Error: -p requires a publisher libraries filename");
                     }
                     break;
                 case "-P":                                             // publisher JSON collection items file
@@ -1170,7 +1170,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -P requires a publisher collection filename");
+                        throw new MungeException("Error: -P requires a publisher collection filename");
                     }
                     break;
                 case "-r":                                             // remote session
@@ -1182,7 +1182,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
+                        throw new MungeException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
                     }
                     break;
                 case "-s":                                             // subscriber JSON libraries file
@@ -1196,7 +1196,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -s requires a subscriber libraries filename");
+                        throw new MungeException("Error: -s requires a subscriber libraries filename");
                     }
                     break;
                 case "-S":                                             // subscriber JSON collection items file
@@ -1210,7 +1210,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -S requires an subscriber collection filename");
+                        throw new MungeException("Error: -S requires an subscriber collection filename");
                     }
                     break;
                 case "-t":                                             // targets filename
@@ -1260,7 +1260,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -w requires a What's New output filename");
+                        throw new MungeException("Error: -w requires a What's New output filename");
                     }
                     break;
                 case "-W":                                             // What's New output filename, set "all" option
@@ -1273,7 +1273,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -W requires a What's New output filename");
+                        throw new MungeException("Error: -W requires a What's New output filename");
                     }
                     break;
                 case "-x":                                             // cross-library duplicate check
@@ -1281,7 +1281,7 @@ public class Configuration
                     setCrossCheck(true);
                     break;
                 default:
-                    throw new MungerException("Error: unknown option: " + args[index]);
+                    throw new MungeException("Error: unknown option: " + args[index]);
             }
         }
     }

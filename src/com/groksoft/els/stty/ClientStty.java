@@ -1,7 +1,7 @@
 package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
-import com.groksoft.els.MungerException;
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.stty.gui.TerminalGui;
 import com.groksoft.els.repository.Repository;
@@ -100,7 +100,7 @@ public class ClientStty
             }
             else
             {
-                throw new MungerException("Unknown banner receive");
+                throw new MungeException("Unknown banner receive");
             }
         }
         return hasCommands;
@@ -153,7 +153,7 @@ public class ClientStty
         }
         else
         {
-            throw new MungerException("cannot get site from -r specified remote subscriber library");
+            throw new MungeException("cannot get site from -r specified remote subscriber library");
         }
 
         return isConnected;
@@ -248,7 +248,7 @@ public class ClientStty
             }
             catch (FileNotFoundException fnf)
             {
-                throw new MungerException("Exception while writing " + command + " file " + location + " trace: " + Utils.getStackTrace(fnf));
+                throw new MungeException("Exception while writing " + command + " file " + location + " trace: " + Utils.getStackTrace(fnf));
             }
         }
         return location;

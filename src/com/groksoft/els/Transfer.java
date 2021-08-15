@@ -42,11 +42,6 @@ public class Transfer
     private Storage storageTargets = null;
     private boolean toIsNew = false;
 
-    private Transfer()
-    {
-        // hide default constructor
-    }
-
     public Transfer(Configuration config, Main.Context ctx)
     {
         cfg = config;
@@ -88,14 +83,14 @@ public class Transfer
      * @param group     the group
      * @param totalSize the total size
      * @param overwrite whether to overwrite any existing target file
-     * @throws MungerException the els exception
+     * @throws MungeException the els exception
      */
     public String copyGroup(ArrayList<Item> group, long totalSize, boolean overwrite) throws Exception
     {
         String response = "";
         if (!cfg.isTargetsEnabled())
         {
-            throw new MungerException("-t or -T target is required for this operation");
+            throw new MungeException("-t or -T target is required for this operation");
         }
 
         if (group.size() > 0)
@@ -127,7 +122,7 @@ public class Transfer
                     }
                     else
                     {
-                        throw new MungerException("No space on any target location of " + group.get(0).getLibrary() + " for " +
+                        throw new MungeException("No space on any target location of " + group.get(0).getLibrary() + " for " +
                                 lastGroupName + " that is " + Utils.formatLong(totalSize, false));
                     }
                 }
@@ -287,7 +282,7 @@ public class Transfer
      * @param library the publisher library.definition.name
      * @param size    the total size of item(s) to be copied
      * @return the target
-     * @throws MungerException the els exception
+     * @throws MungeException the els exception
      */
     private String getTarget(String library, long size, Item item) throws Exception
     {
@@ -386,13 +381,13 @@ public class Transfer
                 if (context.publisherRepo.getLibraryData().libraries.flavor == null ||
                         context.publisherRepo.getLibraryData().libraries.flavor.length() < 1)
                 {
-                    throw new MungerException("Publisher data incomplete, missing 'flavor'");
+                    throw new MungeException("Publisher data incomplete, missing 'flavor'");
                 }
 
                 if (context.subscriberRepo.getLibraryData().libraries.flavor == null ||
                         context.subscriberRepo.getLibraryData().libraries.flavor.length() < 1)
                 {
-                    throw new MungerException("Subscriber data incomplete, missing 'flavor'");
+                    throw new MungeException("Subscriber data incomplete, missing 'flavor'");
                 }
 
                 // check for opening commands from Subscriber
@@ -434,7 +429,7 @@ public class Transfer
      * @param publisherItem the publisher item
      * @return the boolean
      */
-    public boolean isNewGrouping(Item publisherItem) throws MungerException
+    public boolean isNewGrouping(Item publisherItem) throws MungeException
     {
         boolean ret = true;
         String p = publisherItem.getItemPath();
@@ -740,13 +735,16 @@ public class Transfer
 
     public void requestCollection() throws Exception
     {
-        // request collection data from remote subscriber
-        String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
-        if (location == null || location.length() < 1)
-            throw new MungerException("Could not retrieve remote collection file");
-        cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
-        cfg.setSubscriberCollectionFilename(location);
-        context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
+        if (cfg.isRemoteSession())
+        {
+            // request collection data from remote subscriber
+            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
+            if (location == null || location.length() < 1)
+                throw new MungeException("Could not retrieve remote collection file");
+            cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
+            cfg.setSubscriberCollectionFilename(location);
+            context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
+        }
     }
 
     /**

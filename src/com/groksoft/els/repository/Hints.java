@@ -2,7 +2,7 @@ package com.groksoft.els.repository;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Main;
-import com.groksoft.els.MungerException;
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
@@ -24,25 +24,17 @@ import java.util.StringTokenizer;
 public class Hints
 {
     private final transient Logger logger = LogManager.getLogger("applog");
-    private final int MAX_TERMS = 4;
-    private Marker SHORT = MarkerManager.getMarker("SHORT");
-    private Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+    private final Marker SHORT = MarkerManager.getMarker("SHORT");
+    private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private Configuration cfg;
     private Main.Context context;
     private int deletedHints = 0;
     private int doneHints = 0;
     private int executedHints = 0;
-    private Repository fromRepo;
     private HintKeys keys;
     private int seenHints = 0;
     private int skippedHints = 0;
-    private Repository toRepo;
     private int validatedHints = 0;
-
-    private Hints()
-    {
-        // hide default constructor
-    }
 
     public Hints(Configuration config, Main.Context ctx, HintKeys hintKeys)
     {
@@ -61,7 +53,7 @@ public class Hints
         else
         {
             logger.info(SHORT, "# Executed hints     : " + executedHints);
-            logger.info(SHORT, "# Done hints         : " + doneHints);
+            logger.info(SHORT, "# Done hints         : " + doneHints);  // TODO Reconsider metrics
             logger.info(SHORT, "# Seen hints         : " + seenHints);
             logger.info(SHORT, "# Skipped hints      : " + skippedHints);
             logger.info(SHORT, "# Deleted hints      : " + deletedHints);
@@ -99,13 +91,6 @@ public class Hints
 
         // find the actor name in the .els file
         statusLine = findNameLine(lines, hintKey.name);
-        if (statusLine != null)
-        {
-            if (statusLine.toLowerCase().startsWith("done "))
-                ++doneHints;
-            else if (statusLine.toLowerCase().startsWith("seen "))
-                ++seenHints;
-        }
         if (statusLine == null || !statusLine.toLowerCase().startsWith("for "))
         {
             logger.info("  Skipping execution, not For " + hintKey.name);
@@ -147,7 +132,7 @@ public class Hints
 
                 String fromName = parseFile(parts[1], lineNo);
                 if (fromName.length() < 1)
-                    throw new MungerException("Malformed from filename on line " + lineNo);
+                    throw new MungeException("Malformed from filename on line " + lineNo);
 
                 String toLib = parseLibrary(parts[2], lineNo);
                 if (toLib == null)
@@ -155,9 +140,9 @@ public class Hints
 
                 String toName = parseFile(parts[2], lineNo);
                 if (toName.length() < 1)
-                    throw new MungerException("Malformed to filename on line " + lineNo);
+                    throw new MungeException("Malformed to filename on line " + lineNo);
 
-                context.hintMode = true; // LEFTOFF
+                context.hintMode = true;
                 if (context.transfer.move(repo, fromLib.trim(), fromName.trim(), toLib.trim(), toName.trim()))
                     libAltered = true;
                 context.hintMode = false;
@@ -175,7 +160,7 @@ public class Hints
 
                 String fromName = parseFile(parts[1], lineNo);
                 if (fromName.length() < 1)
-                    throw new MungerException("Malformed from filename on line " + lineNo);
+                    throw new MungeException("Malformed from filename on line " + lineNo);
 
                 if (context.transfer.remove(repo, fromLib.trim(), fromName.trim()))
                     libAltered = true;
@@ -203,7 +188,7 @@ public class Hints
         HintKeys.HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
         if (hintKey == null)
         {
-            throw new MungerException("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
+            throw new MungeException("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
         }
         return hintKey;
     }
@@ -268,7 +253,7 @@ public class Hints
         if (target == null)
         {
             // subscriber does not have the item or directory??? Must be a new item???
-            throw new MungerException("Target for ELS hint file cannot be found: " + item.getFullPath());
+            throw new MungeException("Target for ELS hint file cannot be found: " + item.getFullPath());
         }
         return target;
     }
@@ -372,7 +357,7 @@ public class Hints
         }
         else
         {
-            logger.info("No .els hint files found");
+            logger.info("  - No .els hint files found");
         }
     }
 
@@ -431,13 +416,11 @@ public class Hints
                         // Hints are intended to be copied and processed immediately
                         // So the hint cannot be copied during a --dry-run
                         // Validate the syntax instead
-                        if (cfg.isDryRun())
+                        if (cfg.isDryRun())  // TODO How does --validate option fit in?
                         {
                             logger.info("* Validating syntax for dry run: " + item.getFullPath());
                             ++validatedHints;
-
-                            // read the ELS hint file
-                            List<String> lines = readHint(item);  // TODO Write proper hint syntax checker
+                            List<String> lines = readHint(item);  // reads & validates hint
                         }
                         else
                         {
@@ -448,12 +431,8 @@ public class Hints
                             // this is important prior to a backup run to avoid duplicates, etc.
                             HintKeys.HintKey hintKey = findHintKey(context.publisherRepo);
                             String statusLine = findNameLine(lines, hintKey.name);
-                            if (statusLine == null ||
-                                    (!statusLine.toLowerCase().startsWith("done ") &&
-                                            !statusLine.toLowerCase().startsWith("seen ")))
-                            {
-                                throw new MungerException("Publisher must execute hints locally; Status is not Done or Seen in hint: " + item.getFullPath());
-                            }
+                            if (statusLine == null || (!statusLine.toLowerCase().startsWith("done ") && !statusLine.toLowerCase().startsWith("seen ")))
+                                throw new MungeException("Publisher must execute hints locally; Status is not Done or Seen in hint: " + item.getFullPath());
 
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
@@ -480,9 +459,7 @@ public class Hints
                                     }
                                 }
                                 else
-                                {
-                                    throw new MungerException("Subscriber disconnected");
-                                }
+                                    throw new MungeException("Subscriber disconnected");
                             }
                             else
                             {
@@ -499,19 +476,19 @@ public class Hints
                                     updatePubSide = true;
                             }
 
-                            updateHintSubscriberOnPublisher(context.publisherRepo, item);
+                            updateHintSubscriberOnPublisher(item);
 
                             if (!cfg.isRemoteSession()) // subscriber-side does this itself
                             {
                                 postprocessHint(toItem);
-                                postprocessHint(item);
                             }
+                            postprocessHint(item);
                         }
                     }
                 }
                 else
                 {
-                    throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
+                    throw new MungeException("Subscribed Publisher library " + subLib.name + " not found");
                 }
             }
             else
@@ -558,28 +535,25 @@ public class Hints
         }
         else
         {
-            logger.info("No .els hint files found");
+            logger.info("  - No .els hint files found");
         }
     }
 
     public void hintsSubscriberCleanup() throws Exception
     {
-        if (cfg.isRemoteSession())
+        if (cfg.isRemoteSession() && !context.hintMode)
         {
-            if (executedHints > 0)  // LEFTOFF
-            {
-                logger.info("Sending hints cleanup command to remote on " + context.subscriberRepo.getLibraryData().libraries.description);
+            logger.info("Sending hints cleanup command to remote on " + context.subscriberRepo.getLibraryData().libraries.description);
 
-                // Send command to merge & execute
-                String response = context.clientStty.roundTrip("cleanup");
-                if (response != null && response.length() > 0)
-                {
-                    logger.debug("  > cleanup command returned: " + response);
-                }
-                else
-                {
-                    throw new MungerException("Subscriber disconnected");
-                }
+            // Send command to merge & execute
+            String response = context.clientStty.roundTrip("cleanup");
+            if (response != null && response.length() > 0)
+            {
+                logger.debug("  > cleanup command returned: " + response);
+            }
+            else
+            {
+                throw new MungeException("Subscriber disconnected");
             }
         }
         else
@@ -603,7 +577,7 @@ public class Hints
         boolean changed = false;
 
         if (mergeLines.size() != toLines.size())
-            throw new MungerException("Hint merge files are not the same number of lines, merge: " + mergePath + ", to hint: " + toPath);
+            throw new MungeException("Hint merge files are not the same number of lines, merge: " + mergePath + ", to hint: " + toPath);
 
         for (int i = 0; i < mergeLines.size(); ++i)
         {
@@ -653,6 +627,7 @@ public class Hints
 
     private String[] parseCommand(String line, int lineNo, int expected) throws Exception
     {
+        int MAX_TERMS = 4;
         String[] cmd = new String[MAX_TERMS]; // maximum number of terms in any command
         StringTokenizer t = new StringTokenizer(line, "'\"");
         if (!t.hasMoreTokens())
@@ -666,20 +641,20 @@ public class Hints
             {
                 cmd[i++] = term;
                 if (i >= MAX_TERMS)
-                    throw new MungerException("Too many terms");
+                    throw new MungeException("Too many terms");
             }
         }
         if (i != expected)
-            throw new MungerException("Malformed command, " + i + " is wrong number of terms, expecting " + expected + " for line " + lineNo);
+            throw new MungeException("Malformed command, " + i + " is wrong number of terms, expecting " + expected + " for line " + lineNo);
         return cmd;
     }
 
-    private String parseFile(String term, int lineNo) throws MungerException
+    private String parseFile(String term, int lineNo) throws MungeException
     {
         String name = null;
         String[] parts = term.split("\\|");
         if (parts.length > 2)
-            throw new MungerException("Malformed library|file term on line " + lineNo + ": " + term);
+            throw new MungeException("Malformed library|file term on line " + lineNo + ": " + term);
         if (parts.length == 1)
             name = parts[0];
         else if (parts.length == 2)
@@ -687,12 +662,12 @@ public class Hints
         return name;
     }
 
-    private String parseLibrary(String term, int lineNo) throws MungerException
+    private String parseLibrary(String term, int lineNo) throws MungeException
     {
         String lib = null;
         String[] parts = term.split("\\|");
         if (parts.length > 2)
-            throw new MungerException("Malformed library|file term on line " + lineNo + ": " + term);
+            throw new MungeException("Malformed library|file term on line " + lineNo + ": " + term);
         if (parts.length == 2)
             lib = parts[0];
         return lib;
@@ -713,7 +688,7 @@ public class Hints
             {
                 cmd[i++] = term;
                 if (i > 2)
-                    throw new MungerException("Too many terms");
+                    throw new MungeException("Too many terms");
             }
         }
         return cmd;
@@ -731,7 +706,7 @@ public class Hints
         // read the ELS hint file
         if (Files.notExists(Paths.get(item.getFullPath())))
             return;
-        List<String> lines = readHint(item);
+        List<String> lines = readHint(item.getFullPath()); // hint not validated
 
         // find the ELS keys
         HintKeys.HintKey pubHintKey = findHintKey(context.publisherRepo);
@@ -810,30 +785,38 @@ public class Hints
         }
     }
 
+    /**
+     * Read and cleanup lines from a hint file
+     *
+     * @param path Full path to hint file
+     * @return String lines that have tabs replaced with a space and trimmed
+     * @throws Exception
+     */
     private List<String> readHint(String path) throws Exception
     {
         List<String> lines = Files.readAllLines(Paths.get(path));
+
+        // cleanup the lines
         for (int i = 0; i < lines.size(); ++i)
         {
             String line = lines.get(i);
             line = line.replaceAll("\\t", " ").trim();
             lines.set(i, line);
-
-            // syntax check
-            line = line.toLowerCase();
-            if (line.length() > 0 && !line.startsWith("#") &&
-                    !line.startsWith("for ") && !line.startsWith("done ") && !line.startsWith("seen ") &&
-                    !line.startsWith("mv ") && !line.startsWith("rm "))
-                throw new MungerException("Malformed line " + (i + 1) + ": " + line);
         }
         return lines;
     }
 
+    /**
+     * Read, cleanup & validate lines from a hint file
+     *
+     * @param item Item to be read
+     * @return String lines that have tabs replaced with a space, trimmed and are validated
+     * @throws Exception
+     */
     private List<String> readHint(Item item) throws Exception
     {
-        // read the ELS hint file, convert tabs to spaces and trim lines
-        String file = item.getFullPath();
-        return readHint(file);
+        List<String> lines = readHint(item.getFullPath());
+        return validate(item.getFullPath(), lines);
     }
 
     private int statusToInt(String status)
@@ -870,24 +853,15 @@ public class Hints
                 }
 
                 // iterate the subscriber's items
-                for (Item item : subLib.items)
+                if (!cfg.isDryRun())
                 {
-                    // only ELS Hints
-                    if (!item.getItemPath().toLowerCase().endsWith(".els"))
+                    for (Item item : subLib.items)
                     {
-                        continue;
-                    }
-
-                    if (cfg.isDryRun())
-                    {
-                        logger.info("* Validating syntax for dry run: " + item.getFullPath());
-                        ++validatedHints;
-
-                        // read the ELS hint file
-                        List<String> lines = readHint(item);
-                    }
-                    else
-                    {
+                        // only ELS Hints
+                        if (!item.getItemPath().toLowerCase().endsWith(".els"))
+                        {
+                            continue;
+                        }
                         postprocessHint(item);
                     }
                 }
@@ -905,7 +879,7 @@ public class Hints
         int lineNo = 0;
         for (String line : lines)
         {
-            String parts[] = line.split("[\\s]+");
+            String[] parts = line.split("[\\s]+");
             if (parts.length == 2)
             {
                 String word = parts[0].toLowerCase();
@@ -930,15 +904,85 @@ public class Hints
             Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
     }
 
-    private void updateHintSubscriberOnPublisher(Repository repo, Item item) throws Exception
+    private void updateHintSubscriberOnPublisher(Item item) throws Exception
     {
-        // read the ELS hint file
-        List<String> lines = readHint(item);
-
-        // find the ELS key for this repo
+        List<String> lines = readHint(item.getFullPath());  // hint not validated
         HintKeys.HintKey hintKey = findHintKey(context.subscriberRepo);
-
         updateHintStatus(item, lines, hintKey.name, "Done");
+    }
+
+    private List<String> validate(String filename, List<String> lines) throws Exception
+    {
+        int lineNo = 0;
+        String lowered;
+        for (String line : lines)
+        {
+            ++lineNo;
+
+            // skip blank lines
+            if (line.length() < 1)
+                continue;
+
+            // skip comments
+            if (line.startsWith("#"))
+            {
+                continue;
+            }
+
+            lowered = line.toLowerCase();
+
+            if (lowered.startsWith("for ") || lowered.startsWith("done ") || lowered.startsWith("seen "))
+            {
+                if (lowered.startsWith("done "))
+                    ++doneHints;
+                else if (lowered.startsWith("seen "))
+                    ++seenHints;
+
+                continue;
+            }
+
+            if (lowered.startsWith("mv "))
+            {
+                String[] parts = parseCommand(line, lineNo, 3);
+
+                String fromName = "";
+                if (parts != null && parts.length > 2)
+                {
+                    fromName = parseFile(parts[1], lineNo);
+                    String fromLib = parseLibrary(parts[1], lineNo);
+                }
+                if (!(fromName.length() > 0))
+                    throw new MungeException("Malformed from filename on line " + lineNo + " in " + filename);
+
+                String toLib = "";
+                String toName = "";
+                if (parts.length > 3)
+                {
+                    toLib = parseLibrary(parts[2], lineNo);
+                    toName = parseFile(parts[2], lineNo);
+                }
+                if (!(toName.length() > 0))
+                    throw new MungeException("Malformed to filename on line " + lineNo + " in " + filename);
+
+                continue;
+            }
+
+            if (lowered.startsWith("rm "))
+            {
+                String[] parts = parseCommand(line, lineNo, 2);
+
+                if (parts != null && parts.length > 2)
+                parseLibrary(parts[1], lineNo);
+                String fromName = parseFile(parts[1], lineNo);
+                if (!(fromName.length() > 0))
+                    throw new MungeException("Malformed from filename on line " + lineNo + " in " + filename);
+
+                continue;
+            }
+
+            throw new MungeException("Unknown keyword on malformed line " + lineNo + " in " + filename);
+        }
+        return lines;
     }
 
 }

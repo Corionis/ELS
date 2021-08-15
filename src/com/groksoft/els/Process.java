@@ -159,7 +159,7 @@ public class Process
      * <p>
      * This is the full munge process.
      *
-     * @throws MungerException the els exception
+     * @throws MungeException the els exception
      */
     private void munge() throws Exception
     {
@@ -191,7 +191,7 @@ public class Process
                 fault = true;
                 String s = "File not found exception for Mismatches output file " + cfg.getMismatchFilename();
                 logger.error(s);
-                throw new MungerException(s);
+                throw new MungeException(s);
             }
         }
 
@@ -209,7 +209,7 @@ public class Process
                 fault = true;
                 String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
                 logger.error(s);
-                throw new MungerException(s);
+                throw new MungeException(s);
             }
         }
 
@@ -360,7 +360,7 @@ public class Process
                     }
                     else
                     {
-                        throw new MungerException("Subscribed Publisher library " + subLib.name + " not found");
+                        throw new MungeException("Subscribed Publisher library " + subLib.name + " not found");
                     }
                 }
                 else

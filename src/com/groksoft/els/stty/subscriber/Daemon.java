@@ -243,8 +243,10 @@ public class Daemon extends DaemonBase
                 {
                     if (hints != null)
                     {
+                        context.hintMode = true;
                         hints.hintsSubscriberCleanup();
-                        response = "true";   // LEFTOFF
+                        context.hintMode = false;
+                        response = "true";
                     }
                     continue;
                 }
@@ -284,7 +286,7 @@ public class Daemon extends DaemonBase
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
                     }
-                    catch (MungerException e)
+                    catch (MungeException e)
                     {
                         logger.error(e.getMessage());
                     }

@@ -261,7 +261,7 @@ public class Daemon extends DaemonBase
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
                     }
-                    catch (MungerException e)
+                    catch (MungeException e)
                     {
                         logger.error(e.getMessage());
                     }
@@ -395,14 +395,14 @@ public class Daemon extends DaemonBase
                                     context.clientSftp = new ClientSftp(myRepo, theirRepo, false);
                                     if (!context.clientSftp.startClient())
                                     {
-                                        throw new MungerException("Publisher sftp client failed to connect");
+                                        throw new MungeException("Publisher sftp client failed to connect");
                                     }
 
                                     // start the serveStty client for automation
                                     context.clientStty = new ClientStty(cfg, false, false);
                                     if (!context.clientStty.connect(myRepo, theirRepo))
                                     {
-                                        throw new MungerException("Publisher stty client failed to connect");
+                                        throw new MungeException("Publisher stty client failed to connect");
                                     }
                                 }
                                 response = transfer.copyGroup(group, totalSize, true);

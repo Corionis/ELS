@@ -2,7 +2,7 @@ package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Main;
-import com.groksoft.els.MungerException;
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -87,7 +87,7 @@ public class ServeStty extends Thread
      * checked. If the limit has not been exceeded the new connection is added
      * to allConnections, and a thread is started to service the request.
      */
-    public synchronized void addConnection(Socket aSocket) throws MungerException
+    public synchronized void addConnection(Socket aSocket) throws MungeException
     {
         // check for maximum connections
         if (allConnections.size() >= maxConnections)
@@ -122,7 +122,7 @@ public class ServeStty extends Thread
                 theConnection = new Connection(aSocket, new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
             } else
             {
-                throw new MungerException("FATAL: Unknown connection type");
+                throw new MungeException("FATAL: Unknown connection type");
             }
             allConnections.add(theConnection);
 
@@ -148,7 +148,7 @@ public class ServeStty extends Thread
             startServer(listenerRepo.getLibraryData().libraries.listen);
         } else
         {
-            throw new MungerException("cannot get site from -r specified remote library");
+            throw new MungeException("cannot get site from -r specified remote library");
         }
     }
 
