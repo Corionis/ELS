@@ -25,6 +25,7 @@
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/els-plex-generator.md" />
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/regular-expressions.md" />
           </element>
+          <element id="file-copy" path="$PROJECT_DIR$/artifacts/complete/els-hints.keys" />
         </element>
       </element>
     </root>

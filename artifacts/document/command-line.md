@@ -103,11 +103,15 @@ files have been specified.
 
 * -F | --log-overwrite [file] : Log file, in overwrite mode
 
-* -h | --hint-delete : Delete hints that are all "Seen"
+* -k | --keys [file] : ELS Hint keys file. See also -h | --hint-delete
+
+* -K | --keys-only [file] : ELS Hint keys file. Hints processing only, skip
+  main munge process. Useful for executing hints locally.
 
 * -l | --library [libraryname] : Library to process, if not specified process
-  all libraries. Applies to publisher-side only. This option may be specified
-  more than once
+  all libraries. This option may be specified more than once
+
+* -L | --exclude option : Library to exclude. This option may be specified more than once
 
 * -m | --mismatches [file] : Mismatches list of differences output text file
 
@@ -126,7 +130,7 @@ files have been specified.
 
 * -T | --force-targets [file] : Forced targets for -r | --remote, see Notes
 
-* --version : Display version information
+* -h | --version : Display version information
 
 * -w | --whatsnew [file] : What's New output text file as a summary
 
@@ -141,8 +145,6 @@ The default is local mode where all storage locations are accessible to one ELS 
 
 * -r | --remote [P|L|M|S|T] : This is a remote session,
   see the [Communications How-To](Communications-How-To) for details
-
-
 
 ## Notes
 

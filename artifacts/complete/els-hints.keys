@@ -1,0 +1,6 @@
+# Name and key matching the key from publisher and subscriber JSON files
+# Comments are supported
+
+ MediaServer  a025f8e2-c404-4394-b285-a3e84bae0713
+ MediaBackup  81ce0c01-547c-40c2-bf3b-19789d85d747
+

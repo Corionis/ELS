@@ -1,9 +1,6 @@
 package com.groksoft.els.repository;
 
-import com.groksoft.els.Configuration;
-import com.groksoft.els.Main;
-import com.groksoft.els.MungeException;
-import com.groksoft.els.Utils;
+import com.groksoft.els.*;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +24,7 @@ public class Hints
     private final Marker SHORT = MarkerManager.getMarker("SHORT");
     private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private Configuration cfg;
-    private Main.Context context;
+    private Context context;
     private int deletedHints = 0;
     private int doneHints = 0;
     private int executedHints = 0;
@@ -36,7 +33,7 @@ public class Hints
     private int skippedHints = 0;
     private int validatedHints = 0;
 
-    public Hints(Configuration config, Main.Context ctx, HintKeys hintKeys)
+    public Hints(Configuration config, Context ctx, HintKeys hintKeys)
     {
         cfg = config;
         context = ctx;
@@ -543,7 +540,7 @@ public class Hints
     {
         if (cfg.isRemoteSession() && !context.hintMode)
         {
-            logger.info("Sending hints cleanup command to remote on " + context.subscriberRepo.getLibraryData().libraries.description);
+            logger.info("Sending hints cleanup command to remote " + context.subscriberRepo.getLibraryData().libraries.description);
 
             // Send command to merge & execute
             String response = context.clientStty.roundTrip("cleanup");
@@ -768,7 +765,7 @@ public class Hints
                 File prevFile = new File(item.getFullPath());
                 if (prevFile.exists())
                 {
-                    if (!cfg.isHintDelete() || cfg.isDryRun())
+                    if (cfg.isDryRun())
                     {
                         logger.info("  > hint done and seen, would remove: " + item.getFullPath());
                     }

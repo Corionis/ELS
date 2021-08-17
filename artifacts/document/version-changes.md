@@ -1,10 +1,6 @@
-Listed here are changes to ELS versions from 3.0.0 onward.
+## Version 3.0.0
 
-Rough notes ... a work in progress.
-
-# Version 3.0.0
-
-## Bug Fixes and Enhancements
+### Bug Fixes and Enhancements
 
  1. Issue #16 *'Add more granular control of target minimum free space'*.
     
@@ -87,67 +83,13 @@ Rough notes ... a work in progress.
  5. Added options -F | --log-overwrite that will delete the log file when starting.
     Used instead of -f | --log-file that will append to an existing file.
 
- 6. The -h option has been repurposed for ELS Hints and --hint-delete added
-    to enable deleting hints where all the system statuses are "Seen". See
-    the ELS Hints section for more information.
+ 6. ELS Hints
 
- 7. The -h change means the ONLY way to just get the ELS version is by 
-    using --version command-line option
-
- 8. ELS Hints
+    While curating a media collection files and directories are renamed, moved and
+    deleted. To avoid unnecessary copies and duplicates on back-ups a mechanism is
+    needed to coordinate manual changes.
 
     A "hint" is a special file used to keep track of manual changes to a collection.
     The hint is used by ELS to coordinate those changes with one or more back-ups.
 
-    A hint file contains one or more status lines, one for each back-up, and one or
-    more commands. As each system processes the hint it's key status line is updated.
-    When all systems have executed the hint the file is automatically deleted.
- 
-    To correlate publisher and subscriber collections with status keys in ELS hint
-    files a single keys file is needed.
- 
-    Example:
-    ``
-        For MediaServer  b9aa28d7-5a89-41ef-87cc-d43c31827b06
-    ``
-
-    1. Enabling ELS Hints
-
-       Hint processing is enabled using the -k | --keys or -K | --keys-only options
-       and specifying a keys filename. The -K | --keys-only variants only process
-       hints and skip the main backup process.
- 
-    2. Hint Processing Modes
-
-       1. Local mode - Processes hint files locally only. Enabled by specifying a
-          keys file and publisher library files but not a subscriber file.
-       2. Publish mode - Processes hints publisher-to-subscriber.
-
-    3. Local-only Hint Processing
-
-       Hints are generally "For" the back-up systems(s). However the media server
-       where manual changes are made may also execute hints locally (only), as
-       opposed to something being done manually then a hint created for that. In
-       other words a hint may be created then executed instead of doing the action
-       by hand.
-
-       Because targets are required for hint processing a special format command
-       line is used to execute hints locally (only).
-        1. The publisher's targets file is used instead of a subscriber's.
-        2. No subscriber file is specified.
-        3. All other options related to hint processing are the same.
-
-    Option -D | --dry-run applies.
-  
-    When using the --dry-run option with hints in a back-up run:
-    1. The backup results may be wrong because the hints were not actually performed
-       on the subscriber.
-    2. Because hints are copied and processed immediately publisher hint files are
-       only validated during a --dry-run.
-
-    Option -x | --cross-check applies in hasItem().
-
-    Filenames in .els hint files are relative to the directory containing the .els file.
- 
-    Changes made with ELS hints will trigger a rescan of the affected libraries.
- 
+    See [Hints](Hints) in the ELS wiki.

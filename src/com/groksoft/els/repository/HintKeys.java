@@ -1,6 +1,6 @@
 package com.groksoft.els.repository;
 
-import com.groksoft.els.Main;
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 
 import java.io.BufferedReader;
@@ -9,10 +9,10 @@ import java.util.ArrayList;
 
 public class HintKeys
 {
-    private Main.Context context;
+    private Context context;
     private String filename;
     private ArrayList<HintKey> keys;
-    public HintKeys(Main.Context ctx)
+    public HintKeys(Context ctx)
     {
         context = ctx;
     }

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class Process
 {
     private Configuration cfg = null;
-    private Main.Context context;
+    private Context context;
     private int differentSizes = 0;
     private int errorCount = 0;
     private boolean fault = false;
@@ -44,7 +44,7 @@ public class Process
     /**
      * Instantiates the class
      */
-    public Process(Configuration config, Main.Context ctxt)
+    public Process(Configuration config, Context ctxt)
     {
         this.cfg = config;
         this.context = ctxt;

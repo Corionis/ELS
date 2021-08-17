@@ -30,7 +30,7 @@ public class Daemon extends DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
-    private Main.Context context;
+    private Context context;
     private boolean fault = false;
     private HintKeys hintKeys = null;
     private Hints hints = null;
@@ -42,7 +42,7 @@ public class Daemon extends DaemonBase
      * @param config
      * @param ctxt
      */
-    public Daemon(Configuration config, Main.Context ctxt, Repository mine, Repository theirs)
+    public Daemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
     {
         super(config, mine, theirs);
         context = ctxt;

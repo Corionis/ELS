@@ -1,9 +1,6 @@
 package com.groksoft.els.stty;
 
-import com.groksoft.els.Configuration;
-import com.groksoft.els.Main;
-import com.groksoft.els.MungeException;
-import com.groksoft.els.Utils;
+import com.groksoft.els.*;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,7 +51,7 @@ public class ServeStty extends Thread
     private ThreadGroup allSessionThreads;
 
     private Configuration cfg;
-    private Main.Context context;
+    private Context context;
     private int listenPort;
     private boolean primaryServers;
 
@@ -62,7 +59,7 @@ public class ServeStty extends Thread
      * Instantiates the ServeStty object and set it as a daemon so the Java
      * Virtual Machine does not wait for it to exit.
      */
-    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Main.Context ctxt, boolean primaryServers)
+    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Context ctxt, boolean primaryServers)
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.

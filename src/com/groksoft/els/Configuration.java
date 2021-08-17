@@ -36,7 +36,6 @@ public class Configuration
     private String exportTextFilename = "";
     private boolean forceCollection = false;
     private boolean forceTargets = false;
-    private boolean hintDelete = false;
     private String hintKeysFile = "";
     private boolean hintSkipMainProcess = false;
     private String logFilename = "";
@@ -65,6 +64,7 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
+
     /**
      * Instantiates a new Configuration
      */
@@ -124,7 +124,6 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
         }
-        logger.info(SHORT, "  cfg: -h Hint delete = " + Boolean.toString(isHintDelete()));
         if (hintKeysFile != null && hintKeysFile.length() > 0)
         {
             logger.info(SHORT, "  cfg: " + (isHintSkipMainProcess() ? "-K" : "-k") + " Hint keys file: " + hintKeysFile + ((isHintSkipMainProcess()) ? ", Skip main process" : ""));
@@ -667,16 +666,6 @@ public class Configuration
         this.forceTargets = forceTargets;
     }
 
-    public boolean isHintDelete()
-    {
-        return hintDelete;
-    }
-
-    public void setHintDelete(boolean hintDelete)
-    {
-        this.hintDelete = hintDelete;
-    }
-
     public boolean isHintSkipMainProcess()
     {
         return hintSkipMainProcess;
@@ -1052,10 +1041,6 @@ public class Configuration
                         throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
-                case "-h":                                              // hint delete
-                case "--hint-delete":
-                    setHintDelete(true);
-                    break;
                 case "-i":                                             // export publisher items to collection file
                 case "--export-items":
                     if (index <= args.length - 2)
@@ -1243,6 +1228,7 @@ public class Configuration
                 case "--validate":
                     setValidation(true);
                     break;
+                case "-h":
                 case "--version":                                       // version
                     System.out.println("");
                     System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);

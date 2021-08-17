@@ -26,7 +26,7 @@ public class Transfer
 {
     private final transient Logger logger = LogManager.getLogger("applog");
     private Configuration cfg = null;
-    private Main.Context context;
+    private Context context;
     private int copyCount = 0;
     private String currentGroupName = "";
     private long grandTotalItems = 0L;
@@ -42,7 +42,7 @@ public class Transfer
     private Storage storageTargets = null;
     private boolean toIsNew = false;
 
-    public Transfer(Configuration config, Main.Context ctx)
+    public Transfer(Configuration config, Context ctx)
     {
         cfg = config;
         context = ctx;

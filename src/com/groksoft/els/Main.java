@@ -39,7 +39,7 @@ public class Main
     public static void main(String[] args)
     {
         Main els = new Main();
-        int returnValue = els.process(args);
+        els.process(args);          // ELS Processor
     } // main
 
     /**
@@ -465,21 +465,6 @@ public class Main
         {
             context.serveSftp.stopServer();
         }
-    }
-
-    /**
-     * Class to make passing these data easier
-     */
-    public class Context
-    {
-        public ClientSftp clientSftp;
-        public ClientStty clientStty;
-        public Repository publisherRepo;
-        public ServeSftp serveSftp;
-        public ServeStty serveStty;
-        public Repository subscriberRepo;
-        public Transfer transfer;
-        public boolean hintMode = false;
     }
 
 } // Main
