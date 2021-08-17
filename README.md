@@ -35,6 +35,7 @@ on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** 
  * May be scheduled using operating system tools, e.g. Windows Task Scheduler or Linux cron.
  * Nothing is added, no overhead.
  * Runs on Windows, Linux and Mac.
+ * New ELS Hints to coordinate manual changes, new in 3.0.0.
 
 ELS relies on a common directory structure used by modern home media
 systems such as [Plex Media Server](https://plex.tv). Each media type,
