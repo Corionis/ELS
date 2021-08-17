@@ -26,6 +26,7 @@ have to match on the back-up allowing a media library to grow "organically".
  * May be scheduled using operating system tools, e.g. Windows Task Scheduler or Linux cron.
  * Nothing is added, no overhead.
  * Runs on Windows, Linux and Mac.
+ * New ELS Hints to coordinate manual changes, new in 3.0.0.
 
 ELS relies on a common directory structure used by modern home media
 systems such as [Plex](https://plex.tv). Each item must be contained in
@@ -56,6 +57,8 @@ ELS can be used in a variety of ways. Some ideas are:
 |[Developer Notes](Developer-Notes)              | Notes for developers extending or modifying ELS.      |
 |[Downloads](Downloads)                          | Requirements and downloads.                          |
 |[ELS Plex Generator Utility](ELS-Plex-Generator-Utility)                    | Add-on utility for [Plex Media Server](https://www.plex.tv).                 |
+|[Hints](Hints)                                  | Hints to coordinate manual changes.                  |
 |[JSON Structure](JSON-Structure)                | Structure and definition of library and target JSON  |
 |[Modes of Operation](Modes-of-Operation)        | Describes the two different ways to run ELS.         |
 |[Regular Expressions](Regular-Expressions)      | Details of supported pattern matching.               |
+|[Version Changes](version-changes)              | List of changes.                                     |
