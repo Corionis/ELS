@@ -1,14 +1,13 @@
-![ELS logo](https://github.com/GrokSoft/ELS/blob/master/artifacts/images/els-logo-98px.jpg)
+![ELS logo](https://github.com/GrokSoft/ELS/blob/master/artifacts/images/els-logo-98px.png)
 
 # ELS : Entertainment Library Synchronizer
 
 Entertainment Library Synchronizer (ELS) is a backup tool for home
 media systems. ELS views media spanning multiple hard drives the same
-way modern media systems do - on a logical library basis, such as movies
-or TV shows. ELS combines the content for each library and performs name
-comparisons to determine what needs to be backed-up. The exact location
-of files in each library do not have to match on the back-up allowing
-a media library to grow "organically".
+way modern media systems do - on a logical library basis such as movies
+or TV shows. ELS combines the content of each library to determine what
+needs to be backed-up. The exact location of files in each library do not
+have to match on the back-up allowing a media library to grow "organically".
 
 Movies, TV shows with seasons, music and more are handled by ELS. When
 new content is added, for example another episode of a TV show, a check

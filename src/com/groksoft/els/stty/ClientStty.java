@@ -1,7 +1,7 @@
 package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
-import com.groksoft.els.MungerException;
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.stty.gui.TerminalGui;
 import com.groksoft.els.repository.Repository;
@@ -57,7 +57,7 @@ public class ClientStty
         String response = roundTrip("space \"" + location + "\"");
         if (response != null && response.length() > 0)
         {
-            logger.debug("space command returned: " + response);
+            //logger.debug("space command returned: " + response);
             space = Long.parseLong(response);
         }
         return space;
@@ -86,7 +86,7 @@ public class ClientStty
                             else
                                 location = cfg.getSubscriberLibrariesFileName();
 
-                            // change cfg -S to -s so -s handling in Process.process retrieves the data
+                            // change cfg -S to -s so -s handling in Transfer.initialize retrieves the data
                             cfg.setSubscriberLibrariesFileName(location);
                             cfg.setSubscriberCollectionFilename("");
                         }
@@ -100,7 +100,7 @@ public class ClientStty
             }
             else
             {
-                throw new MungerException("Unknown banner receive");
+                throw new MungeException("Unknown banner receive");
             }
         }
         return hasCommands;
@@ -116,7 +116,6 @@ public class ClientStty
                 this.theirRepo.getLibraryData().libraries != null &&
                 this.theirRepo.getLibraryData().libraries.host != null)
         {
-
             this.myKey = myRepo.getLibraryData().libraries.key;
             this.theirKey = theirRepo.getLibraryData().libraries.key;
 
@@ -154,7 +153,7 @@ public class ClientStty
         }
         else
         {
-            throw new MungerException("cannot get site from -r specified remote subscriber library");
+            throw new MungeException("cannot get site from -r specified remote subscriber library");
         }
 
         return isConnected;
@@ -185,18 +184,18 @@ public class ClientStty
     private boolean handshake() throws Exception
     {
         boolean valid = false;
-        String input = Utils.read(in, theirKey);
+        String input = Utils.readStream(in, theirKey);
         if (input.equals("HELO"))
         {
-            Utils.write(out, theirKey, (isTerminal ? "DribNit" : "DribNlt"));
+            Utils.writeStream(out, theirKey, (isTerminal ? "DribNit" : "DribNlt"));
 
-            input = Utils.read(in, theirKey);
+            input = Utils.readStream(in, theirKey);
             if (input.equals(theirKey))
             {
-                Utils.write(out, theirKey, myKey);
+                Utils.writeStream(out, theirKey, myKey);
 
                 // get the subscriber's flavor
-                input = Utils.read(in, theirKey);
+                input = Utils.readStream(in, theirKey);
                 try
                 {
                     // if Utils.getFileSeparator() does not throw an exception
@@ -225,13 +224,13 @@ public class ClientStty
 
     public String receive() throws Exception
     {
-        String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
+        String response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
         return response;
     }
 
     public String retrieveRemoteData(String filename, String command) throws Exception
     {
-        String location = "";
+        String location = null;
         String response = "";
 
         response = roundTrip(command);
@@ -249,7 +248,7 @@ public class ClientStty
             }
             catch (FileNotFoundException fnf)
             {
-                throw new MungerException("Exception while writing " + command + " file " + location + " trace: " + Utils.getStackTrace(fnf));
+                throw new MungeException("Exception while writing " + command + " file " + location + " trace: " + Utils.getStackTrace(fnf));
             }
         }
         return location;
@@ -264,7 +263,7 @@ public class ClientStty
 
     public void send(String command) throws Exception
     {
-        Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
+        Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, command);
     }
 
 }

@@ -3,7 +3,6 @@
 # Compiled class file
 *.class
 
-# Log file
 *.log
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
@@ -15,8 +14,7 @@ hs_err_pid*
 /mock/TestRun/publisher
 /mock/TestRun/subscriber-1
 /mock/TestRun/subscriber-2
-/grok-rock/
-grok-rock/
 /mock/TestRun-compare
 /test/
 /mock/Template_Copy-Only/publisher/media-a/media/MyMovies/2 Guns (2013)/
+/deploy/cp-to-plex

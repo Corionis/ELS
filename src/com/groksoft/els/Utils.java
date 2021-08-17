@@ -144,22 +144,22 @@ public class Utils
         if (value >= (1024))
         {
             brief = longerFormatter.format(value / 1024.0) + " KB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0))
         {
             brief = longerFormatter.format(value / (1024.0 * 1024.0)) + " MB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0 * 1024.0))
         {
             brief = longerFormatter.format(value / (1024.0 * 1024.0 * 1024.0)) + " GB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0 * 1024.0 * 1024.0))
         {
             brief = shorterFormatter.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
-            full +=  ", " + brief;
+            full += ", " + brief;
         }
         return (isFull ? full : brief);
     }
@@ -170,8 +170,10 @@ public class Utils
      * @param millis
      * @return String
      */
-    public static String getDuration(long millis) {
-        if(millis < 0) {
+    public static String getDuration(long millis)
+    {
+        if (millis < 0)
+        {
             throw new IllegalArgumentException("Duration must be greater than zero!");
         }
 
@@ -202,7 +204,7 @@ public class Utils
         sb.append(seconds);
         sb.append(" secs");
 
-        return(sb.toString());
+        return (sb.toString());
     }
 
     /**
@@ -210,9 +212,9 @@ public class Utils
      *
      * @param flavor
      * @return String containing matching file separator character
-     * @throws MungerException
+     * @throws MungeException
      */
-    public static String getFileSeparator(String flavor) throws MungerException
+    public static String getFileSeparator(String flavor) throws MungeException
     {
         String separator;
         if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
@@ -229,7 +231,7 @@ public class Utils
         }
         else
         {
-            throw new MungerException("unknown flavor '" + flavor + "'");
+            throw new MungeException("unknown flavor '" + flavor + "'");
         }
         return separator;
     }
@@ -240,7 +242,7 @@ public class Utils
      * @param full the full
      * @return the last path
      */
-    public static String getLastPath(String full, String sep) throws MungerException
+    public static String getLastPath(String full, String sep) throws MungeException
     {
         String path = "";
         int p = full.indexOf(sep);
@@ -250,15 +252,22 @@ public class Utils
         }
         else
         {
-            p = full.indexOf(sep);
-            if (p >= 0)
-            {
-                path = full.substring(0, p);
-            }
-            else
-            {
-                path = full;
-            }
+            path = full;
+        }
+        return path;
+    }
+
+    public static String getLeftPath(String full, String sep)
+    {
+        String path = "";
+        int p = full.lastIndexOf(sep);
+        if (p >= 0)
+        {
+            path = full.substring(0, p);
+        }
+        else
+        {
+            path = full;
         }
         return path;
     }
@@ -398,9 +407,9 @@ public class Utils
      * @param repo Repository of source of path
      * @param path Path to modify with pipe characters
      * @return String Modified path
-     * @throws MungerException
+     * @throws MungeException
      */
-    public static String pipe(Repository repo, String path) throws MungerException
+    public static String pipe(Repository repo, String path) throws MungeException
     {
         String p = path.replaceAll(repo.getWriteSeparator(), "|");
         return p;
@@ -413,7 +422,7 @@ public class Utils
      * @param key UUID key to decrypt the data stream
      * @return String read from stream; null if connection is closed
      */
-    public static String read(DataInputStream in, String key) throws Exception
+    public static String readStream(DataInputStream in, String key) throws Exception
     {
         byte[] buf = {};
         String input = "";
@@ -459,16 +468,39 @@ public class Utils
                 {
                     logger.info("connection closed by client");
                     input = null;
-                    //break;
                 }
-                //logger.error(e.getMessage());
                 throw e;
-                //break;
             }
         }
         if (buf.length > 0)
             input = decrypt(key, buf);
         return input;
+    }
+
+    /**
+     * Remove a directory tree and contents
+     *
+     * @param directory The directory tree to be deleted
+     * @return true if not all directories, files were also deleted
+     */
+    public static boolean removeDirectoryTree(File directory)
+    {
+        boolean notAllDirectories = false;
+        File[] all = directory.listFiles();
+        for (File entry : all)
+        {
+            if (!entry.isDirectory())
+            {
+                notAllDirectories = true;
+                entry.delete();
+            }
+            else
+            {
+                removeDirectoryTree(entry);
+            }
+        }
+        directory.delete();
+        return notAllDirectories;
     }
 
     /**
@@ -478,22 +510,12 @@ public class Utils
      * @param key     UUID key to encrypt the string
      * @param message String to encrypted and write
      */
-    public static void write(DataOutputStream out, String key, String message) throws Exception
+    public static void writeStream(DataOutputStream out, String key, String message) throws Exception
     {
-//        try
-//        {
-            byte[] buf = encrypt(key, message);
-            out.writeInt(buf.length);
-            out.write(buf);
-            out.flush();
-//        }
-//        catch (IOException e)
-//        {
-//            if (!e.getMessage().toLowerCase().contains("connection reset"))
-//            {
-//                logger.error(e.getMessage());
-//            }
-//        }
+        byte[] buf = encrypt(key, message);
+        out.writeInt(buf.length);
+        out.write(buf);
+        out.flush();
     }
 
 }

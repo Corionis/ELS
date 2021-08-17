@@ -171,7 +171,7 @@ public class TerminalGui implements WindowListener, ActionListener
 
     public String receive() throws Exception
     {
-        String response = Utils.read(in, theirRepo.getLibraryData().libraries.key);
+        String response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
         textArea.append(response);
         return response;
     }
@@ -205,7 +205,7 @@ public class TerminalGui implements WindowListener, ActionListener
     public int send(String command) throws Exception
     {
         textArea.append(command + "\r\n");
-        Utils.write(out, theirRepo.getLibraryData().libraries.key, command);
+        Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, command);
         return 0;
     }
 

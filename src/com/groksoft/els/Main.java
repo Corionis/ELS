@@ -10,8 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.Date;
 
 import static com.groksoft.els.Configuration.*;
@@ -40,7 +39,7 @@ public class Main
     public static void main(String[] args)
     {
         Main els = new Main();
-        int returnValue = els.process(args);
+        els.process(args);          // ELS Processor
     } // main
 
     /**
@@ -59,38 +58,62 @@ public class Main
 
         try
         {
-            cfg.parseCommandLine(args);
+            MungeException ce = null;
+            try
+            {
+                cfg.parseCommandLine(args);
+            }
+            catch (MungeException e)
+            {
+                ce = e; // configuration exception
+            }
 
-            // setup the logger based on configuration
+            // setup the logger based on configuration and/or defaults
+            if (cfg.getLogFilename().length() < 1)
+                cfg.setLogFilename("els.log"); // make sure there's a filename
+            if (cfg.isLogOverwrite()) // optionally delete any existing log
+            {
+                File aLog = new File(cfg.getLogFilename());
+                aLog.delete();
+            }
             System.setProperty("logFilename", cfg.getLogFilename());
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
             System.setProperty("debugLevel", cfg.getDebugLevel());
             System.setProperty("pattern", cfg.getPattern());
-            org.apache.logging.log4j.core.LoggerContext ctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
-            ctx.reconfigure();
-
-            org.apache.logging.log4j.core.config.Configuration ccfg = ctx.getConfiguration();
+            org.apache.logging.log4j.core.LoggerContext lctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+            lctx.reconfigure();
+            org.apache.logging.log4j.core.config.Configuration ccfg = lctx.getConfiguration();
             LoggerConfig lcfg = ccfg.getLoggerConfig("Console");
             lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
             lcfg = ccfg.getLoggerConfig("applog");
             lcfg.setLevel(Level.toLevel(cfg.getDebugLevel()));
-            ctx.updateLoggers();
+            lctx.updateLoggers();
 
             // get the named logger
             logger = LogManager.getLogger("applog");
 
+            if (ce != null) // re-throw any configuration exception
+                throw ce;
+
             // an execution of this program can only be configured as one of these
+            logger.info("+------------------------------------------");
             switch (cfg.getRemoteFlag())
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    logger.info("+ ELS Local Process begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Local Process begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    if (!cfg.isValidation()) // only publisher needed for a JSON file validation
+                    if (!cfg.isValidation() &&
+                            (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                                    cfg.getSubscriberCollectionFilename().length() > 0))
                     {
                         context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    }
+                    else if (cfg.isTargetsEnabled())
+                    {
+                        context.subscriberRepo = context.publisherRepo; // v3.00 for publisher ELS Hints
                     }
 
                     // the Process class handles the ELS process
@@ -100,7 +123,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("+ ELS Publisher Listener begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Publisher Listener begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -121,13 +144,13 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("A publisher library (-p) or collection file (-P) is required for -r L");
+                        throw new MungeException("A publisher library (-p) or collection file (-P) is required for -r L");
                     }
                     break;
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("+ ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -145,21 +168,21 @@ public class Main
                         }
                         else
                         {
-                            throw new MungerException("Publisher manual console failed to connect");
+                            throw new MungeException("Publisher manual console failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungerException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp client failed to connect");
                         }
                     }
                     break;
 
                 // handle -r P execute the automated process to remote subscriber -r S
-                case REMOTE_PUBLISH:
-                    logger.info("+ ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                case PUBLISH_REMOTE:
+                    logger.info("ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -172,14 +195,14 @@ public class Main
                         context.clientStty = new ClientStty(cfg, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
-                            throw new MungerException("Publisher remote failed to connect");
+                            throw new MungeException("Publisher remote failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungerException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp client failed to connect");
                         }
 
                         // the Process class handles the ELS process
@@ -188,17 +211,17 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("Publisher and subscriber options are required for -r P");
+                        throw new MungeException("Publisher and subscriber options are required for -r P");
                     }
                     break;
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("+ ELS Subscriber Listener begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Subscriber Listener begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
-                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
-                        throw new MungerException("Targets -t file not found: " + cfg.getTargetsFilename());
+                    if (!cfg.isTargetsEnabled())
+                        throw new MungeException("Targets -t | -T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
@@ -218,17 +241,17 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("Subscriber and publisher options are required for -r S");
+                        throw new MungeException("Subscriber and publisher options are required for -r S");
                     }
                     break;
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("+ ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersionN() + " ------------------------------------------");
+                    logger.info("ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersionN());
                     cfg.dump();
 
-                    if (cfg.isRequestTargets() && Files.notExists(Paths.get(cfg.getTargetsFilename())))
-                        throw new MungerException("Targets -t file not found: " + cfg.getTargetsFilename());
+                    if (!cfg.isTargetsEnabled())
+                        throw new MungeException("Targets -t | -T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
@@ -245,14 +268,14 @@ public class Main
                         }
                         else
                         {
-                            throw new MungerException("Subscriber terminal console failed to connect");
+                            throw new MungeException("Subscriber terminal console failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(context.subscriberRepo, context.publisherRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungerException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp client failed to connect");
                         }
 
                         // start serveStty server
@@ -267,12 +290,12 @@ public class Main
                     }
                     else
                     {
-                        throw new MungerException("A subscriber -s or -S file and publisher -p or -P) is required for -r T");
+                        throw new MungeException("A subscriber -s or -S file and publisher -p or -P) is required for -r T");
                     }
                     break;
 
                 default:
-                    throw new MungerException("Unknown type of remote");
+                    throw new MungeException("Unknown type of execution");
             }
 
         }
@@ -291,7 +314,7 @@ public class Main
         }
         finally
         {
-            if ( ! isListening)
+            if (!isListening)
             {
                 stopServices();
                 Date done = new Date();
@@ -315,7 +338,7 @@ public class Main
                             long millis = Math.abs(done.getTime() - stamp.getTime());
                             logger.fatal("Runtime: " + Utils.getDuration(millis));
 
-                            logger.info("stopping services");
+                            logger.info("Stopping ELS services");
                             Thread.sleep(10000L);
                             stopServices();
                         }
@@ -348,18 +371,18 @@ public class Main
             if (cfg.getPublisherLibrariesFileName().length() > 0 &&                     // both
                     cfg.getPublisherCollectionFilename().length() > 0)
             {
-                throw new MungerException("Cannot use both -p and -P");
+                throw new MungeException("Cannot use both -p and -P");
             }
             else if (cfg.getPublisherLibrariesFileName().length() == 0 &&               // neither
                     cfg.getPublisherCollectionFilename().length() == 0)
             {
                 if (cfg.isRemoteSession())
                 {
-                    throw new MungerException("A -p publisher library or -P collection file is required for -r P");
+                    throw new MungeException("A -p publisher library or -P collection file is required for -r P");
                 }
                 else
                 {
-                    throw new MungerException("A -p publisher library or -P collection file is required, or the filename missing from -p or -P");
+                    throw new MungeException("A -p publisher library or -P collection file is required, or the filename missing from -p or -P");
                 }
             }
 
@@ -380,20 +403,20 @@ public class Main
             if (cfg.getSubscriberLibrariesFileName().length() > 0 &&                    // both
                     cfg.getSubscriberCollectionFilename().length() > 0)
             {
-                throw new MungerException("Cannot use both -s and -S");
+                throw new MungeException("Cannot use both -s and -S");
             }
             else if (cfg.getSubscriberLibrariesFileName().length() == 0 &&              // neither
                     cfg.getSubscriberCollectionFilename().length() == 0)
             {
                 if (cfg.isRemoteSession())
                 {
-                    throw new MungerException("A -s subscriber library or -S collection file is required for -r S");
+                    throw new MungeException("A -s subscriber library or -S collection file is required for -r S");
                 }
                 else
                 {
                     if (cfg.isPublishOperation())
                     {
-                        throw new MungerException("A -s subscriber library or -S collection file is required, or the filename missing for -s or -S");
+                        throw new MungeException("A -s subscriber library or -S collection file is required, or the filename missing for -s or -S");
                     }
                     return null;
                 }
@@ -442,19 +465,6 @@ public class Main
         {
             context.serveSftp.stopServer();
         }
-    }
-
-    /**
-     * Class to make passing these data easier
-     */
-    public class Context
-    {
-        public ClientSftp clientSftp;
-        public ClientStty clientStty;
-        public Repository publisherRepo;
-        public ServeSftp serveSftp;
-        public ServeStty serveStty;
-        public Repository subscriberRepo;
     }
 
 } // Main

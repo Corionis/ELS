@@ -20,6 +20,12 @@
                 "to": ""
             }
         ],
+        "locations": [
+            {
+                "location": "TestRun/publisher",
+                "minimum": "30GB"
+            }
+        ],
         "bibliography": [
             {
                 "name": "Movies",

@@ -1,9 +1,6 @@
 package com.groksoft.els.stty;
 
-import com.groksoft.els.Configuration;
-import com.groksoft.els.Main;
-import com.groksoft.els.MungerException;
-import com.groksoft.els.Utils;
+import com.groksoft.els.*;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -54,7 +51,7 @@ public class ServeStty extends Thread
     private ThreadGroup allSessionThreads;
 
     private Configuration cfg;
-    private Main.Context context;
+    private Context context;
     private int listenPort;
     private boolean primaryServers;
 
@@ -62,7 +59,7 @@ public class ServeStty extends Thread
      * Instantiates the ServeStty object and set it as a daemon so the Java
      * Virtual Machine does not wait for it to exit.
      */
-    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Main.Context ctxt, boolean primaryServers)
+    public ServeStty(ThreadGroup aGroup, int aMaxConnections, Configuration config, Context ctxt, boolean primaryServers)
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
@@ -87,7 +84,7 @@ public class ServeStty extends Thread
      * checked. If the limit has not been exceeded the new connection is added
      * to allConnections, and a thread is started to service the request.
      */
-    public synchronized void addConnection(Socket aSocket) throws MungerException
+    public synchronized void addConnection(Socket aSocket) throws MungeException
     {
         // check for maximum connections
         if (allConnections.size() >= maxConnections)
@@ -122,7 +119,7 @@ public class ServeStty extends Thread
                 theConnection = new Connection(aSocket, new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
             } else
             {
-                throw new MungerException("FATAL: Unknown connection type");
+                throw new MungeException("FATAL: Unknown connection type");
             }
             allConnections.add(theConnection);
 
@@ -148,7 +145,7 @@ public class ServeStty extends Thread
             startServer(listenerRepo.getLibraryData().libraries.listen);
         } else
         {
-            throw new MungerException("cannot get site from -r specified remote library");
+            throw new MungeException("cannot get site from -r specified remote library");
         }
     }
 
@@ -333,6 +330,5 @@ public class ServeStty extends Thread
             logger.info("nothing to stop");
         }
     }
-
 
 } // ServeStty

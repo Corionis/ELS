@@ -14,20 +14,18 @@ import java.util.ArrayList;
  */
 public class Configuration
 {
-    private final String PROGRAM_VERSION = "2.2.0";
-
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
-    public static final int REMOTE_PUBLISH = 1;
+    public static final int PUBLISH_REMOTE = 1;
+    public static final int RENAME_BOTH = 3;
+    public static final int RENAME_DIRECTORIES = 2;
+    public static final int RENAME_FILES = 1;
+    public static final int RENAME_NONE = 0;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
-
-    public static final int RENAME_NONE = 0;
-    public static final int RENAME_FILES = 1;
-    public static final int RENAME_DIRECTORIES = 2;
-    public static final int RENAME_BOTH = 3;
-
+    private final String PROGRAM_VERSION = "3.0.0";
+    private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean crossCheck = false;
@@ -38,8 +36,10 @@ public class Configuration
     private String exportTextFilename = "";
     private boolean forceCollection = false;
     private boolean forceTargets = false;
-    private boolean keepELSFiles = false;
-    private String logFilename = "els.log";
+    private String hintKeysFile = "";
+    private boolean hintSkipMainProcess = false;
+    private String logFilename = "";
+    private boolean logOverwrite = false;
     private String mismatchFilename = "";
     private boolean noBackFill = false;
     private String[] originalArgs;
@@ -47,16 +47,19 @@ public class Configuration
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
-    private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
+    private boolean renaming = false;
+    private int renamingType = RENAME_NONE;
     private boolean requestCollection = false;
     private boolean requestTargets = false;
+    private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
+    private ArrayList<String> selectedLibraryNames = new ArrayList<>();
+    private boolean specificExclude = false;
     private boolean specificLibrary = false;
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
-    private boolean renaming = false;
-    private int renamingType = RENAME_NONE;
+    private boolean targetsEnabled = false;
     private String targetsFilename = "";
     private boolean validation = false;
     private boolean whatsNewAll = false;
@@ -67,6 +70,16 @@ public class Configuration
      */
     public Configuration()
     {
+    }
+
+    /**
+     * Add an excluded publisher library name
+     *
+     * @param publisherLibraryName the publisher library name
+     */
+    public void addExcludedLibraryName(String publisherLibraryName)
+    {
+        this.selectedLibraryExcludes.add(publisherLibraryName); // v3.0.0
     }
 
     /**
@@ -95,32 +108,75 @@ public class Configuration
         logger.info(SHORT, msg);
 
         if (getAuthorizedPassword().length() > 0)
+        {
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
+        }
         logger.info(SHORT, "  cfg: -b No back fill = " + Boolean.toString(isNoBackFill()));
         logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
         logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
         logger.info(SHORT, "  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
-        logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
-        logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
-        logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
-        //logger.info(SHORT, "  cfg: -k Keep .els files = " + Boolean.toString(isKeepELSFiles()));
-        logger.info(SHORT, "  cfg: -l Publisher library name(s):");
-        for (String ln : getSelectedLibraryNames())
+        if (getExportTextFilename().length() > 0)
         {
-            logger.info(SHORT, "        " + ln);
+            logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
-        logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
+        if (getExportCollectionFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
+        }
+        if (hintKeysFile != null && hintKeysFile.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: " + (isHintSkipMainProcess() ? "-K" : "-k") + " Hint keys file: " + hintKeysFile + ((isHintSkipMainProcess()) ? ", Skip main process" : ""));
+        }
+        if (!getSelectedLibraryNames().isEmpty())
+        {
+            logger.info(SHORT, "  cfg: -l Publisher library name(s):");
+            for (String ln : getSelectedLibraryNames())
+            {
+                logger.info(SHORT, "          " + ln);
+            }
+        }
+        if (!getExcludedLibraryNames().isEmpty())
+        {
+            logger.info(SHORT, "  cfg: -L Excluded library name(s):"); // v3.0.0
+            for (String ln : getExcludedLibraryNames())
+            {
+                logger.info(SHORT, "          " + ln);
+            }
+        }
+        if (getMismatchFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
+        }
         logger.info(SHORT, "  cfg: -n Renaming = " + Boolean.toString(isRenaming()));
         logger.info(SHORT, "  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
-        logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
-        logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        if (getPublisherLibrariesFileName().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
+        }
+        if (getPublisherCollectionFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        }
         logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
-        logger.info(SHORT, "  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
-        logger.info(SHORT, "  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
-        logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+        if (getSubscriberLibrariesFileName().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
+        }
+        if (getSubscriberCollectionFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -S Subscriber Collection filename = " + getSubscriberCollectionFilename());
+        }
+        if (isForceCollection() || getTargetsFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
+        }
         logger.info(SHORT, "  cfg: -u Duplicates = " + Boolean.toString(isDuplicateCheck()));
         logger.info(SHORT, "  cfg: -v Validate = " + Boolean.toString(isValidation()));
-        logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+        if (getWhatsNewFilename().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+        }
         logger.info(SHORT, "  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
     }
 
@@ -164,16 +220,6 @@ public class Configuration
         this.consoleLevel = consoleLevel;
     }
 
-    public boolean isCrossCheck()
-    {
-        return crossCheck;
-    }
-
-    public void setCrossCheck(boolean crossCheck)
-    {
-        this.crossCheck = crossCheck;
-    }
-
     /**
      * Gets debug level
      *
@@ -194,14 +240,14 @@ public class Configuration
         this.debugLevel = debugLevel;
     }
 
-    public boolean isDuplicateCheck()
+    /**
+     * Gets excluded library names
+     *
+     * @return the excluded library names collection
+     */
+    public ArrayList<String> getExcludedLibraryNames()
     {
-        return duplicateCheck;
-    }
-
-    public void setDuplicateCheck(boolean duplicateCheck)
-    {
-        this.duplicateCheck = duplicateCheck;
+        return selectedLibraryExcludes; // v3.0.0
     }
 
     /**
@@ -244,6 +290,11 @@ public class Configuration
         this.exportTextFilename = exportTextFilename;
     }
 
+    public String getHintKeysFile()
+    {
+        return hintKeysFile;
+    }
+
     /**
      * Gets log filename
      *
@@ -284,33 +335,6 @@ public class Configuration
         this.mismatchFilename = mismatchFilename;
     }
 
-    public boolean isNoBackFill()
-    {
-        return noBackFill;
-    }
-
-    public void setNoBackFill(boolean noBackFill)
-    {
-        this.noBackFill = noBackFill;
-    }
-
-    /**
-     * Sets overwrite mode
-     */
-    public void setOverwrite()
-    {
-        overwrite = true;
-    }
-
-    /**
-     * Gets overwrite mode
-     * @return true/false
-     */
-    public boolean isOverwrite()
-    {
-        return overwrite == true;
-    }
-
     /**
      * Gets PatternLayout for log4j2
      * <p>
@@ -327,6 +351,16 @@ public class Configuration
             return withoutMethod;
         }
         return withMethod;
+    }
+
+    /**
+     * Gets Main version
+     *
+     * @return the Main version
+     */
+    public String getProgramVersionN()
+    {
+        return PROGRAM_VERSION;
     }
 
     /**
@@ -370,16 +404,6 @@ public class Configuration
     }
 
     /**
-     * Gets publisher library name
-     *
-     * @return the publisher library name
-     */
-    public ArrayList<String> getSelectedLibraryNames()
-    {
-        return selectedLibraryNames;
-    }
-
-    /**
      * Gets remote flag
      *
      * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal
@@ -404,16 +428,16 @@ public class Configuration
      *
      * @param type the remote type and remote flag
      */
-    public void setRemoteType(String type) throws MungerException
+    public void setRemoteType(String type) throws MungeException
     {
         if (!this.remoteType.equals("-"))
         {
-            throw new MungerException("The -r option may only be used once");
+            throw new MungeException("The -r option may only be used once");
         }
         this.remoteType = type;
         this.remoteFlag = NOT_REMOTE;
         if (type.equalsIgnoreCase("P"))
-            this.remoteFlag = REMOTE_PUBLISH;
+            this.remoteFlag = PUBLISH_REMOTE;
         else if (type.equalsIgnoreCase("S"))
             this.remoteFlag = SUBSCRIBER_LISTENER;
         else if (type.equalsIgnoreCase("M"))
@@ -423,7 +447,46 @@ public class Configuration
         else if (type.equalsIgnoreCase("T"))
             this.remoteFlag = SUBSCRIBER_TERMINAL;
         else
-            throw new MungerException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
+            throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
+    }
+
+    /**
+     * Set the type of renaming to perform
+     */
+    public int getRenamingType()
+    {
+        return this.renamingType;
+    }
+
+    /**
+     * Set the type of renaming to perform
+     */
+    public void setRenamingType(String type) throws MungeException
+    {
+        switch (type.toLowerCase())
+        {
+            case "d":
+                this.renamingType = RENAME_DIRECTORIES;
+                break;
+            case "f":
+                this.renamingType = RENAME_FILES;
+                break;
+            case "b":
+                this.renamingType = RENAME_BOTH;
+                break;
+            default:
+                throw new MungeException("unknown -n | --rename type of rename; requires F | D | B");
+        }
+    }
+
+    /**
+     * Gets publisher library names
+     *
+     * @return the publisher library names collection
+     */
+    public ArrayList<String> getSelectedLibraryNames()
+    {
+        return selectedLibraryNames;
     }
 
     /**
@@ -487,16 +550,6 @@ public class Configuration
     }
 
     /**
-     * Gets Main version
-     *
-     * @return the Main version
-     */
-    public String getProgramVersionN()
-    {
-        return PROGRAM_VERSION;
-    }
-
-    /**
      * Gets whats new filename
      *
      * @return the whats new filename
@@ -514,6 +567,16 @@ public class Configuration
     public void setWhatsNewFilename(String whatsNewFilename)
     {
         this.whatsNewFilename = whatsNewFilename;
+    }
+
+    public boolean isCrossCheck()
+    {
+        return crossCheck;
+    }
+
+    public void setCrossCheck(boolean crossCheck)
+    {
+        this.crossCheck = crossCheck;
     }
 
     /**
@@ -534,6 +597,33 @@ public class Configuration
     public void setDryRun(boolean dryRun)
     {
         this.dryRun = dryRun;
+    }
+
+    public boolean isDuplicateCheck()
+    {
+        return duplicateCheck;
+    }
+
+    public void setDuplicateCheck(boolean duplicateCheck)
+    {
+        this.duplicateCheck = duplicateCheck;
+    }
+
+    /**
+     * Is the current library one that has been excluded on the command line?
+     *
+     * @return isSelected true/false
+     */
+    public boolean isExcludedLibrary(String name)
+    {
+        for (String library : selectedLibraryExcludes) // v3.0.0
+        {
+            if (library.equalsIgnoreCase(name))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -576,24 +666,52 @@ public class Configuration
         this.forceTargets = forceTargets;
     }
 
-    /**
-     * Is keep vol els files boolean.
-     *
-     * @return the boolean
-     */
-    public boolean isKeepELSFiles()
+    public boolean isHintSkipMainProcess()
     {
-        return keepELSFiles;
+        return hintSkipMainProcess;
+    }
+
+    public void setHintSkipMainProcess(boolean hintSkipMainProcess)
+    {
+        this.hintSkipMainProcess = hintSkipMainProcess;
+    }
+
+    public boolean isLogOverwrite()
+    {
+        return logOverwrite;
+    }
+
+    public void setLogOverwrite(boolean logOverwrite)
+    {
+        this.logOverwrite = logOverwrite;
+    }
+
+    public boolean isNoBackFill()
+    {
+        return noBackFill;
+    }
+
+    public void setNoBackFill(boolean noBackFill)
+    {
+        this.noBackFill = noBackFill;
     }
 
     /**
-     * Sets keep vol els files.
+     * Gets overwrite mode
      *
-     * @param keepELSFiles the keep vol els files
+     * @return true/false
      */
-    public void setKeepELSFiles(boolean keepELSFiles)
+    public boolean isOverwrite()
     {
-        this.keepELSFiles = keepELSFiles;
+        return overwrite == true;
+    }
+
+    /**
+     * Sets overwrite mode
+     */
+    public void setOverwrite(boolean sense)
+    {
+        overwrite = sense;
     }
 
     /**
@@ -643,7 +761,7 @@ public class Configuration
      */
     public boolean isRemotePublish()
     {
-        return (getRemoteFlag() == REMOTE_PUBLISH);
+        return (getRemoteFlag() == PUBLISH_REMOTE);
     }
 
     /**
@@ -666,40 +784,12 @@ public class Configuration
 
     /**
      * Enable or disable performing renaming
+     *
      * @param renaming true to enable
      */
     public void setRenaming(boolean renaming)
     {
         this.renaming = renaming;
-    }
-
-    /**
-     * Set the type of renaming to perform
-     */
-    public int getRenamingType()
-    {
-        return this.renamingType;
-    }
-
-    /**
-     * Set the type of renaming to perform
-     */
-    public void setRenamingType(String type) throws MungerException
-    {
-        switch (type.toLowerCase())
-        {
-            case "d":
-                this.renamingType = RENAME_DIRECTORIES;
-                break;
-            case "f":
-                this.renamingType = RENAME_FILES;
-                break;
-            case "b":
-                this.renamingType = RENAME_BOTH;
-                break;
-            default:
-                throw new MungerException("unknown -n | --rename type of rename; requires F | D | B");
-        }
     }
 
     /**
@@ -760,6 +850,24 @@ public class Configuration
     }
 
     /**
+     * Is specific publisher library exclude flag set?
+     */
+    public boolean isSpecificExclude()
+    {
+        return this.specificExclude; // v3.0.0
+    }
+
+    /**
+     * Sets specific publisher library exclude flag
+     *
+     * @param sense true/false
+     */
+    public void setSpecificExclude(boolean sense)
+    {
+        this.specificExclude = sense; // v3.0.0
+    }
+
+    /**
      * Is specific publisher library boolean.
      *
      * @return the boolean
@@ -770,13 +878,13 @@ public class Configuration
     }
 
     /**
-     * Sets specific publisher library
+     * Sets specific publisher library flag
      *
-     * @param specificLibrary the specific publisher library
+     * @param sense true/false
      */
-    public void setSpecificLibrary(boolean specificLibrary)
+    public void setSpecificLibrary(boolean sense)
     {
-        this.specificLibrary = specificLibrary;
+        this.specificLibrary = sense;
     }
 
     /**
@@ -793,6 +901,22 @@ public class Configuration
     public boolean isSubscriberTerminal()
     {
         return (getRemoteFlag() == SUBSCRIBER_TERMINAL);
+    }
+
+    /**
+     * Have targets been enabled?
+     */
+    public boolean isTargetsEnabled()
+    {
+        return targetsEnabled;
+    }
+
+    /**
+     * Set targets enabled
+     */
+    public void setTargetsEnabled(boolean sense)
+    {
+        targetsEnabled = sense;
     }
 
     public boolean isValidation()
@@ -831,9 +955,9 @@ public class Configuration
      * This populates the rest.
      *
      * @param args the args
-     * @throws MungerException the els exception
+     * @throws MungeException the els exception
      */
-    public void parseCommandLine(String[] args) throws MungerException
+    public void parseCommandLine(String[] args) throws MungeException
     {
         int index;
         originalArgs = args;
@@ -851,7 +975,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -a requires a password value");
+                        throw new MungeException("Error: -a requires a password value");
                     }
                     break;
                 case "-b":                                             // disable back-filling
@@ -867,7 +991,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungeException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
                 case "-D":                                             // Dry run
@@ -883,7 +1007,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
+                        throw new MungeException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
                 case "-e":                                             // export publisher items to flat text file
@@ -896,11 +1020,17 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -e requires an export path output filename");
+                        throw new MungeException("Error: -e requires an export path output filename");
                     }
                     break;
                 case "-f":                                             // log filename
+                case "-F":
                 case "--log-file":
+                case "--log-overwrite":
+                    if (getLogFilename().length() > 0)
+                        throw new MungeException("Error: -f and -F cannot be used at the same time");
+                    if (args[index].equals("-F") || args[index].equals("--log-overwrite"))
+                        setLogOverwrite(true);
                     if (index <= args.length - 2)
                     {
                         setLogFilename(args[index + 1]);
@@ -908,7 +1038,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -f requires a log filename");
+                        throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
                 case "-i":                                             // export publisher items to collection file
@@ -921,12 +1051,33 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -i requires a collection output filename");
+                        throw new MungeException("Error: -i requires a collection output filename");
                     }
                     break;
-                case "-k":                                             // keep .els files
-                case "--keep":
-                    setKeepELSFiles(true);
+                case "-k":                                             // ELS keys file
+                case "--keys":
+                    if (index <= args.length - 2)
+                    {
+                        hintKeysFile = args[index + 1];
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -k requires an ELS keys filename");
+                    }
+                    break;
+                case "-K":                                             // ELS keys file and skip main process munge
+                case "--keys-only":
+                    if (index <= args.length - 2)
+                    {
+                        hintKeysFile = args[index + 1];
+                        ++index;
+                        setHintSkipMainProcess(true);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -K requires an ELS keys filename");
+                    }
                     break;
                 case "-l":                                             // publisher library to process
                 case "--library":
@@ -938,7 +1089,20 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -l requires a publisher library name");
+                        throw new MungeException("Error: -l requires a publisher library name");
+                    }
+                    break;
+                case "-L":                                             // publisher library to exclude
+                case "--exclude":
+                    if (index <= args.length - 2)
+                    {
+                        addExcludedLibraryName(args[index + 1]); // v3.0.0
+                        setSpecificExclude(true);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -L requires a publisher library name to exclude");
                     }
                     break;
                 case "-m":                                             // Mismatch output filename
@@ -950,7 +1114,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -m requires a mismatches output filename");
+                        throw new MungeException("Error: -m requires a mismatches output filename");
                     }
                     break;
                 case "-n":                                             // perform renaming
@@ -963,12 +1127,12 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -n requires the type F | D | B");
+                        throw new MungeException("Error: -n requires the type F | D | B");
                     }
                     break;
                 case "-o":
                 case "--overwrite":
-                    setOverwrite();
+                    setOverwrite(true);
                     break;
                 case "-p":                                             // publisher JSON libraries file
                 case "--publisher-libraries":
@@ -979,7 +1143,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -p requires a publisher libraries filename");
+                        throw new MungeException("Error: -p requires a publisher libraries filename");
                     }
                     break;
                 case "-P":                                             // publisher JSON collection items file
@@ -991,7 +1155,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -P requires a publisher collection filename");
+                        throw new MungeException("Error: -P requires a publisher collection filename");
                     }
                     break;
                 case "-r":                                             // remote session
@@ -1003,7 +1167,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
+                        throw new MungeException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
                     }
                     break;
                 case "-s":                                             // subscriber JSON libraries file
@@ -1017,7 +1181,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -s requires a subscriber libraries filename");
+                        throw new MungeException("Error: -s requires a subscriber libraries filename");
                     }
                     break;
                 case "-S":                                             // subscriber JSON collection items file
@@ -1031,35 +1195,29 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -S requires an subscriber collection filename");
+                        throw new MungeException("Error: -S requires an subscriber collection filename");
                     }
                     break;
                 case "-t":                                             // targets filename
                 case "--targets":
-                    if (index <= args.length - 2)
+                    setTargetsEnabled(true);
+                    setForceTargets(false);
+                    setRequestTargets(true);
+                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
-                        setForceTargets(false);
-                        setRequestTargets(true);
                         setTargetsFilename(args[index + 1]);
                         ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -t requires a targets filename");
                     }
                     break;
                 case "-T":                                             // targets filename - force to publisher
                 case "--force-targets":
-                    if (index <= args.length - 2)
+                    setTargetsEnabled(true);
+                    setForceTargets(true);
+                    setRequestTargets(false);
+                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
-                        setForceTargets(true);
-                        setRequestTargets(false);
                         setTargetsFilename(args[index + 1]);
                         ++index;
-                    }
-                    else
-                    {
-                        throw new MungerException("Error: -T requires a targets filename");
                     }
                     break;
                 case "-u":                                             // publisher duplicate check
@@ -1070,6 +1228,15 @@ public class Configuration
                 case "--validate":
                     setValidation(true);
                     break;
+                case "-h":
+                case "--version":                                       // version
+                    System.out.println("");
+                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);
+                    System.out.println("See the ELS wiki on GitHub for documentation at:");
+                    System.out.println("  https://github.com/GrokSoft/ELS/wiki");
+                    System.out.println("");
+                    System.exit(1);
+                    break;
                 case "-w":                                             // What's New output filename
                 case "--whatsnew":
                     if (index <= args.length - 2)
@@ -1079,7 +1246,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -w requires a What's New output filename");
+                        throw new MungeException("Error: -w requires a What's New output filename");
                     }
                     break;
                 case "-W":                                             // What's New output filename, set "all" option
@@ -1092,7 +1259,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungerException("Error: -W requires a What's New output filename");
+                        throw new MungeException("Error: -W requires a What's New output filename");
                     }
                     break;
                 case "-x":                                             // cross-library duplicate check
@@ -1100,7 +1267,7 @@ public class Configuration
                     setCrossCheck(true);
                     break;
                 default:
-                    throw new MungerException("Error: unknown option " + args[index]);
+                    throw new MungeException("Error: unknown option: " + args[index]);
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.groksoft.els.stty.publisher;
 
 import com.groksoft.els.*;
-import com.groksoft.els.Process;
 import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
@@ -34,10 +33,10 @@ public class Daemon extends DaemonBase
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
-    private Main.Context context;
+    private Context context;
     private boolean fault = false;
     private boolean isTerminal = false;
-    private Process process; // munge process for get command
+    private Transfer transfer;
 
     /**
      * Instantiate the Daemon service
@@ -45,7 +44,7 @@ public class Daemon extends DaemonBase
      * @param config
      * @param ctxt
      */
-    public Daemon(Configuration config, Main.Context ctxt, Repository mine, Repository theirs)
+    public Daemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
     {
         super(config, mine, theirs);
         context = ctxt;
@@ -77,19 +76,19 @@ public class Daemon extends DaemonBase
         boolean valid = false;
         try
         {
-            Utils.write(out, myKey, "HELO");
+            Utils.writeStream(out, myKey, "HELO");
 
-            String input = Utils.read(in, myKey);
+            String input = Utils.readStream(in, myKey);
             if (input.equals("DribNit") || input.equals("DribNlt"))
             {
                 isTerminal = input.equals("DribNit");
-                Utils.write(out, myKey, myKey);
+                Utils.writeStream(out, myKey, myKey);
 
-                input = Utils.read(in, myKey);
+                input = Utils.readStream(in, myKey);
                 if (input.equals(theirKey))
                 {
                     // send my flavor
-                    Utils.write(out, myKey, myRepo.getLibraryData().libraries.flavor);
+                    Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
 
                     logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
                     valid = true;
@@ -109,7 +108,7 @@ public class Daemon extends DaemonBase
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public void process(Socket aSocket) throws IOException
+    public void process(Socket aSocket) throws Exception, IOException
     {
         socket = aSocket;
         port = aSocket.getPort();
@@ -124,7 +123,8 @@ public class Daemon extends DaemonBase
         // for get command
         long totalSize = 0L;
         ArrayList<Item> group = new ArrayList<>();
-        process = new Process(cfg, context); // munge process for get command
+        transfer = new Transfer(cfg, context); // v3.0.0
+        transfer.initialize();
 
         // setup i/o
         aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
@@ -171,15 +171,16 @@ public class Daemon extends DaemonBase
                 // prompt the user for a command
                 if (!tout)
                 {
-                    Utils.write(out, myKey, response + (isTerminal ? prompt : ""));
+                    Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
                 }
                 tout = false;
                 response = "";
 
-                line = Utils.read(in, myKey);
+                line = Utils.readStream(in, myKey);
                 if (line == null)
                 {
-                    logger.info("EOF line");
+                    logger.info("EOF line. Process ended prematurely.");
+                    fault = true;
                     stop = true;
                     break; // exit on EOF
                 }
@@ -239,7 +240,20 @@ public class Daemon extends DaemonBase
 
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                         {
-                            myRepo.scan(subLib.name);
+                            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
+                                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
+                            {
+                                if (subLib.items != null)
+                                {
+                                    subLib.items = null; // clear any existing data
+                                }
+                                myRepo.scan(subLib.name);
+                            }
+                            else
+                            {
+                                logger.info("Skipping publisher library: " + subLib.name);
+                                subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name; // v3.0.0
+                            }
                         }
 
                         // otherwise it must be -S so do not scan
@@ -247,7 +261,7 @@ public class Daemon extends DaemonBase
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
                     }
-                    catch (MungerException e)
+                    catch (MungeException e)
                     {
                         logger.error(e.getMessage());
                     }
@@ -363,9 +377,9 @@ public class Daemon extends DaemonBase
                             response += "  Total size: ";
                             response += Utils.formatLong(totalSize, true) + "\r\n";
                             response += "Copy listed items (y/N)? ";
-                            Utils.write(out, myKey, response);
+                            Utils.writeStream(out, myKey, response);
 
-                            line = Utils.read(in, myKey);
+                            line = Utils.readStream(in, myKey);
                             if (line == null)
                             {
                                 logger.info("EOF line");
@@ -381,17 +395,17 @@ public class Daemon extends DaemonBase
                                     context.clientSftp = new ClientSftp(myRepo, theirRepo, false);
                                     if (!context.clientSftp.startClient())
                                     {
-                                        throw new MungerException("Publisher sftp client failed to connect");
+                                        throw new MungeException("Publisher sftp client failed to connect");
                                     }
 
                                     // start the serveStty client for automation
                                     context.clientStty = new ClientStty(cfg, false, false);
                                     if (!context.clientStty.connect(myRepo, theirRepo))
                                     {
-                                        throw new MungerException("Publisher stty client failed to connect");
+                                        throw new MungeException("Publisher stty client failed to connect");
                                     }
                                 }
-                                response = process.copyGroup(group, totalSize, true);
+                                response = transfer.copyGroup(group, totalSize, true);
                                 group.clear();
                             }
                             else
@@ -422,7 +436,7 @@ public class Daemon extends DaemonBase
                 // -------------- quit, bye, exit ---------------------------
                 if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
                 {
-                    Utils.write(out, myKey, "End-Execution");
+                    Utils.writeStream(out, myKey, "End-Execution");
                     stop = true;
                     break; // break the loop
                 }
@@ -472,7 +486,14 @@ public class Daemon extends DaemonBase
                 {
                     try
                     {
-                        response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                        if (cfg.getTargetsFilename().length() > 0)
+                        {
+                            response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                        }
+                        else
+                        {
+                            response = ""; // let it default to sources as target locations v3.0.0
+                        }
                     }
                     catch (Exception e)
                     {
@@ -518,7 +539,7 @@ public class Daemon extends DaemonBase
                 stop = true;
                 try
                 {
-                    Utils.write(out, myKey, e.getMessage());
+                    Utils.writeStream(out, myKey, e.getMessage());
                 }
                 catch (Exception ex) {}
                 break;
@@ -535,6 +556,8 @@ public class Daemon extends DaemonBase
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
                     logger.fatal("Process completed normally");
+                else
+                    logger.fatal("Process failed");
             }
             out.close();
             in.close();

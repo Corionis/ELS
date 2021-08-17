@@ -70,7 +70,7 @@ public class Connection extends Thread
 		{
 			service.process(socket);
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			logger.info(e);
 		}
