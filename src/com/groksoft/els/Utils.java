@@ -466,7 +466,7 @@ public class Utils
             {
                 if (e.getMessage().toLowerCase().contains("connection reset"))
                 {
-                    logger.info("connection closed by client");
+                    logger.info("Connection closed by client");
                     input = null;
                 }
                 throw e;

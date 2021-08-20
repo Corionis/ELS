@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Remote Hints Subscriber + Remote Publisher backup" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="false" hideSuccessProcess="false" delayTime="0.0">
+    <runConfiguration name="Hints Subscriber listener" type="Application" />
+    <runConfiguration name="Hints Remote Publisher backup" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

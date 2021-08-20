@@ -35,4 +35,20 @@ public class Library
      */
     public Vector<Item> items;
 
+    /**
+     * Get an item by itemPath in a linear search
+     *
+     * @param itemPath
+     * @return Item matching itemPath
+     */
+    public Item get(String itemPath)
+    {
+        for (Item item : items)
+        {
+            if (item.getItemPath().equalsIgnoreCase(itemPath))
+                return item;
+        }
+        return null;
+    }
+
 }

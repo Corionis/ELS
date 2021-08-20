@@ -132,7 +132,7 @@ public class Daemon extends DaemonBase
         // Get ELS hints keys if specified
         if (cfg.getHintKeysFile().length() > 0) // v3.0.0
         {
-            hintKeys = new HintKeys(context);
+            hintKeys = new HintKeys(cfg, context);
             hintKeys.read(cfg.getHintKeysFile());
             hints = new Hints(cfg, context, hintKeys);
             context.transfer = new Transfer(cfg, context);
@@ -149,7 +149,7 @@ public class Daemon extends DaemonBase
         if (!handshake())
         {
             stop = true; // just hang-up on the connection
-            logger.info("Connection to " + theirRepo.getLibraryData().libraries.host + " failed handshake");
+            logger.error("Connection to " + theirRepo.getLibraryData().libraries.host + " failed handshake");
         }
         else
         {
@@ -418,7 +418,7 @@ public class Daemon extends DaemonBase
                                 " And:\r\n";
                     }
 
-                    response += "  auth [password] = access Authorized commands\r\n" +
+                    response += "  auth \"password\" = access Authorized commands, enclose password in quote\r\n" +
                             "  collection = get collection data from remote, can take a few moments to scan\r\n" +
                             "  space [location] = free space at location on remote\r\n" +
                             "  targets = get targets file from remote\r\n" +

@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Subscriber listener" type="Application" factoryName="Application" folderName="Remote">
+    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-c debug -d debug --remote S --authorize sharkbait -p meta/publisher.json -S meta/subscriber.json -T -F output/subscriber.log" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$PROJECT_DIR$/lib/log4j2.xml" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../../../plex/Plex/els" />
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

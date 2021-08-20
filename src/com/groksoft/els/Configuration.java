@@ -22,9 +22,11 @@ public class Configuration
     public static final int RENAME_DIRECTORIES = 2;
     public static final int RENAME_FILES = 1;
     public static final int RENAME_NONE = 0;
+    public static final int STATUS_SERVER = 6;
+    public static final int STATUS_SHUTDOWN = 7;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
-    private final String PROGRAM_VERSION = "3.0.0";
+    private final String PROGRAM_VERSION = "3.1.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
@@ -38,6 +40,7 @@ public class Configuration
     private boolean forceTargets = false;
     private String hintKeysFile = "";
     private boolean hintSkipMainProcess = false;
+    private String hintsDaemonFilename = "";
     private String logFilename = "";
     private boolean logOverwrite = false;
     private String mismatchFilename = "";
@@ -57,6 +60,7 @@ public class Configuration
     private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private boolean specificExclude = false;
     private boolean specificLibrary = false;
+    private String statusServerFilename = "";
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
     private boolean targetsEnabled = false;
@@ -120,6 +124,14 @@ public class Configuration
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
         logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
+        if (statusServerFilename != null && statusServerFilename.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -h Hint status server: " + getStatusServerFilename());
+        }
+        if (hintsDaemonFilename != null && hintsDaemonFilename.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -H Hints status server daemon: " + getHintsDaemonFilename());
+        }
         if (getExportCollectionFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
@@ -157,6 +169,10 @@ public class Configuration
         if (getPublisherCollectionFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        }
+        if (this.remoteFlag == STATUS_SHUTDOWN)
+        {
+            logger.info(SHORT, "  cfg: -q Status server shutdown");
         }
         logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
         if (getSubscriberLibrariesFileName().length() > 0)
@@ -295,6 +311,16 @@ public class Configuration
         return hintKeysFile;
     }
 
+    public String getHintsDaemonFilename()
+    {
+        return hintsDaemonFilename;
+    }
+
+    public void setHintsDaemonFilename(String hintsDaemonFilename)
+    {
+        this.hintsDaemonFilename = hintsDaemonFilename;
+    }
+
     /**
      * Gets log filename
      *
@@ -358,7 +384,7 @@ public class Configuration
      *
      * @return the Main version
      */
-    public String getProgramVersionN()
+    public String getProgramVersion()
     {
         return PROGRAM_VERSION;
     }
@@ -406,7 +432,7 @@ public class Configuration
     /**
      * Gets remote flag
      *
-     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal
+     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server
      */
     public int getRemoteFlag()
     {
@@ -487,6 +513,16 @@ public class Configuration
     public ArrayList<String> getSelectedLibraryNames()
     {
         return selectedLibraryNames;
+    }
+
+    public String getStatusServerFilename()
+    {
+        return statusServerFilename;
+    }
+
+    public void setStatusServerFilename(String statusServerFilename)
+    {
+        this.statusServerFilename = statusServerFilename;
     }
 
     /**
@@ -888,6 +924,16 @@ public class Configuration
     }
 
     /**
+     * Returns true if this is a hint status server
+     *
+     * @return true/false
+     */
+    public boolean isStatusServer()
+    {
+        return (getRemoteFlag() == STATUS_SERVER);
+    }
+
+    /**
      * Returns true if subscriber is in listener mode
      */
     public boolean isSubscriberListener()
@@ -917,6 +963,11 @@ public class Configuration
     public void setTargetsEnabled(boolean sense)
     {
         targetsEnabled = sense;
+    }
+
+    public boolean isUsingHintServer()
+    {
+        return (statusServerFilename.length() > 0);
     }
 
     public boolean isValidation()
@@ -1041,6 +1092,33 @@ public class Configuration
                         throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
+                case "-h":                                              // hint status provider, v3.1.0
+                case "--hints":
+                    if (index <= args.length - 2)
+                    {
+                        setStatusServerFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -i requires a collection output filename");
+                    }
+                    break;
+                case "-H":                                              // hint status server, v3.1.0
+                case "--hint-server":
+                    this.remoteFlag = STATUS_SERVER;
+                    if (index <= args.length - 2)
+                    {
+                        setHintsDaemonFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -H requires a  filename");
+                    }
+                    break;
                 case "-i":                                             // export publisher items to collection file
                 case "--export-items":
                     if (index <= args.length - 2)
@@ -1158,6 +1236,10 @@ public class Configuration
                         throw new MungeException("Error: -P requires a publisher collection filename");
                     }
                     break;
+                case "-q":                                             // tell status server to shutdown
+                case "--quit-status":
+                    this.remoteFlag = STATUS_SHUTDOWN;
+                    break;
                 case "-r":                                             // remote session
                 case "--remote":
                     if (index <= args.length - 2)
@@ -1228,7 +1310,6 @@ public class Configuration
                 case "--validate":
                     setValidation(true);
                     break;
-                case "-h":
                 case "--version":                                       // version
                     System.out.println("");
                     System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);

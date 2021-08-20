@@ -86,6 +86,8 @@ files have been specified.
 
 ### Parameters
 
+//////////////////// Not used:  g  j  y  z
+
 * -a | --authorize [password] : The password required for authorized accesss
   when in -r | --remote mode and allowing STTY interactive access to a listener
 
@@ -103,10 +105,15 @@ files have been specified.
 
 * -F | --log-overwrite [file] : Log file, in overwrite mode
 
-* -k | --keys [file] : ELS Hint keys file. See also -h | --hint-delete
+* -h | --hints [file] : Hints Status Server file to enable connection
+
+* -H | --hint-server [file] : Hints Status Server to execute continuous hint
+  status server daemon
+
+* -k | --keys [file] : ELS Hint keys file
 
 * -K | --keys-only [file] : ELS Hint keys file. Hints processing only, skip
-  main munge process. Useful for executing hints locally.
+  main munge process. Useful for executing hints locally
 
 * -l | --library [libraryname] : Library to process, if not specified process
   all libraries. This option may be specified more than once
@@ -122,6 +129,8 @@ files have been specified.
 
 * -P | --publisher-collection [file] : Publisher JSON collection file
 
+* -q | --quit-status : Send quit command to hint status server to shutdown
+
 * -s | --subscriber-libraries [file] : Subscriber JSON library file
 
 * -S | --subscriber-collection [file] : Subscriber JSON collection file
@@ -130,7 +139,7 @@ files have been specified.
 
 * -T | --force-targets [file] : Forced targets for -r | --remote, see Notes
 
-* -h | --version : Display version information
+* --version : Display version information
 
 * -w | --whatsnew [file] : What's New output text file as a summary
 

@@ -85,4 +85,3 @@ public class Connection extends Thread
 		}
 	}
 } // Connection
-

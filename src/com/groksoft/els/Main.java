@@ -1,10 +1,12 @@
 package com.groksoft.els;
 
+import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
+import com.groksoft.els.stty.hints.Store;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +23,7 @@ import static com.groksoft.els.Configuration.*;
 public class Main
 {
     public boolean isListening = false;
+    Configuration cfg;
     Context context = new Context();
     private Logger logger = null;
 
@@ -42,6 +45,22 @@ public class Main
         els.process(args);          // ELS Processor
     } // main
 
+    private void connectHintServer(Repository repo) throws Exception
+    {
+        if (cfg.isUsingHintServer())
+        {
+            context.statusRepo = new Repository(cfg);
+            context.statusRepo.read(cfg.getStatusServerFilename());
+
+            // start the serveStty client to the hints status server
+            context.statusStty = new ClientStty(cfg, false, true);
+            if (!context.statusStty.connect(repo, context.statusRepo))
+            {
+                throw new MungeException("Hint Status Server failed to connect");
+            }
+        }
+    }
+
     /**
      * execute the process
      *
@@ -52,7 +71,7 @@ public class Main
     {
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
-        Configuration cfg = new Configuration();
+        cfg = new Configuration();
         Process proc;
         Date stamp = new Date();
 
@@ -95,13 +114,18 @@ public class Main
             if (ce != null) // re-throw any configuration exception
                 throw ce;
 
+            // TODO
+            //   * Add "locations" to the example publisher and subscriber files.
+            //   * Fix docs for -T | -T behavior changes.
+            //   * Add Javadoc to all methods
+
             // an execution of this program can only be configured as one of these
             logger.info("+------------------------------------------");
             switch (cfg.getRemoteFlag())
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    logger.info("ELS Local Process begin, version " + cfg.getProgramVersionN());
+                    logger.info("ELS Local Process begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -123,7 +147,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS Publisher Listener begin, version " + cfg.getProgramVersionN());
+                    logger.info("ELS Publisher Listener begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -150,7 +174,7 @@ public class Main
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersionN());
+                    logger.info("ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -182,7 +206,7 @@ public class Main
 
                 // handle -r P execute the automated process to remote subscriber -r S
                 case PUBLISH_REMOTE:
-                    logger.info("ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersionN());
+                    logger.info("ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -191,6 +215,9 @@ public class Main
                     // start clients
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
+                        // connect to the hint status server if defined
+                        connectHintServer(context.publisherRepo);
+
                         // start the serveStty client for automation
                         context.clientStty = new ClientStty(cfg, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
@@ -217,7 +244,7 @@ public class Main
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS Subscriber Listener begin, version " + cfg.getProgramVersionN());
+                    logger.info("ELS Subscriber Listener begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -229,6 +256,9 @@ public class Main
                     // start servers
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
                     {
+                        // connect to the hint status server if defined
+                        connectHintServer(context.subscriberRepo);
+
                         // start serveStty server
                         sessionThreads = new ThreadGroup("SServer");
                         context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
@@ -247,7 +277,7 @@ public class Main
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersionN());
+                    logger.info("ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -292,6 +322,73 @@ public class Main
                     {
                         throw new MungeException("A subscriber -s or -S file and publisher -p or -P) is required for -r T");
                     }
+                    break;
+
+                // handle -H | --hint-server stand-alone hints status server
+                case STATUS_SERVER:
+                    logger.info("ELS Hint Status Server begin, version " + cfg.getProgramVersion());
+                    cfg.dump();
+
+                    if (cfg.getHintKeysFile() == null || cfg.getHintKeysFile().length() == 0)
+                        throw new MungeException("-H | --status-server requires a -k | -K hint keys file");
+
+                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
+                        throw new MungeException("-H | --status-server does not use -p | -P");
+
+                    if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
+                        throw new MungeException("-H | --status-server does not use -s | -S");
+
+                    if (cfg.isTargetsEnabled())
+                        throw new MungeException("-H | --status-server does not use targets");
+
+                    // Get the hint status server repo
+                    context.statusRepo = new Repository(cfg);
+                    context.statusRepo.read(cfg.getHintsDaemonFilename());
+
+                    // Get ELS hints keys if specified
+                    context.hintKeys = new HintKeys(cfg, context);
+                    context.hintKeys.read(cfg.getHintKeysFile());
+
+                    // Setup the hint status store
+                    context.hintStore = new Store(cfg, context);
+                    context.hintStore.initialize();
+
+                    // start server
+                    if (context.statusRepo.isInitialized())
+                    {
+                        // start serveStty server
+                        sessionThreads = new ThreadGroup("SServer");
+                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
+                        context.serveStty.startListening(context.statusRepo);
+                        isListening = true;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error initializing from hint status server JSON file");
+                    }
+                    break;
+
+                // handle -q | --quit-status shutdown remote stand-alone hints status server
+                case STATUS_SHUTDOWN:
+                    logger.info("ELS Hint Status Server shutdown begin, version " + cfg.getProgramVersion());
+                    cfg.dump();
+
+                    if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
+                        throw new MungeException("-q | --quit-status does not use -s | -S");
+
+                    if (cfg.isTargetsEnabled())
+                        throw new MungeException("-q | --quit-status does not use targets");
+
+                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
+                    connectHintServer(context.publisherRepo);
+                    if (context.statusStty != null)
+                    {
+                        logger.info("Sending command to shutdown hint status server to: " + context.statusRepo.getLibraryData().libraries.description);
+                        context.statusStty.send("quit");
+                        logger.fatal("Process completed normally");
+                    }
+                    else
+                        logger.info("Could not connect to hint status server " + context.statusRepo.getLibraryData().libraries.description);
                     break;
 
                 default:
@@ -449,6 +546,18 @@ public class Main
      */
     public void stopServices()
     {
+        // logout from any hint status server if not shutting it down
+        if (context.statusStty != null && cfg.getRemoteFlag() != STATUS_SHUTDOWN)
+        {
+            try
+            {
+                context.statusStty.send("logout");
+            }
+            catch (Exception e)
+            {
+                logger.info(Utils.getStackTrace(e));
+            }
+        }
         if (context.clientStty != null)
         {
             context.clientStty.disconnect();

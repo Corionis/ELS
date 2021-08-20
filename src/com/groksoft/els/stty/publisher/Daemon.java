@@ -137,7 +137,7 @@ public class Daemon extends DaemonBase
         if (!handshake())
         {
             stop = true; // just hang-up on the connection
-            logger.info("Connection to " + theirRepo.getLibraryData().libraries.host + " failed handshake");
+            logger.error("Connection to " + theirRepo.getLibraryData().libraries.host + " failed handshake");
         }
         else
         {
@@ -517,7 +517,7 @@ public class Daemon extends DaemonBase
                                 " And:\r\n";
                     }
 
-                    response += "  auth [password] = access Authorized commands\r\n" +
+                    response += "  auth \"password\" = access Authorized commands, enclose password in quote\r\n" +
                             "  collection = get collection data from remote, can take a few moments to scan\r\n" +
                             "  space [location] = free space at location on remote\r\n" +
                             "  targets = get targets file from remote\r\n" +

@@ -23,7 +23,6 @@ public class Process
     private int differentSizes = 0;
     private int errorCount = 0;
     private boolean fault = false;
-    private HintKeys hintKeys = null;
     private Hints hints = null;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
@@ -490,9 +489,9 @@ public class Process
             // Get ELS hints keys if specified
             if (cfg.getHintKeysFile().length() > 0) // v3.0.0
             {
-                hintKeys = new HintKeys(context);
-                hintKeys.read(cfg.getHintKeysFile());
-                hints = new Hints(cfg, context, hintKeys);
+                context.hintKeys = new HintKeys(cfg, context);
+                context.hintKeys.read(cfg.getHintKeysFile());
+                hints = new Hints(cfg, context, context.hintKeys);
             }
 
             // process ELS Hints locally, no subscriber, publisher's targets

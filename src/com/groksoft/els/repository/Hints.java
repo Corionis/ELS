@@ -413,7 +413,7 @@ public class Hints
                         // Hints are intended to be copied and processed immediately
                         // So the hint cannot be copied during a --dry-run
                         // Validate the syntax instead
-                        if (cfg.isDryRun())  // TODO How does --validate option fit in?
+                        if (cfg.isDryRun())
                         {
                             logger.info("* Validating syntax for dry run: " + item.getFullPath());
                             ++validatedHints;
@@ -870,7 +870,7 @@ public class Hints
         }
     }
 
-    private void updateHintStatus(Item item, List<String> lines, String name, String status) throws Exception
+    private void updateHintStatus(Item item, List<String> lines, String systemName, String status) throws Exception
     {
         boolean changed = false;
         int lineNo = 0;
@@ -882,11 +882,11 @@ public class Hints
                 String word = parts[0].toLowerCase();
                 if (word.equals("for") || word.equals("done") || word.equals("seen"))
                 {
-                    int rank = statusToInt(word);
-                    int toRank = statusToInt(status);
-                    if (toRank > rank)
+                    int mergeRank = statusToInt(word);
+                    int existingRank = statusToInt(status);
+                    if (existingRank > mergeRank)
                     {
-                        if (parts[1].equalsIgnoreCase(name))
+                        if (parts[1].equalsIgnoreCase(systemName))
                         {
                             line = status + " " + parts[1];
                             lines.set(lineNo, line);

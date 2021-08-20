@@ -42,8 +42,11 @@ public abstract class DaemonBase
     {
         this.cfg = config;
         this.myRepo = mine;
-        this.theirRepo = theirs;
-        this.theirKey = theirRepo.getLibraryData().libraries.key;
+        if (theirs != null)
+        {
+            this.theirRepo = theirs;
+            this.theirKey = this.theirRepo.getLibraryData().libraries.key;
+        }
         this.myKey = myRepo.getLibraryData().libraries.key;
     } // constructor
 
