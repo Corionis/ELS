@@ -6,7 +6,7 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
-import com.groksoft.els.stty.hints.Store;
+import com.groksoft.els.stty.hints.Datastore;
 
 /**
  * Class to make passing these data easier
@@ -16,7 +16,7 @@ public class Context
     public ClientSftp clientSftp;
     public ClientStty clientStty;
     public HintKeys hintKeys;
-    public Store hintStore;
+    public Datastore datastore;
     public Repository publisherRepo;
     public ServeSftp serveSftp;
     public ServeStty serveStty;

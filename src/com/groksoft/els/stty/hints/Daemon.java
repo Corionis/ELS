@@ -3,10 +3,8 @@ package com.groksoft.els.stty.hints;
 import com.groksoft.els.*;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
-import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.stty.DaemonBase;
-import com.groksoft.els.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,10 +14,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.StringTokenizer;
 
 /**
@@ -95,6 +89,11 @@ public class Daemon extends DaemonBase
             if (input.equals("DribNit") || input.equals("DribNlt"))
             {
                 isTerminal = input.equals("DribNit");
+                if (isTerminal)  // terminal not allowed for hint status server
+                {
+                    Utils.writeStream(out, myKey, "Terminal session not allowed");
+                    return false;
+                }
                 Utils.writeStream(out, myKey, myKey);
 
                 input = Utils.readStream(in, myKey);
@@ -122,7 +121,7 @@ public class Daemon extends DaemonBase
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public void process(Socket aSocket) throws Exception
+    public boolean process(Socket aSocket) throws Exception
     {
         socket = aSocket;
         port = aSocket.getPort();
@@ -151,7 +150,7 @@ public class Daemon extends DaemonBase
         }
         else
         {
-            if (isTerminal)
+            if (isTerminal)  // terminal not allowed to hint status server in handshake()
             {
                 response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
             }
@@ -168,7 +167,15 @@ public class Daemon extends DaemonBase
                     // prompt the user for a command
                     if (!tout)
                     {
-                        Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
+                        try
+                        {
+                            Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
+                        }
+                        catch (Exception e)
+                        {
+                            logger.info("Client appears to have disconnected");
+                            break;
+                        }
                     }
                     tout = false;
                     response = "";
@@ -195,111 +202,24 @@ public class Daemon extends DaemonBase
 
                     String theCommand = t.nextToken().trim();
 
-                    // -------------- authorized level password -----------------
-                    if (theCommand.equalsIgnoreCase("auth"))
+                    // -------------- get status --------------------------------
+                    if (theCommand.equalsIgnoreCase("get"))
                     {
-                        ++attempts;
-                        String pw = "";
-                        if (t.hasMoreTokens())
-                            pw = t.nextToken(); // get the password
-                        if (cfg.getAuthorizedPassword().equals(pw.trim()))
-                        {
-                            response = "password accepted\r\n";
-                            authorized = true;
-                            prompt = "$ ";
-                            logger.info("Command auth accepted");
-                        }
-                        else
-                        {
-                            logger.warn("Auth password attempt failed using: " + pw);
-                            if (attempts >= 3) // disconnect on too many attempts
-                            {
-                                logger.error("Too many failures, disconnecting");
-                                break;
-                            }
-                        }
-                        continue;
-                    }
-
-                    // -------------- cleanup -----------------------------------
-                    if (theCommand.equalsIgnoreCase("cleanup"))
-                    {
-                        if (hints != null)
-                        {
-                            context.hintMode = true;
-                            hints.hintsSubscriberCleanup();
-                            context.hintMode = false;
-                            response = "true";
-                        }
-                        continue;
-                    }
-
-                    // -------------- return collection file --------------------
-                    if (theCommand.equalsIgnoreCase("collection"))
-                    {
-                        try
-                        {
-                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                            LocalDateTime now = LocalDateTime.now();
-                            String stamp = dtf.format(now);
-
-                            String location = myRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
-                            cfg.setExportCollectionFilename(location);
-
-                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
-                            {
-                                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
-                                {
-                                    if (subLib.items != null)
-                                    {
-                                        subLib.items = null; // clear any existing data
-                                    }
-                                    myRepo.scan(subLib.name);
-                                }
-                                else
-                                {
-                                    logger.info("Skipping subscriber library: " + subLib.name);
-                                    subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name; // v3.0.0
-                                }
-                            }
-
-                            // otherwise it must be -S so do not scan
-                            myRepo.exportItems();
-
-                            response = new String(Files.readAllBytes(Paths.get(location)));
-                        }
-                        catch (MungeException e)
-                        {
-                            logger.error(e.getMessage());
-                        }
-                        continue;
-                    }
-
-                    // -------------- execute hint ------------------------------
-                    if (theCommand.equalsIgnoreCase("execute"))
-                    {
-                        if (context.hintKeys == null)
-                        {
-                            response = (isTerminal ? "execute command requires a --keys file\r\n" : "false");
-                        }
                         boolean valid = false;
                         if (t.hasMoreTokens())
                         {
-                            String libName = getNextToken(t);
+                            String itemLib = getNextToken(t);
                             String itemPath = getNextToken(t);
-                            String toPath = getNextToken(t);
-                            if (libName.length() > 0 && itemPath.length() > 0 && toPath.length() > 0)
+                            String systemName = getNextToken(t);
+                            String defaultStatus = getNextToken(t);
+                            if (itemLib.length() > 0 && itemPath.length() > 0 && systemName.length() > 0 && defaultStatus.length() > 0)
                             {
                                 valid = true;
-                                boolean sense = hints.hintExecute(libName, itemPath, toPath);
-                                response = (isTerminal ? "ok" + (sense ? ", executed" : "") + "\r\n" : Boolean.toString(sense));
+                                response = context.datastore.getStatus(itemLib, itemPath, systemName, defaultStatus);
                             }
                         }
                         if (!valid)
-                        {
-                            response = (isTerminal ? "execute command requires a 3 arguments, libName, itemPath, fullPath\r\n" : "false");
-                        }
+                            response = "false";
                         continue;
                     }
 
@@ -322,98 +242,33 @@ public class Daemon extends DaemonBase
                     // -------------- quit, bye, exit ---------------------------
                     if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
                     {
-                        Utils.writeStream(out, myKey, "End-Execution");
+                        //Utils.writeStream(out, myKey, "End-Execution");
                         stop = true;
                         break; // break the loop
                     }
 
-                    // -------------- available disk space ----------------------
-                    if (theCommand.equalsIgnoreCase("space"))
+                    // -------------- set status --------------------------------
+                    if (theCommand.equalsIgnoreCase("set"))
                     {
-                        String location = "";
+                        boolean valid = false;
                         if (t.hasMoreTokens())
                         {
-                            location = t.nextToken();
-                            long space = Utils.availableSpace(location);
-                            logger.info("  space: " + Utils.formatLong(space, true) + " at " + location);
-                            if (isTerminal)
+                            String itemLib = getNextToken(t);
+                            String itemPath = getNextToken(t);
+                            String systemName = getNextToken(t);
+                            String status = getNextToken(t);
+                            if (itemLib.length() > 0 && itemPath.length() > 0 && systemName.length() > 0 && status.length() > 0)
                             {
-                                response = Utils.formatLong(space, true);
-                            }
-                            else
-                            {
-                                response = String.valueOf(space);
+                                valid = true;
+                                response = context.datastore.setStatus(itemLib, itemPath, systemName, status);
                             }
                         }
-                        else
-                        {
-                            response = (isTerminal ? "space command requires a location\r\n" : "0");
-                        }
+                        if (!valid)
+                            response = "false";
                         continue;
                     }
 
-                    // -------------- status information ------------------------
-                    if (theCommand.equalsIgnoreCase("status"))
-                    {
-                        if (!authorized)
-                        {
-                            response = "not authorized\r\n";
-                        }
-                        else
-                        {
-                            response = ServeStty.getInstance().dumpStatistics();
-                            response += dumpStatistics();
-                        }
-                        continue;
-                    }
-
-                    // -------------- return targets file -----------------------
-                    if (theCommand.equalsIgnoreCase("targets"))
-                    {
-                        try
-                        {
-                            if (cfg.getTargetsFilename().length() > 0)
-                            {
-                                response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
-                            }
-                            else
-                            {
-                                response = ""; // let it default to sources as target locations v3.0.0
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            logger.error(e.getMessage());
-                        }
-                        continue;
-                    }
-
-                    // -------------- help! -------------------------------------
-                    if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
-                    {
-                        // @formatter:off
-                        response = "\r\nAvailable commands, not case sensitive:\r\n";
-
-                        if (authorized)
-                        {
-                            response += "  status = server and console status information\r\n" +
-                                    "\r\n" + "" +
-                                    " And:\r\n";
-                        }
-
-                        response += "  auth \"password\" = access Authorized commands, enclose password in quote\r\n" +
-                                "  collection = get collection data from remote, can take a few moments to scan\r\n" +
-                                "  space [location] = free space at location on remote\r\n" +
-                                "  targets = get targets file from remote\r\n" +
-                                "\r\n  help or ? = this list\r\n" +
-                                "  logout = exit current level\r\n" +
-                                "  quit, bye, exit = disconnect\r\n" +
-                                "\r\n";
-                        // @formatter:on
-                        continue;
-                    }
-
-                    response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
+                    response = "\r\nunknown command '" + theCommand + "\r\n";
 
                 } // try
                 catch (Exception e)
@@ -434,7 +289,8 @@ public class Daemon extends DaemonBase
             } // while
         }
 
-        if (stop)
+/*
+        if (stop || cfg.isQuitStatusServer())
         {
             // all done, close everything
             if (logger != null)
@@ -452,7 +308,9 @@ public class Daemon extends DaemonBase
 
             Runtime.getRuntime().exit(0);
         }
+*/
 
+        return stop;
     } // process
 
     /**
@@ -528,7 +386,7 @@ public class Daemon extends DaemonBase
     public void requestStop()
     {
         this.stop = true;
-        logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
+        logger.info("Requesting stop for session on: " + socket.getInetAddress().getHostAddress() + ":" + socket.getPort());
     } // requestStop
 
 } // Daemon

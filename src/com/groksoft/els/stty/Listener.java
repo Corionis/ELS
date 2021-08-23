@@ -114,6 +114,6 @@ public class Listener extends Thread
 			}
 		}
 		if (logger != null)
-			logger.info("Stopped listener on port " + port);
+			logger.info("Stopping listener on port " + port);
 	}
 } // Listener

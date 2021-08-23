@@ -66,22 +66,31 @@ public class Connection extends Thread
 	 */
 	public void run ()
 	{
+		boolean stop = false;
 		try
 		{
-			service.process(socket);
+			stop = service.process(socket);
 		}
 		catch (Exception e)
 		{
 			logger.info(e);
+			stop = true;
 		}
 		finally
 		{
 			// notify the ConnectionManager that this connection has closed
+			logger.info("Close connection to: " + socket.getInetAddress().toString() + ":" + socket.getPort());
 			ServeStty cm = ServeStty.getInstance();
 			if (cm != null)
 			{
 				cm.endConnection();
+				if (stop)
+				{
+					cm.stopServer();
+//					cm.requestStop();
+				}
 			}
+
 		}
 	}
 } // Connection

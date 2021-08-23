@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -109,7 +110,7 @@ public class ServeStty extends Thread
 
                 // log it
                 logger.info("Maximum connections (" + maxConnections + ") exceeded");
-                logger.info("Connection refused from " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+                logger.info("Connection refused from: " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 
                 // close the connection
                 aSocket.close();
@@ -143,7 +144,7 @@ public class ServeStty extends Thread
             allConnections.add(theConnection);
 
             // log it
-            logger.info((cfg.isPublisherListener() ? "Publisher" : "Subscriber") + " daemon opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+            logger.info((cfg.isStatusServer() ? "Status Server" : (cfg.isPublisherListener() ? "Publisher" : "Subscriber")) + " daemon opened: " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
 
             // start the connection thread
             theConnection.start();
@@ -253,7 +254,6 @@ public class ServeStty extends Thread
                 if (!c.isAlive())
                 {
                     allConnections.removeElementAt(index);
-                    logger.info(c.service.getName() + " closed " + c.socket.getInetAddress().getHostAddress() + ":" + c.socket.getPort() + " port " + c.socket.getLocalPort());
                 }
             }
 
@@ -267,10 +267,11 @@ public class ServeStty extends Thread
             }
             catch (InterruptedException e)
             {
-                logger.info("ServeStty interrupted, stop=" + ((_stop) ? "true" : "false"));
+                //logger.info("ServeStty interrupted, stop=" + ((_stop) ? "true" : "false"));
+                _stop = true;
             }
-        } // while (true)
-        logger.info("Stopped ServeStty");
+        }
+        logger.info("Stopping ServeStty");
     }
 
     /**
@@ -323,10 +324,21 @@ public class ServeStty extends Thread
     {
         if (allSessions != null)
         {
-            logger.info("Stopping all Sessions");
+            logger.info("Stopping all listeners");
+            Collection<Listener> lc = allSessions.values();
+            for (Listener listener : lc)
+            {
+                if (listener != null)
+                {
+                    if (listener.isAlive())
+                        listener.requestStop();
+                }
+            }
+/*
             Enumeration keys = allSessions.keys();
             while (keys.hasMoreElements())
             {
+                keys.nextElement();
                 //Integer port = (Integer)keys.nextElement();
                 Connection conn = (Connection) keys.nextElement();
                 Socket sock = conn.getSocket();
@@ -337,6 +349,7 @@ public class ServeStty extends Thread
                     listener.requestStop();
                 }
             }
+*/
             this.requestStop();
         }
         else

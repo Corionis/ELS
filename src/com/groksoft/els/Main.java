@@ -6,7 +6,7 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
-import com.groksoft.els.stty.hints.Store;
+import com.groksoft.els.stty.hints.Datastore;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,10 +22,12 @@ import static com.groksoft.els.Configuration.*;
  */
 public class Main
 {
+    private Configuration cfg;
+    private Context context = new Context();
+    boolean fault = false;
     public boolean isListening = false;
-    Configuration cfg;
-    Context context = new Context();
     private Logger logger = null;
+    private static Main els;
 
     /**
      * Instantiates the Main application
@@ -41,7 +43,7 @@ public class Main
      */
     public static void main(String[] args)
     {
-        Main els = new Main();
+        els = new Main();
         els.process(args);          // ELS Processor
     } // main
 
@@ -58,6 +60,9 @@ public class Main
             {
                 throw new MungeException("Hint Status Server failed to connect");
             }
+            String response = context.statusStty.receive(); // check the initial prompt
+            if (!response.startsWith("CMD"))
+                throw new MungeException("Bad initial response from status server: " + context.statusRepo.getLibraryData().libraries.description);
         }
     }
 
@@ -65,7 +70,7 @@ public class Main
      * execute the process
      *
      * @param args the input arguments
-     * @return
+     * @return Return status
      */
     public int process(String[] args)
     {
@@ -118,6 +123,9 @@ public class Main
             //   * Add "locations" to the example publisher and subscriber files.
             //   * Fix docs for -T | -T behavior changes.
             //   * Add Javadoc to all methods
+            //   * Reformat Version Changes using sections
+            //     * Rename to Release Notes
+            //   * Add back-ticks around command arguments in documentation
 
             // an execution of this program can only be configured as one of these
             logger.info("+------------------------------------------");
@@ -140,9 +148,12 @@ public class Main
                         context.subscriberRepo = context.publisherRepo; // v3.00 for publisher ELS Hints
                     }
 
+                    // connect to the hint status server if defined
+                    connectHintServer(context.publisherRepo);
+
                     // the Process class handles the ELS process
                     proc = new Process(cfg, context);
-                    returnValue = proc.process();
+                    fault = proc.process();
                     break;
 
                 // handle -r L publisher listener for remote subscriber -r T connections
@@ -156,6 +167,9 @@ public class Main
                     // start servers for -r T & clients for get command in stty.publisher.Daemon
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
+                        // connect to the hint status server if defined
+                        connectHintServer(context.publisherRepo);
+
                         // start serveStty server
                         sessionThreads = new ThreadGroup("PServer");
                         context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
@@ -183,6 +197,9 @@ public class Main
                     // start clients
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
+                        // connect to the hint status server if defined
+                        connectHintServer(context.publisherRepo);
+
                         // start the serveStty client interactively
                         context.clientStty = new ClientStty(cfg, true, true);
                         if (context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
@@ -234,7 +251,7 @@ public class Main
 
                         // the Process class handles the ELS process
                         proc = new Process(cfg, context);
-                        returnValue = proc.process();
+                        fault = proc.process();
                     }
                     else
                     {
@@ -289,6 +306,9 @@ public class Main
                     // start clients & servers for -r L for get command
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
                     {
+                        // connect to the hint status server if defined
+                        connectHintServer(context.subscriberRepo);
+
                         // start the serveStty client interactively
                         context.clientStty = new ClientStty(cfg, true, true);
                         if (context.clientStty.connect(context.subscriberRepo, context.publisherRepo))
@@ -350,8 +370,8 @@ public class Main
                     context.hintKeys.read(cfg.getHintKeysFile());
 
                     // Setup the hint status store
-                    context.hintStore = new Store(cfg, context);
-                    context.hintStore.initialize();
+                    context.datastore = new Datastore(cfg, context);
+                    context.datastore.initialize();
 
                     // start server
                     if (context.statusRepo.isInitialized())
@@ -368,29 +388,6 @@ public class Main
                     }
                     break;
 
-                // handle -q | --quit-status shutdown remote stand-alone hints status server
-                case STATUS_SHUTDOWN:
-                    logger.info("ELS Hint Status Server shutdown begin, version " + cfg.getProgramVersion());
-                    cfg.dump();
-
-                    if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
-                        throw new MungeException("-q | --quit-status does not use -s | -S");
-
-                    if (cfg.isTargetsEnabled())
-                        throw new MungeException("-q | --quit-status does not use targets");
-
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
-                    connectHintServer(context.publisherRepo);
-                    if (context.statusStty != null)
-                    {
-                        logger.info("Sending command to shutdown hint status server to: " + context.statusRepo.getLibraryData().libraries.description);
-                        context.statusStty.send("quit");
-                        logger.fatal("Process completed normally");
-                    }
-                    else
-                        logger.info("Could not connect to hint status server " + context.statusRepo.getLibraryData().libraries.description);
-                    break;
-
                 default:
                     throw new MungeException("Unknown type of execution");
             }
@@ -398,25 +395,37 @@ public class Main
         }
         catch (Exception e)
         {
+            fault = true;
             if (logger != null)
             {
-                logger.error(e.getMessage());
+                logger.error(Utils.getStackTrace(e));
             }
             else
             {
-                System.out.println(e.getMessage());
+                System.out.println(Utils.getStackTrace(e));
             }
             isListening = false; // force stop
             returnValue = 1;
         }
         finally
         {
+            // stop running daemons
             if (!isListening)
             {
-                stopServices();
+                // optionally command status server to shutdown
+                fault = quitStatusServer();  // do before stopping the necessary services
+
+                logger.info("Stopping ELS services");
+                fault = stopServices(fault);
+
                 Date done = new Date();
                 long millis = Math.abs(done.getTime() - stamp.getTime());
                 logger.fatal("Runtime: " + Utils.getDuration(millis));
+
+                if (!fault)
+                    logger.fatal("Process completed normally");
+                else
+                    logger.fatal("Process failed");
             }
             else
             {
@@ -426,30 +435,77 @@ public class Main
                     {
                         try
                         {
+                            logger.info("Stopping ELS services");
+
+                            // disconnect from any client
                             if (context.clientStty != null)
-                            {
                                 context.clientStty.disconnect();
-                            }
+
+                            // optionally command status server to shutdown
+                            fault = quitStatusServer();  // do before stopping the necessary services
 
                             Date done = new Date();
                             long millis = Math.abs(done.getTime() - stamp.getTime());
                             logger.fatal("Runtime: " + Utils.getDuration(millis));
 
-                            logger.info("Stopping ELS services");
-                            Thread.sleep(10000L);
-                            stopServices();
+                            if (!fault)
+                                logger.fatal("Process completed normally");
+                            else
+                                logger.fatal("Process failed");
+
+                            Thread.sleep(4000L);
+                            els.fault = stopServices(els.fault); // has to be last
                         }
                         catch (Exception e)
                         {
-                            logger.error(e.getMessage() + "\r\n" + Utils.getStackTrace(e));
+                            logger.error(Utils.getStackTrace(e));
                         }
                     }
                 });
             }
         }
-
         return returnValue;
     } // process
+
+    private boolean quitStatusServer()
+    {
+        boolean fault = false;
+        if (cfg.isQuitStatusServer())
+        {
+            if (context.statusRepo == null)
+            {
+                logger.warn("-q requires a -h hints file");
+                return false;
+            }
+            try
+            {
+                if (context.publisherRepo == null)
+                {
+                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
+                }
+
+                if (context.statusStty == null)
+                {
+                    connectHintServer(context.publisherRepo);
+                }
+
+                if (context.statusStty != null)
+                {
+                    logger.info("Sending shutdown command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
+                    context.statusStty.send("quit");
+                    //logger.fatal("Process completed normally");
+                }
+                else
+                    logger.info("Could not connect to hint status server " + context.statusRepo.getLibraryData().libraries.description);
+            }
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+                fault = true;
+            }
+        }
+        return fault;
+    }
 
     /**
      * Read either publisher or subscriber repository
@@ -544,19 +600,23 @@ public class Main
     /**
      * Stop all service that are in use
      */
-    public void stopServices()
+    public boolean stopServices(boolean fault)
     {
         // logout from any hint status server if not shutting it down
-        if (context.statusStty != null && cfg.getRemoteFlag() != STATUS_SHUTDOWN)
+        if (context.statusStty != null)
         {
-            try
+            if (!cfg.isQuitStatusServer())
             {
-                context.statusStty.send("logout");
+                try
+                {
+                    context.statusStty.send("logout");
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                }
             }
-            catch (Exception e)
-            {
-                logger.info(Utils.getStackTrace(e));
-            }
+            context.statusStty.disconnect();
         }
         if (context.clientStty != null)
         {
@@ -574,6 +634,7 @@ public class Main
         {
             context.serveSftp.stopServer();
         }
+        return fault;
     }
 
 } // Main

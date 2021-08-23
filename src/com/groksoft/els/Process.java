@@ -470,12 +470,11 @@ public class Process
      * <p>
      * What is done depends on the combination of options specified on the command line.
      */
-    public int process()
+    public boolean process()
     {
         Marker SHORT = MarkerManager.getMarker("SHORT");
         boolean lined = false;
         boolean localHints = false;
-        int returnValue = 0;
 
         try
         {
@@ -570,7 +569,6 @@ public class Process
             fault = true;
             ++errorCount;
             logger.error(Utils.getStackTrace(ex));
-            returnValue = 2;
         }
         finally
         {
@@ -606,15 +604,17 @@ public class Process
                     }
                 }
 
+/*
                 // mark the process as successful so it may be detected with automation
                 if (!fault)
                     logger.fatal(SHORT, "Process completed normally");
                 else
                     logger.fatal("Process failed");
+*/
             }
         }
 
-        return returnValue;
+        return fault;
     } // process
 
     /**

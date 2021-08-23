@@ -132,7 +132,7 @@ public class ClientStty
                 this.socket = new Socket(host, port);
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
-                logger.info("Successfully connected to: " + this.socket.getInetAddress().toString());
+                logger.info("Successfully connected to: " + this.socket.getInetAddress().getHostAddress() + ":" + this.socket.getPort());
             }
             catch (Exception e)
             {
@@ -147,13 +147,13 @@ public class ClientStty
                 }
                 else
                 {
-                    logger.error("Connection to " + host + ":" + port + " failed handshake");
+                    logger.error("Connection to " + socket.getInetAddress().toString() + ":" + socket.getPort() + " failed handshake");
                 }
             }
         }
         else
         {
-            throw new MungeException("cannot get site from -r specified remote subscriber library");
+            throw new MungeException("Cannot get site from -s | -S specified remote subscriber library");
         }
 
         return isConnected;

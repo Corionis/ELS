@@ -118,7 +118,7 @@ files have been specified.
 * -l | --library [libraryname] : Library to process, if not specified process
   all libraries. This option may be specified more than once
 
-* -L | --exclude option : Library to exclude. This option may be specified more than once
+* -L | --exclude [libraryname] : Library to exclude. This option may be specified more than once
 
 * -m | --mismatches [file] : Mismatches list of differences output text file
 
@@ -129,7 +129,7 @@ files have been specified.
 
 * -P | --publisher-collection [file] : Publisher JSON collection file
 
-* -q | --quit-status : Send quit command to hint status server to shutdown
+* -q | --quit-status : Send quit command to hint status server when operation complete
 
 * -s | --subscriber-libraries [file] : Subscriber JSON library file
 

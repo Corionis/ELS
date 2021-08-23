@@ -92,6 +92,12 @@ public class Daemon extends DaemonBase
             if (input.equals("DribNit") || input.equals("DribNlt"))
             {
                 isTerminal = input.equals("DribNit");
+                if (isTerminal && myRepo.getLibraryData().libraries.terminal_allowed != null &&
+                        Boolean.getBoolean(myRepo.getLibraryData().libraries.terminal_allowed) == false)
+                {
+                    Utils.writeStream(out, myKey, "Terminal session not allowed");
+                    return false;
+                }
                 Utils.writeStream(out, myKey, myKey);
 
                 input = Utils.readStream(in, myKey);
@@ -118,7 +124,7 @@ public class Daemon extends DaemonBase
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public void process(Socket aSocket) throws Exception
+    public boolean process(Socket aSocket) throws Exception
     {
         socket = aSocket;
         port = aSocket.getPort();
@@ -450,6 +456,7 @@ public class Daemon extends DaemonBase
             }
         } // while
 
+/*
         if (stop)
         {
             // all done, close everything
@@ -468,7 +475,8 @@ public class Daemon extends DaemonBase
 
             Runtime.getRuntime().exit(0);
         }
-
+*/
+        return stop;
     } // process
 
     /**
@@ -477,7 +485,7 @@ public class Daemon extends DaemonBase
     public void requestStop()
     {
         this.stop = true;
-        logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
+        logger.info("Requesting stop for session on " + socket.getInetAddress().toString() + ":" + socket.getPort());
     } // requestStop
 
 } // Daemon

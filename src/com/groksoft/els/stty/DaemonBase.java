@@ -89,14 +89,14 @@ public abstract class DaemonBase
     public void requestStop ()
     {
         this.stop = true;
-        logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
+        logger.info("Requesting stop for session: " + socket.getInetAddress().toString() + ":" + socket.getPort());
     }
 
     /**
      * Process a connection request to the Daemon service.
      *
      */
-    public abstract void process(Socket aSocket) throws IOException, Exception;
+    public abstract boolean process(Socket aSocket) throws IOException, Exception;
 
     /**
      * Perform initial handshake for this session.

@@ -23,7 +23,6 @@ public class Configuration
     public static final int RENAME_FILES = 1;
     public static final int RENAME_NONE = 0;
     public static final int STATUS_SERVER = 6;
-    public static final int STATUS_SHUTDOWN = 7;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
     private final String PROGRAM_VERSION = "3.1.0";
@@ -50,6 +49,7 @@ public class Configuration
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
+    private boolean quitStatusServer = false;
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
     private boolean renaming = false;
@@ -68,7 +68,6 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
-
     /**
      * Instantiates a new Configuration
      */
@@ -170,9 +169,9 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
         }
-        if (this.remoteFlag == STATUS_SHUTDOWN)
+        if (isQuitStatusServer())
         {
-            logger.info(SHORT, "  cfg: -q Status server shutdown");
+            logger.info(SHORT, "  cfg: -q Status server SHUTDOWN");
         }
         logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
         if (getSubscriberLibrariesFileName().length() > 0)
@@ -790,6 +789,16 @@ public class Configuration
         return (getRemoteFlag() == PUBLISHER_MANUAL);
     }
 
+    public boolean isQuitStatusServer()
+    {
+        return quitStatusServer;
+    }
+
+    public void setQuitStatusServer(boolean quitStatusServer)
+    {
+        this.quitStatusServer = quitStatusServer;
+    }
+
     /**
      * Returns true if this is a publisher process, automatically execute the process
      *
@@ -1102,7 +1111,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -i requires a collection output filename");
+                        throw new MungeException("Error: -h requires a hint status server repository filename");
                     }
                     break;
                 case "-H":                                              // hint status server, v3.1.0
@@ -1116,7 +1125,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -H requires a  filename");
+                        throw new MungeException("Error: -H requires a hint status server repository filename");
                     }
                     break;
                 case "-i":                                             // export publisher items to collection file
@@ -1238,7 +1247,7 @@ public class Configuration
                     break;
                 case "-q":                                             // tell status server to shutdown
                 case "--quit-status":
-                    this.remoteFlag = STATUS_SHUTDOWN;
+                    setQuitStatusServer(true);
                     break;
                 case "-r":                                             // remote session
                 case "--remote":
