@@ -132,7 +132,7 @@ public class ClientStty
                 this.socket = new Socket(host, port);
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
-                logger.info("Successfully connected to: " + this.socket.getInetAddress().getHostAddress() + ":" + this.socket.getPort());
+                logger.info("Successfully connected stty to: " + Utils.formatAddresses(this.socket));
             }
             catch (Exception e)
             {
@@ -147,7 +147,7 @@ public class ClientStty
                 }
                 else
                 {
-                    logger.error("Connection to " + socket.getInetAddress().toString() + ":" + socket.getPort() + " failed handshake");
+                    logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
                 }
             }
         }
@@ -163,10 +163,16 @@ public class ClientStty
     {
         try
         {
-            gui.stop();
-            out.flush();
-            out.close();
-            in.close();
+            if (isConnected)
+            {
+                isConnected = false;
+                logger.debug("Disconnecting stty: " + Utils.formatAddresses(socket));
+                if (gui != null)
+                    gui.stop();
+                out.flush();
+                out.close();
+                in.close();
+            }
         }
         catch (Exception e)
         {

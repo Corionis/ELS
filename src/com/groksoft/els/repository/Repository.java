@@ -541,7 +541,7 @@ public class Repository
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
             normalize();
-            logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
+            //logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
         }
         catch (IOException ioe)
         {
@@ -757,7 +757,7 @@ public class Repository
         lib.items = null;
         for (String src : lib.sources)
         {
-            logger.info("  " + src);
+            logger.debug("  " + src);
             scanDirectory(lib, src, src);
         }
     }
@@ -866,7 +866,7 @@ public class Repository
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
                         (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                 {
-                    logger.info("  library: " + lib.name +
+                    logger.debug("  library: " + lib.name +
                             ", " + lib.sources.length + " sources" +
                             (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " items" : ""));
                     // validate sources paths
@@ -880,7 +880,7 @@ public class Repository
                         {
                             throw new MungeException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
                         }
-                        logger.info("    src: " + lib.sources[j]);
+                        logger.debug("    src: " + lib.sources[j]);
 
                         // validate item path
                         if (lib.items != null && lib.items.size() > 0)

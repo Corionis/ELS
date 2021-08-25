@@ -18,6 +18,9 @@ content for that library.
 The pre-built executable and a Zip including examples are available
 on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** page.
 
+See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for
+features, downloads and documentation.
+
 ## Features
 
  * Supports movies, television shows with season subdirectories, 

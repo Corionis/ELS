@@ -82,16 +82,17 @@ public class Listener extends Thread
 	 */
 	public void run ()
 	{
+		Socket socket = null;
 		while (stop == false)
 		{
 			try
 			{
-				Socket theSocket = (Socket) listenSocket.accept();
-				theSocket.setTcpNoDelay(true);
+				socket = (Socket) listenSocket.accept();
+				socket.setTcpNoDelay(true);
                 //theSocket.setSoLinger(false, -1);
-                theSocket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
+                socket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
 
-				ServeStty.getInstance().addConnection(theSocket);
+				ServeStty.getInstance().addConnection(socket);
 			}
 			catch (SocketTimeoutException e)
 			{
@@ -100,7 +101,7 @@ public class Listener extends Thread
 			}
 			catch (InterruptedIOException e)
 			{
-				logger.info("listener interrupted on port " + port + ", stop=" + ((stop)?"true":"false"));
+				logger.debug("Listener interrupted on port " + port + ", stop=" + ((stop)?"true":"false"));
 			}
 			catch (IOException e)
 			{
@@ -113,7 +114,7 @@ public class Listener extends Thread
 				stop = true;
 			}
 		}
-		if (logger != null)
-			logger.info("Stopping listener on port " + port);
+		if (logger != null && socket != null)
+			logger.debug("Stopping stty listener on: " + socket.getInetAddress().toString() + ":" + socket.getPort());
 	}
 } // Listener

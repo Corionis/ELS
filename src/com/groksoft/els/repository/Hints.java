@@ -32,7 +32,6 @@ public class Hints
     private int doneHints = 0;
     private int executedHints = 0;
     private HintKeys keys;
-    private int seenHints = 0;
     private int skippedHints = 0;
     private int validatedHints = 0;
 
@@ -54,7 +53,6 @@ public class Hints
         {
             logger.info(SHORT, "# Executed hints     : " + executedHints);
             logger.info(SHORT, "# Done hints         : " + doneHints);  // TODO Reconsider metrics
-            logger.info(SHORT, "# Seen hints         : " + seenHints);
             logger.info(SHORT, "# Skipped hints      : " + skippedHints);
             logger.info(SHORT, "# Deleted hints      : " + deletedHints);
             logger.info(SHORT, "# Moved directories  : " + context.transfer.getMovedDirectories());
@@ -115,7 +113,7 @@ public class Hints
                 continue;
             }
 
-            if (line.startsWith("for ") || line.startsWith("done ") || line.startsWith("seen "))
+            if (line.startsWith("for ") || line.startsWith("done ") || line.startsWith("deleted "))
             {
                 continue;
             }
@@ -201,7 +199,7 @@ public class Hints
             if (parts.length == 2)
             {
                 String word = parts[0].toLowerCase();
-                if (word.equals("for") || word.equals("done") || word.equals("seen"))
+                if (word.equals("for") || word.equals("done") || word.equals("deleted"))
                 {
                     if (parts[1].equalsIgnoreCase(name))
                         return line.trim();
@@ -260,7 +258,7 @@ public class Hints
 
     private String getStatusString(int rank)
     {
-        return ((rank == 0) ? "For" : ((rank == 1) ? "Done" : "Seen"));
+        return ((rank == 0) ? "For" : ((rank == 1) ? "Done" : "deleted"));
     }
 
     public boolean hintExecute(String libName, String itemPath, String toPath) throws Exception
@@ -432,12 +430,12 @@ public class Hints
                             // read the ELS hint file
                             List<String> lines = readHint(null, item);
 
-                            // check if the publisher has Done or Seen this hint
+                            // check if the publisher has Done or Deleted this hint
                             // this is important prior to a backup run to avoid duplicates, etc.
                             HintKeys.HintKey hintKey = findHintKey(context.publisherRepo);
                             String statusLine = findNameLine(lines, hintKey.name);
-                            if (statusLine == null || (!statusLine.toLowerCase().startsWith("done ") && !statusLine.toLowerCase().startsWith("seen ")))
-                                throw new MungeException("Publisher must execute hints locally; Status is not Done or Seen in hint: " + item.getFullPath());
+                            if (statusLine == null || (!statusLine.toLowerCase().startsWith("done ") && !statusLine.toLowerCase().startsWith("deleted ")))
+                                throw new MungeException("Publisher must execute hints locally; Status has not Done or Deleted hint: " + item.getFullPath());
 
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
@@ -455,7 +453,7 @@ public class Hints
                                         toItem.getLibrary() + "\" \"" + toItem.getItemPath() + "\" \"" + toPath + "\"");
                                 if (response != null && response.length() > 0)
                                 {
-                                    logger.debug("  > execute command returned: " + response);
+                                    logger.info("  > execute command returned: " + response);
                                     updatePubSide = response.equalsIgnoreCase("true") ? true : false;
                                     if (updatePubSide)
                                     {
@@ -548,9 +546,9 @@ public class Hints
     {
         if (cfg.isRemoteSession() && !context.hintMode)
         {
-            logger.info("Sending hints cleanup command to remote " + context.subscriberRepo.getLibraryData().libraries.description);
+            logger.debug("Sending hints cleanup command to remote: " + context.subscriberRepo.getLibraryData().libraries.description);
 
-            // Send command to merge & execute
+            // Send command to clean-up hints
             String response = context.clientStty.roundTrip("cleanup");
             if (response != null && response.length() > 0)
             {
@@ -588,7 +586,7 @@ public class Hints
         {
             String mergeline = mergeLines.get(i);
             String copy = mergeline.toLowerCase();
-            if (copy.startsWith("for ") || copy.startsWith("done ") || copy.startsWith("seen "))
+            if (copy.startsWith("for ") || copy.startsWith("done ") || copy.startsWith("deleted "))
             {
                 String[] mergeParts = parseNameLine(mergeline, i);
                 String mergeStatus = mergeParts[0];
@@ -599,7 +597,7 @@ public class Hints
                 {
                     String existing = toLines.get(j);
                     copy = existing.toLowerCase();
-                    if (copy.startsWith("for ") || copy.startsWith("done ") || copy.startsWith("seen "))
+                    if (copy.startsWith("for ") || copy.startsWith("done ") || copy.startsWith("deleted "))
                     {
                         String[] existingParts = parseNameLine(existing, j);
                         String existingStatus = existingParts[0];
@@ -636,49 +634,55 @@ public class Hints
         // is a hint status server being used?
         if (repo != null && context.statusStty != null)
         {
+
+
+            // LEFTOFF
+            //  * "DefaultStatus" param for GET has to be existing system line status !!!!!!!!!!!!!!!!!!
+            //  * Rearrange to iterate all systems in .els and update their status in .els from status server
+            //     * shit
+            //  * WHat About !!!!!! If an .els file status is > status server?????????????
+            //     * Highest status wins - so update server accordingly
+
+
             boolean changed = false;
             HintKeys.HintKey hintKey = findHintKey(repo);
 
-            // get the status from the status server
-            String command = "get \"" + item.getLibrary() + "\" " +
-                    "\"" + item.getItemPath() + "\" " +
-                    "\"" + hintKey.name + "\" " +
-                    "\"" + "For" + "\"";        // QUESTION Is this necessary?
-
-            String response = context.statusStty.roundTrip(command);
-            if (response != null && !response.equalsIgnoreCase("false"))
+            for (int i = 0; i < lines.size(); ++i)
             {
-                int mergeRank = statusToInt(response);
-                for (int i = 0; i < lines.size(); ++i)
+                String existing = lines.get(i);
+                String copy = existing.toLowerCase();
+                if (copy.startsWith("for ") || copy.startsWith("done ") || copy.startsWith("deleted "))
                 {
-                    String existing = lines.get(i);
-                    String copy = existing.toLowerCase();
-                    if (copy.startsWith("for ") || copy.startsWith("done ") || copy.startsWith("seen "))
-                    {
-                        String[] existingParts = parseNameLine(existing, i);
-                        String existingStatus = existingParts[0];
-                        String existingName = existingParts[1];
+                    String[] existingParts = parseNameLine(existing, i);
+                    String existingStatus = existingParts[0];
+                    String existingName = existingParts[1];
+                    int existingRank = statusToInt(existingStatus);
 
-                        if (existingName.equalsIgnoreCase(hintKey.name))
+                    // get the status from the status server
+                    String command = "get \"" + item.getLibrary() + "\" " +
+                            "\"" + item.getItemPath() + "\" " +
+                            "\"" + existingName + "\" " +
+                            "\"" + existingStatus + "\"";
+
+                    String response = context.statusStty.roundTrip(command);
+                    if (response != null && !response.equalsIgnoreCase("false"))
+                    {
+                        int mergeRank = statusToInt(response);
+                        if (mergeRank > existingRank)
                         {
-                            int existingRank = statusToInt(existingStatus);
-                            if (mergeRank > existingRank)
-                            {
-                                String mergeStatus = getStatusString(mergeRank);
-                                String mergeline = mergeStatus + " " + hintKey.name;
-                                lines.set(i, mergeline);
-                                changed = true;
-                            }
-                            break;
+                            String mergeStatus = getStatusString(mergeRank);
+                            lines.set(i, mergeStatus + " " + existingName);
+                            changed = true;
                         }
                     }
+                    else
+                        throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description +
+                                " failure during get, line: " + i + " in: " + item.getFullPath());
                 }
-
-                if (changed)
-                    Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
             }
-            else
-                throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during get");
+
+            if (changed)
+                Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
         }
         return lines;
     }
@@ -754,17 +758,21 @@ public class Hints
 
     private void postprocessHint(Repository repo, Item item) throws Exception
     {
-        int doneWords = 0;
-        int forWords = 0;
-        int seenWords = 0;
-        String pubStat = "";
-        String subStat = "";
-        int totalWords = 0;
-
         // read the ELS hint file
         if (Files.notExists(Paths.get(item.getFullPath())))
             return;
         List<String> lines = readHint(item.getFullPath()); // hint not validated
+        postprocessHint(repo, item, lines);
+    }
+
+    private void postprocessHint(Repository repo, Item item, List<String> lines) throws Exception
+    {
+        int doneWords = 0;
+        int forWords = 0;
+        int deletedWords = 0;
+        String pubStat = "";
+        String subStat = "";
+        int totalWords = 0;
 
         // find the ELS keys
         HintKeys.HintKey pubHintKey = findHintKey(context.publisherRepo);
@@ -785,7 +793,7 @@ public class Hints
                 {
                     subStat = word;
                 }
-                if (word.equals("for") || word.equals("done") || word.equals("seen"))
+                if (word.equals("for") || word.equals("done") || word.equals("deleted"))
                 {
                     ++totalWords;
                     switch (word)
@@ -796,8 +804,8 @@ public class Hints
                         case "done":
                             ++doneWords;
                             break;
-                        case "seen":
-                            ++seenWords;
+                        case "deleted":
+                            ++deletedWords;
                             break;
                     }
                 }
@@ -810,31 +818,32 @@ public class Hints
             {
                 if (pubStat.equals("done"))
                 {
-                    updateHintStatus(repo, item, lines, pubHintKey.name, "Seen");
+                    updateHintStatus(repo, item, lines, pubHintKey.name, "Deleted");
                     --doneWords;
-                    ++seenWords;
+                    ++deletedWords;
                 }
                 if (subStat.equals("done"))
                 {
-                    updateHintStatus(repo, item, lines, subHintKey.name, "Seen");
+                    updateHintStatus(repo, item, lines, subHintKey.name, "Deleted");
                     --doneWords;
-                    ++seenWords;
+                    ++deletedWords;
                 }
             }
-            else if (seenWords == totalWords)
+            //else
+            if (deletedWords == totalWords)
             {
                 File prevFile = new File(item.getFullPath());
                 if (prevFile.exists())
                 {
                     if (cfg.isDryRun())
                     {
-                        logger.info("  > hint done and seen, would remove: " + item.getFullPath());
+                        logger.info("  > hint done and deleted, would remove: " + item.getFullPath());
                     }
                     else
                     {
                         if (prevFile.delete())
                         {
-                            logger.info("  > hint done and seen, removing: " + item.getFullPath());
+                            logger.info("  > hint done and deleted, removing: " + item.getFullPath());
                             ++deletedHints;
                         }
                     }
@@ -921,6 +930,7 @@ public class Hints
                         {
                             continue;
                         }
+                        List<String> lines = readHint(context.subscriberRepo, item); // merge with status server if in use
                         postprocessHint(context.subscriberRepo, item);
                     }
                 }
@@ -937,21 +947,21 @@ public class Hints
         boolean changed = false;
         int lineNo = 0;
 
+        int mergeRank = statusToInt(status);
         for (String line : lines)
         {
             String[] parts = line.split("[\\s]+");
             if (parts.length == 2)
             {
                 String word = parts[0].toLowerCase();
-                if (word.equals("for") || word.equals("done") || word.equals("seen"))
+                if (word.equals("for") || word.equals("done") || word.equals("deleted"))
                 {
-                    int mergeRank = statusToInt(word);
-                    int existingRank = statusToInt(status);
-                    if (existingRank > mergeRank)
+                    if (parts[1].equalsIgnoreCase(systemName))
                     {
-                        if (parts[1].equalsIgnoreCase(systemName))
+                        int existingRank = statusToInt(word);
+                        if (mergeRank > existingRank)
                         {
-                            line = status + " " + parts[1];
+                            line = status + " " + systemName;
                             lines.set(lineNo, line);
                             changed = true;
                             break;
@@ -969,12 +979,10 @@ public class Hints
             // is a hint status server being used?
             if (repo != null && context.statusStty != null)
             {
-                HintKeys.HintKey hintKey = findHintKey(repo);
-
                 // set the status on the status server
                 String command = "set \"" + item.getLibrary() + "\" " +
                         "\"" + item.getItemPath() + "\" " +
-                        "\"" + hintKey.name + "\" " +
+                        "\"" + systemName + "\" " +
                         "\"" + status + "\"";
 
                 String response = context.statusStty.roundTrip(command);
@@ -1011,13 +1019,10 @@ public class Hints
 
             lowered = line.toLowerCase();
 
-            if (lowered.startsWith("for ") || lowered.startsWith("done ") || lowered.startsWith("seen "))
+            if (lowered.startsWith("for ") || lowered.startsWith("done ") || lowered.startsWith("deleted "))
             {
                 if (lowered.startsWith("done "))
                     ++doneHints;
-                else if (lowered.startsWith("seen "))
-                    ++seenHints;
-
                 continue;
             }
 

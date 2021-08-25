@@ -1,5 +1,6 @@
 package com.groksoft.els.stty;
 
+import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,7 +36,7 @@ public class Connection extends Thread
 	 */
 	public Connection (Socket aSocket, DaemonBase aService)
 	{
-		super("Daemon.Connection:" + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+		super("Daemon.Connection:" + Utils.formatAddresses(aSocket));
 		this.socket = aSocket;
 		this.service = aService;
 	} // constructor
@@ -79,7 +80,7 @@ public class Connection extends Thread
 		finally
 		{
 			// notify the ConnectionManager that this connection has closed
-			logger.info("Close connection to: " + socket.getInetAddress().toString() + ":" + socket.getPort());
+			logger.debug("Closing stty connection to: " + Utils.formatAddresses(socket));
 			ServeStty cm = ServeStty.getInstance();
 			if (cm != null)
 			{
@@ -87,10 +88,9 @@ public class Connection extends Thread
 				if (stop)
 				{
 					cm.stopServer();
-//					cm.requestStop();
 				}
 			}
-
 		}
 	}
+
 } // Connection

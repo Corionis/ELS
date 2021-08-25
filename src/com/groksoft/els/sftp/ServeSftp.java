@@ -69,6 +69,19 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         password = myRepo.getLibraryData().libraries.key;
     }
 
+    private String getIps()
+    {
+        // assemble listen IP(s)
+        String ips = "";
+        Set<SocketAddress> addrs;
+        addrs = sshd.getBoundAddresses();
+        for (SocketAddress a : addrs)
+        {
+            ips = ips + a.toString() + " ";
+        }
+        return ips;
+    }
+
     @Override
     public String resolveErrorMessage(SftpSubsystemEnvironment sftpSubsystem, int id, Throwable e, int subStatus, int cmd, Object... args)
     {
@@ -129,7 +142,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                         authenticated = true;
                         loginAttempts = 1;
                         loginAttemptAddress = "";
-                        logger.info("ServeSftp server connected to " + serverSession.getClientAddress().toString());
+                        logger.info("Sftp server connected to: " + serverSession.getClientAddress().toString());
                     }
                     else
                     {
@@ -142,7 +155,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                             loginAttempts = 1;
                         }
                         loginAttemptAddress = serverSession.getClientAddress().toString();
-                        logger.warn("Sftp login attempt " + loginAttempts + " failed using \"" + user + "\n/\"" + password + "\n from " + serverSession.getClientAddress());
+                        logger.warn("Sftp login attempt " + loginAttempts + " failed, user \"" + user + "\n/\"" + password + "\n from " + serverSession.getClientAddress());
                         if (loginAttempts > 3)
                         {
                             // todo Random sleep, 1 to 3 minutes
@@ -155,19 +168,13 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             sshd.start();
 
             // assemble listen IP(s)
-            String ips = "";
-            Set<SocketAddress> addrs;
-            addrs = sshd.getBoundAddresses();
-            for (SocketAddress a : addrs)
-            {
-                ips = ips + a.toString() + " ";
-            }
-            logger.info("ServeSftp server is listening on: " + ips);
+            String ips = getIps();
+            logger.info("Sftp server is listening on: " + ips);
         }
         catch (IOException e)
         {
             e.printStackTrace();
-            logger.info("ServeSftp server cannot start secure channel");
+            logger.warn("Sftp server cannot start secure channel");
         }
     }
 
@@ -175,7 +182,8 @@ public class ServeSftp implements SftpErrorStatusDataHandler
     {
         try
         {
-            logger.info("ServeSftp server listener stopping");
+            String ips = getIps();
+            logger.debug("Stopping sftp server on: " + ips);
             sshd.stop();
         }
         catch (Exception e)

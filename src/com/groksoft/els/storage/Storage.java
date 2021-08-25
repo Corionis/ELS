@@ -166,7 +166,7 @@ public class Storage
                 logger.debug("  loc: " + t.locations[j]);
             }
         }
-        logger.info("Targets validation successful: " + getJsonFilename());
+        logger.debug("Targets validation successful: " + getJsonFilename());
     }
 
     /**

@@ -174,7 +174,6 @@ public class Process
 
         String header = "Munging collections " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : "");
-        logger.info(header);
 
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0)
@@ -212,6 +211,7 @@ public class Process
             }
         }
 
+        logger.info(header);
         try
         {
             for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
@@ -412,7 +412,7 @@ public class Process
 
         if (ignoredList.size() > 0)
         {
-            logger.info(SHORT, "+------------------------------------------");
+            logger.debug(SHORT, "+------------------------------------------");
             logger.debug(SIMPLE, "Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {

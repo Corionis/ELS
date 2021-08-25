@@ -78,8 +78,9 @@ public class Daemon extends DaemonBase
         return value;
     }
 
-    public boolean handshake()  // special handshake using hints keys file instead of point-to-point
+    public String handshake()  // special handshake using hints keys file instead of point-to-point
     {
+        String system = "";
         boolean valid = false;
         try
         {
@@ -92,7 +93,7 @@ public class Daemon extends DaemonBase
                 if (isTerminal)  // terminal not allowed for hint status server
                 {
                     Utils.writeStream(out, myKey, "Terminal session not allowed");
-                    return false;
+                    return system; // empty
                 }
                 Utils.writeStream(out, myKey, myKey);
 
@@ -103,7 +104,8 @@ public class Daemon extends DaemonBase
                     // send my flavor
                     Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
 
-                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + connectedKey.name);
+                    system = connectedKey.name;
+                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
                     valid = true;
                 }
             }
@@ -113,7 +115,7 @@ public class Daemon extends DaemonBase
             fault = true;
             logger.error(e.getMessage());
         }
-        return valid;
+        return system;
     } // handshake
 
     /**
@@ -144,7 +146,8 @@ public class Daemon extends DaemonBase
 
         connected = true;
 
-        if (!handshake()) // special handshake using hints keys file instead of point-to-point
+        String system = handshake();
+        if (system.length() == 0) // special handshake using hints keys file instead of point-to-point
         {
             logger.error("Connection to incoming request failed handshake");
         }
@@ -193,7 +196,7 @@ public class Daemon extends DaemonBase
                         continue;
                     }
 
-                    logger.info("Processing command: " + line);
+                    logger.info("Processing command: " + line + " from: " + system + ", " + Utils.formatAddresses(getSocket()));
 
                     // parse the command
                     StringTokenizer t = new StringTokenizer(line, "\"");
@@ -216,6 +219,7 @@ public class Daemon extends DaemonBase
                             {
                                 valid = true;
                                 response = context.datastore.getStatus(itemLib, itemPath, systemName, defaultStatus);
+                                logger.info("  > get response: " + response);
                             }
                         }
                         if (!valid)
@@ -261,6 +265,7 @@ public class Daemon extends DaemonBase
                             {
                                 valid = true;
                                 response = context.datastore.setStatus(itemLib, itemPath, systemName, status);
+                                logger.info("  > set response: " + response);
                             }
                         }
                         if (!valid)
@@ -286,30 +291,8 @@ public class Daemon extends DaemonBase
                     }
                     break;
                 }
-            } // while
-        }
-
-/*
-        if (stop || cfg.isQuitStatusServer())
-        {
-            // all done, close everything
-            if (logger != null)
-            {
-                logger.info("Close connection on port " + port + " to " + address.getHostAddress());
-
-                // mark the process as successful so it may be detected with automation
-                if (!fault)
-                    logger.fatal("Process completed normally");
-                else
-                    logger.fatal("Process failed");
             }
-            out.close();
-            in.close();
-
-            Runtime.getRuntime().exit(0);
         }
-*/
-
         return stop;
     } // process
 
@@ -386,7 +369,7 @@ public class Daemon extends DaemonBase
     public void requestStop()
     {
         this.stop = true;
-        logger.info("Requesting stop for session on: " + socket.getInetAddress().getHostAddress() + ":" + socket.getPort());
+        logger.debug("Requesting stop for stty session on: " + Utils.formatAddresses(socket));
     } // requestStop
 
 } // Daemon

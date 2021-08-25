@@ -124,7 +124,7 @@ public class Main
             //   * Fix docs for -T | -T behavior changes.
             //   * Add Javadoc to all methods
             //   * Reformat Version Changes using sections
-            //     * Rename to Release Notes
+            //     + Rename to Release Notes
             //   * Add back-ticks around command arguments in documentation
 
             // an execution of this program can only be configured as one of these
@@ -412,10 +412,10 @@ public class Main
             // stop running daemons
             if (!isListening)
             {
-                // optionally command status server to shutdown
-                fault = quitStatusServer();  // do before stopping the necessary services
+                // optionally command status server to quit
+                fault = quitStatusServer(fault);  // do before stopping the necessary services
 
-                logger.info("Stopping ELS services");
+                // stop any remaining services
                 fault = stopServices(fault);
 
                 Date done = new Date();
@@ -435,14 +435,8 @@ public class Main
                     {
                         try
                         {
-                            logger.info("Stopping ELS services");
-
-                            // disconnect from any client
-                            if (context.clientStty != null)
-                                context.clientStty.disconnect();
-
-                            // optionally command status server to shutdown
-                            fault = quitStatusServer();  // do before stopping the necessary services
+                            // optionally command status server to quit
+                            fault = quitStatusServer(els.fault);  // do before stopping the necessary services
 
                             Date done = new Date();
                             long millis = Math.abs(done.getTime() - stamp.getTime());
@@ -454,6 +448,8 @@ public class Main
                                 logger.fatal("Process failed");
 
                             Thread.sleep(4000L);
+
+                            // stop any remaining services
                             els.fault = stopServices(els.fault); // has to be last
                         }
                         catch (Exception e)
@@ -467,15 +463,14 @@ public class Main
         return returnValue;
     } // process
 
-    private boolean quitStatusServer()
+    private boolean quitStatusServer(boolean fault)
     {
-        boolean fault = false;
         if (cfg.isQuitStatusServer())
         {
             if (context.statusRepo == null)
             {
                 logger.warn("-q requires a -h hints file");
-                return false;
+                return true;
             }
             try
             {
@@ -489,14 +484,14 @@ public class Main
                     connectHintServer(context.publisherRepo);
                 }
 
-                if (context.statusStty != null)
+                if (context.statusStty != null && context.statusStty.isConnected())
                 {
-                    logger.info("Sending shutdown command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
+                    logger.debug("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
                     context.statusStty.send("quit");
                     //logger.fatal("Process completed normally");
                 }
                 else
-                    logger.info("Could not connect to hint status server " + context.statusRepo.getLibraryData().libraries.description);
+                    logger.warn("Could not connect to hint status server to send quit command: " + context.statusRepo.getLibraryData().libraries.description);
             }
             catch (Exception e)
             {

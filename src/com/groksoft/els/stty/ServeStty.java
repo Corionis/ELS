@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -110,7 +109,7 @@ public class ServeStty extends Thread
 
                 // log it
                 logger.info("Maximum connections (" + maxConnections + ") exceeded");
-                logger.info("Connection refused from: " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+                logger.info("Connection refused from: " + Utils.formatAddresses(aSocket));
 
                 // close the connection
                 aSocket.close();
@@ -144,7 +143,7 @@ public class ServeStty extends Thread
             allConnections.add(theConnection);
 
             // log it
-            logger.info((cfg.isStatusServer() ? "Status Server" : (cfg.isPublisherListener() ? "Publisher" : "Subscriber")) + " daemon opened: " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+            logger.info((cfg.isStatusServer() ? "Status Server" : (cfg.isPublisherListener() ? "Publisher" : "Subscriber")) + " daemon opened: " + Utils.formatAddresses(aSocket));
 
             // start the connection thread
             theConnection.start();
@@ -167,7 +166,7 @@ public class ServeStty extends Thread
         allSessions.put("Listener:" + host + ":" + aPort, listener);
 
         // log it
-        logger.info("ServeStty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);
+        logger.info("Stty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);
 
         // fire it up
         listener.start();
@@ -183,7 +182,7 @@ public class ServeStty extends Thread
         for (int index = 0; index < allConnections.size(); ++index)
         {
             Connection c = (Connection) allConnections.elementAt(index);
-            data += "  " + c.service.getName() + " to " + c.socket.getInetAddress().getHostAddress() + ":" + c.socket.getPort() + "\r\n";
+            data += "  " + c.service.getName() + " to " + Utils.formatAddresses(c.socket) + "\r\n";
         }
 
         // dump connection counts
@@ -244,7 +243,7 @@ public class ServeStty extends Thread
     public void run()
     {
         // log it
-        logger.info("Starting ServeStty server for up to " + maxConnections + " incoming connections");
+        logger.info("Starting stty server for up to " + maxConnections + " incoming connections");
         while (_stop == false)
         {
             for (int index = 0; index < allConnections.size(); ++index)
@@ -267,11 +266,23 @@ public class ServeStty extends Thread
             }
             catch (InterruptedException e)
             {
-                //logger.info("ServeStty interrupted, stop=" + ((_stop) ? "true" : "false"));
+                logger.debug("Stty interrupted, stop=" + ((_stop) ? "true" : "false"));
                 _stop = true;
             }
         }
-        logger.info("Stopping ServeStty");
+
+        // when this server ends disconnect and stop other services
+        if (context.statusStty != null)
+        {
+            context.statusStty.disconnect();
+            context.statusStty = null;
+        }
+        if (context.serveSftp != null)
+        {
+            context.serveSftp.stopServer();
+            context.serveSftp = null;
+        }
+        logger.debug("Stopping stty server");
     }
 
     /**
@@ -316,7 +327,7 @@ public class ServeStty extends Thread
         }
         if (listenPort < 1)
         {
-            logger.info("ServeStty is disabled");
+            logger.info("Stty is disabled");
         }
     }
 
@@ -324,7 +335,7 @@ public class ServeStty extends Thread
     {
         if (allSessions != null)
         {
-            logger.info("Stopping all listeners");
+            logger.debug("Stopping all stty listener threads");
             Collection<Listener> lc = allSessions.values();
             for (Listener listener : lc)
             {
@@ -334,27 +345,11 @@ public class ServeStty extends Thread
                         listener.requestStop();
                 }
             }
-/*
-            Enumeration keys = allSessions.keys();
-            while (keys.hasMoreElements())
-            {
-                keys.nextElement();
-                //Integer port = (Integer)keys.nextElement();
-                Connection conn = (Connection) keys.nextElement();
-                Socket sock = conn.getSocket();
-                Integer port = sock.getPort();
-                Listener listener = (Listener) allSessions.get(port);
-                if (listener != null)
-                {
-                    listener.requestStop();
-                }
-            }
-*/
             this.requestStop();
         }
         else
         {
-            logger.info("nothing to stop");
+            logger.debug("nothing to stop");
         }
     }
 

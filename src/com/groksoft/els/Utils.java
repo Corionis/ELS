@@ -9,6 +9,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -124,6 +125,12 @@ public class Utils
             logger.error(e.getMessage());
         }
         return encrypted;
+    }
+
+    public static String formatAddresses(Socket socket)
+    {
+        return socket.getInetAddress().toString() + ":" + socket.getPort() +
+                ", local " + socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
     }
 
     /**

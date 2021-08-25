@@ -171,7 +171,7 @@ public class Configuration
         }
         if (isQuitStatusServer())
         {
-            logger.info(SHORT, "  cfg: -q Status server SHUTDOWN");
+            logger.info(SHORT, "  cfg: -q Status server QUIT");
         }
         logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
         if (getSubscriberLibrariesFileName().length() > 0)
@@ -1245,7 +1245,7 @@ public class Configuration
                         throw new MungeException("Error: -P requires a publisher collection filename");
                     }
                     break;
-                case "-q":                                             // tell status server to shutdown
+                case "-q":                                             // tell status server to quit
                 case "--quit-status":
                     setQuitStatusServer(true);
                     break;
