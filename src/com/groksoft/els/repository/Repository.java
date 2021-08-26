@@ -541,7 +541,7 @@ public class Repository
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
             normalize();
-            //logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
+            logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
         }
         catch (IOException ioe)
         {

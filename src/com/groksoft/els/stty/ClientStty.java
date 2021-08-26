@@ -1,6 +1,7 @@
 package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.stty.gui.TerminalGui;
@@ -226,6 +227,34 @@ public class ClientStty
     public boolean isConnected()
     {
         return isConnected;
+    }
+
+    public boolean quitStatusServer(Context context, boolean fault)
+    {
+        if (cfg.isQuitStatusServer())
+        {
+            if (context.statusRepo == null)
+            {
+                logger.warn("-q requires a -h hints file");
+                return true;
+            }
+            try
+            {
+                if (context.statusStty != null && context.statusStty.isConnected())
+                {
+                    logger.info("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
+                    context.statusStty.send("quit");
+                }
+                else
+                    logger.warn("Could not send quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
+            }
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+                fault = true;
+            }
+        }
+        return fault;
     }
 
     public String receive() throws Exception

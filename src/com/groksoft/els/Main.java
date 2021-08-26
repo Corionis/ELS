@@ -413,7 +413,8 @@ public class Main
             if (!isListening)
             {
                 // optionally command status server to quit
-                fault = quitStatusServer(fault);  // do before stopping the necessary services
+                if (context.statusStty != null)
+                    fault = context.statusStty.quitStatusServer(context, fault);  // do before stopping the necessary services
 
                 // stop any remaining services
                 fault = stopServices(fault);
@@ -436,7 +437,8 @@ public class Main
                         try
                         {
                             // optionally command status server to quit
-                            fault = quitStatusServer(els.fault);  // do before stopping the necessary services
+                            if (context.statusStty != null)
+                                fault = context.statusStty.quitStatusServer(context, els.fault);  // do before stopping the necessary services
 
                             Date done = new Date();
                             long millis = Math.abs(done.getTime() - stamp.getTime());
@@ -462,45 +464,6 @@ public class Main
         }
         return returnValue;
     } // process
-
-    private boolean quitStatusServer(boolean fault)
-    {
-        if (cfg.isQuitStatusServer())
-        {
-            if (context.statusRepo == null)
-            {
-                logger.warn("-q requires a -h hints file");
-                return true;
-            }
-            try
-            {
-                if (context.publisherRepo == null)
-                {
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
-                }
-
-                if (context.statusStty == null)
-                {
-                    connectHintServer(context.publisherRepo);
-                }
-
-                if (context.statusStty != null && context.statusStty.isConnected())
-                {
-                    logger.debug("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
-                    context.statusStty.send("quit");
-                    //logger.fatal("Process completed normally");
-                }
-                else
-                    logger.warn("Could not connect to hint status server to send quit command: " + context.statusRepo.getLibraryData().libraries.description);
-            }
-            catch (Exception e)
-            {
-                logger.error(Utils.getStackTrace(e));
-                fault = true;
-            }
-        }
-        return fault;
-    }
 
     /**
      * Read either publisher or subscriber repository

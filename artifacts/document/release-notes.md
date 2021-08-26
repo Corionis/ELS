@@ -1,3 +1,37 @@
+## Version 3.1.0
+
+Release 3.1.0 of ELS adds a new mode - the ELS Hint Status Server (HSS). Only needed when
+more than one remote back-up is being used the HSS coordinates the status
+of all back-ups to facilitate automatic maintenance of the ELS Hint mechanism.
+
+This new HSS mode is optional. All previous features and behavior remain the same. It
+is an additional separate process that is executed before any operation requiring
+hint coordination. Options are available to allow the HSS to run continuously or
+"ordered" to quit by any publisher or subscriber when an operation is completed. A
+separate TCP/IP port is required for the status server listener service.
+
+### Enhancements
+
+ 1. ELS Hint Server.
+
+### Command Line Changes
+
+ 1. -h has been repurposed.
+
+### Bug Fixes
+
+ 1. Issue #30 *'Fix terminal_allowed handling'*.
+
+    Added the logic necessary to used the terminal_allowed value in the JSON file.
+
+### Developer Notes
+
+ 1. With the addition of the Hint Status Server where a remote ELS session is
+    employing 3 ELS processes - hint server, publisher, and subscriber - it was
+    necessary to rearrange the disconnect/shutdown logic and sequences. These 
+    changes implement a more formal, and less brute-force, disconnect and quit
+    approach allowing for future n-way connection possibilities.
+
 ## Version 3.0.0
 
 ### Bug Fixes and Enhancements

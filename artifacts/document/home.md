@@ -61,4 +61,4 @@ ELS can be used in a variety of ways. Some ideas are:
 |[JSON Structure](JSON-Structure)                | Structure and definition of library and target JSON  |
 |[Modes of Operation](Modes-of-Operation)        | Describes the two different ways to run ELS.         |
 |[Regular Expressions](Regular-Expressions)      | Details of supported pattern matching.               |
-|[Version Changes](version-changes)              | List of changes.                                     |
+|[Release Notes](release-notes)                  | List of changes.                                     |

@@ -36,7 +36,7 @@ public class Datastore
         context = ctx;
     }
 
-    private Item add(String itemLib, String itemPath, String systemName, String defaultStatus) throws Exception
+    private synchronized Item add(String itemLib, String itemPath, String systemName, String defaultStatus) throws Exception
     {
         Item item = new Item();
         item.setLibrary(itemLib);
@@ -47,6 +47,7 @@ public class Datastore
 
         File stat = new File(item.getFullPath()); // create an empty file
         stat.createNewFile();
+        logger.info("  + Added hint status file: " + item.getFullPath());
         return item;
     }
 
@@ -153,24 +154,40 @@ public class Datastore
 
     private List<String> updateDatastore(Item item, List<String> lines, String systemName, String status) throws Exception
     {
+        int count = 0;
+        int deleted = 0;
         boolean found = false;
         for (int i = 0; i < lines.size(); ++i)
         {
-            String line = lines.get(i);
-            if (line.toLowerCase().startsWith(systemName.toLowerCase() + " "))
+            String update = "";
+            String line = lines.get(i).trim().toLowerCase();
+            if (line.length() == 0)
+                continue;
+            ++count;
+            if (line.startsWith(systemName.toLowerCase() + " "))
             {
-                String[] parts = line.split("[\\s]+");
-                line = parts[0] + " " + status;
-                lines.set(i, line);
+                update = systemName + " " + status;
+                lines.set(i, update);
+                line = update.toLowerCase();
                 found = true;
-                break;
             }
+            if (line.endsWith(" deleted"))
+                ++deleted;
         }
         if (!found)
         {
             lines.add(systemName + " " + status);
+            ++count;
+            if (status.trim().toLowerCase().equals("deleted"))
+                ++deleted;
         }
-        Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
+        if (deleted == count)
+        {
+            Files.delete(Paths.get(item.getFullPath()));
+            logger.info("  $ Hint finished by all participants, deleted hint status file: " + item.getFullPath());
+        }
+        else
+            Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
         return lines;
     }
 
