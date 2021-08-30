@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.security.PublicKey;
 import java.util.Collections;
+import java.util.Random;
 import java.util.Set;
 
 /*
@@ -158,7 +159,13 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                         logger.warn("Sftp login attempt " + loginAttempts + " failed, user \"" + user + "\n/\"" + password + "\n from " + serverSession.getClientAddress());
                         if (loginAttempts > 3)
                         {
-                            // todo Random sleep, 1 to 3 minutes
+                            try
+                            {
+                                // random sleep for 1-3 minutes to discourage automated attacks
+                                Random rand = new Random();
+                                Thread.sleep(rand.nextInt(3) * 1000L);
+                            }
+                            catch (InterruptedException e) {}
                         }
                     }
                     return authenticated;

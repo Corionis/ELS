@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Status Server Subscriber listener, Quit" type="Application" factoryName="Application" folderName="Status Server">
+  <configuration default="false" name="Status Server Subscriber listener, Quit" type="Application" factoryName="Application" folderName="Remote Status Server">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="--quit-status --hints json-status-server/status-server.json -k els-hints.keys -c info -d debug --remote S --authorize sharkbait -p meta/publisher.json -S meta/subscriber.json -T -F output/subscriber.log" />

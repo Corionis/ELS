@@ -16,7 +16,29 @@ separate TCP/IP port is required for the status server listener service.
 
 ### Command Line Changes
 
- 1. -h has been repurposed.
+ 1. -h has been repurposed, -H added.
+
+    The -h | --version options used to be for help that only displayed the version.
+    The --version option still does that.
+
+    The -h option is now -h | --hints [file] : Hints Status Server file to enable 
+    connection to the new ELS Hint Status Server.
+
+    Added -H | --hint-server [file] : Hints Status Server to execute continuous hint
+    status server daemon
+
+ 2. Added -q | --quit-status : Send quit command to hint status server when operation
+    is complete. Allows either a publisher or subscriber to tell the HSS to shutdown.
+
+    The execution sequence **must** be the HSS, then subscriber, then publisher. The
+    publisher commands the subscriber to quit automatically when the operation is
+    done. So it is best to add the --quit-status option to the subscriber so when
+    it shuts down it will command the Hint Status Server to quit.
+
+
+
+
+
 
 ### Bug Fixes
 
@@ -27,10 +49,13 @@ separate TCP/IP port is required for the status server listener service.
 ### Developer Notes
 
  1. With the addition of the Hint Status Server where a remote ELS session is
-    employing 3 ELS processes - hint server, publisher, and subscriber - it was
+    employing 3 ELS processes - hint server, subscriber, and publisher - it was
     necessary to rearrange the disconnect/shutdown logic and sequences. These 
     changes implement a more formal, and less brute-force, disconnect and quit
     approach allowing for future n-way connection possibilities.
+ 
+ 2. For IntelliJ to run and debug the multiple processes the Multirun plugin
+    has been added with a variety of configurations in the .idea project.
 
 ## Version 3.0.0
 

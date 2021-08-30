@@ -190,6 +190,11 @@ The -S | --subscriber-collection option does not do any scans.
 The -t and -T options are equivalent unless the -r | --remote option is enabled,
 see the [Communications How-To](Communications-How-To) for details
 
+The -u | --duplicates finds duplicates in a library. If the -x | --cross-check
+option is included a check is made across the entire collection. Because individual
+files in a collection may be the same name a "duplicate" is defined as an item of
+the same-named directory and filename.
+
 The -v | --validate action may be used with only a publisher specified
 so a subscriber file is not required.
 

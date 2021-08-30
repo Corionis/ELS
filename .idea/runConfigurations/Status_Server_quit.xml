@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Status Server quit" type="Application" factoryName="Application" folderName="Status Server">
+  <configuration default="false" name="Status Server quit" type="Application" factoryName="Application" folderName="Remote Status Server">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="--hints json-status-server/status-server.json --quit-status -c info -d debug -p meta/publisher.json -F output/status-server-quit.log" />

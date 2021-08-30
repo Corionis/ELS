@@ -258,7 +258,7 @@ public class Transfer
             cfg.setTargetsFilename(location);
         }
 
-        if (location != null) // v3.0.0 allow targets to be empty to use sources as target locations
+        if (location != null && location.length() > 0) // v3.0.0 allow targets to be empty to use sources as target locations
         {
             if (storageTargets == null)
                 storageTargets = new Storage();

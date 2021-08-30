@@ -849,7 +849,7 @@ public class Repository
             throw new MungeException("libraries.bibliography must be defined");
         }
 
-        logger.info("Validating Libraries " + getJsonFilename());
+        logger.info("Validating " + lbs.description + " Libraries in:+ " + getJsonFilename());
         for (int i = 0; i < lbs.bibliography.length; i++)
         {
             Library lib = lbs.bibliography[i];

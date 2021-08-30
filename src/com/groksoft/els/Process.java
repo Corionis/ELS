@@ -538,7 +538,7 @@ public class Process
                 hints.hintsMunge();
             }
 
-            // if all the pieces are specified perform a full munge the collections
+            // if all the pieces are specified perform a full munge of the collections
             if (!localHints && !cfg.isHintSkipMainProcess()) // v3.0.0
             {
                 if (cfg.isTargetsEnabled() &&
@@ -603,14 +603,6 @@ public class Process
                         logger.warn("Remote subscriber is in an unknown state");
                     }
                 }
-
-/*
-                // mark the process as successful so it may be detected with automation
-                if (!fault)
-                    logger.fatal(SHORT, "Process completed normally");
-                else
-                    logger.fatal("Process failed");
-*/
             }
         }
 

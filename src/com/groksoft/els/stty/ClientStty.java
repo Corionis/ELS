@@ -240,7 +240,7 @@ public class ClientStty
             }
             try
             {
-                if (context.statusStty != null && context.statusStty.isConnected())
+                if (isConnected())
                 {
                     logger.info("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
                     context.statusStty.send("quit");

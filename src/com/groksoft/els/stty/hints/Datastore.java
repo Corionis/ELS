@@ -152,7 +152,7 @@ public class Datastore
         return status;
     }
 
-    private List<String> updateDatastore(Item item, List<String> lines, String systemName, String status) throws Exception
+    private synchronized List<String> updateDatastore(Item item, List<String> lines, String systemName, String status) throws Exception
     {
         int count = 0;
         int deleted = 0;
@@ -178,7 +178,7 @@ public class Datastore
         {
             lines.add(systemName + " " + status);
             ++count;
-            if (status.trim().toLowerCase().equals("deleted"))
+            if (status.trim().equalsIgnoreCase("deleted"))
                 ++deleted;
         }
         if (deleted == count)

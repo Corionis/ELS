@@ -54,15 +54,24 @@ public class Main
             context.statusRepo = new Repository(cfg);
             context.statusRepo.read(cfg.getStatusServerFilename());
 
-            // start the serveStty client to the hints status server
-            context.statusStty = new ClientStty(cfg, false, true);
-            if (!context.statusStty.connect(repo, context.statusRepo))
+            if (cfg.isRemoteSession())
             {
-                throw new MungeException("Hint Status Server failed to connect");
+                // start the serveStty client to the hints status server
+                context.statusStty = new ClientStty(cfg, false, true);
+                if (!context.statusStty.connect(repo, context.statusRepo))
+                {
+                    throw new MungeException("Hint Status Server failed to connect");
+                }
+                String response = context.statusStty.receive(); // check the initial prompt
+                if (!response.startsWith("CMD"))
+                    throw new MungeException("Bad initial response from status server: " + context.statusRepo.getLibraryData().libraries.description);
             }
-            String response = context.statusStty.receive(); // check the initial prompt
-            if (!response.startsWith("CMD"))
-                throw new MungeException("Bad initial response from status server: " + context.statusRepo.getLibraryData().libraries.description);
+            else
+            {
+                // Setup the hint status store, single instance
+                context.datastore = new Datastore(cfg, context);
+                context.datastore.initialize();
+            }
         }
     }
 
@@ -121,10 +130,11 @@ public class Main
 
             // TODO
             //   * Add "locations" to the example publisher and subscriber files.
+            //   * Add HSS JSON file
+            //   * Test HSS with minimal JSON
             //   * Fix docs for -T | -T behavior changes.
             //   * Add Javadoc to all methods
-            //   * Reformat Version Changes using sections
-            //     + Rename to Release Notes
+            //   * Reformat Release Notes using sections
             //   * Add back-ticks around command arguments in documentation
 
             // an execution of this program can only be configured as one of these
@@ -148,7 +158,7 @@ public class Main
                         context.subscriberRepo = context.publisherRepo; // v3.00 for publisher ELS Hints
                     }
 
-                    // connect to the hint status server if defined
+                    // setup the hint status server for local use if defined
                     connectHintServer(context.publisherRepo);
 
                     // the Process class handles the ELS process
@@ -369,7 +379,7 @@ public class Main
                     context.hintKeys = new HintKeys(cfg, context);
                     context.hintKeys.read(cfg.getHintKeysFile());
 
-                    // Setup the hint status store
+                    // Setup the hint status store, single instance
                     context.datastore = new Datastore(cfg, context);
                     context.datastore.initialize();
 
@@ -409,7 +419,7 @@ public class Main
         }
         finally
         {
-            // stop running daemons
+            // stop running clients
             if (!isListening)
             {
                 // optionally command status server to quit
@@ -418,6 +428,9 @@ public class Main
 
                 // stop any remaining services
                 fault = stopServices(fault);
+
+                if (!cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
+                    logger.info("Log file has more details: " + cfg.getLogFilename());
 
                 Date done = new Date();
                 long millis = Math.abs(done.getTime() - stamp.getTime());
@@ -428,8 +441,11 @@ public class Main
                 else
                     logger.fatal("Process failed");
             }
-            else
+            else // daemons
             {
+                // this shutdown hook is triggered when all connections and
+                // threads used by the daemon have been closed and stopped
+                // See ServeStty.run()
                 Runtime.getRuntime().addShutdownHook(new Thread()
                 {
                     public void run()
@@ -437,14 +453,17 @@ public class Main
                         try
                         {
                             // optionally command status server to quit
-                            if (context.statusStty != null)
-                                fault = context.statusStty.quitStatusServer(context, els.fault);  // do before stopping the necessary services
+                            if (els.context.statusStty != null)
+                                els.fault = els.context.statusStty.quitStatusServer(context, els.fault);  // do before stopping the necessary services
+
+                            if (!els.cfg.getConsoleLevel().equalsIgnoreCase(els.cfg.getDebugLevel()))
+                                logger.info("Log file has more details: " + els.cfg.getLogFilename());
 
                             Date done = new Date();
                             long millis = Math.abs(done.getTime() - stamp.getTime());
                             logger.fatal("Runtime: " + Utils.getDuration(millis));
 
-                            if (!fault)
+                            if (!els.fault)
                                 logger.fatal("Process completed normally");
                             else
                                 logger.fatal("Process failed");
