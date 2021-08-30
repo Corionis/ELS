@@ -10,11 +10,7 @@ hs_err_pid*
 
 /.idea/workspace.xml
 /out
-/mock/TestRun/
-/mock/TestRun/publisher
-/mock/TestRun/subscriber-1
-/mock/TestRun/subscriber-2
-/mock/TestRun-compare
-/test/
 /mock/Template_Copy-Only/publisher/media-a/media/MyMovies/2 Guns (2013)/
 /deploy/cp-to-plex
+/mock/output/
+/mock/test/

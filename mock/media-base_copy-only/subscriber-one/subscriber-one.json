@@ -1,0 +1,38 @@
+{
+	"libraries": {
+        "description": "Subscriber One",
+        "host": "localhost:50271",
+        "listen": "localhost:50271",
+        "flavor": "linux",
+        "terminal_allowed": "true",
+        "key": "bb42a499-97a6-44e1-8a91-4cc898e45849",
+        "case_sensitive": "false",
+        "ignore_patterns": [
+            "(?i)desktop\\.ini",
+            ".*\\.fuse.*",
+            ".*\\.srt",
+            "Thumbs\\.db"
+		],
+        "locations": [
+            {
+                "location": "test/subscriber-one/media",
+                "minimum": "42GB"
+            }
+        ],
+		"bibliography": [
+			{
+				"name": "Movies",
+				"sources": [
+                    "test/subscriber-one/media/Movies"
+				]
+			},
+			{
+				"name": "TV Shows",
+				"sources": [
+					"test/subscriber-one/media/TV Shows"
+				]
+			}
+		]
+	}
+}
+

@@ -4,22 +4,22 @@ REM reset [-f]
 set base=%~dp0
 cd /d %base%
 
-if not exist .\TestRun goto NoDir
+if not exist .\test goto NoDir
 if "z%1" == "z-f" goto Execute
 echo/
-echo Reset TestRun Directory
+echo Reset Test Directory
 set r=
-set /P R=Confirm: DESTROY TestRun directory and recreate from templates (y/N)? 
+set /P R=Confirm: DESTROY Test directory and recreate from templates (y/N)? 
 if "z%R%" == "zy" goto Execute
 if "z%R%" == "zY" goto Execute
 goto Cancel
 
 :Execute
-rmdir /s /q .\TestRun
-if exist .\els.log del /q .\els.log
+rmdir /s /q .\test
+if exist .\*.log del /q .\*.log
 
 :NoDir
-xcopy /I /E .\Template_Copy-Only .\TestRun
+xcopy /I /E .\media-base_copy-only .\test
 echo Done
 goto JXT
 
@@ -28,3 +28,4 @@ echo Cancelled
 
 :JXT
 echo/
+

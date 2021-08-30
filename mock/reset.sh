@@ -6,8 +6,8 @@ cd ${base}
 if [ "$1" != "-f" ]; then
     if [ -e ./TestRun ]; then
         echo ""
-        echo "Reset TestRun Directory"
-        read -p "Confirm: DESTROY TestRun directory and recreate from templates (y/N)? " R
+        echo "Reset Test Directory"
+        read -p "Confirm: DESTROY Test directory and recreate from templates (y/N)? " R
         R=${R:0:1}
         if [ "$R" != 'y' -a "$R" != 'Y' ]; then
             echo -e "Cancelled\n"
@@ -16,9 +16,10 @@ if [ "$1" != "-f" ]; then
     fi
 fi
 
-rm -rf ./TestRun
-rm -f ./logmunger.log
+rm -rf ./test
+rm -f ./*.log
 
-cp -rpv ./Template_Copy-Only ./TestRun
+cp -rpv ./media-base_copy-only ./test
 
 echo -e "Done\n"
+
