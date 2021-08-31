@@ -35,11 +35,6 @@ separate TCP/IP port is required for the status server listener service.
     done. So it is best to add the --quit-status option to the subscriber so when
     it shuts down it will command the Hint Status Server to quit.
 
-
-
-
-
-
 ### Bug Fixes
 
  1. Issue #30 *'Fix terminal_allowed handling'*.
@@ -56,6 +51,9 @@ separate TCP/IP port is required for the status server listener service.
  
  2. For IntelliJ to run and debug the multiple processes the Multirun plugin
     has been added with a variety of configurations in the .idea project.
+
+ 3. The mock directory has been completely rearranged to support testing.
+    In addition a scripts/linux/ ??????????????????????????????????
 
 ## Version 3.0.0
 
