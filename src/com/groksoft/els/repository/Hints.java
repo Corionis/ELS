@@ -31,6 +31,8 @@ public class Hints
     private int deletedHints = 0;
     private int doneHints = 0;
     private int executedHints = 0;
+    private String hintItemPath = "";
+    private String hintItemSubdirectory = "";
     private HintKeys keys;
     private int seenHints = 0;
     private int skippedHints = 0;
@@ -52,7 +54,7 @@ public class Hints
         }
         else
         {
-            logger.info(SHORT, "# Executed hints     : " + executedHints);
+            logger.info(SHORT, "# Executed hints     : " + executedHints + (cfg.isDryRun() ? " (--dry-run)" : ""));
             logger.info(SHORT, "# Seen Hints         : " + seenHints);
             logger.info(SHORT, "# Done hints         : " + doneHints);
             logger.info(SHORT, "# Deleted hints      : " + deletedHints);
@@ -88,6 +90,11 @@ public class Hints
 
         // find the ELS key for this repo
         hintKey = findHintKey(repo);
+
+//        if (item.getItemSubdirectory() != null)
+        {
+            hintItemSubdirectory = item.getItemSubdirectory();
+        }
 
         // find the actor name in the .els file
         statusLine = findNameLine(lines, hintKey.name);
@@ -134,6 +141,9 @@ public class Hints
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
 
+                if (hintItemSubdirectory != null && Utils.isOnlyFile(fromName))
+                    fromName = hintItemSubdirectory + "|" + fromName;
+
                 String toLib = parseLibrary(parts[2], lineNo);
                 if (toLib == null)
                     toLib = item.getLibrary(); // use the library of the .els item
@@ -141,6 +151,9 @@ public class Hints
                 String toName = parseFile(parts[2], lineNo);
                 if (toName.length() < 1)
                     throw new MungeException("Malformed to filename on line " + lineNo);
+
+                if (hintItemSubdirectory != null)
+                    toName = hintItemSubdirectory + repo.getSeparator() + toName;
 
                 context.hintMode = true;
                 if (context.transfer.move(repo, fromLib.trim(), fromName.trim(), toLib.trim(), toName.trim()))
@@ -161,6 +174,9 @@ public class Hints
                 String fromName = parseFile(parts[1], lineNo);
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
+
+                if (hintItemSubdirectory != null)
+                    fromName = hintItemSubdirectory + "|" + fromName;
 
                 if (context.transfer.remove(repo, fromLib.trim(), fromName.trim()))
                     libAltered = true;

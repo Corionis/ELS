@@ -1,9 +1,7 @@
 package com.groksoft.els.stty.publisher;
 
 import com.groksoft.els.*;
-import com.groksoft.els.repository.Item;
-import com.groksoft.els.repository.Library;
-import com.groksoft.els.repository.Repository;
+import com.groksoft.els.repository.*;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.DaemonBase;
@@ -35,6 +33,8 @@ public class Daemon extends DaemonBase
 
     private Context context;
     private boolean fault = false;
+    private HintKeys hintKeys = null;
+    private Hints hints = null;
     private boolean isTerminal = false;
     private Transfer transfer;
 
@@ -79,14 +79,14 @@ public class Daemon extends DaemonBase
             Utils.writeStream(out, myKey, "HELO");
 
             String input = Utils.readStream(in, myKey);
-            if (input.equals("DribNit") || input.equals("DribNlt"))
+            if (input != null && (input.equals("DribNit") || input.equals("DribNlt")))
             {
                 isTerminal = input.equals("DribNit");
                 if (isTerminal && myRepo.getLibraryData().libraries.terminal_allowed != null &&
-                        Boolean.getBoolean(myRepo.getLibraryData().libraries.terminal_allowed) == false)
+                        !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
                     Utils.writeStream(out, myKey, "Terminal session not allowed");
-                    return system;
+                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");                    return system;
                 }
                 Utils.writeStream(out, myKey, myKey);
 
@@ -129,8 +129,15 @@ public class Daemon extends DaemonBase
         // for get command
         long totalSize = 0L;
         ArrayList<Item> group = new ArrayList<>();
-        transfer = new Transfer(cfg, context); // v3.0.0
-        transfer.initialize();
+
+        // Get ELS hints keys if specified
+        if (cfg.getHintKeysFile().length() > 0) // v3.0.0
+        {
+            hintKeys = new HintKeys(cfg, context);
+            hintKeys.read(cfg.getHintKeysFile());
+            hints = new Hints(cfg, context, hintKeys);
+            context.transfer = new Transfer(cfg, context);
+        }
 
         // setup i/o
         aSocket.setSoTimeout(120000); // time-out so this thread does not hang server

@@ -14,6 +14,7 @@ public class Item implements Serializable
     private transient List<Item> hasList = null;
     private transient boolean hintExecuted = false;
     private String itemPath;
+    private transient String itemSubdirectory;
     private String library;
     private transient boolean reported = false;
     private long size = -1L;
@@ -30,7 +31,7 @@ public class Item implements Serializable
     /**
      * Add has.
      *
-     * @param a matching item
+     * @param item The item to add
      */
     public void addHas(Item item)
     {
@@ -89,6 +90,16 @@ public class Item implements Serializable
     public void setItemPath(String itemPath)
     {
         this.itemPath = itemPath;
+    }
+
+    public String getItemSubdirectory()
+    {
+        return itemSubdirectory;
+    }
+
+    public void setItemSubdirectory(String itemSubdirectory)
+    {
+        this.itemSubdirectory = itemSubdirectory;
     }
 
     /**

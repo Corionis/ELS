@@ -487,6 +487,13 @@ public class Repository
 
                         // add itemPath & the item's index in the Vector to the hash map
                         String key = item.getItemPath();
+
+                        // set the item subdirectory for relative path ability
+                        if (!Utils.isOnlyFile(item.getItemPath()))
+                        {
+                            item.setItemSubdirectory(Utils.getLeftPath(item.getItemPath(), getSeparator()));
+                        }
+
                         if (!libraryData.libraries.case_sensitive)
                         {
                             key = key.toLowerCase();

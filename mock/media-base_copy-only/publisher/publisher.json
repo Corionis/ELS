@@ -5,7 +5,7 @@
         "listen": "localhost:50271",
         "flavor": "linux",
         "terminal_allowed": "true",
-        "key": "aa5673d4-5284-4a7d-86c9-3df20adace46",
+        "key": "aa1673d4-5284-4a7d-86c9-3df20adace46",
         "case_sensitive": "false",
         "ignore_patterns": [
             "(?i)desktop\\.ini",

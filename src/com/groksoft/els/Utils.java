@@ -368,6 +368,15 @@ public class Utils
         return sw.getBuffer().toString();
     }
 
+    public static boolean isOnlyFile(String path)
+    {
+        if (!path.contains("/") &&
+        !path.contains("\\") &&
+        !path.contains("|"))
+            return true;
+        return false;
+    }
+
     /**
      * Parse the host from a site string
      * <p>
@@ -508,6 +517,20 @@ public class Utils
         }
         directory.delete();
         return notAllDirectories;
+    }
+
+    /**
+     * Replace source pipe character with path separators
+     *
+     * @param repo Repository of source of path
+     * @param path Path to modify with pipe characters
+     * @return String Modified path
+     * @throws MungeException
+     */
+    public static String unpipe(Repository repo, String path) throws MungeException
+    {
+        String p = path.replaceAll("\\|", repo.getWriteSeparator());
+        return p;
     }
 
     /**

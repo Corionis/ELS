@@ -89,14 +89,14 @@ public class Daemon extends DaemonBase
             Utils.writeStream(out, myKey, "HELO");
 
             String input = Utils.readStream(in, myKey);
-            if (input.equals("DribNit") || input.equals("DribNlt"))
+            if (input != null && (input.equals("DribNit") || input.equals("DribNlt")))
             {
                 isTerminal = input.equals("DribNit");
                 if (isTerminal && myRepo.getLibraryData().libraries.terminal_allowed != null &&
-                        Boolean.getBoolean(myRepo.getLibraryData().libraries.terminal_allowed) == false)
+                        !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
                     Utils.writeStream(out, myKey, "Terminal session not allowed");
-                    return system;
+                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");                    return system;
                 }
                 Utils.writeStream(out, myKey, myKey);
 

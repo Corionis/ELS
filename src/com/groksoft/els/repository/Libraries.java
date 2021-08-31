@@ -43,7 +43,7 @@ public class Libraries
     /**
      * If remote terminal session is allowed then true, else false
      */
-    public String terminal_allowed;
+    public Boolean terminal_allowed;
 
     /**
      * The UUID of this system

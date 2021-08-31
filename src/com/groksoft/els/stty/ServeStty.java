@@ -143,7 +143,7 @@ public class ServeStty extends Thread
             allConnections.add(theConnection);
 
             // log it
-            logger.info((cfg.isStatusServer() ? "Status Server" : (cfg.isPublisherListener() ? "Publisher" : "Subscriber")) + " daemon opened: " + Utils.formatAddresses(aSocket));
+            logger.info((cfg.isStatusServer() ? "Status Server" : (cfg.isPublisherListener() ? "Publisher" : "Subscriber")) + " daemon opened stty: " + Utils.formatAddresses(aSocket));
 
             // start the connection thread
             theConnection.start();

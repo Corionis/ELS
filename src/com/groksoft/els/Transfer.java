@@ -618,7 +618,7 @@ public class Transfer
             {
                 logger.info("  ! Target exists, will overwrite: " + toItem.getFullPath());
             }
-            else if (toIsNew)
+            //else if (toIsNew)
             {
                 if (toFile.getParentFile().mkdirs())
                 {
@@ -720,13 +720,13 @@ public class Transfer
             }
             else
             {
-                logger.info("  ! Does not exist (A), skipping: " + fromLibName + "|" + fromName);
+                logger.info("  ! Does not exist (C), skipping: " + fromLibName + "|" + fromName);
                 ++skippedMissing;
             }
         }
         else
         {
-            logger.info("  ! Does not exist (B), skipping: " + fromLibName + "|" + fromName);
+            logger.info("  ! Does not exist (D), skipping: " + fromLibName + "|" + fromName);
             ++skippedMissing;
         }
 

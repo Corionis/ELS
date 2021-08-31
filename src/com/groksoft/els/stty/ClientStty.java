@@ -219,7 +219,8 @@ public class ClientStty
                 {
                     // ignore
                 }
-            }
+            } else if (input.equalsIgnoreCase("Terminal session not allowed"))
+                logger.warn("Attempted to login interactively but terminal sessions are not allowed");
         }
         return valid;
     }
