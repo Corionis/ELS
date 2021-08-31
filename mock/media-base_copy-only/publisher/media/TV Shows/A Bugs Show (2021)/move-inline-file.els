@@ -1,0 +1,7 @@
+# Move inline file test
+For MediaServer
+For BackupOne
+For BackupTwo
+
+mv  "What Another Bugs Interview.mp4"   "Season 1/What Another Bugs Interview - S01E03.mp4"
+

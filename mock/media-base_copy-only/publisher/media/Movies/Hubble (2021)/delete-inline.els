@@ -1,0 +1,7 @@
+# Delete inline file test
+For MediaServer
+For BackupOne
+For BackupTwo
+
+rm "cover.png"
+
