@@ -275,6 +275,9 @@ public class ClientStty
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
             LocalDateTime now = LocalDateTime.now();
             String stamp = dtf.format(now);
+
+            // LEFTOFF Make better paths for the temporary -received- files
+
             location = filename + "_" + command + "-received-" + stamp + ".json";
             try
             {

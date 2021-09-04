@@ -316,7 +316,7 @@ public class Daemon extends DaemonBase
                         if (libName.length() > 0 && itemPath.length() > 0 && toPath.length() > 0)
                         {
                             valid = true;
-                            boolean sense = hints.hintExecute(libName, itemPath, toPath);
+                            boolean sense = hints.hintRun(libName, itemPath, toPath);
                             response = (isTerminal ? "ok" + (sense ? ", executed" : "") + "\r\n" : Boolean.toString(sense));
                         }
                     }

@@ -487,13 +487,6 @@ public class Repository
 
                         // add itemPath & the item's index in the Vector to the hash map
                         String key = item.getItemPath();
-
-                        // set the item subdirectory for relative path ability
-                        if (!Utils.isOnlyFile(item.getItemPath()))
-                        {
-                            item.setItemSubdirectory(Utils.getLeftPath(item.getItemPath(), getSeparator()));
-                        }
-
                         if (!libraryData.libraries.case_sensitive)
                         {
                             key = key.toLowerCase();
@@ -516,17 +509,14 @@ public class Repository
      */
     public String normalizePath(String toFlavor, String path) throws MungeException
     {
-        if (!toFlavor.equalsIgnoreCase(libraryData.libraries.flavor))
-        {
-            String to = Utils.getFileSeparator(toFlavor);
-            path = normalizeSubst(path, Utils.getFileSeparator(libraryData.libraries.flavor), to);
-        }
+        String to = Utils.getFileSeparator(toFlavor);
+        path = normalizeSubst(path, Utils.getFileSeparator(libraryData.libraries.flavor), to);
         return path;
     }
 
     private String normalizeSubst(String path, String from, String to)
     {
-        return path.replaceAll(from, to);
+        return path.replaceAll(from, to).replaceAll("\\|", to);
     }
 
     /**
@@ -732,6 +722,10 @@ public class Repository
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
                 item.setLibrary(library.name);                          // the library name
+                if (!Utils.isFileOnly(item.getItemPath()))
+                {
+                    item.setItemSubdirectory(Utils.pipe(this, Utils.getLeftPath(item.getItemPath(), getSeparator())));
+                }
                 library.items.add(item);
 
                 if (isDir)

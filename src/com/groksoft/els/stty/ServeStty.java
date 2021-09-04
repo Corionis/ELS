@@ -134,7 +134,7 @@ public class ServeStty extends Thread
             }
             else if (cfg.isStatusServer())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.els.stty.hints.Daemon(cfg, context, context.statusRepo, null));
+                theConnection = new Connection(aSocket, new com.groksoft.els.stty.hintServer.Daemon(cfg, context, context.statusRepo, null));
             }
             else
             {

@@ -368,7 +368,7 @@ public class Utils
         return sw.getBuffer().toString();
     }
 
-    public static boolean isOnlyFile(String path)
+    public static boolean isFileOnly(String path)
     {
         if (!path.contains("/") &&
         !path.contains("\\") &&

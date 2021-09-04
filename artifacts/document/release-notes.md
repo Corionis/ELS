@@ -1,14 +1,14 @@
 ## Version 3.1.0
 
 Release 3.1.0 of ELS adds a new mode - the ELS Hint Status Server (HSS). Only needed when
-more than one remote back-up is being used the HSS coordinates the status
+two or more remote back-ups are being used the HSS coordinates the status
 of all back-ups to facilitate automatic maintenance of the ELS Hint mechanism.
 
 This new HSS mode is optional. All previous features and behavior remain the same. It
-is an additional separate process that is executed before any operation requiring
+is an additional separate process that is executed before any remote operation requiring
 hint coordination. Options are available to allow the HSS to run continuously or
 "ordered" to quit by any publisher or subscriber when an operation is completed. A
-separate TCP/IP port is required for the status server listener service.
+separate TCP/IP port is required for the status server listener.
 
 ### Enhancements
 
@@ -16,10 +16,10 @@ separate TCP/IP port is required for the status server listener service.
 
 ### Command Line Changes
 
- 1. -h has been repurposed, -H added.
+ 1. -h has been repurposed, -H added for hints.
 
-    The -h | --version options used to be for help that only displayed the version.
-    The --version option still does that.
+    Previously the -h | --version options were used for help that only displayed
+    the version. The --version option still does that.
 
     The -h option is now -h | --hints [file] : Hints Status Server file to enable 
     connection to the new ELS Hint Status Server.
@@ -33,7 +33,11 @@ separate TCP/IP port is required for the status server listener service.
     The execution sequence **must** be the HSS, then subscriber, then publisher. The
     publisher commands the subscriber to quit automatically when the operation is
     done. So it is best to add the --quit-status option to the subscriber so when
-    it shuts down it will command the Hint Status Server to quit.
+    it shuts down it will command the Hint Status Server to quit - if desired.
+
+ 3. Added -Q | --force-quit : Special option that only connects to the HSS to
+    send a quit command, then it ends. Requires a --hint file and -p | -P publisher
+    file to specify the to/from connection ends respectively.
 
 ### Bug Fixes
 

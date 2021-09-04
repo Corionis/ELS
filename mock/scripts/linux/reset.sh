@@ -23,5 +23,7 @@ rm -f ./*.log
 cp -rpv ./media-base_copy-only ./test
 echo ""
 
-echo -e "Done\n"
+echo -e "Reset done"
+date
+echo ""
 

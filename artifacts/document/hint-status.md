@@ -9,6 +9,8 @@ tracker. The tracker may be used locally or the Hint Status Server may be run to
 provide the needed functionality when using the -r | --remote option.
 
 ELS Hints are optional. Hint tracking is optional when using hints. But the ELS
-Hint Status Server (HSS) is required when using hints and hint tracking with the
+Hint Status Server (HSS) is **required** when using hints and hint tracking with the
 -r | --remote option.
 
+The ELS Hint Keys file introduced with 3.0.0 is used by the HSS for authentication
+during the complex ELS automated handshake.

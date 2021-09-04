@@ -6,7 +6,7 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
-import com.groksoft.els.stty.hints.Datastore;
+import com.groksoft.els.stty.hintServer.Datastore;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -398,6 +398,23 @@ public class Main
                     }
                     break;
 
+                // handle -Q | --force-quit the hint status server remotely
+                case STATUS_SERVER_FORCE_QUIT:
+                    logger.info("ELS Quit Hint Status Server begin, version " + cfg.getProgramVersion());
+                    cfg.dump();
+
+                    if (cfg.getStatusServerFilename() == null || cfg.getStatusServerFilename().length() == 0)
+                        throw new MungeException("-Q | --force-quit requires a -h | --hints hint server JSON file");
+
+                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+
+                    connectHintServer(context.publisherRepo);
+
+                    // force the cfg setting & let this process end normally
+                    // that will send the quit command to the hint status server
+                    cfg.setQuitStatusServer(true);
+                    break;
+
                 default:
                     throw new MungeException("Unknown type of execution");
             }
@@ -582,7 +599,7 @@ public class Main
         // logout from any hint status server if not shutting it down
         if (context.statusStty != null)
         {
-            if (!cfg.isQuitStatusServer())
+            if (!cfg.isQuitStatusServer() && context.statusStty.isConnected())
             {
                 try
                 {

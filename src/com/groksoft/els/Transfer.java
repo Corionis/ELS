@@ -157,7 +157,7 @@ public class Transfer
     public long getFreespace(String path) throws Exception
     {
         long space;
-        if (cfg.isRemoteSession() &&  !context.hintMode)
+        if (cfg.isRemoteSession() && !context.hintMode)
         {
             // remote subscriber
             space = context.clientStty.availableSpace(path);
@@ -603,31 +603,35 @@ public class Transfer
         Item toItem = setupToItem(repo, fromLib, fromItem, toLib, toName);
 
         // see if it still exists
-        File fromFile = new File(fromItem.getFullPath());
+        String fromPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, fromItem.getFullPath());
+        File fromFile = new File(fromPath);
         if (fromFile.exists())
         {
+            String toPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, toItem.getFullPath());
+
             if (cfg.isDryRun())
             {
-                logger.info("  > Would mv " + (fromItem.isDirectory() ? "directory " : "file ") + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
+                logger.info("  > Would mv " + (fromItem.isDirectory() ? "directory " : "file ") +
+                        "\"" + fromLib.name + "|" + fromPath + "\" to \"" + toLib.name + "|" + toPath + "\"");
                 return false;
             }
 
             // perform move / rename
-            File toFile = new File(toItem.getFullPath());
+            File toFile = new File(toPath);
             if (toFile.exists())
             {
                 logger.info("  ! Target exists, will overwrite: " + toItem.getFullPath());
             }
-            //else if (toIsNew)
+
+            // make sure the parent directories exist
+            if (toFile.getParentFile().mkdirs())
             {
-                if (toFile.getParentFile().mkdirs())
-                {
-                    toLib.rescanNeeded = true;
-                    libAltered = true;
-                }
+                toLib.rescanNeeded = true;
+                libAltered = true;
             }
 
-            logger.info("  > mv " + (fromItem.isDirectory() ? "directory " : "file ") + fromLib.name + "|" + fromItem.getItemPath() + " to " + toLib.name + "|" + toName);
+            logger.info("  > mv " + (fromItem.isDirectory() ? "directory " : "file ") +
+                    "\"" + fromLib.name + "|" + fromPath + "\" to \"" + toLib.name + "|" + toPath + "\"");
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
 
             // no exception thrown
@@ -682,17 +686,18 @@ public class Transfer
                     {
                         if (cfg.isDryRun())
                         {
-                            logger.info("  > Would rm directory: " + fromItem.getFullPath());
+                            logger.info("  > Would rm directory: \"" + fromLibName + "|" + fromItem.getFullPath() + "\"");
                         }
                         else
                         {
                             // remove the physical directory
-                            File prevDir = new File(fromItem.getFullPath());
-                            if (Utils.removeDirectoryTree(prevDir))
+                            String rmPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, fromItem.getFullPath());
+                            File rmdir = new File(rmPath);
+                            if (Utils.removeDirectoryTree(rmdir))
                             {
                                 logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
                             }
-                            logger.info("  > rm directory: " + fromItem.getFullPath());
+                            logger.info("  > rm directory: \"" + fromItem.getFullPath() + "\"");
                             fromLib.rescanNeeded = true;
                             libAltered = true;
                             ++removedDirectories;
@@ -702,14 +707,15 @@ public class Transfer
                     {
                         if (cfg.isDryRun())
                         {
-                            logger.info("  > Would rm file: " + fromItem.getFullPath());
+                            logger.info("  > Would rm file: " + fromLibName + "|" + fromItem.getFullPath());
                         }
                         else
                         {
-                            File prevFile = new File(fromItem.getFullPath());
-                            if (prevFile.delete())
+                            String rmPath = repo.normalizePath(repo.getLibraryData().libraries.flavor, fromItem.getFullPath());
+                            File rmFile = new File(rmPath);
+                            if (rmFile.delete())
                             {
-                                logger.info("  > rm file: " + fromItem.getFullPath());
+                                logger.info("  > rm file: \"" + fromItem.getFullPath() + "\"");
                                 fromLib.rescanNeeded = true;
                                 libAltered = true;
                                 ++removedFiles;
@@ -720,13 +726,13 @@ public class Transfer
             }
             else
             {
-                logger.info("  ! Does not exist (C), skipping: " + fromLibName + "|" + fromName);
+                logger.info("  ! Does not exist (D), skipping: " + fromLibName + "|" + fromName);
                 ++skippedMissing;
             }
         }
         else
         {
-            logger.info("  ! Does not exist (D), skipping: " + fromLibName + "|" + fromName);
+            logger.info("  ! Does not exist (E), skipping: " + fromLibName + "|" + fromName);
             ++skippedMissing;
         }
 

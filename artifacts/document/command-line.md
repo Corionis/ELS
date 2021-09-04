@@ -86,7 +86,12 @@ files have been specified.
 
 ### Parameters
 
-//////////////////// Not used:  g  j  y  z
+//////////////////// 
+//    Not used yet:  g  j  y  z
+//      -g for the 4.0.0 --gui
+//      -j for a "jump start" service for launching ELS named profiles
+//         Or extend that idea into a launcher/general ELS monitor, maybe 4.1.0
+////////////////////
 
 * -a | --authorize [password] : The password required for authorized accesss
   when in -r | --remote mode and allowing STTY interactive access to a listener
@@ -130,6 +135,9 @@ files have been specified.
 * -P | --publisher-collection [file] : Publisher JSON collection file
 
 * -q | --quit-status : Send quit command to hint status server when operation complete
+
+* -Q | --force-quit : Force the hint status server to quit, then end. Specifically
+  intended to shut it down.    
 
 * -s | --subscriber-libraries [file] : Subscriber JSON library file
 
@@ -183,6 +191,9 @@ path leading to the library is not touched.
 
 The -p | --publisher-libraries option will perform library scans as needed.
 The -P | --publisher-collection option does not do any scans.
+
+The -Q | --force-quit options requires a --hints file and a -p | -P publisher
+file to provide the necessary to/from ends.
 
 The -s | --subscriber-libraries option will perform library scans as needed.
 The -S | --subscriber-collection option does not do any scans.

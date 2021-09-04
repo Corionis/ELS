@@ -6,7 +6,7 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
-import com.groksoft.els.stty.hints.Datastore;
+import com.groksoft.els.stty.hintServer.Datastore;
 
 /**
  * Class to make passing these data easier

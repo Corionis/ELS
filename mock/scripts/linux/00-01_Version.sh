@@ -15,9 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-if [ -e ../output/${name}.log ]; then
-    rm -f ../output/${name}.log
-fi
-
-java -jar ../deploy/ELS.jar -c debug -d debug -p test/publisher/publisher.json -s test/subscribe-one/subscriber-one.json -T test/subscriber-one/targets.json -F output/${name}.log --version
-
+java -jar ../deploy/ELS.jar --version

@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="50-13 Remote Hints Publisher Two dryrun" type="Application" factoryName="Application" folderName="50-00 Remote Hints">
+    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-k test/test-hints.keys -c debug -d debug --remote P -p test/publisher/publisher.json -S test/subscriber-two/subscriber-two.json -T -m output/50-13_Remote-Hints-Publisher-Two-dryrun_mismatches.txt -W output/50-13_Remote-Hints-Publisher-Two-dryrun_whatsnew.txt -F output/50-13_Remote-Hints-Publisher-Two-dryrun.log --dry-run" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

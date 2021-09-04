@@ -20,6 +20,9 @@ When all systems have executed the hint the file is automatically deleted.
   To correlate publisher and subscriber collections with status keys in ELS hint
   files a single keys file is needed.
 
+  The keys are also used by the Hint Status Server introduced in ELS 3.1.0 for
+  authentication during the complex ELS automated handshake.
+
   Example:
 
   ```

@@ -23,6 +23,7 @@ public class Configuration
     public static final int RENAME_FILES = 1;
     public static final int RENAME_NONE = 0;
     public static final int STATUS_SERVER = 6;
+    public static final int STATUS_SERVER_FORCE_QUIT = 7;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
     private final String PROGRAM_VERSION = "3.1.0";
@@ -431,7 +432,7 @@ public class Configuration
     /**
      * Gets remote flag
      *
-     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server
+     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server, 7 = force quit status server
      */
     public int getRemoteFlag()
     {
@@ -1101,7 +1102,7 @@ public class Configuration
                         throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
-                case "-h":                                              // hint status provider, v3.1.0
+                case "-h":                                              // hint status tracker, v3.1.0
                 case "--hints":
                     if (index <= args.length - 2)
                     {
@@ -1204,7 +1205,7 @@ public class Configuration
                         throw new MungeException("Error: -m requires a mismatches output filename");
                     }
                     break;
-                case "-n":                                             // perform renaming
+                case "-n":                                              // perform renaming
                 case "--rename":
                     setRenaming(true);
                     if (index <= args.length - 2)
@@ -1217,11 +1218,11 @@ public class Configuration
                         throw new MungeException("Error: -n requires the type F | D | B");
                     }
                     break;
-                case "-o":
+                case "-o":                                              // overwrite
                 case "--overwrite":
                     setOverwrite(true);
                     break;
-                case "-p":                                             // publisher JSON libraries file
+                case "-p":                                              // publisher JSON libraries file
                 case "--publisher-libraries":
                     if (index <= args.length - 2)
                     {
@@ -1248,6 +1249,11 @@ public class Configuration
                 case "-q":                                             // tell status server to quit
                 case "--quit-status":
                     setQuitStatusServer(true);
+                    break;
+                case "-Q":
+                case "--force-quit":
+                    setQuitStatusServer(true);
+                    this.remoteFlag = STATUS_SERVER_FORCE_QUIT;
                     break;
                 case "-r":                                             // remote session
                 case "--remote":

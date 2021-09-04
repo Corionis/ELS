@@ -141,7 +141,7 @@ public class Hints
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
 
-                if (hintItemSubdirectory != null && Utils.isOnlyFile(fromName))
+                if (hintItemSubdirectory != null && Utils.isFileOnly(fromName))
                     fromName = hintItemSubdirectory + "|" + fromName;
 
                 String toLib = parseLibrary(parts[2], lineNo);
@@ -153,7 +153,7 @@ public class Hints
                     throw new MungeException("Malformed to filename on line " + lineNo);
 
                 if (hintItemSubdirectory != null)
-                    toName = hintItemSubdirectory + repo.getSeparator() + toName;
+                    toName = hintItemSubdirectory + "|" + toName;
 
                 context.hintMode = true;
                 if (context.transfer.move(repo, fromLib.trim(), fromName.trim(), toLib.trim(), toName.trim()))
@@ -279,7 +279,7 @@ public class Hints
         return ((rank == 0) ? "Unknown" : ((rank == 1) ? "For" : ((rank == 2) ? "Done" : (rank == 3 ? "Seen" : "Deleted"))));
     }
 
-    public boolean hintExecute(String libName, String itemPath, String toPath) throws Exception
+    public boolean hintRun(String libName, String itemPath, String toPath) throws Exception
     {
         boolean sense = false;
         Item toItem = null;
@@ -289,10 +289,12 @@ public class Hints
         {
             Item existingItem = context.subscriberRepo.hasItem(null, libName, itemPath);
             if (existingItem != null)
+            {
                 toItem = SerializationUtils.clone(existingItem);
+            }
         }
 
-        // merge
+        // merge, might create the file
         mergeHints(toPath + ".merge", toPath);
 
         // execute
@@ -307,6 +309,10 @@ public class Hints
         Path entry = Paths.get(toPath);
         toItem.setSize(Files.size(entry));
         toItem.setFullPath(toPath);
+        if (!Utils.isFileOnly(toItem.getItemPath()))
+        {
+            toItem.setItemSubdirectory(Utils.pipe(context.subscriberRepo, Utils.getLeftPath(toItem.getItemPath(), context.subscriberRepo.getSeparator())));
+        }
 
         List<String> lines = readHintUpdated(toItem);
         execute(context.subscriberRepo, toItem, lines);
@@ -466,11 +472,16 @@ public class Hints
                             String tmpPath = toPath + ".merge";
                             context.transfer.copyFile(item.getFullPath(), tmpPath, true);
 
+                            toItem = SerializationUtils.clone(item);
+                            toItem.setFullPath(toPath);
+                            if (!Utils.isFileOnly(toItem.getItemPath()))
+                            {
+                                toItem.setItemSubdirectory(Utils.pipe(context.subscriberRepo, Utils.getLeftPath(toItem.getItemPath(), context.subscriberRepo.getSeparator())));
+                            }
+
                             boolean updatePubSide = false;
                             if (cfg.isRemoteSession())
                             {
-                                toItem = SerializationUtils.clone(item);
-                                toItem.setFullPath(toPath);
                                 logger.info("* Executing " + item.getFullPath() + " remotely on " + context.subscriberRepo.getLibraryData().libraries.description);
 
                                 // Send command to merge & execute
@@ -483,7 +494,7 @@ public class Hints
                                     if (updatePubSide)
                                     {
                                         subLib.rescanNeeded = true;
-                                        ++executedHints;
+                                        //++executedHints;
                                     }
                                 }
                                 else
@@ -495,15 +506,12 @@ public class Hints
                                 mergeHints(tmpPath, toPath);
 
                                 // execute
-                                toItem = SerializationUtils.clone(item);
-                                toItem.setFullPath(toPath);
-
                                 lines = readHintUpdated(toItem);
                                 execute(context.subscriberRepo, toItem, lines);
                                 if (toItem.isHintExecuted())
                                 {
                                     subLib.rescanNeeded = true;
-                                    ++executedHints;
+                                    //++executedHints;
                                     updatePubSide = true;
                                 }
                             }
