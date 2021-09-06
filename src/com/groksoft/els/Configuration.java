@@ -8,7 +8,7 @@ import org.apache.logging.log4j.MarkerManager;
 import java.util.ArrayList;
 
 /**
- * Configuration
+ * Configuration class.
  * <p>
  * Contains all command-line options and any other application-level configuration.
  */
@@ -22,9 +22,11 @@ public class Configuration
     public static final int RENAME_DIRECTORIES = 2;
     public static final int RENAME_FILES = 1;
     public static final int RENAME_NONE = 0;
+    public static final int STATUS_SERVER = 6;
+    public static final int STATUS_SERVER_FORCE_QUIT = 7;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
-    private final String PROGRAM_VERSION = "3.0.0";
+    private final String PROGRAM_VERSION = "3.1.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
@@ -38,6 +40,7 @@ public class Configuration
     private boolean forceTargets = false;
     private String hintKeysFile = "";
     private boolean hintSkipMainProcess = false;
+    private String hintsDaemonFilename = "";
     private String logFilename = "";
     private boolean logOverwrite = false;
     private String mismatchFilename = "";
@@ -47,6 +50,7 @@ public class Configuration
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
+    private boolean quitStatusServer = false;
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
     private boolean renaming = false;
@@ -57,6 +61,7 @@ public class Configuration
     private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private boolean specificExclude = false;
     private boolean specificLibrary = false;
+    private String statusTrackerFilename = "";
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
     private boolean targetsEnabled = false;
@@ -120,6 +125,14 @@ public class Configuration
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
         logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
+        if (statusTrackerFilename != null && statusTrackerFilename.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -h Hint status server: " + getStatusTrackerFilename());
+        }
+        if (hintsDaemonFilename != null && hintsDaemonFilename.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -H Hints status server daemon: " + getHintsDaemonFilename());
+        }
         if (getExportCollectionFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
@@ -157,6 +170,10 @@ public class Configuration
         if (getPublisherCollectionFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -P Publisher Collection filename = " + getPublisherCollectionFilename());
+        }
+        if (isQuitStatusServer())
+        {
+            logger.info(SHORT, "  cfg: -q Status server QUIT");
         }
         logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
         if (getSubscriberLibrariesFileName().length() > 0)
@@ -290,9 +307,34 @@ public class Configuration
         this.exportTextFilename = exportTextFilename;
     }
 
+    /**
+     * Gets Hint Keys filename
+     *
+     * @return String filename
+     */
     public String getHintKeysFile()
     {
         return hintKeysFile;
+    }
+
+    /**
+     * Gets Hint Status Server filename
+     *
+     * @return String filename
+     */
+    public String getHintsDaemonFilename()
+    {
+        return hintsDaemonFilename;
+    }
+
+    /**
+     * Sets the Hint Status Server filename
+     *
+     * @param hintsDaemonFilename
+     */
+    public void setHintsDaemonFilename(String hintsDaemonFilename)
+    {
+        this.hintsDaemonFilename = hintsDaemonFilename;
     }
 
     /**
@@ -358,7 +400,7 @@ public class Configuration
      *
      * @return the Main version
      */
-    public String getProgramVersionN()
+    public String getProgramVersion()
     {
         return PROGRAM_VERSION;
     }
@@ -406,7 +448,7 @@ public class Configuration
     /**
      * Gets remote flag
      *
-     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal
+     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server, 7 = force quit status server
      */
     public int getRemoteFlag()
     {
@@ -490,6 +532,26 @@ public class Configuration
     }
 
     /**
+     * Get the Hint Status Tracker configuration filename
+     *
+     * @return String filename
+     */
+    public String getStatusTrackerFilename()
+    {
+        return statusTrackerFilename;
+    }
+
+    /**
+     * Set the Hint Status Tracker configuration filename
+     *
+     * @param statusTrackerFilename
+     */
+    public void setStatusTrackerFilename(String statusTrackerFilename)
+    {
+        this.statusTrackerFilename = statusTrackerFilename;
+    }
+
+    /**
      * Gets subscriber import filename
      *
      * @return the import filename
@@ -569,11 +631,21 @@ public class Configuration
         this.whatsNewFilename = whatsNewFilename;
     }
 
+    /**
+     * Is a duplicates cross-check enabled?
+     *
+     * @return true if enabled, else false
+     */
     public boolean isCrossCheck()
     {
         return crossCheck;
     }
 
+    /**
+     * Sets duplicates cross-check
+     *
+     * @param crossCheck
+     */
     public void setCrossCheck(boolean crossCheck)
     {
         this.crossCheck = crossCheck;
@@ -599,11 +671,21 @@ public class Configuration
         this.dryRun = dryRun;
     }
 
+    /**
+     * Are duplicates being checked?
+     *
+     * @return true if duplcates checking is enabled, else false
+     */
     public boolean isDuplicateCheck()
     {
         return duplicateCheck;
     }
 
+    /**
+     * Sets duplcates checking
+     *
+     * @param duplicateCheck
+     */
     public void setDuplicateCheck(boolean duplicateCheck)
     {
         this.duplicateCheck = duplicateCheck;
@@ -666,31 +748,62 @@ public class Configuration
         this.forceTargets = forceTargets;
     }
 
+    /**
+     * Are only Hints being processed so skip the main munge process?
+     *
+     * @return true if hints skipping main process enabled
+     */
     public boolean isHintSkipMainProcess()
     {
         return hintSkipMainProcess;
     }
 
+    /**
+     * Sets if the hints option to skip the main munge process is enabled
+     *
+     * @param hintSkipMainProcess
+     */
     public void setHintSkipMainProcess(boolean hintSkipMainProcess)
     {
         this.hintSkipMainProcess = hintSkipMainProcess;
     }
 
+    /**
+     * Is the log to be overwritten?
+     *
+     * @return true to overwrite
+     */
     public boolean isLogOverwrite()
     {
         return logOverwrite;
     }
 
+    /**
+     * Sets if the log should be overwritten when the process starts
+     *
+     * @param logOverwrite
+     */
     public void setLogOverwrite(boolean logOverwrite)
     {
         this.logOverwrite = logOverwrite;
     }
 
+    /**
+     * Is the no back-fill option enabled so the default behavior of filling-in
+     * original locations with new files is disabled?
+     *
+     * @return true if no back-fill is enabled
+     */
     public boolean isNoBackFill()
     {
         return noBackFill;
     }
 
+    /**
+     * Sets the no back-fill option
+     *
+     * @param noBackFill
+     */
     public void setNoBackFill(boolean noBackFill)
     {
         this.noBackFill = noBackFill;
@@ -752,6 +865,26 @@ public class Configuration
     public boolean isPublisherTerminal()
     {
         return (getRemoteFlag() == PUBLISHER_MANUAL);
+    }
+
+    /**
+     * Should the current process command the Hint Status Server to quit?
+     *
+     * @return true if the command is to be sent
+     */
+    public boolean isQuitStatusServer()
+    {
+        return quitStatusServer;
+    }
+
+    /**
+     * Sets whether this process should command the Hint Status Server to quit
+     *
+     * @param quitStatusServer
+     */
+    public void setQuitStatusServer(boolean quitStatusServer)
+    {
+        this.quitStatusServer = quitStatusServer;
     }
 
     /**
@@ -888,6 +1021,16 @@ public class Configuration
     }
 
     /**
+     * Returns true if this is a hint status server
+     *
+     * @return true/false
+     */
+    public boolean isStatusServer()
+    {
+        return (getRemoteFlag() == STATUS_SERVER);
+    }
+
+    /**
      * Returns true if subscriber is in listener mode
      */
     public boolean isSubscriberListener()
@@ -919,11 +1062,31 @@ public class Configuration
         targetsEnabled = sense;
     }
 
+    /**
+     * Is a Hint Status Tracker being used?
+     *
+     * @return true if so
+     */
+    public boolean isUsingHintTracker()
+    {
+        return (statusTrackerFilename.length() > 0);
+    }
+
+    /**
+     * Is the validation of collections and targets enabled?
+     *
+     * @return true if validation should be done
+     */
     public boolean isValidation()
     {
         return validation;
     }
 
+    /**
+     * Sets the collection and targets validation option
+     *
+     * @param validation
+     */
     public void setValidation(boolean validation)
     {
         this.validation = validation;
@@ -1041,6 +1204,33 @@ public class Configuration
                         throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
+                case "-h":                                              // hint status tracker, v3.1.0
+                case "--hints":
+                    if (index <= args.length - 2)
+                    {
+                        setStatusTrackerFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -h requires a hint status server repository filename");
+                    }
+                    break;
+                case "-H":                                              // hint status server, v3.1.0
+                case "--hint-server":
+                    this.remoteFlag = STATUS_SERVER;
+                    if (index <= args.length - 2)
+                    {
+                        setHintsDaemonFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -H requires a hint status server repository filename");
+                    }
+                    break;
                 case "-i":                                             // export publisher items to collection file
                 case "--export-items":
                     if (index <= args.length - 2)
@@ -1117,7 +1307,7 @@ public class Configuration
                         throw new MungeException("Error: -m requires a mismatches output filename");
                     }
                     break;
-                case "-n":                                             // perform renaming
+                case "-n":                                              // perform renaming
                 case "--rename":
                     setRenaming(true);
                     if (index <= args.length - 2)
@@ -1130,11 +1320,11 @@ public class Configuration
                         throw new MungeException("Error: -n requires the type F | D | B");
                     }
                     break;
-                case "-o":
+                case "-o":                                              // overwrite
                 case "--overwrite":
                     setOverwrite(true);
                     break;
-                case "-p":                                             // publisher JSON libraries file
+                case "-p":                                              // publisher JSON libraries file
                 case "--publisher-libraries":
                     if (index <= args.length - 2)
                     {
@@ -1157,6 +1347,15 @@ public class Configuration
                     {
                         throw new MungeException("Error: -P requires a publisher collection filename");
                     }
+                    break;
+                case "-q":                                             // tell status server to quit
+                case "--quit-status":
+                    setQuitStatusServer(true);
+                    break;
+                case "-Q":
+                case "--force-quit":
+                    setQuitStatusServer(true);
+                    this.remoteFlag = STATUS_SERVER_FORCE_QUIT;
                     break;
                 case "-r":                                             // remote session
                 case "--remote":
@@ -1228,7 +1427,6 @@ public class Configuration
                 case "--validate":
                     setValidation(true);
                     break;
-                case "-h":
                 case "--version":                                       // version
                     System.out.println("");
                     System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);

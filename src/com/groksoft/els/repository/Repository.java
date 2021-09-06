@@ -109,6 +109,13 @@ public class Repository
         }
     }
 
+    /**
+     * Get the right-side item name.
+     *
+     * @param item The Item
+     * @return String of the right-side of the itemPath
+     * @throws MungeException
+     */
     public String getItemName(Item item) throws MungeException
     {
         String path = item.getItemPath();
@@ -509,17 +516,22 @@ public class Repository
      */
     public String normalizePath(String toFlavor, String path) throws MungeException
     {
-        if (!toFlavor.equalsIgnoreCase(libraryData.libraries.flavor))
-        {
-            String to = Utils.getFileSeparator(toFlavor);
-            path = normalizeSubst(path, Utils.getFileSeparator(libraryData.libraries.flavor), to);
-        }
+        String to = Utils.getFileSeparator(toFlavor);
+        path = normalizeSubst(path, Utils.getFileSeparator(libraryData.libraries.flavor), to);
         return path;
     }
 
+    /**
+     * Normalize a path with a specific path separator character.
+     *
+     * @param path The path to normalize
+     * @param from The previous path separator character
+     * @param to   The new path separator character
+     * @return String normalized path
+     */
     private String normalizeSubst(String path, String from, String to)
     {
-        return path.replaceAll(from, to);
+        return path.replaceAll(from, to).replaceAll("\\|", to);
     }
 
     /**
@@ -725,6 +737,10 @@ public class Repository
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
                 item.setLibrary(library.name);                          // the library name
+                if (!Utils.isFileOnly(item.getItemPath()))
+                {
+                    item.setItemSubdirectory(Utils.pipe(this, Utils.getLeftPath(item.getItemPath(), getSeparator())));
+                }
                 library.items.add(item);
 
                 if (isDir)
@@ -757,13 +773,13 @@ public class Repository
         lib.items = null;
         for (String src : lib.sources)
         {
-            logger.info("  " + src);
+            logger.debug("  " + src);
             scanDirectory(lib, src, src);
         }
     }
 
     /**
-     * Sort collection.
+     * Sort a specific library's collection.
      */
     public void sort(Library lib)
     {
@@ -849,7 +865,7 @@ public class Repository
             throw new MungeException("libraries.bibliography must be defined");
         }
 
-        logger.info("Validating Libraries " + getJsonFilename());
+        logger.info("Validating " + lbs.description + " Libraries in:+ " + getJsonFilename());
         for (int i = 0; i < lbs.bibliography.length; i++)
         {
             Library lib = lbs.bibliography[i];
@@ -866,7 +882,7 @@ public class Repository
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
                         (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                 {
-                    logger.info("  library: " + lib.name +
+                    logger.debug("  library: " + lib.name +
                             ", " + lib.sources.length + " sources" +
                             (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " items" : ""));
                     // validate sources paths
@@ -880,7 +896,7 @@ public class Repository
                         {
                             throw new MungeException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
                         }
-                        logger.info("    src: " + lib.sources[j]);
+                        logger.debug("    src: " + lib.sources[j]);
 
                         // validate item path
                         if (lib.items != null && lib.items.size() > 0)

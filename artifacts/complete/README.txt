@@ -17,4 +17,7 @@ users get started with ELS.
 ELS has many options that may be used in different combinations. Only a
 few are shown in these example files.
 
+See the mock/scripts/ directory for several more examples of the various
+ways ELS may be executed.
+
 More information is available at:  https://github.com/GrokSoft/ELS/wiki

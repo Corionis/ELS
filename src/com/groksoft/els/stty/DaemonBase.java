@@ -1,16 +1,21 @@
 package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
+import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
 
 /**
  * Daemon service.
- *
+ * <p>
  * The Daemon service is the command interface used to communicate between
  * the endpoints.
  */
@@ -20,20 +25,18 @@ public abstract class DaemonBase
 
     protected InetAddress address;
     protected boolean authorized = false;
+    protected Configuration cfg;
     protected boolean connected = false;
+    protected DataInputStream in = null;
+    protected String myKey;
+    protected Repository myRepo;
+    protected DataOutputStream out = null;
     protected int port;
+    protected String response = "";
     protected Socket socket;
     protected boolean stop = false;
-
-    protected DataInputStream in = null;
-    protected DataOutputStream out = null;
-    protected String response = "";
-
-    protected Configuration cfg;
-    protected Repository myRepo;
-    protected String myKey;
-    protected Repository theirRepo;
     protected String theirKey;
+    protected Repository theirRepo;
 
     /**
      * Instantiate the Daemon service
@@ -42,8 +45,11 @@ public abstract class DaemonBase
     {
         this.cfg = config;
         this.myRepo = mine;
-        this.theirRepo = theirs;
-        this.theirKey = theirRepo.getLibraryData().libraries.key;
+        if (theirs != null)
+        {
+            this.theirRepo = theirs;
+            this.theirKey = this.theirRepo.getLibraryData().libraries.key;
+        }
         this.myKey = myRepo.getLibraryData().libraries.key;
     } // constructor
 
@@ -52,7 +58,7 @@ public abstract class DaemonBase
      *
      * @param aWriter The PrintWriter to be used to print the list.
      */
-    public synchronized void dumpStatistics (PrintWriter aWriter)
+    public synchronized void dumpStatistics(PrintWriter aWriter)
     {
 		/*
 		aWriter.println("\r\Daemon currently connected: " + ((connected) ? "true" : "false"));
@@ -75,30 +81,33 @@ public abstract class DaemonBase
      *
      * @return Short name of this service.
      */
-    public String getName ()
+    public String getName()
     {
         return "DaemonBase";
     }
 
-    /**
-     * Request the Daemon service to stop
-     */
-    public void requestStop ()
+    public Socket getSocket()
     {
-        this.stop = true;
-        logger.info("Requesting stop for session on port " + socket.getPort() + " to " + socket.getInetAddress());
+        return socket;
     }
 
     /**
-     * Process a connection request to the Daemon service.
-     *
+     * Perform initial handshake for this session.
      */
-    public abstract void process(Socket aSocket) throws IOException, Exception;
+    public abstract String handshake();
 
     /**
-     * Perform initial handshake for this session.
-     *
+     * Process a connection request to the Daemon service.
      */
-    public abstract boolean handshake();
+    public abstract boolean process(Socket aSocket) throws IOException, Exception;
+
+    /**
+     * Request the Daemon service to stop
+     */
+    public void requestStop()
+    {
+        this.stop = true;
+        logger.debug("Requesting stop for stty session: " + Utils.formatAddresses(socket));
+    }
 
 } // DaemonBase

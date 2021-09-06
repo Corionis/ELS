@@ -1,13 +1,19 @@
 package com.groksoft.els.stty;
 
-import com.groksoft.els.*;
+import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
+import com.groksoft.els.MungeException;
+import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * Manage all connections and enforce limits.
@@ -24,12 +30,6 @@ import java.util.*;
  */
 public class ServeStty extends Thread
 {
-    private transient Logger logger = LogManager.getLogger("applog");
-
-    /**
-     * The list of all service connections
-     */
-    private Vector<Connection> allConnections;
     /**
      * The single instance of this class
      */
@@ -39,21 +39,24 @@ public class ServeStty extends Thread
      */
     protected int maxConnections;
     /**
-     * Count of total connections since started
-     */
-    private int totalConnections = 0;
-    /**
      * Flag used to determine when to stop listening
      */
     private boolean _stop = false;
-
-    private Hashtable<String, Listener> allSessions;
+    /**
+     * The list of all service connections
+     */
+    private Vector<Connection> allConnections;
     private ThreadGroup allSessionThreads;
-
+    private Hashtable<String, Listener> allSessions;
     private Configuration cfg;
     private Context context;
     private int listenPort;
+    private transient Logger logger = LogManager.getLogger("applog");
     private boolean primaryServers;
+    /**
+     * Count of total connections since started
+     */
+    private int totalConnections = 0;
 
     /**
      * Instantiates the ServeStty object and set it as a daemon so the Java
@@ -78,6 +81,14 @@ public class ServeStty extends Thread
     } // constructor
 
     /**
+     * Get this instance.
+     */
+    public static ServeStty getInstance()
+    {
+        return instance;
+    }
+
+    /**
      * Add a connection for a service.
      * <p>
      * Responds to a connection request. The maximum connection limit is
@@ -98,15 +109,17 @@ public class ServeStty extends Thread
 
                 // log it
                 logger.info("Maximum connections (" + maxConnections + ") exceeded");
-                logger.info("Connection refused from " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+                logger.info("Connection refused from: " + Utils.formatAddresses(aSocket));
 
                 // close the connection
                 aSocket.close();
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 logger.info(e);
             }
-        } else
+        }
+        else
         // if limit has not been reached
         {
             // create a connection thread for this request
@@ -114,17 +127,23 @@ public class ServeStty extends Thread
             if (cfg.isPublisherListener())
             {
                 theConnection = new Connection(aSocket, new com.groksoft.els.stty.publisher.Daemon(cfg, context, context.publisherRepo, context.subscriberRepo));
-            } else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
+            }
+            else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
                 theConnection = new Connection(aSocket, new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
-            } else
+            }
+            else if (cfg.isStatusServer())
+            {
+                theConnection = new Connection(aSocket, new com.groksoft.els.stty.hintServer.Daemon(cfg, context, context.statusRepo, null));
+            }
+            else
             {
                 throw new MungeException("FATAL: Unknown connection type");
             }
             allConnections.add(theConnection);
 
             // log it
-            logger.info((cfg.isPublisherListener() ? "Publisher" : "Subscriber") + " daemon opened " + aSocket.getInetAddress().getHostAddress() + ":" + aSocket.getPort());
+            logger.info((cfg.isStatusServer() ? "Status Server" : (cfg.isPublisherListener() ? "Publisher" : "Subscriber")) + " daemon opened stty: " + Utils.formatAddresses(aSocket));
 
             // start the connection thread
             theConnection.start();
@@ -132,21 +151,45 @@ public class ServeStty extends Thread
         }
     }
 
-    /**
-     * Start a session listener
-     */
-    public void startListening(Repository listenerRepo) throws Exception
+    protected void addListener(String host, int aPort) throws Exception
     {
-        if (listenerRepo != null &&
-                listenerRepo.getLibraryData() != null &&
-                listenerRepo.getLibraryData().libraries != null &&
-                listenerRepo.getLibraryData().libraries.listen != null)
+        //Integer key = new Integer(aPort);   // hashtable key
+
+        // do not allow duplicate port assignments
+        if (allSessions.get("Listener:" + host + ":" + aPort) != null)
+            throw new IllegalArgumentException("Port " + aPort + " already in use");
+
+        // create a listener on the port
+        Listener listener = new Listener(allSessionThreads, host, aPort, cfg);
+
+        // put it in the hashtable
+        allSessions.put("Listener:" + host + ":" + aPort, listener);
+
+        // log it
+        logger.info("Stty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);
+
+        // fire it up
+        listener.start();
+    }
+
+    /**
+     * Dump statistics of connections.
+     */
+    public synchronized String dumpStatistics()
+    {
+        String data = "Listening on: " + listenPort + "\r\n" +
+                "Active connections: " + allConnections.size() + "\r\n";
+        for (int index = 0; index < allConnections.size(); ++index)
         {
-            startServer(listenerRepo.getLibraryData().libraries.listen);
-        } else
-        {
-            throw new MungeException("cannot get site from -r specified remote library");
+            Connection c = (Connection) allConnections.elementAt(index);
+            data += "  " + c.service.getName() + " to " + Utils.formatAddresses(c.socket) + "\r\n";
         }
+
+        // dump connection counts
+        data += "  Total connections since started: " + totalConnections + "\r\n";
+        data += "  Maximum allowed connections: " + maxConnections + "\r\n";
+
+        return data;
     }
 
     /**
@@ -165,47 +208,11 @@ public class ServeStty extends Thread
     }
 
     /**
-     * Get this instance.
-     */
-    public static ServeStty getInstance()
-    {
-        return instance;
-    }
-
-    /**
      * Get the connections Vector
      */
     public Vector getAllConnections()
     {
         return this.allConnections;
-    }
-
-    /**
-     * Set or change the maximum number of connections allowed for this server.
-     */
-    public synchronized void setMaxConnections(int aMax)
-    {
-        maxConnections = aMax;
-    }
-
-    /**
-     * Dump statistics of connections.
-     */
-    public synchronized String dumpStatistics()
-    {
-        String data = "Listening on: " + listenPort + "\r\n" +
-                "Active connections: " + allConnections.size() + "\r\n";
-        for (int index = 0; index < allConnections.size(); ++index)
-        {
-            Connection c = (Connection) allConnections.elementAt(index);
-            data += "  " + c.service.getName() + " to " + c.socket.getInetAddress().getHostAddress() + ":" + c.socket.getPort() + "\r\n";
-        }
-
-        // dump connection counts
-        data += "  Total connections since started: " + totalConnections + "\r\n";
-        data += "  Maximum allowed connections: " + maxConnections + "\r\n";
-
-        return data;
     }
 
     /**
@@ -236,7 +243,7 @@ public class ServeStty extends Thread
     public void run()
     {
         // log it
-        logger.info("Starting ServeStty server for up to " + maxConnections + " incoming connections");
+        logger.info("Starting stty server for up to " + maxConnections + " incoming connections");
         while (_stop == false)
         {
             for (int index = 0; index < allConnections.size(); ++index)
@@ -246,7 +253,6 @@ public class ServeStty extends Thread
                 if (!c.isAlive())
                 {
                     allConnections.removeElementAt(index);
-                    logger.info(c.service.getName() + " closed " + c.socket.getInetAddress().getHostAddress() + ":" + c.socket.getPort() + " port " + c.socket.getLocalPort());
                 }
             }
 
@@ -257,33 +263,54 @@ public class ServeStty extends Thread
                 {
                     this.wait();
                 }
-            } catch (InterruptedException e)
-            {
-                logger.info("ServeStty interrupted, stop=" + ((_stop) ? "true" : "false"));
             }
-        } // while (true)
-        logger.info("Stopped ServeStty");
+            catch (InterruptedException e)
+            {
+                logger.debug("Stty interrupted, stop=" + ((_stop) ? "true" : "false"));
+                _stop = true;
+            }
+        }
+
+        // when this server ends disconnect and stop other services
+        // otherwise the threads will never stop
+        if (context.statusStty != null)
+        {
+            context.statusStty.quitStatusServer(context, false);
+            context.statusStty.disconnect();
+            context.statusStty = null;
+        }
+        if (context.serveSftp != null)
+        {
+            context.serveSftp.stopServer();
+            context.serveSftp = null;
+        }
+        logger.debug("Stopping stty server");
     }
 
-    protected void addListener(String host, int aPort) throws Exception
+    /**
+     * Set or change the maximum number of connections allowed for this server.
+     */
+    public synchronized void setMaxConnections(int aMax)
     {
-        //Integer key = new Integer(aPort);   // hashtable key
+        maxConnections = aMax;
+    }
 
-        // do not allow duplicate port assignments
-        if (allSessions.get("Listener:" + host + ":" + aPort) != null)
-            throw new IllegalArgumentException("Port " + aPort + " already in use");
-
-        // create a listener on the port
-        Listener listener = new Listener(allSessionThreads, host, aPort, cfg);
-
-        // put it in the hashtable
-        allSessions.put("Listener:" + host + ":" + aPort, listener);
-
-        // log it
-        logger.info("ServeStty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);
-
-        // fire it up
-        listener.start();
+    /**
+     * Start a session listener
+     */
+    public void startListening(Repository listenerRepo) throws Exception
+    {
+        if (listenerRepo != null &&
+                listenerRepo.getLibraryData() != null &&
+                listenerRepo.getLibraryData().libraries != null &&
+                listenerRepo.getLibraryData().libraries.listen != null)
+        {
+            startServer(listenerRepo.getLibraryData().libraries.listen);
+        }
+        else
+        {
+            throw new MungeException("cannot get site from -r specified remote library");
+        }
     }
 
     public void startServer(String listen) throws Exception
@@ -302,7 +329,7 @@ public class ServeStty extends Thread
         }
         if (listenPort < 1)
         {
-            logger.info("ServeStty is disabled");
+            logger.info("Stty is disabled");
         }
     }
 
@@ -310,24 +337,21 @@ public class ServeStty extends Thread
     {
         if (allSessions != null)
         {
-            logger.info("Stopping all Sessions");
-            Enumeration keys = allSessions.keys();
-            while (keys.hasMoreElements())
+            logger.debug("Stopping all stty listener threads");
+            Collection<Listener> lc = allSessions.values();
+            for (Listener listener : lc)
             {
-                //Integer port = (Integer)keys.nextElement();
-                Connection conn = (Connection) keys.nextElement();
-                Socket sock = conn.getSocket();
-                Integer port = sock.getPort();
-                Listener listener = (Listener) allSessions.get(port);
                 if (listener != null)
                 {
-                    listener.requestStop();
+                    if (listener.isAlive())
+                        listener.requestStop();
                 }
             }
             this.requestStop();
-        } else
+        }
+        else
         {
-            logger.info("nothing to stop");
+            logger.debug("nothing to stop");
         }
     }
 

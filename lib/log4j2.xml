@@ -15,7 +15,6 @@
         </RollingFile>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout>
-                <!-- PatternLayout pattern="${sys:pattern}"/ -->
                 <MarkerPatternSelector defaultPattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n">
                     <PatternMatch key="SHORT" pattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n"/>
                     <PatternMatch key="SIMPLE" pattern="    %m%n"/>

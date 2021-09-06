@@ -20,6 +20,9 @@ When all systems have executed the hint the file is automatically deleted.
   To correlate publisher and subscriber collections with status keys in ELS hint
   files a single keys file is needed.
 
+  The keys are also used by the Hint Status Server introduced in ELS 3.1.0 for
+  authentication during the complex ELS automated handshake.
+
   Example:
 
   ```
@@ -31,10 +34,13 @@ When all systems have executed the hint the file is automatically deleted.
   ```
     
 ## Hint Processing Modes
-        
+
   1. Local mode - Processes hint files locally only. Enabled by specifying a
      keys file and publisher library files but not a subscriber file.
   2. Publish mode - Processes hints publisher-to-subscriber.
+  3. Hint Status Server - An optional stand-alone server process used by ELS
+     to coordinate hint completion status between multiple back-ups operating
+     remotely. See [Hint Status](Hint-Status).
     
 ## Local-only Hint Processing
     
@@ -46,10 +52,23 @@ When all systems have executed the hint the file is automatically deleted.
     
   Because targets are required for hint processing a special format command
   line is used to execute hints locally (only).
-        
+
   1. The publisher's targets file is used instead of a subscriber's.
   2. No subscriber file is specified.
   3. All other options related to hint processing are the same.
+
+## Hint Processing Sequence
+
+  If hints are to be processing on the media server (publisher) those must
+  be executed before publishing to a subscriber - so the two collections match
+  during the backup operation. If it has not been done an exception is thrown.
+
+  Thereafter any media publisher or back-up may perform back-up operatioins
+  with any other and the hint will be propagated and tracked.
+
+  When all participants have done then seen all done statuses the .els hint
+  files and matching Hint Status Tracker/Server, if enabled, tracking file
+  are deleted automatically.
 
 ## Hint Files
     
@@ -68,7 +87,7 @@ When all systems have executed the hint the file is automatically deleted.
       rm "TV Shows|Cosmos (1980)/cover.jpg"        
       mv 'Cosmos (1980)' "TV Documentaries | Cosmos (1980)"
   ```
-        
+
   1. Two commands are currently supported:
      1. rm : remove a file or directory.
      2. mv : move *or rename* a file or directory.
@@ -79,7 +98,10 @@ When all systems have executed the hint the file is automatically deleted.
      mv "cover.jpg" "CoverArt/cover.jpg"
     
 ## How Hints Work
-    
+  
+  Hints must be executed, or their changes made manually and placed in a .els
+  hint file, before publishing to a back-up (subscriber).
+
   Hint files are processed on a back-up (subscriber) before a back-up operation
   so the back-up reflects manual changes made to the media server (publisher).
     
@@ -87,13 +109,13 @@ When all systems have executed the hint the file is automatically deleted.
   to "Done". When all systems have Done the hint their status is changed to
   "Seen". When all systems have Seen the hint the hint .els file is deleted.
     
-  **Important Note**: In the current implementation if more than one back-up
-  is used there is an "odd man out" issue where the next to last system will
-  have an orphaned hint .els file that is not deleted. This is due to a basic
-  logistical logic "Catch-22" that will be addressed in a later version.
+  If more than one back-up is used there is an "odd man out" issue where the
+  next to last system will have an orphaned hint .els file that is not deleted.
+  This issue is solved by using the Hint Status Tracker for local operations or
+  the Hint Status Server for remote operations.
     
 ## Other Notes
-        
+
   * Option -D | --dry-run applies.
         
     When using the --dry-run option with hints in a back-up run:
@@ -107,3 +129,6 @@ When all systems have executed the hint the file is automatically deleted.
   * Filenames in .els hint files are relative to the directory containing the .els file.
         
   * Changes made with ELS hints will trigger a rescan of the affected libraries.
+
+  * The .els hint files are processed separately and skipped during back-up (munge)
+    operations.

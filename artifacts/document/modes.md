@@ -1,4 +1,5 @@
-ELS has two primary ways of working - locally or client/server on two computers.
+ELS has three primary ways of working - locally, client/server on two computers,
+or run as the Hint Status Server.
 
 # Local
 
@@ -18,3 +19,10 @@ subscriber computer is the listener. The client or publisher computer
 attaches to the listener. Therefore the subscriber-side ELS must be 
 running before the publisher-side is started. All data communication is 
 encrypted. 
+
+# Hint Status Server
+
+When ELS dry-runs and back-ups are executed as remote operations with
+hints and hint tracking enabled this mode provices an optional stand-alone
+server process used coordinate hint completion status between multiple
+back-ups. See [Hint Status](Hint-Status).

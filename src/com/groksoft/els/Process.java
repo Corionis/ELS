@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
- * ELS Process
+ * Process class where the primary operations are executed.
  */
 public class Process
 {
@@ -23,7 +23,6 @@ public class Process
     private int differentSizes = 0;
     private int errorCount = 0;
     private boolean fault = false;
-    private HintKeys hintKeys = null;
     private Hints hints = null;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
@@ -175,7 +174,6 @@ public class Process
 
         String header = "Munging collections " + context.publisherRepo.getLibraryData().libraries.description + " to " +
                 context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : "");
-        logger.info(header);
 
         // setup the -m mismatch output file
         if (cfg.getMismatchFilename().length() > 0)
@@ -213,6 +211,7 @@ public class Process
             }
         }
 
+        logger.info(header);
         try
         {
             for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
@@ -413,7 +412,7 @@ public class Process
 
         if (ignoredList.size() > 0)
         {
-            logger.info(SHORT, "+------------------------------------------");
+            logger.debug(SHORT, "+------------------------------------------");
             logger.debug(SIMPLE, "Ignored " + ignoredList.size() + " files:");
             for (String s : ignoredList)
             {
@@ -471,12 +470,11 @@ public class Process
      * <p>
      * What is done depends on the combination of options specified on the command line.
      */
-    public int process()
+    public boolean process()
     {
         Marker SHORT = MarkerManager.getMarker("SHORT");
         boolean lined = false;
         boolean localHints = false;
-        int returnValue = 0;
 
         try
         {
@@ -490,9 +488,9 @@ public class Process
             // Get ELS hints keys if specified
             if (cfg.getHintKeysFile().length() > 0) // v3.0.0
             {
-                hintKeys = new HintKeys(context);
-                hintKeys.read(cfg.getHintKeysFile());
-                hints = new Hints(cfg, context, hintKeys);
+                context.hintKeys = new HintKeys(cfg, context);
+                context.hintKeys.read(cfg.getHintKeysFile());
+                hints = new Hints(cfg, context, context.hintKeys);
             }
 
             // process ELS Hints locally, no subscriber, publisher's targets
@@ -540,7 +538,7 @@ public class Process
                 hints.hintsMunge();
             }
 
-            // if all the pieces are specified perform a full munge the collections
+            // if all the pieces are specified perform a full munge of the collections
             if (!localHints && !cfg.isHintSkipMainProcess()) // v3.0.0
             {
                 if (cfg.isTargetsEnabled() &&
@@ -571,7 +569,6 @@ public class Process
             fault = true;
             ++errorCount;
             logger.error(Utils.getStackTrace(ex));
-            returnValue = 2;
         }
         finally
         {
@@ -606,16 +603,10 @@ public class Process
                         logger.warn("Remote subscriber is in an unknown state");
                     }
                 }
-
-                // mark the process as successful so it may be detected with automation
-                if (!fault)
-                    logger.fatal(SHORT, "Process completed normally");
-                else
-                    logger.fatal("Process failed");
             }
         }
 
-        return returnValue;
+        return fault;
     } // process
 
     /**
@@ -631,6 +622,14 @@ public class Process
         }
     }
 
+    /**
+     * Dump any duplicates found to the log
+     *
+     * @param type       Publisher or Subscriber, description
+     * @param item       The item with duplicates
+     * @param duplicates The count of duplicated
+     * @return New count of duplicates
+     */
     private int reportDuplicates(String type, Item item, int duplicates)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
@@ -651,6 +650,14 @@ public class Process
         return duplicates;
     }
 
+    /**
+     * Dump any empty directories to the log
+     *
+     * @param type    Publisher or Subscriber, description
+     * @param item    The item with empties
+     * @param empties The count of empties
+     * @return The new count of empties
+     */
     private int reportEmpties(String type, Item item, int empties)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");

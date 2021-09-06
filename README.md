@@ -18,7 +18,14 @@ content for that library.
 The pre-built executable and a Zip including examples are available
 on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** page.
 
+See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for
+features, downloads and documentation.
+
 ## Features
+
+ * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
+ * New ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
+ * New ELS Hints to coordinate manual changes, new in 3.0.0.
 
  * Supports movies, television shows with season subdirectories, 
    music with artists and albums, etc.
@@ -33,9 +40,8 @@ on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** 
  * An interactive terminal is available for both publisher and subscriber.
  * Standard SFTP such as [Filezilla](https://filezilla-project.org/) may interactively connect to ELS when in listener mode.
  * May be scheduled using operating system tools, e.g. Windows Task Scheduler or Linux cron.
- * Nothing is added, no overhead.
+ * Nothing is added, no overhead except when using hints.
  * Runs on Windows, Linux and Mac.
- * New ELS Hints to coordinate manual changes, new in 3.0.0.
 
 ELS relies on a common directory structure used by modern home media
 systems such as [Plex Media Server](https://plex.tv). Each media type,

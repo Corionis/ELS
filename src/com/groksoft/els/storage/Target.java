@@ -6,17 +6,15 @@ package com.groksoft.els.storage;
 public class Target
 {
     /**
-     * The target Name.
+     * The Locations.
      */
-    public String name;
-
+    public String[] locations;
     /**
      * The Minimum space available limit.
      */
     public String minimum;
-
     /**
-     * The Locations.
+     * The target Name.
      */
-    public String[] locations;
+    public String name;
 }

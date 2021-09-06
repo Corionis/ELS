@@ -11,6 +11,10 @@ have to match on the back-up allowing a media library to grow "organically".
 
 ## Features
 
+ * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
+ * New ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
+ * New ELS Hints to coordinate manual changes, new in 3.0.0.
+
  * Supports movies, television shows with season subdirectories, 
    music with artists and albums, etc.
  * Supports any mix of storage devices of different sizes.
@@ -24,9 +28,8 @@ have to match on the back-up allowing a media library to grow "organically".
  * An interactive terminal is available for both publisher and subscriber.
  * Standard SFTP such as [Filezilla](https://filezilla-project.org/) may interactively connect to ELS when in listener mode.
  * May be scheduled using operating system tools, e.g. Windows Task Scheduler or Linux cron.
- * Nothing is added, no overhead.
+ * Nothing is added, no overhead except when using hints.
  * Runs on Windows, Linux and Mac.
- * New ELS Hints to coordinate manual changes, new in 3.0.0.
 
 ELS relies on a common directory structure used by modern home media
 systems such as [Plex](https://plex.tv). Each item must be contained in
@@ -54,11 +57,13 @@ ELS can be used in a variety of ways. Some ideas are:
 |------------------------------------------------|------------------------------------------------------|
 |[Command-Line How-To](Command-Line-How-To)      | Describes the various command-line options.          |
 |[Communications How-To](Communications-How-To)  | Describes the use of ELS over a LAN or the Internet. |
-|[Developer Notes](Developer-Notes)              | Notes for developers extending or modifying ELS.      |
+|[Contact](Contact)                              | How to contact this project.                         |
+|[Developer Notes](Developer-Notes)              | Notes for developers extending or modifying ELS.     |
 |[Downloads](Downloads)                          | Requirements and downloads.                          |
 |[ELS Plex Generator Utility](ELS-Plex-Generator-Utility)                    | Add-on utility for [Plex Media Server](https://www.plex.tv).                 |
 |[Hints](Hints)                                  | Hints to coordinate manual changes.                  |
-|[JSON Structure](JSON-Structure)                | Structure and definition of library and target JSON  |
+|[Hints Status](Hint-Status)                     | Hint Status Tracker and Hint Status Server.          |
+|[JSON Structure](JSON-Structure)                | Structure and definition of library and target JSON. |
 |[Modes of Operation](Modes-of-Operation)        | Describes the two different ways to run ELS.         |
 |[Regular Expressions](Regular-Expressions)      | Details of supported pattern matching.               |
-|[Version Changes](version-changes)              | List of changes.                                     |
+|[Release Notes](release-notes)                  | List of changes.                                     |
