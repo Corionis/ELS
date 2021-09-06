@@ -109,6 +109,13 @@ public class Repository
         }
     }
 
+    /**
+     * Get the right-side item name.
+     *
+     * @param item The Item
+     * @return String of the right-side of the itemPath
+     * @throws MungeException
+     */
     public String getItemName(Item item) throws MungeException
     {
         String path = item.getItemPath();
@@ -514,6 +521,14 @@ public class Repository
         return path;
     }
 
+    /**
+     * Normalize a path with a specific path separator character.
+     *
+     * @param path The path to normalize
+     * @param from The previous path separator character
+     * @param to   The new path separator character
+     * @return String normalized path
+     */
     private String normalizeSubst(String path, String from, String to)
     {
         return path.replaceAll(from, to).replaceAll("\\|", to);
@@ -764,7 +779,7 @@ public class Repository
     }
 
     /**
-     * Sort collection.
+     * Sort a specific library's collection.
      */
     public void sort(Library lib)
     {

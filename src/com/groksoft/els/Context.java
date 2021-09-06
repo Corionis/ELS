@@ -9,14 +9,16 @@ import com.groksoft.els.stty.ServeStty;
 import com.groksoft.els.stty.hintServer.Datastore;
 
 /**
- * Class to make passing these data easier
+ * Context class to make passing these data easier.
  */
 public class Context
 {
+    // some of these will be null at runtime depending on configuration
     public ClientSftp clientSftp;
     public ClientStty clientStty;
-    public HintKeys hintKeys;
     public Datastore datastore;
+    public HintKeys hintKeys;
+    public boolean hintMode = false;
     public Repository publisherRepo;
     public ServeSftp serveSftp;
     public ServeStty serveStty;
@@ -24,5 +26,4 @@ public class Context
     public ClientStty statusStty;
     public Repository subscriberRepo;
     public Transfer transfer;
-    public boolean hintMode = false;
 }

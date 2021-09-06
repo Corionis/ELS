@@ -23,7 +23,7 @@ Any software downloaded from this site is free and without warranty or guarantee
 ELS does not collect or send any data of any kind to anyone. It is a tool under your control and nothing more. Review the code.
 
 # Downloads
-The current version of ELS is: **3.0.0.** See [Release Notes](release-notes.md) for details.
+The current version of ELS is: **3.1.0.** See [Release Notes](release-notes.md) for details.
 
 * Latest build, software only: [ELS.jar](../blob/master/deploy/ELS.jar?raw=true)
 * Latest build, with examples: [ELS-complete.zip](../blob/master/deploy/ELS-complete.zip?raw=true)

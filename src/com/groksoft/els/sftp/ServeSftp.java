@@ -35,12 +35,11 @@ import java.util.Set;
 
 public class ServeSftp implements SftpErrorStatusDataHandler
 {
-    private transient Logger logger = LogManager.getLogger("applog");
-
     private String hostname;
     private int listenport;
-    private int loginAttempts = 1;
+    private transient Logger logger = LogManager.getLogger("applog");
     private String loginAttemptAddress = "";
+    private int loginAttempts = 1;
     private Repository myRepo;
     private String password;
     private SshServer sshd;
@@ -70,6 +69,11 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         password = myRepo.getLibraryData().libraries.key;
     }
 
+    /**
+     * Get a formatted String of bound IP addresses for this session
+     *
+     * @return
+     */
     private String getIps()
     {
         // assemble listen IP(s)
@@ -97,6 +101,9 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         return 1;
     }
 
+    /**
+     * Start this SFTP server session
+     */
     public void startServer()
     {
         try
@@ -165,7 +172,9 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                                 Random rand = new Random();
                                 Thread.sleep(rand.nextInt(3) * 1000L);
                             }
-                            catch (InterruptedException e) {}
+                            catch (InterruptedException e)
+                            {
+                            }
                         }
                     }
                     return authenticated;
@@ -185,6 +194,9 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         }
     }
 
+    /**
+     * Stop this SFTP session
+     */
     public void stopServer()
     {
         try

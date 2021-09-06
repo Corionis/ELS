@@ -14,7 +14,7 @@ ELS is composed of several different capabilties:
  * Local hint processing
  * Networked hint processing
  * Local Hint Tracker
- * Networked Hint Server (Hint Status Server/HSS)
+ * Networked Hint Status Server (Hint Status Server/HSS)
 
 
 ## Test Organization
@@ -122,7 +122,7 @@ two collections match during the backup operation. If not an exception is thrown
 
  * ``40-02_Hints-publisher-dryrun.sh`` : Run once
 
- * ``40-22_Publisher-dryrun.sh`` : Run once
+ * ``40-22_Publisher-dryrun.sh`` : Run once, results & copies will be wrong because hints not processed
 
  * ``40-23_Publisher-backup.sh`` : Run once
 
@@ -152,7 +152,7 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``60-01_Hints-publisher.sh`` : Run once
+* ``60-01_Hints-publisher.sh`` : Run once, hints are tracked locally
 
 * ``60-22_Publisher-One-dryrun.sh`` : Run once
 
@@ -171,7 +171,7 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``70-01_Hints-publisher.sh`` : Run once
+* ``70-01_Hints-publisher.sh`` : Run once, hints are tracked locally
 
 * ``70-10_Status-Server-listener.sh`` : Separate terminal 1
 

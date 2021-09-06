@@ -71,6 +71,11 @@ public class Daemon extends DaemonBase
         return "Daemon";
     } // getName
 
+    /**
+     * Perform a point-to-point handshake
+     *
+     * @return String name of back-up system
+     */
     public String handshake()
     {
         String system = "";
@@ -86,7 +91,8 @@ public class Daemon extends DaemonBase
                         !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
                     Utils.writeStream(out, myKey, "Terminal session not allowed");
-                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");                    return system;
+                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");
+                    return system;
                 }
                 Utils.writeStream(out, myKey, myKey);
 
@@ -555,13 +561,21 @@ public class Daemon extends DaemonBase
                 {
                     Utils.writeStream(out, myKey, e.getMessage());
                 }
-                catch (Exception ex) {}
+                catch (Exception ex)
+                {
+                }
                 break;
             }
         }
         return stop;
     } // process
 
+    /**
+     * Collect the remaining tokens into a String
+     *
+     * @param t StringTokenizer
+     * @return String of concatenated tokens
+     */
     public String remainingTokens(StringTokenizer t)
     {
         String result = "";

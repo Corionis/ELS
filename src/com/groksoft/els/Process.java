@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
- * ELS Process
+ * Process class where the primary operations are executed.
  */
 public class Process
 {
@@ -622,6 +622,14 @@ public class Process
         }
     }
 
+    /**
+     * Dump any duplicates found to the log
+     *
+     * @param type       Publisher or Subscriber, description
+     * @param item       The item with duplicates
+     * @param duplicates The count of duplicated
+     * @return New count of duplicates
+     */
     private int reportDuplicates(String type, Item item, int duplicates)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
@@ -642,6 +650,14 @@ public class Process
         return duplicates;
     }
 
+    /**
+     * Dump any empty directories to the log
+     *
+     * @param type    Publisher or Subscriber, description
+     * @param item    The item with empties
+     * @param empties The count of empties
+     * @return The new count of empties
+     */
     private int reportEmpties(String type, Item item, int empties)
     {
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");

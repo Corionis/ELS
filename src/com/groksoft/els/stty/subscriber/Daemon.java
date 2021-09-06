@@ -69,6 +69,13 @@ public class Daemon extends DaemonBase
         return "Daemon";
     } // getName
 
+
+    /**
+     * Get the next available token trimmed
+     *
+     * @param t StringTokenizer
+     * @return Next token or an empty string
+     */
     private String getNextToken(StringTokenizer t)
     {
         String value = "";
@@ -81,6 +88,11 @@ public class Daemon extends DaemonBase
         return value;
     }
 
+    /**
+     * Perform a point-to-point handshake
+     *
+     * @return String name of back-up system
+     */
     public String handshake()
     {
         String system = "";
@@ -96,7 +108,8 @@ public class Daemon extends DaemonBase
                         !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
                     Utils.writeStream(out, myKey, "Terminal session not allowed");
-                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");                    return system;
+                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");
+                    return system;
                 }
                 Utils.writeStream(out, myKey, myKey);
 

@@ -32,5 +32,5 @@ if [ -e ../output/${name}.log ]; then
     rm -f ../output/${name}.log
 fi
 
-java -jar ${base}/../ELS.jar -d debug --remote M -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/targets.json -f ../output/${name}${stamp}.log
+java -jar ${base}/../ELS.jar -d debug --remote M -p ../meta/publisher.json -s  ../meta/subscriber.json -t ../meta/subscriber-targets.json -f ../output/${name}${stamp}.log
 

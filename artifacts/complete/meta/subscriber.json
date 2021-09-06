@@ -1,46 +1,38 @@
 {
-    "libraries": {
-        "description": "My Subscriber",
-        "host": "localhost:50271",
-        "listen": "localhost:50271",
+	"libraries": {
+        "description": "Subscriber One",
+        "host": "localhost:50371",
+        "listen": "localhost:50371",
         "flavor": "linux",
         "terminal_allowed": "true",
-        "key": "767c6aa1-0189-4f77-a545-1f3dd7ec7966",
-        "case_sensitive": false,
+        "key": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+        "case_sensitive": "false",
         "ignore_patterns": [
-            "(?)desktop\\.ini",
+            "(?i)desktop\\.ini",
             ".*\\.fuse.*",
+            ".*\\.srt",
             "Thumbs\\.db"
-        ],
-        "renaming": [
+		],
+        "locations": [
             {
-                "from": "(?i) Moms dvd",
-                "to": " DVD"
-            },
-            {
-                "from": "(?i) Moms Bluray",
-                "to": " Bluray"
+                "location": "test/subscriber-one/media",
+                "minimum": "42GB"
             }
         ],
-        "bibliography": [
-            {
-                "name": "Movies",
-                "sources": [
-                    "/media/vids/MoviesA",
-                    "/media/media-b/MoviesB",
-                    "/media/media-c/MoviesC",
-                    "/media/media-d/NewMovies"
-                ]
-            },
-            {
-                "name": "TV Shows",
-                "sources": [
-                    "/media/vids/TVShowsA",
-                    "/media/media-b/TVShowsB",
-                    "/media/media-c/TVShowsC",
-                    "/media/media-d/NewTVShows"
-                ]
-            }
-        ]
-    }
+		"bibliography": [
+			{
+				"name": "Movies",
+				"sources": [
+                    "test/subscriber-one/media/Movies"
+				]
+			},
+			{
+				"name": "TV Shows",
+				"sources": [
+					"test/subscriber-one/media/TV Shows"
+				]
+			}
+		]
+	}
 }
+

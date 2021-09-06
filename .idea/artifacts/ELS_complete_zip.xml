@@ -24,6 +24,11 @@
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/downloads.md" />
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/els-plex-generator.md" />
             <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/regular-expressions.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/contact.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/hint-status.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/hints.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/home.md" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/document/release-notes.md" />
           </element>
           <element id="file-copy" path="$PROJECT_DIR$/artifacts/complete/els-hints.keys" />
         </element>

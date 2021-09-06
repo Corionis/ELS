@@ -1,7 +1,11 @@
 ELS uses two JSON files to describe the bibliographies of one or more 
 libraries spread across storage devices, one for the publisher and 
 the other for the subscriber, or back-up. Another JSON file describes 
-the target location(s) for new content. 
+the target location(s) for new content.
+
+The optional Hint Status Server JSON file is identical and used to define
+the communications parameters, if run as the Hint Status Server, and the
+storage location for the Hint Tracker datastore.
 
 These files require correct JSON syntax. JSON is a simple text format
 to name keyword/value pairs.
@@ -48,6 +52,16 @@ For publisher and subscriber library JSON files:
                 "to": ""
             }
         ],
+        "locations": [
+            {
+                "location": "test/publisher/media",
+                "minimum": "42GB"
+            },
+            {
+                "location": "/mnt/plex/nas",
+                "minimum": "20GB"
+            },
+        ],
         "bibliography": [                               // required literal
             {
                 "name": "Movies",                       // library name
@@ -81,9 +95,11 @@ For publisher and subscriber library JSON files:
  7. The case_sensitive element controls the type of comparison that is done between publisher and subscriber content.
  8. ignore_patterns and renaming sections are optional.
     1. ignore_patterns and renaming 'from' support regular expressions, see [Regular Expressions](Regular-Expressions).
- 9. Any number of libraries may be added to the bibliography.
- 10. Library names must match between publisher, subscriber and targets.
- 11. Paths may be absolute, e.g. C:\Media\Movies or relative, e.g. ..\Media\Movies\
+ 9. locations are matched against library sources to get the desired minimum disk free space. However if a -t | -T targets
+    file is specified it overrides values in locations, new in version 3.0.0.
+ 10. Any number of libraries may be added to the bibliography.
+ 11. Library names must match between publisher, subscriber and targets.
+ 12. Paths may be absolute, e.g. C:\Media\Movies or relative, e.g. ..\Media\Movies\
     1. Paths are relative to the location of ELS.jar.
 
 ## Targets File Structure

@@ -1,6 +1,9 @@
 package com.groksoft.els.stty.hintServer;
 
-import com.groksoft.els.*;
+import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
+import com.groksoft.els.Transfer;
+import com.groksoft.els.Utils;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
@@ -17,7 +20,7 @@ import java.net.SocketTimeoutException;
 import java.util.StringTokenizer;
 
 /**
- * Subscriber Daemon service.
+ * Hint Status Server Daemon service.
  * <p>
  * The Daemon service is the command interface used to communicate between
  * the endpoints.
@@ -66,6 +69,12 @@ public class Daemon extends DaemonBase
         return "Daemon";
     } // getName
 
+    /**
+     * Get the next available token trimmed
+     *
+     * @param t StringTokenizer
+     * @return Next token or an empty string
+     */
     private String getNextToken(StringTokenizer t)
     {
         String value = "";
@@ -78,7 +87,12 @@ public class Daemon extends DaemonBase
         return value;
     }
 
-    public String handshake()  // special handshake using hints keys file instead of point-to-point
+    /**
+     * Special handshake using hints keys file instead of point-to-point
+     *
+     * @return String name of back-up system
+     */
+    public String handshake()
     {
         String system = "";
         boolean valid = false;

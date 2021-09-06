@@ -19,7 +19,7 @@ import java.util.Iterator;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * The Transfer class handles copying content to the appropriate location and
+ * Transfer class to handle copying content to the appropriate location and
  * the local-only operations needed for ELS Hints.
  */
 public class Transfer
@@ -42,6 +42,12 @@ public class Transfer
     private Storage storageTargets = null;
     private boolean toIsNew = false;
 
+    /**
+     * Constructor
+     *
+     * @param config Configuration
+     * @param ctx    Context
+     */
     public Transfer(Configuration config, Context ctx)
     {
         cfg = config;
@@ -137,11 +143,21 @@ public class Transfer
         return response;
     }
 
+    /**
+     * Return the count of copies
+     *
+     * @return int count
+     */
     public int getCopyCount()
     {
         return copyCount;
     }
 
+    /**
+     * Return the current "group" name
+     *
+     * @return String group name
+     */
     public String getCurrentGroupName()
     {
         return currentGroupName;
@@ -169,21 +185,41 @@ public class Transfer
         return space;
     }
 
+    /**
+     * Get the grand total count of items
+     *
+     * @return int count
+     */
     public long getGrandTotalItems()
     {
         return grandTotalItems;
     }
 
+    /**
+     * Get the grand total of items copied to original locations
+     *
+     * @return int count
+     */
     public long getGrandTotalOriginalLocation()
     {
         return grandTotalOriginalLocation;
     }
 
+    /**
+     * Get the grand total of copied size
+     *
+     * @return long size in bytes
+     */
     public long getGrandTotalSize()
     {
         return grandTotalSize;
     }
 
+    /**
+     * Get the last group name
+     *
+     * @return String last group name
+     */
     public String getLastGroupName()
     {
         return lastGroupName;
@@ -213,26 +249,51 @@ public class Transfer
         return minimum;
     }
 
+    /**
+     * Get the count of moved directories
+     *
+     * @return int count
+     */
     public int getMovedDirectories()
     {
         return movedDirectories;
     }
 
+    /**
+     * Get the count of moved files
+     *
+     * @return int count
+     */
     public int getMovedFiles()
     {
         return movedFiles;
     }
 
+    /**
+     * Get the count of removed directories
+     *
+     * @return int count
+     */
     public int getRemovedDirectories()
     {
         return removedDirectories;
     }
 
+    /**
+     * Get the count of removed files
+     *
+     * @return int count
+     */
     public int getRemovedFiles()
     {
         return removedFiles;
     }
 
+    /**
+     * Get the count of items skipped because they are missing
+     *
+     * @return int count
+     */
     public int getSkippedMissing()
     {
         return skippedMissing;
@@ -739,6 +800,13 @@ public class Transfer
         return libAltered;
     }
 
+    /**
+     * Request the remote end re-scan and send it's collection JSON based on parameters
+     * <p>
+     * Any -l | -L parameter is handled.
+     *
+     * @throws Exception
+     */
     public void requestCollection() throws Exception
     {
         if (cfg.isRemoteSession())

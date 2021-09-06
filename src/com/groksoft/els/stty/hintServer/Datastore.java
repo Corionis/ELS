@@ -3,7 +3,6 @@ package com.groksoft.els.stty.hintServer;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
-import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
 import org.apache.logging.log4j.LogManager;
@@ -18,7 +17,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 /**
- * ELS Hints Datastore class
+ * ELS Hint Status Tracker/Server Datastore class
  */
 
 public class Datastore
@@ -31,13 +30,29 @@ public class Datastore
     private String statDirectory;
     private Library statLibrary;
 
+    /**
+     * Constructor
+     *
+     * @param config Configuration
+     * @param ctx    Context
+     */
     public Datastore(Configuration config, Context ctx)
     {
         cfg = config;
         context = ctx;
     }
 
-    private synchronized Item add(String itemLib, String itemPath, String systemName, String defaultStatus) throws Exception
+    /**
+     * Add a hint status tracker collection Item and empty file to track a hint's status
+     *
+     * @param itemLib       The library of the hint
+     * @param itemPath      The path to the new hint file
+     * @param backupName    The back-up name for the status
+     * @param defaultStatus The default status for the back-up
+     * @return The new Item for the hint
+     * @throws Exception
+     */
+    private synchronized Item add(String itemLib, String itemPath, String backupName, String defaultStatus) throws Exception
     {
         Item item = new Item();
         item.setLibrary(itemLib);
@@ -52,23 +67,19 @@ public class Datastore
         return item;
     }
 
-    private Item findItem(String itemLib, String itemPath, String systemName, String defaultStatus) throws Exception
-    {
-        String path = itemLib + "--" + itemPath;
-        Item item = statLibrary.get(path);
-        if (item == null)
-        {
-            item = add(itemLib, itemPath, systemName, defaultStatus);
-        }
-        return item;
-    }
-
-    private String findSystem(List<String> lines, String systemName)
+    /**
+     * Find a back-up name in a hint status file
+     *
+     * @param lines      The lines of the hint status file
+     * @param backupName The back-up name to find
+     * @return String line found, or null
+     */
+    private String findBackup(List<String> lines, String backupName)
     {
         for (int i = 0; i < lines.size(); ++i)
         {
             String line = lines.get(i);
-            if (line.toLowerCase().startsWith(systemName.toLowerCase() + " "))
+            if (line.toLowerCase().startsWith(backupName.toLowerCase() + " "))
             {
                 return line;
             }
@@ -76,18 +87,51 @@ public class Datastore
         return null;
     }
 
-    public synchronized String getStatus(String itemLib, String itemPath, String systemName, String defaultStatus) throws Exception
+    /**
+     * Find a hint Item in the hint status tracker collection
+     * <p>
+     * If not found a new Item is added.
+     *
+     * @param itemLib       The library of the hint
+     * @param itemPath      The path to the new hint file
+     * @param backupName    The back-up name for the status
+     * @param defaultStatus The default status for the back-up
+     * @return The Item of the hint
+     * @throws Exception
+     */
+    private Item findItem(String itemLib, String itemPath, String backupName, String defaultStatus) throws Exception
+    {
+        String path = itemLib + "--" + itemPath;
+        Item item = statLibrary.get(path);
+        if (item == null)
+        {
+            item = add(itemLib, itemPath, backupName, defaultStatus);
+        }
+        return item;
+    }
+
+    /**
+     * Command "get" to return the status of a back-up
+     *
+     * @param itemLib       The library of the hint
+     * @param itemPath      The item path of the hint
+     * @param backupName    The back-up name to find
+     * @param defaultStatus The default status if not found
+     * @return The current status of the hint
+     * @throws Exception
+     */
+    public synchronized String getStatus(String itemLib, String itemPath, String backupName, String defaultStatus) throws Exception
     {
         String status = "";
 
         itemPath = itemPath.replaceAll("/", "--").replaceAll("\\\\", "--");
-        Item item = findItem(itemLib, itemPath, systemName, defaultStatus);
+        Item item = findItem(itemLib, itemPath, backupName, defaultStatus);
         List<String> lines = Files.readAllLines(Paths.get(item.getFullPath()));
-        String line = findSystem(lines, systemName);
+        String line = findBackup(lines, backupName);
         if (line == null)
         {
             status = defaultStatus;
-            updateDatastore(item, lines, systemName, status);
+            updateDatastore(item, lines, backupName, status);
         }
         else
         {
@@ -102,6 +146,15 @@ public class Datastore
         return status;
     }
 
+    /**
+     * Initialize the hint tracker.
+     * <p>
+     * Uses the first source from the first library defined in the
+     * hint tracker/server JSON file as the datastore directory for
+     * tracking hint status.
+     *
+     * @throws MungeException
+     */
     public void initialize() throws MungeException
     {
         if (context.statusRepo.getLibraryData() != null &&
@@ -112,16 +165,15 @@ public class Datastore
             statLibrary = context.statusRepo.getLibraryData().libraries.bibliography[0];
         }
         else
-            throw new MungeException("Hint Status Server repo contains no library for status datastore");
+            throw new MungeException("Hint Status Tracker/Server repo contains no library for status datastore");
 
         statDirectory = "";
-        if (statLibrary.sources != null &&
-                statLibrary.sources.length > 0)
+        if (statLibrary.sources != null && statLibrary.sources.length > 0)
         {
             statDirectory = statLibrary.sources[0];
         }
         else
-            throw new MungeException("Hint Status Server repo first library contains no sources: " + statLibrary.name);
+            throw new MungeException("Hint Status Tracker/Server repo first library contains no sources: " + statLibrary.name);
 
         File dir = new File(statDirectory);
         if (dir.exists())
@@ -140,22 +192,46 @@ public class Datastore
         context.statusRepo.scan(statLibrary.name);
     }
 
-    public synchronized String setStatus(String itemLib, String itemPath, String systemName, String status) throws Exception
+    /**
+     * Command "set" to change the status of a back-up
+     *
+     * @param itemLib    The library of the hint
+     * @param itemPath   The item path of the hint
+     * @param backupName The back-up name to find
+     * @param status     The status to use
+     * @return The updated status of the hint; should be the same as that passed
+     * @throws Exception
+     */
+    public synchronized String setStatus(String itemLib, String itemPath, String backupName, String status) throws Exception
     {
         String path = itemLib + "--" + itemPath;
         path = path.replaceAll("/", "--").replaceAll("\\\\", "--");
         Item item = statLibrary.get(path);
         if (item == null) // if a get() was done first this shouldn't happen
         {
-            item = add(itemLib, itemPath, systemName, status);
+            item = add(itemLib, itemPath, backupName, status);
         }
 
         List<String> lines = Files.readAllLines(Paths.get(item.getFullPath()));
-        lines = updateDatastore(item, lines, systemName, status);
+        lines = updateDatastore(item, lines, backupName, status);
         return status;
     }
 
-    private synchronized List<String> updateDatastore(Item item, List<String> lines, String systemName, String status) throws Exception
+    /**
+     * Update the datastore.
+     * <p>
+     * If the hint has been Deleted by all participants then the
+     * hint status tracker/server file is deleted for automatic
+     * hint file maintenance.
+     *
+     * @param item       The Item to be updated
+     * @param lines      The lines of the item
+     * @param backupName The back-up name to be updated
+     * @param status     The status value to be used
+     * @return The updates lines of the hint status tracker/server
+     * @throws Exception
+     */
+    private synchronized List<String> updateDatastore(Item item, List<String> lines, String backupName, String status) throws Exception
     {
         int count = 0;
         int deleted = 0;
@@ -167,9 +243,9 @@ public class Datastore
             if (line.length() == 0)
                 continue;
             ++count;
-            if (line.startsWith(systemName.toLowerCase() + " "))
+            if (line.startsWith(backupName.toLowerCase() + " "))
             {
-                update = systemName + " " + status;
+                update = backupName + " " + status;
                 lines.set(i, update);
                 line = update.toLowerCase();
                 found = true;
@@ -179,7 +255,7 @@ public class Datastore
         }
         if (!found)
         {
-            lines.add(systemName + " " + status);
+            lines.add(backupName + " " + status);
             ++count;
             if (status.trim().equalsIgnoreCase("deleted"))
                 ++deleted;

@@ -23,3 +23,14 @@ Communications How-To for details.
 
 All remote communication is encrypted. Remote being not on the local computer where two
 systems are being used.
+
+The mock directory contains pre-set publisher and subscriber collections and hint files
+to support testing and provide a completely self-contained development and test environment.
+The mock/scripts/linux/ directory has many scripts to perform application-level tests.
+
+These scripts show many of the various ways ELS may be executed using different combinations
+of options. See the **README** in that directory for more information and a description of 
+the testing sequence.
+
+For IntelliJ users several run/debug configurations have been added that match the scripts in
+the mock/scripts/linux/ directory organized in the same way and use the same mock/ data.

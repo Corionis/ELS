@@ -1,44 +1,38 @@
 {
-    "libraries": {
-        "description": "My Publisher",
+	"libraries": {
+        "description": "Media Publisher",
         "host": "localhost:50271",
         "listen": "localhost:50271",
-        "flavor": "windows",
+        "flavor": "linux",
         "terminal_allowed": "true",
-        "key": "f9bd7a64-f8a7-11ea-adc1-0242ac120002",
-        "case_sensitive": false,
+        "key": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+        "case_sensitive": "false",
         "ignore_patterns": [
-            "(?)desktop\\.ini",
+            "(?i)desktop\\.ini",
             ".*\\.fuse.*",
+            ".*\\.srt",
             "Thumbs\\.db"
-        ],
-        "renaming": [
+		],
+        "locations": [
             {
-                "from": "(?i) Moms dvd",
-                "to": " DVD"
-            },
-            {
-                "from": "(?i) Moms Bluray",
-                "to": " Bluray"
+                "location": "test/publisher/media",
+                "minimum": "42GB"
             }
         ],
-        "bibliography": [
-            {
-                "name": "Movies",
-                "sources": [
-                    "/media/media-a/MyMovies",
-                    "/media/media-b/MoreMovies",
-                    "/media/media-c/YetMoreMovies"
-                ]
-            },
-            {
-                "name": "TV Shows",
-                "sources": [
-                    "/media/media-a/MyTVShows",
-                    "/media/media-b/MoreTVShows",
-                    "/media/media-c/YetMoreTVShows"
-                ]
-            }
-        ]
-    }
+		"bibliography": [
+			{
+				"name": "Movies",
+				"sources": [
+                    "test/publisher/media/Movies"
+				]
+			},
+			{
+				"name": "TV Shows",
+				"sources": [
+					"test/publisher/media/TV Shows"
+				]
+			}
+		]
+	}
 }
+

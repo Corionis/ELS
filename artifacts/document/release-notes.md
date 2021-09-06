@@ -1,22 +1,23 @@
 ## Version 3.1.0
 
-Release 3.1.0 of ELS adds a new mode - the ELS Hint Status Server (HSS). Only needed when
-two or more remote back-ups are being used the HSS coordinates the status
-of all back-ups to facilitate automatic maintenance of the ELS Hint mechanism.
+Release 3.1.0 of ELS adds the Hint Status Tracker and a new mode - the Hint Status
+Server (HSS). The Tracker coordinates hint completion status locally. The Server
+tracks hint completion status for remote operations. These are needed when two
+or more back-ups are being used with hints.
 
-This new HSS mode is optional. All previous features and behavior remain the same. It
-is an additional separate process that is executed before any remote operation requiring
-hint coordination. Options are available to allow the HSS to run continuously or
-"ordered" to quit by any publisher or subscriber when an operation is completed. A
+The Tracker and new HSS mode are optional. All previous features and behavior remain the same.
+The HSS is an additional separate process that is executed before any remote operation
+requiring hint coordination. Options are available to allow the HSS to run continuously or
+"ordered" to quit by a publisher or subscriber when an operation is completed. A
 separate TCP/IP port is required for the status server listener.
 
 ### Enhancements
 
- 1. ELS Hint Server.
+ 1. ELS Hint Status Tracker and Hint Status Server, see [Hint Status](Hint-Status).
 
 ### Command Line Changes
 
- 1. -h has been repurposed, -H added for hints.
+ 1. -h has been repurposed *and* -H added for hint support.
 
     Previously the -h | --version options were used for help that only displayed
     the version. The --version option still does that.
@@ -44,6 +45,14 @@ separate TCP/IP port is required for the status server listener.
  1. Issue #30 *'Fix terminal_allowed handling'*.
 
     Added the logic necessary to used the terminal_allowed value in the JSON file.
+ 
+ 2. Issue #34 *'Fix empty -t | -T handling'*.
+ 
+    Fixed the issue when using an empty -t | -T to use the sources as targets.
+
+ 3. Issue #35 *'Fix --remote M'*.
+
+    Fixed the automated login issue when using --remote M.
 
 ### Developer Notes
 
@@ -56,12 +65,37 @@ separate TCP/IP port is required for the status server listener.
  2. For IntelliJ to run and debug the multiple processes the Multirun plugin
     has been added with a variety of configurations in the .idea project.
 
- 3. The mock directory has been completely rearranged to support testing.
-    In addition a scripts/linux/ ??????????????????????????????????
+ 3. The mock directory has been completely rearranged to support testing and 
+    provide a completely self-contained development and test environment.
+    In addition a mock/scripts/linux/ directory has been added with many scripts
+    to perform application-level tests using pre-set publisher and subscriber
+    collections and hint files.
+
+    These scripts show many of the various ways ELS may be executed using
+    different combinations of options. See the **README** in that directory for
+    more information and a description of the testing sequence.
+
+ 4. For IntelliJ users several run/debug configurations have been added that
+    match the scripts in the mock/scripts/linux/ directory organized in the
+    same way and use the same mock/ data.
+
 
 ## Version 3.0.0
 
-### Bug Fixes and Enhancements
+### Enhancements
+
+ 1. ELS Hints
+
+    While curating a media collection files and directories are renamed, moved and
+    deleted. To avoid unnecessary copies and duplicates on back-ups a mechanism is
+    needed to coordinate manual changes.
+
+    A "hint" is a special file used to keep track of manual changes to a collection.
+    The hint is used by ELS to coordinate those changes with one or more back-ups.
+
+    See [Hints](Hints) in the ELS wiki.
+
+### Bug Fixes
 
  1. Issue #16 *'Add more granular control of target minimum free space'*.
     
@@ -143,14 +177,3 @@ separate TCP/IP port is required for the status server listener.
 
  5. Added options -F | --log-overwrite that will delete the log file when starting.
     Used instead of -f | --log-file that will append to an existing file.
-
- 6. ELS Hints
-
-    While curating a media collection files and directories are renamed, moved and
-    deleted. To avoid unnecessary copies and duplicates on back-ups a mechanism is
-    needed to coordinate manual changes.
-
-    A "hint" is a special file used to keep track of manual changes to a collection.
-    The hint is used by ELS to coordinate those changes with one or more back-ups.
-
-    See [Hints](Hints) in the ELS wiki.

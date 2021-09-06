@@ -18,16 +18,16 @@ import java.util.Date;
 import static com.groksoft.els.Configuration.*;
 
 /**
- * ELS main program
+ * ELS main program.
  */
 public class Main
 {
+    private static Main els;
+    public boolean isListening = false;
+    boolean fault = false;
     private Configuration cfg;
     private Context context = new Context();
-    boolean fault = false;
-    public boolean isListening = false;
     private Logger logger = null;
-    private static Main els;
 
     /**
      * Instantiates the Main application
@@ -47,12 +47,18 @@ public class Main
         els.process(args);          // ELS Processor
     } // main
 
+    /**
+     * Connect to or setup hint tracking, connect to hint server if specified
+     *
+     * @param repo The Repository that is connecting to the tracker/server
+     * @throws Exception Configuration and connection exceptions
+     */
     private void connectHintServer(Repository repo) throws Exception
     {
-        if (cfg.isUsingHintServer())
+        if (cfg.isUsingHintTracker())
         {
             context.statusRepo = new Repository(cfg);
-            context.statusRepo.read(cfg.getStatusServerFilename());
+            context.statusRepo.read(cfg.getStatusTrackerFilename());
 
             if (cfg.isRemoteSession())
             {
@@ -76,7 +82,7 @@ public class Main
     }
 
     /**
-     * execute the process
+     * Execute the process
      *
      * @param args the input arguments
      * @return Return status
@@ -91,14 +97,14 @@ public class Main
 
         try
         {
-            MungeException ce = null;
+            MungeException cfgException = null;
             try
             {
                 cfg.parseCommandLine(args);
             }
             catch (MungeException e)
             {
-                ce = e; // configuration exception
+                cfgException = e; // configuration exception
             }
 
             // setup the logger based on configuration and/or defaults
@@ -125,19 +131,12 @@ public class Main
             // get the named logger
             logger = LogManager.getLogger("applog");
 
-            if (ce != null) // re-throw any configuration exception
-                throw ce;
+            if (cfgException != null) // re-throw any configuration exception
+                throw cfgException;
 
-            // TODO
-            //   * Add "locations" to the example publisher and subscriber files.
-            //   * Add HSS JSON file
-            //   * Test HSS with minimal JSON
-            //   * Fix docs for -T | -T behavior changes.
-            //   * Add Javadoc to all methods
-            //   * Reformat Release Notes using sections
-            //   * Add back-ticks around command arguments in documentation
-
+            //
             // an execution of this program can only be configured as one of these
+            //
             logger.info("+------------------------------------------");
             switch (cfg.getRemoteFlag())
             {
@@ -403,7 +402,7 @@ public class Main
                     logger.info("ELS Quit Hint Status Server begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
-                    if (cfg.getStatusServerFilename() == null || cfg.getStatusServerFilename().length() == 0)
+                    if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)
                         throw new MungeException("-Q | --force-quit requires a -h | --hints hint server JSON file");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -436,15 +435,15 @@ public class Main
         }
         finally
         {
-            // stop running clients
-            if (!isListening)
+            // stop stuff
+            if (!isListening) // clients
             {
                 // optionally command status server to quit
                 if (context.statusStty != null)
                     fault = context.statusStty.quitStatusServer(context, fault);  // do before stopping the necessary services
 
                 // stop any remaining services
-                fault = stopServices(fault);
+                stopServices();
 
                 if (!cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
                     logger.info("Log file has more details: " + cfg.getLogFilename());
@@ -488,7 +487,7 @@ public class Main
                             Thread.sleep(4000L);
 
                             // stop any remaining services
-                            els.fault = stopServices(els.fault); // has to be last
+                            stopServices(); // has to be last
                         }
                         catch (Exception e)
                         {
@@ -502,7 +501,7 @@ public class Main
     } // process
 
     /**
-     * Read either publisher or subscriber repository
+     * Read either a publisher or subscriber repository
      *
      * @param cfg         Loaded configuration
      * @param isPublisher Is this the publisher? true/false
@@ -594,7 +593,7 @@ public class Main
     /**
      * Stop all service that are in use
      */
-    public boolean stopServices(boolean fault)
+    public void stopServices()
     {
         // logout from any hint status server if not shutting it down
         if (context.statusStty != null)
@@ -610,6 +609,7 @@ public class Main
                     logger.error(Utils.getStackTrace(e));
                 }
             }
+
             context.statusStty.disconnect();
         }
         if (context.clientStty != null)
@@ -628,7 +628,6 @@ public class Main
         {
             context.serveSftp.stopServer();
         }
-        return fault;
     }
 
 } // Main

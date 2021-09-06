@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * The Hints class handles finding and executing ELS Hints.
+ * Hints class to handle finding and executing ELS Hints and their commands.
  */
 public class Hints
 {
@@ -38,6 +38,13 @@ public class Hints
     private int skippedHints = 0;
     private int validatedHints = 0;
 
+    /**
+     * Constructor
+     *
+     * @param config   Configuration
+     * @param ctx      Contect
+     * @param hintKeys HintKeys if enabled, else null
+     */
     public Hints(Configuration config, Context ctx, HintKeys hintKeys)
     {
         cfg = config;
@@ -45,6 +52,9 @@ public class Hints
         keys = hintKeys;
     }
 
+    /**
+     * Dump the statistics of an ELS Hints runs
+     */
     private void dumpStats()
     {
         logger.info(SHORT, "+------------------------------------------");
@@ -69,17 +79,15 @@ public class Hints
             logger.info(SHORT, "-------------------------------------------");
     }
 
-    private void dumpTerms(String[] parts)
-    {
-        for (int i = 0; i < parts.length; ++i)
-        {
-            if (parts[i] != null && parts[i].length() > 0)
-            {
-                logger.debug("    " + parts[i]);
-            }
-        }
-    }
-
+    /**
+     * Execute the commands of an ELS Hint
+     *
+     * @param repo  The Repository where the hint is executing
+     * @param item  The hint Item
+     * @param lines The lines that have been read from the hints file
+     * @return true if the item's library was altered
+     * @throws Exception
+     */
     private boolean execute(Repository repo, Item item, List<String> lines) throws Exception
     {
         HintKeys.HintKey hintKey;
@@ -91,10 +99,7 @@ public class Hints
         // find the ELS key for this repo
         hintKey = findHintKey(repo);
 
-//        if (item.getItemSubdirectory() != null)
-        {
-            hintItemSubdirectory = item.getItemSubdirectory();
-        }
+        hintItemSubdirectory = item.getItemSubdirectory();
 
         // find the actor name in the .els file
         statusLine = findNameLine(lines, hintKey.name);
@@ -137,7 +142,7 @@ public class Hints
                 if (fromLib == null)
                     fromLib = item.getLibrary(); // use the library of the .els item
 
-                String fromName = parseFile(parts[1], lineNo);
+                String fromName = parseFilename(parts[1], lineNo);
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
 
@@ -148,7 +153,7 @@ public class Hints
                 if (toLib == null)
                     toLib = item.getLibrary(); // use the library of the .els item
 
-                String toName = parseFile(parts[2], lineNo);
+                String toName = parseFilename(parts[2], lineNo);
                 if (toName.length() < 1)
                     throw new MungeException("Malformed to filename on line " + lineNo);
 
@@ -171,7 +176,7 @@ public class Hints
                 if (fromLib == null)
                     fromLib = item.getLibrary(); // use the library of the .els item
 
-                String fromName = parseFile(parts[1], lineNo);
+                String fromName = parseFilename(parts[1], lineNo);
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
 
@@ -198,6 +203,13 @@ public class Hints
         return libAltered;
     }
 
+    /**
+     * Find the hint UUID key for a Repository
+     *
+     * @param repo Repository containing the UUID key to find
+     * @return Hints.Hintkey of matching UUID
+     * @throws Exception if not found
+     */
     private HintKeys.HintKey findHintKey(Repository repo) throws Exception
     {
         // find the ELS key for this repo
@@ -209,6 +221,13 @@ public class Hints
         return hintKey;
     }
 
+    /**
+     * Find the line in a hint .els file the matching the name
+     *
+     * @param lines Lines of the hint .els file
+     * @param name  Name line to find
+     * @return String of matching name line or null if not found
+     */
     private String findNameLine(List<String> lines, String name)
     {
         for (String line : lines)
@@ -227,6 +246,13 @@ public class Hints
         return null;
     }
 
+    /**
+     * Get the target location to place a incoming hint file
+     *
+     * @param item Item to place
+     * @return String path of appropriate location
+     * @throws Exception
+     */
     private String getHintTarget(Item item) throws Exception
     {
         String target = null;
@@ -274,11 +300,29 @@ public class Hints
         return target;
     }
 
+    /**
+     * Get the String matching a given status rank
+     *
+     * @param rank Rank to match
+     * @return String of integer rank
+     */
     private String getStatusString(int rank)
     {
         return ((rank == 0) ? "Unknown" : ((rank == 1) ? "For" : ((rank == 2) ? "Done" : (rank == 3 ? "Seen" : "Deleted"))));
     }
 
+    /**
+     * Run a hint on a subscriber after merging status with an incoming .merge file.
+     * <p>
+     * Used by the subscriber/Daemon when the command is sent by the publisher
+     * after the hint file has been copied to the subscriber.
+     *
+     * @param libName  Library name of incoming item
+     * @param itemPath ItemPath of incoming item
+     * @param toPath   Path of hint
+     * @return true if hint was executed
+     * @throws Exception
+     */
     public boolean hintRun(String libName, String itemPath, String toPath) throws Exception
     {
         boolean sense = false;
@@ -324,6 +368,15 @@ public class Hints
         return sense;
     }
 
+    /**
+     * Run all the local hints on the publisher.
+     * <p>
+     * If not done manually and the publisher's hint status set to Done, a hint
+     * must be executed on the publisher before a backup operation to a subscriber
+     * so the two ends match.
+     *
+     * @throws Exception
+     */
     public void hintsLocal() throws Exception
     {
         boolean hintsFound = false;
@@ -390,6 +443,15 @@ public class Hints
         }
     }
 
+    /**
+     * Copy each publisher hint to a subscriber and have it execute the hint.
+     * <p>
+     * Copies individual hints from the publisher to the subscriber, either
+     * locally or remotely, then commands the subscriber to execute the hint
+     * using hintrun().
+     *
+     * @throws Exception
+     */
     public void hintsMunge() throws Exception
     {
         boolean hintsFound = false;
@@ -579,6 +641,15 @@ public class Hints
         }
     }
 
+    /**
+     * Clean-up hint status and files on subscriber.
+     * <p>
+     * Checks each hint file on a subscriber to promote the status
+     * from Done to Seen and potentially deletes the hint file if
+     * the status allows it - for automatic hint maintenance.
+     *
+     * @throws Exception
+     */
     public void hintsSubscriberCleanup() throws Exception
     {
         if (cfg.isRemoteSession() && !context.hintMode)
@@ -602,6 +673,18 @@ public class Hints
         }
     }
 
+    /**
+     * Merge an incoming hint file with any existing hint file.
+     * <p>
+     * Merges the completion status of each back-up in an existing
+     * hint file with that of a hint file coming from the publisher.
+     * The highest completion status is used. If no hint file exist
+     * a new file is created.
+     *
+     * @param mergePath The path of the incoming .els.merge file
+     * @param toPath    The resulting path of the merged hint
+     * @throws Exception
+     */
     private void mergeHints(String mergePath, String toPath) throws Exception
     {
         File toFile = new File(toPath);
@@ -666,10 +749,22 @@ public class Hints
         mergeFile.delete();
     }
 
+    /**
+     * Merge values from the ELS Hint Tracker with those in a hint file.
+     * <p>
+     * If hint tracking is being used, where a --hint-server is defined
+     * for either a local or remote operation, then it's status values are
+     * merged with the hint file.
+     *
+     * @param item  Item of the hint file
+     * @param lines Lines of the hint file
+     * @return Merged lines of the hint file
+     * @throws Exception
+     */
     private List<String> mergeStatusServer(Item item, List<String> lines) throws Exception
     {
         // is a hint status server being used?
-        if (cfg.isUsingHintServer())
+        if (cfg.isUsingHintTracker())
         {
             boolean changed = false;
             for (int i = 0; i < lines.size(); ++i)
@@ -708,10 +803,6 @@ public class Hints
                         mergeRank = statusToRank(mergeStatus);
                     }
 
-                    // QUESTION
-                    //  * WHat if an .els file status is > status server?
-                    //  * Does it update the server at the end of the process?
-
                     if (mergeRank > existingRank)
                     {
                         String mergeStatus = getStatusString(mergeRank);
@@ -727,6 +818,15 @@ public class Hints
         return lines;
     }
 
+    /**
+     * Parse a hint file command line
+     *
+     * @param line     Line to parse
+     * @param lineNo   The number of the line in the file
+     * @param expected The number of expected values
+     * @return String[] of arguments
+     * @throws Exception
+     */
     private String[] parseCommand(String line, int lineNo, int expected) throws Exception
     {
         int MAX_TERMS = 4;
@@ -751,12 +851,20 @@ public class Hints
         return cmd;
     }
 
-    private String parseFile(String term, int lineNo) throws MungeException
+    /**
+     * Parse the right-side filename portion of a hint command line
+     *
+     * @param line   The line to parse
+     * @param lineNo The number of the line in the file
+     * @return String the parsed filename or null
+     * @throws MungeException
+     */
+    private String parseFilename(String line, int lineNo) throws MungeException
     {
         String name = null;
-        String[] parts = term.split("\\|");
+        String[] parts = line.split("\\|");
         if (parts.length > 2)
-            throw new MungeException("Malformed library|file term on line " + lineNo + ": " + term);
+            throw new MungeException("Malformed library|file term on line " + lineNo + ": " + line);
         if (parts.length == 1)
             name = parts[0];
         else if (parts.length == 2)
@@ -764,17 +872,33 @@ public class Hints
         return name;
     }
 
-    private String parseLibrary(String term, int lineNo) throws MungeException
+    /**
+     * Parse the left-side library name portion of a hint command line
+     *
+     * @param line   The line to parse
+     * @param lineNo The number of the line in the file
+     * @return String the parsed library or null
+     * @throws MungeException
+     */
+    private String parseLibrary(String line, int lineNo) throws MungeException
     {
         String lib = null;
-        String[] parts = term.split("\\|");
+        String[] parts = line.split("\\|");
         if (parts.length > 2)
-            throw new MungeException("Malformed library|file term on line " + lineNo + ": " + term);
+            throw new MungeException("Malformed library|file term on line " + lineNo + ": " + line);
         if (parts.length == 2)
             lib = parts[0];
         return lib;
     }
 
+    /**
+     * Parse a hint file name/status line
+     *
+     * @param line   The line to parse
+     * @param lineNo The number of the line in the file
+     * @return String[2] of back-up name and status
+     * @throws Exception
+     */
     private String[] parseNameLine(String line, int lineNo) throws Exception
     {
         String[] cmd = new String[2];
@@ -796,6 +920,20 @@ public class Hints
         return cmd;
     }
 
+    /**
+     * Post-process a hint's status.
+     * <p>
+     * Scans the lines of a hint promoting status as the hint goes through
+     * the steps of For, Done, Seen then Deleted. When all back-up's status
+     * is either Seen or Deleted the hint file is deleted for automatic
+     * hint maintenance.
+     *
+     * @param repo  The Repository containing the hint file
+     * @param item  The Item of the hint file
+     * @param lines The lines of the hint file
+     * @return String the current/updated status of this hint
+     * @throws Exception
+     */
     private String postprocessHint(Repository repo, Item item, List<String> lines) throws Exception
     {
         int doneWords = 0;
@@ -822,6 +960,7 @@ public class Hints
         else
             throw new MungeException("Unknown repo: " + repo.getLibraryData().libraries.description);
 
+        // scan the lines adding-up status values
         for (String line : lines)
         {
             String parts[] = line.split("[\\s]+");
@@ -863,11 +1002,11 @@ public class Hints
             }
         }
 
-        if (forWords == 0)
+        if (forWords == 0) // if it is still "For" any back-up don't do anything
         {
-            if (doneWords > 0)
+            if (doneWords > 0) // if some for "Done" ...
             {
-                if (pubStat.equals("done"))
+                if (pubStat.equals("done")) // if the publisher is "Done" promote to "Seen"
                 {
                     updateStatus(item, lines, pubHintKey.name, "Seen");
                     if (isPub)
@@ -875,7 +1014,9 @@ public class Hints
                     --doneWords;
                     ++seenWords;
                 }
-                // skip if this is hintsLocal() where they are the same object
+
+                // if the subscriber is "Done" promote to "Seen"
+                // skip if this is hintsLocal() where they are the same Repository
                 if (context.publisherRepo != context.subscriberRepo)
                 {
                     if (subStat.equals("done"))
@@ -889,6 +1030,8 @@ public class Hints
                 }
             }
 
+            // if all the back-ups have either "Seen" or "Deleted" the hint then
+            // all back-ups have "Done" it so delete the hint file
             if (seenWords + deletedWords == totalWords)
             {
                 File prevFile = new File(item.getFullPath());
@@ -915,6 +1058,17 @@ public class Hints
         return currentStat;
     }
 
+    /**
+     * Post-process a hint file.
+     * <p>
+     * If a hint file still exists use postprocessHint() to update
+     * any appropriate status values.
+     *
+     * @param repo The Repository of the hint
+     * @param item The Item of the hint
+     * @return String the current/updated status of this hint
+     * @throws Exception
+     */
     private String postprocessHintFile(Repository repo, Item item) throws Exception
     {
         // read the ELS hint file
@@ -924,6 +1078,18 @@ public class Hints
         return postprocessHint(repo, item, lines);
     }
 
+    /**
+     * Post-process a hint file updated from the Hint Tracker/Server.
+     * <p>
+     * If a hint file still exists updated it with values from the Hint Tracker
+     * or Hint Server, if defined, then use postprocessHint() to update
+     * any appropriate status values.
+     *
+     * @param repo The Repository of the hint
+     * @param item The Item of the hint
+     * @return String the current/updated status of this hint
+     * @throws Exception
+     */
     private String postprocessHintUpdated(Repository repo, Item item) throws Exception
     {
         // read the ELS hint file
@@ -954,7 +1120,7 @@ public class Hints
     }
 
     /**
-     * Read, cleanup, merge with status server & validate lines from a hint file
+     * Read, cleanup, merge with status tracker/server & validate lines from a hint file
      *
      * @param item Item to be read
      * @return String lines
@@ -967,6 +1133,12 @@ public class Hints
         return validate(item.getFullPath(), lines);
     }
 
+    /**
+     * Return the numeric rank of a status String value
+     *
+     * @param status The value to rank
+     * @return int The numeric rank of the status String, or 0 if no match
+     */
     private int statusToRank(String status)
     {
         if (status.equalsIgnoreCase("for"))
@@ -980,6 +1152,16 @@ public class Hints
         return 0;
     }
 
+    /**
+     * Clean-up a local subscriber's hint files.
+     * <p>
+     * Used at the end of an operation either locally or by the
+     * subscriber/Daemon when the command is received from the
+     * publisher. Scans the subscriber for .els files then runs
+     * postprocessHintFile() on each.
+     *
+     * @throws Exception
+     */
     private void subscriberCleanup() throws Exception
     {
         logger.info("Cleaning-up ELS Hints on " + context.subscriberRepo.getLibraryData().libraries.description);
@@ -1030,7 +1212,22 @@ public class Hints
         }
     }
 
-    private String updateStatus(Item item, List<String> lines, String systemName, String status) throws Exception
+    /**
+     * Update hint status for a specific back-up name.
+     * <p>
+     * Updates and saves the status for the backup name in the hint
+     * file and updates the hint status tracker/server if defined.
+     * <p>
+     * The higher value of either the existing or the new value is saved.
+     *
+     * @param item       The Item of the hint
+     * @param lines      The lines of the hint
+     * @param backupName The name of the back-up from the Hint Keys file
+     * @param status     The new status for the hint
+     * @return String of the value actually saved
+     * @throws Exception
+     */
+    private String updateStatus(Item item, List<String> lines, String backupName, String status) throws Exception
     {
         boolean changed = false;
         int lineNo = 0;
@@ -1044,12 +1241,12 @@ public class Hints
                 String word = parts[0].toLowerCase();
                 if (word.equals("for") || word.equals("done") || word.equals("seen") || word.equals("deleted"))
                 {
-                    if (parts[1].equalsIgnoreCase(systemName))
+                    if (parts[1].equalsIgnoreCase(backupName))
                     {
                         int existingRank = statusToRank(word);
                         if (mergeRank > existingRank)
                         {
-                            line = status + " " + systemName;
+                            line = status + " " + backupName;
                             lines.set(lineNo, line);
                             changed = true;
                             break;
@@ -1068,22 +1265,37 @@ public class Hints
         if (changed)
         {
             Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
-            updateStatusServer(item, systemName, status);
+            updateStatusServer(item, backupName, status);
         }
         return status;
     }
 
-    private void updateStatusServer(Item item, String systemName, String status) throws Exception
+    /**
+     * Update the hint status tracker/server.
+     * <p>
+     * If defined on the command line with -H | --hint-server the tracker
+     * is updated either locally or remotely when the -r | --remote option
+     * is used.
+     * <p>
+     * No further processing of the status is done by the tracker/server,
+     * i.e. the status is not changed.
+     *
+     * @param item       The Item of the hint
+     * @param backupName The name of the back-up from the ELS Hint Keys file
+     * @param status     The desired status String
+     * @throws Exception
+     */
+    private void updateStatusServer(Item item, String backupName, String status) throws Exception
     {
         // is a hint status server being used?
-        if (cfg.isUsingHintServer())
+        if (cfg.isUsingHintTracker())
         {
             if (cfg.isRemoteSession())
             {
                 // set the status on the status server
                 String command = "set \"" + item.getLibrary() + "\" " +
                         "\"" + item.getItemPath() + "\" " +
-                        "\"" + systemName + "\" " +
+                        "\"" + backupName + "\" " +
                         "\"" + status + "\"";
 
                 String response = context.statusStty.roundTrip(command);
@@ -1092,13 +1304,22 @@ public class Hints
             }
             else
             {
-                String result = context.datastore.setStatus(item.getLibrary(), item.getItemPath(), systemName, status);
+                String result = context.datastore.setStatus(item.getLibrary(), item.getItemPath(), backupName, status);
                 if (result == null || !result.equalsIgnoreCase(status))
                     throw new MungeException("Hint setStatus() for " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
             }
         }
     }
 
+    /**
+     * Update the subscriber's status in the publisher's hint file.
+     * <p>
+     * Merges any existing status with "Done". The highest value is saved.
+     *
+     * @param item The Item of the hint
+     * @return Resulting String status
+     * @throws Exception
+     */
     private String updateSubscriberOnPublisher(Item item) throws Exception
     {
         String currentStat = "";
@@ -1117,6 +1338,14 @@ public class Hints
         return currentStat;
     }
 
+    /**
+     * Validate the syntax of a hint file
+     *
+     * @param filename The file path of the hint file
+     * @param lines    The lines of the hint file
+     * @return The validated lines of the hint file
+     * @throws Exception Any problem found throws an exception
+     */
     private List<String> validate(String filename, List<String> lines) throws Exception
     {
         int lineNo = 0;
@@ -1154,7 +1383,7 @@ public class Hints
                 String fromName = "";
                 if (parts != null && parts.length > 2)
                 {
-                    fromName = parseFile(parts[1], lineNo);
+                    fromName = parseFilename(parts[1], lineNo);
                     String fromLib = parseLibrary(parts[1], lineNo);
                 }
                 if (!(fromName.length() > 0))
@@ -1165,7 +1394,7 @@ public class Hints
                 if (parts.length > 3)
                 {
                     toLib = parseLibrary(parts[2], lineNo);
-                    toName = parseFile(parts[2], lineNo);
+                    toName = parseFilename(parts[2], lineNo);
                 }
                 if (!(toName.length() > 0))
                     throw new MungeException("Malformed to filename on line " + lineNo + " in " + filename);
@@ -1179,7 +1408,7 @@ public class Hints
 
                 if (parts != null && parts.length > 2)
                     parseLibrary(parts[1], lineNo);
-                String fromName = parseFile(parts[1], lineNo);
+                String fromName = parseFilename(parts[1], lineNo);
                 if (!(fromName.length() > 0))
                     throw new MungeException("Malformed from filename on line " + lineNo + " in " + filename);
 

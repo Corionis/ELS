@@ -8,7 +8,7 @@ import org.apache.logging.log4j.MarkerManager;
 import java.util.ArrayList;
 
 /**
- * Configuration
+ * Configuration class.
  * <p>
  * Contains all command-line options and any other application-level configuration.
  */
@@ -61,7 +61,7 @@ public class Configuration
     private ArrayList<String> selectedLibraryNames = new ArrayList<>();
     private boolean specificExclude = false;
     private boolean specificLibrary = false;
-    private String statusServerFilename = "";
+    private String statusTrackerFilename = "";
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
     private boolean targetsEnabled = false;
@@ -69,6 +69,7 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
+
     /**
      * Instantiates a new Configuration
      */
@@ -124,9 +125,9 @@ public class Configuration
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
         logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
-        if (statusServerFilename != null && statusServerFilename.length() > 0)
+        if (statusTrackerFilename != null && statusTrackerFilename.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -h Hint status server: " + getStatusServerFilename());
+            logger.info(SHORT, "  cfg: -h Hint status server: " + getStatusTrackerFilename());
         }
         if (hintsDaemonFilename != null && hintsDaemonFilename.length() > 0)
         {
@@ -306,16 +307,31 @@ public class Configuration
         this.exportTextFilename = exportTextFilename;
     }
 
+    /**
+     * Gets Hint Keys filename
+     *
+     * @return String filename
+     */
     public String getHintKeysFile()
     {
         return hintKeysFile;
     }
 
+    /**
+     * Gets Hint Status Server filename
+     *
+     * @return String filename
+     */
     public String getHintsDaemonFilename()
     {
         return hintsDaemonFilename;
     }
 
+    /**
+     * Sets the Hint Status Server filename
+     *
+     * @param hintsDaemonFilename
+     */
     public void setHintsDaemonFilename(String hintsDaemonFilename)
     {
         this.hintsDaemonFilename = hintsDaemonFilename;
@@ -515,14 +531,24 @@ public class Configuration
         return selectedLibraryNames;
     }
 
-    public String getStatusServerFilename()
+    /**
+     * Get the Hint Status Tracker configuration filename
+     *
+     * @return String filename
+     */
+    public String getStatusTrackerFilename()
     {
-        return statusServerFilename;
+        return statusTrackerFilename;
     }
 
-    public void setStatusServerFilename(String statusServerFilename)
+    /**
+     * Set the Hint Status Tracker configuration filename
+     *
+     * @param statusTrackerFilename
+     */
+    public void setStatusTrackerFilename(String statusTrackerFilename)
     {
-        this.statusServerFilename = statusServerFilename;
+        this.statusTrackerFilename = statusTrackerFilename;
     }
 
     /**
@@ -605,11 +631,21 @@ public class Configuration
         this.whatsNewFilename = whatsNewFilename;
     }
 
+    /**
+     * Is a duplicates cross-check enabled?
+     *
+     * @return true if enabled, else false
+     */
     public boolean isCrossCheck()
     {
         return crossCheck;
     }
 
+    /**
+     * Sets duplicates cross-check
+     *
+     * @param crossCheck
+     */
     public void setCrossCheck(boolean crossCheck)
     {
         this.crossCheck = crossCheck;
@@ -635,11 +671,21 @@ public class Configuration
         this.dryRun = dryRun;
     }
 
+    /**
+     * Are duplicates being checked?
+     *
+     * @return true if duplcates checking is enabled, else false
+     */
     public boolean isDuplicateCheck()
     {
         return duplicateCheck;
     }
 
+    /**
+     * Sets duplcates checking
+     *
+     * @param duplicateCheck
+     */
     public void setDuplicateCheck(boolean duplicateCheck)
     {
         this.duplicateCheck = duplicateCheck;
@@ -702,31 +748,62 @@ public class Configuration
         this.forceTargets = forceTargets;
     }
 
+    /**
+     * Are only Hints being processed so skip the main munge process?
+     *
+     * @return true if hints skipping main process enabled
+     */
     public boolean isHintSkipMainProcess()
     {
         return hintSkipMainProcess;
     }
 
+    /**
+     * Sets if the hints option to skip the main munge process is enabled
+     *
+     * @param hintSkipMainProcess
+     */
     public void setHintSkipMainProcess(boolean hintSkipMainProcess)
     {
         this.hintSkipMainProcess = hintSkipMainProcess;
     }
 
+    /**
+     * Is the log to be overwritten?
+     *
+     * @return true to overwrite
+     */
     public boolean isLogOverwrite()
     {
         return logOverwrite;
     }
 
+    /**
+     * Sets if the log should be overwritten when the process starts
+     *
+     * @param logOverwrite
+     */
     public void setLogOverwrite(boolean logOverwrite)
     {
         this.logOverwrite = logOverwrite;
     }
 
+    /**
+     * Is the no back-fill option enabled so the default behavior of filling-in
+     * original locations with new files is disabled?
+     *
+     * @return true if no back-fill is enabled
+     */
     public boolean isNoBackFill()
     {
         return noBackFill;
     }
 
+    /**
+     * Sets the no back-fill option
+     *
+     * @param noBackFill
+     */
     public void setNoBackFill(boolean noBackFill)
     {
         this.noBackFill = noBackFill;
@@ -790,11 +867,21 @@ public class Configuration
         return (getRemoteFlag() == PUBLISHER_MANUAL);
     }
 
+    /**
+     * Should the current process command the Hint Status Server to quit?
+     *
+     * @return true if the command is to be sent
+     */
     public boolean isQuitStatusServer()
     {
         return quitStatusServer;
     }
 
+    /**
+     * Sets whether this process should command the Hint Status Server to quit
+     *
+     * @param quitStatusServer
+     */
     public void setQuitStatusServer(boolean quitStatusServer)
     {
         this.quitStatusServer = quitStatusServer;
@@ -975,16 +1062,31 @@ public class Configuration
         targetsEnabled = sense;
     }
 
-    public boolean isUsingHintServer()
+    /**
+     * Is a Hint Status Tracker being used?
+     *
+     * @return true if so
+     */
+    public boolean isUsingHintTracker()
     {
-        return (statusServerFilename.length() > 0);
+        return (statusTrackerFilename.length() > 0);
     }
 
+    /**
+     * Is the validation of collections and targets enabled?
+     *
+     * @return true if validation should be done
+     */
     public boolean isValidation()
     {
         return validation;
     }
 
+    /**
+     * Sets the collection and targets validation option
+     *
+     * @param validation
+     */
     public void setValidation(boolean validation)
     {
         this.validation = validation;
@@ -1106,7 +1208,7 @@ public class Configuration
                 case "--hints":
                     if (index <= args.length - 2)
                     {
-                        setStatusServerFilename(args[index + 1]);
+                        setStatusTrackerFilename(args[index + 1]);
                         ++index;
                         setPublishOperation(false);
                     }

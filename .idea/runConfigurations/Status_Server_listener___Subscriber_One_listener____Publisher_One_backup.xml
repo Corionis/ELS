@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Status Server listener + Subscriber One listener  + Publisher One backup" type="Multirun" separateTabs="false" reuseTabsWithFailures="true" startOneByOne="true" markFailedProcess="false" hideSuccessProcess="false" delayTime="2.0">
+    <runConfiguration name="70-10 Status Server listener" type="Application" />
+    <runConfiguration name="70-21 Subscriber One listener, Quit" type="Application" />
+    <runConfiguration name="70-23 Publisher One backup" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

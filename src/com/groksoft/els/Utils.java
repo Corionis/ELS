@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The type Utils. Various utility methods.
+ * Utils class of static utility methods.
  */
 public class Utils
 {
@@ -31,7 +31,7 @@ public class Utils
     private static Logger logger = LogManager.getLogger("applog");
 
     /**
-     * Do not instantiate
+     * Static methods - do not instantiate
      */
     private Utils()
     {
@@ -127,6 +127,12 @@ public class Utils
         return encrypted;
     }
 
+    /**
+     * Format remote & local IP addresses and ports
+     *
+     * @param socket
+     * @return String of formatting information
+     */
     public static String formatAddresses(Socket socket)
     {
         return socket.getInetAddress().toString() + ":" + socket.getPort() +
@@ -264,6 +270,13 @@ public class Utils
         return path;
     }
 
+    /**
+     * Get the path to the left of the filename
+     *
+     * @param full Full path to parse
+     * @param sep  The directory separator for the local O/S
+     * @return String of left path
+     */
     public static String getLeftPath(String full, String sep)
     {
         String path = "";
@@ -368,11 +381,17 @@ public class Utils
         return sw.getBuffer().toString();
     }
 
+    /**
+     * Is the path just a filename with no directory to the left?
+     *
+     * @param path Path to check
+     * @return true if it is just a filename
+     */
     public static boolean isFileOnly(String path)
     {
         if (!path.contains("/") &&
-        !path.contains("\\") &&
-        !path.contains("|"))
+                !path.contains("\\") &&
+                !path.contains("|"))
             return true;
         return false;
     }

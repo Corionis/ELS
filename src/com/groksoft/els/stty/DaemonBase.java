@@ -37,6 +37,7 @@ public abstract class DaemonBase
     protected boolean stop = false;
     protected String theirKey;
     protected Repository theirRepo;
+
     /**
      * Instantiate the Daemon service
      */

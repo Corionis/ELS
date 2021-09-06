@@ -19,6 +19,7 @@ public class Item implements Serializable
     private transient boolean reported = false;
     private long size = -1L;
     private boolean symLink = false;
+
     /**
      * Instantiates a new Item.
      */
@@ -92,11 +93,21 @@ public class Item implements Serializable
         this.itemPath = itemPath;
     }
 
+    /**
+     * Get the item's subdirectory within the library.
+     *
+     * @return String of subdirectory or null
+     */
     public String getItemSubdirectory()
     {
         return itemSubdirectory;
     }
 
+    /**
+     * Set the item's subdirectory within the library.
+     *
+     * @param itemSubdirectory
+     */
     public void setItemSubdirectory(String itemSubdirectory)
     {
         this.itemSubdirectory = itemSubdirectory;
@@ -166,11 +177,21 @@ public class Item implements Serializable
         this.directory = directory;
     }
 
+    /**
+     * Has this hint Item been executed?
+     *
+     * @return true if executed
+     */
     public boolean isHintExecuted()
     {
         return hintExecuted;
     }
 
+    /**
+     * Set the value of this hint Item being executed
+     *
+     * @param hintExecuted
+     */
     public void setHintExecuted(boolean hintExecuted)
     {
         this.hintExecuted = hintExecuted;

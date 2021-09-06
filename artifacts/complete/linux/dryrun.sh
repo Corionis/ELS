@@ -27,5 +27,5 @@ if [ -e ../output/${name}.log ]; then
 fi
 
 # This is the same as the backup.bat with the addition of --dry-run
-java -jar ${base}/../ELS.jar -d debug -p ../meta/publisher.json -s  ../meta/subscriber.json -T ../meta/targets.json -m ../output/${name}-Mismatches${stamp}.txt -W ../output/${name}-WhatsNew${stamp}.txt -f ../output/${name}${stamp}.log --dry-run
+java -jar ${base}/../ELS.jar -d debug -p ../meta/publisher.json -s  ../meta/subscriber.json -T ../meta/subscriber-targets.json -m ../output/${name}-Mismatches${stamp}.txt -W ../output/${name}-WhatsNew${stamp}.txt -f ../output/${name}${stamp}.log --dry-run
 

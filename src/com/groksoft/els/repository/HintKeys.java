@@ -10,6 +10,13 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
+/**
+ * Hint Keys class.
+ * <p>
+ * Correlates the UUIDs in the publisher and subscriber JSON files
+ * with shorter names used inside hint .else files to track the
+ * status of completion for each defined node of an ELS system.
+ */
 public class HintKeys
 {
     private Configuration cfg;

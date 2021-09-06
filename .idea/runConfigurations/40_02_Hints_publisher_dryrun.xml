@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="40-02 Hints publisher dryrun" type="Application" factoryName="Application" folderName="40-00 Local Hints">
+    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-K test/test-hints.keys -c debug -d debug -p test/publisher/publisher.json -T -F output/40-02_Hints-publisher-dryrun.log --dry-run" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

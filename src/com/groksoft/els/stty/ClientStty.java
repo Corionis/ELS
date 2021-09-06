@@ -4,8 +4,8 @@ import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.stty.gui.TerminalGui;
 import com.groksoft.els.repository.Repository;
+import com.groksoft.els.stty.gui.TerminalGui;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,27 +22,24 @@ import java.time.format.DateTimeFormatter;
  */
 public class ClientStty
 {
-    private transient Logger logger = LogManager.getLogger("applog");
-
+    TerminalGui gui = null;
+    DataInputStream in = null;
+    DataOutputStream out = null;
     private Configuration cfg;
     private boolean isConnected = false;
     private boolean isTerminal = false;
-    private Socket socket;
-
-    DataInputStream in = null;
-    DataOutputStream out = null;
-    TerminalGui gui = null;
-
-    private Repository myRepo;
-    private Repository theirRepo;
+    private transient Logger logger = LogManager.getLogger("applog");
     private String myKey;
-    private String theirKey;
+    private Repository myRepo;
     private boolean primaryServers;
+    private Socket socket;
+    private String theirKey;
+    private Repository theirRepo;
 
     /**
      * Instantiate a ClientStty.<br>
      *
-     * @param config     The Configuration object
+     * @param config           The Configuration object
      * @param isManualTerminal True if an interactive client, false if an automated client
      */
     public ClientStty(Configuration config, boolean isManualTerminal, boolean primaryServers)
@@ -52,6 +49,13 @@ public class ClientStty
         this.primaryServers = primaryServers;
     }
 
+    /**
+     * Return available space disk of the remote location
+     *
+     * @param location Path on remote
+     * @return long Available space in bytes
+     * @throws Exception
+     */
     public long availableSpace(String location) throws Exception
     {
         long space = 0L;
@@ -64,6 +68,16 @@ public class ClientStty
         return space;
     }
 
+    /**
+     * Read opening terminal banner for possible commands
+     * <p>
+     * Handles subscriber-side commands sent to publisher at login time
+     * for RequestCollection to retrieve the current subscriber collection,
+     * and RequestTargets to retrieve the current subscriber targets.
+     *
+     * @return true if commands were present and processed
+     * @throws Exception
+     */
     public boolean checkBannerCommands() throws Exception
     {
         boolean hasCommands = false;
@@ -107,6 +121,14 @@ public class ClientStty
         return hasCommands;
     }
 
+    /**
+     * Connect this STTY to the other end
+     *
+     * @param mine   Local Repository
+     * @param theirs Remote Repository
+     * @return true if connected
+     * @throws Exception
+     */
     public boolean connect(Repository mine, Repository theirs) throws Exception
     {
         this.myRepo = mine;
@@ -160,6 +182,9 @@ public class ClientStty
         return isConnected;
     }
 
+    /**
+     * Disconnect this STTY from the other end
+     */
     public void disconnect()
     {
         try
@@ -180,6 +205,12 @@ public class ClientStty
         }
     }
 
+    /**
+     * Start an interactive GUI terminal session
+     *
+     * @return
+     * @throws Exception
+     */
     public int guiSession() throws Exception
     {
         int returnValue = 0;
@@ -188,6 +219,12 @@ public class ClientStty
         return returnValue;
     }
 
+    /**
+     * Perform a handshake with the other end
+     *
+     * @return true if connection authenticated
+     * @throws Exception
+     */
     private boolean handshake() throws Exception
     {
         boolean valid = false;
@@ -219,17 +256,30 @@ public class ClientStty
                 {
                     // ignore
                 }
-            } else if (input.equalsIgnoreCase("Terminal session not allowed"))
+            }
+            else if (input.equalsIgnoreCase("Terminal session not allowed"))
                 logger.warn("Attempted to login interactively but terminal sessions are not allowed");
         }
         return valid;
     }
 
+    /**
+     * Return if this STTY session is connected
+     *
+     * @return
+     */
     public boolean isConnected()
     {
         return isConnected;
     }
 
+    /**
+     * Send command to Hint Status Server to quit
+     *
+     * @param context The Context
+     * @param fault   Pass-through fault indicator
+     * @return Resulting fault indicator
+     */
     public boolean quitStatusServer(Context context, boolean fault)
     {
         if (cfg.isQuitStatusServer())
@@ -258,12 +308,26 @@ public class ClientStty
         return fault;
     }
 
+    /**
+     * Receive a response from the other end
+     *
+     * @return String of response text
+     * @throws Exception
+     */
     public String receive() throws Exception
     {
         String response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
         return response;
     }
 
+    /**
+     * Retrieve remote data and store it in a file
+     *
+     * @param filename File path to store the data
+     * @param command  The command to send
+     * @return The resulting date-stamped file path
+     * @throws Exception
+     */
     public String retrieveRemoteData(String filename, String command) throws Exception
     {
         String location = null;
@@ -276,7 +340,7 @@ public class ClientStty
             LocalDateTime now = LocalDateTime.now();
             String stamp = dtf.format(now);
 
-            // LEFTOFF Make better paths for the temporary -received- files
+            // TODO Make better paths for the temporary -received- files
 
             location = filename + "_" + command + "-received-" + stamp + ".json";
             try
@@ -293,6 +357,13 @@ public class ClientStty
         return location;
     }
 
+    /**
+     * Make a round-trip to the other end by sending a command and receiving the response
+     *
+     * @param command The command to send
+     * @return String of the response
+     * @throws Exception
+     */
     public String roundTrip(String command) throws Exception
     {
         send(command);
@@ -300,6 +371,12 @@ public class ClientStty
         return response;
     }
 
+    /**
+     * Send a command to the other end
+     *
+     * @param command The command to send
+     * @throws Exception
+     */
     public void send(String command) throws Exception
     {
         Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, command);
