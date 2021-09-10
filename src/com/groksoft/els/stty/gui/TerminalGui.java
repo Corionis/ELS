@@ -38,6 +38,7 @@ public class TerminalGui implements WindowListener, ActionListener
         this.out = out;
     }
 
+    @SuppressWarnings({"DuplicateBranchesInSwitch"})
     @Override
     public void actionPerformed(ActionEvent e)
     {

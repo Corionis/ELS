@@ -1,5 +1,6 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
@@ -22,12 +23,13 @@ import static com.groksoft.els.Configuration.*;
  */
 public class Main
 {
-    private static Main els;
+    public static Main els;
+    public final Context context = new Context();
+    public Configuration cfg;
+    public boolean fault = false;
     public boolean isListening = false;
-    boolean fault = false;
-    private Configuration cfg;
-    private Context context = new Context();
-    private Logger logger = null;
+    public Logger logger = null;
+    public Date stamp = new Date();
 
     /**
      * Instantiates the Main application
@@ -82,6 +84,16 @@ public class Main
     }
 
     /**
+     * Has there been a fault?
+     *
+     * @return true if a fault has occurred
+     */
+    public boolean isFault()
+    {
+        return fault;
+    }
+
+    /**
      * Execute the process
      *
      * @param args the input arguments
@@ -93,7 +105,6 @@ public class Main
         ThreadGroup sessionThreads = null;
         cfg = new Configuration();
         Process proc;
-        Date stamp = new Date();
 
         try
         {
@@ -142,7 +153,7 @@ public class Main
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    logger.info("ELS Local Process begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Local Process begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -167,7 +178,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS Publisher Listener begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Publisher Listener begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -197,7 +208,7 @@ public class Main
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS Publisher Manual Terminal begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Publisher Manual Terminal begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -232,7 +243,7 @@ public class Main
 
                 // handle -r P execute the automated process to remote subscriber -r S
                 case PUBLISH_REMOTE:
-                    logger.info("ELS Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -270,7 +281,7 @@ public class Main
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS Subscriber Listener begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Subscriber Listener begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -303,7 +314,7 @@ public class Main
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS Subscriber Manual Terminal begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Subscriber Manual Terminal begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -355,7 +366,7 @@ public class Main
 
                 // handle -H | --hint-server stand-alone hints status server
                 case STATUS_SERVER:
-                    logger.info("ELS Hint Status Server begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Hint Status Server begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     if (cfg.getHintKeysFile() == null || cfg.getHintKeysFile().length() == 0)
@@ -399,7 +410,7 @@ public class Main
 
                 // handle -Q | --force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS Quit Hint Status Server begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Quit Hint Status Server begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
                     if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)
@@ -412,6 +423,16 @@ public class Main
                     // force the cfg setting & let this process end normally
                     // that will send the quit command to the hint status server
                     cfg.setQuitStatusServer(true);
+                    break;
+
+                // handle -n | --navigator to display the Navigator
+                case NAVIGATOR:
+                    logger.info("ELS: Navigator begin, version " + cfg.getProgramVersion());
+                    cfg.dump();
+
+                    context.navigator = new Navigator(this, cfg, context);
+                    if (!isFault())
+                        context.navigator.run();
                     break;
 
                 default:
@@ -436,7 +457,7 @@ public class Main
         finally
         {
             // stop stuff
-            if (!isListening) // clients
+            if (!isListening && !(cfg.getRemoteFlag() == NAVIGATOR)) // clients
             {
                 // optionally command status server to quit
                 if (context.statusStty != null)
@@ -445,19 +466,20 @@ public class Main
                 // stop any remaining services
                 stopServices();
 
-                if (!cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
-                    logger.info("Log file has more details: " + cfg.getLogFilename());
+                Main.stopVerbiage();
+//                if (!cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
+//                    logger.info("Log file has more details: " + cfg.getLogFilename());
 
-                Date done = new Date();
-                long millis = Math.abs(done.getTime() - stamp.getTime());
-                logger.fatal("Runtime: " + Utils.getDuration(millis));
-
-                if (!fault)
-                    logger.fatal("Process completed normally");
-                else
-                    logger.fatal("Process failed");
+//                Date done = new Date();
+//                long millis = Math.abs(done.getTime() - stamp.getTime());
+//                logger.fatal("Runtime: " + Utils.getDuration(millis));
+//
+//                if (!fault)
+//                    logger.fatal("Process completed normally");
+//                else
+//                    logger.fatal("Process failed");
             }
-            else // daemons
+            else if (isListening) // daemons
             {
                 // this shutdown hook is triggered when all connections and
                 // threads used by the daemon have been closed and stopped
@@ -472,22 +494,24 @@ public class Main
                             if (els.context.statusStty != null)
                                 els.fault = els.context.statusStty.quitStatusServer(context, els.fault);  // do before stopping the necessary services
 
-                            if (!els.cfg.getConsoleLevel().equalsIgnoreCase(els.cfg.getDebugLevel()))
-                                logger.info("Log file has more details: " + els.cfg.getLogFilename());
+//                            if (!els.cfg.getConsoleLevel().equalsIgnoreCase(els.cfg.getDebugLevel()))
+//                                logger.info("Log file has more details: " + els.cfg.getLogFilename());
+                            Main.stopVerbiage();
+                            els.stopServices();
 
-                            Date done = new Date();
-                            long millis = Math.abs(done.getTime() - stamp.getTime());
-                            logger.fatal("Runtime: " + Utils.getDuration(millis));
-
-                            if (!els.fault)
-                                logger.fatal("Process completed normally");
-                            else
-                                logger.fatal("Process failed");
+//                            Date done = new Date();
+//                            long millis = Math.abs(done.getTime() - stamp.getTime());
+//                            logger.fatal("Runtime: " + Utils.getDuration(millis));
+//
+//                            if (!els.fault)
+//                                logger.fatal("Process completed normally");
+//                            else
+//                                logger.fatal("Process failed");
 
                             Thread.sleep(4000L);
 
                             // stop any remaining services
-                            stopServices(); // has to be last
+//                            stopServices(); // has to be last
                         }
                         catch (Exception e)
                         {
@@ -591,6 +615,16 @@ public class Main
     }
 
     /**
+     * Set the fault condition
+     *
+     * @param fault true/false
+     */
+    public void setFault(boolean fault)
+    {
+        this.fault = fault;
+    }
+
+    /**
      * Stop all service that are in use
      */
     public void stopServices()
@@ -628,6 +662,21 @@ public class Main
         {
             context.serveSftp.stopServer();
         }
+    }
+
+    public static void stopVerbiage()
+    {
+        if (!els.cfg.getConsoleLevel().equalsIgnoreCase(els.cfg.getDebugLevel()))
+            els.logger.info("Log file has more details: " + els.cfg.getLogFilename());
+
+        Date done = new Date();
+        long millis = Math.abs(done.getTime() - els.stamp.getTime());
+        els.logger.fatal("Runtime: " + Utils.getDuration(millis));
+
+        if (!els.fault)
+            els.logger.fatal("Process completed normally");
+        else
+            els.logger.fatal("Process failed");
     }
 
 } // Main

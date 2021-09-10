@@ -14,6 +14,7 @@ import java.util.ArrayList;
  */
 public class Configuration
 {
+    public static final int NAVIGATOR = 8;
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
@@ -26,6 +27,7 @@ public class Configuration
     public static final int STATUS_SERVER_FORCE_QUIT = 7;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
+    private final String NAVIGATOR_NAME = "ELS Navigator";
     private final String PROGRAM_VERSION = "4.0.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
     private String authorizedPassword = "";
@@ -69,7 +71,6 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
-
     /**
      * Instantiates a new Configuration
      */
@@ -161,7 +162,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
         }
-        logger.info(SHORT, "  cfg: -n Renaming = " + Boolean.toString(isRenaming()));
+        logger.info(SHORT, "  cfg: -n Navigator session = " + Boolean.toString(getRemoteFlag() == NAVIGATOR));
         logger.info(SHORT, "  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
         if (getPublisherLibrariesFileName().length() > 0)
         {
@@ -208,16 +209,6 @@ public class Configuration
     }
 
     /**
-     * Sets Authorized password
-     *
-     * @param password the password required to access Authorized mode with a ClientStty
-     */
-    public void setAuthorizedPassword(String password)
-    {
-        this.authorizedPassword = password;
-    }
-
-    /**
      * Gets console level
      *
      * @return the console level
@@ -228,16 +219,6 @@ public class Configuration
     }
 
     /**
-     * Sets console level
-     *
-     * @param consoleLevel the console level
-     */
-    public void setConsoleLevel(String consoleLevel)
-    {
-        this.consoleLevel = consoleLevel;
-    }
-
-    /**
      * Gets debug level
      *
      * @return the debug level
@@ -245,16 +226,6 @@ public class Configuration
     public String getDebugLevel()
     {
         return debugLevel;
-    }
-
-    /**
-     * Sets debug level
-     *
-     * @param debugLevel the debug level
-     */
-    public void setDebugLevel(String debugLevel)
-    {
-        this.debugLevel = debugLevel;
     }
 
     /**
@@ -278,16 +249,6 @@ public class Configuration
     }
 
     /**
-     * Sets export collection filename
-     *
-     * @param exportCollectionFilename the export collection filename
-     */
-    public void setExportCollectionFilename(String exportCollectionFilename)
-    {
-        this.exportCollectionFilename = exportCollectionFilename;
-    }
-
-    /**
      * Gets the export text filename
      *
      * @return exportTextFilename the export text filename
@@ -295,16 +256,6 @@ public class Configuration
     public String getExportTextFilename()
     {
         return exportTextFilename;
-    }
-
-    /**
-     * Sets the export text filename
-     *
-     * @param exportTextFilename the export text filename
-     */
-    public void setExportTextFilename(String exportTextFilename)
-    {
-        this.exportTextFilename = exportTextFilename;
     }
 
     /**
@@ -328,16 +279,6 @@ public class Configuration
     }
 
     /**
-     * Sets the Hint Status Server filename
-     *
-     * @param hintsDaemonFilename
-     */
-    public void setHintsDaemonFilename(String hintsDaemonFilename)
-    {
-        this.hintsDaemonFilename = hintsDaemonFilename;
-    }
-
-    /**
      * Gets log filename
      *
      * @return the log filename
@@ -345,16 +286,6 @@ public class Configuration
     public String getLogFilename()
     {
         return logFilename;
-    }
-
-    /**
-     * Sets log filename
-     *
-     * @param logFilename the log filename
-     */
-    public void setLogFilename(String logFilename)
-    {
-        this.logFilename = logFilename;
     }
 
     /**
@@ -368,13 +299,12 @@ public class Configuration
     }
 
     /**
-     * Sets mismatch filename
-     *
-     * @param mismatchFilename the mismatch filename
+     * Get the Navigator name
+     * @return
      */
-    public void setMismatchFilename(String mismatchFilename)
+    public String getNavigatorName()
     {
-        this.mismatchFilename = mismatchFilename;
+        return NAVIGATOR_NAME;
     }
 
     /**
@@ -416,16 +346,6 @@ public class Configuration
     }
 
     /**
-     * Sets publisher collection filename
-     *
-     * @param publisherCollectionFilename the publisher import filename
-     */
-    public void setPublisherCollectionFilename(String publisherCollectionFilename)
-    {
-        this.publisherCollectionFilename = publisherCollectionFilename;
-    }
-
-    /**
      * Gets publisher configuration file name
      *
      * @return the publisher configuration file name
@@ -433,16 +353,6 @@ public class Configuration
     public String getPublisherLibrariesFileName()
     {
         return publisherLibrariesFileName;
-    }
-
-    /**
-     * Sets publisher libraries file name
-     *
-     * @param publisherLibrariesFileName the publisher configuration file name
-     */
-    public void setPublisherLibrariesFileName(String publisherLibrariesFileName)
-    {
-        this.publisherLibrariesFileName = publisherLibrariesFileName;
     }
 
     /**
@@ -466,59 +376,11 @@ public class Configuration
     }
 
     /**
-     * Sets remote type
-     *
-     * @param type the remote type and remote flag
-     */
-    public void setRemoteType(String type) throws MungeException
-    {
-        if (!this.remoteType.equals("-"))
-        {
-            throw new MungeException("The -r option may only be used once");
-        }
-        this.remoteType = type;
-        this.remoteFlag = NOT_REMOTE;
-        if (type.equalsIgnoreCase("P"))
-            this.remoteFlag = PUBLISH_REMOTE;
-        else if (type.equalsIgnoreCase("S"))
-            this.remoteFlag = SUBSCRIBER_LISTENER;
-        else if (type.equalsIgnoreCase("M"))
-            this.remoteFlag = PUBLISHER_MANUAL;
-        else if (type.equalsIgnoreCase("L"))
-            this.remoteFlag = PUBLISHER_LISTENER;
-        else if (type.equalsIgnoreCase("T"))
-            this.remoteFlag = SUBSCRIBER_TERMINAL;
-        else
-            throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
-    }
-
-    /**
      * Set the type of renaming to perform
      */
     public int getRenamingType()
     {
         return this.renamingType;
-    }
-
-    /**
-     * Set the type of renaming to perform
-     */
-    public void setRenamingType(String type) throws MungeException
-    {
-        switch (type.toLowerCase())
-        {
-            case "d":
-                this.renamingType = RENAME_DIRECTORIES;
-                break;
-            case "f":
-                this.renamingType = RENAME_FILES;
-                break;
-            case "b":
-                this.renamingType = RENAME_BOTH;
-                break;
-            default:
-                throw new MungeException("unknown -n | --rename type of rename; requires F | D | B");
-        }
     }
 
     /**
@@ -542,16 +404,6 @@ public class Configuration
     }
 
     /**
-     * Set the Hint Status Tracker configuration filename
-     *
-     * @param statusTrackerFilename
-     */
-    public void setStatusTrackerFilename(String statusTrackerFilename)
-    {
-        this.statusTrackerFilename = statusTrackerFilename;
-    }
-
-    /**
      * Gets subscriber import filename
      *
      * @return the import filename
@@ -559,16 +411,6 @@ public class Configuration
     public String getSubscriberCollectionFilename()
     {
         return subscriberCollectionFilename;
-    }
-
-    /**
-     * Sets subscriber collection filename
-     *
-     * @param subscriberCollectionFilename the import filename
-     */
-    public void setSubscriberCollectionFilename(String subscriberCollectionFilename)
-    {
-        this.subscriberCollectionFilename = subscriberCollectionFilename;
     }
 
     /**
@@ -582,16 +424,6 @@ public class Configuration
     }
 
     /**
-     * Sets subscriber libraries file name
-     *
-     * @param subscriberLibrariesFileName the subscriber configuration file name
-     */
-    public void setSubscriberLibrariesFileName(String subscriberLibrariesFileName)
-    {
-        this.subscriberLibrariesFileName = subscriberLibrariesFileName;
-    }
-
-    /**
      * Gets targets filename
      *
      * @return the targets filename
@@ -599,16 +431,6 @@ public class Configuration
     public String getTargetsFilename()
     {
         return targetsFilename;
-    }
-
-    /**
-     * Sets targets filename
-     *
-     * @param targetsFilename the targets filename
-     */
-    public void setTargetsFilename(String targetsFilename)
-    {
-        this.targetsFilename = targetsFilename;
     }
 
     /**
@@ -622,16 +444,6 @@ public class Configuration
     }
 
     /**
-     * Sets whats new filename
-     *
-     * @param whatsNewFilename the whats new filename
-     */
-    public void setWhatsNewFilename(String whatsNewFilename)
-    {
-        this.whatsNewFilename = whatsNewFilename;
-    }
-
-    /**
      * Is a duplicates cross-check enabled?
      *
      * @return true if enabled, else false
@@ -639,16 +451,6 @@ public class Configuration
     public boolean isCrossCheck()
     {
         return crossCheck;
-    }
-
-    /**
-     * Sets duplicates cross-check
-     *
-     * @param crossCheck
-     */
-    public void setCrossCheck(boolean crossCheck)
-    {
-        this.crossCheck = crossCheck;
     }
 
     /**
@@ -662,16 +464,6 @@ public class Configuration
     }
 
     /**
-     * Sets dry run
-     *
-     * @param dryRun true/false boolean
-     */
-    public void setDryRun(boolean dryRun)
-    {
-        this.dryRun = dryRun;
-    }
-
-    /**
      * Are duplicates being checked?
      *
      * @return true if duplcates checking is enabled, else false
@@ -679,16 +471,6 @@ public class Configuration
     public boolean isDuplicateCheck()
     {
         return duplicateCheck;
-    }
-
-    /**
-     * Sets duplcates checking
-     *
-     * @param duplicateCheck
-     */
-    public void setDuplicateCheck(boolean duplicateCheck)
-    {
-        this.duplicateCheck = duplicateCheck;
     }
 
     /**
@@ -719,16 +501,6 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced collection" operation
-     *
-     * @param forceCollection true/false
-     */
-    public void setForceCollection(boolean forceCollection)
-    {
-        this.forceCollection = forceCollection;
-    }
-
-    /**
      * Is this a "forced targets" operation
      *
      * @return true/false
@@ -736,16 +508,6 @@ public class Configuration
     public boolean isForceTargets()
     {
         return forceTargets;
-    }
-
-    /**
-     * Set if this is a "forced targets" operation
-     *
-     * @param forceTargets true/false
-     */
-    public void setForceTargets(boolean forceTargets)
-    {
-        this.forceTargets = forceTargets;
     }
 
     /**
@@ -759,16 +521,6 @@ public class Configuration
     }
 
     /**
-     * Sets if the hints option to skip the main munge process is enabled
-     *
-     * @param hintSkipMainProcess
-     */
-    public void setHintSkipMainProcess(boolean hintSkipMainProcess)
-    {
-        this.hintSkipMainProcess = hintSkipMainProcess;
-    }
-
-    /**
      * Is the log to be overwritten?
      *
      * @return true to overwrite
@@ -776,16 +528,6 @@ public class Configuration
     public boolean isLogOverwrite()
     {
         return logOverwrite;
-    }
-
-    /**
-     * Sets if the log should be overwritten when the process starts
-     *
-     * @param logOverwrite
-     */
-    public void setLogOverwrite(boolean logOverwrite)
-    {
-        this.logOverwrite = logOverwrite;
     }
 
     /**
@@ -800,16 +542,6 @@ public class Configuration
     }
 
     /**
-     * Sets the no back-fill option
-     *
-     * @param noBackFill
-     */
-    public void setNoBackFill(boolean noBackFill)
-    {
-        this.noBackFill = noBackFill;
-    }
-
-    /**
      * Gets overwrite mode
      *
      * @return true/false
@@ -820,14 +552,6 @@ public class Configuration
     }
 
     /**
-     * Sets overwrite mode
-     */
-    public void setOverwrite(boolean sense)
-    {
-        overwrite = sense;
-    }
-
-    /**
      * Is this a publish operation?
      *
      * @return true/false
@@ -835,16 +559,6 @@ public class Configuration
     public boolean isPublishOperation()
     {
         return publishOperation;
-    }
-
-    /**
-     * Set if this is a publish operation
-     *
-     * @param publishOperation true/false
-     */
-    public void setPublishOperation(boolean publishOperation)
-    {
-        this.publishOperation = publishOperation;
     }
 
     /**
@@ -878,16 +592,6 @@ public class Configuration
     }
 
     /**
-     * Sets whether this process should command the Hint Status Server to quit
-     *
-     * @param quitStatusServer
-     */
-    public void setQuitStatusServer(boolean quitStatusServer)
-    {
-        this.quitStatusServer = quitStatusServer;
-    }
-
-    /**
      * Returns true if this is a publisher process, automatically execute the process
      *
      * @return true/false
@@ -916,16 +620,6 @@ public class Configuration
     }
 
     /**
-     * Enable or disable performing renaming
-     *
-     * @param renaming true to enable
-     */
-    public void setRenaming(boolean renaming)
-    {
-        this.renaming = renaming;
-    }
-
-    /**
      * Is this a "request collection" operation?
      *
      * @return true/false
@@ -936,16 +630,6 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request collection" operation
-     *
-     * @param requestCollection true/false
-     */
-    public void setRequestCollection(boolean requestCollection)
-    {
-        this.requestCollection = requestCollection;
-    }
-
-    /**
      * Is this a "request targets" operation?
      *
      * @return true/false
@@ -953,16 +637,6 @@ public class Configuration
     public boolean isRequestTargets()
     {
         return requestTargets;
-    }
-
-    /**
-     * Set if this is a "request targets" operation
-     *
-     * @param requestTargets true/false
-     */
-    public void setRequestTargets(boolean requestTargets)
-    {
-        this.requestTargets = requestTargets;
     }
 
     /**
@@ -991,16 +665,6 @@ public class Configuration
     }
 
     /**
-     * Sets specific publisher library exclude flag
-     *
-     * @param sense true/false
-     */
-    public void setSpecificExclude(boolean sense)
-    {
-        this.specificExclude = sense; // v3.0.0
-    }
-
-    /**
      * Is specific publisher library boolean.
      *
      * @return the boolean
@@ -1008,16 +672,6 @@ public class Configuration
     public boolean isSpecificLibrary()
     {
         return specificLibrary;
-    }
-
-    /**
-     * Sets specific publisher library flag
-     *
-     * @param sense true/false
-     */
-    public void setSpecificLibrary(boolean sense)
-    {
-        this.specificLibrary = sense;
     }
 
     /**
@@ -1055,14 +709,6 @@ public class Configuration
     }
 
     /**
-     * Set targets enabled
-     */
-    public void setTargetsEnabled(boolean sense)
-    {
-        targetsEnabled = sense;
-    }
-
-    /**
      * Is a Hint Status Tracker being used?
      *
      * @return true if so
@@ -1083,16 +729,6 @@ public class Configuration
     }
 
     /**
-     * Sets the collection and targets validation option
-     *
-     * @param validation
-     */
-    public void setValidation(boolean validation)
-    {
-        this.validation = validation;
-    }
-
-    /**
      * Is What's New an "all" option?
      *
      * @return true/false
@@ -1100,16 +736,6 @@ public class Configuration
     public boolean isWhatsNewAll()
     {
         return this.whatsNewAll;
-    }
-
-    /**
-     * Set What's New "all" option
-     *
-     * @param isWhatsNewAll true = all option
-     */
-    public void setWhatsNewAll(boolean isWhatsNewAll)
-    {
-        this.whatsNewAll = isWhatsNewAll;
     }
 
     /**
@@ -1307,18 +933,9 @@ public class Configuration
                         throw new MungeException("Error: -m requires a mismatches output filename");
                     }
                     break;
-                case "-n":                                              // perform renaming
-                case "--rename":
-                    setRenaming(true);
-                    if (index <= args.length - 2)
-                    {
-                        setRenamingType(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -n requires the type F | D | B");
-                    }
+                case "-n":                                              // Navigator
+                case "--navigator":
+                    this.remoteFlag = NAVIGATOR;
                     break;
                 case "-o":                                              // overwrite
                 case "--overwrite":
@@ -1468,6 +1085,390 @@ public class Configuration
                     throw new MungeException("Error: unknown option: " + args[index]);
             }
         }
+    }
+
+    /**
+     * Sets Authorized password
+     *
+     * @param password the password required to access Authorized mode with a ClientStty
+     */
+    public void setAuthorizedPassword(String password)
+    {
+        this.authorizedPassword = password;
+    }
+
+    /**
+     * Sets console level
+     *
+     * @param consoleLevel the console level
+     */
+    public void setConsoleLevel(String consoleLevel)
+    {
+        this.consoleLevel = consoleLevel;
+    }
+
+    /**
+     * Sets duplicates cross-check
+     *
+     * @param crossCheck
+     */
+    public void setCrossCheck(boolean crossCheck)
+    {
+        this.crossCheck = crossCheck;
+    }
+
+    /**
+     * Sets debug level
+     *
+     * @param debugLevel the debug level
+     */
+    public void setDebugLevel(String debugLevel)
+    {
+        this.debugLevel = debugLevel;
+    }
+
+    /**
+     * Sets dry run
+     *
+     * @param dryRun true/false boolean
+     */
+    public void setDryRun(boolean dryRun)
+    {
+        this.dryRun = dryRun;
+    }
+
+    /**
+     * Sets duplcates checking
+     *
+     * @param duplicateCheck
+     */
+    public void setDuplicateCheck(boolean duplicateCheck)
+    {
+        this.duplicateCheck = duplicateCheck;
+    }
+
+    /**
+     * Sets export collection filename
+     *
+     * @param exportCollectionFilename the export collection filename
+     */
+    public void setExportCollectionFilename(String exportCollectionFilename)
+    {
+        this.exportCollectionFilename = exportCollectionFilename;
+    }
+
+    /**
+     * Sets the export text filename
+     *
+     * @param exportTextFilename the export text filename
+     */
+    public void setExportTextFilename(String exportTextFilename)
+    {
+        this.exportTextFilename = exportTextFilename;
+    }
+
+    /**
+     * Set if this is a "forced collection" operation
+     *
+     * @param forceCollection true/false
+     */
+    public void setForceCollection(boolean forceCollection)
+    {
+        this.forceCollection = forceCollection;
+    }
+
+    /**
+     * Set if this is a "forced targets" operation
+     *
+     * @param forceTargets true/false
+     */
+    public void setForceTargets(boolean forceTargets)
+    {
+        this.forceTargets = forceTargets;
+    }
+
+    /**
+     * Sets if the hints option to skip the main munge process is enabled
+     *
+     * @param hintSkipMainProcess
+     */
+    public void setHintSkipMainProcess(boolean hintSkipMainProcess)
+    {
+        this.hintSkipMainProcess = hintSkipMainProcess;
+    }
+
+    /**
+     * Sets the Hint Status Server filename
+     *
+     * @param hintsDaemonFilename
+     */
+    public void setHintsDaemonFilename(String hintsDaemonFilename)
+    {
+        this.hintsDaemonFilename = hintsDaemonFilename;
+    }
+
+    /**
+     * Sets log filename
+     *
+     * @param logFilename the log filename
+     */
+    public void setLogFilename(String logFilename)
+    {
+        this.logFilename = logFilename;
+    }
+
+    /**
+     * Sets if the log should be overwritten when the process starts
+     *
+     * @param logOverwrite
+     */
+    public void setLogOverwrite(boolean logOverwrite)
+    {
+        this.logOverwrite = logOverwrite;
+    }
+
+    /**
+     * Sets mismatch filename
+     *
+     * @param mismatchFilename the mismatch filename
+     */
+    public void setMismatchFilename(String mismatchFilename)
+    {
+        this.mismatchFilename = mismatchFilename;
+    }
+
+    /**
+     * Sets the no back-fill option
+     *
+     * @param noBackFill
+     */
+    public void setNoBackFill(boolean noBackFill)
+    {
+        this.noBackFill = noBackFill;
+    }
+
+    /**
+     * Sets overwrite mode
+     */
+    public void setOverwrite(boolean sense)
+    {
+        overwrite = sense;
+    }
+
+    /**
+     * Set if this is a publish operation
+     *
+     * @param publishOperation true/false
+     */
+    public void setPublishOperation(boolean publishOperation)
+    {
+        this.publishOperation = publishOperation;
+    }
+
+    /**
+     * Sets publisher collection filename
+     *
+     * @param publisherCollectionFilename the publisher import filename
+     */
+    public void setPublisherCollectionFilename(String publisherCollectionFilename)
+    {
+        this.publisherCollectionFilename = publisherCollectionFilename;
+    }
+
+    /**
+     * Sets publisher libraries file name
+     *
+     * @param publisherLibrariesFileName the publisher configuration file name
+     */
+    public void setPublisherLibrariesFileName(String publisherLibrariesFileName)
+    {
+        this.publisherLibrariesFileName = publisherLibrariesFileName;
+    }
+
+    /**
+     * Sets whether this process should command the Hint Status Server to quit
+     *
+     * @param quitStatusServer
+     */
+    public void setQuitStatusServer(boolean quitStatusServer)
+    {
+        this.quitStatusServer = quitStatusServer;
+    }
+
+    /**
+     * Sets remote type
+     *
+     * @param type the remote type and remote flag
+     */
+    public void setRemoteType(String type) throws MungeException
+    {
+        if (!this.remoteType.equals("-"))
+        {
+            throw new MungeException("The -r option may only be used once");
+        }
+        this.remoteType = type;
+        this.remoteFlag = NOT_REMOTE;
+        if (type.equalsIgnoreCase("P"))
+            this.remoteFlag = PUBLISH_REMOTE;
+        else if (type.equalsIgnoreCase("S"))
+            this.remoteFlag = SUBSCRIBER_LISTENER;
+        else if (type.equalsIgnoreCase("M"))
+            this.remoteFlag = PUBLISHER_MANUAL;
+        else if (type.equalsIgnoreCase("L"))
+            this.remoteFlag = PUBLISHER_LISTENER;
+        else if (type.equalsIgnoreCase("T"))
+            this.remoteFlag = SUBSCRIBER_TERMINAL;
+        else
+            throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
+    }
+
+    /**
+     * Enable or disable performing renaming
+     *
+     * @param renaming true to enable
+     */
+    public void setRenaming(boolean renaming)
+    {
+        this.renaming = renaming;
+    }
+
+    /**
+     * Set the type of renaming to perform
+     */
+    public void setRenamingType(String type) throws MungeException
+    {
+        switch (type.toLowerCase())
+        {
+            case "d":
+                this.renamingType = RENAME_DIRECTORIES;
+                break;
+            case "f":
+                this.renamingType = RENAME_FILES;
+                break;
+            case "b":
+                this.renamingType = RENAME_BOTH;
+                break;
+            default:
+                throw new MungeException("unknown -n | --rename type of rename; requires F | D | B");
+        }
+    }
+
+    /**
+     * Set if this is a "request collection" operation
+     *
+     * @param requestCollection true/false
+     */
+    public void setRequestCollection(boolean requestCollection)
+    {
+        this.requestCollection = requestCollection;
+    }
+
+    /**
+     * Set if this is a "request targets" operation
+     *
+     * @param requestTargets true/false
+     */
+    public void setRequestTargets(boolean requestTargets)
+    {
+        this.requestTargets = requestTargets;
+    }
+
+    /**
+     * Sets specific publisher library exclude flag
+     *
+     * @param sense true/false
+     */
+    public void setSpecificExclude(boolean sense)
+    {
+        this.specificExclude = sense; // v3.0.0
+    }
+
+    /**
+     * Sets specific publisher library flag
+     *
+     * @param sense true/false
+     */
+    public void setSpecificLibrary(boolean sense)
+    {
+        this.specificLibrary = sense;
+    }
+
+    /**
+     * Set the Hint Status Tracker configuration filename
+     *
+     * @param statusTrackerFilename
+     */
+    public void setStatusTrackerFilename(String statusTrackerFilename)
+    {
+        this.statusTrackerFilename = statusTrackerFilename;
+    }
+
+    /**
+     * Sets subscriber collection filename
+     *
+     * @param subscriberCollectionFilename the import filename
+     */
+    public void setSubscriberCollectionFilename(String subscriberCollectionFilename)
+    {
+        this.subscriberCollectionFilename = subscriberCollectionFilename;
+    }
+
+    /**
+     * Sets subscriber libraries file name
+     *
+     * @param subscriberLibrariesFileName the subscriber configuration file name
+     */
+    public void setSubscriberLibrariesFileName(String subscriberLibrariesFileName)
+    {
+        this.subscriberLibrariesFileName = subscriberLibrariesFileName;
+    }
+
+    /**
+     * Set targets enabled
+     */
+    public void setTargetsEnabled(boolean sense)
+    {
+        targetsEnabled = sense;
+    }
+
+    /**
+     * Sets targets filename
+     *
+     * @param targetsFilename the targets filename
+     */
+    public void setTargetsFilename(String targetsFilename)
+    {
+        this.targetsFilename = targetsFilename;
+    }
+
+    /**
+     * Sets the collection and targets validation option
+     *
+     * @param validation
+     */
+    public void setValidation(boolean validation)
+    {
+        this.validation = validation;
+    }
+
+    /**
+     * Set What's New "all" option
+     *
+     * @param isWhatsNewAll true = all option
+     */
+    public void setWhatsNewAll(boolean isWhatsNewAll)
+    {
+        this.whatsNewAll = isWhatsNewAll;
+    }
+
+    /**
+     * Sets whats new filename
+     *
+     * @param whatsNewFilename the whats new filename
+     */
+    public void setWhatsNewFilename(String whatsNewFilename)
+    {
+        this.whatsNewFilename = whatsNewFilename;
     }
 
 }

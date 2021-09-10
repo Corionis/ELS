@@ -1,5 +1,6 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
@@ -19,6 +20,7 @@ public class Context
     public Datastore datastore;
     public HintKeys hintKeys;
     public boolean hintMode = false;
+    public Navigator navigator;
     public Repository publisherRepo;
     public ServeSftp serveSftp;
     public ServeStty serveStty;
