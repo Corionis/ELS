@@ -49,6 +49,31 @@ public class Repository
     }
 
     /**
+     * Create an empty repository object.
+     * <p>
+     * Description and key are empty strings.<br>
+     * Libraries are created but are empty/null.
+     *
+     * @param cfg Configuration
+     * @param numOfLibraries The number of empty libraries to create
+     * @return Empty Repository object
+     */
+    public static Repository createEmptyRepository(Configuration cfg, int numOfLibraries)
+    {
+        Repository repo = new Repository(cfg);
+        repo.libraryData = new LibraryData();
+        repo.libraryData.libraries = new Libraries();
+        repo.libraryData.libraries.description = "";
+        repo.libraryData.libraries.key = "";
+        repo.libraryData.libraries.bibliography = new Library[numOfLibraries];
+        for (int i = 0; i < numOfLibraries; ++i)
+        {
+            repo.libraryData.libraries.bibliography[i] = new Library();
+        }
+        return repo;
+    }
+
+    /**
      * Export library items to JSON collection file.
      *
      * @throws MungeException the els exception
@@ -737,10 +762,13 @@ public class Repository
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
                 item.setLibrary(library.name);                          // the library name
+
                 if (!Utils.isFileOnly(item.getItemPath()))
                 {
                     item.setItemSubdirectory(Utils.pipe(this, Utils.getLeftPath(item.getItemPath(), getSeparator())));
                 }
+
+                item.setItemShortName(Utils.getShortPath(item.getItemPath(), getSeparator()));
                 library.items.add(item);
 
                 if (isDir)
@@ -779,13 +807,23 @@ public class Repository
     }
 
     /**
-     * Sort a specific library's collection.
+     * Sort a specific library's items.
      */
     public void sort(Library lib)
     {
         lib.items.sort((item1, item2) -> item1.getItemPath().compareToIgnoreCase(item2.getItemPath()));
     }
 
+    /**
+     * Sort all libraries in collection.
+     */
+    public void sortAll()
+    {
+        for (Library lib : libraryData.libraries.bibliography)
+        {
+            sort(lib);
+        }
+    }
 
     /**
      * Validate LibraryData.

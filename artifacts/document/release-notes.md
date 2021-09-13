@@ -1,3 +1,40 @@
+## Version 4.0.0
+
+Major release 4.0.0 of ELS adds the ELS Navigator GUI and a variety of bugs fixes and
+related enhancements. 
+
+The Navigator is purpose-built to make the building and on-going maintenance of a home
+media collection easier. Using the built-in capabilities of ELS the Navigator provides a
+visual tool for adding media and curating a collection either locally or remotely to a
+media server.
+
+Like the rest of ELS the new Navigator is a general tool for any media system compatible
+with ELS. And similarly it works on Windows, Linux and Mac.
+
+It's all built-in with the -n | --navigator option.
+
+### Enhancements
+
+ 1. ELS Navigator.
+
+ 2. New download options including an all-in-one with a dedicated Java JRE.
+
+### Command Line Changes
+
+ 1. The -n | --rename option has been removed in favor of the rename tool in the
+    new ELS Navigator.
+
+ 2. The -n option has been repurposed, and the --navigator option has been added.
+
+### Bug Fixes
+
+
+### Developer Notes
+
+ 1. The ELS Navigator was built using [JFormDesigner](https://www.formdev.com/jformdesigner/doc/).<br/> 
+    This inexpensive plug-in for IntelliJ allowed the creation of the Navigator
+    much faster and with far fewer mistakes.
+
 ## Version 3.1.0
 
 Release 3.1.0 of ELS adds the Hint Status Tracker and a new mode - the Hint Status

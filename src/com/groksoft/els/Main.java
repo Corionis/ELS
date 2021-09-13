@@ -26,8 +26,7 @@ public class Main
     public static Main els;
     public final Context context = new Context();
     public Configuration cfg;
-    public boolean fault = false;
-    public boolean isListening = false;
+    private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
 
@@ -81,16 +80,6 @@ public class Main
                 context.datastore.initialize();
             }
         }
-    }
-
-    /**
-     * Has there been a fault?
-     *
-     * @return true if a fault has occurred
-     */
-    public boolean isFault()
-    {
-        return fault;
     }
 
     /**
@@ -173,7 +162,7 @@ public class Main
 
                     // the Process class handles the ELS process
                     proc = new Process(cfg, context);
-                    fault = proc.process();
+                    proc.process();
                     break;
 
                 // handle -r L publisher listener for remote subscriber -r T connections
@@ -271,7 +260,7 @@ public class Main
 
                         // the Process class handles the ELS process
                         proc = new Process(cfg, context);
-                        fault = proc.process();
+                        proc.process();
                     }
                     else
                     {
@@ -430,8 +419,18 @@ public class Main
                     logger.info("ELS: Navigator begin, version " + cfg.getProgramVersion());
                     cfg.dump();
 
+                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
+                    {
+                        context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                    }
+
+                    if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
+                    {
+                        context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    }
+
                     context.navigator = new Navigator(this, cfg, context);
-                    if (!isFault())
+                    if (!context.fault)
                         context.navigator.run();
                     break;
 
@@ -442,7 +441,7 @@ public class Main
         }
         catch (Exception e)
         {
-            fault = true;
+            context.fault = true;
             if (logger != null)
             {
                 logger.error(Utils.getStackTrace(e));
@@ -461,23 +460,11 @@ public class Main
             {
                 // optionally command status server to quit
                 if (context.statusStty != null)
-                    fault = context.statusStty.quitStatusServer(context, fault);  // do before stopping the necessary services
+                    context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
                 // stop any remaining services
                 stopServices();
-
                 Main.stopVerbiage();
-//                if (!cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
-//                    logger.info("Log file has more details: " + cfg.getLogFilename());
-
-//                Date done = new Date();
-//                long millis = Math.abs(done.getTime() - stamp.getTime());
-//                logger.fatal("Runtime: " + Utils.getDuration(millis));
-//
-//                if (!fault)
-//                    logger.fatal("Process completed normally");
-//                else
-//                    logger.fatal("Process failed");
             }
             else if (isListening) // daemons
             {
@@ -492,26 +479,11 @@ public class Main
                         {
                             // optionally command status server to quit
                             if (els.context.statusStty != null)
-                                els.fault = els.context.statusStty.quitStatusServer(context, els.fault);  // do before stopping the necessary services
+                                els.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
-//                            if (!els.cfg.getConsoleLevel().equalsIgnoreCase(els.cfg.getDebugLevel()))
-//                                logger.info("Log file has more details: " + els.cfg.getLogFilename());
                             Main.stopVerbiage();
                             els.stopServices();
-
-//                            Date done = new Date();
-//                            long millis = Math.abs(done.getTime() - stamp.getTime());
-//                            logger.fatal("Runtime: " + Utils.getDuration(millis));
-//
-//                            if (!els.fault)
-//                                logger.fatal("Process completed normally");
-//                            else
-//                                logger.fatal("Process failed");
-
                             Thread.sleep(4000L);
-
-                            // stop any remaining services
-//                            stopServices(); // has to be last
                         }
                         catch (Exception e)
                         {
@@ -615,16 +587,6 @@ public class Main
     }
 
     /**
-     * Set the fault condition
-     *
-     * @param fault true/false
-     */
-    public void setFault(boolean fault)
-    {
-        this.fault = fault;
-    }
-
-    /**
      * Stop all service that are in use
      */
     public void stopServices()
@@ -673,7 +635,7 @@ public class Main
         long millis = Math.abs(done.getTime() - els.stamp.getTime());
         els.logger.fatal("Runtime: " + Utils.getDuration(millis));
 
-        if (!els.fault)
+        if (!els.context.fault)
             els.logger.fatal("Process completed normally");
         else
             els.logger.fatal("Process failed");

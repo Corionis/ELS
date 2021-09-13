@@ -9,8 +9,10 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -250,7 +252,33 @@ public class Utils
     }
 
     /**
-     * Gets last path
+     * Get the local system hostname
+     *
+     * @return Hostname or empty
+     */
+    public static String getHostname()
+    {
+        String hostname = "";
+        try
+        {
+            InetAddress addr;
+            addr = InetAddress.getLocalHost();
+            hostname = addr.getHostName();
+            int i = hostname.indexOf(".");
+            if (i > 0)
+                hostname = hostname.substring(0, i);
+            hostname = hostname.toLowerCase();
+            hostname = hostname.substring(0, 1).toUpperCase() + hostname.substring(1);
+        }
+        catch (UnknownHostException ex)
+        {
+            hostname = "";
+        }
+        return hostname;
+    }
+
+    /**
+     * Gets last path that includes a filename
      *
      * @param full the full
      * @return the last path
@@ -365,6 +393,31 @@ public class Utils
             returnValue = bytes.longValue();
         }
         return returnValue;
+    }
+
+    /**
+     * Get the short last path element, directory or file
+     *
+     * @param full Full path to parse
+     * @param sep  The directory separator for the local O/S
+     * @return String of path
+     */
+    public static String getShortPath(String full, String sep)
+    {
+        String path = "";
+        int p = full.lastIndexOf(sep);
+        if (p >= 0)
+        {
+            if (full.length() > (p + 1))
+                path = full.substring(p + 1);
+            else
+                path = full.substring(0, p);
+        }
+        else
+        {
+            path = full;
+        }
+        return path;
     }
 
     /**

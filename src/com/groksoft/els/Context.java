@@ -18,6 +18,7 @@ public class Context
     public ClientSftp clientSftp;
     public ClientStty clientStty;
     public Datastore datastore;
+    public boolean fault = false;
     public HintKeys hintKeys;
     public boolean hintMode = false;
     public Navigator navigator;

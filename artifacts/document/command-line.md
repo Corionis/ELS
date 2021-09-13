@@ -77,9 +77,6 @@ files have been specified.
 
 * ``-i | --export-items [file]`` : Export publisher collection as JSON to file
 
-* ``-n | --rename [F|D|B]`` : Perform any defined renaming from a publisher JSON file
-  on **F**iles, **D**irectories or **B**oth
-
 * ``-u | --duplicates`` : Scan a publisher for duplicate items and empty directories
 
 * ``-v | --validate`` : Validate a publisher library or collection file
@@ -119,6 +116,8 @@ files have been specified.
 * ``-L | --exclude [libraryname]`` : Library to exclude. This option may be specified more than once
 
 * ``-m | --mismatches [file]`` : Mismatches list of differences output text file
+
+* ``-n | --navigator`` :: Display the ELS Navigator. Overrides other mode options.
 
 * ``-o | --overwrite`` : Overwrite any existing files instead of resuming a remote transfer.
   This option only applies to remote sessions.

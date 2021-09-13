@@ -470,7 +470,7 @@ public class Process
      * <p>
      * What is done depends on the combination of options specified on the command line.
      */
-    public boolean process()
+    public void process()
     {
         Marker SHORT = MarkerManager.getMarker("SHORT");
         boolean lined = false;
@@ -605,8 +605,7 @@ public class Process
                 }
             }
         }
-
-        return fault;
+        context.fault = fault;
     } // process
 
     /**

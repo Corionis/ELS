@@ -277,17 +277,16 @@ public class ClientStty
      * Send command to Hint Status Server to quit
      *
      * @param context The Context
-     * @param fault   Pass-through fault indicator
      * @return Resulting fault indicator
      */
-    public boolean quitStatusServer(Context context, boolean fault)
+    public void quitStatusServer(Context context)
     {
         if (cfg.isQuitStatusServer())
         {
             if (context.statusRepo == null)
             {
                 logger.warn("-q requires a -h hints file");
-                return true;
+                context.fault = true;
             }
             try
             {
@@ -302,10 +301,9 @@ public class ClientStty
             catch (Exception e)
             {
                 logger.error(Utils.getStackTrace(e));
-                fault = true;
+                context.fault = true;
             }
         }
-        return fault;
     }
 
     /**

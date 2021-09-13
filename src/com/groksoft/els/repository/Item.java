@@ -1,5 +1,7 @@
 package com.groksoft.els.repository;
 
+import com.groksoft.els.Utils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,16 +11,20 @@ import java.util.List;
  */
 public class Item implements Serializable
 {
-    private boolean directory = false;
+    // @formatter:off
     private String fullPath;
+    private String itemPath;
+    private String library;
+    private long size = -1L;
+    private boolean directory = false;
+    private boolean symLink = false;
+
     private transient List<Item> hasList = null;
     private transient boolean hintExecuted = false;
-    private String itemPath;
+    private transient String itemShortName;
     private transient String itemSubdirectory;
-    private String library;
     private transient boolean reported = false;
-    private long size = -1L;
-    private boolean symLink = false;
+    // @formatter:on
 
     /**
      * Instantiates a new Item.
@@ -218,6 +224,26 @@ public class Item implements Serializable
     }
 
     /**
+     * Get the item short name
+     *
+     * @return String short name
+     */
+    public String getItemShortName()
+    {
+        return itemShortName;
+    }
+
+    /**
+     * Set the item short name
+     *
+     * @param itemShortName The short name
+     */
+    public void setItemShortName(String itemShortName)
+    {
+        this.itemShortName = itemShortName;
+    }
+
+    /**
      * Is sym link boolean.
      *
      * @return the boolean
@@ -235,6 +261,16 @@ public class Item implements Serializable
     public void setSymLink(boolean symLink)
     {
         this.symLink = symLink;
+    }
+
+    /**
+     * Return the itemShortName
+     *
+     * @return itemShortName
+     */
+    public String toString()
+    {
+        return itemShortName;
     }
 
 }

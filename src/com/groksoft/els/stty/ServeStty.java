@@ -275,7 +275,7 @@ public class ServeStty extends Thread
         // otherwise the threads will never stop
         if (context.statusStty != null)
         {
-            context.statusStty.quitStatusServer(context, false);
+            context.statusStty.quitStatusServer(context);
             context.statusStty.disconnect();
             context.statusStty = null;
         }

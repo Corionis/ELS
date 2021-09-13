@@ -9,28 +9,35 @@ import java.util.Vector;
  */
 public class Library
 {
+    // @formatter:off
     /**
      * Transient hash map for item look-ups
      *
      * @see <a href="https://guava.dev/releases/snapshot-jre/api/docs/com/google/common/collect/ArrayListMultimap.html">ArrayListMultimap class API doc</a>
      */
     public transient ArrayListMultimap<String, Integer> itemMap;
-    /**
-     * One or more Items. Last member so name appears first in data.
-     */
-    public Vector<Item> items;
-    /**
-     * The library Name.
-     */
-    public String name;
+
     /**
      * Library has been altered, transient
      */
     public transient boolean rescanNeeded = false;
+
+    /**
+     * The library Name.
+     */
+    public String name;
+
     /**
      * One or more Sources.
      */
     public String[] sources;
+
+    /**
+     * One or more Items. Last member so name appears first in data.
+     */
+    public Vector<Item> items;
+
+    // @formatter:on
 
     /**
      * Get an item by itemPath in a linear search
