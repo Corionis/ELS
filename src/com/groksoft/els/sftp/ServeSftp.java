@@ -4,6 +4,10 @@ import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.sshd.common.file.nativefs.NativeFileSystemFactory;
+import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.session.Session;
+import org.apache.sshd.common.session.helpers.AbstractSession;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.AsyncAuthException;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
@@ -15,10 +19,14 @@ import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemEnvironment;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.file.Path;
 import java.security.PublicKey;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -130,12 +138,8 @@ public class ServeSftp implements SftpErrorStatusDataHandler
 
             sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
 
-            SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder()
-                    .withSftpErrorStatusDataHandler(this)
-                    .build();
-
-            //factory.addSftpEventListener(new EventListener());
-
+            SftpSubsystemFactory factory = new SftpSubsystemFactory.Builder().withSftpErrorStatusDataHandler(this).build();
+            factory.addSftpEventListener(new EventListener());
             sshd.setSubsystemFactories(Collections.singletonList(factory));
 
             sshd.setPasswordAuthenticator(new PasswordAuthenticator()
@@ -203,6 +207,11 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         {
             String ips = getIps();
             logger.debug("Stopping sftp server on: " + ips);
+            List<AbstractSession> sessions = sshd.getActiveSessions();
+            for (AbstractSession session : sessions)
+            {
+                session.close();
+            }
             sshd.stop();
         }
         catch (Exception e)

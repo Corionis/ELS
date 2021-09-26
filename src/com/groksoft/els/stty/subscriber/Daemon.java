@@ -360,6 +360,8 @@ public class Daemon extends DaemonBase
                 if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
                 {
                     Utils.writeStream(out, myKey, "End-Execution");
+                    out.flush();
+                    Thread.sleep(1000);
                     stop = true;
                     break; // break the loop
                 }

@@ -21,15 +21,15 @@
         ],
 		"bibliography": [
 			{
-				"name": "Movies",
-				"sources": [
-                    "test/publisher/media/Movies"
-				]
-			},
-			{
 				"name": "TV Shows",
 				"sources": [
 					"test/publisher/media/TV Shows"
+				]
+			},
+			{
+				"name": "Movies",
+				"sources": [
+                    "test/publisher/media/Movies"
 				]
 			}
 		]

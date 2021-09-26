@@ -14,7 +14,6 @@ import java.util.ArrayList;
  */
 public class Configuration
 {
-    public static final int NAVIGATOR = 8;
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
@@ -35,6 +34,7 @@ public class Configuration
     private boolean crossCheck = false;
     private String debugLevel = "debug";
     private boolean dryRun = false;
+    private boolean dumpSystem = false;
     private boolean duplicateCheck = false;
     private String exportCollectionFilename = "";
     private String exportTextFilename = "";
@@ -46,6 +46,7 @@ public class Configuration
     private String logFilename = "";
     private boolean logOverwrite = false;
     private String mismatchFilename = "";
+    private boolean navigator = false;
     private boolean noBackFill = false;
     private String[] originalArgs;
     private boolean overwrite = false;
@@ -162,7 +163,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
         }
-        logger.info(SHORT, "  cfg: -n Navigator session = " + Boolean.toString(getRemoteFlag() == NAVIGATOR));
+        logger.info(SHORT, "  cfg: -n Navigator session = " + Boolean.toString(isNavigator()));
         logger.info(SHORT, "  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
         if (getPublisherLibrariesFileName().length() > 0)
         {
@@ -300,6 +301,7 @@ public class Configuration
 
     /**
      * Get the Navigator name
+     *
      * @return
      */
     public String getNavigatorName()
@@ -463,6 +465,11 @@ public class Configuration
         return dryRun;
     }
 
+    public boolean isDumpSystem()
+    {
+        return dumpSystem;
+    }
+
     /**
      * Are duplicates being checked?
      *
@@ -528,6 +535,11 @@ public class Configuration
     public boolean isLogOverwrite()
     {
         return logOverwrite;
+    }
+
+    public boolean isNavigator()
+    {
+        return navigator;
     }
 
     /**
@@ -799,6 +811,9 @@ public class Configuration
                         throw new MungeException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
+                case "--dump-system":
+                    setDumpSystem(true);
+                    break;
                 case "-e":                                             // export publisher items to flat text file
                 case "--export-text":
                     if (index <= args.length - 2)
@@ -935,7 +950,7 @@ public class Configuration
                     break;
                 case "-n":                                              // Navigator
                 case "--navigator":
-                    this.remoteFlag = NAVIGATOR;
+                    setNavigator(true);
                     break;
                 case "-o":                                              // overwrite
                 case "--overwrite":
@@ -1137,6 +1152,11 @@ public class Configuration
         this.dryRun = dryRun;
     }
 
+    public void setDumpSystem(boolean dumpSystem)
+    {
+        this.dumpSystem = dumpSystem;
+    }
+
     /**
      * Sets duplcates checking
      *
@@ -1235,6 +1255,11 @@ public class Configuration
     public void setMismatchFilename(String mismatchFilename)
     {
         this.mismatchFilename = mismatchFilename;
+    }
+
+    public void setNavigator(boolean navigator)
+    {
+        this.navigator = navigator;
     }
 
     /**

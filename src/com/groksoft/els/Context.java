@@ -21,6 +21,7 @@ public class Context
     public boolean fault = false;
     public HintKeys hintKeys;
     public boolean hintMode = false;
+    public Main els;
     public Navigator navigator;
     public Repository publisherRepo;
     public ServeSftp serveSftp;

@@ -27,163 +27,163 @@ public class EventListener implements SftpEventListener
     @Override
     public void blocked(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, long length, int mask, Throwable thrown) throws IOException
     {
-        logger.info("event: blocked");
+        logger.debug("event: blocked " + localHandle.getFile().toString());
     }
 
     @Override
     public void blocking(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, long length, int mask) throws IOException
     {
-        logger.info("event: blocking");
+        //logger.trace("event: blocking");
     }
 
     @Override
     public void closed(ServerSession session, String remoteHandle, Handle localHandle, Throwable thrown) throws IOException
     {
-        logger.info("event: closed");
+        logger.trace("event: closed " + localHandle.getFile().toString());
     }
 
     @Override
     public void closing(ServerSession session, String remoteHandle, Handle localHandle) throws IOException
     {
-        logger.info("event: closing");
+        //logger.debug("event: closing");
     }
 
     @Override
     public void created(ServerSession session, Path path, Map<String, ?> attrs, Throwable thrown) throws IOException
     {
-        logger.info("event: created");
+        logger.debug("event: created " + path);
     }
 
     @Override
     public void creating(ServerSession session, Path path, Map<String, ?> attrs) throws IOException
     {
-        logger.info("event: creating");
+        //logger.debug("event: creating");
     }
 
     @Override
     public void destroying(ServerSession session) throws IOException
     {
-        logger.info("event: destroying");
+        //logger.trace("event: destroying");
     }
 
     @Override
     public void exiting(ServerSession session, Handle handle) throws IOException
     {
-        logger.info("event: exiting");
+        logger.debug("event: exiting");
     }
 
     @Override
     public void initialized(ServerSession session, int version) throws IOException
     {
-        logger.info("event: initialized");
+        logger.debug("event: initialized");
     }
 
     @Override
     public void linked(ServerSession session, Path source, Path target, boolean symLink, Throwable thrown) throws IOException
     {
-        logger.info("event: linked");
+        logger.debug("event: linked " + source.toString() + " -> " + target.toString());
     }
 
     @Override
     public void linking(ServerSession session, Path source, Path target, boolean symLink) throws IOException
     {
-        logger.info("event: linking");
+        //logger.debug("event: linking");
     }
 
     @Override
     public void modifiedAttributes(ServerSession session, Path path, Map<String, ?> attrs, Throwable thrown) throws IOException
     {
-        logger.info("event: modifiedAttributes");
+        logger.debug("event: modifiedAttributes " + path.toString());
     }
 
     @Override
     public void modifyingAttributes(ServerSession session, Path path, Map<String, ?> attrs) throws IOException
     {
-        logger.info("event: modifyingAttributes");
+        //logger.debug("event: modifyingAttributes");
     }
 
     @Override
     public void moved(ServerSession session, Path srcPath, Path dstPath, Collection<CopyOption> opts, Throwable thrown) throws IOException
     {
-        logger.info("event: moved");
+        logger.debug("event: moved " + srcPath + " -> " + dstPath);
     }
 
     @Override
     public void moving(ServerSession session, Path srcPath, Path dstPath, Collection<CopyOption> opts) throws IOException
     {
-        logger.info("event: moving");
+        //logger.debug("event: moving");
     }
 
     @Override
     public void open(ServerSession session, String remoteHandle, Handle localHandle) throws IOException
     {
-        logger.info("event: open");
+        logger.debug("event: open " + localHandle.getFile().toString());
     }
 
     @Override
     public void openFailed(ServerSession session, String remotePath, Path localPath, boolean isDirectory, Throwable thrown) throws IOException
     {
-        logger.info("event: openFailed");
+        logger.error("event: openFailed "  + localPath.toString());
     }
 
     @Override
     public void opening(ServerSession session, String remoteHandle, Handle localHandle) throws IOException
     {
-        logger.info("event: opening");
+        //logger.debug("event: opening");
     }
 
     @Override
     public void read(ServerSession session, String remoteHandle, DirectoryHandle localHandle, Map<String, Path> entries) throws IOException
     {
-        logger.info("event: read");
+        logger.trace("event: read " + localHandle.getFile().toString());
     }
 
     @Override
     public void read(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, byte[] data, int dataOffset, int dataLen, int readLen, Throwable thrown) throws IOException
     {
-        logger.info("event: read");
+        logger.trace("event: read " + localHandle.getFile().toString());
     }
 
     @Override
     public void reading(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, byte[] data, int dataOffset, int dataLen) throws IOException
     {
-        logger.info("event: reading");
+        //logger.debug("event: reading");
     }
 
     @Override
     public void removed(ServerSession session, Path path, boolean isDirectory, Throwable thrown) throws IOException
     {
-        logger.info("event: removed");
+        logger.debug("event: removed " + (isDirectory ? "directory " : "file ") + path);
     }
 
     @Override
     public void removing(ServerSession session, Path path, boolean isDirectory) throws IOException
     {
-        logger.info("event: removing");
+        //logger.debug("event: removing");
     }
 
     @Override
     public void unblocked(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, long length, Throwable thrown) throws IOException
     {
-        logger.info("event: unblocked");
+        logger.trace("event: unblocked");
     }
 
     @Override
     public void unblocking(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, long length) throws IOException
     {
-        logger.info("event: unblocking");
+        //logger.debug("event: unblocking");
     }
 
     @Override
     public void writing(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, byte[] data, int dataOffset, int dataLen) throws IOException
     {
-        logger.info("event: writing");
+        logger.trace("event: writing " + localHandle.getFile().toString());
     }
 
     @Override
     public void written(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, byte[] data, int dataOffset, int dataLen, Throwable thrown) throws IOException
     {
-        logger.info("event: written");
+        //logger.debug("event: written " + localHandle.getFile().getFileName());
     }
 
 }

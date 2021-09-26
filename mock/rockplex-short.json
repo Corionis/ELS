@@ -1,0 +1,27 @@
+{
+	"libraries": {
+        "description": "RockPlex",
+        "host": "rockplex.monkeyboy.com:42200",
+        "listen": "rockplex.monkeyboy.com:42200",
+        "flavor": "linux",
+        "terminal_allowed": "true",
+        "key": "c8ee28d3-4a99-41ee-87cc-d43c31827b06",
+        "case_sensitive": "false",
+        "ignore_patterns": [
+            "(?i)desktop\\.ini",
+            ".*\\.fuse.*",
+            ".*\\.srt",
+            "Thumbs\\.db"
+		],
+		"bibliography": [
+			{
+				"name": "Photos",
+				"sources": [
+					"/home/plex/Plex/Media/Rock02/media/Photos/Astronomy",
+					"/home/plex/Plex/Media/Rock02/media/Photos/Art",
+					"/home/plex/Plex/Media/Rock02/media/Photos/Comic"
+				]
+			}
+		]
+	}
+}

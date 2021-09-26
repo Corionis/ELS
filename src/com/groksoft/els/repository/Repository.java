@@ -762,6 +762,7 @@ public class Repository
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);
                 item.setLibrary(library.name);                          // the library name
+                item.setModifiedDate(Files.getLastModifiedTime(path));  // modified date
 
                 if (!Utils.isFileOnly(item.getItemPath()))
                 {
@@ -921,8 +922,8 @@ public class Repository
                         (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                 {
                     logger.debug("  library: " + lib.name +
-                            ", " + lib.sources.length + " sources" +
-                            (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " items" : ""));
+                            ", " + lib.sources.length + " source" + ((lib.sources.length > 1) ? "s" : "")  +
+                            (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " item"  + (lib.items.size() > 0 ? "s" : "") : ""));
                     // validate sources paths
                     for (int j = 0; j < lib.sources.length; j++)
                     {

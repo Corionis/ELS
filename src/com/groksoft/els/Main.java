@@ -134,6 +134,14 @@ public class Main
             if (cfgException != null) // re-throw any configuration exception
                 throw cfgException;
 
+            // Hack for viewing all system properties
+            if (cfg.isDumpSystem())
+            {
+                System.out.println("\nDumping System Properties");
+                System.getProperties().list(System.out);
+                System.exit(1);
+            }
+
             //
             // an execution of this program can only be configured as one of these
             //
@@ -142,27 +150,50 @@ public class Main
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    logger.info("ELS: Local Process begin, version " + cfg.getProgramVersion());
-                    cfg.dump();
-
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    if (!cfg.isValidation() &&
-                            (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                    cfg.getSubscriberCollectionFilename().length() > 0))
+                    // handle -n | --navigator to display the Navigator
+                    if (cfg.isNavigator())
                     {
-                        context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                        logger.info("ELS: Navigator begin, version " + cfg.getProgramVersion());
+                        cfg.dump();
+
+                        if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
+                        {
+                            context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                        }
+
+                        if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
+                        {
+                            context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                        }
+
+                        context.navigator = new Navigator(this, cfg, context);
+                        if (!context.fault)
+                            context.navigator.run();
                     }
-                    else if (cfg.isTargetsEnabled())
+                    else
                     {
-                        context.subscriberRepo = context.publisherRepo; // v3.00 for publisher ELS Hints
+                        logger.info("ELS: Local Process begin, version " + cfg.getProgramVersion());
+                        cfg.dump();
+
+                        context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                        if (!cfg.isValidation() &&
+                                (cfg.getSubscriberLibrariesFileName().length() > 0 ||
+                                        cfg.getSubscriberCollectionFilename().length() > 0))
+                        {
+                            context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                        }
+                        else if (cfg.isTargetsEnabled())
+                        {
+                            context.subscriberRepo = context.publisherRepo; // v3.00 for publisher ELS Hints
+                        }
+
+                        // setup the hint status server for local use if defined
+                        connectHintServer(context.publisherRepo);
+
+                        // the Process class handles the ELS process
+                        proc = new Process(cfg, context);
+                        proc.process();
                     }
-
-                    // setup the hint status server for local use if defined
-                    connectHintServer(context.publisherRepo);
-
-                    // the Process class handles the ELS process
-                    proc = new Process(cfg, context);
-                    proc.process();
                     break;
 
                 // handle -r L publisher listener for remote subscriber -r T connections
@@ -232,7 +263,12 @@ public class Main
 
                 // handle -r P execute the automated process to remote subscriber -r S
                 case PUBLISH_REMOTE:
-                    logger.info("ELS: Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersion());
+                    // handle -n | --navigator to display the Navigator
+                    if (cfg.isNavigator())
+                        logger.info("ELS: Navigator Remote begin, version " + cfg.getProgramVersion());
+                    else
+                        logger.info("ELS: Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersion());
+
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -258,9 +294,19 @@ public class Main
                             throw new MungeException("Publisher sftp client failed to connect");
                         }
 
-                        // the Process class handles the ELS process
-                        proc = new Process(cfg, context);
-                        proc.process();
+                        // handle -n | --navigator to display the Navigator
+                        if (cfg.isNavigator())
+                        {
+                            context.navigator = new Navigator(this, cfg, context);
+                            if (!context.fault)
+                                context.navigator.run();
+                        }
+                        else
+                        {
+                            // the Process class handles the ELS process
+                            proc = new Process(cfg, context);
+                            proc.process();
+                        }
                     }
                     else
                     {
@@ -414,26 +460,6 @@ public class Main
                     cfg.setQuitStatusServer(true);
                     break;
 
-                // handle -n | --navigator to display the Navigator
-                case NAVIGATOR:
-                    logger.info("ELS: Navigator begin, version " + cfg.getProgramVersion());
-                    cfg.dump();
-
-                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
-                    {
-                        context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    }
-
-                    if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
-                    {
-                        context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
-                    }
-
-                    context.navigator = new Navigator(this, cfg, context);
-                    if (!context.fault)
-                        context.navigator.run();
-                    break;
-
                 default:
                     throw new MungeException("Unknown type of execution");
             }
@@ -456,7 +482,7 @@ public class Main
         finally
         {
             // stop stuff
-            if (!isListening && !(cfg.getRemoteFlag() == NAVIGATOR)) // clients
+            if (!isListening && !cfg.isNavigator()) // clients
             {
                 // optionally command status server to quit
                 if (context.statusStty != null)
@@ -491,6 +517,10 @@ public class Main
                         }
                     }
                 });
+            }
+            else
+            {
+                Main.stopVerbiage();
             }
         }
         return returnValue;

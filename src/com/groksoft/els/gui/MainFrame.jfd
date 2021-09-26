@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.4.0.360" Java: "11.0.11" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.4.0.360" Java: "11.0.12" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -24,17 +24,17 @@ new FormModel {
 				"axis": 3
 			} ) {
 				name: "panelMain"
-				"preferredSize": new java.awt.Dimension( 1020, 560 )
 				add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 					name: "tabbedPaneMain"
 					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 						name: "splitPaneBrowser"
-						"dividerLocation": 450
 						"orientation": 0
 						"lastDividerLocation": 450
+						"minimumSize": new java.awt.Dimension( 54, 56 )
+						"continuousLayout": true
+						"dividerLocation": 450
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 							name: "panelBrowserTop"
-							"preferredSize": new java.awt.Dimension( 1160, 390 )
 							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 								name: "panelLocationAndButtons"
 								add( new FormContainer( "javax.swing.JToolBar", new FormLayoutManager( class javax.swing.JToolBar ) ) {
@@ -87,7 +87,6 @@ new FormModel {
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonBack"
 											"text": "<"
-											"font": new java.awt.Font( "Ubuntu", 0, 13 )
 											"maximumSize": new java.awt.Dimension( 36, 30 )
 											"minimumSize": new java.awt.Dimension( 36, 30 )
 											"preferredSize": new java.awt.Dimension( 36, 30 )
@@ -98,7 +97,6 @@ new FormModel {
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonForward"
 											"text": ">"
-											"font": new java.awt.Font( "Ubuntu", 0, 13 )
 											"maximumSize": new java.awt.Dimension( 36, 30 )
 											"minimumSize": new java.awt.Dimension( 36, 30 )
 											"preferredSize": new java.awt.Dimension( 36, 30 )
@@ -143,18 +141,18 @@ new FormModel {
 									"value": "South"
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
-								"value": "North"
+								"value": "First"
 							} )
 							add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 								name: "splitPaneTwoBrowsers"
 								"dividerLocation": 506
 								"lastDividerLocation": 516
-								"resizeWeight": 0.5
 								"preferredSize": new java.awt.Dimension( 812, 390 )
+								"resizeWeight": 0.5
+								"continuousLayout": true
 								add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 									name: "tabbedPaneBrowserOne"
 									"tabPlacement": 2
-									"preferredSize": new java.awt.Dimension( 400, 427 )
 									"focusable": false
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 										name: "panelCollectionOne"
@@ -164,25 +162,24 @@ new FormModel {
 											"dividerLocation": 150
 											"focusable": false
 											"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+											"resizeWeight": 0.5
+											"continuousLayout": true
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneCollectionTreeOne"
-												"preferredSize": &Dimension0 new java.awt.Dimension( 180, 362 )
+												name: "scrollPaneTreeCollectionOne"
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionOne"
 													"focusable": false
-													"preferredSize": new java.awt.Dimension( 101, 380 )
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
 											} )
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneCollectionListOne"
-												"preferredSize": new java.awt.Dimension( 756, 380 )
+												name: "scrollPaneTableCollectionOne"
 												add( new FormComponent( "javax.swing.JTable" ) {
-													name: "tableCollectionListOne"
-													"preferredSize": new java.awt.Dimension( 200, 32 )
-													"preferredScrollableViewportSize": &Dimension1 new java.awt.Dimension( 754, 400 )
+													name: "tableCollectionOne"
+													"preferredScrollableViewportSize": &Dimension0 new java.awt.Dimension( 754, 400 )
 													"focusable": false
+													"fillsViewportHeight": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -200,25 +197,24 @@ new FormModel {
 											name: "splitPaneSystemOne"
 											"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 											"dividerLocation": 150
+											"resizeWeight": 0.5
+											"continuousLayout": true
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneSystemTreeOne"
-												"preferredSize": #Dimension0
+												name: "scrollPaneTreeSystemOne"
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeSystemOne"
 													"focusable": false
-													"preferredSize": new java.awt.Dimension( 101, 380 )
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
 											} )
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneSystemListOne"
-												"preferredSize": new java.awt.Dimension( 756, 380 )
+												name: "scrollPaneTableSystemOne"
 												add( new FormComponent( "javax.swing.JTable" ) {
-													name: "tableSystemListOne"
-													"preferredSize": new java.awt.Dimension( 754, 380 )
-													"preferredScrollableViewportSize": #Dimension1
+													name: "tableSystemOne"
+													"preferredScrollableViewportSize": #Dimension0
 													"focusable": false
+													"fillsViewportHeight": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -235,7 +231,6 @@ new FormModel {
 								add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 									name: "tabbedPaneBrowserTwo"
 									"tabPlacement": 2
-									"preferredSize": new java.awt.Dimension( 400, 380 )
 									"focusable": false
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 										name: "panelCollectionTwo"
@@ -243,26 +238,24 @@ new FormModel {
 											name: "splitPaneCollectionTwo"
 											"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 											"dividerLocation": 150
+											"resizeWeight": 0.5
+											"continuousLayout": true
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneCollectionTreeTwo"
-												"preferredSize": new java.awt.Dimension( 180, 380 )
+												name: "scrollPaneTreeCollectionTwo"
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionTwo"
 													"focusable": false
-													"requestFocusEnabled": false
-													"preferredSize": new java.awt.Dimension( 101, 380 )
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
 											} )
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneCollectionListTwo"
-												"preferredSize": new java.awt.Dimension( 756, 380 )
+												name: "scrollPaneTableCollectionTwo"
 												add( new FormComponent( "javax.swing.JTable" ) {
-													name: "tableCollectionListTwo"
-													"preferredSize": new java.awt.Dimension( 754, 380 )
-													"preferredScrollableViewportSize": #Dimension1
+													name: "tableCollectionTwo"
+													"preferredScrollableViewportSize": #Dimension0
 													"focusable": false
+													"fillsViewportHeight": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -275,14 +268,14 @@ new FormModel {
 									} )
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 										name: "panelSystemTwo"
-										"preferredSize": new java.awt.Dimension( 946, 380 )
 										add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 											name: "splitPaneSystemTwo"
 											"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 											"dividerLocation": 150
+											"resizeWeight": 0.5
+											"continuousLayout": true
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneSystemTreeTwo"
-												"preferredSize": #Dimension0
+												name: "scrollPaneTreeSystemTwo"
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeSystemTwo"
 													"focusable": false
@@ -291,12 +284,12 @@ new FormModel {
 												"value": "left"
 											} )
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-												name: "scrollPaneSystemListTwo"
+												name: "scrollPaneTableSystemTwo"
 												add( new FormComponent( "javax.swing.JTable" ) {
-													name: "tableSystemListTwo"
-													"preferredSize": new java.awt.Dimension( 200, 32 )
-													"preferredScrollableViewportSize": #Dimension1
+													name: "tableSystemTwo"
+													"preferredScrollableViewportSize": #Dimension0
 													"focusable": false
+													"fillsViewportHeight": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -319,7 +312,7 @@ new FormModel {
 						add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 							name: "tabbedPaneNavigatorBottom"
 							"tabPlacement": 3
-							"preferredSize": new java.awt.Dimension( 70, 170 )
+							"preferredSize": new java.awt.Dimension( 1160, 90 )
 							"focusable": false
 							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 								name: "scrollPaneFind"
@@ -502,19 +495,6 @@ new FormModel {
 					"text": new FormMessage( null, "Navigator.menuTools.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menuTools.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemExternalTools"
-						"text": new FormMessage( null, "Navigator.menuItemExternalTools.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemExternalTools.mnemonic" )
-					} )
-					add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
-						name: "menuRunSubMenu"
-						"text": new FormMessage( null, "Navigator.menuRunSubMenu.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuRunSubMenu.mnemonic" )
-					} )
-					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separatorTools1"
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemDuplicates"
 						"text": new FormMessage( null, "Navigator.menuItemDuplicates.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemDuplicates.mnemonic" )
@@ -527,7 +507,25 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemJunk"
 						"text": new FormMessage( null, "Navigator.menuItemJunk.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemJunk.mnemonic_2" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemJunk.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemTouch"
+						"text": new FormMessage( null, "Navigator.menuItemTouch.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemTouch.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separatorTools1"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemExternalTools"
+						"text": new FormMessage( null, "Navigator.menuItemExternalTools.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemExternalTools.mnemonic" )
+					} )
+					add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
+						name: "menuRunSubMenu"
+						"text": new FormMessage( null, "Navigator.menuRunSubMenu.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuRunSubMenu.mnemonic" )
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {

@@ -240,7 +240,7 @@ public class Utils
         {
             separator = "/";
         }
-        else if (flavor.equalsIgnoreCase(Libraries.APPLE))
+        else if (flavor.equalsIgnoreCase(Libraries.MAC))
         {
             separator = ":";
         }
@@ -343,6 +343,18 @@ public class Utils
             perms = 755;
 
         return perms;
+    }
+
+    public static String getOS()
+    {
+        String os = System.getProperty("os.name");
+        if (os.toLowerCase().startsWith("windows"))
+            os = "Windows";
+        else if (os.toLowerCase().startsWith("mac"))
+            os = "Mac";
+        else
+            os = "Linux";
+        return os;
     }
 
     /**

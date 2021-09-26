@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Vector;
 
 /**
  * ClientSftp -to- ServerSftp
@@ -51,6 +52,13 @@ public class ClientSftp
 
         user = myRepo.getLibraryData().libraries.key;
         password = theirRepo.getLibraryData().libraries.key;
+    }
+
+    public synchronized Vector listDirectory(String directory) throws Exception
+    {
+        logger.info("Listing " + theirRepo.getLibraryData().libraries.description + " directory " + directory);
+        Vector listing = jSftp.ls(directory);
+        return listing;
     }
 
     /**

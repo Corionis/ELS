@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
  */
 public class Libraries
 {
-    public static final String APPLE = "apple";
-    public static final String LINUX = "linux";
-    public static final String WINDOWS = "windows";
+    public static final String MAC = "Mac";
+    public static final String LINUX = "Linux";
+    public static final String WINDOWS = "Windows";
 
     // @formatter:off
     /**
@@ -62,14 +62,14 @@ public class Libraries
     public transient List<Pattern> compiledPatterns = new ArrayList<>();
 
     /**
-     * Storage. v3.0.0
-     */
-    public Location[] locations;
-
-    /**
      * Substitutions. From-side regular expressions are supported.
      */
     public Renaming[] renaming;
+
+    /**
+     * Storage. v3.0.0
+     */
+    public Location[] locations;
 
     /**
      * The list of libraries.

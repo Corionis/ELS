@@ -82,40 +82,43 @@ public class ClientStty
     {
         boolean hasCommands = false;
         String response = receive(); // read opening terminal banner
-        if (!response.startsWith("Enter "))
+        if (!cfg.isNavigator()) // ignore subscriber commands with Navigator
         {
-            String[] cmdSplit = response.split(":");
-            if (cmdSplit.length > 0)
+            if (!response.startsWith("Enter "))
             {
-                if (cmdSplit[0].equals("CMD"))
+                String[] cmdSplit = response.split(":");
+                if (cmdSplit.length > 0)
                 {
-                    for (int i = 1; i < cmdSplit.length; ++i)
+                    if (cmdSplit[0].equals("CMD"))
                     {
-                        if (cmdSplit[i].equals("RequestCollection"))
+                        for (int i = 1; i < cmdSplit.length; ++i)
                         {
-                            hasCommands = true;
-                            cfg.setRequestCollection(true);
-                            String location;
-                            if (cfg.getSubscriberCollectionFilename().length() > 0)
-                                location = cfg.getSubscriberCollectionFilename();
-                            else
-                                location = cfg.getSubscriberLibrariesFileName();
+                            if (cmdSplit[i].equals("RequestCollection"))
+                            {
+                                hasCommands = true;
+                                cfg.setRequestCollection(true);
+                                String location;
+                                if (cfg.getSubscriberCollectionFilename().length() > 0)
+                                    location = cfg.getSubscriberCollectionFilename();
+                                else
+                                    location = cfg.getSubscriberLibrariesFileName();
 
-                            // change cfg -S to -s so -s handling in Transfer.initialize retrieves the data
-                            cfg.setSubscriberLibrariesFileName(location);
-                            cfg.setSubscriberCollectionFilename("");
-                        }
-                        else if (cmdSplit[i].equals("RequestTargets"))
-                        {
-                            hasCommands = true;
-                            cfg.setRequestTargets(true);
+                                // change cfg -S to -s so -s handling in Transfer.initialize retrieves the data
+                                cfg.setSubscriberLibrariesFileName(location);
+                                cfg.setSubscriberCollectionFilename("");
+                            }
+                            else if (cmdSplit[i].equals("RequestTargets"))
+                            {
+                                hasCommands = true;
+                                cfg.setRequestTargets(true);
+                            }
                         }
                     }
                 }
-            }
-            else
-            {
-                throw new MungeException("Unknown banner receive");
+                else
+                {
+                    throw new MungeException("Unknown banner receive");
+                }
             }
         }
         return hasCommands;
