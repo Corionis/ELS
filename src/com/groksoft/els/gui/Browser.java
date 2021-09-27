@@ -102,13 +102,12 @@ public class Browser
         guiContext.form.treeCollectionOne.addTreeWillExpandListener(new TreeWillExpandListener()
         {
             @Override
-            public void treeWillExpand(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
+            public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
             {
-
             }
 
             @Override
-            public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
+            public void treeWillExpand(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavigatorNode node = (NavigatorNode) treePath.getLastPathComponent();
@@ -175,13 +174,12 @@ public class Browser
         guiContext.form.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
         {
             @Override
-            public void treeWillExpand(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
+            public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
             {
-
             }
 
             @Override
-            public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
+            public void treeWillExpand(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavigatorNode node = (NavigatorNode) treePath.getLastPathComponent();
