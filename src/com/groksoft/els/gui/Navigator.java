@@ -4,9 +4,7 @@ import com.groksoft.els.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.io.File;
 import java.util.ResourceBundle;
 
 public class Navigator
@@ -14,8 +12,6 @@ public class Navigator
     private transient Logger logger = LogManager.getLogger("applog");
     ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
 
-    private Configuration cfg;
-    private Context context;
     private Main els;
     private GuiContext guiContext;
 
@@ -34,9 +30,12 @@ public class Navigator
     public Navigator(Main main, Configuration config, Context ctx)
     {
         els = main;
-        cfg = config;
-        context = ctx;
         guiContext = new GuiContext();
+        guiContext.cfg = config;
+        guiContext.context = ctx;
+        guiContext.fileSystemView = FileSystemView.getFileSystemView();
+        guiContext.navigator = this;
+        guiContext.preferences = new Preferences();
     }
 
     /**
@@ -46,25 +45,26 @@ public class Navigator
      */
     private boolean initialize()
     {
-        context.transfer = new Transfer(cfg, context);
+        guiContext.context.transfer = new Transfer(guiContext.cfg, guiContext.context);
         try
         {
-            context.transfer.initialize();
+            guiContext.context.transfer.initialize();
+            guiContext.preferences.initialize();
         }
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            context.fault = true;
+            guiContext.context.fault = true;
             return false;
         }
 
-        guiContext.form = new MainFrame(els, this, cfg, context);
-        if (!context.fault)
+        guiContext.form = new MainFrame(els, this, guiContext.cfg, guiContext.context);
+        if (!guiContext.context.fault)
         {
-            guiContext.browser = new Browser(this, cfg, context, guiContext);
+            guiContext.browser = new Browser(this, guiContext.cfg, guiContext.context, guiContext);
 
         }
-        return !context.fault;
+        return !guiContext.context.fault;
     }
 
     public int run() throws Exception
@@ -93,12 +93,12 @@ public class Navigator
     public void stop()
     {
         // tell remote end to exit
-        if (context.clientStty != null)
+        if (guiContext.context.clientStty != null)
         {
             String resp;
             try
             {
-                resp = context.clientStty.roundTrip("quit");
+                resp = guiContext.context.clientStty.roundTrip("quit");
             }
             catch (Exception e)
             {
@@ -123,16 +123,10 @@ public class Navigator
         }
 
         // stop the program if something blew-up
-        if (context.fault)
+        if (guiContext.context.fault)
         {
             System.exit(1);
         }
-    }
-
-    public class GuiContext
-    {
-        Browser browser;
-        MainFrame form;
     }
 
 }

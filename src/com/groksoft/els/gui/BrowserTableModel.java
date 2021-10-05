@@ -84,26 +84,26 @@ public class BrowserTableModel extends AbstractTableModel
                 if (column == 2)
                     return Long.valueOf(child.getChildCount());
             }
-            else if (userObject instanceof TreeUserObject)
+            else if (userObject instanceof NavTreeUserObject)
             {
                 if (column == 0)
                 {
-                    switch (((TreeUserObject)userObject).type)
+                    switch (((NavTreeUserObject)userObject).type)
                     {
-                        case TreeUserObject.BOX:
+                        case NavTreeUserObject.BOX:
                             break;
-                        case TreeUserObject.COMPUTER:
+                        case NavTreeUserObject.COMPUTER:
                             return UIManager.getIcon("FileView.computerIcon");
-                        case TreeUserObject.DRIVE:
+                        case NavTreeUserObject.DRIVE:
                             return UIManager.getIcon("FileView.hardDriveIcon");
-                        case TreeUserObject.HOME:
+                        case NavTreeUserObject.HOME:
                             return UIManager.getIcon("FileChooser.homeFolderIcon");
-                        case TreeUserObject.BOOKMARKS:
+                        case NavTreeUserObject.BOOKMARKS:
                             return UIManager.getIcon("FileView.floppyDriveIcon");
                     }
                 }
                 if (column == 1)
-                    return ((TreeUserObject) userObject).name;
+                    return ((NavTreeUserObject) userObject).name;
                 if (column == 2)
                     return Long.valueOf(child.getChildCount());
             }

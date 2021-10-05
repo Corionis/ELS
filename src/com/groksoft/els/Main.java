@@ -520,7 +520,7 @@ public class Main
             }
             else
             {
-                Main.stopVerbiage();
+                //Main.stopVerbiage();
             }
         }
         return returnValue;
