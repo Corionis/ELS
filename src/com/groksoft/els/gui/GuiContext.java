@@ -2,6 +2,7 @@ package com.groksoft.els.gui;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
+import com.groksoft.els.Main;
 
 import javax.swing.filechooser.FileSystemView;
 
@@ -11,6 +12,7 @@ import javax.swing.filechooser.FileSystemView;
 public class GuiContext
 {
     // Base ELS
+    Main els;
     Configuration cfg;
     Context context;
 

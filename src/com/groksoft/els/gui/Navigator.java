@@ -12,7 +12,6 @@ public class Navigator
     private transient Logger logger = LogManager.getLogger("applog");
     ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
 
-    private Main els;
     private GuiContext guiContext;
 
     // QUESTION:
@@ -29,10 +28,10 @@ public class Navigator
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
-        els = main;
         guiContext = new GuiContext();
         guiContext.cfg = config;
         guiContext.context = ctx;
+        guiContext.els = main;
         guiContext.fileSystemView = FileSystemView.getFileSystemView();
         guiContext.navigator = this;
         guiContext.preferences = new Preferences();
@@ -58,11 +57,10 @@ public class Navigator
             return false;
         }
 
-        guiContext.form = new MainFrame(els, this, guiContext.cfg, guiContext.context);
+        guiContext.form = new MainFrame(guiContext);
         if (!guiContext.context.fault)
         {
-            guiContext.browser = new Browser(this, guiContext.cfg, guiContext.context, guiContext);
-
+            guiContext.browser = new Browser(guiContext);
         }
         return !guiContext.context.fault;
     }

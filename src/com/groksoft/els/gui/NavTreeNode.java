@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -20,19 +21,40 @@ class NavTreeNode extends DefaultMutableTreeNode
     private GuiContext guiContext;
     private boolean loaded = false;
     private transient Logger logger = LogManager.getLogger("applog");
+    private JLabel myStatus;
+    private JTable myTable;
     private JTree myTree;
     private boolean refresh = true;
     private boolean visible = true;
+
     private NavTreeNode()
     {
         // hide default constructor
     }
+
     public NavTreeNode(GuiContext guiContext, JTree tree, Object userObject)
     {
         super(userObject, true);
         this.guiContext = guiContext;
         this.myTree = tree;
         this.visible = true;
+        if (tree.getName().equalsIgnoreCase("treeCollectionOne"))
+        {
+            this.myTable = guiContext.form.tableCollectionOne;
+            this.myStatus = guiContext.form.labelStatusLeft;
+        }
+        else if (tree.getName().equalsIgnoreCase("treeSystemOne"))
+        {
+            this.myTable = guiContext.form.tableSystemOne;
+        }
+        else if (tree.getName().equalsIgnoreCase("treeCollectionTwo"))
+        {
+            this.myTable = guiContext.form.tableCollectionTwo;
+        }
+        else if (tree.getName().equalsIgnoreCase("treeSystemTwo"))
+        {
+            this.myTable = guiContext.form.tableSystemTwo;
+        }
     }
 
     public TreeNode getChildAt(int index, boolean filterIsActive)
@@ -142,39 +164,41 @@ class NavTreeNode extends DefaultMutableTreeNode
 
         SwingWorker<List<NavTreeNode>, Void> worker = new SwingWorker<List<NavTreeNode>, Void>()
         {
+            NavTreeUserObject myTuo;
             List<NavTreeNode> nodeArray;
+
             @Override
             protected List<NavTreeNode> doInBackground() throws Exception
             {
                 nodeArray = new ArrayList<NavTreeNode>();
-                NavTreeUserObject tuo = (NavTreeUserObject) getUserObject();
-                switch (tuo.type)
+                myTuo = (NavTreeUserObject) getUserObject();
+                switch (myTuo.type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
                         logger.info("bookmarks");
                         break;
-                    case NavTreeUserObject.BOX:
+                    case NavTreeUserObject.BOX: // for completeness, hidden & never clicked
                         logger.debug("box");
                         break;
-                    case NavTreeUserObject.COMPUTER:
+                    case NavTreeUserObject.COMPUTER: // virtual node, not processed
                         logger.debug("computer");
                         break;
                     case NavTreeUserObject.DRIVE:
-                        logger.debug("scanning local drive " + tuo.path);
-                        scan(new File(tuo.path).getAbsoluteFile());
+                        logger.debug("scanning local drive " + myTuo.path);
+                        scan(new File(myTuo.path).getAbsoluteFile());
                         break;
                     case NavTreeUserObject.HOME:
-                        File file = new File(tuo.path);
+                        File file = new File(myTuo.path);
                         if (file.isDirectory())
                         {
-                            logger.debug("scanning home directory " + tuo.path);
+                            logger.debug("scanning home directory " + myTuo.path);
                             scan(file.getAbsoluteFile());
                         }
                         break;
                     case NavTreeUserObject.LIBRARY:
-                        if (tuo.sources != null && tuo.sources.length > 0)
+                        if (myTuo.sources != null && myTuo.sources.length > 0)
                         {
-                            for (String path : tuo.sources)
+                            for (String path : myTuo.sources)
                             {
                                 // FIXME: Duplicates appear of shows spread across one than one drive
                                 if (guiContext.cfg.isRemoteSession() && myTree.getName().equalsIgnoreCase("treeCollectionTwo"))
@@ -193,25 +217,24 @@ class NavTreeNode extends DefaultMutableTreeNode
 //                        ((InvisibleTreeModel) tree.getModel()).reload(node);
                         break;
                     case NavTreeUserObject.REAL:
-                        if (tuo.file.isDirectory())
+                        if (myTuo.file.isDirectory())
                         {
-                            logger.debug("scanning local directory " + tuo.file.getAbsolutePath());
-                            // QUESTION Iterate children??
-                            scan(tuo.file.getAbsoluteFile());
+                            logger.debug("scanning local directory " + myTuo.file.getAbsolutePath());
+                            scan(myTuo.file.getAbsoluteFile());
                         }
                         break;
                     case NavTreeUserObject.REMOTE:
-                        if (tuo.isDir)
+                        if (myTuo.isDir)
                         {
                             if (guiContext.cfg.isRemoteSession() && myTree.getName().equalsIgnoreCase("treeCollectionTwo"))
                             {
-                                logger.debug("scanning remote directory " + tuo.path);
-                                scanRemote(tuo.path);
+                                logger.debug("scanning remote directory " + myTuo.path);
+                                scanRemote(myTuo.path);
                             }
                             else
                             {
-                                logger.debug("scanning local folder " + tuo.path);
-                                scan(new File(tuo.path).getAbsoluteFile());
+                                logger.debug("scanning local folder " + myTuo.path);
+                                scan(new File(myTuo.path).getAbsoluteFile());
                             }
 //                            sortTree(node);
 //                            ((InvisibleTreeModel) tree.getModel()).reload(node);
@@ -226,8 +249,11 @@ class NavTreeNode extends DefaultMutableTreeNode
             {
                 try
                 {
+                    if (myTuo.type != NavTreeUserObject.COMPUTER)
+                    {
+                        setChildren(get());
+                    }
                     NavTreeModel model = (NavTreeModel) myTree.getModel();
-                    setChildren(get());
                     model.nodeStructureChanged(NavTreeNode.this);
                 }
                 catch (Exception e)
@@ -238,45 +264,11 @@ class NavTreeNode extends DefaultMutableTreeNode
                     guiContext.context.fault = true;
                     guiContext.navigator.stop();
                 }
-                //node.setRefresh(false);
-//                sortTree(node);
 
-                logger.info(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(true) + " node(s)");
-
-                //((NavigatorTreeModel)tree.getModel();
-                //model.nodeStructureChanged(NavTreeNode.this);
-                //((NavigatorTreeModel) tree.getModel()).reload(selectedNode);
-                //myTree.setEnabled(true);
-
-//                ((NavigatorTreeModel) tree.getModel()).reload();
-
-                //progressBar.setIndeterminate(false);
-                //progressBar.setVisible(false);
+                logger.debug(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(false) + " node(s)");
                 super.done();
-//                tree.expandPath(treePath);  // IDEA: Could be a one-click option
+                //myTree.expandPath(getTreePath());  // IDEA: Could be a one-click option
             }
-
-/*
-            @Override
-            protected void process(List<NavTreeUserObject> chunks)
-            {
-                for (NavTreeUserObject child : chunks)
-                {
-                    NavTreeNode nn = new NavTreeNode(guiContext, myTree, child);
-                    if (child.isDir)
-                    {
-                        nn.setAllowsChildren(true);
-                    }
-                    else
-                    {
-                        nn.setAllowsChildren(false);
-                        //nn.setRefresh(false);
-                    }
-                    add(nn);
-                    logger.info("  added " + child.getType() + ": " + ((NavTreeUserObject) getUserObject()).name + " -> " + child.name);
-                }
-            }
-*/
 
             protected void scan(File file)
             {
@@ -285,23 +277,17 @@ class NavTreeNode extends DefaultMutableTreeNode
                     File[] files = guiContext.fileSystemView.getFiles(file, true);
                     sortFiles(files);
                     logger.info("found " + files.length + " entries from " + file.getAbsolutePath());
-                    //if (isLeaf())
+                    for (File entry : files)
                     {
-                        for (File entry : files)
+                        //if (entry.isDirectory())
                         {
-                            if (entry.isDirectory())
-                            {
-                                NavTreeUserObject tuo = new NavTreeUserObject(entry.getName(), entry);
-                                nodeArray.add(new NavTreeNode(guiContext, myTree, tuo));
-                            }
+                            NavTreeUserObject tuo = new NavTreeUserObject(entry.getName(), entry);
+                            NavTreeNode node = new NavTreeNode(guiContext, myTree, tuo);
+                            if (!entry.isDirectory())
+                                node.setVisible(false);
+                            nodeArray.add(node);
                         }
                     }
-//                    else
-//                    {
-//                        logger.info("Not scanning: " + file.getAbsolutePath());
-//                    }
-                    //setTableData(files);
-                    //loadTable(guiContext.form.treeCollectionOne, guiContext.form.tableCollectionOne, (InvisibleNode) node);
                 }
             }
 
@@ -310,27 +296,22 @@ class NavTreeNode extends DefaultMutableTreeNode
                 try
                 {
                     Vector listing = guiContext.context.clientSftp.listDirectory(target);
-                    //if (node.isLeaf())
+                    logger.info("received " + listing.size() + " entries from " + target);
+                    for (int i = 0; i < listing.size(); ++i)
                     {
-                        logger.info("received " + listing.size() + " entries from " + target);
-                        for (int i = 0; i < listing.size(); ++i)
+                        ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
+                        if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
                         {
-                            ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
-                            if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
+                            SftpATTRS a = entry.getAttrs();
+                            if (a.isDir())
                             {
-                                SftpATTRS a = entry.getAttrs();
-                                if (a.isDir())
-                                {
-                                    NavTreeUserObject tuo = new NavTreeUserObject(entry.getFilename(),
-                                            target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
-                                            a.getSize(), a.getMTime(), a.isDir());
-                                    nodeArray.add(new NavTreeNode(guiContext, myTree, tuo));
-                                }
+                                NavTreeUserObject tuo = new NavTreeUserObject(entry.getFilename(),
+                                        target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
+                                        a.getSize(), a.getMTime(), a.isDir());
+                                nodeArray.add(new NavTreeNode(guiContext, myTree, tuo));
                             }
                         }
                     }
-                    //setTableData(files);
-                    //loadTable(guiContext.form.treeCollectionOne, guiContext.form.tableCollectionOne, (InvisibleNode) node);
                 }
                 catch (Exception e)
                 {
@@ -346,6 +327,46 @@ class NavTreeNode extends DefaultMutableTreeNode
         worker.execute();
     }
 
+    protected void loadStatus()
+    {
+        if (myStatus != null)
+            myStatus.setText(getChildCount(false) + " items");
+    }
+
+    protected void loadTable()
+    {
+        TableColumn column;
+        myTable.setModel(new BrowserTableModel(this));
+
+        // tweak the columns
+        // TODO Add remembering & restoring each table's column widths, etc.
+        for (int i = 0; i < myTable.getColumnCount(); ++i)
+        {
+            column = myTable.getColumnModel().getColumn(i);
+            switch (i)
+            {
+                case 0:
+                    column.setResizable(false);
+                    column.setWidth(22);
+                    column.setPreferredWidth(22);
+                    column.setMaxWidth(22);
+                    column.setMinWidth(22);
+                    break;
+                case 1:
+                    column.setResizable(true);
+                    break;
+                case 2:
+                    column.setResizable(true);
+                    break;
+                case 3:
+                    column.setResizable(true);
+                    break;
+            }
+        }
+
+        loadStatus();
+    }
+
     protected void setChildren(List<NavTreeNode> children)
     {
         if (children != null)
@@ -357,7 +378,8 @@ class NavTreeNode extends DefaultMutableTreeNode
                 add(ntn);
             }
         }
-        loaded = true;
+        loadTable();
+        setLoaded(true);
     }
 
     public void setLoaded(boolean loaded)

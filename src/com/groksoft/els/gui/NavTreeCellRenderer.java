@@ -1,7 +1,5 @@
 package com.groksoft.els.gui;
 
-import com.groksoft.els.repository.Item;
-
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
@@ -16,23 +14,17 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-        // FileChooser.homeFolderIcon  +
-        // FileView.computerIcon  +
-        // FileView.directoryIcon
-        // FileView.fileIcon
-        // FileView.floppyDriveIcon
-        // FileView.hardDriveIcon
         if (value instanceof NavTreeNode)
         {
             NavTreeNode node = (NavTreeNode) value;
             if (node.getUserObject() instanceof String)
             {
-                setIcon(UIManager.getIcon("FileChooser.homeFolderIcon"));
+                setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
             }
             else if (node.getUserObject() instanceof NavTreeUserObject)
             {
-                NavTreeUserObject tso = (NavTreeUserObject) node.getUserObject();
-                switch (tso.type)
+                NavTreeUserObject tuo = (NavTreeUserObject) node.getUserObject();
+                switch (tuo.type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
                         setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
@@ -49,34 +41,33 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         setIcon(UIManager.getIcon("FileChooser.homeFolderIcon"));
                         break;
                     case NavTreeUserObject.LIBRARY:
-                        setIcon(UIManager.getIcon("FileChooser.directoryIcon"));
+                        setIcon(UIManager.getIcon("FileView.directoryIcon"));
                         break;
                     case NavTreeUserObject.REAL:
-                        if (tso.file != null && tso.file.isDirectory())
-                            setIcon(UIManager.getIcon("FileChooser.directoryIcon"));
+                        if (tuo.file != null && tuo.file.isDirectory())
+                            setIcon(UIManager.getIcon("FileView.directoryIcon"));
                         else
                             setIcon(UIManager.getIcon("FileView.fileIcon"));
                         break;
                     case NavTreeUserObject.REMOTE:
-                        if (tso.isDir)
-                            setIcon(UIManager.getIcon("FileChooser.directoryIcon"));
+                        if (tuo.isDir)
+                            setIcon(UIManager.getIcon("FileView.directoryIcon"));
                         else
                             setIcon(UIManager.getIcon("FileView.fileIcon"));
                         break;
+                    default:
+                        setIcon(UIManager.getIcon("InternalFrame.closeIcon")); // something that looks like an error
+                        break;
                 }
             }
-            else if (node.getUserObject() instanceof Item)
+            else
             {
-                Item item = (Item) node.getUserObject();
-                if (item.isDirectory())
-                {
-                    setIcon(UIManager.getIcon("FileView.directoryIcon"));
-                }
-                else
-                {
-                    setIcon(UIManager.getIcon("FileView.fileIcon"));
-                }
+                setIcon(UIManager.getIcon("InternalFrame.closeIcon")); // something that looks like an error
             }
+        }
+        else
+        {
+            setIcon(UIManager.getIcon("InternalFrame.closeIcon")); // something that looks like an error
         }
         return this;
     }

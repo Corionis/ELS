@@ -40,11 +40,11 @@ public class NavTreeUserObject implements Serializable
         this.type = REMOTE;
     }
 
-    public NavTreeUserObject(String aName, String path, int aType)
+    public NavTreeUserObject(String name, String path, int type)
     {
-        this.name = aName;
+        this.name = name;
         this.path = path;
-        this.type = aType;
+        this.type = type;
     }
 
     public NavTreeUserObject(String name, String[] sources)

@@ -36,27 +36,16 @@ public class MainFrame extends JFrame
 {
     private transient Logger logger = LogManager.getLogger("applog");
     private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
-    private Configuration cfg;
-    private Context context;
-    private Main els;
-    private Navigator navigator;
+    private GuiContext guiContext;
     private LookAndFeel laf;
 
-    // 0=System default look 'n feel, use for Windows,
-    // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
-    // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
-    private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
-
-    public MainFrame(Main main, Navigator nav, Configuration config, Context ctx)
+    public MainFrame(GuiContext guiContext)
     {
-        els = main;
-        navigator = nav;
-        cfg = config;
-        context = ctx;
+        this.guiContext = guiContext;
 
         try
         {
-            if (lafStyle == 0)
+            if (guiContext.preferences.getLafStyle() == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
             {
@@ -88,13 +77,13 @@ public class MainFrame extends JFrame
         catch(Exception ex)
         {
             logger.error(Utils.getStackTrace(ex));
-            context.fault = true;
+            guiContext.context.fault = true;
         }
     }
 
     private LookAndFeel getLookAndFeel()
     {
-        switch (lafStyle)
+        switch (guiContext.preferences.getLafStyle())
         {
             // Built-in themes
             case 1:
@@ -123,7 +112,7 @@ public class MainFrame extends JFrame
 
     private void menuItemFileQuitActionPerformed(ActionEvent e)
     {
-        navigator.stop();
+        guiContext.navigator.stop();
     }
 
     private void SaveActionPerformed(ActionEvent e)
@@ -133,7 +122,7 @@ public class MainFrame extends JFrame
 
     private void thisWindowClosing(WindowEvent e)
     {
-        navigator.stop();
+        guiContext.navigator.stop();
     }
 
     // <editor-fold desc="Generated code (Fold)">

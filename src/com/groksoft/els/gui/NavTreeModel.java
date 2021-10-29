@@ -14,7 +14,7 @@ class NavTreeModel extends DefaultTreeModel
 
     public NavTreeModel(TreeNode root, boolean asksAllowsChildren)
     {
-        this(root, asksAllowsChildren, false);
+        this(root, asksAllowsChildren, true);
     }
 
     public NavTreeModel(TreeNode root, boolean asksAllowsChildren, boolean filterIsActive)
