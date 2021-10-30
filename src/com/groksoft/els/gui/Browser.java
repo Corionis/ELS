@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
@@ -66,14 +65,38 @@ public class Browser
         progressBar.setVisible(false);
 
         // --- BrowserOne ------------------------------------------
+        //
+        // --- tab selection handler
+        guiContext.form.tabbedPaneBrowserOne.addChangeListener(new ChangeListener()
+        {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent)
+            {
+                JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
+                NavTreeModel model = null;
+                NavTreeNode node = null;
+                switch (pane.getSelectedIndex())
+                {
+                    case 0:
+                        model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
+                        node = (NavTreeNode) guiContext.form.treeCollectionOne.getLastSelectedPathComponent();
+                        break;
+                    case 1:
+                        model = (NavTreeModel) guiContext.form.treeSystemOne.getModel();
+                        node = (NavTreeNode) guiContext.form.treeSystemOne.getLastSelectedPathComponent();
+                        break;
+                }
+                if (node == null)
+                    node = (NavTreeNode) model.getRoot();
+                node.loadStatus();
+            }
+        });
+
         // --- treeCollectionOne
         guiContext.form.treeCollectionOne.setName("treeCollectionOne");
         if (guiContext.context.publisherRepo != null && guiContext.context.publisherRepo.isInitialized())
         {
             loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo);
-//            loadTable(guiContext.form.treeCollectionOne,
-//                    guiContext.form.tableCollectionOne,
-//                    (NavTreeNode) guiContext.form.treeCollectionOne.getModel().getRoot());
         }
         else
         {
@@ -93,8 +116,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                //guiContext.form.labelStatusLeft.setText(node.getChildCount(false) + " items");
-                node.loadChildren();
+                node.loadChildren(false);
             }
         });
         //
@@ -107,22 +129,15 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 if (!node.isLoaded())
-                    node.loadChildren();
+                    node.loadChildren(true);
                 else
                     node.loadTable();
-//                    loadTable(guiContext.form.treeCollectionOne,
-//                            guiContext.form.tableCollectionOne,
-//                            node);
-                //guiContext.form.labelStatusLeft.setText(node.getChildCount(false) + " items");
             }
         });
 
         // --- treeSystemOne
         guiContext.form.treeSystemOne.setName("treeSystemOne");
         loadSystemTree(guiContext.form.treeSystemOne, System.getProperty("user.name"));
-//        loadTable(guiContext.form.treeSystemOne,
-//                guiContext.form.tableSystemOne,
-//                (NavTreeNode) guiContext.form.treeSystemOne.getModel().getRoot());
         //
         // treeSystemOne tree expansion event handlers
         guiContext.form.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -137,8 +152,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                //guiContext.form.labelStatusLeft.setText(node.getChildCount(false) + " items");
-                node.loadChildren();
+                node.loadChildren(false);
             }
         });
         //
@@ -151,13 +165,9 @@ public class Browser
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
                 if (!node.isLoaded())
-                    node.loadChildren();
+                    node.loadChildren(true);
                 else
                     node.loadTable();
-//                loadTable(guiContext.form.treeSystemOne,
-//                        guiContext.form.tableSystemOne,
-//                        node);
-                //guiContext.form.labelStatusLeft.setText(node.getChildCount(false) + " items");
             }
         });
 
@@ -254,6 +264,10 @@ public class Browser
         });
 */
 
+        NavTreeModel model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
+        NavTreeNode root = (NavTreeNode) model.getRoot();
+        root.loadStatus();
+
         return true;
     }
 
@@ -261,7 +275,7 @@ public class Browser
     {
         try
         {
-            setCollectionRoot(tree, repo.getLibraryData().libraries.description);
+            NavTreeNode root = setCollectionRoot(tree, repo.getLibraryData().libraries.description);
             Arrays.sort(repo.getLibraryData().libraries.bibliography);
             switch (styleOne)
             {
@@ -276,6 +290,7 @@ public class Browser
                     break;
             }
             ((NavTreeModel) tree.getModel()).reload();
+            root.loadTable();
         }
         catch (Exception e)
         {
@@ -288,15 +303,17 @@ public class Browser
     {
         try
         {
+            NavTreeNode root = null;
             switch (styleTwo)
             {
                 case STYLE_SYSTEM_ALL:
-                    styleSystemAll(tree, initialLocation);
+                    root = styleSystemAll(tree, initialLocation);
                     break;
                 default:
                     break;
             }
             ((NavTreeModel) tree.getModel()).reload();
+            root.loadTable();
         }
         catch (Exception e)
         {
@@ -305,43 +322,10 @@ public class Browser
         }
     }
 
-/*
-    private void loadTable(JTree tree, JTable table, NavTreeNode startNode)
+    private NavTreeNode setCollectionRoot(JTree tree, String title)
     {
-        TableColumn column;
-        table.setModel(new BrowserTableModel(startNode));
-
-        // tweak the columns
-        // TODO Add remembering & restoring each table's column widths, etc.
-        for (int i = 0; i < table.getColumnCount(); ++i)
-        {
-            column = table.getColumnModel().getColumn(i);
-            switch (i)
-            {
-                case 0:
-                    column.setResizable(false);
-                    column.setWidth(22);
-                    column.setPreferredWidth(22);
-                    column.setMaxWidth(22);
-                    column.setMinWidth(22);
-                    break;
-                case 1:
-                    column.setResizable(true);
-                    break;
-                case 2:
-                    column.setResizable(true);
-                    break;
-                case 3:
-                    column.setResizable(true);
-                    break;
-            }
-        }
-    }
-*/
-
-    private void setCollectionRoot(JTree tree, String title)
-    {
-        NavTreeNode root = new NavTreeNode(guiContext, tree, title);
+        NavTreeUserObject tuo = new NavTreeUserObject(title, NavTreeUserObject.COLLECTION);
+        NavTreeNode root = new NavTreeNode(guiContext, tree, tuo);
         root.setAllowsChildren(true);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(true);
@@ -350,6 +334,7 @@ public class Browser
         tree.setShowsRootHandles(true);
         tree.setLargeModel(true);
         tree.setModel(model);
+        return root;
     }
 
     private void styleCollectionAll(JTree tree, Repository repo) throws Exception
@@ -361,25 +346,25 @@ public class Browser
             NavTreeUserObject tuo = new NavTreeUserObject(lib.name, lib.sources);
             NavTreeNode node = new NavTreeNode(guiContext, tree, tuo);
             root.add(node);
-            node.loadChildren();
+            node.loadChildren(false);
         }
-        root.loadTable();
+        root.setLoaded(true);
     }
 
-    private void styleSystemAll(JTree tree, String initialLocation) throws Exception
+    private NavTreeNode styleSystemAll(JTree tree, String initialLocation) throws Exception
     {
         /*
-         * BookMarks
-         *   Entry
          * Computer
          *   Drive /
          * Home
          *   Directory trh
+         * BookMarks
+         *   Entry
          */
         // TODO Change to externalized strings
 
-        // setup new invisible root for Computer & Bookmarks
-        NavTreeUserObject tuo = new NavTreeUserObject("Box", NavTreeUserObject.BOX);
+        // setup new invisible root for Computer, Home & Bookmarks
+        NavTreeUserObject tuo = new NavTreeUserObject("System", NavTreeUserObject.SYSTEM);
         NavTreeNode root = new NavTreeNode(guiContext, tree, tuo);
         root.setAllowsChildren(true);
         NavTreeModel model = new NavTreeModel(root, true);
@@ -407,8 +392,9 @@ public class Browser
             tuo = new NavTreeUserObject(drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE);
             NavTreeNode node = new NavTreeNode(guiContext, tree, tuo);
             rootNode.add(node);
-            node.loadChildren();
+            node.loadChildren(false);
         }
+        rootNode.setLoaded(true);
 
         if (tree.getName().equalsIgnoreCase("treeSystemOne"))
         {
@@ -417,7 +403,7 @@ public class Browser
             NavTreeNode homeNode = new NavTreeNode(guiContext, tree, tuo);
             homeNode.setAllowsChildren(true);
             root.add(homeNode);
-            homeNode.loadChildren();
+            homeNode.loadChildren(false);
         }
 
         // add Bookmarks root node
@@ -426,7 +412,9 @@ public class Browser
         bookNode.setAllowsChildren(true);
         root.add(bookNode);
         ////////////////////////////bookNode.loadChildren();
-    }
 
+        root.setLoaded(true);
+        return root;
+    }
 
 }

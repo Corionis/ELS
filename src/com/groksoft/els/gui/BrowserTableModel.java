@@ -91,8 +91,8 @@ public class BrowserTableModel extends AbstractTableModel
                     {
                         case NavTreeUserObject.BOOKMARKS:
                             return UIManager.getIcon("FileView.floppyDriveIcon");
-                        case NavTreeUserObject.BOX:
-                            break;
+                        case NavTreeUserObject.COLLECTION:
+                            return UIManager.getIcon("FileChooser.homeFolderIcon");
                         case NavTreeUserObject.COMPUTER:
                             return UIManager.getIcon("FileView.computerIcon");
                         case NavTreeUserObject.DRIVE:
@@ -111,6 +111,8 @@ public class BrowserTableModel extends AbstractTableModel
                                 return UIManager.getIcon("FileView.directoryIcon");
                             else
                                 return UIManager.getIcon("FileView.fileIcon");
+                        case NavTreeUserObject.SYSTEM:
+                            break;
                         default:
                             return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
                     }
@@ -123,8 +125,8 @@ public class BrowserTableModel extends AbstractTableModel
                     {
                         case NavTreeUserObject.BOOKMARKS:
                             return Long.valueOf(child.getChildCount());
-                        case NavTreeUserObject.BOX:
-                            break;
+                        case NavTreeUserObject.COLLECTION:
+                            return Long.valueOf(child.getChildCount());
                         case NavTreeUserObject.COMPUTER:
                             return Long.valueOf(child.getChildCount());
                         case NavTreeUserObject.DRIVE:
@@ -152,6 +154,8 @@ public class BrowserTableModel extends AbstractTableModel
                             if (((NavTreeUserObject) userObject).isDir)
                                 return null;
                             return ((NavTreeUserObject) userObject).size;
+                        case NavTreeUserObject.SYSTEM:
+                            break;
                         default:
                             return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
 
@@ -163,7 +167,7 @@ public class BrowserTableModel extends AbstractTableModel
                     {
                         case NavTreeUserObject.BOOKMARKS:
                             break;
-                        case NavTreeUserObject.BOX:
+                        case NavTreeUserObject.COLLECTION:
                             break;
                         case NavTreeUserObject.COMPUTER:
                             break;
@@ -187,6 +191,8 @@ public class BrowserTableModel extends AbstractTableModel
                             break;
                         case NavTreeUserObject.REMOTE:
                             return ((NavTreeUserObject) userObject).fileTime;
+                        case NavTreeUserObject.SYSTEM:
+                            break;
                         default:
                             return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
 

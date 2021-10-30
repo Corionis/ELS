@@ -17,11 +17,7 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
         if (value instanceof NavTreeNode)
         {
             NavTreeNode node = (NavTreeNode) value;
-            if (node.getUserObject() instanceof String)
-            {
-                setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
-            }
-            else if (node.getUserObject() instanceof NavTreeUserObject)
+            if (node.getUserObject() instanceof NavTreeUserObject)
             {
                 NavTreeUserObject tuo = (NavTreeUserObject) node.getUserObject();
                 switch (tuo.type)
@@ -29,7 +25,8 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                     case NavTreeUserObject.BOOKMARKS:
                         setIcon(UIManager.getIcon("FileView.floppyDriveIcon"));
                         break;
-                    case NavTreeUserObject.BOX:
+                    case NavTreeUserObject.COLLECTION:
+                        setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
                         break;
                     case NavTreeUserObject.COMPUTER:
                         setIcon(UIManager.getIcon("FileView.computerIcon"));
@@ -54,6 +51,9 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                             setIcon(UIManager.getIcon("FileView.directoryIcon"));
                         else
                             setIcon(UIManager.getIcon("FileView.fileIcon"));
+                        break;
+                    case NavTreeUserObject.SYSTEM:
+                        // hidden node
                         break;
                     default:
                         setIcon(UIManager.getIcon("InternalFrame.closeIcon")); // something that looks like an error

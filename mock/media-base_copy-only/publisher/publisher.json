@@ -23,7 +23,8 @@
 			{
 				"name": "TV Shows",
 				"sources": [
-					"test/publisher/media/TV Shows"
+					"test/publisher/media/TV Shows",
+					"test/publisher/more-media/TV Shows"
 				]
 			},
 			{

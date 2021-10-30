@@ -7,7 +7,7 @@ public class Preferences
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
     private boolean sortCaseInsensitive = true;
-    private boolean sortFoldersBeforeFiles = true;
+    private boolean sortFoldersBeforeFiles = false;
     private boolean sortReverse = false;
 
     public int getLafStyle()

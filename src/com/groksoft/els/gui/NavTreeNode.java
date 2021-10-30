@@ -46,14 +46,17 @@ class NavTreeNode extends DefaultMutableTreeNode
         else if (tree.getName().equalsIgnoreCase("treeSystemOne"))
         {
             this.myTable = guiContext.form.tableSystemOne;
+            this.myStatus = guiContext.form.labelStatusLeft;
         }
         else if (tree.getName().equalsIgnoreCase("treeCollectionTwo"))
         {
             this.myTable = guiContext.form.tableCollectionTwo;
+            this.myStatus = guiContext.form.labelStatusRight;
         }
         else if (tree.getName().equalsIgnoreCase("treeSystemTwo"))
         {
             this.myTable = guiContext.form.tableSystemTwo;
+            this.myStatus = guiContext.form.labelStatusRight;
         }
     }
 
@@ -134,6 +137,9 @@ class NavTreeNode extends DefaultMutableTreeNode
     @Override
     public boolean isLeaf()
     {
+        NavTreeUserObject tuo = (NavTreeUserObject) getUserObject();
+        if (tuo != null)
+            return !tuo.isDir;
         return false;
     }
 
@@ -152,7 +158,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         return visible;
     }
 
-    public void loadChildren()
+    public void loadChildren(boolean doLoadTable)
     {
         // return if items exist and refresh is not needed (it's already been scanned), or
         // if a fault occurred (to avoid cascading exceptions)
@@ -177,8 +183,11 @@ class NavTreeNode extends DefaultMutableTreeNode
                     case NavTreeUserObject.BOOKMARKS:
                         logger.info("bookmarks");
                         break;
-                    case NavTreeUserObject.BOX: // for completeness, hidden & never clicked
-                        logger.debug("box");
+                    case NavTreeUserObject.SYSTEM: // for completeness, hidden
+                        logger.debug("system");
+                        break;
+                    case NavTreeUserObject.COLLECTION:
+                        logger.debug("collection"); // root of collection
                         break;
                     case NavTreeUserObject.COMPUTER: // virtual node, not processed
                         logger.debug("computer");
@@ -200,7 +209,6 @@ class NavTreeNode extends DefaultMutableTreeNode
                         {
                             for (String path : myTuo.sources)
                             {
-                                // FIXME: Duplicates appear of shows spread across one than one drive
                                 if (guiContext.cfg.isRemoteSession() && myTree.getName().equalsIgnoreCase("treeCollectionTwo"))
                                 {
                                     logger.debug("scanning remote library " + path);
@@ -213,8 +221,6 @@ class NavTreeNode extends DefaultMutableTreeNode
                                 }
                             }
                         }
-//                        sortTree(node);
-//                        ((InvisibleTreeModel) tree.getModel()).reload(node);
                         break;
                     case NavTreeUserObject.REAL:
                         if (myTuo.file.isDirectory())
@@ -236,8 +242,6 @@ class NavTreeNode extends DefaultMutableTreeNode
                                 logger.debug("scanning local folder " + myTuo.path);
                                 scan(new File(myTuo.path).getAbsoluteFile());
                             }
-//                            sortTree(node);
-//                            ((InvisibleTreeModel) tree.getModel()).reload(node);
                         }
                         break;
                 }
@@ -249,9 +253,9 @@ class NavTreeNode extends DefaultMutableTreeNode
             {
                 try
                 {
-                    if (myTuo.type != NavTreeUserObject.COMPUTER)
+                    if (myTuo.type != NavTreeUserObject.COMPUTER && myTuo.type != NavTreeUserObject.COLLECTION)
                     {
-                        setChildren(get());
+                        setChildren(get(), doLoadTable);
                     }
                     NavTreeModel model = (NavTreeModel) myTree.getModel();
                     model.nodeStructureChanged(NavTreeNode.this);
@@ -275,18 +279,15 @@ class NavTreeNode extends DefaultMutableTreeNode
                 if (file.isDirectory())
                 {
                     File[] files = guiContext.fileSystemView.getFiles(file, true);
-                    sortFiles(files);
+                    //sortFiles(files);
                     logger.info("found " + files.length + " entries from " + file.getAbsolutePath());
                     for (File entry : files)
                     {
-                        //if (entry.isDirectory())
-                        {
-                            NavTreeUserObject tuo = new NavTreeUserObject(entry.getName(), entry);
-                            NavTreeNode node = new NavTreeNode(guiContext, myTree, tuo);
-                            if (!entry.isDirectory())
-                                node.setVisible(false);
-                            nodeArray.add(node);
-                        }
+                        NavTreeUserObject tuo = new NavTreeUserObject(entry.getName(), entry);
+                        NavTreeNode node = new NavTreeNode(guiContext, myTree, tuo);
+                        if (!entry.isDirectory())
+                            node.setVisible(false);
+                        nodeArray.add(node);
                     }
                 }
             }
@@ -331,6 +332,10 @@ class NavTreeNode extends DefaultMutableTreeNode
     {
         if (myStatus != null)
             myStatus.setText(getChildCount(false) + " items");
+        //guiContext.form.labelStatusMiddle.setText(((NavTreeUserObject)getUserObject()).name);
+        NavTreeUserObject tuo = (NavTreeUserObject) getUserObject();
+        if (tuo != null)
+            guiContext.form.textFieldLocation.setText(tuo.getPath());
     }
 
     protected void loadTable()
@@ -367,7 +372,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         loadStatus();
     }
 
-    protected void setChildren(List<NavTreeNode> children)
+    protected void setChildren(List<NavTreeNode> children, boolean doLoadTable)
     {
         if (children != null)
         {
@@ -378,13 +383,17 @@ class NavTreeNode extends DefaultMutableTreeNode
                 add(ntn);
             }
         }
-        loadTable();
+        sortTree(this);
+        if (doLoadTable)
+            loadTable();
         setLoaded(true);
     }
 
     public void setLoaded(boolean loaded)
     {
         this.loaded = loaded;
+        if (this.loaded)
+            setRefresh(false);
     }
 
     public void setRefresh(boolean refresh)
@@ -418,13 +427,19 @@ class NavTreeNode extends DefaultMutableTreeNode
         for (int i = 0; i < node.getChildCount() - 1; i++)
         {
             NavTreeNode child = (NavTreeNode) node.getChildAt(i);
-            String tn = child.getUserObject().toString();
+//            String tn = child.getUserObject().toString();
+            String tn = ((NavTreeUserObject) child.getUserObject()).name;
 
             for (int j = i + 1; j <= node.getChildCount() - 1; j++)
             {
                 NavTreeNode prevNode = (NavTreeNode) node.getChildAt(j);
                 String pn = prevNode.getUserObject().toString();
-                if (tn.compareToIgnoreCase(pn) > 0)
+                boolean gt;
+                if (guiContext.preferences.isSortCaseInsensitive())
+                    gt = tn.compareToIgnoreCase(pn) > 0;
+                else
+                    gt = tn.compareTo(pn) > 0;
+                if (gt)
                 {
                     node.insert(child, j);
                     node.insert(prevNode, i);
