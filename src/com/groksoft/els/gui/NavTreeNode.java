@@ -14,7 +14,9 @@ import javax.swing.tree.TreePath;
 import java.io.File;
 import java.util.*;
 
-// LEFTOFF: http://www.java2s.com/Tutorials/Java/Swing_How_to/JTree/Expand_Collapse_Expand_with_JTree_Lazy_loading.htm
+// NavTreeNode class is a customized DefaultMutableTreeNode
+//
+// Follows some of the ideas from http://www.java2s.com/Tutorials/Java/Swing_How_to/JTree/Expand_Collapse_Expand_with_JTree_Lazy_loading.htm
 
 class NavTreeNode extends DefaultMutableTreeNode
 {
@@ -25,6 +27,8 @@ class NavTreeNode extends DefaultMutableTreeNode
     private JTable myTable;
     private JTree myTree;
     private boolean refresh = true;
+    SortTreeAlphabetically sortTreeAlphabetically;
+    SortFoldersBeforeFiles sortFoldersBeforeFiles;
     private boolean visible = true;
 
     private NavTreeNode()
@@ -32,12 +36,16 @@ class NavTreeNode extends DefaultMutableTreeNode
         // hide default constructor
     }
 
-    public NavTreeNode(GuiContext guiContext, JTree tree, Object userObject)
+    public NavTreeNode(GuiContext guiContext, JTree tree, NavTreeUserObject userObject)
     {
         super(userObject, true);
         this.guiContext = guiContext;
         this.myTree = tree;
         this.visible = true;
+
+        sortTreeAlphabetically = new SortTreeAlphabetically();
+        sortFoldersBeforeFiles = new SortFoldersBeforeFiles();
+
         if (tree.getName().equalsIgnoreCase("treeCollectionOne"))
         {
             this.myTable = guiContext.form.tableCollectionOne;
@@ -132,6 +140,12 @@ class NavTreeNode extends DefaultMutableTreeNode
             treeNode = (NavTreeNode) treeNode.getParent();
         }
         return nodes.isEmpty() ? null : new TreePath(nodes.toArray());
+    }
+
+    @Override
+    public NavTreeUserObject getUserObject()
+    {
+        return (NavTreeUserObject) this.userObject;
     }
 
     @Override
@@ -377,13 +391,15 @@ class NavTreeNode extends DefaultMutableTreeNode
         if (children != null)
         {
             removeAllChildren();
+            Collections.sort(children, sortTreeAlphabetically);
+            if (guiContext.preferences.isSortFoldersBeforeFiles())
+                Collections.sort(children, sortFoldersBeforeFiles);
             setAllowsChildren(children.size() > 0);
             for (NavTreeNode ntn : children)
             {
                 add(ntn);
             }
         }
-        sortTree(this);
         if (doLoadTable)
             loadTable();
         setLoaded(true);
@@ -421,55 +437,35 @@ class NavTreeNode extends DefaultMutableTreeNode
         });
     }
 
-    private NavTreeNode sortTree(NavTreeNode node)
+    class SortTreeAlphabetically implements Comparator<NavTreeNode>
     {
-        // sort alphabetically
-        for (int i = 0; i < node.getChildCount() - 1; i++)
+        public int compare(NavTreeNode a, NavTreeNode b)
         {
-            NavTreeNode child = (NavTreeNode) node.getChildAt(i);
-//            String tn = child.getUserObject().toString();
-            String tn = ((NavTreeUserObject) child.getUserObject()).name;
-
-            for (int j = i + 1; j <= node.getChildCount() - 1; j++)
+            if (guiContext.preferences.isSortReverse())
             {
-                NavTreeNode prevNode = (NavTreeNode) node.getChildAt(j);
-                String pn = prevNode.getUserObject().toString();
-                boolean gt;
                 if (guiContext.preferences.isSortCaseInsensitive())
-                    gt = tn.compareToIgnoreCase(pn) > 0;
-                else
-                    gt = tn.compareTo(pn) > 0;
-                if (gt)
                 {
-                    node.insert(child, j);
-                    node.insert(prevNode, i);
+                    return b.getUserObject().name.compareToIgnoreCase(a.getUserObject().name);
                 }
+                return b.getUserObject().name.compareTo(a.getUserObject().name);
             }
-            if (child.getChildCount() > 0)
+            else
             {
-                sortTree(child);
+                if (guiContext.preferences.isSortCaseInsensitive())
+                {
+                    return a.getUserObject().name.compareToIgnoreCase(b.getUserObject().name);
+                }
+                return a.getUserObject().name.compareTo(b.getUserObject().name);
             }
         }
+    }
 
-        // put folders first - normal on Windows and some flavors of Linux but not on Mac OS X.
-        if (guiContext.preferences.isSortFoldersBeforeFiles())
+    class SortFoldersBeforeFiles implements Comparator<NavTreeNode>
+    {
+        public int compare(NavTreeNode a, NavTreeNode b)
         {
-            for (int i = 0; i < node.getChildCount() - 1; i++)
-            {
-                NavTreeNode child = (NavTreeNode) node.getChildAt(i);
-                for (int j = i + 1; j <= node.getChildCount() - 1; j++)
-                {
-                    NavTreeNode prevNode = (NavTreeNode) node.getChildAt(j);
-                    if (!prevNode.isLeaf() && child.isLeaf())
-                    {
-                        node.insert(child, j);
-                        node.insert(prevNode, i);
-                    }
-                }
-            }
+            return (a.getUserObject().isDir && !b.getUserObject().isDir) ? -1 : 0;
         }
-
-        return node;
     }
 
 }

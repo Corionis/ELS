@@ -2,23 +2,17 @@ package com.groksoft.els.gui;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 
 public class BrowserTableModel extends AbstractTableModel
 {
-//    NavTreeModel model;
     NavTreeNode node;
-//    JTree tree;
 
     public BrowserTableModel(NavTreeNode start)
     {
         super();
-//        tree = tr;
         node = start;
-//        model = (NavTreeModel) tree.getModel();
     }
 
     @Override
@@ -70,133 +64,122 @@ public class BrowserTableModel extends AbstractTableModel
     @Override
     public Object getValueAt(int row, int column)
     {
-        TreeNode child = node.getChildAt(row, false);
-        Object userObject = ((DefaultMutableTreeNode) child).getUserObject();
-        if (userObject != null)
+        NavTreeNode child = (NavTreeNode) node.getChildAt(row, false);
+        NavTreeUserObject tuo = child.getUserObject();
+        if (tuo != null)
         {
-            if (userObject instanceof String)
+            if (column == 0) // icon
             {
-                if (column == 0)
-                    return UIManager.getIcon("FileChooser.homeFolderIcon");
-                if (column == 1)
-                    return userObject;
-                if (column == 2)
-                    return Long.valueOf(child.getChildCount());
-            }
-            else if (userObject instanceof NavTreeUserObject)
-            {
-                if (column == 0) // icon
+                switch (((NavTreeUserObject) tuo).type)
                 {
-                    switch (((NavTreeUserObject) userObject).type)
-                    {
-                        case NavTreeUserObject.BOOKMARKS:
-                            return UIManager.getIcon("FileView.floppyDriveIcon");
-                        case NavTreeUserObject.COLLECTION:
-                            return UIManager.getIcon("FileChooser.homeFolderIcon");
-                        case NavTreeUserObject.COMPUTER:
-                            return UIManager.getIcon("FileView.computerIcon");
-                        case NavTreeUserObject.DRIVE:
-                            return UIManager.getIcon("FileView.hardDriveIcon");
-                        case NavTreeUserObject.HOME:
-                            return UIManager.getIcon("FileChooser.homeFolderIcon");
-                        case NavTreeUserObject.LIBRARY:
+                    case NavTreeUserObject.BOOKMARKS:
+                        return UIManager.getIcon("FileView.floppyDriveIcon");
+                    case NavTreeUserObject.COLLECTION:
+                        return UIManager.getIcon("FileChooser.homeFolderIcon");
+                    case NavTreeUserObject.COMPUTER:
+                        return UIManager.getIcon("FileView.computerIcon");
+                    case NavTreeUserObject.DRIVE:
+                        return UIManager.getIcon("FileView.hardDriveIcon");
+                    case NavTreeUserObject.HOME:
+                        return UIManager.getIcon("FileChooser.homeFolderIcon");
+                    case NavTreeUserObject.LIBRARY:
+                        return UIManager.getIcon("FileView.directoryIcon");
+                    case NavTreeUserObject.REAL:
+                        if (((NavTreeUserObject) tuo).file != null && ((NavTreeUserObject) tuo).file.isDirectory())
                             return UIManager.getIcon("FileView.directoryIcon");
-                        case NavTreeUserObject.REAL:
-                            if (((NavTreeUserObject) userObject).file != null && ((NavTreeUserObject) userObject).file.isDirectory())
-                                return UIManager.getIcon("FileView.directoryIcon");
-                            else
-                                return UIManager.getIcon("FileView.fileIcon");
-                        case NavTreeUserObject.REMOTE:
-                            if (((NavTreeUserObject) userObject).isDir)
-                                return UIManager.getIcon("FileView.directoryIcon");
-                            else
-                                return UIManager.getIcon("FileView.fileIcon");
-                        case NavTreeUserObject.SYSTEM:
-                            break;
-                        default:
-                            return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
-                    }
+                        else
+                            return UIManager.getIcon("FileView.fileIcon");
+                    case NavTreeUserObject.REMOTE:
+                        if (((NavTreeUserObject) tuo).isDir)
+                            return UIManager.getIcon("FileView.directoryIcon");
+                        else
+                            return UIManager.getIcon("FileView.fileIcon");
+                    case NavTreeUserObject.SYSTEM:
+                        break;
+                    default:
+                        return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
                 }
-                if (column == 1) // name
-                    return ((NavTreeUserObject) userObject).name;
-                if (column == 2) // size
+            }
+            if (column == 1) // name
+                return ((NavTreeUserObject) tuo).name;
+            if (column == 2) // size
+            {
+                switch (((NavTreeUserObject) tuo).type)
                 {
-                    switch (((NavTreeUserObject) userObject).type)
-                    {
-                        case NavTreeUserObject.BOOKMARKS:
-                            return Long.valueOf(child.getChildCount());
-                        case NavTreeUserObject.COLLECTION:
-                            return Long.valueOf(child.getChildCount());
-                        case NavTreeUserObject.COMPUTER:
-                            return Long.valueOf(child.getChildCount());
-                        case NavTreeUserObject.DRIVE:
-                            return Long.valueOf(child.getChildCount());
-                        case NavTreeUserObject.HOME:
-                            return Long.valueOf(child.getChildCount());
-                        case NavTreeUserObject.LIBRARY:
-                            return Long.valueOf(child.getChildCount());
-                        case NavTreeUserObject.REAL:
-                            if (((NavTreeUserObject) userObject).file != null)
+                    case NavTreeUserObject.BOOKMARKS:
+                        return Long.valueOf(child.getChildCount(false));
+                    case NavTreeUserObject.COLLECTION:
+                        return Long.valueOf(child.getChildCount(false));
+                    case NavTreeUserObject.COMPUTER:
+                        return Long.valueOf(child.getChildCount(false));
+                    case NavTreeUserObject.DRIVE:
+                        return null; // Long.valueOf(child.getChildCount());
+                    case NavTreeUserObject.HOME:
+                        return Long.valueOf(child.getChildCount(false));
+                    case NavTreeUserObject.LIBRARY:
+                        return Long.valueOf(child.getChildCount(false));
+                    case NavTreeUserObject.REAL:
+                        if (((NavTreeUserObject) tuo).file != null)
+                        {
+                            if (((NavTreeUserObject) tuo).file.isDirectory())
+                                return null; // Long.valueOf(child.getChildCount());
+                            try
                             {
-                                if (((NavTreeUserObject) userObject).file.isDirectory())
-                                    return Long.valueOf(child.getChildCount());
-                                try
-                                {
-                                    long size = Files.size(((NavTreeUserObject) userObject).file.toPath());
-                                    return size;
-                                }
-                                catch (Exception e)
-                                {
-                                }
+                                long size = Files.size(((NavTreeUserObject) tuo).file.toPath());
+                                return size;
                             }
-                            break;
-                        case NavTreeUserObject.REMOTE:
-                            if (((NavTreeUserObject) userObject).isDir)
-                                return null;
-                            return ((NavTreeUserObject) userObject).size;
-                        case NavTreeUserObject.SYSTEM:
-                            break;
-                        default:
-                            return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
+                            catch (Exception e)
+                            {
+                                return -1L;
+                            }
+                        }
+                        break;
+                    case NavTreeUserObject.REMOTE:
+                        if (((NavTreeUserObject) tuo).isDir)
+                            return null;
+                        return ((NavTreeUserObject) tuo).size;
+                    case NavTreeUserObject.SYSTEM:
+                        return null;
+                    default:
+                        return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
 
-                    }
                 }
-                if (column == 3) // date
+            }
+            if (column == 3) // date
+            {
+                switch (((NavTreeUserObject) tuo).type)
                 {
-                    switch (((NavTreeUserObject) userObject).type)
-                    {
-                        case NavTreeUserObject.BOOKMARKS:
-                            break;
-                        case NavTreeUserObject.COLLECTION:
-                            break;
-                        case NavTreeUserObject.COMPUTER:
-                            break;
-                        case NavTreeUserObject.DRIVE:
-                            break;
-                        case NavTreeUserObject.HOME:
-                            break;
-                        case NavTreeUserObject.LIBRARY:
-                            break;
-                        case NavTreeUserObject.REAL:
-                            if (((NavTreeUserObject) userObject).file != null)
+                    case NavTreeUserObject.BOOKMARKS:
+                        break;
+                    case NavTreeUserObject.COLLECTION:
+                        break;
+                    case NavTreeUserObject.COMPUTER:
+                        break;
+                    case NavTreeUserObject.DRIVE:
+                        break;
+                    case NavTreeUserObject.HOME:
+                        break;
+                    case NavTreeUserObject.LIBRARY:
+                        break;
+                    case NavTreeUserObject.REAL:
+                        if (((NavTreeUserObject) tuo).file != null)
+                        {
+                            try
                             {
-                                try
-                                {
-                                    return Files.getLastModifiedTime(((NavTreeUserObject) userObject).file.toPath());
-                                }
-                                catch (Exception e)
-                                {
-                                }
+                                return Files.getLastModifiedTime(((NavTreeUserObject) tuo).file.toPath());
                             }
-                            break;
-                        case NavTreeUserObject.REMOTE:
-                            return ((NavTreeUserObject) userObject).fileTime;
-                        case NavTreeUserObject.SYSTEM:
-                            break;
-                        default:
-                            return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
+                            catch (Exception e)
+                            {
+                            }
+                        }
+                        break;
+                    case NavTreeUserObject.REMOTE:
+                        return ((NavTreeUserObject) tuo).fileTime;
+                    case NavTreeUserObject.SYSTEM:
+                        break;
+                    default:
+                        return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
 
-                    }
                 }
             }
         }

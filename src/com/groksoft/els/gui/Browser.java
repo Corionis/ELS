@@ -375,6 +375,16 @@ public class Browser
         tree.setCellRenderer(new NavTreeCellRenderer());
         tree.setModel(model);
 
+        // add Bookmarks root node
+        if (guiContext.preferences.isShowBookmarksInTree())
+        {
+            tuo = new NavTreeUserObject("Bookmarks", NavTreeUserObject.BOOKMARKS);
+            NavTreeNode bookNode = new NavTreeNode(guiContext, tree, tuo);
+            bookNode.setAllowsChildren(true);
+            root.add(bookNode);
+            ////////////////////////////bookNode.loadChildren();
+        }
+
         // add Computer node
         tuo = new NavTreeUserObject("Computer", NavTreeUserObject.COMPUTER);
         NavTreeNode rootNode = new NavTreeNode(guiContext, tree, tuo);
@@ -405,13 +415,6 @@ public class Browser
             root.add(homeNode);
             homeNode.loadChildren(false);
         }
-
-        // add Bookmarks root node
-        tuo = new NavTreeUserObject("Bookmarks", NavTreeUserObject.BOOKMARKS);
-        NavTreeNode bookNode = new NavTreeNode(guiContext, tree, tuo);
-        bookNode.setAllowsChildren(true);
-        root.add(bookNode);
-        ////////////////////////////bookNode.loadChildren();
 
         root.setLoaded(true);
         return root;
