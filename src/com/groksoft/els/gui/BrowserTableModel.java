@@ -2,18 +2,57 @@ package com.groksoft.els.gui;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 
+/*
+    https://www.codejava.net/java-se/swing/6-techniques-for-sorting-jtable-you-should-know
+
+
+ */
+
 public class BrowserTableModel extends AbstractTableModel
 {
-    NavTreeNode node;
+    private NavTreeNode node;
 
-    public BrowserTableModel(NavTreeNode start)
+    public BrowserTableModel(NavTreeNode treeNode)
     {
         super();
-        node = start;
+        node = treeNode;
     }
+
+/*
+    // Add a mouse listener to the Table to trigger a table sort
+    // when a column heading is clicked in the JTable.
+    public void addMouseListenerToHeaderInTable(JTable table)
+    {
+        final BrowserTableModel sorter = this;
+        final JTable tableView = table;
+        tableView.setColumnSelectionAllowed(false);
+        MouseAdapter listMouseListener = new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent e)
+            {
+                TableColumnModel columnModel = tableView.getColumnModel();
+                int viewColumn = columnModel.getColumnIndexAtX(e.getX());
+                int column = tableView.convertColumnIndexToModel(viewColumn);
+                if (e.getClickCount() == 1 && column > 0) // skip icon column
+                {
+                    int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
+                    boolean ascending = (shiftPressed == 0);
+//                    sorter.sortByColumn(column);
+                }
+            }
+        };
+        JTableHeader th = tableView.getTableHeader();
+        th.addMouseListener(listMouseListener);
+    }
+*/
 
     @Override
     public Class getColumnClass(int column)
@@ -23,7 +62,7 @@ public class BrowserTableModel extends AbstractTableModel
             case 0:
                 return Icon.class;
             case 1:
-                return String.class;
+                return FolderColumn.class; //String.class;
             case 2:
                 return Long.class;
             case 3:
@@ -101,23 +140,19 @@ public class BrowserTableModel extends AbstractTableModel
                 }
             }
             if (column == 1) // name
-                return ((NavTreeUserObject) tuo).name;
+                return ((NavTreeUserObject) tuo).folderName;   //.name;
             if (column == 2) // size
             {
                 switch (((NavTreeUserObject) tuo).type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
-                        return Long.valueOf(child.getChildCount(false));
                     case NavTreeUserObject.COLLECTION:
-                        return Long.valueOf(child.getChildCount(false));
                     case NavTreeUserObject.COMPUTER:
-                        return Long.valueOf(child.getChildCount(false));
-                    case NavTreeUserObject.DRIVE:
-                        return null; // Long.valueOf(child.getChildCount());
                     case NavTreeUserObject.HOME:
-                        return Long.valueOf(child.getChildCount(false));
                     case NavTreeUserObject.LIBRARY:
                         return Long.valueOf(child.getChildCount(false));
+                    case NavTreeUserObject.DRIVE:
+                        return null;
                     case NavTreeUserObject.REAL:
                         if (((NavTreeUserObject) tuo).file != null)
                         {

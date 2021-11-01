@@ -338,7 +338,7 @@ new FormModel {
 							"value": "right"
 						} )
 					}, new FormLayoutConstraints( null ) {
-						"title": new FormMessage( null, "Navigator.splitPaneBrowser.tab.title" )
+						"title": "Browser"
 					} )
 					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 						name: "splitPaneBackup"

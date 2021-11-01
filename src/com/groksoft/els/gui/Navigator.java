@@ -12,7 +12,7 @@ public class Navigator
     private transient Logger logger = LogManager.getLogger("applog");
     ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
 
-    private GuiContext guiContext;
+    public static GuiContext guiContext;
 
     // QUESTION:
     //  1. How to organize editing JSON server and targets files with N-libraries with N-sources each?

@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -71,6 +72,18 @@ public class MainFrame extends JFrame
             label = new JLabel(bundle.getString("Navigator.panelSystemTwo.tab.title"));
             label.setUI(new VerticalLabelUI(false));
             tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+
+            tableCollectionOne.setAutoCreateRowSorter(true);
+            tableCollectionOne.getTableHeader().setReorderingAllowed(false);
+
+            tableSystemOne.setAutoCreateRowSorter(true);
+            tableSystemOne.getTableHeader().setReorderingAllowed(false);
+
+            //tableCollectionTwo.setAutoCreateRowSorter(true);
+            tableCollectionTwo.getTableHeader().setReorderingAllowed(false);
+
+            //tableSystemTwo.setAutoCreateRowSorter(true);
+            tableSystemTwo.getTableHeader().setReorderingAllowed(false);
 
             //pack();
         }
@@ -747,7 +760,7 @@ public class MainFrame extends JFrame
                     }
                     splitPaneBrowser.setBottomComponent(tabbedPaneNavigatorBottom);
                 }
-                tabbedPaneMain.addTab(bundle.getString("Navigator.splitPaneBrowser.tab.title"), splitPaneBrowser);
+                tabbedPaneMain.addTab("Browser", splitPaneBrowser);
 
                 //======== splitPaneBackup ========
                 {

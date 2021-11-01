@@ -66,6 +66,7 @@ class NavTreeNode extends DefaultMutableTreeNode
             this.myTable = guiContext.form.tableSystemTwo;
             this.myStatus = guiContext.form.labelStatusRight;
         }
+
     }
 
     public TreeNode getChildAt(int index, boolean filterIsActive)
@@ -347,7 +348,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         if (myStatus != null)
             myStatus.setText(getChildCount(false) + " items");
         //guiContext.form.labelStatusMiddle.setText(((NavTreeUserObject)getUserObject()).name);
-        NavTreeUserObject tuo = (NavTreeUserObject) getUserObject();
+        NavTreeUserObject tuo = getUserObject();
         if (tuo != null)
             guiContext.form.textFieldLocation.setText(tuo.getPath());
     }
@@ -355,7 +356,9 @@ class NavTreeNode extends DefaultMutableTreeNode
     protected void loadTable()
     {
         TableColumn column;
-        myTable.setModel(new BrowserTableModel(this));
+        BrowserTableModel btm = new BrowserTableModel(this);
+        //btm.addMouseListenerToHeaderInTable(myTable);
+        myTable.setModel(btm);
 
         // tweak the columns
         // TODO Add remembering & restoring each table's column widths, etc.

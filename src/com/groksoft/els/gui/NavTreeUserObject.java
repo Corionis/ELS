@@ -24,6 +24,7 @@ public class NavTreeUserObject implements Serializable
     public boolean isDir = false;
     public int mtime;
     public String name = "";
+    public FolderColumn folderName;
     public String path = "";
     public long size = -1L;
     public String[] sources;
@@ -34,6 +35,7 @@ public class NavTreeUserObject implements Serializable
     {
         this.name = aName;
         this.isDir = true;
+        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = aType;
     }
 
@@ -41,8 +43,10 @@ public class NavTreeUserObject implements Serializable
     public NavTreeUserObject(String name, File file)
     {
         this.name = name;
+        this.folderName = new FolderColumn(this.name, false);
         this.file = file;
         this.isDir = file.isDirectory();
+        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = REAL;
     }
 
@@ -52,6 +56,7 @@ public class NavTreeUserObject implements Serializable
         this.name = name;
         this.sources = sources.clone();
         this.isDir = true;
+        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = LIBRARY;
     }
 
@@ -61,6 +66,7 @@ public class NavTreeUserObject implements Serializable
         this.name = name;
         this.path = path;
         this.isDir = true;
+        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = type;
     }
 
@@ -73,6 +79,7 @@ public class NavTreeUserObject implements Serializable
         this.mtime = mtime;
         this.fileTime = FileTime.fromMillis(mtime);
         this.isDir = isDir;
+        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = REMOTE;
     }
 

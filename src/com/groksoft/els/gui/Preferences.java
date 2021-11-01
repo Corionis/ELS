@@ -6,7 +6,7 @@ public class Preferences
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
-    private boolean showBookmarksInTree = false;
+    private boolean showBookmarksInTree = true;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
