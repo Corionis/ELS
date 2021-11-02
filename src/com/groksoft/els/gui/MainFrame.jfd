@@ -168,7 +168,6 @@ new FormModel {
 												name: "scrollPaneTreeCollectionOne"
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionOne"
-													"focusable": false
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -178,7 +177,6 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableCollectionOne"
 													"preferredScrollableViewportSize": &Dimension0 new java.awt.Dimension( 754, 400 )
-													"focusable": false
 													"fillsViewportHeight": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
@@ -203,7 +201,6 @@ new FormModel {
 												name: "scrollPaneTreeSystemOne"
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeSystemOne"
-													"focusable": false
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -213,7 +210,6 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableSystemOne"
 													"preferredScrollableViewportSize": #Dimension0
-													"focusable": false
 													"fillsViewportHeight": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {

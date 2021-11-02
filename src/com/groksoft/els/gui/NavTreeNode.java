@@ -66,7 +66,6 @@ class NavTreeNode extends DefaultMutableTreeNode
             this.myTable = guiContext.form.tableSystemTwo;
             this.myStatus = guiContext.form.labelStatusRight;
         }
-
     }
 
     public TreeNode getChildAt(int index, boolean filterIsActive)
@@ -346,7 +345,10 @@ class NavTreeNode extends DefaultMutableTreeNode
     protected void loadStatus()
     {
         if (myStatus != null)
-            myStatus.setText(getChildCount(false) + " items");
+        {
+            int c = getChildCount(false);
+            myStatus.setText(c +" item" + (c != 1 ? "s" : ""));
+        }
         //guiContext.form.labelStatusMiddle.setText(((NavTreeUserObject)getUserObject()).name);
         NavTreeUserObject tuo = getUserObject();
         if (tuo != null)
@@ -357,8 +359,20 @@ class NavTreeNode extends DefaultMutableTreeNode
     {
         TableColumn column;
         BrowserTableModel btm = new BrowserTableModel(this);
-        //btm.addMouseListenerToHeaderInTable(myTable);
         myTable.setModel(btm);
+        myTable.removeColumn(myTable.getColumnModel().getColumn(4));
+
+/*
+        RowSorter sorter = myTable.getRowSorter();
+        sorter.addRowSorterListener(new RowSorterListener()
+        {
+            @Override
+            public void sorterChanged(RowSorterEvent rowSorterEvent)
+            {
+                System.out.println("");
+            }
+        });
+*/
 
         // tweak the columns
         // TODO Add remembering & restoring each table's column widths, etc.

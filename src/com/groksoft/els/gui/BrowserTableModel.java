@@ -2,57 +2,26 @@ package com.groksoft.els.gui;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
-
-/*
-    https://www.codejava.net/java-se/swing/6-techniques-for-sorting-jtable-you-should-know
-
-
- */
+import java.text.SimpleDateFormat;
 
 public class BrowserTableModel extends AbstractTableModel
 {
+    private SimpleDateFormat dateFormatter;
     private NavTreeNode node;
 
     public BrowserTableModel(NavTreeNode treeNode)
     {
         super();
         node = treeNode;
+        dateFormatter = new SimpleDateFormat(Navigator.guiContext.preferences.getDateFormat());
     }
 
-/*
-    // Add a mouse listener to the Table to trigger a table sort
-    // when a column heading is clicked in the JTable.
-    public void addMouseListenerToHeaderInTable(JTable table)
+    private String formatFileTime(FileTime stamp)
     {
-        final BrowserTableModel sorter = this;
-        final JTable tableView = table;
-        tableView.setColumnSelectionAllowed(false);
-        MouseAdapter listMouseListener = new MouseAdapter()
-        {
-            public void mouseClicked(MouseEvent e)
-            {
-                TableColumnModel columnModel = tableView.getColumnModel();
-                int viewColumn = columnModel.getColumnIndexAtX(e.getX());
-                int column = tableView.convertColumnIndexToModel(viewColumn);
-                if (e.getClickCount() == 1 && column > 0) // skip icon column
-                {
-                    int shiftPressed = e.getModifiers() & InputEvent.SHIFT_MASK;
-                    boolean ascending = (shiftPressed == 0);
-//                    sorter.sortByColumn(column);
-                }
-            }
-        };
-        JTableHeader th = tableView.getTableHeader();
-        th.addMouseListener(listMouseListener);
+        return dateFormatter.format(stamp.toMillis());
     }
-*/
 
     @Override
     public Class getColumnClass(int column)
@@ -62,11 +31,13 @@ public class BrowserTableModel extends AbstractTableModel
             case 0:
                 return Icon.class;
             case 1:
-                return FolderColumn.class; //String.class;
+                return FolderColumn.class;
             case 2:
                 return Long.class;
             case 3:
-                return FileTime.class;
+                return String.class;  // return formatted FileTime
+            case 4:
+                return node.getClass();
         }
         return String.class;
     }
@@ -74,7 +45,7 @@ public class BrowserTableModel extends AbstractTableModel
     @Override
     public int getColumnCount()
     {
-        return 4;
+        return 5;
     }
 
     @Override
@@ -90,6 +61,8 @@ public class BrowserTableModel extends AbstractTableModel
                 return "Size";
             case 3:
                 return "Modified";
+            case 4:
+                return "NavTreeNode";
         }
         return "unknown";
     }
@@ -109,7 +82,7 @@ public class BrowserTableModel extends AbstractTableModel
         {
             if (column == 0) // icon
             {
-                switch (((NavTreeUserObject) tuo).type)
+                switch (tuo.type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
                         return UIManager.getIcon("FileView.floppyDriveIcon");
@@ -124,12 +97,12 @@ public class BrowserTableModel extends AbstractTableModel
                     case NavTreeUserObject.LIBRARY:
                         return UIManager.getIcon("FileView.directoryIcon");
                     case NavTreeUserObject.REAL:
-                        if (((NavTreeUserObject) tuo).file != null && ((NavTreeUserObject) tuo).file.isDirectory())
+                        if (tuo.file != null && tuo.file.isDirectory())
                             return UIManager.getIcon("FileView.directoryIcon");
                         else
                             return UIManager.getIcon("FileView.fileIcon");
                     case NavTreeUserObject.REMOTE:
-                        if (((NavTreeUserObject) tuo).isDir)
+                        if (tuo.isDir)
                             return UIManager.getIcon("FileView.directoryIcon");
                         else
                             return UIManager.getIcon("FileView.fileIcon");
@@ -140,10 +113,10 @@ public class BrowserTableModel extends AbstractTableModel
                 }
             }
             if (column == 1) // name
-                return ((NavTreeUserObject) tuo).folderName;   //.name;
+                return tuo.folderName;   //.name;
             if (column == 2) // size
             {
-                switch (((NavTreeUserObject) tuo).type)
+                switch (tuo.type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
                     case NavTreeUserObject.COLLECTION:
@@ -154,13 +127,13 @@ public class BrowserTableModel extends AbstractTableModel
                     case NavTreeUserObject.DRIVE:
                         return null;
                     case NavTreeUserObject.REAL:
-                        if (((NavTreeUserObject) tuo).file != null)
+                        if (tuo.file != null)
                         {
-                            if (((NavTreeUserObject) tuo).file.isDirectory())
+                            if (tuo.file.isDirectory())
                                 return null; // Long.valueOf(child.getChildCount());
                             try
                             {
-                                long size = Files.size(((NavTreeUserObject) tuo).file.toPath());
+                                long size = Files.size(tuo.file.toPath());
                                 return size;
                             }
                             catch (Exception e)
@@ -170,9 +143,9 @@ public class BrowserTableModel extends AbstractTableModel
                         }
                         break;
                     case NavTreeUserObject.REMOTE:
-                        if (((NavTreeUserObject) tuo).isDir)
+                        if (tuo.isDir)
                             return null;
-                        return ((NavTreeUserObject) tuo).size;
+                        return tuo.size;
                     case NavTreeUserObject.SYSTEM:
                         return null;
                     default:
@@ -182,7 +155,7 @@ public class BrowserTableModel extends AbstractTableModel
             }
             if (column == 3) // date
             {
-                switch (((NavTreeUserObject) tuo).type)
+                switch (tuo.type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
                         break;
@@ -197,11 +170,11 @@ public class BrowserTableModel extends AbstractTableModel
                     case NavTreeUserObject.LIBRARY:
                         break;
                     case NavTreeUserObject.REAL:
-                        if (((NavTreeUserObject) tuo).file != null)
+                        if (tuo.file != null)
                         {
                             try
                             {
-                                return Files.getLastModifiedTime(((NavTreeUserObject) tuo).file.toPath());
+                                return formatFileTime(Files.getLastModifiedTime(tuo.file.toPath()));
                             }
                             catch (Exception e)
                             {
@@ -209,13 +182,17 @@ public class BrowserTableModel extends AbstractTableModel
                         }
                         break;
                     case NavTreeUserObject.REMOTE:
-                        return ((NavTreeUserObject) tuo).fileTime;
+                        return formatFileTime(tuo.fileTime);
                     case NavTreeUserObject.SYSTEM:
                         break;
                     default:
                         return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
 
                 }
+            }
+            if (column == 4)
+            {
+                return child;
             }
         }
         return null;

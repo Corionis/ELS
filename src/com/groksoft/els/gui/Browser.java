@@ -13,6 +13,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.*;
 
@@ -40,6 +42,70 @@ public class Browser
         initialize();
     }
 
+    private void addMouseListenerToTable(JTable table)
+    {
+        MouseAdapter tableMouseListener = new MouseAdapter()
+        {
+            public void mouseClicked(MouseEvent mouseEvent)
+            {
+// LEFTOFF Synchronize this method
+                JTable target = (JTable) mouseEvent.getSource();
+                target.requestFocus();
+                JTree eventTree = null;
+                switch (target.getName())
+                {
+                    case "tableCollectionOne":
+                        eventTree = guiContext.form.treeCollectionOne;
+                        break;
+                    case "tableSystemOne":
+                        eventTree = guiContext.form.treeSystemOne;
+                        break;
+                    case "tableCollectionTwo":
+                        eventTree = guiContext.form.treeCollectionTwo;
+                        break;
+                    case "tableSystemTwo":
+                        eventTree = guiContext.form.treeSystemTwo;
+                        break;
+                }
+                int row = target.getSelectedRow();
+                if (row >= 0)
+                {
+                    NavTreeNode node = (NavTreeNode) target.getModel().getValueAt(row, 4);
+                    guiContext.form.textFieldLocation.setText(node.getUserObject().getPath());
+                    if (mouseEvent.getClickCount() == 2)
+                    {
+                        if (node.getUserObject().isDir)
+                        {
+                            TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
+                            fireTreeSelectionEvent(eventTree, evt);
+                            eventTree.setSelectionPath(node.getTreePath());
+                        }
+                        else
+                        {
+                            NavTreeUserObject tuo = node.getUserObject();
+                            if (tuo.type == NavTreeUserObject.REAL)
+                            {
+                                try
+                                {
+                                    Desktop.getDesktop().open(tuo.file);
+                                }
+                                catch (Exception e)
+                                {
+                                    JOptionPane.showMessageDialog(null, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                            else
+                            {
+                                JOptionPane.showMessageDialog(null, "Cannot launch item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        table.addMouseListener(tableMouseListener);
+    }
+
     private TreePath findTreePath(JTree tree, File find)
     {
         for (int i = 0; i < tree.getRowCount(); ++i)
@@ -52,6 +118,15 @@ public class Browser
                 return treePath;
         }
         return null;
+    }
+
+    private void fireTreeSelectionEvent(JTree tree, TreeSelectionEvent evt)
+    {
+        TreeSelectionListener[] listeners = tree.getTreeSelectionListeners();
+        for (int i = 0; i < listeners.length; ++i)
+        {
+            listeners[i].valueChanged(evt);
+        }
     }
 
     private boolean initialize()
@@ -134,6 +209,7 @@ public class Browser
                     node.loadTable();
             }
         });
+        addMouseListenerToTable(guiContext.form.tableCollectionOne);
 
         // --- treeSystemOne
         guiContext.form.treeSystemOne.setName("treeSystemOne");
@@ -170,7 +246,7 @@ public class Browser
                     node.loadTable();
             }
         });
-
+        addMouseListenerToTable(guiContext.form.tableSystemOne);
 
 /*
 

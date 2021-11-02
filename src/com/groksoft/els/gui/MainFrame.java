@@ -18,9 +18,7 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.ResourceBundle;
 
 /**
@@ -73,16 +71,22 @@ public class MainFrame extends JFrame
             label.setUI(new VerticalLabelUI(false));
             tabbedPaneBrowserTwo.setTabComponentAt(1, label);
 
+            tableCollectionOne.setName("tableCollectionOne");
             tableCollectionOne.setAutoCreateRowSorter(true);
+            tableCollectionOne.setShowGrid(false);
             tableCollectionOne.getTableHeader().setReorderingAllowed(false);
 
+            tableSystemOne.setName("tableSystemOne");
             tableSystemOne.setAutoCreateRowSorter(true);
+            tableSystemOne.setShowGrid(false);
             tableSystemOne.getTableHeader().setReorderingAllowed(false);
 
-            //tableCollectionTwo.setAutoCreateRowSorter(true);
+
+
+            tableCollectionTwo.setAutoCreateRowSorter(true);
             tableCollectionTwo.getTableHeader().setReorderingAllowed(false);
 
-            //tableSystemTwo.setAutoCreateRowSorter(true);
+            tableSystemTwo.setAutoCreateRowSorter(true);
             tableSystemTwo.getTableHeader().setReorderingAllowed(false);
 
             //pack();
@@ -591,9 +595,6 @@ public class MainFrame extends JFrame
 
                                         //======== scrollPaneTreeCollectionOne ========
                                         {
-
-                                            //---- treeCollectionOne ----
-                                            treeCollectionOne.setFocusable(false);
                                             scrollPaneTreeCollectionOne.setViewportView(treeCollectionOne);
                                         }
                                         splitPaneCollectionOne.setLeftComponent(scrollPaneTreeCollectionOne);
@@ -603,7 +604,6 @@ public class MainFrame extends JFrame
 
                                             //---- tableCollectionOne ----
                                             tableCollectionOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
-                                            tableCollectionOne.setFocusable(false);
                                             tableCollectionOne.setFillsViewportHeight(true);
                                             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
                                         }
@@ -627,9 +627,6 @@ public class MainFrame extends JFrame
 
                                         //======== scrollPaneTreeSystemOne ========
                                         {
-
-                                            //---- treeSystemOne ----
-                                            treeSystemOne.setFocusable(false);
                                             scrollPaneTreeSystemOne.setViewportView(treeSystemOne);
                                         }
                                         splitPaneSystemOne.setLeftComponent(scrollPaneTreeSystemOne);
@@ -639,7 +636,6 @@ public class MainFrame extends JFrame
 
                                             //---- tableSystemOne ----
                                             tableSystemOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
-                                            tableSystemOne.setFocusable(false);
                                             tableSystemOne.setFillsViewportHeight(true);
                                             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
                                         }
