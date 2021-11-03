@@ -459,23 +459,34 @@ public class Transfer
                 }
             }
 
-            // get -s Subscriber libraries
-            if (cfg.getSubscriberLibrariesFileName().length() > 0)
+            if (cfg.isNavigator())
             {
-                if (cfg.isRemoteSession() && cfg.isRequestCollection())
+                if (cfg.isRemoteSession())
                 {
-                    requestCollection();
+                    logger.info("Requesting subscriber library");
+                    requestLibrary();
                 }
-            }
-
-            // get -t|T Targets
-            if (cfg.isTargetsEnabled())
-            {
-                getStorageTargets();
             }
             else
             {
-                cfg.setDryRun(true);
+                // get -s Subscriber libraries
+                if (cfg.getSubscriberLibrariesFileName().length() > 0)
+                {
+                    if (cfg.isRemoteSession() && cfg.isRequestCollection())
+                    {
+                        requestCollection();
+                    }
+                }
+
+                // get -t|T Targets
+                if (cfg.isTargetsEnabled())
+                {
+                    getStorageTargets();
+                }
+                else
+                {
+                    cfg.setDryRun(true);
+                }
             }
         }
     }
@@ -818,6 +829,25 @@ public class Transfer
             cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
             cfg.setSubscriberCollectionFilename(location);
             context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
+        }
+    }
+
+    /**
+     * Request the remote end send it's library JSON for the Navigator
+     *
+     * @throws Exception
+     */
+    public void requestLibrary() throws Exception
+    {
+        if (cfg.isRemoteSession())
+        {
+            // request collection data from remote subscriber
+            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "library");
+            if (location == null || location.length() < 1)
+                throw new MungeException("Could not retrieve remote library file");
+            cfg.setSubscriberLibrariesFileName(location);
+            cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
+            context.subscriberRepo.read(cfg.getSubscriberLibrariesFileName());
         }
     }
 

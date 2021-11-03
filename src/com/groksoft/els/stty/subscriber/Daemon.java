@@ -302,7 +302,7 @@ public class Daemon extends DaemonBase
                         }
 
                         // otherwise it must be -S so do not scan
-                        myRepo.exportItems();
+                        myRepo.exportItems(true);
 
                         response = new String(Files.readAllBytes(Paths.get(location)));
                     }
@@ -336,6 +336,30 @@ public class Daemon extends DaemonBase
                     if (!valid)
                     {
                         response = (isTerminal ? "execute command requires a 3 arguments, libName, itemPath, fullPath\r\n" : "false");
+                    }
+                    continue;
+                }
+
+                // -------------- return library file --------------------
+                if (theCommand.equalsIgnoreCase("library"))
+                {
+                    try
+                    {
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                        LocalDateTime now = LocalDateTime.now();
+                        String stamp = dtf.format(now);
+
+                        String location = myRepo.getJsonFilename() + "_library-generated-" + stamp + ".json";
+                        cfg.setExportCollectionFilename(location);
+
+                        // do not scan
+                        myRepo.exportItems(false);
+
+                        response = new String(Files.readAllBytes(Paths.get(location)));
+                    }
+                    catch (MungeException e)
+                    {
+                        logger.error(e.getMessage());
                     }
                     continue;
                 }

@@ -166,6 +166,8 @@ new FormModel {
 											"continuousLayout": true
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 												name: "scrollPaneTreeCollectionOne"
+												"focusable": false
+												"preferredSize": new java.awt.Dimension( 103, 384 )
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionOne"
 												} )
@@ -174,6 +176,8 @@ new FormModel {
 											} )
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 												name: "scrollPaneTableCollectionOne"
+												"focusable": false
+												"preferredSize": new java.awt.Dimension( 756, 384 )
 												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableCollectionOne"
 													"preferredScrollableViewportSize": &Dimension0 new java.awt.Dimension( 754, 400 )
@@ -238,6 +242,8 @@ new FormModel {
 											"continuousLayout": true
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 												name: "scrollPaneTreeCollectionTwo"
+												"focusable": false
+												"preferredSize": new java.awt.Dimension( 103, 384 )
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionTwo"
 													"focusable": false
@@ -247,6 +253,8 @@ new FormModel {
 											} )
 											add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 												name: "scrollPaneTableCollectionTwo"
+												"focusable": false
+												"preferredSize": new java.awt.Dimension( 756, 384 )
 												add( new FormComponent( "javax.swing.JTable" ) {
 													name: "tableCollectionTwo"
 													"preferredScrollableViewportSize": #Dimension0

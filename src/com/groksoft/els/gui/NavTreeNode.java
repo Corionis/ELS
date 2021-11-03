@@ -20,6 +20,8 @@ import java.util.*;
 
 class NavTreeNode extends DefaultMutableTreeNode
 {
+    SortFoldersBeforeFiles sortFoldersBeforeFiles;
+    SortTreeAlphabetically sortTreeAlphabetically;
     private GuiContext guiContext;
     private boolean loaded = false;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -27,8 +29,6 @@ class NavTreeNode extends DefaultMutableTreeNode
     private JTable myTable;
     private JTree myTree;
     private boolean refresh = true;
-    SortTreeAlphabetically sortTreeAlphabetically;
-    SortFoldersBeforeFiles sortFoldersBeforeFiles;
     private boolean visible = true;
 
     private NavTreeNode()
@@ -318,13 +318,13 @@ class NavTreeNode extends DefaultMutableTreeNode
                         if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
                         {
                             SftpATTRS a = entry.getAttrs();
-                            if (a.isDir())
-                            {
-                                NavTreeUserObject tuo = new NavTreeUserObject(entry.getFilename(),
-                                        target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
-                                        a.getSize(), a.getMTime(), a.isDir());
-                                nodeArray.add(new NavTreeNode(guiContext, myTree, tuo));
-                            }
+                            NavTreeUserObject tuo = new NavTreeUserObject(entry.getFilename(),
+                                    target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
+                                    a.getSize(), a.getMTime(), a.isDir());
+                            NavTreeNode node = new NavTreeNode(guiContext, myTree, tuo);
+                            if (!a.isDir())
+                                node.setVisible(false);
+                            nodeArray.add(node);
                         }
                     }
                 }
@@ -347,7 +347,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         if (myStatus != null)
         {
             int c = getChildCount(false);
-            myStatus.setText(c +" item" + (c != 1 ? "s" : ""));
+            myStatus.setText(c + " item" + (c != 1 ? "s" : ""));
         }
         //guiContext.form.labelStatusMiddle.setText(((NavTreeUserObject)getUserObject()).name);
         NavTreeUserObject tuo = getUserObject();

@@ -56,7 +56,6 @@ public class ClientSftp
 
     public synchronized Vector listDirectory(String directory) throws Exception
     {
-        logger.info("Listing " + theirRepo.getLibraryData().libraries.description + " directory " + directory);
         Vector listing = jSftp.ls(directory);
         return listing;
     }
@@ -134,6 +133,7 @@ public class ClientSftp
             //jsch.setKnownHosts("known_hosts");
             //jsch.addIdentity("id_rsa");
             jSession.connect(30000);
+            jSession.setServerAliveInterval(500000);  // Apache Mina sftp server time-out is 600,000 millis
 
             jChannel = jSession.openChannel("sftp");
             jChannel.connect();

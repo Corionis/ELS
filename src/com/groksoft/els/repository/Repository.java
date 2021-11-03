@@ -78,12 +78,12 @@ public class Repository
      *
      * @throws MungeException the els exception
      */
-    public void exportItems() throws MungeException
+    public void exportItems(boolean isCollection) throws MungeException
     {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        logger.info("Writing collection file " + cfg.getExportCollectionFilename());
+        logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + cfg.getExportCollectionFilename());
         json = gson.toJson(libraryData);
         try
         {
@@ -93,7 +93,7 @@ public class Repository
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing collection file " + cfg.getExportCollectionFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Exception while writing " + (isCollection ? "collection" : "library") + " file " + cfg.getExportCollectionFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 

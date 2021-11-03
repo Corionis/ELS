@@ -81,12 +81,14 @@ public class MainFrame extends JFrame
             tableSystemOne.setShowGrid(false);
             tableSystemOne.getTableHeader().setReorderingAllowed(false);
 
-
-
+            tableCollectionTwo.setName("tableCollectionTwo");
             tableCollectionTwo.setAutoCreateRowSorter(true);
+            tableCollectionTwo.setShowGrid(false);
             tableCollectionTwo.getTableHeader().setReorderingAllowed(false);
 
+            tableSystemTwo.setName("tableSystemTwo");
             tableSystemTwo.setAutoCreateRowSorter(true);
+            tableSystemTwo.setShowGrid(false);
             tableSystemTwo.getTableHeader().setReorderingAllowed(false);
 
             //pack();
@@ -595,12 +597,16 @@ public class MainFrame extends JFrame
 
                                         //======== scrollPaneTreeCollectionOne ========
                                         {
+                                            scrollPaneTreeCollectionOne.setFocusable(false);
+                                            scrollPaneTreeCollectionOne.setPreferredSize(new Dimension(103, 384));
                                             scrollPaneTreeCollectionOne.setViewportView(treeCollectionOne);
                                         }
                                         splitPaneCollectionOne.setLeftComponent(scrollPaneTreeCollectionOne);
 
                                         //======== scrollPaneTableCollectionOne ========
                                         {
+                                            scrollPaneTableCollectionOne.setFocusable(false);
+                                            scrollPaneTableCollectionOne.setPreferredSize(new Dimension(756, 384));
 
                                             //---- tableCollectionOne ----
                                             tableCollectionOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
@@ -665,6 +671,8 @@ public class MainFrame extends JFrame
 
                                         //======== scrollPaneTreeCollectionTwo ========
                                         {
+                                            scrollPaneTreeCollectionTwo.setFocusable(false);
+                                            scrollPaneTreeCollectionTwo.setPreferredSize(new Dimension(103, 384));
 
                                             //---- treeCollectionTwo ----
                                             treeCollectionTwo.setFocusable(false);
@@ -674,6 +682,8 @@ public class MainFrame extends JFrame
 
                                         //======== scrollPaneTableCollectionTwo ========
                                         {
+                                            scrollPaneTableCollectionTwo.setFocusable(false);
+                                            scrollPaneTableCollectionTwo.setPreferredSize(new Dimension(756, 384));
 
                                             //---- tableCollectionTwo ----
                                             tableCollectionTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));

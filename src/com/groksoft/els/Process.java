@@ -122,7 +122,7 @@ public class Process
             context.publisherRepo.scan();
             justScannedPublisher = true;
         }
-        context.publisherRepo.exportItems();
+        context.publisherRepo.exportItems(true);
     }
 
     /**

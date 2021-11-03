@@ -20,11 +20,12 @@ public class Navigator
 
     // TODO:
     //  ! TEST Hints with spread-out files, e.g. TV Show in two locations.
-    //  * Add Navigator preferences class & file that holds the LaF, position, size, options, etc.
     //  * Display Collection:
     //     * Whole tree
     //     * !-Z alphabetic
     //     * By-source
+    //  * Add subscriber command to Request Library, not collection; Use to prime Browser then use lazy loading;
+    //    then skip subscriber-side commands for RequestCollection and RequestTargets
 
     public Navigator(Main main, Configuration config, Context ctx)
     {

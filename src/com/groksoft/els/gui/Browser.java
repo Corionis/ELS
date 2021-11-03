@@ -38,7 +38,6 @@ public class Browser
     public Browser(GuiContext gctx)
     {
         guiContext = gctx;
-
         initialize();
     }
 
@@ -46,9 +45,8 @@ public class Browser
     {
         MouseAdapter tableMouseListener = new MouseAdapter()
         {
-            public void mouseClicked(MouseEvent mouseEvent)
+            synchronized public void mouseClicked(MouseEvent mouseEvent)
             {
-// LEFTOFF Synchronize this method
                 JTable target = (JTable) mouseEvent.getSource();
                 target.requestFocus();
                 JTree eventTree = null;
@@ -91,12 +89,12 @@ public class Browser
                                 }
                                 catch (Exception e)
                                 {
-                                    JOptionPane.showMessageDialog(null, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(guiContext.form, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 }
                             }
                             else
                             {
-                                JOptionPane.showMessageDialog(null, "Cannot launch item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form, "Cannot launch " + (guiContext.cfg.isRemoteSession() ? "remote " : "") + "item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -215,7 +213,7 @@ public class Browser
         guiContext.form.treeSystemOne.setName("treeSystemOne");
         loadSystemTree(guiContext.form.treeSystemOne, System.getProperty("user.name"));
         //
-        // treeSystemOne tree expansion event handlers
+        // treeSystemOne tree expansion event handler
         guiContext.form.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
         {
             @Override
@@ -248,18 +246,13 @@ public class Browser
         });
         addMouseListenerToTable(guiContext.form.tableSystemOne);
 
-/*
 
         // --- BrowserTwo ------------------------------------------
         // --- treeCollectionTwo
         guiContext.form.treeCollectionTwo.setName("treeCollectionTwo");
         if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
         {
-            logger.info("treeCollectionTwo");
             loadCollectionTree(guiContext.form.treeCollectionTwo, guiContext.context.subscriberRepo);
-            loadTable(guiContext.form.treeCollectionTwo,
-                    guiContext.form.tableCollectionTwo,
-                    (NavTreeNode) guiContext.form.treeCollectionTwo.getModel().getRoot());
         }
         else
         {
@@ -279,8 +272,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                //guiContext.form.labelStatusRight.setText(node.getChildCount(false) + " items");
-                node.loadChildren();
+                node.loadChildren(false);
             }
         });
         //
@@ -292,19 +284,17 @@ public class Browser
             {
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                loadTable(guiContext.form.treeCollectionTwo,
-                        guiContext.form.tableCollectionTwo,
-                        node);
-                //guiContext.form.labelStatusRight.setText(node.getChildCount(false) + " items");
+                if (!node.isLoaded())
+                    node.loadChildren(true);
+                else
+                    node.loadTable();
             }
         });
+        addMouseListenerToTable(guiContext.form.tableCollectionTwo);
 
         // --- treeSystemTwo
         guiContext.form.treeSystemTwo.setName("treeSystemTwo");
         loadSystemTree(guiContext.form.treeSystemTwo, System.getProperty("user.name"));
-        loadTable(guiContext.form.treeSystemTwo,
-                guiContext.form.tableSystemTwo,
-                (NavTreeNode) guiContext.form.treeSystemTwo.getModel().getRoot());
         //
         // treeSystemTwo tree expansion event handler
         guiContext.form.treeSystemTwo.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -319,8 +309,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                //guiContext.form.labelStatusRight.setText(node.getChildCount(false) + " items");
-                node.loadChildren();
+                node.loadChildren(false);
             }
         });
         //
@@ -332,13 +321,13 @@ public class Browser
             {
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                loadTable(guiContext.form.treeSystemTwo,
-                        guiContext.form.tableSystemTwo,
-                        node);
-                //guiContext.form.labelStatusRight.setText(node.getChildCount(false) + " items");
+                if (!node.isLoaded())
+                    node.loadChildren(true);
+                else
+                    node.loadTable();
             }
         });
-*/
+        addMouseListenerToTable(guiContext.form.tableSystemTwo);
 
         NavTreeModel model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
         NavTreeNode root = (NavTreeNode) model.getRoot();
