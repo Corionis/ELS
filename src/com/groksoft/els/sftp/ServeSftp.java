@@ -1,13 +1,15 @@
 package com.groksoft.els.sftp;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.sshd.common.file.nativefs.NativeFileSystemFactory;
-import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.FactoryManager;
 import org.apache.sshd.common.session.Session;
+import org.apache.sshd.common.session.SessionDisconnectHandler;
 import org.apache.sshd.common.session.helpers.AbstractSession;
+import org.apache.sshd.common.session.helpers.TimeoutIndicator;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.AsyncAuthException;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
@@ -19,11 +21,8 @@ import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemEnvironment;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 
-import javax.swing.filechooser.FileSystemView;
-import java.io.File;
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.file.Path;
 import java.security.PublicKey;
 import java.util.Collections;
 import java.util.List;
@@ -43,6 +42,7 @@ import java.util.Set;
 
 public class ServeSftp implements SftpErrorStatusDataHandler
 {
+    private Context context;
     private String hostname;
     private int listenport;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -65,8 +65,9 @@ public class ServeSftp implements SftpErrorStatusDataHandler
      * @param mine   Repository of local system
      * @param theirs Repository of remote system
      */
-    public ServeSftp(Repository mine, Repository theirs, boolean primaryServers)
+    public ServeSftp(Context ctxt, Repository mine, Repository theirs, boolean primaryServers)
     {
+        context = ctxt;
         myRepo = mine;
         theirRepo = theirs;
 
@@ -119,6 +120,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             sshd = SshServer.setUpDefaultServer();
             sshd.setHost(hostname);
             sshd.setPort(listenport);
+
             try
             {
                 sshd.setPublickeyAuthenticator(new PublickeyAuthenticator()
@@ -185,6 +187,20 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 }
             });
 
+            SessionDisconnectHandler disconnector = new SessionDisconnectHandler()
+            {
+                @Override
+                public boolean handleTimeoutDisconnectReason(Session session, TimeoutIndicator timeoutStatus) throws IOException
+                {
+                    logger.fatal("ELS session timeout, ending session");
+                    context.serveStty.requestStop();
+                    return true;
+                    //return SessionDisconnectHandler.super.handleTimeoutDisconnectReason(session, timeoutStatus);
+                }
+            };
+            sshd.setSessionDisconnectHandler(disconnector);
+            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, 10 * 60 * 1000L);
+
             sshd.start();
 
             // assemble listen IP(s)
@@ -199,24 +215,31 @@ public class ServeSftp implements SftpErrorStatusDataHandler
     }
 
     /**
-     * Stop this SFTP session
+     * Stop this SFTP server
      */
     public void stopServer()
     {
         try
         {
-            String ips = getIps();
-            logger.debug("Stopping sftp server on: " + ips);
-            List<AbstractSession> sessions = sshd.getActiveSessions();
-            for (AbstractSession session : sessions)
+            if (sshd != null)
             {
-                session.close();
+                String ips = getIps();
+                logger.debug("Stopping sftp server on: " + ips);
+                List<AbstractSession> sessions = sshd.getActiveSessions();
+                if (sessions != null)
+                {
+                    for (AbstractSession session : sessions)
+                    {
+                        session.close();
+                    }
+                }
+                sshd.stop();
+                sshd = null;
             }
-            sshd.stop();
         }
         catch (Exception e)
         {
-            // ignore any exception
+            logger.error(Utils.getStackTrace(e));
         }
     }
 

@@ -227,6 +227,14 @@ public class ServeStty extends Thread
             Connection c = (Connection) allConnections.elementAt(index);
             if (c.isAlive())
             {
+/*
+                try
+                {
+                    c.socket.close();
+                }
+                catch (IOException ioe)
+                {}
+*/
                 c.getConsole().requestStop();
             }
         }
@@ -285,6 +293,7 @@ public class ServeStty extends Thread
             context.serveSftp = null;
         }
         logger.debug("Stopping stty server");
+        stopServer();
     }
 
     /**
@@ -348,10 +357,11 @@ public class ServeStty extends Thread
                 }
             }
             this.requestStop();
+            allSessions = null;
         }
         else
         {
-            logger.debug("nothing to stop");
+            //logger.debug("nothing to stop");
         }
     }
 

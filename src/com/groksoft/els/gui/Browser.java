@@ -13,10 +13,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.ResourceBundle;
 
 public class Browser
 {
@@ -34,6 +36,8 @@ public class Browser
     private transient Logger logger = LogManager.getLogger("applog");
     private String os;
     private JProgressBar progressBar;
+    private int splitPaneTwoBrowsersLastDividerLocation;
+    private int splitPanelBrowserLastDividerLocation;
 
     public Browser(GuiContext gctx)
     {
@@ -136,6 +140,8 @@ public class Browser
         progressBar = new JProgressBar();
         simpleOutput.add(progressBar, BorderLayout.EAST);
         progressBar.setVisible(false);
+
+        initializeMainMenu();
 
         // --- BrowserOne ------------------------------------------
         //
@@ -294,7 +300,14 @@ public class Browser
 
         // --- treeSystemTwo
         guiContext.form.treeSystemTwo.setName("treeSystemTwo");
-        loadSystemTree(guiContext.form.treeSystemTwo, System.getProperty("user.name"));
+        if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
+        {
+            loadSystemTree(guiContext.form.treeSystemTwo, System.getProperty("user.name"));
+        }
+        else
+        {
+            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber profile--");
+        }
         //
         // treeSystemTwo tree expansion event handler
         guiContext.form.treeSystemTwo.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -334,6 +347,108 @@ public class Browser
         root.loadStatus();
 
         return true;
+    }
+
+    private void initializeMainMenu()
+    {
+        // --- Main Menu ------------------------------------------
+        //
+        // -- File Menu
+
+        //
+        // -- Window Menu
+        guiContext.form.menuItemMaximize.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.setExtendedState(guiContext.form.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+            }
+        });
+        //
+        guiContext.form.menuItemMinimize.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.setState(JFrame.ICONIFIED);
+            }
+        });
+        //
+        guiContext.form.menuItemRestore.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.setExtendedState(JFrame.NORMAL);
+            }
+        });
+        //
+        guiContext.form.menuItemSplitHorizontal.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
+                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
+                int size = guiContext.form.splitPaneTwoBrowsers.getHeight();
+                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.VERTICAL_SPLIT);
+                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
+            }
+        });
+        //
+        guiContext.form.menuItemSplitVertical.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
+                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
+                int size = guiContext.form.splitPaneTwoBrowsers.getWidth();
+                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
+            }
+        });
+        //
+        guiContext.form.menuItemToggleBottom.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.form.tabbedPaneNavigatorBottom.isVisible())
+                    splitPanelBrowserLastDividerLocation = guiContext.form.splitPaneBrowser.getDividerLocation();
+                guiContext.form.tabbedPaneNavigatorBottom.setVisible(!guiContext.form.tabbedPaneNavigatorBottom.isVisible());
+                if (guiContext.form.tabbedPaneNavigatorBottom.isVisible())
+                    guiContext.form.splitPaneBrowser.setDividerLocation(splitPanelBrowserLastDividerLocation);
+            }
+        });
+        //
+        guiContext.form.menuItemTogglePublisher.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.form.tabbedPaneBrowserOne.isVisible())
+                    splitPaneTwoBrowsersLastDividerLocation = guiContext.form.splitPaneTwoBrowsers.getDividerLocation();
+                guiContext.form.tabbedPaneBrowserOne.setVisible(!guiContext.form.tabbedPaneBrowserOne.isVisible());
+                if (guiContext.form.tabbedPaneBrowserOne.isVisible())
+                    guiContext.form.splitPaneTwoBrowsers.setDividerLocation(splitPaneTwoBrowsersLastDividerLocation);
+            }
+        });
+        //
+        guiContext.form.menuItemToggleSubscriber.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.form.tabbedPaneBrowserTwo.isVisible())
+                    splitPaneTwoBrowsersLastDividerLocation = guiContext.form.splitPaneTwoBrowsers.getDividerLocation();
+                guiContext.form.tabbedPaneBrowserTwo.setVisible(!guiContext.form.tabbedPaneBrowserTwo.isVisible());
+                if (guiContext.form.tabbedPaneBrowserTwo.isVisible())
+                    guiContext.form.splitPaneTwoBrowsers.setDividerLocation(splitPaneTwoBrowsersLastDividerLocation);
+            }
+        });
+
     }
 
     private void loadCollectionTree(JTree tree, Repository repo)
@@ -455,19 +570,27 @@ public class Browser
         NavTreeNode rootNode = new NavTreeNode(guiContext, tree, tuo);
         rootNode.setAllowsChildren(true);
         root.add(rootNode);
-
-        // get all available storage drives
-        File[] rootPaths;
-        FileSystemView fsv = FileSystemView.getFileSystemView();
-        rootPaths = File.listRoots();
-
-        for (int i = 0; i < rootPaths.length; ++i)
+        if (guiContext.cfg.isRemoteSession() && tree.getName().equalsIgnoreCase("treeSystemTwo"))
         {
-            File drive = rootPaths[i];
-            tuo = new NavTreeUserObject(drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE);
+            tuo = new NavTreeUserObject("/", "/", NavTreeUserObject.REMOTE);
             NavTreeNode node = new NavTreeNode(guiContext, tree, tuo);
             rootNode.add(node);
             node.loadChildren(false);
+        }
+        else
+        {
+            // get all available storage drives
+            File[] rootPaths;
+            FileSystemView fsv = FileSystemView.getFileSystemView();
+            rootPaths = File.listRoots();
+            for (int i = 0; i < rootPaths.length; ++i)
+            {
+                File drive = rootPaths[i];
+                tuo = new NavTreeUserObject(drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE);
+                NavTreeNode node = new NavTreeNode(guiContext, tree, tuo);
+                rootNode.add(node);
+                node.loadChildren(false);
+            }
         }
         rootNode.setLoaded(true);
 
@@ -484,5 +607,4 @@ public class Browser
         root.setLoaded(true);
         return root;
     }
-
 }

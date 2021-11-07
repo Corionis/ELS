@@ -91,7 +91,12 @@ public class MainFrame extends JFrame
             tableSystemTwo.setShowGrid(false);
             tableSystemTwo.getTableHeader().setReorderingAllowed(false);
 
-            //pack();
+            Dimension dim = new Dimension();
+            dim.height = 10;
+            dim.width = splitPaneBrowser.getWidth();
+            tabbedPaneNavigatorBottom.setMinimumSize(dim);
+
+            pack();
         }
         catch(Exception ex)
         {
@@ -177,9 +182,12 @@ public class MainFrame extends JFrame
         menuWindows = new JMenu();
         menuItemMaximize = new JMenuItem();
         menuItemMinimize = new JMenuItem();
-        menuItemFullScreen = new JMenuItem();
+        menuItemRestore = new JMenuItem();
         menuItemSplitHorizontal = new JMenuItem();
         menuItemSplitVertical = new JMenuItem();
+        menuItemToggleBottom = new JMenuItem();
+        menuItemTogglePublisher = new JMenuItem();
+        menuItemToggleSubscriber = new JMenuItem();
         menuHelp = new JMenu();
         menuItemDocumentation = new JMenuItem();
         menuItemAbout = new JMenuItem();
@@ -244,10 +252,11 @@ public class MainFrame extends JFrame
         labelStatusRight = new JLabel();
 
         //======== this ========
-        setMinimumSize(new Dimension(1024, 640));
+        setMinimumSize(new Dimension(100, 100));
         setTitle("ELS Navigator");
         setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setLocationByPlatform(true);
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -268,33 +277,39 @@ public class MainFrame extends JFrame
                 //---- menuItemNew ----
                 menuItemNew.setText(bundle.getString("Navigator.menuItemNew.text"));
                 menuItemNew.setMnemonic(bundle.getString("Navigator.menuItemNew.mnemonic").charAt(0));
+                menuItemNew.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemNew);
 
                 //---- menuItemOpen ----
                 menuItemOpen.setText(bundle.getString("Navigator.menuItemOpen.text"));
                 menuItemOpen.setMnemonic(bundle.getString("Navigator.menuItemOpen.mnemonic").charAt(0));
+                menuItemOpen.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemOpen);
 
                 //---- menuItemSave ----
                 menuItemSave.setText(bundle.getString("Navigator.menuItemSave.text"));
                 menuItemSave.setMnemonic(bundle.getString("Navigator.menuItemSave.mnemonic").charAt(0));
+                menuItemSave.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemSave);
 
                 //---- menuItemSaveAll ----
                 menuItemSaveAll.setText(bundle.getString("Navigator.menuItemSaveAll.text"));
                 menuItemSaveAll.setMnemonic(bundle.getString("Navigator.menuItemSaveAll.mnemonic").charAt(0));
+                menuItemSaveAll.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemSaveAll);
                 menuFile.addSeparator();
 
                 //---- menuItem8 ----
                 menuItem8.setText(bundle.getString("Navigator.menuItem8.text"));
                 menuItem8.setMnemonic(bundle.getString("Navigator.menuItem8.mnemonic").charAt(0));
+                menuItem8.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItem8);
                 menuFile.addSeparator();
 
                 //---- menuItemFileQuit ----
                 menuItemFileQuit.setText(bundle.getString("Navigator.menuItemFileQuit.text"));
                 menuItemFileQuit.setMnemonic(bundle.getString("Navigator.menuItemFileQuit.mnemonic").charAt(0));
+                menuItemFileQuit.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemFileQuit.addActionListener(e -> menuItemFileQuitActionPerformed(e));
                 menuFile.add(menuItemFileQuit);
             }
@@ -308,22 +323,26 @@ public class MainFrame extends JFrame
                 //---- menuItemCopy ----
                 menuItemCopy.setText(bundle.getString("Navigator.menuItemCopy.text"));
                 menuItemCopy.setMnemonic(bundle.getString("Navigator.menuItemCopy.mnemonic").charAt(0));
+                menuItemCopy.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuEdit.add(menuItemCopy);
 
                 //---- menuItemCut ----
                 menuItemCut.setText(bundle.getString("Navigator.menuItemCut.text"));
                 menuItemCut.setMnemonic(bundle.getString("Navigator.menuItemCut.mnemonic").charAt(0));
+                menuItemCut.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuEdit.add(menuItemCut);
 
                 //---- menuItemPaste ----
                 menuItemPaste.setText(bundle.getString("Navigator.menuItemPaste.text"));
                 menuItemPaste.setMnemonic(bundle.getString("Navigator.menuItemPaste.mnemonic").charAt(0));
+                menuItemPaste.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuEdit.add(menuItemPaste);
                 menuEdit.addSeparator();
 
                 //---- menuItemPreferences ----
                 menuItemPreferences.setText(bundle.getString("Navigator.menuItemPreferences.text"));
                 menuItemPreferences.setMnemonic(bundle.getString("Navigator.menuItemPreferences.mnemonic").charAt(0));
+                menuItemPreferences.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuEdit.add(menuItemPreferences);
             }
             menuBarMain.add(menuEdit);
@@ -336,11 +355,13 @@ public class MainFrame extends JFrame
                 //---- menuItemShowAllBookmarks ----
                 menuItemShowAllBookmarks.setText(bundle.getString("Navigator.menuItemShowAllBookmarks.text"));
                 menuItemShowAllBookmarks.setMnemonic(bundle.getString("Navigator.menuItemShowAllBookmarks.mnemonic").charAt(0));
+                menuItemShowAllBookmarks.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuBookmarks.add(menuItemShowAllBookmarks);
 
                 //---- menuItemAddBookmark ----
                 menuItemAddBookmark.setText(bundle.getString("Navigator.menuItemAddBookmark.text"));
                 menuItemAddBookmark.setMnemonic(bundle.getString("Navigator.menuItemAddBookmark.mnemonic").charAt(0));
+                menuItemAddBookmark.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuBookmarks.add(menuItemAddBookmark);
                 menuBookmarks.addSeparator();
             }
@@ -354,33 +375,39 @@ public class MainFrame extends JFrame
                 //---- menuItemDuplicates ----
                 menuItemDuplicates.setText(bundle.getString("Navigator.menuItemDuplicates.text"));
                 menuItemDuplicates.setMnemonic(bundle.getString("Navigator.menuItemDuplicates.mnemonic").charAt(0));
+                menuItemDuplicates.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuTools.add(menuItemDuplicates);
 
                 //---- menuItemUuidGenerator ----
                 menuItemUuidGenerator.setText(bundle.getString("Navigator.menuItemUuidGenerator.text"));
                 menuItemUuidGenerator.setMnemonic(bundle.getString("Navigator.menuItemUuidGenerator.mnemonic_2").charAt(0));
+                menuItemUuidGenerator.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuTools.add(menuItemUuidGenerator);
 
                 //---- menuItemJunk ----
                 menuItemJunk.setText(bundle.getString("Navigator.menuItemJunk.text"));
                 menuItemJunk.setMnemonic(bundle.getString("Navigator.menuItemJunk.mnemonic").charAt(0));
+                menuItemJunk.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuTools.add(menuItemJunk);
 
                 //---- menuItemTouch ----
                 menuItemTouch.setText(bundle.getString("Navigator.menuItemTouch.text"));
                 menuItemTouch.setMnemonic(bundle.getString("Navigator.menuItemTouch.mnemonic").charAt(0));
+                menuItemTouch.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuTools.add(menuItemTouch);
                 menuTools.addSeparator();
 
                 //---- menuItemExternalTools ----
                 menuItemExternalTools.setText(bundle.getString("Navigator.menuItemExternalTools.text"));
                 menuItemExternalTools.setMnemonic(bundle.getString("Navigator.menuItemExternalTools.mnemonic").charAt(0));
+                menuItemExternalTools.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuTools.add(menuItemExternalTools);
 
                 //======== menuRunSubMenu ========
                 {
                     menuRunSubMenu.setText(bundle.getString("Navigator.menuRunSubMenu.text"));
                     menuRunSubMenu.setMnemonic(bundle.getString("Navigator.menuRunSubMenu.mnemonic").charAt(0));
+                    menuRunSubMenu.setHorizontalTextPosition(SwingConstants.LEFT);
                 }
                 menuTools.add(menuRunSubMenu);
             }
@@ -394,28 +421,52 @@ public class MainFrame extends JFrame
                 //---- menuItemMaximize ----
                 menuItemMaximize.setText(bundle.getString("Navigator.menuItemMaximize.text"));
                 menuItemMaximize.setMnemonic(bundle.getString("Navigator.menuItemMaximize.mnemonic").charAt(0));
+                menuItemMaximize.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuWindows.add(menuItemMaximize);
 
                 //---- menuItemMinimize ----
                 menuItemMinimize.setText(bundle.getString("Navigator.menuItemMinimize.text"));
                 menuItemMinimize.setMnemonic(bundle.getString("Navigator.menuItemMinimize.mnemonic").charAt(0));
+                menuItemMinimize.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuWindows.add(menuItemMinimize);
 
-                //---- menuItemFullScreen ----
-                menuItemFullScreen.setText(bundle.getString("Navigator.menuItemFullScreen.text"));
-                menuItemFullScreen.setMnemonic(bundle.getString("Navigator.menuItemFullScreen.mnemonic").charAt(0));
-                menuWindows.add(menuItemFullScreen);
+                //---- menuItemRestore ----
+                menuItemRestore.setText(bundle.getString("Navigator.menuItemRestore.text"));
+                menuItemRestore.setMnemonic(bundle.getString("Navigator.menuItemRestore.mnemonic").charAt(0));
+                menuItemRestore.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuWindows.add(menuItemRestore);
                 menuWindows.addSeparator();
 
                 //---- menuItemSplitHorizontal ----
                 menuItemSplitHorizontal.setText(bundle.getString("Navigator.menuItemSplitHorizontal.text"));
                 menuItemSplitHorizontal.setMnemonic(bundle.getString("Navigator.menuItemSplitHorizontal.mnemonic").charAt(0));
+                menuItemSplitHorizontal.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuWindows.add(menuItemSplitHorizontal);
 
                 //---- menuItemSplitVertical ----
                 menuItemSplitVertical.setText(bundle.getString("Navigator.menuItemSplitVertical.text"));
                 menuItemSplitVertical.setMnemonic(bundle.getString("Navigator.menuItemSplitVertical.mnemonic").charAt(0));
+                menuItemSplitVertical.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuWindows.add(menuItemSplitVertical);
+                menuWindows.addSeparator();
+
+                //---- menuItemToggleBottom ----
+                menuItemToggleBottom.setText(bundle.getString("Navigator.menuItemToggleBottom.text"));
+                menuItemToggleBottom.setMnemonic(bundle.getString("Navigator.menuItemToggleBottom.mnemonic").charAt(0));
+                menuItemToggleBottom.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuWindows.add(menuItemToggleBottom);
+
+                //---- menuItemTogglePublisher ----
+                menuItemTogglePublisher.setText(bundle.getString("Navigator.menuItemTogglePublisher.text"));
+                menuItemTogglePublisher.setMnemonic(bundle.getString("Navigator.menuItemTogglePublisher.mnemonic").charAt(0));
+                menuItemTogglePublisher.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuWindows.add(menuItemTogglePublisher);
+
+                //---- menuItemToggleSubscriber ----
+                menuItemToggleSubscriber.setText(bundle.getString("Navigator.menuItemToggleSubscriber.text"));
+                menuItemToggleSubscriber.setMnemonic(bundle.getString("Navigator.menuItemToggleSubscriber.mnemonic").charAt(0));
+                menuItemToggleSubscriber.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuWindows.add(menuItemToggleSubscriber);
             }
             menuBarMain.add(menuWindows);
 
@@ -449,7 +500,7 @@ public class MainFrame extends JFrame
                 {
                     splitPaneBrowser.setOrientation(JSplitPane.VERTICAL_SPLIT);
                     splitPaneBrowser.setLastDividerLocation(450);
-                    splitPaneBrowser.setMinimumSize(new Dimension(54, 56));
+                    splitPaneBrowser.setMinimumSize(new Dimension(54, 0));
                     splitPaneBrowser.setContinuousLayout(true);
                     splitPaneBrowser.setDividerLocation(450);
 
@@ -576,6 +627,7 @@ public class MainFrame extends JFrame
                             splitPaneTwoBrowsers.setPreferredSize(new Dimension(812, 390));
                             splitPaneTwoBrowsers.setResizeWeight(0.5);
                             splitPaneTwoBrowsers.setContinuousLayout(true);
+                            splitPaneTwoBrowsers.setMinimumSize(new Dimension(10, 33));
 
                             //======== tabbedPaneBrowserOne ========
                             {
@@ -585,7 +637,7 @@ public class MainFrame extends JFrame
                                 //======== panelCollectionOne ========
                                 {
                                     panelCollectionOne.setFocusable(false);
-                                    panelCollectionOne.setLayout(new BorderLayout());
+                                    panelCollectionOne.setLayout(new BoxLayout(panelCollectionOne, BoxLayout.X_AXIS));
 
                                     //======== splitPaneCollectionOne ========
                                     {
@@ -615,14 +667,14 @@ public class MainFrame extends JFrame
                                         }
                                         splitPaneCollectionOne.setRightComponent(scrollPaneTableCollectionOne);
                                     }
-                                    panelCollectionOne.add(splitPaneCollectionOne, BorderLayout.NORTH);
+                                    panelCollectionOne.add(splitPaneCollectionOne);
                                 }
                                 tabbedPaneBrowserOne.addTab(bundle.getString("Navigator.panelCollectionOne.tab.title"), panelCollectionOne);
 
                                 //======== panelSystemOne ========
                                 {
                                     panelSystemOne.setFocusable(false);
-                                    panelSystemOne.setLayout(new BorderLayout());
+                                    panelSystemOne.setLayout(new BoxLayout(panelSystemOne, BoxLayout.X_AXIS));
 
                                     //======== splitPaneSystemOne ========
                                     {
@@ -647,7 +699,7 @@ public class MainFrame extends JFrame
                                         }
                                         splitPaneSystemOne.setRightComponent(scrollPaneTableSystemOne);
                                     }
-                                    panelSystemOne.add(splitPaneSystemOne, BorderLayout.NORTH);
+                                    panelSystemOne.add(splitPaneSystemOne);
                                 }
                                 tabbedPaneBrowserOne.addTab(bundle.getString("Navigator.panelSystemOne.tab.title"), panelSystemOne);
                             }
@@ -656,11 +708,11 @@ public class MainFrame extends JFrame
                             //======== tabbedPaneBrowserTwo ========
                             {
                                 tabbedPaneBrowserTwo.setTabPlacement(SwingConstants.LEFT);
-                                tabbedPaneBrowserTwo.setFocusable(false);
+                                tabbedPaneBrowserTwo.setPreferredSize(new Dimension(950, 427));
 
                                 //======== panelCollectionTwo ========
                                 {
-                                    panelCollectionTwo.setLayout(new BorderLayout());
+                                    panelCollectionTwo.setLayout(new BoxLayout(panelCollectionTwo, BoxLayout.X_AXIS));
 
                                     //======== splitPaneCollectionTwo ========
                                     {
@@ -673,9 +725,6 @@ public class MainFrame extends JFrame
                                         {
                                             scrollPaneTreeCollectionTwo.setFocusable(false);
                                             scrollPaneTreeCollectionTwo.setPreferredSize(new Dimension(103, 384));
-
-                                            //---- treeCollectionTwo ----
-                                            treeCollectionTwo.setFocusable(false);
                                             scrollPaneTreeCollectionTwo.setViewportView(treeCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setLeftComponent(scrollPaneTreeCollectionTwo);
@@ -687,19 +736,18 @@ public class MainFrame extends JFrame
 
                                             //---- tableCollectionTwo ----
                                             tableCollectionTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
-                                            tableCollectionTwo.setFocusable(false);
                                             tableCollectionTwo.setFillsViewportHeight(true);
                                             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setRightComponent(scrollPaneTableCollectionTwo);
                                     }
-                                    panelCollectionTwo.add(splitPaneCollectionTwo, BorderLayout.NORTH);
+                                    panelCollectionTwo.add(splitPaneCollectionTwo);
                                 }
                                 tabbedPaneBrowserTwo.addTab(bundle.getString("Navigator.panelCollectionTwo.tab.title"), panelCollectionTwo);
 
                                 //======== panelSystemTwo ========
                                 {
-                                    panelSystemTwo.setLayout(new BorderLayout());
+                                    panelSystemTwo.setLayout(new BoxLayout(panelSystemTwo, BoxLayout.X_AXIS));
 
                                     //======== splitPaneSystemTwo ========
                                     {
@@ -710,9 +758,6 @@ public class MainFrame extends JFrame
 
                                         //======== scrollPaneTreeSystemTwo ========
                                         {
-
-                                            //---- treeSystemTwo ----
-                                            treeSystemTwo.setFocusable(false);
                                             scrollPaneTreeSystemTwo.setViewportView(treeSystemTwo);
                                         }
                                         splitPaneSystemTwo.setLeftComponent(scrollPaneTreeSystemTwo);
@@ -722,13 +767,12 @@ public class MainFrame extends JFrame
 
                                             //---- tableSystemTwo ----
                                             tableSystemTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
-                                            tableSystemTwo.setFocusable(false);
                                             tableSystemTwo.setFillsViewportHeight(true);
                                             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
                                         }
                                         splitPaneSystemTwo.setRightComponent(scrollPaneTableSystemTwo);
                                     }
-                                    panelSystemTwo.add(splitPaneSystemTwo, BorderLayout.NORTH);
+                                    panelSystemTwo.add(splitPaneSystemTwo);
                                 }
                                 tabbedPaneBrowserTwo.addTab(bundle.getString("Navigator.panelSystemTwo.tab.title"), panelSystemTwo);
                             }
@@ -743,13 +787,17 @@ public class MainFrame extends JFrame
                         tabbedPaneNavigatorBottom.setTabPlacement(SwingConstants.BOTTOM);
                         tabbedPaneNavigatorBottom.setPreferredSize(new Dimension(1160, 90));
                         tabbedPaneNavigatorBottom.setFocusable(false);
+                        tabbedPaneNavigatorBottom.setMinimumSize(new Dimension(70, 0));
+                        tabbedPaneNavigatorBottom.setAutoscrolls(true);
 
                         //======== scrollPaneFind ========
                         {
                             scrollPaneFind.setFocusable(false);
+                            scrollPaneFind.setMinimumSize(new Dimension(16, 0));
 
                             //---- listFind ----
                             listFind.setFocusable(false);
+                            listFind.setMinimumSize(new Dimension(39, 0));
                             scrollPaneFind.setViewportView(listFind);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneFind.tab.title"), scrollPaneFind);
@@ -757,9 +805,11 @@ public class MainFrame extends JFrame
                         //======== scrollPaneContent ========
                         {
                             scrollPaneContent.setFocusable(false);
+                            scrollPaneContent.setMinimumSize(new Dimension(16, 0));
 
                             //---- textPaneContent ----
                             textPaneContent.setFocusable(false);
+                            textPaneContent.setMinimumSize(new Dimension(7, 0));
                             scrollPaneContent.setViewportView(textPaneContent);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneContent.tab.title"), scrollPaneContent);
@@ -818,7 +868,7 @@ public class MainFrame extends JFrame
                 new Insets(0, 0, 0, 4), 0, 0));
         }
         contentPane.add(panelStatus, BorderLayout.SOUTH);
-        pack();
+        setSize(1024, 640);
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
@@ -850,9 +900,12 @@ public class MainFrame extends JFrame
     public JMenu menuWindows;
     public JMenuItem menuItemMaximize;
     public JMenuItem menuItemMinimize;
-    public JMenuItem menuItemFullScreen;
+    public JMenuItem menuItemRestore;
     public JMenuItem menuItemSplitHorizontal;
     public JMenuItem menuItemSplitVertical;
+    public JMenuItem menuItemToggleBottom;
+    public JMenuItem menuItemTogglePublisher;
+    public JMenuItem menuItemToggleSubscriber;
     public JMenu menuHelp;
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemAbout;

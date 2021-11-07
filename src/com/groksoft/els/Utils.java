@@ -154,7 +154,7 @@ public class Utils
         DecimalFormat shorterFormatter = new DecimalFormat("###,###,###,###,###,###,###,###.###");
         DecimalFormat longerFormatter = new DecimalFormat("###,###,###,###,###,###,###,###");
 
-        brief = longerFormatter.format(value) + " bytes";
+        brief = longerFormatter.format(value) + " B";
         full = brief;
         if (value >= (1024))
         {

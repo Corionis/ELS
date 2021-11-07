@@ -412,7 +412,7 @@ public class Daemon extends DaemonBase
                                 if (context.clientStty == null)
                                 {
                                     // start the serveSftp client
-                                    context.clientSftp = new ClientSftp(myRepo, theirRepo, false);
+                                    context.clientSftp = new ClientSftp(cfg, myRepo, theirRepo, false);
                                     if (!context.clientSftp.startClient())
                                     {
                                         throw new MungeException("Publisher sftp client failed to connect");

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -246,7 +247,9 @@ class NavTreeNode extends DefaultMutableTreeNode
                     case NavTreeUserObject.REMOTE:
                         if (myTuo.isDir)
                         {
-                            if (guiContext.cfg.isRemoteSession() && myTree.getName().equalsIgnoreCase("treeCollectionTwo"))
+                            if (guiContext.cfg.isRemoteSession() &&
+                                    (myTree.getName().equalsIgnoreCase("treeCollectionTwo") ||
+                                     myTree.getName().equalsIgnoreCase("treeSystemTwo")))
                             {
                                 logger.debug("scanning remote directory " + myTuo.path);
                                 scanRemote(myTuo.path);
@@ -376,8 +379,10 @@ class NavTreeNode extends DefaultMutableTreeNode
 
         // tweak the columns
         // TODO Add remembering & restoring each table's column widths, etc.
+
         for (int i = 0; i < myTable.getColumnCount(); ++i)
         {
+            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer(); //(DefaultTableCellRenderer) myTable.getCellRenderer(1, i);
             column = myTable.getColumnModel().getColumn(i);
             switch (i)
             {
@@ -389,13 +394,19 @@ class NavTreeNode extends DefaultMutableTreeNode
                     column.setMinWidth(22);
                     break;
                 case 1:
+                    cellRenderer.setHorizontalAlignment(JLabel.LEFT);
+                    column.setCellRenderer(cellRenderer);
                     column.setResizable(true);
                     break;
                 case 2:
+                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
+                    column.setCellRenderer(cellRenderer);
                     column.setResizable(true);
                     break;
                 case 3:
                     column.setResizable(true);
+                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
+                    column.setCellRenderer(cellRenderer);
                     break;
             }
         }

@@ -217,7 +217,7 @@ public class Main
                         isListening = true;
 
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.publisherRepo, context.subscriberRepo, true);
+                        context.serveSftp = new ServeSftp(context, context.publisherRepo, context.subscriberRepo, true);
                         context.serveSftp.startServer();
                     }
                     else
@@ -253,7 +253,7 @@ public class Main
                         }
 
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
+                        context.clientSftp = new ClientSftp(cfg, context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
                             throw new MungeException("Publisher sftp client failed to connect");
@@ -288,7 +288,7 @@ public class Main
                         }
 
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(context.publisherRepo, context.subscriberRepo, true);
+                        context.clientSftp = new ClientSftp(cfg, context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
                             throw new MungeException("Publisher sftp client failed to connect");
@@ -338,7 +338,7 @@ public class Main
                         isListening = true;
 
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo, true);
+                        context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, true);
                         context.serveSftp.startServer();
                     }
                     else
@@ -377,7 +377,7 @@ public class Main
                         }
 
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(context.subscriberRepo, context.publisherRepo, true);
+                        context.clientSftp = new ClientSftp(cfg, context.subscriberRepo, context.publisherRepo, true);
                         if (!context.clientSftp.startClient())
                         {
                             throw new MungeException("Publisher sftp client failed to connect");
@@ -390,7 +390,7 @@ public class Main
                         isListening = true;
 
                         // start serveSftp server
-                        context.serveSftp = new ServeSftp(context.subscriberRepo, context.publisherRepo, false);
+                        context.serveSftp = new ServeSftp(context, context.subscriberRepo, context.publisherRepo, false);
                         context.serveSftp.startServer();
                     }
                     else

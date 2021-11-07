@@ -1,5 +1,7 @@
 package com.groksoft.els.gui;
 
+import com.groksoft.els.Utils;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.nio.file.Files;
@@ -20,7 +22,9 @@ public class BrowserTableModel extends AbstractTableModel
 
     private String formatFileTime(FileTime stamp)
     {
-        return dateFormatter.format(stamp.toMillis());
+        if (stamp != null)
+            return dateFormatter.format(stamp.toMillis());
+        return "";
     }
 
     @Override
@@ -33,7 +37,7 @@ public class BrowserTableModel extends AbstractTableModel
             case 1:
                 return FolderColumn.class;
             case 2:
-                return Long.class;
+                return String.class;  // Long.class;
             case 3:
                 return String.class;  // return formatted FileTime
             case 4:
@@ -123,7 +127,7 @@ public class BrowserTableModel extends AbstractTableModel
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
                     case NavTreeUserObject.LIBRARY:
-                        return Long.valueOf(child.getChildCount(false));
+                        return Long.valueOf(child.getChildCount(false)) + " items";
                     case NavTreeUserObject.DRIVE:
                         return null;
                     case NavTreeUserObject.REAL:
@@ -134,7 +138,7 @@ public class BrowserTableModel extends AbstractTableModel
                             try
                             {
                                 long size = Files.size(tuo.file.toPath());
-                                return size;
+                                return Utils.formatLong(size, false);
                             }
                             catch (Exception e)
                             {
@@ -145,7 +149,7 @@ public class BrowserTableModel extends AbstractTableModel
                     case NavTreeUserObject.REMOTE:
                         if (tuo.isDir)
                             return null;
-                        return tuo.size;
+                        return Utils.formatLong(tuo.size, false);
                     case NavTreeUserObject.SYSTEM:
                         return null;
                     default:
