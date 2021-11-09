@@ -9,7 +9,6 @@ public class Preferences
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
-    private boolean showBookmarksInTree = true;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
@@ -27,11 +26,6 @@ public class Preferences
     public boolean initialize()
     {
         return true;
-    }
-
-    public boolean isShowBookmarksInTree()
-    {
-        return showBookmarksInTree;
     }
 
     public boolean isSortCaseInsensitive()
@@ -57,11 +51,6 @@ public class Preferences
     public void setLafStyle(int lafStyle)
     {
         this.lafStyle = lafStyle;
-    }
-
-    public void setShowBookmarksInTree(boolean showBookmarksInTree)
-    {
-        this.showBookmarksInTree = showBookmarksInTree;
     }
 
     public void setSortCaseInsensitive(boolean sortCaseInsensitive)

@@ -26,6 +26,10 @@ public class Navigator
     //     * By-source
     //  * Add subscriber command to Request Library, not collection; Use to prime Browser then use lazy loading;
     //    then skip subscriber-side commands for RequestCollection and RequestTargets
+    //  * Add size format option for scaled or bytes
+
+    //
+    // LEFTOFF Remote file data is wrong
 
     public Navigator(Main main, Configuration config, Context ctx)
     {

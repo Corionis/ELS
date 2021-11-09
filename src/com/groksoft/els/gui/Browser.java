@@ -3,6 +3,7 @@ package com.groksoft.els.gui;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
+import com.sun.jndi.toolkit.url.Uri;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
@@ -409,43 +411,40 @@ public class Browser
                 guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
             }
         });
+
+        // -- Help Menu
         //
-        guiContext.form.menuItemToggleBottom.addActionListener(new AbstractAction()
+        guiContext.form.menuItemDocumentation.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (guiContext.form.tabbedPaneNavigatorBottom.isVisible())
-                    splitPanelBrowserLastDividerLocation = guiContext.form.splitPaneBrowser.getDividerLocation();
-                guiContext.form.tabbedPaneNavigatorBottom.setVisible(!guiContext.form.tabbedPaneNavigatorBottom.isVisible());
-                if (guiContext.form.tabbedPaneNavigatorBottom.isVisible())
-                    guiContext.form.splitPaneBrowser.setDividerLocation(splitPanelBrowserLastDividerLocation);
+                try
+                {
+                    URI uri = new URI("https://github.com/GrokSoft/ELS/wiki");
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         //
-        guiContext.form.menuItemTogglePublisher.addActionListener(new AbstractAction()
+        guiContext.form.menuItemGitHubProject.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (guiContext.form.tabbedPaneBrowserOne.isVisible())
-                    splitPaneTwoBrowsersLastDividerLocation = guiContext.form.splitPaneTwoBrowsers.getDividerLocation();
-                guiContext.form.tabbedPaneBrowserOne.setVisible(!guiContext.form.tabbedPaneBrowserOne.isVisible());
-                if (guiContext.form.tabbedPaneBrowserOne.isVisible())
-                    guiContext.form.splitPaneTwoBrowsers.setDividerLocation(splitPaneTwoBrowsersLastDividerLocation);
-            }
-        });
-        //
-        guiContext.form.menuItemToggleSubscriber.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                if (guiContext.form.tabbedPaneBrowserTwo.isVisible())
-                    splitPaneTwoBrowsersLastDividerLocation = guiContext.form.splitPaneTwoBrowsers.getDividerLocation();
-                guiContext.form.tabbedPaneBrowserTwo.setVisible(!guiContext.form.tabbedPaneBrowserTwo.isVisible());
-                if (guiContext.form.tabbedPaneBrowserTwo.isVisible())
-                    guiContext.form.splitPaneTwoBrowsers.setDividerLocation(splitPaneTwoBrowsersLastDividerLocation);
+                try
+                {
+                    URI uri = new URI("https://github.com/GrokSoft/ELS");
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -554,16 +553,6 @@ public class Browser
         tree.setLargeModel(true);
         tree.setCellRenderer(new NavTreeCellRenderer());
         tree.setModel(model);
-
-        // add Bookmarks root node
-        if (guiContext.preferences.isShowBookmarksInTree())
-        {
-            tuo = new NavTreeUserObject("Bookmarks", NavTreeUserObject.BOOKMARKS);
-            NavTreeNode bookNode = new NavTreeNode(guiContext, tree, tuo);
-            bookNode.setAllowsChildren(true);
-            root.add(bookNode);
-            ////////////////////////////bookNode.loadChildren();
-        }
 
         // add Computer node
         tuo = new NavTreeUserObject("Computer", NavTreeUserObject.COMPUTER);

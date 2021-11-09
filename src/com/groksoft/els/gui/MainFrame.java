@@ -185,11 +185,9 @@ public class MainFrame extends JFrame
         menuItemRestore = new JMenuItem();
         menuItemSplitHorizontal = new JMenuItem();
         menuItemSplitVertical = new JMenuItem();
-        menuItemToggleBottom = new JMenuItem();
-        menuItemTogglePublisher = new JMenuItem();
-        menuItemToggleSubscriber = new JMenuItem();
         menuHelp = new JMenu();
         menuItemDocumentation = new JMenuItem();
+        menuItemGitHubProject = new JMenuItem();
         menuItemAbout = new JMenuItem();
         panelMain = new JPanel();
         tabbedPaneMain = new JTabbedPane();
@@ -204,13 +202,9 @@ public class MainFrame extends JFrame
         buttonDelete = new JButton();
         panelLocation = new JPanel();
         panelLocationLeft = new JPanel();
-        buttonHome = new JButton();
         buttonBack = new JButton();
         buttonForward = new JButton();
         textFieldLocation = new JTextField();
-        panelLocationRight = new JPanel();
-        buttonBrowse = new JButton();
-        buttonToggle = new JButton();
         splitPaneTwoBrowsers = new JSplitPane();
         tabbedPaneBrowserOne = new JTabbedPane();
         panelCollectionOne = new JPanel();
@@ -448,25 +442,6 @@ public class MainFrame extends JFrame
                 menuItemSplitVertical.setMnemonic(bundle.getString("Navigator.menuItemSplitVertical.mnemonic").charAt(0));
                 menuItemSplitVertical.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuWindows.add(menuItemSplitVertical);
-                menuWindows.addSeparator();
-
-                //---- menuItemToggleBottom ----
-                menuItemToggleBottom.setText(bundle.getString("Navigator.menuItemToggleBottom.text"));
-                menuItemToggleBottom.setMnemonic(bundle.getString("Navigator.menuItemToggleBottom.mnemonic").charAt(0));
-                menuItemToggleBottom.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuWindows.add(menuItemToggleBottom);
-
-                //---- menuItemTogglePublisher ----
-                menuItemTogglePublisher.setText(bundle.getString("Navigator.menuItemTogglePublisher.text"));
-                menuItemTogglePublisher.setMnemonic(bundle.getString("Navigator.menuItemTogglePublisher.mnemonic").charAt(0));
-                menuItemTogglePublisher.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuWindows.add(menuItemTogglePublisher);
-
-                //---- menuItemToggleSubscriber ----
-                menuItemToggleSubscriber.setText(bundle.getString("Navigator.menuItemToggleSubscriber.text"));
-                menuItemToggleSubscriber.setMnemonic(bundle.getString("Navigator.menuItemToggleSubscriber.mnemonic").charAt(0));
-                menuItemToggleSubscriber.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuWindows.add(menuItemToggleSubscriber);
             }
             menuBarMain.add(menuWindows);
 
@@ -478,11 +453,19 @@ public class MainFrame extends JFrame
                 //---- menuItemDocumentation ----
                 menuItemDocumentation.setText(bundle.getString("Navigator.menuItemDocumentation.text"));
                 menuItemDocumentation.setMnemonic(bundle.getString("Navigator.menuItemDocumentation.mnemonic").charAt(0));
+                menuItemDocumentation.setHorizontalAlignment(SwingConstants.LEFT);
                 menuHelp.add(menuItemDocumentation);
+
+                //---- menuItemGitHubProject ----
+                menuItemGitHubProject.setText(bundle.getString("Navigator.menuItemGitHubProject.text"));
+                menuItemGitHubProject.setMnemonic(bundle.getString("Navigator.menuItemGitHubProject.mnemonic").charAt(0));
+                menuItemGitHubProject.setHorizontalAlignment(SwingConstants.LEFT);
+                menuHelp.add(menuItemGitHubProject);
 
                 //---- menuItemAbout ----
                 menuItemAbout.setText(bundle.getString("Navigator.menuItemAbout.text"));
                 menuItemAbout.setMnemonic(bundle.getString("Navigator.menuItemAbout.mnemonic").charAt(0));
+                menuItemAbout.setHorizontalAlignment(SwingConstants.LEFT);
                 menuHelp.add(menuItemAbout);
             }
             menuBarMain.add(menuHelp);
@@ -557,29 +540,26 @@ public class MainFrame extends JFrame
                                     ((GridBagLayout)panelLocationLeft.getLayout()).columnWeights = new double[] {1.0, 1.0, 1.0, 1.0E-4};
                                     ((GridBagLayout)panelLocationLeft.getLayout()).rowWeights = new double[] {1.0, 1.0E-4};
 
-                                    //---- buttonHome ----
-                                    buttonHome.setText("Home");
-                                    buttonHome.setToolTipText(bundle.getString("Navigator.buttonHome.toolTipText"));
-                                    panelLocationLeft.add(buttonHome, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 0, 0), 0, 0));
-
                                     //---- buttonBack ----
-                                    buttonBack.setText("<");
+                                    buttonBack.setText("<html>&lt;</html>");
                                     buttonBack.setMaximumSize(new Dimension(36, 30));
                                     buttonBack.setMinimumSize(new Dimension(36, 30));
                                     buttonBack.setPreferredSize(new Dimension(36, 30));
                                     buttonBack.setToolTipText(bundle.getString("Navigator.buttonBack.toolTipText"));
+                                    buttonBack.setActionCommand("navBack");
+                                    buttonBack.setMnemonic(bundle.getString("Navigator.buttonBack.mnemonic").charAt(0));
                                     panelLocationLeft.add(buttonBack, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 0), 0, 0));
 
                                     //---- buttonForward ----
-                                    buttonForward.setText(">");
+                                    buttonForward.setText("<html>&gt;</html>");
                                     buttonForward.setMaximumSize(new Dimension(36, 30));
                                     buttonForward.setMinimumSize(new Dimension(36, 30));
                                     buttonForward.setPreferredSize(new Dimension(36, 30));
                                     buttonForward.setToolTipText(bundle.getString("Navigator.buttonForward.toolTipText"));
+                                    buttonForward.setMnemonic(bundle.getString("Navigator.buttonForward.mnemonic").charAt(0));
+                                    buttonForward.setActionCommand("NavForward");
                                     panelLocationLeft.add(buttonForward, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 0), 0, 0));
@@ -591,30 +571,6 @@ public class MainFrame extends JFrame
                                 textFieldLocation.setPreferredSize(new Dimension(850, 30));
                                 textFieldLocation.setHorizontalAlignment(SwingConstants.LEFT);
                                 panelLocation.add(textFieldLocation, BorderLayout.CENTER);
-
-                                //======== panelLocationRight ========
-                                {
-                                    panelLocationRight.setLayout(new GridBagLayout());
-                                    ((GridBagLayout)panelLocationRight.getLayout()).columnWidths = new int[] {0, 0, 0};
-                                    ((GridBagLayout)panelLocationRight.getLayout()).rowHeights = new int[] {0, 0};
-                                    ((GridBagLayout)panelLocationRight.getLayout()).columnWeights = new double[] {1.0, 1.0, 1.0E-4};
-                                    ((GridBagLayout)panelLocationRight.getLayout()).rowWeights = new double[] {1.0, 1.0E-4};
-
-                                    //---- buttonBrowse ----
-                                    buttonBrowse.setText("Browse ");
-                                    buttonBrowse.setToolTipText(bundle.getString("Navigator.buttonBrowse.toolTipText"));
-                                    panelLocationRight.add(buttonBrowse, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 0, 0), 0, 0));
-
-                                    //---- buttonToggle ----
-                                    buttonToggle.setText("Toggle");
-                                    buttonToggle.setToolTipText(bundle.getString("Navigator.buttonToggle.toolTipText"));
-                                    panelLocationRight.add(buttonToggle, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 0, 0, 0), 0, 0));
-                                }
-                                panelLocation.add(panelLocationRight, BorderLayout.EAST);
                             }
                             panelLocationAndButtons.add(panelLocation, BorderLayout.SOUTH);
                         }
@@ -627,16 +583,18 @@ public class MainFrame extends JFrame
                             splitPaneTwoBrowsers.setPreferredSize(new Dimension(812, 390));
                             splitPaneTwoBrowsers.setResizeWeight(0.5);
                             splitPaneTwoBrowsers.setContinuousLayout(true);
-                            splitPaneTwoBrowsers.setMinimumSize(new Dimension(10, 33));
+                            splitPaneTwoBrowsers.setMinimumSize(new Dimension(0, 0));
 
                             //======== tabbedPaneBrowserOne ========
                             {
                                 tabbedPaneBrowserOne.setTabPlacement(SwingConstants.LEFT);
                                 tabbedPaneBrowserOne.setFocusable(false);
+                                tabbedPaneBrowserOne.setMinimumSize(new Dimension(0, 0));
 
                                 //======== panelCollectionOne ========
                                 {
                                     panelCollectionOne.setFocusable(false);
+                                    panelCollectionOne.setMinimumSize(new Dimension(0, 0));
                                     panelCollectionOne.setLayout(new BoxLayout(panelCollectionOne, BoxLayout.X_AXIS));
 
                                     //======== splitPaneCollectionOne ========
@@ -646,11 +604,13 @@ public class MainFrame extends JFrame
                                         splitPaneCollectionOne.setBorder(null);
                                         splitPaneCollectionOne.setResizeWeight(0.5);
                                         splitPaneCollectionOne.setContinuousLayout(true);
+                                        splitPaneCollectionOne.setMinimumSize(new Dimension(0, 0));
 
                                         //======== scrollPaneTreeCollectionOne ========
                                         {
                                             scrollPaneTreeCollectionOne.setFocusable(false);
                                             scrollPaneTreeCollectionOne.setPreferredSize(new Dimension(103, 384));
+                                            scrollPaneTreeCollectionOne.setMinimumSize(new Dimension(0, 0));
                                             scrollPaneTreeCollectionOne.setViewportView(treeCollectionOne);
                                         }
                                         splitPaneCollectionOne.setLeftComponent(scrollPaneTreeCollectionOne);
@@ -659,6 +619,7 @@ public class MainFrame extends JFrame
                                         {
                                             scrollPaneTableCollectionOne.setFocusable(false);
                                             scrollPaneTableCollectionOne.setPreferredSize(new Dimension(756, 384));
+                                            scrollPaneTableCollectionOne.setMinimumSize(new Dimension(0, 0));
 
                                             //---- tableCollectionOne ----
                                             tableCollectionOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
@@ -674,6 +635,7 @@ public class MainFrame extends JFrame
                                 //======== panelSystemOne ========
                                 {
                                     panelSystemOne.setFocusable(false);
+                                    panelSystemOne.setMinimumSize(new Dimension(0, 0));
                                     panelSystemOne.setLayout(new BoxLayout(panelSystemOne, BoxLayout.X_AXIS));
 
                                     //======== splitPaneSystemOne ========
@@ -682,15 +644,18 @@ public class MainFrame extends JFrame
                                         splitPaneSystemOne.setDividerLocation(150);
                                         splitPaneSystemOne.setResizeWeight(0.5);
                                         splitPaneSystemOne.setContinuousLayout(true);
+                                        splitPaneSystemOne.setMinimumSize(new Dimension(0, 0));
 
                                         //======== scrollPaneTreeSystemOne ========
                                         {
+                                            scrollPaneTreeSystemOne.setMinimumSize(new Dimension(0, 0));
                                             scrollPaneTreeSystemOne.setViewportView(treeSystemOne);
                                         }
                                         splitPaneSystemOne.setLeftComponent(scrollPaneTreeSystemOne);
 
                                         //======== scrollPaneTableSystemOne ========
                                         {
+                                            scrollPaneTableSystemOne.setMinimumSize(new Dimension(0, 0));
 
                                             //---- tableSystemOne ----
                                             tableSystemOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
@@ -709,9 +674,11 @@ public class MainFrame extends JFrame
                             {
                                 tabbedPaneBrowserTwo.setTabPlacement(SwingConstants.LEFT);
                                 tabbedPaneBrowserTwo.setPreferredSize(new Dimension(950, 427));
+                                tabbedPaneBrowserTwo.setMinimumSize(new Dimension(0, 0));
 
                                 //======== panelCollectionTwo ========
                                 {
+                                    panelCollectionTwo.setMinimumSize(new Dimension(0, 0));
                                     panelCollectionTwo.setLayout(new BoxLayout(panelCollectionTwo, BoxLayout.X_AXIS));
 
                                     //======== splitPaneCollectionTwo ========
@@ -720,11 +687,13 @@ public class MainFrame extends JFrame
                                         splitPaneCollectionTwo.setDividerLocation(150);
                                         splitPaneCollectionTwo.setResizeWeight(0.5);
                                         splitPaneCollectionTwo.setContinuousLayout(true);
+                                        splitPaneCollectionTwo.setMinimumSize(new Dimension(0, 0));
 
                                         //======== scrollPaneTreeCollectionTwo ========
                                         {
                                             scrollPaneTreeCollectionTwo.setFocusable(false);
                                             scrollPaneTreeCollectionTwo.setPreferredSize(new Dimension(103, 384));
+                                            scrollPaneTreeCollectionTwo.setMinimumSize(new Dimension(0, 0));
                                             scrollPaneTreeCollectionTwo.setViewportView(treeCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setLeftComponent(scrollPaneTreeCollectionTwo);
@@ -733,6 +702,7 @@ public class MainFrame extends JFrame
                                         {
                                             scrollPaneTableCollectionTwo.setFocusable(false);
                                             scrollPaneTableCollectionTwo.setPreferredSize(new Dimension(756, 384));
+                                            scrollPaneTableCollectionTwo.setMinimumSize(new Dimension(0, 0));
 
                                             //---- tableCollectionTwo ----
                                             tableCollectionTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
@@ -747,6 +717,7 @@ public class MainFrame extends JFrame
 
                                 //======== panelSystemTwo ========
                                 {
+                                    panelSystemTwo.setMinimumSize(new Dimension(0, 0));
                                     panelSystemTwo.setLayout(new BoxLayout(panelSystemTwo, BoxLayout.X_AXIS));
 
                                     //======== splitPaneSystemTwo ========
@@ -755,15 +726,18 @@ public class MainFrame extends JFrame
                                         splitPaneSystemTwo.setDividerLocation(150);
                                         splitPaneSystemTwo.setResizeWeight(0.5);
                                         splitPaneSystemTwo.setContinuousLayout(true);
+                                        splitPaneSystemTwo.setMinimumSize(new Dimension(0, 0));
 
                                         //======== scrollPaneTreeSystemTwo ========
                                         {
+                                            scrollPaneTreeSystemTwo.setMinimumSize(new Dimension(0, 0));
                                             scrollPaneTreeSystemTwo.setViewportView(treeSystemTwo);
                                         }
                                         splitPaneSystemTwo.setLeftComponent(scrollPaneTreeSystemTwo);
 
                                         //======== scrollPaneTableSystemTwo ========
                                         {
+                                            scrollPaneTableSystemTwo.setMinimumSize(new Dimension(0, 0));
 
                                             //---- tableSystemTwo ----
                                             tableSystemTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
@@ -787,17 +761,16 @@ public class MainFrame extends JFrame
                         tabbedPaneNavigatorBottom.setTabPlacement(SwingConstants.BOTTOM);
                         tabbedPaneNavigatorBottom.setPreferredSize(new Dimension(1160, 90));
                         tabbedPaneNavigatorBottom.setFocusable(false);
-                        tabbedPaneNavigatorBottom.setMinimumSize(new Dimension(70, 0));
+                        tabbedPaneNavigatorBottom.setMinimumSize(new Dimension(0, 0));
                         tabbedPaneNavigatorBottom.setAutoscrolls(true);
 
                         //======== scrollPaneFind ========
                         {
                             scrollPaneFind.setFocusable(false);
-                            scrollPaneFind.setMinimumSize(new Dimension(16, 0));
+                            scrollPaneFind.setMinimumSize(new Dimension(0, 0));
 
                             //---- listFind ----
                             listFind.setFocusable(false);
-                            listFind.setMinimumSize(new Dimension(39, 0));
                             scrollPaneFind.setViewportView(listFind);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneFind.tab.title"), scrollPaneFind);
@@ -805,11 +778,11 @@ public class MainFrame extends JFrame
                         //======== scrollPaneContent ========
                         {
                             scrollPaneContent.setFocusable(false);
-                            scrollPaneContent.setMinimumSize(new Dimension(16, 0));
+                            scrollPaneContent.setMinimumSize(new Dimension(0, 0));
 
                             //---- textPaneContent ----
                             textPaneContent.setFocusable(false);
-                            textPaneContent.setMinimumSize(new Dimension(7, 0));
+                            textPaneContent.setMinimumSize(new Dimension(0, 0));
                             scrollPaneContent.setViewportView(textPaneContent);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneContent.tab.title"), scrollPaneContent);
@@ -903,11 +876,9 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemRestore;
     public JMenuItem menuItemSplitHorizontal;
     public JMenuItem menuItemSplitVertical;
-    public JMenuItem menuItemToggleBottom;
-    public JMenuItem menuItemTogglePublisher;
-    public JMenuItem menuItemToggleSubscriber;
     public JMenu menuHelp;
     public JMenuItem menuItemDocumentation;
+    public JMenuItem menuItemGitHubProject;
     public JMenuItem menuItemAbout;
     public JPanel panelMain;
     public JTabbedPane tabbedPaneMain;
@@ -922,13 +893,9 @@ public class MainFrame extends JFrame
     public JButton buttonDelete;
     public JPanel panelLocation;
     public JPanel panelLocationLeft;
-    public JButton buttonHome;
     public JButton buttonBack;
     public JButton buttonForward;
     public JTextField textFieldLocation;
-    public JPanel panelLocationRight;
-    public JButton buttonBrowse;
-    public JButton buttonToggle;
     public JSplitPane splitPaneTwoBrowsers;
     public JTabbedPane tabbedPaneBrowserOne;
     public JPanel panelCollectionOne;
