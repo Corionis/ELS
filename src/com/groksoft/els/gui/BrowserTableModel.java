@@ -1,30 +1,20 @@
 package com.groksoft.els.gui;
 
-import com.groksoft.els.Utils;
-
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class BrowserTableModel extends AbstractTableModel
 {
-    private SimpleDateFormat dateFormatter;
     private NavTreeNode node;
 
     public BrowserTableModel(NavTreeNode treeNode)
     {
         super();
         node = treeNode;
-        dateFormatter = new SimpleDateFormat(Navigator.guiContext.preferences.getDateFormat());
-    }
-
-    private String formatFileTime(FileTime stamp)
-    {
-        if (stamp != null)
-            return dateFormatter.format(stamp.toMillis());
-        return "";
     }
 
     @Override
@@ -37,9 +27,9 @@ public class BrowserTableModel extends AbstractTableModel
             case 1:
                 return NavTreeUserObject.class;
             case 2:
-                return String.class;  // Long.class;
+                return SizeColumn.class;
             case 3:
-                return String.class;  // return formatted FileTime
+                return DateColumn.class;
         }
         return String.class;
     }
@@ -125,7 +115,7 @@ public class BrowserTableModel extends AbstractTableModel
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
                     case NavTreeUserObject.LIBRARY:
-                        return Long.valueOf(child.getChildCount(false)) + " items";
+                        return new SizeColumn(Long.valueOf(child.getChildCount(false)), true) + " items";
                     case NavTreeUserObject.DRIVE:
                         return null;
                     case NavTreeUserObject.REAL:
@@ -136,7 +126,7 @@ public class BrowserTableModel extends AbstractTableModel
                             try
                             {
                                 long size = Files.size(tuo.file.toPath());
-                                return Utils.formatLong(size, false);
+                                return new SizeColumn(size);
                             }
                             catch (Exception e)
                             {
@@ -147,12 +137,9 @@ public class BrowserTableModel extends AbstractTableModel
                     case NavTreeUserObject.REMOTE:
                         if (tuo.isDir)
                             return null;
-                        return Utils.formatLong(tuo.size, false);
+                        return new SizeColumn(tuo.size);
                     case NavTreeUserObject.SYSTEM:
                         return null;
-                    default:
-                        return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
-
                 }
             }
 
@@ -177,7 +164,7 @@ public class BrowserTableModel extends AbstractTableModel
                         {
                             try
                             {
-                                return formatFileTime(Files.getLastModifiedTime(tuo.file.toPath()));
+                                return new DateColumn(Files.getLastModifiedTime(tuo.file.toPath()));
                             }
                             catch (Exception e)
                             {
@@ -185,7 +172,7 @@ public class BrowserTableModel extends AbstractTableModel
                         }
                         break;
                     case NavTreeUserObject.REMOTE:
-                        return formatFileTime(tuo.fileTime);
+                        return new DateColumn(tuo.fileTime);
                     case NavTreeUserObject.SYSTEM:
                         break;
                     default:

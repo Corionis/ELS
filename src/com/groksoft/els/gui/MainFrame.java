@@ -611,6 +611,9 @@ public class MainFrame extends JFrame
                                             scrollPaneTreeCollectionOne.setFocusable(false);
                                             scrollPaneTreeCollectionOne.setPreferredSize(new Dimension(103, 384));
                                             scrollPaneTreeCollectionOne.setMinimumSize(new Dimension(0, 0));
+
+                                            //---- treeCollectionOne ----
+                                            treeCollectionOne.setAutoscrolls(true);
                                             scrollPaneTreeCollectionOne.setViewportView(treeCollectionOne);
                                         }
                                         splitPaneCollectionOne.setLeftComponent(scrollPaneTreeCollectionOne);
@@ -624,6 +627,8 @@ public class MainFrame extends JFrame
                                             //---- tableCollectionOne ----
                                             tableCollectionOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableCollectionOne.setFillsViewportHeight(true);
+                                            tableCollectionOne.setDragEnabled(true);
+                                            tableCollectionOne.setDropMode(DropMode.INSERT_ROWS);
                                             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
                                         }
                                         splitPaneCollectionOne.setRightComponent(scrollPaneTableCollectionOne);
@@ -649,6 +654,9 @@ public class MainFrame extends JFrame
                                         //======== scrollPaneTreeSystemOne ========
                                         {
                                             scrollPaneTreeSystemOne.setMinimumSize(new Dimension(0, 0));
+
+                                            //---- treeSystemOne ----
+                                            treeSystemOne.setAutoscrolls(true);
                                             scrollPaneTreeSystemOne.setViewportView(treeSystemOne);
                                         }
                                         splitPaneSystemOne.setLeftComponent(scrollPaneTreeSystemOne);
@@ -660,6 +668,8 @@ public class MainFrame extends JFrame
                                             //---- tableSystemOne ----
                                             tableSystemOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableSystemOne.setFillsViewportHeight(true);
+                                            tableSystemOne.setDragEnabled(true);
+                                            tableSystemOne.setDropMode(DropMode.INSERT_ROWS);
                                             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
                                         }
                                         splitPaneSystemOne.setRightComponent(scrollPaneTableSystemOne);
@@ -675,6 +685,7 @@ public class MainFrame extends JFrame
                                 tabbedPaneBrowserTwo.setTabPlacement(SwingConstants.LEFT);
                                 tabbedPaneBrowserTwo.setPreferredSize(new Dimension(950, 427));
                                 tabbedPaneBrowserTwo.setMinimumSize(new Dimension(0, 0));
+                                tabbedPaneBrowserTwo.setAutoscrolls(true);
 
                                 //======== panelCollectionTwo ========
                                 {
@@ -707,6 +718,8 @@ public class MainFrame extends JFrame
                                             //---- tableCollectionTwo ----
                                             tableCollectionTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableCollectionTwo.setFillsViewportHeight(true);
+                                            tableCollectionTwo.setDragEnabled(true);
+                                            tableCollectionTwo.setDropMode(DropMode.INSERT_ROWS);
                                             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setRightComponent(scrollPaneTableCollectionTwo);
@@ -731,6 +744,9 @@ public class MainFrame extends JFrame
                                         //======== scrollPaneTreeSystemTwo ========
                                         {
                                             scrollPaneTreeSystemTwo.setMinimumSize(new Dimension(0, 0));
+
+                                            //---- treeSystemTwo ----
+                                            treeSystemTwo.setAutoscrolls(true);
                                             scrollPaneTreeSystemTwo.setViewportView(treeSystemTwo);
                                         }
                                         splitPaneSystemTwo.setLeftComponent(scrollPaneTreeSystemTwo);
@@ -742,6 +758,8 @@ public class MainFrame extends JFrame
                                             //---- tableSystemTwo ----
                                             tableSystemTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableSystemTwo.setFillsViewportHeight(true);
+                                            tableSystemTwo.setDragEnabled(true);
+                                            tableSystemTwo.setDropMode(DropMode.INSERT_ROWS);
                                             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
                                         }
                                         splitPaneSystemTwo.setRightComponent(scrollPaneTableSystemTwo);

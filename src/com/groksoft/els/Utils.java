@@ -151,29 +151,29 @@ public class Utils
     {
         String full;
         String brief;
-        DecimalFormat shorterFormatter = new DecimalFormat("###,###,###,###,###,###,###,###.###");
-        DecimalFormat longerFormatter = new DecimalFormat("###,###,###,###,###,###,###,###");
+        DecimalFormat longForm = new DecimalFormat("###,###,###,###,###,###,###,###.###");
+        DecimalFormat shortForm = new DecimalFormat("###,###,###,###,###,###,###,###.#");
 
-        brief = longerFormatter.format(value) + " B";
+        brief = shortForm.format(value) + " B";
         full = brief;
         if (value >= (1024))
         {
-            brief = longerFormatter.format(value / 1024.0) + " KB";
+            brief = shortForm.format(value / 1024.0) + " KB";
             full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0))
         {
-            brief = longerFormatter.format(value / (1024.0 * 1024.0)) + " MB";
+            brief = shortForm.format(value / (1024.0 * 1024.0)) + " MB";
             full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0 * 1024.0))
         {
-            brief = longerFormatter.format(value / (1024.0 * 1024.0 * 1024.0)) + " GB";
+            brief = shortForm.format(value / (1024.0 * 1024.0 * 1024.0)) + " GB";
             full += ", " + brief;
         }
         if (value >= (1024.0 * 1024.0 * 1024.0 * 1024.0))
         {
-            brief = shorterFormatter.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
+            brief = longForm.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
             full += ", " + brief;
         }
         return (isFull ? full : brief);

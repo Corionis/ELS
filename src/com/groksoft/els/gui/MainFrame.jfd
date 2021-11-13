@@ -154,6 +154,7 @@ new FormModel {
 												"minimumSize": new java.awt.Dimension( 0, 0 )
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionOne"
+													"autoscrolls": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -167,6 +168,8 @@ new FormModel {
 													name: "tableCollectionOne"
 													"preferredScrollableViewportSize": &Dimension0 new java.awt.Dimension( 754, 400 )
 													"fillsViewportHeight": true
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode INSERT_ROWS
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -191,6 +194,7 @@ new FormModel {
 												"minimumSize": new java.awt.Dimension( 0, 0 )
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeSystemOne"
+													"autoscrolls": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -202,6 +206,8 @@ new FormModel {
 													name: "tableSystemOne"
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode INSERT_ROWS
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -218,6 +224,7 @@ new FormModel {
 									"tabPlacement": 2
 									"preferredSize": new java.awt.Dimension( 950, 427 )
 									"minimumSize": new java.awt.Dimension( 0, 0 )
+									"autoscrolls": true
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 										name: "panelCollectionTwo"
 										"minimumSize": new java.awt.Dimension( 0, 0 )
@@ -248,6 +255,8 @@ new FormModel {
 													name: "tableCollectionTwo"
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode INSERT_ROWS
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -271,6 +280,7 @@ new FormModel {
 												"minimumSize": new java.awt.Dimension( 0, 0 )
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeSystemTwo"
+													"autoscrolls": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -282,6 +292,8 @@ new FormModel {
 													name: "tableSystemTwo"
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode INSERT_ROWS
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
