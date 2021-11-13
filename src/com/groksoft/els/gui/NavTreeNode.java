@@ -15,9 +15,9 @@ import javax.swing.tree.TreePath;
 import java.io.File;
 import java.util.*;
 
-// NavTreeNode class is a customized DefaultMutableTreeNode
-//
-// Follows some of the ideas from http://www.java2s.com/Tutorials/Java/Swing_How_to/JTree/Expand_Collapse_Expand_with_JTree_Lazy_loading.htm
+/**
+ * NavTreeNode class is a customized DefaultMutableTreeNode
+ */
 
 class NavTreeNode extends DefaultMutableTreeNode
 {
@@ -37,11 +37,12 @@ class NavTreeNode extends DefaultMutableTreeNode
         // hide default constructor
     }
 
-    public NavTreeNode(GuiContext guiContext, JTree tree, NavTreeUserObject userObject)
+    public NavTreeNode(GuiContext guiContext, JTree tree)
     {
-        super(userObject, true);
+        super();
         this.guiContext = guiContext;
         this.myTree = tree;
+        this.allowsChildren = true;
         this.visible = true;
 
         sortTreeAlphabetically = new SortTreeAlphabetically();
@@ -100,7 +101,6 @@ class NavTreeNode extends DefaultMutableTreeNode
         }
 
         throw new ArrayIndexOutOfBoundsException("index unmatched");
-        //return (TreeNode)children.elementAt(index);
     }
 
     public int getChildCount(boolean filterIsActive)
@@ -288,20 +288,19 @@ class NavTreeNode extends DefaultMutableTreeNode
 
                 logger.debug(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(false) + " node(s)");
                 super.done();
-                //myTree.expandPath(getTreePath());  // IDEA: Could be a one-click option
             }
 
             protected void scan(File file)
             {
                 if (file.isDirectory())
                 {
-                    File[] files = guiContext.fileSystemView.getFiles(file, true);
-                    //sortFiles(files);
+                    File[] files = guiContext.fileSystemView.getFiles(file, false);
                     logger.info("found " + files.length + " entries from " + file.getAbsolutePath());
                     for (File entry : files)
                     {
-                        NavTreeUserObject tuo = new NavTreeUserObject(entry.getName(), entry);
-                        NavTreeNode node = new NavTreeNode(guiContext, myTree, tuo);
+                        NavTreeNode node = new NavTreeNode(guiContext, myTree);
+                        NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), entry);
+                        node.setNavTreeUserObject(tuo);
                         if (!entry.isDirectory())
                             node.setVisible(false);
                         nodeArray.add(node);
@@ -321,10 +320,11 @@ class NavTreeNode extends DefaultMutableTreeNode
                         if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
                         {
                             SftpATTRS a = entry.getAttrs();
-                            NavTreeUserObject tuo = new NavTreeUserObject(entry.getFilename(),
+                            NavTreeNode node = new NavTreeNode(guiContext, myTree);
+                            NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
                                     target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
-                                    a.getSize(), a.getMTime(), a.isDir());
-                            NavTreeNode node = new NavTreeNode(guiContext, myTree, tuo);
+                                    a.getSize(), a.getATime(), a.isDir());
+                            node.setNavTreeUserObject(tuo);
                             if (!a.isDir())
                                 node.setVisible(false);
                             nodeArray.add(node);
@@ -352,7 +352,6 @@ class NavTreeNode extends DefaultMutableTreeNode
             int c = getChildCount(false);
             myStatus.setText(c + " item" + (c != 1 ? "s" : ""));
         }
-        //guiContext.form.labelStatusMiddle.setText(((NavTreeUserObject)getUserObject()).name);
         NavTreeUserObject tuo = getUserObject();
         if (tuo != null)
             guiContext.form.textFieldLocation.setText(tuo.getPath());
@@ -363,19 +362,6 @@ class NavTreeNode extends DefaultMutableTreeNode
         TableColumn column;
         BrowserTableModel btm = new BrowserTableModel(this);
         myTable.setModel(btm);
-        myTable.removeColumn(myTable.getColumnModel().getColumn(4));
-
-/*
-        RowSorter sorter = myTable.getRowSorter();
-        sorter.addRowSorterListener(new RowSorterListener()
-        {
-            @Override
-            public void sorterChanged(RowSorterEvent rowSorterEvent)
-            {
-                System.out.println("");
-            }
-        });
-*/
 
         // tweak the columns
         // TODO Add remembering & restoring each table's column widths, etc.
@@ -410,6 +396,13 @@ class NavTreeNode extends DefaultMutableTreeNode
                     break;
             }
         }
+
+        ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        // TODO Add logic to sort each table based on the saved last-used values from Preferences
+        sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+        DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
 
         loadStatus();
     }
@@ -450,19 +443,9 @@ class NavTreeNode extends DefaultMutableTreeNode
         this.visible = visible;
     }
 
-    private void sortFiles(File[] files)
+    void setNavTreeUserObject(NavTreeUserObject ntuo)
     {
-        Arrays.sort(files, new Comparator<File>()
-        {
-            @Override
-            public int compare(File f1, File f2)
-            {
-                if (guiContext.preferences.isSortCaseInsensitive())
-                    return f1.getName().compareToIgnoreCase(f2.getName());
-                else
-                    return f1.getName().compareTo(f2.getName());
-            }
-        });
+        this.setUserObject(ntuo);
     }
 
     class SortTreeAlphabetically implements Comparator<NavTreeNode>

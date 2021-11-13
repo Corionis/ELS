@@ -14,3 +14,4 @@ hs_err_pid*
 /mock/output/
 /mock/test/
 
+/mock/rockplex.json

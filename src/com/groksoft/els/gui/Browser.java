@@ -3,14 +3,12 @@ package com.groksoft.els.gui;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
-import com.sun.jndi.toolkit.url.Uri;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -38,8 +36,6 @@ public class Browser
     private transient Logger logger = LogManager.getLogger("applog");
     private String os;
     private JProgressBar progressBar;
-    private int splitPaneTwoBrowsersLastDividerLocation;
-    private int splitPanelBrowserLastDividerLocation;
 
     public Browser(GuiContext gctx)
     {
@@ -74,19 +70,18 @@ public class Browser
                 int row = target.getSelectedRow();
                 if (row >= 0)
                 {
-                    NavTreeNode node = (NavTreeNode) target.getModel().getValueAt(row, 4);
-                    guiContext.form.textFieldLocation.setText(node.getUserObject().getPath());
+                    NavTreeUserObject tuo = (NavTreeUserObject) target.getValueAt(row, 1);
+                    guiContext.form.textFieldLocation.setText(tuo.getPath());
                     if (mouseEvent.getClickCount() == 2)
                     {
-                        if (node.getUserObject().isDir)
+                        if (tuo.isDir)
                         {
+                            NavTreeNode node = tuo.node;
                             TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
-                            fireTreeSelectionEvent(eventTree, evt);
                             eventTree.setSelectionPath(node.getTreePath());
                         }
                         else
                         {
-                            NavTreeUserObject tuo = node.getUserObject();
                             if (tuo.type == NavTreeUserObject.REAL)
                             {
                                 try
@@ -108,29 +103,6 @@ public class Browser
             }
         };
         table.addMouseListener(tableMouseListener);
-    }
-
-    private TreePath findTreePath(JTree tree, File find)
-    {
-        for (int i = 0; i < tree.getRowCount(); ++i)
-        {
-            TreePath treePath = tree.getPathForRow(i);
-            Object object = treePath.getLastPathComponent();
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
-            File nodeFile = (File) node.getUserObject();
-            if (nodeFile == find)
-                return treePath;
-        }
-        return null;
-    }
-
-    private void fireTreeSelectionEvent(JTree tree, TreeSelectionEvent evt)
-    {
-        TreeSelectionListener[] listeners = tree.getTreeSelectionListeners();
-        for (int i = 0; i < listeners.length; ++i)
-        {
-            listeners[i].valueChanged(evt);
-        }
     }
 
     private boolean initialize()
@@ -503,9 +475,9 @@ public class Browser
 
     private NavTreeNode setCollectionRoot(JTree tree, String title)
     {
-        NavTreeUserObject tuo = new NavTreeUserObject(title, NavTreeUserObject.COLLECTION);
-        NavTreeNode root = new NavTreeNode(guiContext, tree, tuo);
-        root.setAllowsChildren(true);
+        NavTreeNode root = new NavTreeNode(guiContext, tree);
+        NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION);
+        root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(true);
         tree.setCellRenderer(new NavTreeCellRenderer());
@@ -522,8 +494,9 @@ public class Browser
         NavTreeNode root = (NavTreeNode) model.getRoot();
         for (Library lib : repo.getLibraryData().libraries.bibliography)
         {
-            NavTreeUserObject tuo = new NavTreeUserObject(lib.name, lib.sources);
-            NavTreeNode node = new NavTreeNode(guiContext, tree, tuo);
+            NavTreeNode node = new NavTreeNode(guiContext, tree);
+            NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources);
+            node.setNavTreeUserObject(tuo);
             root.add(node);
             node.loadChildren(false);
         }
@@ -537,15 +510,13 @@ public class Browser
          *   Drive /
          * Home
          *   Directory trh
-         * BookMarks
-         *   Entry
          */
         // TODO Change to externalized strings
 
         // setup new invisible root for Computer, Home & Bookmarks
-        NavTreeUserObject tuo = new NavTreeUserObject("System", NavTreeUserObject.SYSTEM);
-        NavTreeNode root = new NavTreeNode(guiContext, tree, tuo);
-        root.setAllowsChildren(true);
+        NavTreeNode root = new NavTreeNode(guiContext, tree);
+        NavTreeUserObject tuo = new NavTreeUserObject(root, "System", NavTreeUserObject.SYSTEM);
+        root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(true);
         tree.setShowsRootHandles(true);
@@ -555,14 +526,15 @@ public class Browser
         tree.setModel(model);
 
         // add Computer node
-        tuo = new NavTreeUserObject("Computer", NavTreeUserObject.COMPUTER);
-        NavTreeNode rootNode = new NavTreeNode(guiContext, tree, tuo);
-        rootNode.setAllowsChildren(true);
+        NavTreeNode rootNode = new NavTreeNode(guiContext, tree);
+        tuo = new NavTreeUserObject(rootNode, "Computer", NavTreeUserObject.COMPUTER);
+        rootNode.setNavTreeUserObject(tuo);
         root.add(rootNode);
         if (guiContext.cfg.isRemoteSession() && tree.getName().equalsIgnoreCase("treeSystemTwo"))
         {
-            tuo = new NavTreeUserObject("/", "/", NavTreeUserObject.REMOTE);
-            NavTreeNode node = new NavTreeNode(guiContext, tree, tuo);
+            NavTreeNode node = new NavTreeNode(guiContext, tree);
+            tuo = new NavTreeUserObject(node, "/", "/", NavTreeUserObject.REMOTE);
+            node.setNavTreeUserObject(tuo);
             rootNode.add(node);
             node.loadChildren(false);
         }
@@ -575,8 +547,9 @@ public class Browser
             for (int i = 0; i < rootPaths.length; ++i)
             {
                 File drive = rootPaths[i];
-                tuo = new NavTreeUserObject(drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE);
-                NavTreeNode node = new NavTreeNode(guiContext, tree, tuo);
+                NavTreeNode node = new NavTreeNode(guiContext, tree);
+                tuo = new NavTreeUserObject(node, drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE);
+                node.setNavTreeUserObject(tuo);
                 rootNode.add(node);
                 node.loadChildren(false);
             }
@@ -586,9 +559,9 @@ public class Browser
         if (tree.getName().equalsIgnoreCase("treeSystemOne"))
         {
             // add Home root node
-            tuo = new NavTreeUserObject("Home", System.getProperty("user.home"), NavTreeUserObject.HOME);
-            NavTreeNode homeNode = new NavTreeNode(guiContext, tree, tuo);
-            homeNode.setAllowsChildren(true);
+            NavTreeNode homeNode = new NavTreeNode(guiContext, tree);
+            tuo = new NavTreeUserObject(homeNode, "Home", System.getProperty("user.home"), NavTreeUserObject.HOME);
+            homeNode.setNavTreeUserObject(tuo);
             root.add(homeNode);
             homeNode.loadChildren(false);
         }

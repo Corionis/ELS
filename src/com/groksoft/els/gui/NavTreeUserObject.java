@@ -3,11 +3,12 @@ package com.groksoft.els.gui;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.attribute.FileTime;
+import java.util.concurrent.TimeUnit;
 
 /**
  * TreeUserObject for tree user objects
  */
-public class NavTreeUserObject implements Serializable
+public class NavTreeUserObject implements Comparable, Serializable
 {
     public static final int BOOKMARKS = 0;
     public static final int COLLECTION = 1; // root of libraries
@@ -24,63 +25,81 @@ public class NavTreeUserObject implements Serializable
     public boolean isDir = false;
     public int mtime;
     public String name = "";
-    public FolderColumn folderName;
+    public NavTreeNode node;
     public String path = "";
     public long size = -1L;
     public String[] sources;
     public int type = REAL;
 
     // logical entries: BOOKMARKS, COLLECTION, COMPUTER, SYSTEM
-    public NavTreeUserObject(String aName, int aType)
+    public NavTreeUserObject(NavTreeNode ntn, String aName, int aType)
     {
+        this.node = ntn;
         this.name = aName;
         this.isDir = true;
-        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = aType;
     }
 
     // A physical file or directory
-    public NavTreeUserObject(String name, File file)
+    public NavTreeUserObject(NavTreeNode ntn, String name, File file)
     {
+        this.node = ntn;
         this.name = name;
-        this.folderName = new FolderColumn(this.name, false);
         this.file = file;
         this.isDir = file.isDirectory();
-        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = REAL;
     }
 
     // A collection of libraries
-    public NavTreeUserObject(String name, String[] sources)
+    public NavTreeUserObject(NavTreeNode ntn, String name, String[] sources)
     {
+        this.node = ntn;
         this.name = name;
         this.sources = sources.clone();
         this.isDir = true;
-        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = LIBRARY;
     }
 
     // A DRIVE or HOME
-    public NavTreeUserObject(String name, String path, int type)
+    public NavTreeUserObject(NavTreeNode ntn, String name, String path, int type)
     {
+        this.node = ntn;
         this.name = name;
         this.path = path;
         this.isDir = true;
-        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = type;
     }
 
     // A remote file or directory
-    public NavTreeUserObject(String name, String path, long size, int mtime, boolean isDir)
+    public NavTreeUserObject(NavTreeNode ntn, String name, String path, long size, int mtime, boolean isDir)
     {
+        this.node = ntn;
         this.name = name;
-        this.path = path;
+        this.path = (path.startsWith("//") ? path.substring(1) : path);
         this.size = size;
         this.mtime = mtime;
-        this.fileTime = FileTime.fromMillis(mtime);
+        this.fileTime = FileTime.from(mtime, TimeUnit.SECONDS);
         this.isDir = isDir;
-        this.folderName = new FolderColumn(this.name, this.isDir);
         this.type = REMOTE;
+    }
+
+    @Override
+    public int compareTo(Object o)
+    {
+        boolean fbf = Navigator.guiContext.preferences.isSortFoldersBeforeFiles();
+        boolean thatDir = ((NavTreeUserObject) o).isDir;
+        if (Navigator.guiContext.preferences.isSortFoldersBeforeFiles())
+        {
+            if (isDir && !thatDir)
+                return -1;
+            if (thatDir && !isDir)
+                return 1;
+        }
+        if (Navigator.guiContext.preferences.isSortCaseInsensitive())
+        {
+            return name.compareToIgnoreCase(((NavTreeUserObject) o).name);
+        }
+        return name.compareTo(((NavTreeUserObject) o).name);
     }
 
     public String getPath()

@@ -35,13 +35,11 @@ public class BrowserTableModel extends AbstractTableModel
             case 0:
                 return Icon.class;
             case 1:
-                return FolderColumn.class;
+                return NavTreeUserObject.class;
             case 2:
                 return String.class;  // Long.class;
             case 3:
                 return String.class;  // return formatted FileTime
-            case 4:
-                return node.getClass();
         }
         return String.class;
     }
@@ -49,7 +47,7 @@ public class BrowserTableModel extends AbstractTableModel
     @Override
     public int getColumnCount()
     {
-        return 5;
+        return 4;
     }
 
     @Override
@@ -65,8 +63,6 @@ public class BrowserTableModel extends AbstractTableModel
                 return "Size";
             case 3:
                 return "Modified";
-            case 4:
-                return "NavTreeNode";
         }
         return "unknown";
     }
@@ -116,8 +112,10 @@ public class BrowserTableModel extends AbstractTableModel
                         return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
                 }
             }
+
             if (column == 1) // name
-                return tuo.folderName;   //.name;
+                return tuo;
+
             if (column == 2) // size
             {
                 switch (tuo.type)
@@ -157,6 +155,7 @@ public class BrowserTableModel extends AbstractTableModel
 
                 }
             }
+
             if (column == 3) // date
             {
                 switch (tuo.type)
@@ -193,10 +192,6 @@ public class BrowserTableModel extends AbstractTableModel
                         return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
 
                 }
-            }
-            if (column == 4)
-            {
-                return child;
             }
         }
         return null;
