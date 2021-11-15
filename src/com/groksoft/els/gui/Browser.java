@@ -17,6 +17,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
@@ -36,10 +37,12 @@ public class Browser
     private transient Logger logger = LogManager.getLogger("applog");
     private String os;
     private JProgressBar progressBar;
+    private NavTransferHandler navTransferHandler;
 
     public Browser(GuiContext gctx)
     {
         guiContext = gctx;
+        guiContext.browser = this;
         initialize();
     }
 
@@ -49,6 +52,7 @@ public class Browser
         {
             synchronized public void mouseClicked(MouseEvent mouseEvent)
             {
+                guiContext.form.labelStatusMiddle.setText("");
                 JTable target = (JTable) mouseEvent.getSource();
                 target.requestFocus();
                 JTree eventTree = null;
@@ -72,6 +76,7 @@ public class Browser
                 {
                     NavTreeUserObject tuo = (NavTreeUserObject) target.getValueAt(row, 1);
                     guiContext.form.textFieldLocation.setText(tuo.getPath());
+                    printProperties(tuo);
                     if (mouseEvent.getClickCount() == 2)
                     {
                         if (tuo.isDir)
@@ -79,6 +84,7 @@ public class Browser
                             NavTreeNode node = tuo.node;
                             TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
                             eventTree.setSelectionPath(node.getTreePath());
+                            eventTree.scrollPathToVisible(node.getTreePath());
                         }
                         else
                         {
@@ -103,12 +109,31 @@ public class Browser
             }
         };
         table.addMouseListener(tableMouseListener);
+
+        table.setTransferHandler(navTransferHandler);
+    }
+
+    public long getFreespace(NavTreeUserObject tuo) throws Exception
+    {
+        long space;
+        if (tuo.type == NavTreeUserObject.REMOTE && guiContext.cfg.isRemoteSession())
+        {
+            // remote subscriber
+            space = guiContext.context.clientStty.availableSpace(tuo.path);
+        }
+        else
+        {
+            space = Utils.availableSpace(tuo.path);
+        }
+        return space;
     }
 
     private boolean initialize()
     {
         os = Utils.getOS();
         logger.debug("Detected local system as " + os);
+
+        navTransferHandler = new NavTransferHandler(guiContext);  // single instance
 
         JPanel simpleOutput = new JPanel(new BorderLayout(3, 3));
         progressBar = new JProgressBar();
@@ -470,6 +495,59 @@ public class Browser
         {
             logger.error(Utils.getStackTrace(e));
             guiContext.context.fault = true;
+        }
+    }
+
+    public void printLog(String text)
+    {
+        guiContext.form.textAreaLog.append(text + System.getProperty("line.separator"));
+    }
+
+    public void printProperties(NavTreeUserObject tuo)
+    {
+        guiContext.form.textAreaProperties.setText("");
+        guiContext.form.textAreaProperties.append("Type: " + tuo.getType() + System.getProperty("line.separator"));
+        try
+        {
+            switch (tuo.type)
+            {
+                case NavTreeUserObject.BOOKMARKS:
+                    break;
+                case NavTreeUserObject.COLLECTION:
+                    guiContext.form.textAreaProperties.append("Libraries: " + tuo.node.getChildCount(false) + System.getProperty("line.separator"));
+                    break;
+                case NavTreeUserObject.COMPUTER:
+                    guiContext.form.textAreaProperties.append("Drives: " + tuo.node.getChildCount(false) + System.getProperty("line.separator"));
+                    break;
+                case NavTreeUserObject.DRIVE:
+                    guiContext.form.textAreaProperties.append("Free: " + Utils.formatLong(getFreespace(tuo), true) + System.getProperty("line.separator"));
+                    break;
+                case NavTreeUserObject.HOME:
+                    guiContext.form.textAreaProperties.append("Free: " + Utils.formatLong(getFreespace(tuo), true) + System.getProperty("line.separator"));
+                    break;
+                case NavTreeUserObject.LIBRARY:
+                    for (String source : tuo.sources)
+                    {
+                        guiContext.form.textAreaProperties.append("Location: " + source + System.getProperty("line.separator"));
+                    }
+                    break;
+                case NavTreeUserObject.REAL:
+                    guiContext.form.textAreaProperties.append("Path: " + tuo.path + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(Files.size(tuo.file.toPath()), true) + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("isDir: " + tuo.isDir + System.getProperty("line.separator"));
+                    break;
+                case NavTreeUserObject.REMOTE:
+                    guiContext.form.textAreaProperties.append("Path: " + tuo.path + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(tuo.size, true) + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("isDir: " + tuo.isDir + System.getProperty("line.separator"));
+                    break;
+                case NavTreeUserObject.SYSTEM:
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
         }
     }
 

@@ -19,6 +19,7 @@ fi
 
 rm -rf ./test
 rm -f ./*.log
+rm -f ./*received*.json
 
 cp -rpv ./media-base_copy-only ./test
 echo ""

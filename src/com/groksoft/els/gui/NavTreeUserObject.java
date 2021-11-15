@@ -28,7 +28,7 @@ public class NavTreeUserObject implements Comparable, Serializable
     public NavTreeNode node;
     public String path = "";
     public long size = -1L;
-    public String[] sources;
+    public String[] sources = null;
     public int type = REAL;
 
     // logical entries: BOOKMARKS, COLLECTION, COMPUTER, SYSTEM
@@ -40,12 +40,13 @@ public class NavTreeUserObject implements Comparable, Serializable
         this.type = aType;
     }
 
-    // A physical file or directory
+    // A REAL physical file or directory
     public NavTreeUserObject(NavTreeNode ntn, String name, File file)
     {
         this.node = ntn;
         this.name = name;
         this.file = file;
+        this.path = file.getAbsolutePath();
         this.isDir = file.isDirectory();
         this.type = REAL;
     }
@@ -70,7 +71,7 @@ public class NavTreeUserObject implements Comparable, Serializable
         this.type = type;
     }
 
-    // A remote file or directory
+    // A REMOTE file or directory
     public NavTreeUserObject(NavTreeNode ntn, String name, String path, long size, int mtime, boolean isDir)
     {
         this.node = ntn;
@@ -146,7 +147,7 @@ public class NavTreeUserObject implements Comparable, Serializable
             case LIBRARY:
                 return "Library";
             case REAL:
-                return "Real";
+                return "Local";
             case REMOTE:
                 return "Remote";
             case SYSTEM:

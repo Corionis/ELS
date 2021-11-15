@@ -4,19 +4,13 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.groksoft.els.Configuration;
-import com.groksoft.els.Context;
-import com.groksoft.els.Main;
 import com.groksoft.els.Utils;
-//import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ResourceBundle;
@@ -75,26 +69,37 @@ public class MainFrame extends JFrame
             tableCollectionOne.setAutoCreateRowSorter(true);
             tableCollectionOne.setShowGrid(false);
             tableCollectionOne.getTableHeader().setReorderingAllowed(false);
+            tableCollectionOne.setRowSelectionAllowed(true);
+            tableCollectionOne.setColumnSelectionAllowed(false);
 
             tableSystemOne.setName("tableSystemOne");
             tableSystemOne.setAutoCreateRowSorter(true);
             tableSystemOne.setShowGrid(false);
             tableSystemOne.getTableHeader().setReorderingAllowed(false);
+            tableSystemOne.setRowSelectionAllowed(true);
+            tableSystemOne.setColumnSelectionAllowed(false);
 
             tableCollectionTwo.setName("tableCollectionTwo");
             tableCollectionTwo.setAutoCreateRowSorter(true);
             tableCollectionTwo.setShowGrid(false);
             tableCollectionTwo.getTableHeader().setReorderingAllowed(false);
+            tableCollectionTwo.setRowSelectionAllowed(true);
+            tableCollectionTwo.setColumnSelectionAllowed(false);
 
             tableSystemTwo.setName("tableSystemTwo");
             tableSystemTwo.setAutoCreateRowSorter(true);
             tableSystemTwo.setShowGrid(false);
             tableSystemTwo.getTableHeader().setReorderingAllowed(false);
+            tableSystemTwo.setRowSelectionAllowed(true);
+            tableSystemTwo.setColumnSelectionAllowed(false);
 
             Dimension dim = new Dimension();
             dim.height = 10;
             dim.width = splitPaneBrowser.getWidth();
             tabbedPaneNavigatorBottom.setMinimumSize(dim);
+
+            DefaultListModel listModel = new DefaultListModel<>();
+            JList<String> list = new JList<>(listModel);
 
             pack();
         }
@@ -234,9 +239,9 @@ public class MainFrame extends JFrame
         tableSystemTwo = new JTable();
         tabbedPaneNavigatorBottom = new JTabbedPane();
         scrollPaneFind = new JScrollPane();
-        listFind = new JList();
+        textAreaLog = new JTextArea();
         scrollPaneContent = new JScrollPane();
-        textPaneContent = new JTextPane();
+        textAreaProperties = new JTextArea();
         splitPaneBackup = new JSplitPane();
         panelProfiles = new JPanel();
         panelKeys = new JPanel();
@@ -453,19 +458,19 @@ public class MainFrame extends JFrame
                 //---- menuItemDocumentation ----
                 menuItemDocumentation.setText(bundle.getString("Navigator.menuItemDocumentation.text"));
                 menuItemDocumentation.setMnemonic(bundle.getString("Navigator.menuItemDocumentation.mnemonic").charAt(0));
-                menuItemDocumentation.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemDocumentation.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuHelp.add(menuItemDocumentation);
 
                 //---- menuItemGitHubProject ----
                 menuItemGitHubProject.setText(bundle.getString("Navigator.menuItemGitHubProject.text"));
                 menuItemGitHubProject.setMnemonic(bundle.getString("Navigator.menuItemGitHubProject.mnemonic").charAt(0));
-                menuItemGitHubProject.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemGitHubProject.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuHelp.add(menuItemGitHubProject);
 
                 //---- menuItemAbout ----
                 menuItemAbout.setText(bundle.getString("Navigator.menuItemAbout.text"));
                 menuItemAbout.setMnemonic(bundle.getString("Navigator.menuItemAbout.mnemonic").charAt(0));
-                menuItemAbout.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemAbout.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuHelp.add(menuItemAbout);
             }
             menuBarMain.add(menuHelp);
@@ -628,7 +633,8 @@ public class MainFrame extends JFrame
                                             tableCollectionOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableCollectionOne.setFillsViewportHeight(true);
                                             tableCollectionOne.setDragEnabled(true);
-                                            tableCollectionOne.setDropMode(DropMode.INSERT_ROWS);
+                                            tableCollectionOne.setDropMode(DropMode.ON_OR_INSERT_ROWS);
+                                            tableCollectionOne.setCellSelectionEnabled(true);
                                             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
                                         }
                                         splitPaneCollectionOne.setRightComponent(scrollPaneTableCollectionOne);
@@ -669,7 +675,7 @@ public class MainFrame extends JFrame
                                             tableSystemOne.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableSystemOne.setFillsViewportHeight(true);
                                             tableSystemOne.setDragEnabled(true);
-                                            tableSystemOne.setDropMode(DropMode.INSERT_ROWS);
+                                            tableSystemOne.setDropMode(DropMode.ON_OR_INSERT_ROWS);
                                             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
                                         }
                                         splitPaneSystemOne.setRightComponent(scrollPaneTableSystemOne);
@@ -719,7 +725,7 @@ public class MainFrame extends JFrame
                                             tableCollectionTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableCollectionTwo.setFillsViewportHeight(true);
                                             tableCollectionTwo.setDragEnabled(true);
-                                            tableCollectionTwo.setDropMode(DropMode.INSERT_ROWS);
+                                            tableCollectionTwo.setDropMode(DropMode.ON_OR_INSERT_ROWS);
                                             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setRightComponent(scrollPaneTableCollectionTwo);
@@ -759,7 +765,7 @@ public class MainFrame extends JFrame
                                             tableSystemTwo.setPreferredScrollableViewportSize(new Dimension(754, 400));
                                             tableSystemTwo.setFillsViewportHeight(true);
                                             tableSystemTwo.setDragEnabled(true);
-                                            tableSystemTwo.setDropMode(DropMode.INSERT_ROWS);
+                                            tableSystemTwo.setDropMode(DropMode.ON_OR_INSERT_ROWS);
                                             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
                                         }
                                         splitPaneSystemTwo.setRightComponent(scrollPaneTableSystemTwo);
@@ -787,9 +793,10 @@ public class MainFrame extends JFrame
                             scrollPaneFind.setFocusable(false);
                             scrollPaneFind.setMinimumSize(new Dimension(0, 0));
 
-                            //---- listFind ----
-                            listFind.setFocusable(false);
-                            scrollPaneFind.setViewportView(listFind);
+                            //---- textAreaLog ----
+                            textAreaLog.setEditable(false);
+                            textAreaLog.setTabSize(4);
+                            scrollPaneFind.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneFind.tab.title"), scrollPaneFind);
 
@@ -798,10 +805,10 @@ public class MainFrame extends JFrame
                             scrollPaneContent.setFocusable(false);
                             scrollPaneContent.setMinimumSize(new Dimension(0, 0));
 
-                            //---- textPaneContent ----
-                            textPaneContent.setFocusable(false);
-                            textPaneContent.setMinimumSize(new Dimension(0, 0));
-                            scrollPaneContent.setViewportView(textPaneContent);
+                            //---- textAreaProperties ----
+                            textAreaProperties.setEditable(false);
+                            textAreaProperties.setTabSize(4);
+                            scrollPaneContent.setViewportView(textAreaProperties);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneContent.tab.title"), scrollPaneContent);
                     }
@@ -845,7 +852,6 @@ public class MainFrame extends JFrame
                 new Insets(0, 4, 0, 4), 0, 0));
 
             //---- labelStatusMiddle ----
-            labelStatusMiddle.setText(bundle.getString("Navigator.labelStatusMiddle.text"));
             labelStatusMiddle.setHorizontalAlignment(SwingConstants.CENTER);
             panelStatus.add(labelStatusMiddle, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
@@ -943,9 +949,9 @@ public class MainFrame extends JFrame
     public JTable tableSystemTwo;
     public JTabbedPane tabbedPaneNavigatorBottom;
     public JScrollPane scrollPaneFind;
-    public JList listFind;
+    public JTextArea textAreaLog;
     public JScrollPane scrollPaneContent;
-    public JTextPane textPaneContent;
+    public JTextArea textAreaProperties;
     public JSplitPane splitPaneBackup;
     public JPanel panelProfiles;
     public JPanel panelKeys;

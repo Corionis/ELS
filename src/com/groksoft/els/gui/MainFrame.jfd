@@ -169,7 +169,8 @@ new FormModel {
 													"preferredScrollableViewportSize": &Dimension0 new java.awt.Dimension( 754, 400 )
 													"fillsViewportHeight": true
 													"dragEnabled": true
-													"dropMode": enum javax.swing.DropMode INSERT_ROWS
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT_ROWS
+													"cellSelectionEnabled": true
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -207,7 +208,7 @@ new FormModel {
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
 													"dragEnabled": true
-													"dropMode": enum javax.swing.DropMode INSERT_ROWS
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT_ROWS
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -256,7 +257,7 @@ new FormModel {
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
 													"dragEnabled": true
-													"dropMode": enum javax.swing.DropMode INSERT_ROWS
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT_ROWS
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -293,7 +294,7 @@ new FormModel {
 													"preferredScrollableViewportSize": #Dimension0
 													"fillsViewportHeight": true
 													"dragEnabled": true
-													"dropMode": enum javax.swing.DropMode INSERT_ROWS
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT_ROWS
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "right"
@@ -322,9 +323,10 @@ new FormModel {
 								name: "scrollPaneFind"
 								"focusable": false
 								"minimumSize": new java.awt.Dimension( 0, 0 )
-								add( new FormComponent( "javax.swing.JList" ) {
-									name: "listFind"
-									"focusable": false
+								add( new FormComponent( "javax.swing.JTextArea" ) {
+									name: "textAreaLog"
+									"editable": false
+									"tabSize": 4
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPaneFind.tab.title" )
@@ -333,10 +335,10 @@ new FormModel {
 								name: "scrollPaneContent"
 								"focusable": false
 								"minimumSize": new java.awt.Dimension( 0, 0 )
-								add( new FormComponent( "javax.swing.JTextPane" ) {
-									name: "textPaneContent"
-									"focusable": false
-									"minimumSize": new java.awt.Dimension( 0, 0 )
+								add( new FormComponent( "javax.swing.JTextArea" ) {
+									name: "textAreaProperties"
+									"editable": false
+									"tabSize": 4
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPaneContent.tab.title" )
@@ -387,7 +389,6 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "labelStatusMiddle"
-					"text": new FormMessage( null, "Navigator.labelStatusMiddle.text" )
 					"horizontalAlignment": 0
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 1
@@ -599,19 +600,19 @@ new FormModel {
 						name: "menuItemDocumentation"
 						"text": new FormMessage( null, "Navigator.menuItemDocumentation.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemDocumentation.mnemonic" )
-						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGitHubProject"
 						"text": new FormMessage( null, "Navigator.menuItemGitHubProject.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemGitHubProject.mnemonic" )
-						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAbout"
 						"text": new FormMessage( null, "Navigator.menuItemAbout.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemAbout.mnemonic" )
-						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
 					} )
 				} )
 			}

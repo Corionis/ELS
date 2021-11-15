@@ -2,14 +2,19 @@ package com.groksoft.els.gui;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableModel;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class BrowserTableModel extends AbstractTableModel
+public class BrowserTableModel extends DefaultTableModel
 {
     private NavTreeNode node;
+
+    private BrowserTableModel()
+    {
+    }
 
     public BrowserTableModel(NavTreeNode treeNode)
     {
@@ -60,7 +65,9 @@ public class BrowserTableModel extends AbstractTableModel
     @Override
     public int getRowCount()
     {
-        return node.getChildCount(false);
+        if (node != null)
+            return node.getChildCount(false);
+        return 0;
     }
 
     @Override
@@ -177,7 +184,6 @@ public class BrowserTableModel extends AbstractTableModel
                         break;
                     default:
                         return UIManager.getIcon("InternalFrame.closeIcon"); // something that looks like an error
-
                 }
             }
         }
@@ -188,6 +194,11 @@ public class BrowserTableModel extends AbstractTableModel
     public boolean isCellEditable(int row, int col)
     {
         return false;
+    }
+
+    public interface Reorderable
+    {
+        public void reorder(int fromIndex, int toIndex);
     }
 
 }

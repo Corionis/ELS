@@ -129,6 +129,21 @@ class NavTreeNode extends DefaultMutableTreeNode
         return count;
     }
 
+    public JLabel getMyStatus()
+    {
+        return myStatus;
+    }
+
+    public JTable getMyTable()
+    {
+        return myTable;
+    }
+
+    public JTree getMyTree()
+    {
+        return myTree;
+    }
+
     public TreePath getTreePath()
     {
         List<Object> nodes = new ArrayList<Object>();
@@ -249,7 +264,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                         {
                             if (guiContext.cfg.isRemoteSession() &&
                                     (myTree.getName().equalsIgnoreCase("treeCollectionTwo") ||
-                                     myTree.getName().equalsIgnoreCase("treeSystemTwo")))
+                                            myTree.getName().equalsIgnoreCase("treeSystemTwo")))
                             {
                                 logger.debug("scanning remote directory " + myTuo.path);
                                 scanRemote(myTuo.path);
@@ -354,7 +369,10 @@ class NavTreeNode extends DefaultMutableTreeNode
         }
         NavTreeUserObject tuo = getUserObject();
         if (tuo != null)
+        {
             guiContext.form.textFieldLocation.setText(tuo.getPath());
+            guiContext.browser.printProperties(tuo);
+        }
     }
 
     protected void loadTable()
@@ -433,6 +451,26 @@ class NavTreeNode extends DefaultMutableTreeNode
             setRefresh(false);
     }
 
+    public void setMyStatus(JLabel myStatus)
+    {
+        this.myStatus = myStatus;
+    }
+
+    public void setMyTable(JTable myTable)
+    {
+        this.myTable = myTable;
+    }
+
+    public void setMyTree(JTree myTree)
+    {
+        this.myTree = myTree;
+    }
+
+    void setNavTreeUserObject(NavTreeUserObject ntuo)
+    {
+        this.setUserObject(ntuo);
+    }
+
     public void setRefresh(boolean refresh)
     {
         this.refresh = refresh;
@@ -441,11 +479,6 @@ class NavTreeNode extends DefaultMutableTreeNode
     public void setVisible(boolean visible)
     {
         this.visible = visible;
-    }
-
-    void setNavTreeUserObject(NavTreeUserObject ntuo)
-    {
-        this.setUserObject(ntuo);
     }
 
     class SortTreeAlphabetically implements Comparator<NavTreeNode>
