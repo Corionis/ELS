@@ -27,6 +27,7 @@ public class NavTreeUserObject implements Comparable, Serializable
     public String name = "";
     public NavTreeNode node;
     public String path = "";
+    public boolean isRemote = false;
     public long size = -1L;
     public String[] sources = null;
     public int type = REAL;

@@ -500,6 +500,7 @@ public class Browser
 
     public void printLog(String text)
     {
+        logger.info(text);
         guiContext.form.textAreaLog.append(text + System.getProperty("line.separator"));
     }
 

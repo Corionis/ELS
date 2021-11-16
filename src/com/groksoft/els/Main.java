@@ -666,9 +666,9 @@ public class Main
         els.logger.fatal("Runtime: " + Utils.getDuration(millis));
 
         if (!els.context.fault)
-            els.logger.fatal("Process completed normally");
+            els.logger.fatal("Process completed normally\n");
         else
-            els.logger.fatal("Process failed");
+            els.logger.fatal("Process failed\n");
     }
 
 } // Main

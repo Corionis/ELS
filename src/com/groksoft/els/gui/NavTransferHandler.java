@@ -17,10 +17,10 @@ public class NavTransferHandler extends TransferHandler
 {
     private final DataFlavor flavor = new ActivationDataFlavor(Integer.class, "application/x-java-Integer;class=java.lang.Integer", "Integer row index");
     private int action = TransferHandler.NONE;
+    private JTable fromTable;
     private GuiContext guiContext;
     private boolean isDrop = false;
     private transient Logger logger = LogManager.getLogger("applog");
-    private JTable table;
 
     public NavTransferHandler(GuiContext gctxt)
     {
@@ -44,11 +44,11 @@ public class NavTransferHandler extends TransferHandler
     @Override
     protected Transferable createTransferable(JComponent c)
     {
-        table = (JTable) c;
-        int row = table.getSelectedRow();
+        fromTable = (JTable) c;
+        int row = fromTable.getSelectedRow();
         if (row < 0)
             return null;
-        guiContext.browser.printLog("Create " + table.getName() + " at row " + row);
+        guiContext.browser.printLog("Create " + fromTable.getName() + " at row " + row);
         return new DataHandler(new Integer(row), flavor.getMimeType());
     }
 
@@ -170,6 +170,8 @@ public class NavTransferHandler extends TransferHandler
         JTable targetTable = (JTable) info.getComponent();
         JTree targetTree = getTargetTree(targetTable);
         NavTreeNode targetNode = getTargetNode(info, targetTree, targetTable);
+        NavTreeUserObject targetTuo = targetNode.getUserObject();
+
         String op = getOperation();
         guiContext.browser.printLog(op + " to " + targetTable.getName() + " of " + targetTree.getName() + ", node " + targetNode.getUserObject().name);
 
@@ -180,17 +182,17 @@ public class NavTransferHandler extends TransferHandler
             Integer from = (Integer) info.getTransferable().getTransferData(flavor);
             if (from != -1)
             {
-                // get the rest of the selected rows
-                int[] rows = table.getSelectedRows();
+                // get the the selected "from" rows
+                int[] rows = fromTable.getSelectedRows();
                 int iter = 0;
                 for (int row : rows)
                 {
                     ++count;
-                    NavTreeUserObject tuo = (NavTreeUserObject) table.getValueAt(row, 1);
-                    NavTreeNode node = tuo.node;
-                    JTree tree = node.getMyTree();
+                    NavTreeUserObject fromTuo = (NavTreeUserObject) fromTable.getValueAt(row, 1);
+                    NavTreeNode fromNode = fromTuo.node;
+                    JTree fromTree = fromNode.getMyTree();
 
-                    NavTreeNode parent = (NavTreeNode) node.getParent();
+                    NavTreeNode parent = (NavTreeNode) fromNode.getParent();
                     if (parent == targetNode)
                     {
                         guiContext.browser.printLog("Source & target are the same, skipping operation");
@@ -198,18 +200,39 @@ public class NavTransferHandler extends TransferHandler
                         guiContext.form.labelStatusMiddle.setText("Skipped operation");
                         return false;
                     }
-                    guiContext.browser.printLog("From " + table.getName() + " of " + tree.getName() + ", node " + tuo.name);
+                    guiContext.browser.printLog("From " + fromTable.getName() + " of " + fromTree.getName() + ", node " + fromTuo.name);
 
-                    if (tuo.isDir)
+                   // if (action == TransferHandler.COPY)
                     {
-
+                        if (fromTuo.type == NavTreeUserObject.REAL && targetTuo.type == NavTreeUserObject.REAL)
+                        {
+                            // local copy
+                            guiContext.browser.printLog("Local copy");
+                        }
+                        else if (fromTuo.type == NavTreeUserObject.REAL && targetTuo.type == NavTreeUserObject.REMOTE)
+                        {
+                            // put
+                            guiContext.browser.printLog("Put");
+                        }
+                        else if (fromTuo.type == NavTreeUserObject.REMOTE && targetTuo.type == NavTreeUserObject.REAL)
+                        {
+                            // get
+                            guiContext.browser.printLog("Get");
+                        }
+                        else if (fromTuo.type == NavTreeUserObject.REMOTE && targetTuo.type == NavTreeUserObject.REMOTE)
+                        {
+                            // send command
+                            guiContext.browser.printLog("Remote command");
+                        }
+                    }
+                //    else if (action == TransferHandler.MOVE)
+                    {
                     }
 
 //                    if (action == TransferHandler.MOVE && parent != null)
 //                    {
 //                        parent.remove(node);
 //                    }
-
 //                    target.getSelectionModel().addSelectionInterval(index, index);
                 }
                 guiContext.form.labelStatusMiddle.setText(getOperation() + " " + count + " items");
