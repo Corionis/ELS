@@ -12,14 +12,13 @@ import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.ResourceBundle;
+import java.util.Stack;
 
 public class Browser
 {
@@ -35,9 +34,11 @@ public class Browser
     private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private GuiContext guiContext;
     private transient Logger logger = LogManager.getLogger("applog");
+    private Stack<NavTreeNode> navStack = new Stack<>();
+    private int navStackIndex = -1;
+    private NavTransferHandler navTransferHandler;
     private String os;
     private JProgressBar progressBar;
-    private NavTransferHandler navTransferHandler;
 
     public Browser(GuiContext gctx)
     {
@@ -88,7 +89,7 @@ public class Browser
                         }
                         else
                         {
-                            if (tuo.type == NavTreeUserObject.REAL)
+                            if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
                             {
                                 try
                                 {
@@ -101,7 +102,7 @@ public class Browser
                             }
                             else
                             {
-                                JOptionPane.showMessageDialog(guiContext.form, "Cannot launch " + (guiContext.cfg.isRemoteSession() ? "remote " : "") + "item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form, "Cannot launch " + (tuo.isRemote ? "remote " : "") + "item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -116,7 +117,7 @@ public class Browser
     public long getFreespace(NavTreeUserObject tuo) throws Exception
     {
         long space;
-        if (tuo.type == NavTreeUserObject.REMOTE && guiContext.cfg.isRemoteSession())
+        if (tuo.isRemote && guiContext.cfg.isRemoteSession())
         {
             // remote subscriber
             space = guiContext.context.clientStty.availableSpace(tuo.path);
@@ -141,7 +142,20 @@ public class Browser
         progressBar.setVisible(false);
 
         initializeMainMenu();
+        initializeNavigation();
+        initializeBrowserOne();
+        initializeBrowserTwo();
 
+        // set default start location and related data
+        NavTreeModel model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
+        NavTreeNode root = (NavTreeNode) model.getRoot();
+        root.loadStatus();
+
+        return true;
+    }
+
+    private void initializeBrowserOne()
+    {
         // --- BrowserOne ------------------------------------------
         //
         // --- tab selection handler
@@ -174,11 +188,11 @@ public class Browser
         guiContext.form.treeCollectionOne.setName("treeCollectionOne");
         if (guiContext.context.publisherRepo != null && guiContext.context.publisherRepo.isInitialized())
         {
-            loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo);
+            loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo, false);
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionOne, "--Open a publisher profile--");
+            setCollectionRoot(guiContext.form.treeCollectionOne, "--Open a publisher profile--", false);
         }
         //
         // treeCollectionOne tree expansion event handler
@@ -206,17 +220,19 @@ public class Browser
             {
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                navStackPush(node);
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
             }
         });
+        guiContext.form.treeCollectionOne.setTransferHandler(navTransferHandler);
         addMouseListenerToTable(guiContext.form.tableCollectionOne);
 
         // --- treeSystemOne
         guiContext.form.treeSystemOne.setName("treeSystemOne");
-        loadSystemTree(guiContext.form.treeSystemOne, System.getProperty("user.name"));
+        loadSystemTree(guiContext.form.treeSystemOne, System.getProperty("user.home"), false);
         //
         // treeSystemOne tree expansion event handler
         guiContext.form.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -243,25 +259,56 @@ public class Browser
             {
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                navStackPush(node);
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
             }
         });
+        guiContext.form.treeSystemOne.setTransferHandler(navTransferHandler);
         addMouseListenerToTable(guiContext.form.tableSystemOne);
+    }
 
-
+    private void initializeBrowserTwo()
+    {
         // --- BrowserTwo ------------------------------------------
+        //
+        // --- tab selection handler
+        guiContext.form.tabbedPaneBrowserTwo.addChangeListener(new ChangeListener()
+        {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent)
+            {
+                JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
+                NavTreeModel model = null;
+                NavTreeNode node = null;
+                switch (pane.getSelectedIndex())
+                {
+                    case 0:
+                        model = (NavTreeModel) guiContext.form.treeCollectionTwo.getModel();
+                        node = (NavTreeNode) guiContext.form.treeCollectionTwo.getLastSelectedPathComponent();
+                        break;
+                    case 1:
+                        model = (NavTreeModel) guiContext.form.treeSystemTwo.getModel();
+                        node = (NavTreeNode) guiContext.form.treeSystemTwo.getLastSelectedPathComponent();
+                        break;
+                }
+                if (node == null)
+                    node = (NavTreeNode) model.getRoot();
+                node.loadStatus();
+            }
+        });
+
         // --- treeCollectionTwo
         guiContext.form.treeCollectionTwo.setName("treeCollectionTwo");
         if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
         {
-            loadCollectionTree(guiContext.form.treeCollectionTwo, guiContext.context.subscriberRepo);
+            loadCollectionTree(guiContext.form.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.cfg.isRemoteSession());
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber profile--");
+            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber profile--", guiContext.cfg.isRemoteSession());
         }
         //
         // treeCollectionTwo tree expansion event handler
@@ -289,23 +336,25 @@ public class Browser
             {
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                navStackPush(node);
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
             }
         });
+        guiContext.form.treeCollectionTwo.setTransferHandler(navTransferHandler);
         addMouseListenerToTable(guiContext.form.tableCollectionTwo);
 
         // --- treeSystemTwo
         guiContext.form.treeSystemTwo.setName("treeSystemTwo");
         if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
         {
-            loadSystemTree(guiContext.form.treeSystemTwo, System.getProperty("user.name"));
+            loadSystemTree(guiContext.form.treeSystemTwo, "/", guiContext.cfg.isRemoteSession());
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber profile--");
+            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber profile--", guiContext.cfg.isRemoteSession());
         }
         //
         // treeSystemTwo tree expansion event handler
@@ -333,19 +382,15 @@ public class Browser
             {
                 TreePath treePath = treeSelectionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
+                navStackPush(node);
                 if (!node.isLoaded())
                     node.loadChildren(true);
                 else
                     node.loadTable();
             }
         });
+        guiContext.form.treeSystemTwo.setTransferHandler(navTransferHandler);
         addMouseListenerToTable(guiContext.form.tableSystemTwo);
-
-        NavTreeModel model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
-        NavTreeNode root = (NavTreeNode) model.getRoot();
-        root.loadStatus();
-
-        return true;
     }
 
     private void initializeMainMenu()
@@ -447,16 +492,51 @@ public class Browser
 
     }
 
-    private void loadCollectionTree(JTree tree, Repository repo)
+    private void initializeNavigation()
+    {
+        guiContext.form.buttonBack.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                NavTreeNode node = navStackPop();
+                if (node != null)
+                {
+                    node.getMyTree().scrollPathToVisible(node.getTreePath());
+                    node.getMyTree().requestFocus();
+                    node.getMyTree().setSelectionPath(node.getTreePath());
+                }
+            }
+        });
+
+        guiContext.form.buttonForward.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (navStackIndex + 1 <= navStack.lastIndexOf(navStack.lastElement()))
+                {
+                    ++navStackIndex;
+                    NavTreeNode node = navStack.get(navStackIndex);
+                    node.getMyTree().scrollPathToVisible(node.getTreePath());
+                    node.getMyTree().requestFocus();
+                    node.getMyTree().setSelectionPath(node.getTreePath());
+                }
+            }
+        });
+
+    }
+
+    private void loadCollectionTree(JTree tree, Repository repo, boolean remote)
     {
         try
         {
-            NavTreeNode root = setCollectionRoot(tree, repo.getLibraryData().libraries.description);
+            NavTreeNode root = setCollectionRoot(tree, repo.getLibraryData().libraries.description, remote);
             Arrays.sort(repo.getLibraryData().libraries.bibliography);
             switch (styleOne)
             {
                 case STYLE_COLLECTION_ALL:
-                    styleCollectionAll(tree, repo);
+                    styleCollectionAll(tree, repo, remote);
                     break;
                 case STYLE_COLLECTION_AZ:
                     break;
@@ -475,7 +555,7 @@ public class Browser
         }
     }
 
-    private void loadSystemTree(JTree tree, String initialLocation)
+    private void loadSystemTree(JTree tree, String initialLocation, boolean remote)
     {
         try
         {
@@ -483,7 +563,7 @@ public class Browser
             switch (styleTwo)
             {
                 case STYLE_SYSTEM_ALL:
-                    root = styleSystemAll(tree, initialLocation);
+                    root = styleSystemAll(tree, initialLocation, remote);
                     break;
                 default:
                     break;
@@ -496,6 +576,41 @@ public class Browser
             logger.error(Utils.getStackTrace(e));
             guiContext.context.fault = true;
         }
+    }
+
+    private NavTreeNode navStackPop()
+    {
+        NavTreeNode node;
+        if (navStackIndex > 0)
+        {
+            --navStackIndex;
+            node = navStack.get(navStackIndex);
+        }
+        else
+            node = (navStackIndex > -1) ? navStack.get(0) : null;
+        return node;
+    }
+
+    private void navStackPush(NavTreeNode node)
+    {
+        if (navStackIndex < 0 || navStack.get(navStackIndex) != node)
+        {
+            if (navStackIndex > 0)
+                navStack.setSize(navStackIndex + 1); // truncate anything beyond this index
+            navStack.push(node);
+            ++navStackIndex;
+        }
+    }
+
+    public void printLog(String text, boolean isError)
+    {
+        if (isError)
+        {
+            logger.error(text);
+            guiContext.form.textAreaLog.append("ERROR: " + text + System.getProperty("line.separator"));
+        }
+        else
+            printLog(text);
     }
 
     public void printLog(String text)
@@ -534,12 +649,10 @@ public class Browser
                     break;
                 case NavTreeUserObject.REAL:
                     guiContext.form.textAreaProperties.append("Path: " + tuo.path + System.getProperty("line.separator"));
-                    guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(Files.size(tuo.file.toPath()), true) + System.getProperty("line.separator"));
-                    guiContext.form.textAreaProperties.append("isDir: " + tuo.isDir + System.getProperty("line.separator"));
-                    break;
-                case NavTreeUserObject.REMOTE:
-                    guiContext.form.textAreaProperties.append("Path: " + tuo.path + System.getProperty("line.separator"));
-                    guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(tuo.size, true) + System.getProperty("line.separator"));
+                    if (tuo.isRemote)
+                        guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(tuo.size, true) + System.getProperty("line.separator"));
+                    else
+                        guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(Files.size(tuo.file.toPath()), true) + System.getProperty("line.separator"));
                     guiContext.form.textAreaProperties.append("isDir: " + tuo.isDir + System.getProperty("line.separator"));
                     break;
                 case NavTreeUserObject.SYSTEM:
@@ -552,10 +665,10 @@ public class Browser
         }
     }
 
-    private NavTreeNode setCollectionRoot(JTree tree, String title)
+    private NavTreeNode setCollectionRoot(JTree tree, String title, boolean remote)
     {
         NavTreeNode root = new NavTreeNode(guiContext, tree);
-        NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION);
+        NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION, remote);
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(true);
@@ -567,14 +680,14 @@ public class Browser
         return root;
     }
 
-    private void styleCollectionAll(JTree tree, Repository repo) throws Exception
+    private void styleCollectionAll(JTree tree, Repository repo, boolean remote) throws Exception
     {
         NavTreeModel model = (NavTreeModel) tree.getModel();
         NavTreeNode root = (NavTreeNode) model.getRoot();
         for (Library lib : repo.getLibraryData().libraries.bibliography)
         {
             NavTreeNode node = new NavTreeNode(guiContext, tree);
-            NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources);
+            NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources, remote);
             node.setNavTreeUserObject(tuo);
             root.add(node);
             node.loadChildren(false);
@@ -582,7 +695,7 @@ public class Browser
         root.setLoaded(true);
     }
 
-    private NavTreeNode styleSystemAll(JTree tree, String initialLocation) throws Exception
+    private NavTreeNode styleSystemAll(JTree tree, String initialLocation, boolean remote) throws Exception
     {
         /*
          * Computer
@@ -594,7 +707,7 @@ public class Browser
 
         // setup new invisible root for Computer, Home & Bookmarks
         NavTreeNode root = new NavTreeNode(guiContext, tree);
-        NavTreeUserObject tuo = new NavTreeUserObject(root, "System", NavTreeUserObject.SYSTEM);
+        NavTreeUserObject tuo = new NavTreeUserObject(root, "System", NavTreeUserObject.SYSTEM, remote);
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(true);
@@ -606,13 +719,13 @@ public class Browser
 
         // add Computer node
         NavTreeNode rootNode = new NavTreeNode(guiContext, tree);
-        tuo = new NavTreeUserObject(rootNode, "Computer", NavTreeUserObject.COMPUTER);
+        tuo = new NavTreeUserObject(rootNode, "Computer", NavTreeUserObject.COMPUTER, remote);
         rootNode.setNavTreeUserObject(tuo);
         root.add(rootNode);
-        if (guiContext.cfg.isRemoteSession() && tree.getName().equalsIgnoreCase("treeSystemTwo"))
+        if (remote && tree.getName().equalsIgnoreCase("treeSystemTwo"))
         {
             NavTreeNode node = new NavTreeNode(guiContext, tree);
-            tuo = new NavTreeUserObject(node, "/", "/", NavTreeUserObject.REMOTE);
+            tuo = new NavTreeUserObject(node, "/", "/", NavTreeUserObject.DRIVE, remote);
             node.setNavTreeUserObject(tuo);
             rootNode.add(node);
             node.loadChildren(false);
@@ -627,7 +740,7 @@ public class Browser
             {
                 File drive = rootPaths[i];
                 NavTreeNode node = new NavTreeNode(guiContext, tree);
-                tuo = new NavTreeUserObject(node, drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE);
+                tuo = new NavTreeUserObject(node, drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE, false);
                 node.setNavTreeUserObject(tuo);
                 rootNode.add(node);
                 node.loadChildren(false);
@@ -639,7 +752,7 @@ public class Browser
         {
             // add Home root node
             NavTreeNode homeNode = new NavTreeNode(guiContext, tree);
-            tuo = new NavTreeUserObject(homeNode, "Home", System.getProperty("user.home"), NavTreeUserObject.HOME);
+            tuo = new NavTreeUserObject(homeNode, "Home", System.getProperty("user.home"), NavTreeUserObject.HOME, false);
             homeNode.setNavTreeUserObject(tuo);
             root.add(homeNode);
             homeNode.loadChildren(false);

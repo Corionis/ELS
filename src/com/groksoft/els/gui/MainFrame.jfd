@@ -31,10 +31,10 @@ new FormModel {
 					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 						name: "splitPaneBrowser"
 						"orientation": 0
-						"lastDividerLocation": 450
+						"lastDividerLocation": 396
 						"minimumSize": new java.awt.Dimension( 54, 0 )
 						"continuousLayout": true
-						"dividerLocation": 450
+						"dividerLocation": 396
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 							name: "panelBrowserTop"
 							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
@@ -155,6 +155,8 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionOne"
 													"autoscrolls": true
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -196,6 +198,8 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeSystemOne"
 													"autoscrolls": true
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -243,6 +247,8 @@ new FormModel {
 												"minimumSize": new java.awt.Dimension( 0, 0 )
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeCollectionTwo"
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -282,6 +288,8 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JTree" ) {
 													name: "treeSystemTwo"
 													"autoscrolls": true
+													"dragEnabled": true
+													"dropMode": enum javax.swing.DropMode ON_OR_INSERT
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "left"
@@ -320,19 +328,21 @@ new FormModel {
 							"minimumSize": new java.awt.Dimension( 0, 0 )
 							"autoscrolls": true
 							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-								name: "scrollPaneFind"
+								name: "scrollPaneLog"
 								"focusable": false
 								"minimumSize": new java.awt.Dimension( 0, 0 )
+								"autoscrolls": true
 								add( new FormComponent( "javax.swing.JTextArea" ) {
 									name: "textAreaLog"
 									"editable": false
 									"tabSize": 4
+									"lineWrap": true
 								} )
 							}, new FormLayoutConstraints( null ) {
-								"title": new FormMessage( null, "Navigator.scrollPaneFind.tab.title" )
+								"title": new FormMessage( null, "Navigator.scrollPaneLog.tab.title" )
 							} )
 							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-								name: "scrollPaneContent"
+								name: "scrollPaneProperties"
 								"focusable": false
 								"minimumSize": new java.awt.Dimension( 0, 0 )
 								add( new FormComponent( "javax.swing.JTextArea" ) {
@@ -341,7 +351,7 @@ new FormModel {
 									"tabSize": 4
 								} )
 							}, new FormLayoutConstraints( null ) {
-								"title": new FormMessage( null, "Navigator.scrollPaneContent.tab.title" )
+								"title": new FormMessage( null, "Navigator.scrollPaneProperties.tab.title" )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "right"

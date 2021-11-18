@@ -41,12 +41,6 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         setIcon(UIManager.getIcon("FileView.directoryIcon"));
                         break;
                     case NavTreeUserObject.REAL:
-                        if (tuo.file != null && tuo.file.isDirectory())
-                            setIcon(UIManager.getIcon("FileView.directoryIcon"));
-                        else
-                            setIcon(UIManager.getIcon("FileView.fileIcon"));
-                        break;
-                    case NavTreeUserObject.REMOTE:
                         if (tuo.isDir)
                             setIcon(UIManager.getIcon("FileView.directoryIcon"));
                         else

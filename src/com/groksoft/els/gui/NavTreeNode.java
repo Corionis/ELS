@@ -99,7 +99,6 @@ class NavTreeNode extends DefaultMutableTreeNode
                 return (TreeNode) children.elementAt(realIndex);
             }
         }
-
         throw new ArrayIndexOutOfBoundsException("index unmatched");
     }
 
@@ -125,7 +124,6 @@ class NavTreeNode extends DefaultMutableTreeNode
                 count++;
             }
         }
-
         return count;
     }
 
@@ -162,6 +160,24 @@ class NavTreeNode extends DefaultMutableTreeNode
     public NavTreeUserObject getUserObject()
     {
         return (NavTreeUserObject) this.userObject;
+    }
+
+    public int indexInTable()
+    {
+        int index = -1;
+        if (myTable != null)
+        {
+            for (int row = 0; row < myTable.getRowCount(); ++row)
+            {
+                NavTreeUserObject tuo = (NavTreeUserObject) myTable.getValueAt(row, 1);
+                if (tuo == getUserObject())
+                {
+                    index = row;
+                    break;
+                }
+            }
+        }
+        return index;
     }
 
     @Override
@@ -211,7 +227,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                 switch (myTuo.type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
-                        logger.info("bookmarks");
+                        logger.debug("bookmarks");
                         break;
                     case NavTreeUserObject.SYSTEM: // for completeness, hidden
                         logger.debug("system");
@@ -223,14 +239,25 @@ class NavTreeNode extends DefaultMutableTreeNode
                         logger.debug("computer");
                         break;
                     case NavTreeUserObject.DRIVE:
-                        logger.debug("scanning local drive " + myTuo.path);
-                        scan(new File(myTuo.path).getAbsoluteFile());
+                        if (myTuo.isDir)
+                        {
+                            if (myTuo.isRemote)
+                            {
+                                guiContext.browser.printLog("Scanning remote directory " + myTuo.path);
+                                scanRemote(myTuo.path);
+                            }
+                            else
+                            {
+                                guiContext.browser.printLog("Scanning local drive " + myTuo.path);
+                                scan(new File(myTuo.path).getAbsoluteFile());
+                            }
+                        }
                         break;
                     case NavTreeUserObject.HOME:
                         File file = new File(myTuo.path);
                         if (file.isDirectory())
                         {
-                            logger.debug("scanning home directory " + myTuo.path);
+                            guiContext.browser.printLog("Scanning home directory " + myTuo.path);
                             scan(file.getAbsoluteFile());
                         }
                         break;
@@ -239,44 +266,35 @@ class NavTreeNode extends DefaultMutableTreeNode
                         {
                             for (String path : myTuo.sources)
                             {
-                                if (guiContext.cfg.isRemoteSession() && myTree.getName().equalsIgnoreCase("treeCollectionTwo"))
+                                if (myTuo.isRemote)
                                 {
-                                    logger.debug("scanning remote library " + path);
+                                    guiContext.browser.printLog("Scanning remote library " + path);
                                     scanRemote(path);
                                 }
                                 else
                                 {
-                                    logger.debug("scanning local library " + path);
+                                    guiContext.browser.printLog("Scanning local library " + path);
                                     scan(new File(path).getAbsoluteFile());
                                 }
                             }
                         }
                         break;
                     case NavTreeUserObject.REAL:
-                        if (myTuo.file.isDirectory())
-                        {
-                            logger.debug("scanning local directory " + myTuo.file.getAbsolutePath());
-                            scan(myTuo.file.getAbsoluteFile());
-                        }
-                        break;
-                    case NavTreeUserObject.REMOTE:
                         if (myTuo.isDir)
                         {
-                            if (guiContext.cfg.isRemoteSession() &&
-                                    (myTree.getName().equalsIgnoreCase("treeCollectionTwo") ||
-                                            myTree.getName().equalsIgnoreCase("treeSystemTwo")))
+                            if (myTuo.isRemote)
                             {
-                                logger.debug("scanning remote directory " + myTuo.path);
+                                guiContext.browser.printLog("Scanning remote directory " + myTuo.path);
                                 scanRemote(myTuo.path);
                             }
                             else
                             {
-                                logger.debug("scanning local folder " + myTuo.path);
-                                scan(new File(myTuo.path).getAbsoluteFile());
+                                guiContext.browser.printLog("Scanning local directory " + myTuo.file.getAbsolutePath());
+                                scan(myTuo.file.getAbsoluteFile());
                             }
                         }
                         break;
-                }
+               }
                 return nodeArray;
             }
 
@@ -301,7 +319,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                     guiContext.navigator.stop();
                 }
 
-                logger.debug(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(false) + " node(s)");
+                guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(false) + " node(s)");
                 super.done();
             }
 

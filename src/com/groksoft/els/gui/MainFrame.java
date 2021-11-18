@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ResourceBundle;
@@ -98,8 +99,7 @@ public class MainFrame extends JFrame
             dim.width = splitPaneBrowser.getWidth();
             tabbedPaneNavigatorBottom.setMinimumSize(dim);
 
-            DefaultListModel listModel = new DefaultListModel<>();
-            JList<String> list = new JList<>(listModel);
+            new SmartScroller(scrollPaneLog);
 
             pack();
         }
@@ -238,9 +238,9 @@ public class MainFrame extends JFrame
         scrollPaneTableSystemTwo = new JScrollPane();
         tableSystemTwo = new JTable();
         tabbedPaneNavigatorBottom = new JTabbedPane();
-        scrollPaneFind = new JScrollPane();
+        scrollPaneLog = new JScrollPane();
         textAreaLog = new JTextArea();
-        scrollPaneContent = new JScrollPane();
+        scrollPaneProperties = new JScrollPane();
         textAreaProperties = new JTextArea();
         splitPaneBackup = new JSplitPane();
         panelProfiles = new JPanel();
@@ -487,10 +487,10 @@ public class MainFrame extends JFrame
                 //======== splitPaneBrowser ========
                 {
                     splitPaneBrowser.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                    splitPaneBrowser.setLastDividerLocation(450);
+                    splitPaneBrowser.setLastDividerLocation(396);
                     splitPaneBrowser.setMinimumSize(new Dimension(54, 0));
                     splitPaneBrowser.setContinuousLayout(true);
-                    splitPaneBrowser.setDividerLocation(450);
+                    splitPaneBrowser.setDividerLocation(396);
 
                     //======== panelBrowserTop ========
                     {
@@ -619,6 +619,8 @@ public class MainFrame extends JFrame
 
                                             //---- treeCollectionOne ----
                                             treeCollectionOne.setAutoscrolls(true);
+                                            treeCollectionOne.setDragEnabled(true);
+                                            treeCollectionOne.setDropMode(DropMode.ON_OR_INSERT);
                                             scrollPaneTreeCollectionOne.setViewportView(treeCollectionOne);
                                         }
                                         splitPaneCollectionOne.setLeftComponent(scrollPaneTreeCollectionOne);
@@ -663,6 +665,8 @@ public class MainFrame extends JFrame
 
                                             //---- treeSystemOne ----
                                             treeSystemOne.setAutoscrolls(true);
+                                            treeSystemOne.setDragEnabled(true);
+                                            treeSystemOne.setDropMode(DropMode.ON_OR_INSERT);
                                             scrollPaneTreeSystemOne.setViewportView(treeSystemOne);
                                         }
                                         splitPaneSystemOne.setLeftComponent(scrollPaneTreeSystemOne);
@@ -711,6 +715,10 @@ public class MainFrame extends JFrame
                                             scrollPaneTreeCollectionTwo.setFocusable(false);
                                             scrollPaneTreeCollectionTwo.setPreferredSize(new Dimension(103, 384));
                                             scrollPaneTreeCollectionTwo.setMinimumSize(new Dimension(0, 0));
+
+                                            //---- treeCollectionTwo ----
+                                            treeCollectionTwo.setDragEnabled(true);
+                                            treeCollectionTwo.setDropMode(DropMode.ON_OR_INSERT);
                                             scrollPaneTreeCollectionTwo.setViewportView(treeCollectionTwo);
                                         }
                                         splitPaneCollectionTwo.setLeftComponent(scrollPaneTreeCollectionTwo);
@@ -753,6 +761,8 @@ public class MainFrame extends JFrame
 
                                             //---- treeSystemTwo ----
                                             treeSystemTwo.setAutoscrolls(true);
+                                            treeSystemTwo.setDragEnabled(true);
+                                            treeSystemTwo.setDropMode(DropMode.ON_OR_INSERT);
                                             scrollPaneTreeSystemTwo.setViewportView(treeSystemTwo);
                                         }
                                         splitPaneSystemTwo.setLeftComponent(scrollPaneTreeSystemTwo);
@@ -788,29 +798,31 @@ public class MainFrame extends JFrame
                         tabbedPaneNavigatorBottom.setMinimumSize(new Dimension(0, 0));
                         tabbedPaneNavigatorBottom.setAutoscrolls(true);
 
-                        //======== scrollPaneFind ========
+                        //======== scrollPaneLog ========
                         {
-                            scrollPaneFind.setFocusable(false);
-                            scrollPaneFind.setMinimumSize(new Dimension(0, 0));
+                            scrollPaneLog.setFocusable(false);
+                            scrollPaneLog.setMinimumSize(new Dimension(0, 0));
+                            scrollPaneLog.setAutoscrolls(true);
 
                             //---- textAreaLog ----
                             textAreaLog.setEditable(false);
                             textAreaLog.setTabSize(4);
-                            scrollPaneFind.setViewportView(textAreaLog);
+                            textAreaLog.setLineWrap(true);
+                            scrollPaneLog.setViewportView(textAreaLog);
                         }
-                        tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneFind.tab.title"), scrollPaneFind);
+                        tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneLog.tab.title"), scrollPaneLog);
 
-                        //======== scrollPaneContent ========
+                        //======== scrollPaneProperties ========
                         {
-                            scrollPaneContent.setFocusable(false);
-                            scrollPaneContent.setMinimumSize(new Dimension(0, 0));
+                            scrollPaneProperties.setFocusable(false);
+                            scrollPaneProperties.setMinimumSize(new Dimension(0, 0));
 
                             //---- textAreaProperties ----
                             textAreaProperties.setEditable(false);
                             textAreaProperties.setTabSize(4);
-                            scrollPaneContent.setViewportView(textAreaProperties);
+                            scrollPaneProperties.setViewportView(textAreaProperties);
                         }
-                        tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneContent.tab.title"), scrollPaneContent);
+                        tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneProperties.tab.title"), scrollPaneProperties);
                     }
                     splitPaneBrowser.setBottomComponent(tabbedPaneNavigatorBottom);
                 }
@@ -948,9 +960,9 @@ public class MainFrame extends JFrame
     public JScrollPane scrollPaneTableSystemTwo;
     public JTable tableSystemTwo;
     public JTabbedPane tabbedPaneNavigatorBottom;
-    public JScrollPane scrollPaneFind;
+    public JScrollPane scrollPaneLog;
     public JTextArea textAreaLog;
-    public JScrollPane scrollPaneContent;
+    public JScrollPane scrollPaneProperties;
     public JTextArea textAreaProperties;
     public JSplitPane splitPaneBackup;
     public JPanel panelProfiles;

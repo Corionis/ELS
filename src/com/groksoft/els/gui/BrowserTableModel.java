@@ -1,12 +1,8 @@
 package com.groksoft.els.gui;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import java.nio.file.Files;
-import java.nio.file.attribute.FileTime;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class BrowserTableModel extends DefaultTableModel
 {
@@ -94,11 +90,6 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.LIBRARY:
                         return UIManager.getIcon("FileView.directoryIcon");
                     case NavTreeUserObject.REAL:
-                        if (tuo.file != null && tuo.file.isDirectory())
-                            return UIManager.getIcon("FileView.directoryIcon");
-                        else
-                            return UIManager.getIcon("FileView.fileIcon");
-                    case NavTreeUserObject.REMOTE:
                         if (tuo.isDir)
                             return UIManager.getIcon("FileView.directoryIcon");
                         else
@@ -126,22 +117,6 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.DRIVE:
                         return null;
                     case NavTreeUserObject.REAL:
-                        if (tuo.file != null)
-                        {
-                            if (tuo.file.isDirectory())
-                                return null; // Long.valueOf(child.getChildCount());
-                            try
-                            {
-                                long size = Files.size(tuo.file.toPath());
-                                return new SizeColumn(size);
-                            }
-                            catch (Exception e)
-                            {
-                                return -1L;
-                            }
-                        }
-                        break;
-                    case NavTreeUserObject.REMOTE:
                         if (tuo.isDir)
                             return null;
                         return new SizeColumn(tuo.size);
@@ -167,6 +142,8 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.LIBRARY:
                         break;
                     case NavTreeUserObject.REAL:
+                        if (tuo.isRemote)
+                            return new DateColumn(tuo.fileTime);
                         if (tuo.file != null)
                         {
                             try
@@ -174,12 +151,9 @@ public class BrowserTableModel extends DefaultTableModel
                                 return new DateColumn(Files.getLastModifiedTime(tuo.file.toPath()));
                             }
                             catch (Exception e)
-                            {
-                            }
+                            { }
                         }
                         break;
-                    case NavTreeUserObject.REMOTE:
-                        return new DateColumn(tuo.fileTime);
                     case NavTreeUserObject.SYSTEM:
                         break;
                     default:

@@ -2,6 +2,7 @@ package com.groksoft.els.gui;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.util.concurrent.TimeUnit;
 
@@ -17,8 +18,7 @@ public class NavTreeUserObject implements Comparable, Serializable
     public static final int HOME = 4;
     public static final int LIBRARY = 5; // ELS library node
     public static final int REAL = 6; // use File
-    public static final int REMOTE = 7; // use
-    public static final int SYSTEM = 8; // hidden; holds System tab Computer, Bookmarks, etc.
+    public static final int SYSTEM = 7; // hidden; holds System tab Computer, Bookmarks, etc.
 
     public File file;
     public FileTime fileTime;
@@ -33,15 +33,16 @@ public class NavTreeUserObject implements Comparable, Serializable
     public int type = REAL;
 
     // logical entries: BOOKMARKS, COLLECTION, COMPUTER, SYSTEM
-    public NavTreeUserObject(NavTreeNode ntn, String aName, int aType)
+    public NavTreeUserObject(NavTreeNode ntn, String aName, int type, boolean remote)
     {
         this.node = ntn;
         this.name = aName;
         this.isDir = true;
-        this.type = aType;
+        this.isRemote = remote;
+        this.type = type;
     }
 
-    // A REAL physical file or directory
+    // A local file or directory
     public NavTreeUserObject(NavTreeNode ntn, String name, File file)
     {
         this.node = ntn;
@@ -49,30 +50,41 @@ public class NavTreeUserObject implements Comparable, Serializable
         this.file = file;
         this.path = file.getAbsolutePath();
         this.isDir = file.isDirectory();
+        this.isRemote = false;
         this.type = REAL;
+        try
+        {
+            this.size = Files.size(file.toPath());
+        }
+        catch (Exception e)
+        {
+            this.size = -1L;
+        }
     }
 
     // A collection of libraries
-    public NavTreeUserObject(NavTreeNode ntn, String name, String[] sources)
+    public NavTreeUserObject(NavTreeNode ntn, String name, String[] sources, boolean remote)
     {
         this.node = ntn;
         this.name = name;
         this.sources = sources.clone();
         this.isDir = true;
+        this.isRemote = remote;
         this.type = LIBRARY;
     }
 
     // A DRIVE or HOME
-    public NavTreeUserObject(NavTreeNode ntn, String name, String path, int type)
+    public NavTreeUserObject(NavTreeNode ntn, String name, String path, int type, boolean remote)
     {
         this.node = ntn;
         this.name = name;
         this.path = path;
         this.isDir = true;
+        this.isRemote = remote;
         this.type = type;
     }
 
-    // A REMOTE file or directory
+    // A remote file or directory
     public NavTreeUserObject(NavTreeNode ntn, String name, String path, long size, int mtime, boolean isDir)
     {
         this.node = ntn;
@@ -82,7 +94,8 @@ public class NavTreeUserObject implements Comparable, Serializable
         this.mtime = mtime;
         this.fileTime = FileTime.from(mtime, TimeUnit.SECONDS);
         this.isDir = isDir;
-        this.type = REMOTE;
+        this.isRemote = true;
+        this.type = REAL;
     }
 
     @Override
@@ -121,9 +134,9 @@ public class NavTreeUserObject implements Comparable, Serializable
             case LIBRARY:
                 return this.name;
             case REAL:
+                if (isRemote)
+                    return this.path;
                 return this.file.getPath();
-            case REMOTE:
-                return this.path;
             case SYSTEM:
                 return this.name;
             default:
@@ -133,28 +146,27 @@ public class NavTreeUserObject implements Comparable, Serializable
 
     public String getType()
     {
+        String label = (isRemote ? "Remote " : "Local ");
         switch (type)
         {
             case BOOKMARKS:
-                return "Bookmark";
+                return label + "Bookmark";
             case COLLECTION:
-                return "Collection";
+                return label + "Collection";
             case COMPUTER:
-                return "Computer";
+                return label + "Computer";
             case DRIVE:
-                return "Drive";
+                return label + "Drive";
             case HOME:
-                return "Home";
+                return label + "Home";
             case LIBRARY:
-                return "Library";
+                return label + "Library";
             case REAL:
-                return "Local";
-            case REMOTE:
-                return "Remote";
+                return label + (isDir ? "Directory" : "File");
             case SYSTEM:
-                return "System";
+                return label + "System";
             default:
-                return "Unknown";
+                return label + "Unknown";
         }
     }
 
