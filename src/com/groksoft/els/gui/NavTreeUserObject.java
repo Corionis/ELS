@@ -22,6 +22,7 @@ public class NavTreeUserObject implements Comparable, Serializable
 
     public File file;
     public FileTime fileTime;
+    public boolean isHidden = false;
     public boolean isDir = false;
     public int mtime;
     public String name = "";
@@ -50,6 +51,7 @@ public class NavTreeUserObject implements Comparable, Serializable
         this.file = file;
         this.path = file.getAbsolutePath();
         this.isDir = file.isDirectory();
+        this.isHidden = file.isHidden();
         this.isRemote = false;
         this.type = REAL;
         try
@@ -94,6 +96,7 @@ public class NavTreeUserObject implements Comparable, Serializable
         this.mtime = mtime;
         this.fileTime = FileTime.from(mtime, TimeUnit.SECONDS);
         this.isDir = isDir;
+        this.isHidden = name.startsWith(".");
         this.isRemote = true;
         this.type = REAL;
     }

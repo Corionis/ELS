@@ -131,9 +131,6 @@ public class Browser
 
     private boolean initialize()
     {
-        os = Utils.getOS();
-        logger.debug("Detected local system as " + os);
-
         navTransferHandler = new NavTransferHandler(guiContext);  // single instance
 
         JPanel simpleOutput = new JPanel(new BorderLayout(3, 3));
@@ -141,7 +138,6 @@ public class Browser
         simpleOutput.add(progressBar, BorderLayout.EAST);
         progressBar.setVisible(false);
 
-        initializeMainMenu();
         initializeNavigation();
         initializeBrowserOne();
         initializeBrowserTwo();
@@ -150,6 +146,7 @@ public class Browser
         NavTreeModel model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
         NavTreeNode root = (NavTreeNode) model.getRoot();
         root.loadStatus();
+        root.selectMe();
 
         return true;
     }
@@ -393,105 +390,6 @@ public class Browser
         addMouseListenerToTable(guiContext.form.tableSystemTwo);
     }
 
-    private void initializeMainMenu()
-    {
-        // --- Main Menu ------------------------------------------
-        //
-        // -- File Menu
-
-        //
-        // -- Window Menu
-        guiContext.form.menuItemMaximize.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                guiContext.form.setExtendedState(guiContext.form.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-            }
-        });
-        //
-        guiContext.form.menuItemMinimize.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                guiContext.form.setState(JFrame.ICONIFIED);
-            }
-        });
-        //
-        guiContext.form.menuItemRestore.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                guiContext.form.setExtendedState(JFrame.NORMAL);
-            }
-        });
-        //
-        guiContext.form.menuItemSplitHorizontal.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
-                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
-                int size = guiContext.form.splitPaneTwoBrowsers.getHeight();
-                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
-            }
-        });
-        //
-        guiContext.form.menuItemSplitVertical.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
-                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
-                int size = guiContext.form.splitPaneTwoBrowsers.getWidth();
-                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
-            }
-        });
-
-        // -- Help Menu
-        //
-        guiContext.form.menuItemDocumentation.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                try
-                {
-                    URI uri = new URI("https://github.com/GrokSoft/ELS/wiki");
-                    Desktop.getDesktop().browse(uri);
-                }
-                catch (Exception e)
-                {
-                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        //
-        guiContext.form.menuItemGitHubProject.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                try
-                {
-                    URI uri = new URI("https://github.com/GrokSoft/ELS");
-                    Desktop.getDesktop().browse(uri);
-                }
-                catch (Exception e)
-                {
-                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-
-    }
-
     private void initializeNavigation()
     {
         guiContext.form.buttonBack.addActionListener(new AbstractAction()
@@ -502,9 +400,8 @@ public class Browser
                 NavTreeNode node = navStackPop();
                 if (node != null)
                 {
-                    node.getMyTree().scrollPathToVisible(node.getTreePath());
-                    node.getMyTree().requestFocus();
-                    node.getMyTree().setSelectionPath(node.getTreePath());
+                    node.selectMyTab();
+                    node.selectMe();
                 }
             }
         });
@@ -517,10 +414,12 @@ public class Browser
                 if (navStackIndex + 1 <= navStack.lastIndexOf(navStack.lastElement()))
                 {
                     ++navStackIndex;
-                    NavTreeNode node = navStack.get(navStackIndex);
-                    node.getMyTree().scrollPathToVisible(node.getTreePath());
-                    node.getMyTree().requestFocus();
-                    node.getMyTree().setSelectionPath(node.getTreePath());
+                }
+                NavTreeNode node = navStack.get(navStackIndex);
+                if (node != null)
+                {
+                    node.selectMyTab();
+                    node.selectMe();
                 }
             }
         });
@@ -595,7 +494,7 @@ public class Browser
     {
         if (navStackIndex < 0 || navStack.get(navStackIndex) != node)
         {
-            if (navStackIndex > 0)
+            if (navStackIndex > -1)
                 navStack.setSize(navStackIndex + 1); // truncate anything beyond this index
             navStack.push(node);
             ++navStackIndex;
@@ -630,10 +529,10 @@ public class Browser
                 case NavTreeUserObject.BOOKMARKS:
                     break;
                 case NavTreeUserObject.COLLECTION:
-                    guiContext.form.textAreaProperties.append("Libraries: " + tuo.node.getChildCount(false) + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("Libraries: " + tuo.node.getChildCount(false, true) + System.getProperty("line.separator"));
                     break;
                 case NavTreeUserObject.COMPUTER:
-                    guiContext.form.textAreaProperties.append("Drives: " + tuo.node.getChildCount(false) + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("Drives: " + tuo.node.getChildCount(false, true) + System.getProperty("line.separator"));
                     break;
                 case NavTreeUserObject.DRIVE:
                     guiContext.form.textAreaProperties.append("Free: " + Utils.formatLong(getFreespace(tuo), true) + System.getProperty("line.separator"));

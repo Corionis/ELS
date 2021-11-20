@@ -45,6 +45,7 @@ public class Configuration
     private String hintsDaemonFilename = "";
     private String logFilename = "";
     private boolean logOverwrite = false;
+    private double longScale = 1024L;
     private String mismatchFilename = "";
     private boolean navigator = false;
     private boolean noBackFill = false;
@@ -72,6 +73,7 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
+
     /**
      * Instantiates a new Configuration
      */
@@ -300,9 +302,18 @@ public class Configuration
     }
 
     /**
+     * Gets the configured scale for formatting long values, 1024 or 1000
+     * @return long Scale for formatting
+     */
+    public double getLongScale()
+    {
+        return longScale;
+    }
+
+    /**
      * Get the Navigator name
      *
-     * @return
+     * @return String
      */
     public String getNavigatorName()
     {
@@ -1096,6 +1107,10 @@ public class Configuration
                 case "--cross-check":
                     setCrossCheck(true);
                     break;
+                case "-z":                                             // scale long values with 1000 instead of 1024
+                case "--decimal-scale":
+                    setLongScale(false);
+                    break;
                 default:
                     throw new MungeException("Error: unknown option: " + args[index]);
             }
@@ -1245,6 +1260,15 @@ public class Configuration
     public void setLogOverwrite(boolean logOverwrite)
     {
         this.logOverwrite = logOverwrite;
+    }
+
+    /**
+     * Sets the scale factor for formatting long values, 1024 or 1000
+     * @param binaryScale true = 1024, false = 1000
+     */
+    public void setLongScale(boolean binaryScale)
+    {
+        this.longScale = (binaryScale ? 1024.0 : 1000.0);
     }
 
     /**

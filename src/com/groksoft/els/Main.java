@@ -141,6 +141,7 @@ public class Main
                 System.getProperties().list(System.out);
                 System.exit(1);
             }
+            Utils.setConfiguration(cfg);
 
             //
             // an execution of this program can only be configured as one of these

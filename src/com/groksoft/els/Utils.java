@@ -32,6 +32,8 @@ public class Utils
     private static Cipher cipher = null;
     private static Logger logger = LogManager.getLogger("applog");
 
+    private static Configuration cfg;
+
     /**
      * Static methods - do not instantiate
      */
@@ -154,26 +156,28 @@ public class Utils
         DecimalFormat longForm = new DecimalFormat("###,###,###,###,###,###,###,###.###");
         DecimalFormat shortForm = new DecimalFormat("###,###,###,###,###,###,###,###.#");
 
+        double scale = cfg.getLongScale();
+
         brief = shortForm.format(value) + " B";
         full = brief;
-        if (value >= (1024))
+        if (value >= (scale))
         {
-            brief = shortForm.format(value / 1024.0) + " KB";
+            brief = shortForm.format(value / scale) + " KB";
             full += ", " + brief;
         }
-        if (value >= (1024.0 * 1024.0))
+        if (value >= (scale * scale))
         {
-            brief = shortForm.format(value / (1024.0 * 1024.0)) + " MB";
+            brief = shortForm.format(value / (scale * scale)) + " MB";
             full += ", " + brief;
         }
-        if (value >= (1024.0 * 1024.0 * 1024.0))
+        if (value >= (scale * scale * scale))
         {
-            brief = shortForm.format(value / (1024.0 * 1024.0 * 1024.0)) + " GB";
+            brief = shortForm.format(value / (scale * scale * scale)) + " GB";
             full += ", " + brief;
         }
-        if (value >= (1024.0 * 1024.0 * 1024.0 * 1024.0))
+        if (value >= (scale * scale * scale * scale))
         {
-            brief = longForm.format(value / (1024.0 * 1024.0 * 1024.0 * 1024.0)) + " TB";
+            brief = longForm.format(value / (scale * scale * scale * scale)) + " TB";
             full += ", " + brief;
         }
         return (isFull ? full : brief);
@@ -601,6 +605,15 @@ public class Utils
         }
         directory.delete();
         return notAllDirectories;
+    }
+
+    /**
+     * Set Utils configuration value for some Utils methods
+     * @param c
+     */
+    public static void setConfiguration(Configuration c)
+    {
+        Utils.cfg = c;
     }
 
     /**

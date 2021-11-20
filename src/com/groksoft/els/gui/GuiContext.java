@@ -12,7 +12,6 @@ import javax.swing.filechooser.FileSystemView;
 public class GuiContext
 {
     // Base ELS
-    Main els;
     Configuration cfg;
     Context context;
 

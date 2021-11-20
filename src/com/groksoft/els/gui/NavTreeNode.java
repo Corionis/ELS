@@ -70,12 +70,112 @@ class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
-    public TreeNode getChildAt(int index, boolean filterIsActive)
+    public int deepGetFileCount()
     {
-        if (!filterIsActive)
+        int count = 0;
+        int childCount = getChildCount(false, false);
+        for (int i = 0; i < childCount; ++i)
         {
-            return super.getChildAt(index);
+            NavTreeNode child = (NavTreeNode) getChildAt(i, false, false);
+            NavTreeUserObject tuo = child.getUserObject();
+            if (!tuo.isDir)
+                ++count;
+            else
+                count = count + child.deepGetFileCount();
         }
+        return count;
+    }
+
+    public long deepGetFileSize()
+    {
+        long size = 0L;
+        int childCount = getChildCount(false, false);
+        for (int i = 0; i < childCount; ++i)
+        {
+            NavTreeNode child = (NavTreeNode) getChildAt(i, false, false);
+            NavTreeUserObject tuo = child.getUserObject();
+            if (!tuo.isDir)
+                size = size + tuo.size;
+            else
+                size = size + child.deepGetFileSize();
+        }
+        return size;
+    }
+
+    /**
+     * Brute force deep directory tree scan, not lazy-loaded
+     */
+    public void deepScanChildren()
+    {
+        NavTreeUserObject myTuo = getUserObject();
+        assert(myTuo.type == NavTreeUserObject.REAL);
+        List<NavTreeNode> nodeArray = new ArrayList<NavTreeNode>();
+
+        if (myTuo.isDir)
+        {
+            if (myTuo.isRemote)
+            {
+                guiContext.browser.printLog("Deep scan remote directory " + myTuo.path);
+                try
+                {
+                    Vector listing = guiContext.context.clientSftp.listDirectory(myTuo.path);
+                    logger.info("received " + listing.size() + " entries from " + myTuo.path);
+                    for (int i = 0; i < listing.size(); ++i)
+                    {
+                        ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
+                        if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
+                        {
+                            SftpATTRS a = entry.getAttrs();
+                            NavTreeNode node = new NavTreeNode(guiContext, myTree);
+                            NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
+                                    myTuo.path + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
+                                    a.getSize(), a.getATime(), a.isDir());
+                            node.setNavTreeUserObject(tuo);
+                            nodeArray.add(node);
+                            if (!a.isDir())
+                                node.setVisible(false);
+                            else
+                                node.deepScanChildren();
+                        }
+                    }
+                    setChildren(nodeArray, false);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Could not retrieve listing from " + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    logger.error(Utils.getStackTrace(e));
+                    guiContext.context.fault = true;
+                    guiContext.navigator.stop();
+                }
+            }
+            else
+            {
+                guiContext.browser.printLog("Deep scan local directory " + myTuo.file.getAbsolutePath());
+                File[] files = guiContext.fileSystemView.getFiles(myTuo.file.getAbsoluteFile(), false);
+                logger.info("found " + files.length + " entries from " + myTuo.file.getAbsoluteFile());
+                for (File entry : files)
+                {
+                    NavTreeNode node = new NavTreeNode(guiContext, myTree);
+                    NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), entry);
+                    node.setNavTreeUserObject(tuo);
+                    nodeArray.add(node);
+                    if (!entry.isDirectory())  // TODO add hidden condition
+                        node.setVisible(false);
+                    else
+                        node.deepScanChildren();
+                }
+                setChildren(nodeArray, false);
+            }
+        }
+    }
+
+    public TreeNode getChildAt(int index, boolean filterIsActive, boolean visibleIsActive)
+    {
+//        if (!filterIsActive)
+//        {
+//            return super.getChildAt(index);
+//        }
 
         if (children == null)
         {
@@ -88,7 +188,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         while (e.hasMoreElements())
         {
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (node.isVisible())
+            if ((!filterIsActive || (filterIsActive && node.isVisible())) && (!visibleIsActive || guiContext.preferences.isViewHidden() || node.getUserObject().isHidden == false))
             {
                 visibleIndex++;
             }
@@ -102,12 +202,12 @@ class NavTreeNode extends DefaultMutableTreeNode
         throw new ArrayIndexOutOfBoundsException("index unmatched");
     }
 
-    public int getChildCount(boolean filterIsActive)
+    public int getChildCount(boolean filterIsActive, boolean visibleIsActive)
     {
-        if (!filterIsActive)
-        {
-            return super.getChildCount();
-        }
+//        if (!filterIsActive)
+//        {
+//            return super.getChildCount();
+//        }
 
         if (children == null)
         {
@@ -119,7 +219,8 @@ class NavTreeNode extends DefaultMutableTreeNode
         while (e.hasMoreElements())
         {
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (node.isVisible())
+//            if (node.isVisible())
+            if ((!filterIsActive || (filterIsActive && node.isVisible())) && (!visibleIsActive || guiContext.preferences.isViewHidden() || node.getUserObject().isHidden == false))
             {
                 count++;
             }
@@ -319,7 +420,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                     guiContext.navigator.stop();
                 }
 
-                guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(false) + " node(s)");
+                guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(false, false) + " node(s)");
                 super.done();
             }
 
@@ -334,7 +435,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                         NavTreeNode node = new NavTreeNode(guiContext, myTree);
                         NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), entry);
                         node.setNavTreeUserObject(tuo);
-                        if (!entry.isDirectory())
+                        if (!entry.isDirectory() || (!guiContext.preferences.isViewHidden() && tuo.isHidden))
                             node.setVisible(false);
                         nodeArray.add(node);
                     }
@@ -358,7 +459,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                                     target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
                                     a.getSize(), a.getATime(), a.isDir());
                             node.setNavTreeUserObject(tuo);
-                            if (!a.isDir())
+                            if (!a.isDir() || (!guiContext.preferences.isViewHidden() && tuo.isHidden))
                                 node.setVisible(false);
                             nodeArray.add(node);
                         }
@@ -382,7 +483,7 @@ class NavTreeNode extends DefaultMutableTreeNode
     {
         if (myStatus != null)
         {
-            int c = getChildCount(false);
+            int c = getChildCount(false, true);
             myStatus.setText(c + " item" + (c != 1 ? "s" : ""));
         }
         NavTreeUserObject tuo = getUserObject();
@@ -391,6 +492,7 @@ class NavTreeNode extends DefaultMutableTreeNode
             guiContext.form.textFieldLocation.setText(tuo.getPath());
             guiContext.browser.printProperties(tuo);
         }
+        guiContext.form.labelStatusMiddle.setText("");
     }
 
     protected void loadTable()
@@ -438,9 +540,55 @@ class NavTreeNode extends DefaultMutableTreeNode
         sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
         DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
         sorter.setSortKeys(sortKeys);
+
+/*
+        if (!guiContext.preferences.isViewHidden())
+        {
+            RowFilter<BrowserTableModel, Object> rowFilter = null;
+            try
+            {
+                rowFilter = RowFilter.numberFilter(RowFilter.ComparisonType.EQUAL, 0);
+                sorter.setRowFilter(rowFilter);
+            }
+            catch (IllegalArgumentException e)
+            {
+            }
+        }
+*/
+
         sorter.sort();
 
         loadStatus();
+    }
+
+    public void selectMe()
+    {
+        myTree.scrollPathToVisible(getTreePath());
+        myTree.requestFocus();
+        myTree.setSelectionPath(getTreePath());
+    }
+
+    public void selectMyTab()
+    {
+        int index = 0;
+        JTabbedPane tabbedPane = null;
+        switch (myTree.getName())
+        {
+            case "treeCollectionOne":
+                tabbedPane = guiContext.form.tabbedPaneBrowserOne;
+                break;
+            case "treeSystemOne":
+                index = 1;
+                tabbedPane = guiContext.form.tabbedPaneBrowserOne;
+                break;
+            case "treeCollectionTwo":
+                tabbedPane = guiContext.form.tabbedPaneBrowserTwo;
+                break;
+            case "treeSystemTwo":
+                index = 1;
+                tabbedPane = guiContext.form.tabbedPaneBrowserTwo;
+        }
+        tabbedPane.setSelectedIndex(index);
     }
 
     protected void setChildren(List<NavTreeNode> children, boolean doLoadTable)
@@ -469,21 +617,6 @@ class NavTreeNode extends DefaultMutableTreeNode
             setRefresh(false);
     }
 
-    public void setMyStatus(JLabel myStatus)
-    {
-        this.myStatus = myStatus;
-    }
-
-    public void setMyTable(JTable myTable)
-    {
-        this.myTable = myTable;
-    }
-
-    public void setMyTree(JTree myTree)
-    {
-        this.myTree = myTree;
-    }
-
     void setNavTreeUserObject(NavTreeUserObject ntuo)
     {
         this.setUserObject(ntuo);
@@ -498,6 +631,8 @@ class NavTreeNode extends DefaultMutableTreeNode
     {
         this.visible = visible;
     }
+
+    // ==========================================
 
     class SortTreeAlphabetically implements Comparator<NavTreeNode>
     {

@@ -2,6 +2,8 @@ package com.groksoft.els.gui;
 
 public class Preferences
 {
+    private boolean binaryScale = true;
+    private boolean confirmation = true;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
     // The Look 'n Feel, 0-6
@@ -12,6 +14,11 @@ public class Preferences
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
+    private boolean viewHidden = false;
+
+    public Preferences()
+    {
+    }
 
     public String getDateFormat()
     {
@@ -28,6 +35,16 @@ public class Preferences
         return true;
     }
 
+    public boolean isBinaryScale()
+    {
+        return binaryScale;
+    }
+
+    public boolean isConfirmation()
+    {
+        return confirmation;
+    }
+
     public boolean isSortCaseInsensitive()
     {
         return sortCaseInsensitive;
@@ -41,6 +58,21 @@ public class Preferences
     public boolean isSortReverse()
     {
         return sortReverse;
+    }
+
+    public boolean isViewHidden()
+    {
+        return viewHidden;
+    }
+
+    public void setBinaryScale(boolean binaryScale)
+    {
+        this.binaryScale = binaryScale;
+    }
+
+    public void setConfirmation(boolean confirmation)
+    {
+        this.confirmation = confirmation;
     }
 
     public void setDateFormat(String dateFormat)
@@ -66,5 +98,10 @@ public class Preferences
     public void setSortReverse(boolean sortReverse)
     {
         this.sortReverse = sortReverse;
+    }
+
+    public void setViewHidden(boolean viewHidden)
+    {
+        this.viewHidden = viewHidden;
     }
 }

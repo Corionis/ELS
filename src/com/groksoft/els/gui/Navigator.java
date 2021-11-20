@@ -4,7 +4,11 @@ import com.groksoft.els.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.net.URI;
 import java.util.ResourceBundle;
 
 public class Navigator
@@ -28,18 +32,15 @@ public class Navigator
     //    then skip subscriber-side commands for RequestCollection and RequestTargets
     //  * Add size format option for scaled or bytes
 
-    //
-    // LEFTOFF Remote file data is wrong
-
     public Navigator(Main main, Configuration config, Context ctx)
     {
         guiContext = new GuiContext();
         guiContext.cfg = config;
         guiContext.context = ctx;
-        guiContext.els = main;
         guiContext.fileSystemView = FileSystemView.getFileSystemView();
         guiContext.navigator = this;
         guiContext.preferences = new Preferences();
+        guiContext.cfg.setLongScale(guiContext.preferences.isBinaryScale());
     }
 
     /**
@@ -49,6 +50,7 @@ public class Navigator
      */
     private boolean initialize()
     {
+        // setup the needed tools
         guiContext.context.transfer = new Transfer(guiContext.cfg, guiContext.context);
         try
         {
@@ -62,12 +64,116 @@ public class Navigator
             return false;
         }
 
+        // setup the GUI
         guiContext.form = new MainFrame(guiContext);
         if (!guiContext.context.fault)
         {
+            // setup the Main Menu and primary tabs
+            initializeMainMenu();
             guiContext.browser = new Browser(guiContext);
+
+            // TODO Add Backup, Profiles and Keys creation here
+
         }
         return !guiContext.context.fault;
+    }
+
+    private void initializeMainMenu()
+    {
+        // --- Main Menu ------------------------------------------
+        //
+        // -- File Menu
+
+        //
+        // -- Window Menu
+        guiContext.form.menuItemMaximize.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.setExtendedState(guiContext.form.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+            }
+        });
+        //
+        guiContext.form.menuItemMinimize.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.setState(JFrame.ICONIFIED);
+            }
+        });
+        //
+        guiContext.form.menuItemRestore.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.setExtendedState(JFrame.NORMAL);
+            }
+        });
+        //
+        guiContext.form.menuItemSplitHorizontal.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
+                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
+                int size = guiContext.form.splitPaneTwoBrowsers.getHeight();
+                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.VERTICAL_SPLIT);
+                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
+            }
+        });
+        //
+        guiContext.form.menuItemSplitVertical.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
+                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
+                int size = guiContext.form.splitPaneTwoBrowsers.getWidth();
+                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
+            }
+        });
+
+        // -- Help Menu
+        //
+        guiContext.form.menuItemDocumentation.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    URI uri = new URI("https://github.com/GrokSoft/ELS/wiki");
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        //
+        guiContext.form.menuItemGitHubProject.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    URI uri = new URI("https://github.com/GrokSoft/ELS");
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
     }
 
     public int run() throws Exception
@@ -82,6 +188,10 @@ public class Navigator
                 {
                     logger.info("Displaying Navigator");
                     guiContext.form.setVisible(true);
+
+                    String os = Utils.getOS();
+                    logger.debug("Detected local system as " + os);
+                    guiContext.form.labelStatusMiddle.setText("Detected local system as " + os);
                 }
                 else
                 {

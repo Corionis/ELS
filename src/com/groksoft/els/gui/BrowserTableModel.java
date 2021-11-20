@@ -62,15 +62,17 @@ public class BrowserTableModel extends DefaultTableModel
     public int getRowCount()
     {
         if (node != null)
-            return node.getChildCount(false);
+            return node.getChildCount(false, true);
         return 0;
     }
 
     @Override
     public Object getValueAt(int row, int column)
     {
-        NavTreeNode child = (NavTreeNode) node.getChildAt(row, false);
-        NavTreeUserObject tuo = child.getUserObject();
+        NavTreeNode child;
+        NavTreeUserObject tuo;
+        child = (NavTreeNode) node.getChildAt(row, false, true);
+        tuo = child.getUserObject();
         if (tuo != null)
         {
             if (column == 0) // icon
@@ -113,7 +115,7 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
                     case NavTreeUserObject.LIBRARY:
-                        return new SizeColumn(Long.valueOf(child.getChildCount(false)), true) + " items";
+                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), true) + " items";
                     case NavTreeUserObject.DRIVE:
                         return null;
                     case NavTreeUserObject.REAL:
@@ -170,9 +172,26 @@ public class BrowserTableModel extends DefaultTableModel
         return false;
     }
 
-    public interface Reorderable
+/*
+     while (true)
     {
-        public void reorder(int fromIndex, int toIndex);
+        child = (NavTreeNode) node.getChildAt(row, false);
+        tuo = child.getUserObject();
+        if (tuo.type == NavTreeUserObject.REAL && !guiContext.preferences.isViewHidden())
+        {
+            if (tuo.isRemote)
+            {
+                if (tuo.name.startsWith("."))
+                    continue;
+            }
+            else
+            {
+                if (tuo.file.isHidden())
+                    continue;
+            }
+        }
+        break;
     }
-
+*/
 }
+

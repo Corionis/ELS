@@ -34,7 +34,7 @@ class NavTreeModel extends DefaultTreeModel
         {
             if (parent instanceof NavTreeNode)
             {
-                return ((NavTreeNode) parent).getChildAt(index, filterIsActive);
+                return ((NavTreeNode) parent).getChildAt(index, filterIsActive, false);
             }
         }
         return ((TreeNode) parent).getChildAt(index);
@@ -46,7 +46,7 @@ class NavTreeModel extends DefaultTreeModel
         {
             if (parent instanceof NavTreeNode)
             {
-                return ((NavTreeNode) parent).getChildCount(filterIsActive);
+                return ((NavTreeNode) parent).getChildCount(filterIsActive, true);
             }
         }
         return ((TreeNode) parent).getChildCount();

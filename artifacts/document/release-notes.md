@@ -26,6 +26,9 @@ It's all built-in with the -n | --navigator option.
 
  2. The -n option has been repurposed, and the --navigator option has been added.
 
+ 3. Added option -z | --decimal-scale to format numeric values with a 1000 decimal
+    scale instead of a 1024 binary scale.
+
 ### Bug Fixes
 
 
