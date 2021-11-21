@@ -66,6 +66,7 @@ public class MainFrame extends JFrame
             label.setUI(new VerticalLabelUI(false));
             tabbedPaneBrowserTwo.setTabComponentAt(1, label);
 
+            // setup the right-side tables
             tableCollectionOne.setName("tableCollectionOne");
             tableCollectionOne.setAutoCreateRowSorter(true);
             tableCollectionOne.setShowGrid(false);
@@ -94,11 +95,17 @@ public class MainFrame extends JFrame
             tableSystemTwo.setRowSelectionAllowed(true);
             tableSystemTwo.setColumnSelectionAllowed(false);
 
+            // set Back/Forward keys
+            buttonBack.setMnemonic(KeyEvent.VK_LEFT);
+            buttonForward.setMnemonic(KeyEvent.VK_RIGHT);
+
+            // setup the bottom splitter
             Dimension dim = new Dimension();
             dim.height = 10;
             dim.width = splitPaneBrowser.getWidth();
             tabbedPaneNavigatorBottom.setMinimumSize(dim);
 
+            // add smart scroll to the log
             new SmartScroller(scrollPaneLog);
 
             pack();
@@ -173,6 +180,8 @@ public class MainFrame extends JFrame
         menuItemCut = new JMenuItem();
         menuItemPaste = new JMenuItem();
         menuItemPreferences = new JMenuItem();
+        menuView = new JMenu();
+        menuItemShowHidden = new JCheckBoxMenuItem();
         menuBookmarks = new JMenu();
         menuItemShowAllBookmarks = new JMenuItem();
         menuItemAddBookmark = new JMenuItem();
@@ -190,6 +199,7 @@ public class MainFrame extends JFrame
         menuItemRestore = new JMenuItem();
         menuItemSplitHorizontal = new JMenuItem();
         menuItemSplitVertical = new JMenuItem();
+        menuItemSaveLayout = new JMenuItem();
         menuHelp = new JMenu();
         menuItemDocumentation = new JMenuItem();
         menuItemGitHubProject = new JMenuItem();
@@ -343,6 +353,19 @@ public class MainFrame extends JFrame
             }
             menuBarMain.add(menuEdit);
 
+            //======== menuView ========
+            {
+                menuView.setText(bundle.getString("Navigator.menuView.text"));
+                menuView.setMnemonic(bundle.getString("Navigator.menuView.mnemonic").charAt(0));
+                menuView.setSelectedIcon(null);
+
+                //---- menuItemShowHidden ----
+                menuItemShowHidden.setText(bundle.getString("Navigator.menuItemShowHidden.text"));
+                menuItemShowHidden.setMnemonic(bundle.getString("Navigator.menuItemShowHidden.mnemonic").charAt(0));
+                menuView.add(menuItemShowHidden);
+            }
+            menuBarMain.add(menuView);
+
             //======== menuBookmarks ========
             {
                 menuBookmarks.setText(bundle.getString("Navigator.menuBookmarks.text"));
@@ -459,6 +482,14 @@ public class MainFrame extends JFrame
                 menuItemSplitVertical.setMnemonic(bundle.getString("Navigator.menuItemSplitVertical.mnemonic").charAt(0));
                 menuItemSplitVertical.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuWindows.add(menuItemSplitVertical);
+                menuWindows.addSeparator();
+
+                //---- menuItemSaveLayout ----
+                menuItemSaveLayout.setText(bundle.getString("Navigator.menuItemSaveLayout.text"));
+                menuItemSaveLayout.setMnemonic(bundle.getString("Navigator.menuItemSaveLayout.mnemonic").charAt(0));
+                menuItemSaveLayout.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemSaveLayout.setEnabled(false);
+                menuWindows.add(menuItemSaveLayout);
             }
             menuBarMain.add(menuWindows);
 
@@ -565,7 +596,6 @@ public class MainFrame extends JFrame
                                     buttonBack.setPreferredSize(new Dimension(36, 30));
                                     buttonBack.setToolTipText(bundle.getString("Navigator.buttonBack.toolTipText"));
                                     buttonBack.setActionCommand("navBack");
-                                    buttonBack.setMnemonic(bundle.getString("Navigator.buttonBack.mnemonic").charAt(0));
                                     panelLocationLeft.add(buttonBack, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                         new Insets(0, 0, 0, 0), 0, 0));
@@ -576,7 +606,6 @@ public class MainFrame extends JFrame
                                     buttonForward.setMinimumSize(new Dimension(36, 30));
                                     buttonForward.setPreferredSize(new Dimension(36, 30));
                                     buttonForward.setToolTipText(bundle.getString("Navigator.buttonForward.toolTipText"));
-                                    buttonForward.setMnemonic(bundle.getString("Navigator.buttonForward.mnemonic").charAt(0));
                                     buttonForward.setActionCommand("NavForward");
                                     panelLocationLeft.add(buttonForward, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -910,6 +939,8 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemCut;
     public JMenuItem menuItemPaste;
     public JMenuItem menuItemPreferences;
+    public JMenu menuView;
+    public JCheckBoxMenuItem menuItemShowHidden;
     public JMenu menuBookmarks;
     public JMenuItem menuItemShowAllBookmarks;
     public JMenuItem menuItemAddBookmark;
@@ -927,6 +958,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemRestore;
     public JMenuItem menuItemSplitHorizontal;
     public JMenuItem menuItemSplitVertical;
+    public JMenuItem menuItemSaveLayout;
     public JMenu menuHelp;
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemGitHubProject;

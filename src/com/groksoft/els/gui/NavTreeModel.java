@@ -30,11 +30,11 @@ class NavTreeModel extends DefaultTreeModel
 
     public Object getChild(Object parent, int index)
     {
-        if (filterIsActive)
+//        if (filterIsActive)
         {
             if (parent instanceof NavTreeNode)
             {
-                return ((NavTreeNode) parent).getChildAt(index, filterIsActive, false);
+                return ((NavTreeNode) parent).getChildAt(index, filterIsActive, true);
             }
         }
         return ((TreeNode) parent).getChildAt(index);
@@ -42,7 +42,7 @@ class NavTreeModel extends DefaultTreeModel
 
     public int getChildCount(Object parent)
     {
-        if (filterIsActive)
+//        if (filterIsActive)
         {
             if (parent instanceof NavTreeNode)
             {

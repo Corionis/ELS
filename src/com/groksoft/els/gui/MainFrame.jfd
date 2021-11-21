@@ -88,7 +88,6 @@ new FormModel {
 											"preferredSize": new java.awt.Dimension( 36, 30 )
 											"toolTipText": new FormMessage( null, "Navigator.buttonBack.toolTipText" )
 											"actionCommand": "navBack"
-											"mnemonic": new FormMessage( null, "Navigator.buttonBack.mnemonic" )
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridx": 1
 										} )
@@ -99,7 +98,6 @@ new FormModel {
 											"minimumSize": new java.awt.Dimension( 36, 30 )
 											"preferredSize": new java.awt.Dimension( 36, 30 )
 											"toolTipText": new FormMessage( null, "Navigator.buttonForward.toolTipText" )
-											"mnemonic": new FormMessage( null, "Navigator.buttonForward.mnemonic" )
 											"actionCommand": "NavForward"
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridx": 2
@@ -498,6 +496,17 @@ new FormModel {
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
+					name: "menuView"
+					"text": new FormMessage( null, "Navigator.menuView.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menuView.mnemonic" )
+					"selectedIcon": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
+						name: "menuItemShowHidden"
+						"text": new FormMessage( null, "Navigator.menuItemShowHidden.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemShowHidden.mnemonic" )
+					} )
+				} )
+				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuBookmarks"
 					"text": new FormMessage( null, "Navigator.menuBookmarks.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menuBookmarks.mnemonic" )
@@ -612,6 +621,16 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemSplitVertical.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemSplitVertical.mnemonic" )
 						"horizontalTextPosition": 2
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator2"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemSaveLayout"
+						"text": new FormMessage( null, "Navigator.menuItemSaveLayout.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemSaveLayout.mnemonic" )
+						"horizontalTextPosition": 2
+						"enabled": false
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {

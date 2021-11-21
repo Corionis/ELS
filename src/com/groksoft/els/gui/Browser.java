@@ -5,18 +5,20 @@ import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sun.reflect.generics.tree.Tree;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.net.URI;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
@@ -142,11 +144,50 @@ public class Browser
         initializeBrowserOne();
         initializeBrowserTwo();
 
+        // add browser key listener
+        KeyListener browserKeyListener = new KeyListener()
+        {
+            @Override
+            public void keyTyped(KeyEvent keyEvent)
+            {
+                // handle Ctrl-H to toggle Show Hidden
+                if ((keyEvent.getKeyChar() == '\b') && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                {
+                    guiContext.preferences.setShowHidden(!guiContext.preferences.isShowHidden());
+                    if (guiContext.preferences.isShowHidden())
+                        guiContext.form.menuItemShowHidden.setSelected(true);
+                    else
+                        guiContext.form.menuItemShowHidden.setSelected(false);
+
+                    refreshTree(guiContext.form.treeCollectionOne);
+                    refreshTree(guiContext.form.treeSystemOne);
+                    refreshTree(guiContext.form.treeCollectionTwo);
+                    refreshTree(guiContext.form.treeSystemTwo);
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent keyEvent)
+            {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent keyEvent)
+            {
+            }
+        };
+        guiContext.form.treeCollectionOne.addKeyListener(browserKeyListener);
+        guiContext.form.tableCollectionOne.addKeyListener(browserKeyListener);
+        guiContext.form.treeSystemOne.addKeyListener(browserKeyListener);
+        guiContext.form.tableSystemOne.addKeyListener(browserKeyListener);
+        guiContext.form.treeCollectionTwo.addKeyListener(browserKeyListener);
+        guiContext.form.tableCollectionTwo.addKeyListener(browserKeyListener);
+        guiContext.form.treeSystemTwo.addKeyListener(browserKeyListener);
+        guiContext.form.tableSystemTwo.addKeyListener(browserKeyListener);
+
         // set default start location and related data
-        NavTreeModel model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
-        NavTreeNode root = (NavTreeNode) model.getRoot();
-        root.loadStatus();
-        root.selectMe();
+        initializeStatus(guiContext.form.treeCollectionTwo);
+        initializeStatus(guiContext.form.treeCollectionOne); // initial focus on left/top
 
         return true;
     }
@@ -423,7 +464,14 @@ public class Browser
                 }
             }
         });
+    }
 
+    private void initializeStatus(JTree tree)
+    {
+        NavTreeModel model = (NavTreeModel) tree.getModel();
+        NavTreeNode root = (NavTreeNode) model.getRoot();
+        root.loadStatus();
+        root.selectMe();
     }
 
     private void loadCollectionTree(JTree tree, Repository repo, boolean remote)
@@ -529,10 +577,10 @@ public class Browser
                 case NavTreeUserObject.BOOKMARKS:
                     break;
                 case NavTreeUserObject.COLLECTION:
-                    guiContext.form.textAreaProperties.append("Libraries: " + tuo.node.getChildCount(false, true) + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("Libraries: " + tuo.node.getChildCount(false, false) + System.getProperty("line.separator"));
                     break;
                 case NavTreeUserObject.COMPUTER:
-                    guiContext.form.textAreaProperties.append("Drives: " + tuo.node.getChildCount(false, true) + System.getProperty("line.separator"));
+                    guiContext.form.textAreaProperties.append("Drives: " + tuo.node.getChildCount(false, false) + System.getProperty("line.separator"));
                     break;
                 case NavTreeUserObject.DRIVE:
                     guiContext.form.textAreaProperties.append("Free: " + Utils.formatLong(getFreespace(tuo), true) + System.getProperty("line.separator"));
@@ -562,6 +610,23 @@ public class Browser
         {
             logger.error(Utils.getStackTrace(e));
         }
+    }
+
+    public void refreshTree(JTree tree)
+    {
+        tree.setEnabled(false);
+        TreePath rootPath = ((NavTreeNode) tree.getModel().getRoot()).getTreePath();
+        Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(rootPath);
+        TreePath[] paths = tree.getSelectionPaths();
+        tree.setExpandsSelectedPaths(true);
+        ((NavTreeModel)tree.getModel()).reload();
+        while (expandedDescendants.hasMoreElements())
+        {
+            TreePath tp = expandedDescendants.nextElement();
+            tree.expandPath(tp);
+        }
+        tree.setSelectionPaths(paths);
+        tree.setEnabled(true);
     }
 
     private NavTreeNode setCollectionRoot(JTree tree, String title, boolean remote)

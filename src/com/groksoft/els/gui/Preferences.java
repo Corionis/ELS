@@ -14,10 +14,22 @@ public class Preferences
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
-    private boolean viewHidden = false;
+    private boolean showHidden = false;
 
     public Preferences()
     {
+        // Appearance
+        //      Theme
+        //      Date format
+        //      Binary/decimal scale
+        // Browser
+        //      Restore previous session
+        //      Case sensitive
+        //      Folders before files
+        //      Sort reverse
+        // Backup
+        // Profiles
+        // Keys
     }
 
     public String getDateFormat()
@@ -60,9 +72,9 @@ public class Preferences
         return sortReverse;
     }
 
-    public boolean isViewHidden()
+    public boolean isShowHidden()
     {
-        return viewHidden;
+        return showHidden;
     }
 
     public void setBinaryScale(boolean binaryScale)
@@ -100,8 +112,8 @@ public class Preferences
         this.sortReverse = sortReverse;
     }
 
-    public void setViewHidden(boolean viewHidden)
+    public void setShowHidden(boolean showHidden)
     {
-        this.viewHidden = viewHidden;
+        this.showHidden = showHidden;
     }
 }

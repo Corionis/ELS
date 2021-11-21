@@ -13,7 +13,7 @@ import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 
 /**
- * Handler for Drag 'n Drop (DnD) and Copy/Cut/Paste (CCP)
+ * Handler for Drag 'n Drop (DnD) and Copy/Cut/Paste (CCP) for local and/or remote
  */
 public class NavTransferHandler extends TransferHandler
 {

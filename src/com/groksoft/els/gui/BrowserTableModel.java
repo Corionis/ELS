@@ -104,7 +104,11 @@ public class BrowserTableModel extends DefaultTableModel
             }
 
             if (column == 1) // name
+            {
+//                JComponent comp = tuo.node.getMyTable().getRow.getComponentAt(row, column);
+
                 return tuo;
+            }
 
             if (column == 2) // size
             {
