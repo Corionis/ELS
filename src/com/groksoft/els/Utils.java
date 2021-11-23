@@ -144,6 +144,18 @@ public class Utils
     }
 
     /**
+     * Format an integer number with commas
+     *
+     * @param value
+     * @return String of formatted value
+     */
+    public static String formatInteger(int value)
+    {
+        DecimalFormat form = new DecimalFormat("###,###,###,###");
+        return form.format(value);
+    }
+
+    /**
      * Format a long number with byte, MB, GB and TB as applicable
      *
      * @param value Long value to format

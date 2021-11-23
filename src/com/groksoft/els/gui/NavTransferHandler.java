@@ -337,7 +337,7 @@ public class NavTransferHandler extends TransferHandler
             if (guiContext.preferences.isConfirmation())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to transfer " +
-                                Utils.formatLong(size, false) + " in " + count + " files to " + targetTuo.name + "?",
+                                Utils.formatLong(size, false) + " in " + Utils.formatInteger(count) + " files to " + targetTuo.name + "?",
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 

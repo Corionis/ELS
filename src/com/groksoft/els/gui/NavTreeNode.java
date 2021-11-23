@@ -119,7 +119,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                 try
                 {
                     Vector listing = guiContext.context.clientSftp.listDirectory(myTuo.path);
-                    logger.info("received " + listing.size() + " entries from " + myTuo.path);
+                    logger.info("received " + Utils.formatInteger(listing.size()) + " entries from " + myTuo.path);
                     for (int i = 0; i < listing.size(); ++i)
                     {
                         ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
@@ -153,7 +153,7 @@ class NavTreeNode extends DefaultMutableTreeNode
             {
                 guiContext.browser.printLog("Deep scan local directory " + myTuo.file.getAbsolutePath());
                 File[] files = guiContext.fileSystemView.getFiles(myTuo.file.getAbsoluteFile(), false);
-                logger.info("found " + files.length + " entries from " + myTuo.file.getAbsoluteFile());
+                logger.info("found " + Utils.formatInteger(files.length) + " entries from " + myTuo.file.getAbsoluteFile());
                 for (File entry : files)
                 {
                     NavTreeNode node = new NavTreeNode(guiContext, myTree);
@@ -407,7 +407,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                     guiContext.navigator.stop();
                 }
 
-                guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + getChildCount(false, false) + " node(s)");
+                guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + Utils.formatInteger(getChildCount(false, false)) + " node(s)");
                 super.done();
             }
 
@@ -416,7 +416,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                 if (file.isDirectory())
                 {
                     File[] files = guiContext.fileSystemView.getFiles(file, false);
-                    logger.info("found " + files.length + " entries from " + file.getAbsolutePath());
+                    logger.info("found " + Utils.formatInteger(files.length) + " entries from " + file.getAbsolutePath());
                     for (File entry : files)
                     {
                         NavTreeNode node = new NavTreeNode(guiContext, myTree);
@@ -434,7 +434,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                 try
                 {
                     Vector listing = guiContext.context.clientSftp.listDirectory(target);
-                    logger.info("received " + listing.size() + " entries from " + target);
+                    logger.info("received " + Utils.formatInteger(listing.size()) + " entries from " + target);
                     for (int i = 0; i < listing.size(); ++i)
                     {
                         ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
@@ -470,8 +470,8 @@ class NavTreeNode extends DefaultMutableTreeNode
     {
         if (myStatus != null)
         {
-            int c = getChildCount(false, true);
-            myStatus.setText(c + " item" + (c != 1 ? "s" : ""));
+            int count = getChildCount(false, true);
+            myStatus.setText(Utils.formatInteger(count) + " item" + (count != 1 ? "s" : ""));
         }
         NavTreeUserObject tuo = getUserObject();
         if (tuo != null)

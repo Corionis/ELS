@@ -5,12 +5,10 @@ import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.reflect.generics.tree.Tree;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -24,15 +22,18 @@ import java.util.Stack;
 
 public class Browser
 {
-    // styles of tree display
+    // style definitions of tree display
     private static final int STYLE_COLLECTION_ALL = 0;
     private static final int STYLE_COLLECTION_AZ = 1;
     private static final int STYLE_COLLECTION_SOURCES = 2;
     private static final int STYLE_SYSTEM_ALL = 0;
 
+    // style selections
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
-
+    public JComponent lastComponent = null;
+    public int lastFocused = 1;
+    public int lastPanel = 1;
     private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private GuiContext guiContext;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -40,6 +41,8 @@ public class Browser
     private int navStackIndex = -1;
     private NavTransferHandler navTransferHandler;
     private String os;
+    private int tabStop = 0;
+    private int[] tabStops = {1, 2, 4, 5};
     private JProgressBar progressBar;
 
     public Browser(GuiContext gctx)
@@ -47,6 +50,90 @@ public class Browser
         guiContext = gctx;
         guiContext.browser = this;
         initialize();
+    }
+
+    private void addFocusListener(Component component)
+    {
+        FocusListener focusListener = new FocusListener()
+        {
+            @Override
+            public void focusGained(FocusEvent focusEvent)
+            {
+                String name = "";
+                Component active = focusEvent.getComponent(); //.getOppositeComponent();
+                name = active.getName();
+                if (name.length() > 0)
+                {
+                    switch (name)
+                    {
+                        case "treeCollectionOne":
+                            lastFocused = 0;
+                            lastPanel = 1;
+                            lastComponent = guiContext.form.treeCollectionOne;
+                            tabStops[0] = 0;
+                            tabStops[1] = 1;
+                            break;
+                        case "tableCollectionOne":
+                            lastFocused = 1;
+                            lastPanel = 1;
+                            lastComponent = guiContext.form.tableCollectionOne;
+                            tabStops[0] = 0;
+                            tabStops[1] = 1;
+                            break;
+                        case "treeSystemOne":
+                            lastFocused = 2;
+                            lastPanel = 2;
+                            lastComponent = guiContext.form.treeSystemOne;
+                            tabStops[0] = 2;
+                            tabStops[1] = 3;
+                            break;
+                        case "tableSystemOne":
+                            lastFocused = 3;
+                            lastPanel = 2;
+                            lastComponent = guiContext.form.tableSystemOne;
+                            tabStops[0] = 2;
+                            tabStops[1] = 3;
+                            break;
+                        case "treeCollectionTwo":
+                            lastFocused = 4;
+                            lastPanel = 3;
+                            lastComponent = guiContext.form.treeCollectionTwo;
+                            tabStops[2] = 4;
+                            tabStops[3] = 5;
+                            break;
+                        case "tableCollectionTwo":
+                            lastFocused = 5;
+                            lastPanel = 3;
+                            lastComponent = guiContext.form.tableCollectionTwo;
+                            tabStops[2] = 4;
+                            tabStops[3] = 5;
+                            break;
+                        case "treeSystemTwo":
+                            lastFocused = 6;
+                            lastPanel = 4;
+                            lastComponent = guiContext.form.treeSystemTwo;
+                            tabStops[2] = 6;
+                            tabStops[3] = 7;
+                            break;
+                        case "tableSystemTwo":
+                            lastFocused = 7;
+                            lastPanel = 4;
+                            lastComponent = guiContext.form.tableSystemTwo;
+                            tabStops[2] = 6;
+                            tabStops[3] = 7;
+                            break;
+                    }
+                    //logger.info("focused on " + name + ", index " + lastFocused + ", panel " + lastPanel);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent focusEvent)
+            {
+            }
+        };
+        component.addFocusListener(focusListener);
+        component.setFocusTraversalKeysEnabled(false);
     }
 
     private void addMouseListenerToTable(JTable table)
@@ -148,10 +235,20 @@ public class Browser
         KeyListener browserKeyListener = new KeyListener()
         {
             @Override
+            public void keyPressed(KeyEvent keyEvent)
+            {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent keyEvent)
+            {
+            }
+
+            @Override
             public void keyTyped(KeyEvent keyEvent)
             {
                 // handle Ctrl-H to toggle Show Hidden
-                if ((keyEvent.getKeyChar() == '\b') && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
                     guiContext.preferences.setShowHidden(!guiContext.preferences.isShowHidden());
                     if (guiContext.preferences.isShowHidden())
@@ -164,16 +261,14 @@ public class Browser
                     refreshTree(guiContext.form.treeCollectionTwo);
                     refreshTree(guiContext.form.treeSystemTwo);
                 }
-            }
-
-            @Override
-            public void keyPressed(KeyEvent keyEvent)
-            {
-            }
-
-            @Override
-            public void keyReleased(KeyEvent keyEvent)
-            {
+                else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && keyEvent.getModifiers() == 0)
+                {
+                    navTabKey(true);
+                }
+                else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && (keyEvent.getModifiers() & KeyEvent.SHIFT_MASK) != 0)
+                {
+                    navTabKey(false);
+                }
             }
         };
         guiContext.form.treeCollectionOne.addKeyListener(browserKeyListener);
@@ -184,6 +279,29 @@ public class Browser
         guiContext.form.tableCollectionTwo.addKeyListener(browserKeyListener);
         guiContext.form.treeSystemTwo.addKeyListener(browserKeyListener);
         guiContext.form.tableSystemTwo.addKeyListener(browserKeyListener);
+
+        // handle mouse back/forward buttons
+        if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled() && MouseInfo.getNumberOfButtons() > 3)
+        {
+            Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
+                if (event instanceof MouseEvent && MouseInfo.getNumberOfButtons() > 3)
+                {
+                    MouseEvent mouseEvent = (MouseEvent) event;
+                    int base = MouseInfo.getNumberOfButtons() > 5 ? 6 : 4;
+                    if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED)
+                    {
+                        if (mouseEvent.getButton() == base)
+                        {
+                            navBack();
+                        }
+                        else if (mouseEvent.getButton() == base + 1)
+                        {
+                            navForward();
+                        }
+                    }
+                }
+            }, AWTEvent.MOUSE_EVENT_MASK);
+        }
 
         // set default start location and related data
         initializeStatus(guiContext.form.treeCollectionTwo);
@@ -210,10 +328,14 @@ public class Browser
                     case 0:
                         model = (NavTreeModel) guiContext.form.treeCollectionOne.getModel();
                         node = (NavTreeNode) guiContext.form.treeCollectionOne.getLastSelectedPathComponent();
+                        tabStops[0] = 0;
+                        tabStops[1] = 1;
                         break;
                     case 1:
                         model = (NavTreeModel) guiContext.form.treeSystemOne.getModel();
                         node = (NavTreeNode) guiContext.form.treeSystemOne.getLastSelectedPathComponent();
+                        tabStops[0] = 2;
+                        tabStops[1] = 3;
                         break;
                 }
                 if (node == null)
@@ -266,7 +388,9 @@ public class Browser
             }
         });
         guiContext.form.treeCollectionOne.setTransferHandler(navTransferHandler);
+        addFocusListener(guiContext.form.treeCollectionOne);
         addMouseListenerToTable(guiContext.form.tableCollectionOne);
+        addFocusListener(guiContext.form.tableCollectionOne);
 
         // --- treeSystemOne
         guiContext.form.treeSystemOne.setName("treeSystemOne");
@@ -305,7 +429,9 @@ public class Browser
             }
         });
         guiContext.form.treeSystemOne.setTransferHandler(navTransferHandler);
+        addFocusListener(guiContext.form.treeSystemOne);
         addMouseListenerToTable(guiContext.form.tableSystemOne);
+        addFocusListener(guiContext.form.tableSystemOne);
     }
 
     private void initializeBrowserTwo()
@@ -326,10 +452,14 @@ public class Browser
                     case 0:
                         model = (NavTreeModel) guiContext.form.treeCollectionTwo.getModel();
                         node = (NavTreeNode) guiContext.form.treeCollectionTwo.getLastSelectedPathComponent();
+                        tabStops[2] = 4;
+                        tabStops[3] = 5;
                         break;
                     case 1:
                         model = (NavTreeModel) guiContext.form.treeSystemTwo.getModel();
                         node = (NavTreeNode) guiContext.form.treeSystemTwo.getLastSelectedPathComponent();
+                        tabStops[2] = 6;
+                        tabStops[3] = 7;
                         break;
                 }
                 if (node == null)
@@ -382,7 +512,9 @@ public class Browser
             }
         });
         guiContext.form.treeCollectionTwo.setTransferHandler(navTransferHandler);
+        addFocusListener(guiContext.form.treeCollectionTwo);
         addMouseListenerToTable(guiContext.form.tableCollectionTwo);
+        addFocusListener(guiContext.form.tableCollectionTwo);
 
         // --- treeSystemTwo
         guiContext.form.treeSystemTwo.setName("treeSystemTwo");
@@ -428,7 +560,9 @@ public class Browser
             }
         });
         guiContext.form.treeSystemTwo.setTransferHandler(navTransferHandler);
+        addFocusListener(guiContext.form.treeSystemTwo);
         addMouseListenerToTable(guiContext.form.tableSystemTwo);
+        addFocusListener(guiContext.form.tableSystemTwo);
     }
 
     private void initializeNavigation()
@@ -438,12 +572,7 @@ public class Browser
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavTreeNode node = navStackPop();
-                if (node != null)
-                {
-                    node.selectMyTab();
-                    node.selectMe();
-                }
+                navBack();
             }
         });
 
@@ -452,16 +581,7 @@ public class Browser
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (navStackIndex + 1 <= navStack.lastIndexOf(navStack.lastElement()))
-                {
-                    ++navStackIndex;
-                }
-                NavTreeNode node = navStack.get(navStackIndex);
-                if (node != null)
-                {
-                    node.selectMyTab();
-                    node.selectMe();
-                }
+                navForward();
             }
         });
     }
@@ -525,6 +645,30 @@ public class Browser
         }
     }
 
+    private void navBack()
+    {
+        NavTreeNode node = navStackPop();
+        if (node != null)
+        {
+            node.selectMyTab();
+            node.selectMe();
+        }
+    }
+
+    private void navForward()
+    {
+        if (navStackIndex + 1 <= navStack.lastIndexOf(navStack.lastElement()))
+        {
+            ++navStackIndex;
+        }
+        NavTreeNode node = navStack.get(navStackIndex);
+        if (node != null)
+        {
+            node.selectMyTab();
+            node.selectMe();
+        }
+    }
+
     private NavTreeNode navStackPop()
     {
         NavTreeNode node;
@@ -547,6 +691,55 @@ public class Browser
             navStack.push(node);
             ++navStackIndex;
         }
+    }
+
+    private void navTabKey(boolean forward)
+    {
+        int next;
+        JComponent nextComponent = null;
+        if (forward)
+        {
+            ++tabStop;
+            if (tabStop >= tabStops.length)
+                tabStop = 0;
+        }
+        else
+        {
+            --tabStop;
+            if (tabStop < 0)
+                tabStop = tabStops.length - 1;
+        }
+
+        next = tabStops[tabStop];
+        switch (next)
+        {
+            case 0:
+                nextComponent = guiContext.form.treeCollectionOne;
+                break;
+            case 1:
+                nextComponent = guiContext.form.tableCollectionOne;
+                break;
+            case 2:
+                nextComponent = guiContext.form.treeSystemOne;
+                break;
+            case 3:
+                nextComponent = guiContext.form.tableSystemOne;
+                break;
+            case 4:
+                nextComponent = guiContext.form.treeCollectionTwo;
+                break;
+            case 5:
+                nextComponent = guiContext.form.tableCollectionTwo;
+                break;
+            case 6:
+                nextComponent = guiContext.form.treeSystemTwo;
+                break;
+            case 7:
+                nextComponent = guiContext.form.tableSystemTwo;
+                break;
+        }
+        nextComponent.requestFocus();
+
     }
 
     public void printLog(String text, boolean isError)
@@ -619,7 +812,7 @@ public class Browser
         Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(rootPath);
         TreePath[] paths = tree.getSelectionPaths();
         tree.setExpandsSelectedPaths(true);
-        ((NavTreeModel)tree.getModel()).reload();
+        ((NavTreeModel) tree.getModel()).reload();
         while (expandedDescendants.hasMoreElements())
         {
             TreePath tp = expandedDescendants.nextElement();
@@ -666,7 +859,7 @@ public class Browser
          *   Drive /
          * Home
          *   Directory trh
-         */
+        */
         // TODO Change to externalized strings
 
         // setup new invisible root for Computer, Home & Bookmarks

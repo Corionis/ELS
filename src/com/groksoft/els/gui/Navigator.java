@@ -6,8 +6,11 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.util.ResourceBundle;
 
@@ -83,6 +86,47 @@ public class Navigator
 
         //
         // -- Edit Menu
+        guiContext.form.menuItemCopy.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.browser.lastComponent != null)
+                {
+                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "copy");
+                    guiContext.browser.lastComponent.requestFocus();
+                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                }
+            }
+        });
+        //
+        guiContext.form.menuItemCut.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.browser.lastComponent != null)
+                {
+                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "cut");
+                    guiContext.browser.lastComponent.requestFocus();
+                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                }
+            }
+        });
+        //
+        guiContext.form.menuItemPaste.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.browser.lastComponent != null)
+                {
+                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "paste");
+                    guiContext.browser.lastComponent.requestFocus();
+                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                }
+            }
+        });
 
         //
         // -- View Menu
