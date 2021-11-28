@@ -532,6 +532,20 @@ public class Utils
     }
 
     /**
+     * Replace source path separators with pipe character for comparison
+     *
+     * @param path Path to modify with pipe characters
+     * @param separator String separator to use
+     * @return String Modified path
+     * @throws MungeException
+     */
+    public static String pipe(String path, String separator) throws MungeException
+    {
+        String p = path.replaceAll(separator, "|");
+        return p;
+    }
+
+    /**
      * Read an encrypted data stream, return decrypted string
      *
      * @param in  DataInputStream to read, e.g. remote connection
@@ -629,6 +643,30 @@ public class Utils
     }
 
     /**
+     * Find the right-side Nth occurrence of a character
+     *
+     * @param value String to search
+     * @param find Character to find
+     * @param rightSideOccurrence Which occurrence to return, 0 = last segment only
+     * @return Position in value of Nth occurrence of find character, or -1 if not found
+     */
+    public static int rightIndexOf(String value, String find, int rightSideOccurrence)
+    {
+        int count = 0;
+        for (int i = value.length() - 1; i > -1; --i)
+        {
+            if (value.charAt(i) == find.charAt(0))
+            {
+                if (count == rightSideOccurrence)
+                    return i;
+                ++count;
+            }
+        }
+        return -1;
+    }
+
+
+    /**
      * Replace source pipe character with path separators
      *
      * @param repo Repository of source of path
@@ -639,6 +677,20 @@ public class Utils
     public static String unpipe(Repository repo, String path) throws MungeException
     {
         String p = path.replaceAll("\\|", repo.getWriteSeparator());
+        return p;
+    }
+
+    /**
+     * Replace source pipe character with path separators
+     *
+     * @param path Path to modify with pipe characters
+     * @param separator The separator string to use
+     * @return String Modified path
+     * @throws MungeException
+     */
+    public static String unpipe(String path, String separator) throws MungeException
+    {
+        String p = path.replaceAll("\\|", separator);
         return p;
     }
 

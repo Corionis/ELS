@@ -70,6 +70,19 @@ class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
+    @Override
+    public Object clone()
+    {
+        NavTreeNode object = new NavTreeNode(guiContext, myTree);
+        object.loaded = this.loaded;
+        object.refresh = this.refresh;
+        object.visible = this.visible;
+        NavTreeUserObject tuo = (NavTreeUserObject)this.getUserObject().clone();
+        tuo.node = this;
+        object.setUserObject(tuo);
+        return object;
+    }
+
     public int deepGetFileCount()
     {
         int count = 0;
@@ -170,7 +183,22 @@ class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
-    public TreeNode getChildAt(int index, boolean filterActive, boolean fileFilterActive)
+    public NavTreeNode findChildTuoPath(String path)
+    {
+        NavTreeNode node = null;
+        int childCount = getChildCount(false, false);
+        for (int i = 0; i < childCount; ++i)
+        {
+            if (path.equalsIgnoreCase(((NavTreeNode)getChildAt(i, false, false)).getUserObject().path))
+            {
+                node = (NavTreeNode)getChildAt(i, false, false);
+                break;
+            }
+        }
+        return node;
+    }
+
+    public TreeNode getChildAt(int index, boolean hiddenFilterActive, boolean fileFilterActive)
     {
         if (children == null)
             throw new ArrayIndexOutOfBoundsException("node has no children");
@@ -181,7 +209,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         while (e.hasMoreElements())
         {
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (((!filterActive || (filterActive && node.isVisible()))) &&
+            if (((!hiddenFilterActive || (hiddenFilterActive && node.isVisible()))) &&
                     (!fileFilterActive || (fileFilterActive &&
                             (guiContext.preferences.isShowHidden() || (!guiContext.preferences.isShowHidden() && node.getUserObject().isHidden == false)))))
             {
@@ -192,10 +220,11 @@ class NavTreeNode extends DefaultMutableTreeNode
             if (visibleIndex == index)
                 return (TreeNode) children.elementAt(realIndex);
         }
-        throw new ArrayIndexOutOfBoundsException("index unmatched");
+//        throw new ArrayIndexOutOfBoundsException("index " + index + " unmatched in " + children.size() + " items of " + getTreePath());
+        return null;
     }
 
-    public int getChildCount(boolean filterActive, boolean fileFilterActive)
+    public int getChildCount(boolean hiddenFilterActive, boolean fileFilterActive)
     {
         if (children == null)
             return 0;
@@ -205,13 +234,14 @@ class NavTreeNode extends DefaultMutableTreeNode
         while (e.hasMoreElements())
         {
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (((!filterActive || (filterActive && node.isVisible()))) &&
+            if (((!hiddenFilterActive || (hiddenFilterActive && node.isVisible()))) &&
                     (!fileFilterActive || (fileFilterActive &&
                             (guiContext.preferences.isShowHidden() || (!guiContext.preferences.isShowHidden() && node.getUserObject().isHidden == false)))))
             {
                 count++;
             }
         }
+logger.info("Count " + count + " in " + getTreePath());
         return count;
     }
 
@@ -586,6 +616,21 @@ class NavTreeNode extends DefaultMutableTreeNode
         this.loaded = loaded;
         if (this.loaded)
             setRefresh(false);
+    }
+
+    public void setMyStatus(JLabel myStatus)
+    {
+        this.myStatus = myStatus;
+    }
+
+    public void setMyTable(JTable myTable)
+    {
+        this.myTable = myTable;
+    }
+
+    public void setMyTree(JTree myTree)
+    {
+        this.myTree = myTree;
     }
 
     void setNavTreeUserObject(NavTreeUserObject ntuo)

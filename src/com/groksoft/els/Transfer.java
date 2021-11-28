@@ -6,6 +6,7 @@ import com.groksoft.els.repository.Location;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.storage.Storage;
 import com.groksoft.els.storage.Target;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -111,7 +112,7 @@ public class Transfer
                 }
                 else
                 {
-                    String targetPath = getTarget(groupItem.getLibrary(), totalSize, groupItem);
+                    String targetPath = getTarget(groupItem.getLibrary(), totalSize, groupItem.getItemPath());
                     if (targetPath != null)
                     {
                         // copy item(s) to targetPath
@@ -339,13 +340,13 @@ public class Transfer
      * Otherwise will return one of the subscriber targets for the library of the item
      * that has enough space to hold the item, otherwise an empty string is returned.
      *
-     * @param item    the item
      * @param library the publisher library.definition.name
      * @param size    the total size of item(s) to be copied
+     * @param itemPath the getItemPath() value
      * @return the target
      * @throws MungeException the els exception
      */
-    private String getTarget(String library, long size, Item item) throws Exception
+    private String getTarget(String library, long size, String itemPath) throws Exception
     {
         String path = null;
         boolean notFound = true;
@@ -368,20 +369,20 @@ public class Transfer
         // see if there is an "original" directory the new content will fit in
         if (!cfg.isNoBackFill())
         {
-            path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, item.getItemPath()));
+            path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, itemPath));
             if (path != null)
             {
                 // check size of item(s) to be copied
                 if (itFits(path, size, minimum, target != null))
                 {
-                    logger.info("Using original storage location for " + item.getItemPath() + " at " + path);
+                    logger.info("Using original storage location for " + itemPath + " at " + path);
                     //
                     // inline return
                     //
                     ++grandTotalOriginalLocation;
                     return path;
                 }
-                logger.info("Original storage location too full for " + item.getItemPath() + " " + Utils.formatLong(size, false) + " at " + path);
+                logger.info("Original storage location too full for " + itemPath + " " + Utils.formatLong(size, false) + " at " + path);
                 path = null;
             }
         }
@@ -725,6 +726,25 @@ public class Transfer
     }
 
     /**
+     * Remove a file, local or remote
+     *
+     * @param from      the full from path
+     */
+    public void remove(String from) throws Exception
+    {
+        if (cfg.isRemoteSession())
+        {
+            throw new NotImplementedException("write this"); // TODO Add remote delete
+            //context.clientSftp.transmitFile(from, to, overwrite);
+        }
+        else
+        {
+            Path fromPath = Paths.get(from).toRealPath();
+            Files.delete(fromPath);
+        }
+    }
+
+    /**
      * Remove an item, directory or file
      * <p>
      * If a directory ALL contents are deleted recursively.
@@ -872,7 +892,7 @@ public class Transfer
                 toItem = SerializationUtils.clone(fromItem);
                 toItem.setLibrary(toLib.name);
                 toItem.setItemPath(toName);
-                path = getTarget(toLib.name, toItem.getSize(), toItem);
+                path = getTarget(toLib.name, toItem.getSize(), toItem.getItemPath());
                 path = path + repo.getSeparator() + toName;
             }
             else // exists, use same object

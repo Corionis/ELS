@@ -1,5 +1,6 @@
 package com.groksoft.els.gui;
 
+import javax.management.remote.rmi._RMIConnection_Stub;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -32,6 +33,10 @@ public class NavTreeUserObject implements Comparable, Serializable
     public long size = -1L;
     public String[] sources = null;
     public int type = REAL;
+
+    private NavTreeUserObject()
+    {
+    }
 
     // logical entries: BOOKMARKS, COLLECTION, COMPUTER, SYSTEM
     public NavTreeUserObject(NavTreeNode ntn, String aName, int type, boolean remote)
@@ -118,6 +123,46 @@ public class NavTreeUserObject implements Comparable, Serializable
             return name.compareToIgnoreCase(((NavTreeUserObject) o).name);
         }
         return name.compareTo(((NavTreeUserObject) o).name);
+    }
+
+    /**
+     * Clone this NavTreeUserObject. NOTE: node must be set after cloning
+     *
+     * @return Object A clone of this object with node = null
+     */
+    @Override
+    public Object clone()
+    {
+        NavTreeUserObject tuo = new NavTreeUserObject();
+        tuo.file = this.file;
+        tuo.fileTime = this.fileTime;
+        tuo.isDir = this.isDir;
+        tuo.isHidden = this.isHidden;
+        tuo.mtime = this.mtime;
+        tuo.name = this.name;
+        tuo.node = null;
+        tuo.path = this.path;
+        tuo.isRemote = this.isRemote;
+        tuo.size = this.size;
+        tuo.sources = this.sources;
+        tuo.type = this.type;
+        return tuo;
+    }
+
+    public void copyValues(NavTreeUserObject tuo)
+    {
+        this.file = tuo.file;
+        this.fileTime = tuo.fileTime;
+        this.isDir = tuo.isDir;
+        this.isHidden = tuo.isHidden;
+        this.mtime = tuo.mtime;
+        this.name = tuo.name;
+        this.node = (NavTreeNode) tuo.node.clone();
+        this.path = tuo.path;
+        this.isRemote = tuo.isRemote;
+        this.size = tuo.size;
+        this.sources = tuo.sources;
+        this.type = tuo.type;
     }
 
     public String getPath()

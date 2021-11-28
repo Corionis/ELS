@@ -17,8 +17,11 @@ import java.awt.event.*;
 import java.util.ResourceBundle;
 
 /**
- * Navigator graphical user interface.
+ * Navigator graphical user interface main JFrame.
  * <p><br/>
+ * This class is primarily the definitions of the GUI. The functional implementations are
+ * in the main tab-named related classes.<br/>
+ * <br/>
  * Designed with: <br/>
  *  - JFormDesigner, https://www.formdev.com/jformdesigner/doc/ <br/>
  * <br/>

@@ -165,33 +165,36 @@ public class Browser
                 if (row >= 0)
                 {
                     NavTreeUserObject tuo = (NavTreeUserObject) target.getValueAt(row, 1);
-                    guiContext.form.textFieldLocation.setText(tuo.getPath());
-                    printProperties(tuo);
-                    if (mouseEvent.getClickCount() == 2)
+                    if (tuo != null)
                     {
-                        if (tuo.isDir)
+                        guiContext.form.textFieldLocation.setText(tuo.getPath());
+                        printProperties(tuo);
+                        if (mouseEvent.getClickCount() == 2)
                         {
-                            NavTreeNode node = tuo.node;
-                            TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
-                            eventTree.setSelectionPath(node.getTreePath());
-                            eventTree.scrollPathToVisible(node.getTreePath());
-                        }
-                        else
-                        {
-                            if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
+                            if (tuo.isDir)
                             {
-                                try
-                                {
-                                    Desktop.getDesktop().open(tuo.file);
-                                }
-                                catch (Exception e)
-                                {
-                                    JOptionPane.showMessageDialog(guiContext.form, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                }
+                                NavTreeNode node = tuo.node;
+                                TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
+                                eventTree.setSelectionPath(node.getTreePath());
+                                eventTree.scrollPathToVisible(node.getTreePath());
                             }
                             else
                             {
-                                JOptionPane.showMessageDialog(guiContext.form, "Cannot launch " + (tuo.isRemote ? "remote " : "") + "item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
+                                {
+                                    try
+                                    {
+                                        Desktop.getDesktop().open(tuo.file);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        JOptionPane.showMessageDialog(guiContext.form, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                }
+                                else
+                                {
+                                    JOptionPane.showMessageDialog(guiContext.form, "Cannot launch " + (tuo.isRemote ? "remote " : "") + "item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                }
                             }
                         }
                     }
@@ -201,6 +204,40 @@ public class Browser
         table.addMouseListener(tableMouseListener);
 
         table.setTransferHandler(navTransferHandler);
+    }
+
+    private JComponent getTabComponent(int index)
+    {
+        JComponent nextComponent = null;
+        switch (index)
+        {
+            case 0:
+                nextComponent = guiContext.form.treeCollectionOne;
+                break;
+            case 1:
+                nextComponent = guiContext.form.tableCollectionOne;
+                break;
+            case 2:
+                nextComponent = guiContext.form.treeSystemOne;
+                break;
+            case 3:
+                nextComponent = guiContext.form.tableSystemOne;
+                break;
+            case 4:
+                nextComponent = guiContext.form.treeCollectionTwo;
+                break;
+            case 5:
+                nextComponent = guiContext.form.tableCollectionTwo;
+                break;
+            case 6:
+                nextComponent = guiContext.form.treeSystemTwo;
+                break;
+            case 7:
+                nextComponent = guiContext.form.tableSystemTwo;
+                break;
+        }
+        assert(nextComponent != null);
+        return nextComponent;
     }
 
     public long getFreespace(NavTreeUserObject tuo) throws Exception
@@ -287,6 +324,7 @@ public class Browser
                 if (event instanceof MouseEvent && MouseInfo.getNumberOfButtons() > 3)
                 {
                     MouseEvent mouseEvent = (MouseEvent) event;
+                    // if there are more than 5 buttons forward & back are shifted by 2
                     int base = MouseInfo.getNumberOfButtons() > 5 ? 6 : 4;
                     if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED)
                     {
@@ -709,37 +747,9 @@ public class Browser
             if (tabStop < 0)
                 tabStop = tabStops.length - 1;
         }
-
         next = tabStops[tabStop];
-        switch (next)
-        {
-            case 0:
-                nextComponent = guiContext.form.treeCollectionOne;
-                break;
-            case 1:
-                nextComponent = guiContext.form.tableCollectionOne;
-                break;
-            case 2:
-                nextComponent = guiContext.form.treeSystemOne;
-                break;
-            case 3:
-                nextComponent = guiContext.form.tableSystemOne;
-                break;
-            case 4:
-                nextComponent = guiContext.form.treeCollectionTwo;
-                break;
-            case 5:
-                nextComponent = guiContext.form.tableCollectionTwo;
-                break;
-            case 6:
-                nextComponent = guiContext.form.treeSystemTwo;
-                break;
-            case 7:
-                nextComponent = guiContext.form.tableSystemTwo;
-                break;
-        }
+        nextComponent = getTabComponent(next);
         nextComponent.requestFocus();
-
     }
 
     public void printLog(String text, boolean isError)

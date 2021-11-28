@@ -72,6 +72,8 @@ public class BrowserTableModel extends DefaultTableModel
         NavTreeNode child;
         NavTreeUserObject tuo;
         child = (NavTreeNode) node.getChildAt(row, false, true);
+        if (child == null)
+            return null;
         tuo = child.getUserObject();
         if (tuo != null)
         {
