@@ -404,6 +404,7 @@ public class MainFrame extends JFrame
                 menuItemShowHidden.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_DOWN_MASK));
                 menuItemShowHidden.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemShowHidden.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemShowHidden.setDisplayedMnemonicIndex(5);
                 menuView.add(menuItemShowHidden);
             }
             menuBarMain.add(menuView);

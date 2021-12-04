@@ -348,6 +348,29 @@ public class Transfer
      */
     private String getTarget(String library, long size, String itemPath) throws Exception
     {
+        String path = getTarget(context.publisherRepo, library, size, context.subscriberRepo, itemPath);
+        return path;
+    }
+
+    /**
+     * Gets a subscriber target
+     * <p>
+     * Will return the original directory where existing files are located if one
+     * exists and that location has enough space.
+     * <p>
+     * Otherwise will return one of the subscriber targets for the library of the item
+     * that has enough space to hold the item, otherwise an empty string is returned.
+     *
+     * @param sourceRepo the source publisher or subscriber repo
+     * @param library the publisher library.definition.name
+     * @param size    the total size of item(s) to be copied
+     * @param targetRepo the target publisher or subscriber repo
+     * @param itemPath the getItemPath() value
+     * @return the target
+     * @throws MungeException the els exception
+     */
+    public String getTarget(Repository sourceRepo, String library, long size, Repository targetRepo, String itemPath) throws Exception
+    {
         String path = null;
         boolean notFound = true;
         long minimum = 0L;
@@ -369,7 +392,7 @@ public class Transfer
         // see if there is an "original" directory the new content will fit in
         if (!cfg.isNoBackFill())
         {
-            path = context.subscriberRepo.hasDirectory(library, Utils.pipe(context.publisherRepo, itemPath));
+            path = targetRepo.hasDirectory(library, Utils.pipe(sourceRepo, itemPath));
             if (path != null)
             {
                 // check size of item(s) to be copied
@@ -404,7 +427,7 @@ public class Transfer
         }
         else // v3.0.0, use sources for target locations
         {
-            Library lib = context.subscriberRepo.getLibrary(library);
+            Library lib = targetRepo.getLibrary(library);
             if (lib != null)
             {
                 notFound = false;
@@ -728,18 +751,18 @@ public class Transfer
     /**
      * Remove a file, local or remote
      *
-     * @param from      the full from path
+     * @param path      the full from path
+     * @param isRemote  the isDir flag
      */
-    public void remove(String from) throws Exception
+    public void remove(String path, boolean isRemote) throws Exception
     {
-        if (cfg.isRemoteSession())
+        if (isRemote)
         {
-            throw new NotImplementedException("write this"); // TODO Add remote delete
-            //context.clientSftp.transmitFile(from, to, overwrite);
+            context.clientSftp.remove(path, isRemote);
         }
         else
         {
-            Path fromPath = Paths.get(from).toRealPath();
+            Path fromPath = Paths.get(path).toRealPath();
             Files.delete(fromPath);
         }
     }

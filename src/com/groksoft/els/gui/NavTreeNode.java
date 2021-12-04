@@ -21,8 +21,9 @@ import java.util.*;
 
 class NavTreeNode extends DefaultMutableTreeNode
 {
-    SortFoldersBeforeFiles sortFoldersBeforeFiles;
-    SortTreeAlphabetically sortTreeAlphabetically;
+    public SortFoldersBeforeFiles sortFoldersBeforeFiles;
+    public SortTreeAlphabetically sortTreeAlphabetically;
+
     private GuiContext guiContext;
     private boolean loaded = false;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -198,7 +199,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         return node;
     }
 
-    public TreeNode getChildAt(int index, boolean hiddenFilterActive, boolean fileFilterActive)
+    public TreeNode getChildAt(int index, boolean treeFilterActive, boolean hiddenFilterActive)
     {
         if (children == null)
             throw new ArrayIndexOutOfBoundsException("node has no children");
@@ -209,8 +210,8 @@ class NavTreeNode extends DefaultMutableTreeNode
         while (e.hasMoreElements())
         {
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (((!hiddenFilterActive || (hiddenFilterActive && node.isVisible()))) &&
-                    (!fileFilterActive || (fileFilterActive &&
+            if (((!treeFilterActive || (treeFilterActive && node.isVisible()))) &&
+                    (!hiddenFilterActive || (hiddenFilterActive &&
                             (guiContext.preferences.isShowHidden() || (!guiContext.preferences.isShowHidden() && node.getUserObject().isHidden == false)))))
             {
                 visibleIndex++;
@@ -220,11 +221,10 @@ class NavTreeNode extends DefaultMutableTreeNode
             if (visibleIndex == index)
                 return (TreeNode) children.elementAt(realIndex);
         }
-//        throw new ArrayIndexOutOfBoundsException("index " + index + " unmatched in " + children.size() + " items of " + getTreePath());
         return null;
     }
 
-    public int getChildCount(boolean hiddenFilterActive, boolean fileFilterActive)
+    public int getChildCount(boolean treeFilterActive, boolean hiddenFilterActive)
     {
         if (children == null)
             return 0;
@@ -234,14 +234,13 @@ class NavTreeNode extends DefaultMutableTreeNode
         while (e.hasMoreElements())
         {
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (((!hiddenFilterActive || (hiddenFilterActive && node.isVisible()))) &&
-                    (!fileFilterActive || (fileFilterActive &&
+            if (((!treeFilterActive || (treeFilterActive && node.isVisible()))) &&
+                    (!hiddenFilterActive || (hiddenFilterActive &&
                             (guiContext.preferences.isShowHidden() || (!guiContext.preferences.isShowHidden() && node.getUserObject().isHidden == false)))))
             {
                 count++;
             }
         }
-logger.info("Count " + count + " in " + getTreePath());
         return count;
     }
 
@@ -361,7 +360,7 @@ logger.info("Count " + count + " in " + getTreePath());
                         {
                             if (myTuo.isRemote)
                             {
-                                guiContext.browser.printLog("Scanning remote directory " + myTuo.path);
+                                guiContext.browser.printLog("Scanning remote drive " + myTuo.path);
                                 scanRemote(myTuo.path);
                             }
                             else
@@ -509,7 +508,7 @@ logger.info("Count " + count + " in " + getTreePath());
             guiContext.form.textFieldLocation.setText(tuo.getPath());
             guiContext.browser.printProperties(tuo);
         }
-        guiContext.form.labelStatusMiddle.setText("");
+//        guiContext.form.labelStatusMiddle.setText("");
     }
 
     protected void loadTable()
@@ -646,6 +645,22 @@ logger.info("Count " + count + " in " + getTreePath());
     public void setVisible(boolean visible)
     {
         this.visible = visible;
+    }
+
+    public void sort()
+    {
+        if (children != null)
+        {
+            Collections.sort(children, sortTreeAlphabetically);
+            if (guiContext.preferences.isSortFoldersBeforeFiles())
+                Collections.sort(children, sortFoldersBeforeFiles);
+            for (Object child : children)
+            {
+                NavTreeNode node = (NavTreeNode) child;
+                if (node.getUserObject().isDir)
+                    node.sort();
+            }
+        }
     }
 
     // ==========================================

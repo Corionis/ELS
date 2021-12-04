@@ -31,6 +31,8 @@ public class Navigator
     //     * Whole tree
     //     * !-Z alphabetic
     //     * By-source
+    //  * View, Wrap log lines (toggle)
+    //  * Add back-fill toggle
 
     public Navigator(Main main, Configuration config, Context ctx)
     {

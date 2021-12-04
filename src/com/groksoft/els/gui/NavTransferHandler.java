@@ -1,6 +1,7 @@
 package com.groksoft.els.gui;
 
 import com.groksoft.els.Utils;
+import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 public class NavTransferHandler extends TransferHandler
 {
     private final DataFlavor flavor = new ActivationDataFlavor(ArrayList.class, "application/x-java-object;class=java.util.ArrayList", "ArrayList of NavTreeUserObject");
+    private final boolean traceActions = false; // dev-debug
     private int action = TransferHandler.NONE;
     private int depth = 0;
     private GuiContext guiContext;
@@ -26,9 +28,9 @@ public class NavTransferHandler extends TransferHandler
     private transient Logger logger = LogManager.getLogger("applog");
     private JTable sourceTable;
     private JTree sourceTree;
+    private boolean targetIsPublisher = false;
     private JTable targetTable;
     private JTree targetTree;
-    private boolean targetIsPublisher = false;
 
     public NavTransferHandler(GuiContext gctxt)
     {
@@ -38,13 +40,14 @@ public class NavTransferHandler extends TransferHandler
     @Override
     public boolean canImport(TransferHandler.TransferSupport info)
     {
+        guiContext.context.fault = false;
         guiContext.form.labelStatusMiddle.setText("");
         if (info.getComponent() instanceof JTable)
         {
             JTable targetTable = (JTable) info.getComponent();
             JTree targetTree = getTargetTree(targetTable);
             NavTreeNode targetNode = getTargetNode(info, targetTree, targetTable);
-            if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
+            if (targetNode == null || (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0))
                 return false;
         }
         else if (info.getComponent() instanceof JTree)
@@ -52,7 +55,7 @@ public class NavTransferHandler extends TransferHandler
             JTree targetTree = (JTree) info.getComponent();
             JTable targetTable = getTargetTable(targetTree);
             NavTreeNode targetNode = getTargetNode(info, targetTree, targetTable);
-            if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
+            if (targetNode == null || (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0))
                 return false;
         }
         return (info.isDataFlavorSupported(flavor));
@@ -61,8 +64,9 @@ public class NavTransferHandler extends TransferHandler
     @Override
     protected Transferable createTransferable(JComponent c)
     {
+        guiContext.context.fault = false;
         ArrayList<NavTreeUserObject> rowList = new ArrayList<NavTreeUserObject>();
-        guiContext.form.labelStatusMiddle.setText("");
+        guiContext.form.labelStatusMiddle.setText("CREATE");
         if (c instanceof JTable)
         {
             sourceTable = (JTable) c;
@@ -100,48 +104,68 @@ public class NavTransferHandler extends TransferHandler
     }
 
     @Override
-    protected void exportDone(JComponent c, Transferable data, int act)
+    protected void exportDone(JComponent c, Transferable info, int act)
     {
         action = act;
-        if (isDrop)
+
+        if (traceActions)
+            guiContext.browser.printLog("end of exportDone");
+
+        if (isDrop) // Drag 'n Drop
         {
+            if (traceActions)
+            {
+                // KEEP for step-wise debugging; DnD and CCP behave differently
+                switch (action)
+                {
+                    case TransferHandler.MOVE:
+                        guiContext.browser.printLog("Done MOVE");
+                        break;
+                    case TransferHandler.COPY:
+                        guiContext.browser.printLog("Done COPY");
+                        break;
+                    case TransferHandler.COPY_OR_MOVE:
+                        guiContext.browser.printLog("Done COPY_OR_MOVE");
+                        break;
+                    case TransferHandler.NONE:
+                        guiContext.browser.printLog("Done NONE");
+                        break;
+                }
+            }
+
+            // remove moved data
+            if (action == TransferHandler.MOVE && !guiContext.context.fault)
+            {
+                try
+                {
+                    ArrayList<NavTreeUserObject> transferData = (ArrayList<NavTreeUserObject>) info.getTransferData(flavor);
+                    removeData(transferData);
+                }
+                catch (Exception e)
+                {
+                    guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                    JOptionPane.showMessageDialog(guiContext.form, "Error getting transfer data: " + e.toString(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+
             isDrop = false;
             action = TransferHandler.NONE;
         }
 
         guiContext.browser.refreshTree(sourceTree);
         guiContext.browser.refreshTree(targetTree);
-
-        /*
-        // KEEP for step-wise debugging; DnD and CCP behave differently
-        switch (action)
-        {
-            case TransferHandler.MOVE:
-                guiContext.browser.printLog("Done MOVE");
-                break;
-            case TransferHandler.COPY:
-                guiContext.browser.printLog("Done COPY");
-                break;
-            case TransferHandler.COPY_OR_MOVE:
-                guiContext.browser.printLog("Done COPY_OR_MOVE");
-                break;
-            case TransferHandler.NONE:
-                guiContext.browser.printLog("Done NONE");
-                break;
-        }
-*/
     }
 
-    private String getOperation(boolean priorToProcess)
+    private String getOperation(boolean currentTense)
     {
         String op = "";
         if (action == TransferHandler.COPY)
         {
-            op = (priorToProcess ? "Copy" : "Copied");
+            op = (currentTense ? "Copy" : "Copied");
         }
         else if (action == TransferHandler.MOVE)
         {
-            op = (priorToProcess ? "Move" : "Moved");
+            op = (currentTense ? "Move" : "Moved");
         }
         else if (action == TransferHandler.COPY_OR_MOVE)
         {
@@ -273,8 +297,6 @@ public class NavTransferHandler extends TransferHandler
         }
 
         // get the target information
-        targetTable = null;
-        targetTree = null;
         if (info.getComponent() instanceof JTable)
         {
             targetTable = (JTable) info.getComponent();
@@ -292,14 +314,8 @@ public class NavTransferHandler extends TransferHandler
         if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
         {
             JOptionPane.showMessageDialog(guiContext.form, "Cannot transfer to currently selected location", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-//            guiContext.form.labelStatusMiddle.setText("Action cancelled");
-//            guiContext.browser.printLog("Action cancelled");
-//            action = TransferHandler.NONE;
             return false;
         }
-
-        //guiContext.browser.printLog(getOperation(true) + " to " + targetTable.getName() + " of " + targetTree.getName() + ", node " + targetNode.getUserObject().name);
-        guiContext.browser.printLog(getOperation(true) + " to " + targetNode.getUserObject().getPath());
 
         // handle the actual transfers
         try
@@ -360,18 +376,56 @@ public class NavTransferHandler extends TransferHandler
 
             if (reply == JOptionPane.YES_OPTION)
             {
-                process(transferData, targetTree, targetTuo);
-                guiContext.form.labelStatusMiddle.setText(getOperation(false) + " " + count + " items" + (guiContext.cfg.isDryRun() ? " (dry-run)" : ""));
+                count = process(transferData, targetTree, targetTuo);
+                String msg = getOperation(false) + " " + count + " item" + (count > 1 ? "s" : "") + (guiContext.cfg.isDryRun() ? " (dry-run)" : "");
+                guiContext.form.labelStatusMiddle.setText(msg);
+                guiContext.browser.printLog(msg);
+            }
+
+            if (traceActions)
+                guiContext.browser.printLog("end of importData");
+
+            if (!isDrop) // Copy, Cut, Paste
+            {
+                if (traceActions)
+                {
+                    // KEEP for step-wise debugging; DnD and CCP behave differently
+                    switch (action)
+                    {
+                        case TransferHandler.MOVE:
+                            guiContext.browser.printLog("Done MOVE");
+                            break;
+                        case TransferHandler.COPY:
+                            guiContext.browser.printLog("Done COPY");
+                            break;
+                        case TransferHandler.COPY_OR_MOVE:
+                            guiContext.browser.printLog("Done COPY_OR_MOVE");
+                            break;
+                        case TransferHandler.NONE:
+                            guiContext.browser.printLog("Done NONE");
+                            break;
+                    }
+                }
+
+                // remove moved data
+                if (action == TransferHandler.MOVE && !guiContext.context.fault)
+                    removeData(transferData);
             }
 
             action = TransferHandler.NONE;
             boolean indicator = (reply == JOptionPane.YES_OPTION && !guiContext.context.fault);
-            guiContext.browser.printLog("Returning " + indicator);
+            if (traceActions)
+                guiContext.browser.printLog("Returning " + indicator);
+
             return indicator;
         }
         catch (Exception e)
         {
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error importing: " + e.toString() + "\n\nContinue transfer?",
+                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            if (reply == JOptionPane.NO_OPTION)
+                guiContext.context.fault = true;
         }
 
         guiContext.form.labelStatusMiddle.setText("");
@@ -384,16 +438,32 @@ public class NavTransferHandler extends TransferHandler
         String directory = "";
         String filename = "";
         String path = "";
-        String targetSep = (targetIsPublisher ?
-                guiContext.context.publisherRepo.getSeparator() :
-                guiContext.context.subscriberRepo.getSeparator());
-        String sourceSep = (targetIsPublisher ?
-                guiContext.context.subscriberRepo.getSeparator() :
-                guiContext.context.publisherRepo.getSeparator());
+        Repository sourceRepo;
+        String sourceSep;
+        Repository targetRepo;
+        String targetSep;
 
+        if (targetIsPublisher)
+        {
+            targetRepo = guiContext.context.publisherRepo;
+            targetSep = guiContext.context.publisherRepo.getSeparator();
+            sourceRepo = guiContext.context.subscriberRepo;
+            sourceSep = guiContext.context.subscriberRepo.getSeparator();
+        }
+        else
+        {
+            targetRepo = guiContext.context.subscriberRepo;
+            targetSep = guiContext.context.subscriberRepo.getSeparator();
+            sourceRepo = guiContext.context.publisherRepo;
+            sourceSep = guiContext.context.publisherRepo.getSeparator();
+        }
+
+        // get the directory
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
-
+            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, sourceTuo.size, targetRepo, sourceTuo.path);
+            File physical = new File(directory);
+            directory = physical.getAbsolutePath();
         }
         else if (targetTuo.type == NavTreeUserObject.DRIVE || targetTuo.type == NavTreeUserObject.HOME)
         {
@@ -410,19 +480,12 @@ public class NavTransferHandler extends TransferHandler
         directory = Utils.pipe(directory, targetSep);
         assert (directory.length() > 0);
 
-        NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
-        if (parent.getUserObject().type == NavTreeUserObject.LIBRARY)
-        {
-            // if source parent is library iterate to find matching directory leader
-        }
-        else
-        {
-            int dirPos = Utils.rightIndexOf(parent.getUserObject().path, targetSep, depth);
-            filename = sourceTuo.path.substring(dirPos);
-        }
+        int dirPos = Utils.rightIndexOf(sourceTuo.path, sourceSep, (targetTuo.isDir ? 0 : depth));
+        filename = sourceTuo.path.substring(dirPos);
         filename = Utils.pipe(filename, sourceSep);
-        path = directory + filename;
 
+        // put them together
+        path = directory + filename;
         path = Utils.unpipe(path, targetSep);
 
         return path;
@@ -459,29 +522,175 @@ public class NavTransferHandler extends TransferHandler
                 ++count;
                 transferFile(sourceTuo, targetTree, targetTuo);
             }
+            if (guiContext.context.fault)
+                break;
         }
         return count;
+    }
+
+    private void removeData(ArrayList<NavTreeUserObject> transferData)
+    {
+        if (action == TransferHandler.MOVE)
+        {
+            // iterate the selected source row's user object
+            for (NavTreeUserObject sourceTuo : transferData)
+            {
+                if (sourceTuo.isDir)
+                    removeDirectory(sourceTuo);
+                else
+                    removeFile(sourceTuo);
+
+                NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
+                parent.remove(sourceTuo.node);
+
+                if (guiContext.context.fault)
+                    break;
+            }
+        }
+    }
+
+    private void removeDirectory(NavTreeUserObject sourceTuo)
+    {
+        try
+        {
+            int childCount = sourceTuo.node.getChildCount(false, false);
+            for (int i = 0; i < childCount; ++i)
+            {
+                NavTreeNode child = (NavTreeNode) sourceTuo.node.getChildAt(i, false, false);
+                NavTreeUserObject childTuo = child.getUserObject();
+                if (childTuo.isDir)
+                {
+                    removeDirectory(childTuo);
+                }
+                else
+                {
+                    removeFile(childTuo);
+                }
+                if (guiContext.context.fault)
+                    break;
+            }
+
+            String msg;
+            if (sourceTuo.isRemote)
+                msg = "Remote";
+            else
+                msg = "Local";
+            msg += " delete directory " + (guiContext.cfg.isDryRun() ? "dry-run " : "") + sourceTuo.path;
+            guiContext.browser.printLog(msg);
+
+            if (!guiContext.cfg.isDryRun())
+            {
+                guiContext.context.transfer.remove(sourceTuo.path, sourceTuo.isRemote);
+            }
+        }
+        catch (Exception e)
+        {
+            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error removing directory: " + e.toString() + "\n\nContinue?",
+                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            if (reply == JOptionPane.NO_OPTION)
+                guiContext.context.fault = true;
+        }
+    }
+
+    private void removeFile(NavTreeUserObject sourceTuo)
+    {
+        try
+        {
+            String msg;
+            if (sourceTuo.isRemote)
+                msg = "Remote";
+            else
+                msg = "Local";
+            msg += " delete file " + (guiContext.cfg.isDryRun() ? "dry-run " : "") + sourceTuo.path;
+
+            guiContext.browser.printLog(msg);
+            if (!guiContext.cfg.isDryRun())
+            {
+                guiContext.context.transfer.remove(sourceTuo.path, sourceTuo.isRemote);
+            }
+        }
+        catch (Exception e)
+        {
+            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error removing file: " + e.toString() + "\n\nContinue?",
+                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            if (reply == JOptionPane.NO_OPTION)
+                guiContext.context.fault = true;
+        }
+    }
+
+    private NavTreeUserObject setupToNode(NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo, String path)
+    {
+        boolean exists = false;
+        NavTreeNode toNode = null;
+
+        // setup a node
+        toNode = targetTuo.node.findChildTuoPath(path);
+        if (toNode == null)
+        {
+            toNode = (NavTreeNode) sourceTuo.node.clone();
+            toNode.setMyTree(targetTuo.node.getMyTree());
+            toNode.setMyTable(targetTuo.node.getMyTable());
+            toNode.setMyStatus(targetTuo.node.getMyStatus());
+        }
+        else
+        {
+            exists = true;
+        }
+
+        // setup it's user object
+        NavTreeUserObject toTuo = toNode.getUserObject();
+        toTuo.node = toNode;
+        toTuo.path = path;
+        if (toTuo.file != null)
+            toTuo.file = new File(path);
+        toNode.setAllowsChildren(toTuo.isDir);
+
+        // add the new node on the target
+        if (!exists && !guiContext.cfg.isDryRun())
+            ((NavTreeNode) targetTuo.node).add(toNode);
+
+        return toTuo;
     }
 
     private int transferDirectory(NavTreeUserObject sourceTuo, JTree targetTree, NavTreeUserObject targetTuo)
     {
         int count = 0;
-        int childCount = sourceTuo.node.getChildCount(false, false);
-        for (int i = 0; i < childCount; ++i)
+
+        try
         {
-            NavTreeNode child = (NavTreeNode) sourceTuo.node.getChildAt(i, false, false);
-            NavTreeUserObject childTuo = child.getUserObject();
-            if (childTuo.isDir)
+            int childCount = sourceTuo.node.getChildCount(false, false);
+
+            String path = makeToPath(sourceTuo, targetTuo);
+            NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
+
+            for (int i = 0; i < childCount; ++i)
             {
-                ++depth;
-                count = count + transferDirectory(childTuo, targetTree, targetTuo);
-                --depth;
+                NavTreeNode child = (NavTreeNode) sourceTuo.node.getChildAt(i, false, false);
+                NavTreeUserObject childTuo = child.getUserObject();
+                if (childTuo.isDir)
+                {
+                    ++depth;
+                    count = count + transferDirectory(childTuo, targetTree, thisTuo);
+                    --depth;
+                }
+                else
+                {
+                    ++count;
+                    transferFile(childTuo, targetTree, thisTuo);
+                }
+                if (guiContext.context.fault)
+                    break;
             }
-            else
-            {
-                ++count;
-                transferFile(childTuo, targetTree, targetTuo);
-            }
+        }
+        catch (Exception e)
+        {
+            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error copying: " + e.toString() + "\n\nContinue transfer?",
+                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            if (reply == JOptionPane.NO_OPTION)
+                guiContext.context.fault = true;
         }
         return count;
     }
@@ -490,7 +699,7 @@ public class NavTransferHandler extends TransferHandler
     {
         String path = "";
         //String msg = " from " + sourceTable.getName() + " of " + sourceTree.getName() + ", node " + sourceTuo.name;
-        String msg = (guiContext.cfg.isDryRun() ? " dry-run from " : " from ") + sourceTuo.path;
+        String msg = " " + getOperation(true).toLowerCase() + (guiContext.cfg.isDryRun() ? " dry-run from " : " from ") + sourceTuo.path;
 
         try
         {
@@ -499,6 +708,7 @@ public class NavTransferHandler extends TransferHandler
             {
                 // local copy
                 path = makeToPath(sourceTuo, targetTuo);
+                NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
                 msg += " to " + path;
                 guiContext.browser.printLog("Local" + msg);
                 if (!guiContext.cfg.isDryRun())
@@ -508,6 +718,7 @@ public class NavTransferHandler extends TransferHandler
             {
                 // put to remote
                 path = makeToPath(sourceTuo, targetTuo);
+                NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
                 msg += " to " + path;
                 guiContext.browser.printLog("Put" + msg);
                 if (!guiContext.cfg.isDryRun())
@@ -516,7 +727,12 @@ public class NavTransferHandler extends TransferHandler
             else if (sourceTuo.isRemote && !targetTuo.isRemote)
             {
                 // get from remote
+                path = makeToPath(sourceTuo, targetTuo);
+                NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
+                msg += " to " + path;
                 guiContext.browser.printLog("Get" + msg);
+                if (!guiContext.cfg.isDryRun())
+                    guiContext.context.clientSftp.get(sourceTuo.path, path);
             }
             else if (sourceTuo.isRemote && targetTuo.isRemote)
             {
@@ -524,67 +740,18 @@ public class NavTransferHandler extends TransferHandler
                 guiContext.browser.printLog("Remote" + msg);
             }
 
-            if (!guiContext.cfg.isDryRun())
-            {
-                boolean exists = false;
-                NavTreeNode toNode = null;
-
-                // fix-up the source and target trees
-                toNode = targetTuo.node.findChildTuoPath(path);
-                if (toNode == null)
-                {
-                    toNode = (NavTreeNode) sourceTuo.node.clone();
-                    toNode.setMyStatus(targetTuo.node.getMyStatus());
-                    toNode.setMyTable(targetTuo.node.getMyTable());
-                    toNode.setMyTree(targetTuo.node.getMyTree());
-                }
-                else
-                    exists = true;
-
-                NavTreeUserObject toTuo = toNode.getUserObject();
-                toTuo.node = toNode; // then make changes
-                toTuo.path = path;
-                if (toTuo.file != null)
-                    toTuo.file = new File(path);
-// LEFTOFF : Add target tree node(s) for directories
-                if (!exists)
-                    ((NavTreeNode) targetTuo.node).add(toNode);
-
-                // if a move then remove source tree node & physical file
-                if (action == TransferHandler.MOVE)
-                {
-                    NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
-                    parent.remove(sourceTuo.node);
-
-                    if (!sourceTuo.isRemote)
-                    {
-                        // local
-                        msg = " delete " + path;
-                        guiContext.browser.printLog("Local" + msg);
-                        if (!guiContext.cfg.isDryRun())
-                            guiContext.context.transfer.remove(path);
-                    }
-                    else if (sourceTuo.isRemote)
-                    {
-                        // remote
-                        msg = " delete " + path;
-                        guiContext.browser.printLog("Remote" + msg);
-                        if (!guiContext.cfg.isDryRun())
-                            guiContext.context.transfer.remove(path);
-                    }
-                }
-
-                // update trees with progress so far
-                guiContext.browser.refreshTree(sourceTree);
-                guiContext.browser.refreshTree(targetTree);
-            }
+            // update trees with progress so far, refreshed again in exportDone()
+            guiContext.browser.refreshTree(sourceTree);
+            guiContext.browser.refreshTree(targetTree);
         }
         catch (Exception e)
         {
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            JOptionPane.showMessageDialog(guiContext.form, "Error while copying: " + e.toString(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error copying: " + e.toString() + "\n\nContinue transfer?",
+                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            if (reply == JOptionPane.NO_OPTION)
+                guiContext.context.fault = true;
         }
-
     }
 
 }

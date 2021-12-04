@@ -11,10 +11,11 @@ public class Preferences
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
+    private boolean hideFilesInTree = true;
+    private boolean showHidden = false;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
-    private boolean showHidden = false;
 
     public Preferences()
     {
@@ -57,6 +58,16 @@ public class Preferences
         return confirmation;
     }
 
+    public boolean isHideFilesInTree()
+    {
+        return hideFilesInTree;
+    }
+
+    public boolean isShowHidden()
+    {
+        return showHidden;
+    }
+
     public boolean isSortCaseInsensitive()
     {
         return sortCaseInsensitive;
@@ -70,11 +81,6 @@ public class Preferences
     public boolean isSortReverse()
     {
         return sortReverse;
-    }
-
-    public boolean isShowHidden()
-    {
-        return showHidden;
     }
 
     public void setBinaryScale(boolean binaryScale)
@@ -97,6 +103,16 @@ public class Preferences
         this.lafStyle = lafStyle;
     }
 
+    public void setHideFilesInTree(boolean hideFilesInTree)
+    {
+        this.hideFilesInTree = hideFilesInTree;
+    }
+
+    public void setShowHidden(boolean showHidden)
+    {
+        this.showHidden = showHidden;
+    }
+
     public void setSortCaseInsensitive(boolean sortCaseInsensitive)
     {
         this.sortCaseInsensitive = sortCaseInsensitive;
@@ -110,10 +126,5 @@ public class Preferences
     public void setSortReverse(boolean sortReverse)
     {
         this.sortReverse = sortReverse;
-    }
-
-    public void setShowHidden(boolean showHidden)
-    {
-        this.showHidden = showHidden;
     }
 }

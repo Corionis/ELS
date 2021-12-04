@@ -7,11 +7,6 @@ class NavTreeModel extends DefaultTreeModel
 {
     protected boolean filterIsActive;
 
-    public NavTreeModel(TreeNode root)
-    {
-        this(root, false);
-    }
-
     public NavTreeModel(TreeNode root, boolean asksAllowsChildren)
     {
         this(root, asksAllowsChildren, true);
@@ -32,8 +27,7 @@ class NavTreeModel extends DefaultTreeModel
     {
         if (parent instanceof NavTreeNode)
         {
-            return ((NavTreeNode) parent).getChildAt(index, false, true);
-//            return ((NavTreeNode) parent).getChildAt(index, filterIsActive, true);
+            return ((NavTreeNode) parent).getChildAt(index, filterIsActive, true);
         }
         return ((TreeNode) parent).getChildAt(index);
     }
@@ -42,8 +36,7 @@ class NavTreeModel extends DefaultTreeModel
     {
         if (parent instanceof NavTreeNode)
         {
-            return ((NavTreeNode) parent).getChildCount(false, true);
-//            return ((NavTreeNode) parent).getChildCount(filterIsActive, true);
+            return ((NavTreeNode) parent).getChildCount(filterIsActive, true);
         }
         return ((TreeNode) parent).getChildCount();
     }

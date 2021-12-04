@@ -63,6 +63,11 @@ public class ClientSftp
         return listing;
     }
 
+    public void get(String source, String dest) throws Exception
+    {
+        jSftp.get(source, dest);
+    }
+
     /**
      * Make a remote directory tree
      *
@@ -118,6 +123,14 @@ public class ClientSftp
             }
         }
         return whole;
+    }
+
+    public void remove(String path, boolean isDir) throws Exception
+    {
+        if (isDir)
+            jSftp.rmdir(path);
+        else
+            jSftp.rm(path);
     }
 
     /**

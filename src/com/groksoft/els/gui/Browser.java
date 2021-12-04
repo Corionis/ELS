@@ -15,10 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.ResourceBundle;
-import java.util.Stack;
+import java.util.*;
 
 public class Browser
 {
@@ -264,6 +261,7 @@ public class Browser
         simpleOutput.add(progressBar, BorderLayout.EAST);
         progressBar.setVisible(false);
 
+        printLog(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getProgramVersion());
         initializeNavigation();
         initializeBrowserOne();
         initializeBrowserTwo();
@@ -798,12 +796,19 @@ public class Browser
                     }
                     break;
                 case NavTreeUserObject.REAL:
-                    guiContext.form.textAreaProperties.append("Path: " + tuo.path + System.getProperty("line.separator"));
-                    if (tuo.isRemote)
-                        guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(tuo.size, true) + System.getProperty("line.separator"));
+                    if (tuo.file != null && Files.exists(tuo.file.toPath()))
+                    {
+                        guiContext.form.textAreaProperties.append("Path: " + tuo.path + System.getProperty("line.separator"));
+                        if (tuo.isRemote)
+                            guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(tuo.size, true) + System.getProperty("line.separator"));
+                        else
+                            guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(Files.size(tuo.file.toPath()), true) + System.getProperty("line.separator"));
+                        guiContext.form.textAreaProperties.append("isDir: " + tuo.isDir + System.getProperty("line.separator"));
+                    }
                     else
-                        guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(Files.size(tuo.file.toPath()), true) + System.getProperty("line.separator"));
-                    guiContext.form.textAreaProperties.append("isDir: " + tuo.isDir + System.getProperty("line.separator"));
+                    {
+                        guiContext.form.textAreaProperties.setText("");
+                    }
                     break;
                 case NavTreeUserObject.SYSTEM:
                     break;
@@ -817,19 +822,23 @@ public class Browser
 
     public void refreshTree(JTree tree)
     {
-        tree.setEnabled(false);
-        TreePath rootPath = ((NavTreeNode) tree.getModel().getRoot()).getTreePath();
-        Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(rootPath);
-        TreePath[] paths = tree.getSelectionPaths();
-        tree.setExpandsSelectedPaths(true);
-        ((NavTreeModel) tree.getModel()).reload();
-        while (expandedDescendants.hasMoreElements())
+        if (tree != null)
         {
-            TreePath tp = expandedDescendants.nextElement();
-            tree.expandPath(tp);
+            tree.setEnabled(false);
+            TreePath rootPath = ((NavTreeNode) tree.getModel().getRoot()).getTreePath();
+            Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(rootPath);
+            TreePath[] paths = tree.getSelectionPaths();
+            tree.setExpandsSelectedPaths(true);
+            ((NavTreeModel) tree.getModel()).reload();
+            while (expandedDescendants.hasMoreElements())
+            {
+                TreePath tp = expandedDescendants.nextElement();
+                tree.expandPath(tp);
+            }
+            tree.setSelectionPaths(paths);
+            ((NavTreeNode)tree.getModel().getRoot()).sort();
+            tree.setEnabled(true);
         }
-        tree.setSelectionPaths(paths);
-        tree.setEnabled(true);
     }
 
     private NavTreeNode setCollectionRoot(JTree tree, String title, boolean remote)
@@ -838,7 +847,7 @@ public class Browser
         NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION, remote);
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
-        model.activateFilter(true);
+        model.activateFilter(guiContext.preferences.isHideFilesInTree());
         tree.setCellRenderer(new NavTreeCellRenderer());
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
@@ -877,7 +886,7 @@ public class Browser
         NavTreeUserObject tuo = new NavTreeUserObject(root, "System", NavTreeUserObject.SYSTEM, remote);
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
-        model.activateFilter(true);
+        model.activateFilter(guiContext.preferences.isHideFilesInTree());
         tree.setShowsRootHandles(true);
         tree.setRootVisible(false);
         tree.setLargeModel(true);

@@ -245,9 +245,9 @@ public class Utils
      * @return String containing matching file separator character
      * @throws MungeException
      */
-    public static String getFileSeparator(String flavor) throws MungeException
+    public static String getFileSeparator(String flavor)
     {
-        String separator;
+        String separator = "";
         if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
         {
             separator = "\\\\";
@@ -259,10 +259,6 @@ public class Utils
         else if (flavor.equalsIgnoreCase(Libraries.MAC))
         {
             separator = ":";
-        }
-        else
-        {
-            throw new MungeException("unknown flavor '" + flavor + "'");
         }
         return separator;
     }
@@ -299,7 +295,7 @@ public class Utils
      * @param full the full
      * @return the last path
      */
-    public static String getLastPath(String full, String sep) throws MungeException
+    public static String getLastPath(String full, String sep)
     {
         String path = "";
         int p = full.indexOf(sep);
@@ -539,7 +535,7 @@ public class Utils
      * @return String Modified path
      * @throws MungeException
      */
-    public static String pipe(String path, String separator) throws MungeException
+    public static String pipe(String path, String separator)
     {
         String p = path.replaceAll(separator, "|");
         return p;
@@ -688,7 +684,7 @@ public class Utils
      * @return String Modified path
      * @throws MungeException
      */
-    public static String unpipe(String path, String separator) throws MungeException
+    public static String unpipe(String path, String separator)
     {
         String p = path.replaceAll("\\|", separator);
         return p;

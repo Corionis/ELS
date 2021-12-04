@@ -578,6 +578,7 @@ new FormModel {
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 72, 130, false )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
+						"displayedMnemonicIndex": 5
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {

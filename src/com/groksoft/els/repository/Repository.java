@@ -234,7 +234,7 @@ public class Repository
      * @return File separator string single character
      * @throws MungeException
      */
-    public String getSeparator() throws MungeException
+    public String getSeparator()
     {
         String sep = getWriteSeparator();
         if (sep.equalsIgnoreCase("\\\\"))
@@ -248,7 +248,7 @@ public class Repository
      * @return file separator string, may be multiple characters, e.g. \\
      * @throws MungeException
      */
-    public String getWriteSeparator() throws MungeException
+    public String getWriteSeparator()
     {
         return Utils.getFileSeparator(libraryData.libraries.flavor);
     }
