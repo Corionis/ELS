@@ -12,7 +12,7 @@ public class Preferences
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
     private boolean hideFilesInTree = true;
-    private boolean showHidden = false;
+    private boolean hideHiddenFiles = true;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
@@ -63,9 +63,9 @@ public class Preferences
         return hideFilesInTree;
     }
 
-    public boolean isShowHidden()
+    public boolean isHideHiddenFiles()
     {
-        return showHidden;
+        return hideHiddenFiles;
     }
 
     public boolean isSortCaseInsensitive()
@@ -108,9 +108,9 @@ public class Preferences
         this.hideFilesInTree = hideFilesInTree;
     }
 
-    public void setShowHidden(boolean showHidden)
+    public void setHideHiddenFiles(boolean hideHiddenFiles)
     {
-        this.showHidden = showHidden;
+        this.hideHiddenFiles = hideHiddenFiles;
     }
 
     public void setSortCaseInsensitive(boolean sortCaseInsensitive)

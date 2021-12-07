@@ -532,7 +532,7 @@ public class Hints
 
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
-                            context.transfer.copyFile(item.getFullPath(), tmpPath, true);
+                            context.transfer.copyFile(item.getFullPath(), tmpPath, cfg.isRemoteSession(),true);
 
                             toItem = SerializationUtils.clone(item);
                             toItem.setFullPath(toPath);

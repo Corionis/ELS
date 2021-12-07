@@ -31,7 +31,7 @@ class NavTreeNode extends DefaultMutableTreeNode
     private JTable myTable;
     private JTree myTree;
     private boolean refresh = true;
-    private boolean visible = true;
+    private boolean shown = true;
 
     private NavTreeNode()
     {
@@ -44,7 +44,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         this.guiContext = guiContext;
         this.myTree = tree;
         this.allowsChildren = true;
-        this.visible = true;
+        this.shown = true;
 
         sortTreeAlphabetically = new SortTreeAlphabetically();
         sortFoldersBeforeFiles = new SortFoldersBeforeFiles();
@@ -77,7 +77,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         NavTreeNode object = new NavTreeNode(guiContext, myTree);
         object.loaded = this.loaded;
         object.refresh = this.refresh;
-        object.visible = this.visible;
+        object.shown = this.shown;
         NavTreeUserObject tuo = (NavTreeUserObject)this.getUserObject().clone();
         tuo.node = this;
         object.setUserObject(tuo);
@@ -184,6 +184,33 @@ class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
+    public int findChildIndex(NavTreeNode find, boolean hideFilesInTreeFilterActive, boolean hideHiddenFilterActive)
+    {
+        if (children == null)
+            return 0;
+
+        int index = -1;
+        Enumeration e = children.elements();
+        while (e.hasMoreElements())
+        {
+            boolean sense = true;
+            NavTreeNode node = (NavTreeNode) e.nextElement();
+
+            if (hideFilesInTreeFilterActive && guiContext.preferences.isHideFilesInTree() && !node.isVisible())
+                sense = false;
+            if (hideHiddenFilterActive && guiContext.preferences.isHideHiddenFiles() && node.getUserObject().isHidden == true)
+                sense = false;
+
+            if (sense)
+            {
+                ++index;
+                if (node == find)
+                    return index;
+            }
+        }
+        return (index > 0 ? index : 0);
+    }
+
     public NavTreeNode findChildTuoPath(String path)
     {
         NavTreeNode node = null;
@@ -199,7 +226,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         return node;
     }
 
-    public TreeNode getChildAt(int index, boolean treeFilterActive, boolean hiddenFilterActive)
+    public TreeNode getChildAt(int index, boolean hideFilesInTreeFilterActive, boolean hideHiddenFilterActive)
     {
         if (children == null)
             throw new ArrayIndexOutOfBoundsException("node has no children");
@@ -209,22 +236,29 @@ class NavTreeNode extends DefaultMutableTreeNode
         Enumeration e = children.elements();
         while (e.hasMoreElements())
         {
+            boolean sense = true;
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (((!treeFilterActive || (treeFilterActive && node.isVisible()))) &&
-                    (!hiddenFilterActive || (hiddenFilterActive &&
-                            (guiContext.preferences.isShowHidden() || (!guiContext.preferences.isShowHidden() && node.getUserObject().isHidden == false)))))
+            if (hideFilesInTreeFilterActive && guiContext.preferences.isHideFilesInTree() && !node.isVisible())
+                sense = false;
+            if (hideHiddenFilterActive && guiContext.preferences.isHideHiddenFiles() && node.getUserObject().isHidden == true)
+                sense = false;
+
+            if (sense)
             {
                 visibleIndex++;
             }
 
             realIndex++;
             if (visibleIndex == index)
-                return (TreeNode) children.elementAt(realIndex);
+            {
+                TreeNode child = (TreeNode) children.elementAt(realIndex);
+                return child;
+            }
         }
-        return null;
+        return this;
     }
 
-    public int getChildCount(boolean treeFilterActive, boolean hiddenFilterActive)
+    public int getChildCount(boolean hideFilesInTreeFilterActive, boolean hideHiddenFilterActive)
     {
         if (children == null)
             return 0;
@@ -233,12 +267,17 @@ class NavTreeNode extends DefaultMutableTreeNode
         Enumeration e = children.elements();
         while (e.hasMoreElements())
         {
+            boolean sense = true;
             NavTreeNode node = (NavTreeNode) e.nextElement();
-            if (((!treeFilterActive || (treeFilterActive && node.isVisible()))) &&
-                    (!hiddenFilterActive || (hiddenFilterActive &&
-                            (guiContext.preferences.isShowHidden() || (!guiContext.preferences.isShowHidden() && node.getUserObject().isHidden == false)))))
+
+            if (hideFilesInTreeFilterActive && guiContext.preferences.isHideFilesInTree() && !node.isVisible())
+                sense = false;
+            if (hideHiddenFilterActive && guiContext.preferences.isHideHiddenFiles() && node.getUserObject().isHidden == true)
+                sense = false;
+
+            if (sense)
             {
-                count++;
+                ++count;
             }
         }
         return count;
@@ -318,7 +357,7 @@ class NavTreeNode extends DefaultMutableTreeNode
 
     public boolean isVisible()
     {
-        return visible;
+        return shown;
     }
 
     public void loadChildren(boolean doLoadTable)
@@ -644,7 +683,7 @@ class NavTreeNode extends DefaultMutableTreeNode
 
     public void setVisible(boolean visible)
     {
-        this.visible = visible;
+        this.shown = visible;
     }
 
     public void sort()

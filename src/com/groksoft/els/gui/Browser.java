@@ -57,7 +57,7 @@ public class Browser
             public void focusGained(FocusEvent focusEvent)
             {
                 String name = "";
-                Component active = focusEvent.getComponent(); //.getOppositeComponent();
+                Component active = focusEvent.getComponent();
                 name = active.getName();
                 if (name.length() > 0)
                 {
@@ -285,11 +285,11 @@ public class Browser
                 // handle Ctrl-H to toggle Show Hidden
                 if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
-                    guiContext.preferences.setShowHidden(!guiContext.preferences.isShowHidden());
-                    if (guiContext.preferences.isShowHidden())
-                        guiContext.form.menuItemShowHidden.setSelected(true);
-                    else
+                    guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
+                    if (guiContext.preferences.isHideHiddenFiles())
                         guiContext.form.menuItemShowHidden.setSelected(false);
+                    else
+                        guiContext.form.menuItemShowHidden.setSelected(true);
 
                     refreshTree(guiContext.form.treeCollectionOne);
                     refreshTree(guiContext.form.treeSystemOne);
@@ -404,7 +404,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                node.loadChildren(false);
+                node.loadChildren(true);
             }
         });
         //
@@ -445,7 +445,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                node.loadChildren(false);
+                node.loadChildren(true);
             }
         });
         //
@@ -528,7 +528,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                node.loadChildren(false);
+                node.loadChildren(true);
             }
         });
         //
@@ -576,7 +576,7 @@ public class Browser
             {
                 TreePath treePath = treeExpansionEvent.getPath();
                 NavTreeNode node = (NavTreeNode) treePath.getLastPathComponent();
-                node.loadChildren(false);
+                node.loadChildren(true);
             }
         });
         //
@@ -888,6 +888,7 @@ public class Browser
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(guiContext.preferences.isHideFilesInTree());
         tree.setShowsRootHandles(true);
+//        tree.setRootVisible(true);
         tree.setRootVisible(false);
         tree.setLargeModel(true);
         tree.setCellRenderer(new NavTreeCellRenderer());

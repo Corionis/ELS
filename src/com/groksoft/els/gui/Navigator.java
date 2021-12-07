@@ -6,11 +6,11 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.util.ResourceBundle;
 
@@ -77,6 +77,23 @@ public class Navigator
             // TODO Add Backup, Profiles and Keys creation here
 
         }
+
+//        Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
+//            logger.error("GOT IT: " + Utils.getStackTrace(throwable));
+//        });
+
+/*
+        PrintStream originalOut = System.out;
+        System.setErr(new PrintStream(new OutputStream()
+        {
+            @Override
+            public void write(int i) throws IOException
+            {
+
+            }
+        }));
+*/
+
         return !guiContext.context.fault;
     }
 
@@ -137,11 +154,11 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.preferences.setShowHidden(!guiContext.preferences.isShowHidden());
-                if (guiContext.preferences.isShowHidden())
-                    guiContext.form.menuItemShowHidden.setSelected(true);
-                else
+                guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
+                if (guiContext.preferences.isHideHiddenFiles())
                     guiContext.form.menuItemShowHidden.setSelected(false);
+                else
+                    guiContext.form.menuItemShowHidden.setSelected(true);
 
                 guiContext.browser.refreshTree(guiContext.form.treeCollectionOne);
                 guiContext.browser.refreshTree(guiContext.form.treeSystemOne);
@@ -150,10 +167,10 @@ public class Navigator
             }
         });
         // set initial state of checkbox
-        if (guiContext.preferences.isShowHidden())
-            guiContext.form.menuItemShowHidden.setSelected(true);
-        else
+        if (guiContext.preferences.isHideHiddenFiles())
             guiContext.form.menuItemShowHidden.setSelected(false);
+        else
+            guiContext.form.menuItemShowHidden.setSelected(true);
 
         //
         // -- Bookmarks Menu

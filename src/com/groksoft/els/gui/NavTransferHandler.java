@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class NavTransferHandler extends TransferHandler
 {
     private final DataFlavor flavor = new ActivationDataFlavor(ArrayList.class, "application/x-java-object;class=java.util.ArrayList", "ArrayList of NavTreeUserObject");
-    private final boolean traceActions = false; // dev-debug
+    private final boolean traceActions = true; // dev-debug
     private int action = TransferHandler.NONE;
     private int depth = 0;
     private GuiContext guiContext;
@@ -31,6 +31,9 @@ public class NavTransferHandler extends TransferHandler
     private boolean targetIsPublisher = false;
     private JTable targetTable;
     private JTree targetTree;
+
+    // LEFTOFF Try overriding DropTargetListener to trap null point exception
+    // http://resources.mpi-inf.mpg.de/d5/teaching/ss05/is05/javadoc/java/awt/dnd/DropTargetListener.html#dragOver(java.awt.dnd.DropTargetDragEvent)
 
     public NavTransferHandler(GuiContext gctxt)
     {
@@ -461,6 +464,7 @@ public class NavTransferHandler extends TransferHandler
         // get the directory
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
+            // FIXME: getTarget() calls repo hasDirectory() that requires repo Items !!!
             directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, sourceTuo.size, targetRepo, sourceTuo.path);
             File physical = new File(directory);
             directory = physical.getAbsolutePath();
@@ -541,10 +545,10 @@ public class NavTransferHandler extends TransferHandler
                     removeFile(sourceTuo);
 
                 NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
-                parent.remove(sourceTuo.node);
-
                 if (guiContext.context.fault)
                     break;
+
+                parent.remove(sourceTuo.node);
             }
         }
     }
@@ -580,7 +584,7 @@ public class NavTransferHandler extends TransferHandler
 
             if (!guiContext.cfg.isDryRun())
             {
-                guiContext.context.transfer.remove(sourceTuo.path, sourceTuo.isRemote);
+                guiContext.context.transfer.remove(sourceTuo.path, true, sourceTuo.isRemote);
             }
         }
         catch (Exception e)
@@ -607,7 +611,7 @@ public class NavTransferHandler extends TransferHandler
             guiContext.browser.printLog(msg);
             if (!guiContext.cfg.isDryRun())
             {
-                guiContext.context.transfer.remove(sourceTuo.path, sourceTuo.isRemote);
+                guiContext.context.transfer.remove(sourceTuo.path, false, sourceTuo.isRemote);
             }
         }
         catch (Exception e)
@@ -712,7 +716,7 @@ public class NavTransferHandler extends TransferHandler
                 msg += " to " + path;
                 guiContext.browser.printLog("Local" + msg);
                 if (!guiContext.cfg.isDryRun())
-                    guiContext.context.transfer.copyFile(sourceTuo.path, path, true);
+                    guiContext.context.transfer.copyFile(sourceTuo.path, path, false, true);
             }
             else if (!sourceTuo.isRemote && targetTuo.isRemote)
             {
@@ -722,7 +726,7 @@ public class NavTransferHandler extends TransferHandler
                 msg += " to " + path;
                 guiContext.browser.printLog("Put" + msg);
                 if (!guiContext.cfg.isDryRun())
-                    guiContext.context.transfer.copyFile(sourceTuo.path, path, false);
+                    guiContext.context.transfer.copyFile(sourceTuo.path, path, true, false);
             }
             else if (sourceTuo.isRemote && !targetTuo.isRemote)
             {

@@ -62,9 +62,9 @@ public class Transfer
      * @param to        the full to path
      * @param overwrite true/false
      */
-    public void copyFile(String from, String to, boolean overwrite) throws Exception
+    public void copyFile(String from, String to, boolean isRemote, boolean overwrite) throws Exception
     {
-        if (cfg.isRemoteSession())
+        if (isRemote)
         {
             context.clientSftp.transmitFile(from, to, overwrite);
         }
@@ -125,7 +125,7 @@ public class Transfer
                         logger.info(msg);
                         response += (msg + "\r\n");
 
-                        copyFile(groupItem.getFullPath(), to, overwrite);
+                        copyFile(groupItem.getFullPath(), to, cfg.isRemoteSession(), overwrite);
                     }
                     else
                     {
@@ -754,11 +754,11 @@ public class Transfer
      * @param path      the full from path
      * @param isRemote  the isDir flag
      */
-    public void remove(String path, boolean isRemote) throws Exception
+    public void remove(String path, boolean isDir, boolean isRemote) throws Exception
     {
         if (isRemote)
         {
-            context.clientSftp.remove(path, isRemote);
+            context.clientSftp.remove(path, isDir);
         }
         else
         {

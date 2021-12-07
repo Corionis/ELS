@@ -1,11 +1,15 @@
 package com.groksoft.els.gui;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
 class NavTreeModel extends DefaultTreeModel
 {
     protected boolean filterIsActive;
+    private transient Logger logger = LogManager.getLogger("applog");
 
     public NavTreeModel(TreeNode root, boolean asksAllowsChildren)
     {
@@ -23,22 +27,35 @@ class NavTreeModel extends DefaultTreeModel
         filterIsActive = newValue;
     }
 
+    @Override
     public Object getChild(Object parent, int index)
     {
+        Object child;
         if (parent instanceof NavTreeNode)
         {
-            return ((NavTreeNode) parent).getChildAt(index, filterIsActive, true);
+            child = ((NavTreeNode) parent).getChildAt(index, true, true);
+            assert(child != null);
+            return child;
         }
-        return ((TreeNode) parent).getChildAt(index);
+        child = ((NavTreeNode) parent).getChildAt(index);
+        assert(child != null);
+        return child;
     }
 
+    @Override
     public int getChildCount(Object parent)
     {
         if (parent instanceof NavTreeNode)
         {
-            return ((NavTreeNode) parent).getChildCount(filterIsActive, true);
+            return ((NavTreeNode) parent).getChildCount(true, true);
         }
-        return ((TreeNode) parent).getChildCount();
+        return ((NavTreeNode) parent).getChildCount();
+    }
+
+    @Override
+    public int getIndexOfChild(Object parent, Object child)
+    {
+        return ((NavTreeNode)parent).findChildIndex((NavTreeNode) child, true, true);
     }
 
     public boolean isActivatedFilter()
