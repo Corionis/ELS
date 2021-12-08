@@ -1,5 +1,7 @@
 package com.groksoft.els.gui;
 
+import com.groksoft.els.Utils;
+
 import javax.management.remote.rmi._RMIConnection_Stub;
 import java.io.File;
 import java.io.Serializable;
@@ -55,6 +57,7 @@ public class NavTreeUserObject implements Comparable, Serializable
         this.name = name;
         this.file = file;
         this.path = file.getAbsolutePath();
+        this.fileTime = Utils.getLocalFileTime(this.path);
         this.isDir = file.isDirectory();
         this.isHidden = file.isHidden();
         this.isRemote = false;

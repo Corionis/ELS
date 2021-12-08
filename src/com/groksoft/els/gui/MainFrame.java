@@ -174,11 +174,14 @@ public class MainFrame extends JFrame
         menuItemSaveLayout = new JMenuItem();
         menuItemFileQuit = new JMenuItem();
         menuEdit = new JMenu();
+        menuItemNewFolder = new JMenuItem();
         menuItemFind = new JMenuItem();
+        menuItemRename = new JMenuItem();
         menuItemCopy = new JMenuItem();
         menuItemCut = new JMenuItem();
         menuItemPaste = new JMenuItem();
-        menuItemPreferences = new JMenuItem();
+        menuItemDelete = new JMenuItem();
+        menuItemSettings = new JMenuItem();
         menuView = new JMenu();
         menuItemRefresh = new JMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
@@ -209,7 +212,7 @@ public class MainFrame extends JFrame
         panelBrowserTop = new JPanel();
         panelLocationAndButtons = new JPanel();
         toolBarBrowser = new JToolBar();
-        buttonCreate = new JButton();
+        buttonNewFolder = new JButton();
         buttonCopy = new JButton();
         buttonMove = new JButton();
         buttonRename = new JButton();
@@ -337,6 +340,14 @@ public class MainFrame extends JFrame
                 menuEdit.setText(bundle.getString("Navigator.menuEdit.text"));
                 menuEdit.setMnemonic(bundle.getString("Navigator.menuEdit.mnemonic").charAt(0));
 
+                //---- menuItemNewFolder ----
+                menuItemNewFolder.setText(bundle.getString("Navigator.menuItemNewFolder.text"));
+                menuItemNewFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
+                menuItemNewFolder.setMnemonic(bundle.getString("Navigator.menuItemNewFolder.mnemonic_2").charAt(0));
+                menuItemNewFolder.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemNewFolder.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuEdit.add(menuItemNewFolder);
+
                 //---- menuItemFind ----
                 menuItemFind.setText(bundle.getString("Navigator.menuItemFind.text"));
                 menuItemFind.setMnemonic(bundle.getString("Navigator.menuItemFind.mnemonic").charAt(0));
@@ -345,6 +356,14 @@ public class MainFrame extends JFrame
                 menuItemFind.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemFind.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuEdit.add(menuItemFind);
+
+                //---- menuItemRename ----
+                menuItemRename.setText(bundle.getString("Navigator.menuItemRename.text"));
+                menuItemRename.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
+                menuItemRename.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemRename.setMnemonic(bundle.getString("Navigator.menuItemRename.mnemonic").charAt(0));
+                menuItemRename.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuEdit.add(menuItemRename);
                 menuEdit.addSeparator();
 
                 //---- menuItemCopy ----
@@ -357,7 +376,7 @@ public class MainFrame extends JFrame
 
                 //---- menuItemCut ----
                 menuItemCut.setText(bundle.getString("Navigator.menuItemCut.text"));
-                menuItemCut.setMnemonic(bundle.getString("Navigator.menuItemCut.mnemonic_2").charAt(0));
+                menuItemCut.setMnemonic(bundle.getString("Navigator.menuItemCut.mnemonic").charAt(0));
                 menuItemCut.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
                 menuItemCut.setHorizontalAlignment(SwingConstants.LEFT);
@@ -365,20 +384,29 @@ public class MainFrame extends JFrame
 
                 //---- menuItemPaste ----
                 menuItemPaste.setText(bundle.getString("Navigator.menuItemPaste.text"));
-                menuItemPaste.setMnemonic(bundle.getString("Navigator.menuItemPaste.mnemonic_2").charAt(0));
+                menuItemPaste.setMnemonic(bundle.getString("Navigator.menuItemPaste.mnemonic").charAt(0));
                 menuItemPaste.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
                 menuItemPaste.setHorizontalAlignment(SwingConstants.LEFT);
                 menuEdit.add(menuItemPaste);
                 menuEdit.addSeparator();
 
-                //---- menuItemPreferences ----
-                menuItemPreferences.setText(bundle.getString("Navigator.menuItemPreferences.text"));
-                menuItemPreferences.setMnemonic(bundle.getString("Navigator.menuItemPreferences.mnemonic_2").charAt(0));
-                menuItemPreferences.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemPreferences.setEnabled(false);
-                menuItemPreferences.setHorizontalAlignment(SwingConstants.LEFT);
-                menuEdit.add(menuItemPreferences);
+                //---- menuItemDelete ----
+                menuItemDelete.setText(bundle.getString("Navigator.menuItemDelete.text"));
+                menuItemDelete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+                menuItemDelete.setMnemonic(bundle.getString("Navigator.menuItemDelete.mnemonic").charAt(0));
+                menuItemDelete.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemDelete.setHorizontalAlignment(SwingConstants.LEFT);
+                menuEdit.add(menuItemDelete);
+                menuEdit.addSeparator();
+
+                //---- menuItemSettings ----
+                menuItemSettings.setText(bundle.getString("Navigator.menuItemSettings.text"));
+                menuItemSettings.setMnemonic(bundle.getString("Navigator.menuItemSettings.mnemonic_2").charAt(0));
+                menuItemSettings.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemSettings.setEnabled(false);
+                menuItemSettings.setHorizontalAlignment(SwingConstants.LEFT);
+                menuEdit.add(menuItemSettings);
             }
             menuBarMain.add(menuEdit);
 
@@ -391,7 +419,6 @@ public class MainFrame extends JFrame
                 //---- menuItemRefresh ----
                 menuItemRefresh.setText(bundle.getString("Navigator.menuItemRefresh.text"));
                 menuItemRefresh.setMnemonic(bundle.getString("Navigator.menuItemRefresh.mnemonic").charAt(0));
-                menuItemRefresh.setEnabled(false);
                 menuItemRefresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
                 menuItemRefresh.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemRefresh.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -605,11 +632,11 @@ public class MainFrame extends JFrame
                                 toolBarBrowser.setRollover(true);
                                 toolBarBrowser.setFocusable(false);
 
-                                //---- buttonCreate ----
-                                buttonCreate.setText(bundle.getString("Navigator.buttonCreate.text"));
-                                buttonCreate.setToolTipText("Create directory");
-                                buttonCreate.setEnabled(false);
-                                toolBarBrowser.add(buttonCreate);
+                                //---- buttonNewFolder ----
+                                buttonNewFolder.setText("New");
+                                buttonNewFolder.setToolTipText("Create directory");
+                                buttonNewFolder.setEnabled(false);
+                                toolBarBrowser.add(buttonNewFolder);
                                 toolBarBrowser.addSeparator();
 
                                 //---- buttonCopy ----
@@ -1008,11 +1035,14 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemSaveLayout;
     public JMenuItem menuItemFileQuit;
     public JMenu menuEdit;
+    public JMenuItem menuItemNewFolder;
     public JMenuItem menuItemFind;
+    public JMenuItem menuItemRename;
     public JMenuItem menuItemCopy;
     public JMenuItem menuItemCut;
     public JMenuItem menuItemPaste;
-    public JMenuItem menuItemPreferences;
+    public JMenuItem menuItemDelete;
+    public JMenuItem menuItemSettings;
     public JMenu menuView;
     public JMenuItem menuItemRefresh;
     public JCheckBoxMenuItem menuItemShowHidden;
@@ -1043,7 +1073,7 @@ public class MainFrame extends JFrame
     public JPanel panelBrowserTop;
     public JPanel panelLocationAndButtons;
     public JToolBar toolBarBrowser;
-    public JButton buttonCreate;
+    public JButton buttonNewFolder;
     public JButton buttonCopy;
     public JButton buttonMove;
     public JButton buttonRename;

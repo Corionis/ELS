@@ -8,18 +8,14 @@ import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.URI;
 import java.util.ResourceBundle;
 
 public class Navigator
 {
-    private transient Logger logger = LogManager.getLogger("applog");
-    ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
-
     public static GuiContext guiContext;
+    ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
+    private transient Logger logger = LogManager.getLogger("applog");
 
     // QUESTION:
     //  1. How to organize editing JSON server and targets files with N-libraries with N-sources each?
@@ -32,7 +28,7 @@ public class Navigator
     //     * !-Z alphabetic
     //     * By-source
     //  * View, Wrap log lines (toggle)
-    //  * Add back-fill toggle
+    //  * Help, Controls simple dialog showing all the keys and mouse controls
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -77,6 +73,11 @@ public class Navigator
             // TODO Add Backup, Profiles and Keys creation here
 
         }
+
+        // disable back-fill
+        guiContext.cfg.setNoBackFill(true);
+
+        guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTime());
 
 //        Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
 //            logger.error("GOT IT: " + Utils.getStackTrace(throwable));
@@ -146,9 +147,37 @@ public class Navigator
                 }
             }
         });
+        //
+        guiContext.form.menuItemDelete.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                Object object = guiContext.browser.lastComponent;
+                if (object instanceof JTree)
+                {
+                    JTree sourceTree = (JTree) object;
+                    guiContext.browser.deleteSelected(sourceTree);
+                }
+                else if (object instanceof JTable)
+                {
+                    JTable sourceTable = (JTable) object;
+                    guiContext.browser.deleteSelected(sourceTable);
+                }
+            }
+        });
 
         //
         // -- View Menu
+        guiContext.form.menuItemRefresh.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.browser.refreshByObject(guiContext.browser.lastComponent);
+            }
+        });
+        //
         guiContext.form.menuItemShowHidden.addActionListener(new AbstractAction()
         {
             @Override

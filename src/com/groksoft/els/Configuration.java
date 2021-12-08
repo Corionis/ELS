@@ -51,6 +51,7 @@ public class Configuration
     private boolean noBackFill = false;
     private String[] originalArgs;
     private boolean overwrite = false;
+    private boolean preserveDates = false;
     private boolean publishOperation = true;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
@@ -73,7 +74,6 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
-
     /**
      * Instantiates a new Configuration
      */
@@ -292,6 +292,16 @@ public class Configuration
     }
 
     /**
+     * Gets the configured scale for formatting long values, 1024 or 1000
+     *
+     * @return long Scale for formatting
+     */
+    public double getLongScale()
+    {
+        return longScale;
+    }
+
+    /**
      * Gets mismatch filename
      *
      * @return the mismatch filename
@@ -299,15 +309,6 @@ public class Configuration
     public String getMismatchFilename()
     {
         return mismatchFilename;
-    }
-
-    /**
-     * Gets the configured scale for formatting long values, 1024 or 1000
-     * @return long Scale for formatting
-     */
-    public double getLongScale()
-    {
-        return longScale;
     }
 
     /**
@@ -572,6 +573,11 @@ public class Configuration
     public boolean isOverwrite()
     {
         return overwrite == true;
+    }
+
+    public boolean isPreserveDates()
+    {
+        return preserveDates;
     }
 
     /**
@@ -1107,6 +1113,10 @@ public class Configuration
                 case "--cross-check":
                     setCrossCheck(true);
                     break;
+                case "-y":                                             // preserve file dates
+                case "--preserve-dates":
+                    setPreserveDates(true);
+                    break;
                 case "-z":                                             // scale long values with 1000 instead of 1024
                 case "--decimal-scale":
                     setLongScale(false);
@@ -1264,6 +1274,7 @@ public class Configuration
 
     /**
      * Sets the scale factor for formatting long values, 1024 or 1000
+     *
      * @param binaryScale true = 1024, false = 1000
      */
     public void setLongScale(boolean binaryScale)
@@ -1302,6 +1313,11 @@ public class Configuration
     public void setOverwrite(boolean sense)
     {
         overwrite = sense;
+    }
+
+    public void setPreserveDates(boolean preserveDates)
+    {
+        this.preserveDates = preserveDates;
     }
 
     /**

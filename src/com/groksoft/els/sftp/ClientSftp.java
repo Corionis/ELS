@@ -133,6 +133,11 @@ public class ClientSftp
             jSftp.rm(path);
     }
 
+    public void setDate(String dest, int mtime) throws Exception
+    {
+        jSftp.setMtime(dest, mtime);
+    }
+
     /**
      * Start this sftp client
      */

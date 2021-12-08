@@ -17,7 +17,7 @@ It's all built-in with the -n | --navigator option.
 
  1. ELS Navigator.
 
- 2. New download options including an all-in-one with a dedicated Java JRE.
+ 2. New download options including an all-in-one with a dedicated embedded Java JRE.
 
 ### Command Line Changes
 
@@ -26,8 +26,10 @@ It's all built-in with the -n | --navigator option.
 
  2. The -n option has been repurposed, and the --navigator option has been added.
 
- 3. Added option -z | --decimal-scale to format numeric values with a 1000 decimal
-    scale instead of a 1024 binary scale.
+ 3. Added option -y | --preserve-dates to retain original file dates.
+
+ 4. Added option -z | --decimal-scale to format numeric values with a 1000 decimal
+     scale instead of a 1024 binary scale.
 
 ### Bug Fixes
 

@@ -13,9 +13,11 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.nio.file.*;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -62,11 +64,13 @@ public class Transfer
      * @param to        the full to path
      * @param overwrite true/false
      */
-    public void copyFile(String from, String to, boolean isRemote, boolean overwrite) throws Exception
+    public void copyFile(String from, FileTime filetime, String to, boolean isRemote, boolean overwrite) throws Exception
     {
         if (isRemote)
         {
             context.clientSftp.transmitFile(from, to, overwrite);
+            if (cfg.isPreserveDates() && filetime != null)
+                context.clientSftp.setDate(to, (int)filetime.to(TimeUnit.SECONDS));
         }
         else
         {
@@ -77,7 +81,10 @@ public class Transfer
             {
                 f.getParentFile().mkdirs();
             }
-            Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
+            if (cfg.isPreserveDates() && filetime != null)
+                Files.copy(fromPath, toPath, StandardCopyOption.COPY_ATTRIBUTES, REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
+            else
+                Files.copy(fromPath, toPath, REPLACE_EXISTING, LinkOption.NOFOLLOW_LINKS);
         }
     }
 
@@ -112,7 +119,7 @@ public class Transfer
                 }
                 else
                 {
-                    String targetPath = getTarget(groupItem.getLibrary(), totalSize, groupItem.getItemPath());
+                    String targetPath = getTarget(groupItem.getLibrary(), cfg.isRemoteSession(), totalSize, groupItem.getItemPath());
                     if (targetPath != null)
                     {
                         // copy item(s) to targetPath
@@ -125,7 +132,7 @@ public class Transfer
                         logger.info(msg);
                         response += (msg + "\r\n");
 
-                        copyFile(groupItem.getFullPath(), to, cfg.isRemoteSession(), overwrite);
+                        copyFile(groupItem.getFullPath(), groupItem.getModifiedDate(), to, cfg.isRemoteSession(), overwrite);
                     }
                     else
                     {
@@ -171,16 +178,18 @@ public class Transfer
      * @return available space
      * @throws Exception
      */
-    public long getFreespace(String path) throws Exception
+    public long getFreespace(String path, boolean isRemote) throws Exception
     {
         long space;
-        if (cfg.isRemoteSession() && !context.hintMode)
+        if (isRemote && !context.hintMode)
         {
             // remote subscriber
             space = context.clientStty.availableSpace(path);
         }
         else
         {
+//            File folder = new File(path);
+//            path = folder.getAbsolutePath();
             space = Utils.availableSpace(path);
         }
         return space;
@@ -346,9 +355,9 @@ public class Transfer
      * @return the target
      * @throws MungeException the els exception
      */
-    private String getTarget(String library, long size, String itemPath) throws Exception
+    private String getTarget(String library, boolean isRemote, long size, String itemPath) throws Exception
     {
-        String path = getTarget(context.publisherRepo, library, size, context.subscriberRepo, itemPath);
+        String path = getTarget(context.publisherRepo, library, size, context.subscriberRepo, isRemote, itemPath);
         return path;
     }
 
@@ -369,7 +378,7 @@ public class Transfer
      * @return the target
      * @throws MungeException the els exception
      */
-    public String getTarget(Repository sourceRepo, String library, long size, Repository targetRepo, String itemPath) throws Exception
+    public String getTarget(Repository sourceRepo, String library, long size, Repository targetRepo, boolean isRemote, String itemPath) throws Exception
     {
         String path = null;
         boolean notFound = true;
@@ -396,7 +405,7 @@ public class Transfer
             if (path != null)
             {
                 // check size of item(s) to be copied
-                if (itFits(path, size, minimum, target != null))
+                if (itFits(path, isRemote, size, minimum, target != null))
                 {
                     logger.info("Using original storage location for " + itemPath + " at " + path);
                     //
@@ -418,7 +427,7 @@ public class Transfer
             {
                 candidate = target.locations[j];
                 // check size of item(s) to be copied
-                if (itFits(candidate, size, minimum, true))
+                if (itFits(candidate, isRemote, size, minimum, true))
                 {
                     path = candidate;             // has space, use it
                     break;
@@ -436,7 +445,7 @@ public class Transfer
             {
                 candidate = lib.sources[j];
                 // check size of item(s) to be copied
-                if (itFits(candidate, size, minimum, false))
+                if (itFits(candidate, isRemote, size, minimum, false))
                 {
                     path = candidate;             // has space, use it
                     break;
@@ -555,10 +564,10 @@ public class Transfer
     /**
      * Will the needed size fit?
      */
-    private boolean itFits(String path, long size, long minimum, boolean hasTarget) throws Exception
+    private boolean itFits(String path, boolean isRemote, long size, long minimum, boolean hasTarget) throws Exception
     {
         boolean fits = false;
-        long space = getFreespace(path);
+        long space = getFreespace(path, isRemote);
 
         if (!hasTarget) // provided targets file overrides subscriber file locations minimum values
         {
@@ -915,7 +924,7 @@ public class Transfer
                 toItem = SerializationUtils.clone(fromItem);
                 toItem.setLibrary(toLib.name);
                 toItem.setItemPath(toName);
-                path = getTarget(toLib.name, toItem.getSize(), toItem.getItemPath());
+                path = getTarget(toLib.name, false, toItem.getSize(), toItem.getItemPath());
                 path = path + repo.getSeparator() + toName;
             }
             else // exists, use same object

@@ -2,7 +2,6 @@ package com.groksoft.els.gui;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.nio.file.Files;
 
 public class BrowserTableModel extends DefaultTableModel
 {
@@ -56,6 +55,11 @@ public class BrowserTableModel extends DefaultTableModel
                 return "Modified";
         }
         return "unknown";
+    }
+
+    public NavTreeNode getNode()
+    {
+        return node;
     }
 
     @Override
@@ -150,18 +154,18 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.LIBRARY:
                         break;
                     case NavTreeUserObject.REAL:
-                        if (tuo.isRemote)
-                            return new DateColumn(tuo.fileTime);
-                        if (tuo.file != null)
-                        {
-                            try
-                            {
-                                return new DateColumn(Files.getLastModifiedTime(tuo.file.toPath()));
-                            }
-                            catch (Exception e)
-                            { }
-                        }
-                        break;
+//                        if (tuo.isRemote)
+                        return new DateColumn(tuo.fileTime);
+//                        if (tuo.file != null)
+//                        {
+//                            try
+//                            {
+//                                return new DateColumn(Files.getLastModifiedTime(tuo.file.toPath()));
+//                            }
+//                            catch (Exception e)
+//                            { }
+//                        }
+//                        break;
                     case NavTreeUserObject.SYSTEM:
                         break;
                     default:

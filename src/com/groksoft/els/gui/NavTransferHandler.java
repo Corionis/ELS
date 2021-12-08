@@ -12,6 +12,8 @@ import javax.swing.tree.TreePath;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 public class NavTransferHandler extends TransferHandler
 {
     private final DataFlavor flavor = new ActivationDataFlavor(ArrayList.class, "application/x-java-object;class=java.util.ArrayList", "ArrayList of NavTreeUserObject");
-    private final boolean traceActions = true; // dev-debug
+    private final boolean traceActions = false; // dev-debug
     private int action = TransferHandler.NONE;
     private int depth = 0;
     private GuiContext guiContext;
@@ -31,9 +33,8 @@ public class NavTransferHandler extends TransferHandler
     private boolean targetIsPublisher = false;
     private JTable targetTable;
     private JTree targetTree;
-
-    // LEFTOFF Try overriding DropTargetListener to trap null point exception
-    // http://resources.mpi-inf.mpg.de/d5/teaching/ss05/is05/javadoc/java/awt/dnd/DropTargetListener.html#dragOver(java.awt.dnd.DropTargetDragEvent)
+    private Repository sourceRepo;
+    private Repository targetRepo;
 
     public NavTransferHandler(GuiContext gctxt)
     {
@@ -85,7 +86,9 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                 rowList.add(tuo);
             }
-            guiContext.browser.printLog("Create transferable from " + sourceTable.getName() + " starting at row " + row + ", " + rows.length + " rows total");
+
+            if (traceActions)
+                guiContext.browser.printLog("Create transferable from " + sourceTable.getName() + " starting at row " + row + ", " + rows.length + " rows total");
         }
         else if (c instanceof JTree)
         {
@@ -101,7 +104,9 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeUserObject tuo = ntn.getUserObject();
                 rowList.add(tuo);
             }
-            guiContext.browser.printLog("Create transferable from " + sourceTree.getName() + " starting at row " + row + ", " + paths.length + " rows total");
+
+            if (traceActions)
+                guiContext.browser.printLog("Create transferable from " + sourceTree.getName() + " starting at row " + row + ", " + paths.length + " rows total");
         }
         return new DataHandler(rowList, flavor.getMimeType());
     }
@@ -175,6 +180,23 @@ public class NavTransferHandler extends TransferHandler
             op = "Copy or Move";
         }
         return op;
+    }
+
+    private Repository getRepo(NavTreeUserObject tuo)
+    {
+        Repository repo = null;
+        switch (tuo.node.getMyTree().getName())
+        {
+            case "treeCollectionOne":
+            case "treeSystemOne":
+                repo = guiContext.context.publisherRepo;
+                break;
+            case "treeCollectionTwo":
+            case "treeSystemTwo":
+                repo = guiContext.context.subscriberRepo;
+                break;
+        }
+        return repo;
     }
 
     @Override
@@ -380,9 +402,12 @@ public class NavTransferHandler extends TransferHandler
             if (reply == JOptionPane.YES_OPTION)
             {
                 count = process(transferData, targetTree, targetTuo);
-                String msg = getOperation(false) + " " + count + " item" + (count > 1 ? "s" : "") + (guiContext.cfg.isDryRun() ? " (dry-run)" : "");
-                guiContext.form.labelStatusMiddle.setText(msg);
-                guiContext.browser.printLog(msg);
+                if (!guiContext.context.fault)
+                {
+                    String msg = getOperation(false) + " " + count + " item" + (count > 1 ? "s" : "") + (guiContext.cfg.isDryRun() ? " (dry-run)" : "");
+                    guiContext.form.labelStatusMiddle.setText(msg);
+                    guiContext.browser.printLog(msg);
+                }
             }
 
             if (traceActions)
@@ -441,31 +466,18 @@ public class NavTransferHandler extends TransferHandler
         String directory = "";
         String filename = "";
         String path = "";
-        Repository sourceRepo;
         String sourceSep;
-        Repository targetRepo;
         String targetSep;
 
-        if (targetIsPublisher)
-        {
-            targetRepo = guiContext.context.publisherRepo;
-            targetSep = guiContext.context.publisherRepo.getSeparator();
-            sourceRepo = guiContext.context.subscriberRepo;
-            sourceSep = guiContext.context.subscriberRepo.getSeparator();
-        }
-        else
-        {
-            targetRepo = guiContext.context.subscriberRepo;
-            targetSep = guiContext.context.subscriberRepo.getSeparator();
-            sourceRepo = guiContext.context.publisherRepo;
-            sourceSep = guiContext.context.publisherRepo.getSeparator();
-        }
+        sourceRepo = getRepo(sourceTuo);
+        sourceSep = sourceRepo.getSeparator();
+        targetRepo = getRepo(targetTuo);
+        targetSep = targetRepo.getSeparator();
 
         // get the directory
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
-            // FIXME: getTarget() calls repo hasDirectory() that requires repo Items !!!
-            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, sourceTuo.size, targetRepo, sourceTuo.path);
+            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, sourceTuo.size, targetRepo, !targetIsPublisher, sourceTuo.path);
             File physical = new File(directory);
             directory = physical.getAbsolutePath();
         }
@@ -607,8 +619,8 @@ public class NavTransferHandler extends TransferHandler
             else
                 msg = "Local";
             msg += " delete file " + (guiContext.cfg.isDryRun() ? "dry-run " : "") + sourceTuo.path;
-
             guiContext.browser.printLog(msg);
+
             if (!guiContext.cfg.isDryRun())
             {
                 guiContext.context.transfer.remove(sourceTuo.path, false, sourceTuo.isRemote);
@@ -647,8 +659,8 @@ public class NavTransferHandler extends TransferHandler
         NavTreeUserObject toTuo = toNode.getUserObject();
         toTuo.node = toNode;
         toTuo.path = path;
-        if (toTuo.file != null)
-            toTuo.file = new File(path);
+        toTuo.isRemote = !targetIsPublisher;
+        toTuo.file = new File(path);
         toNode.setAllowsChildren(toTuo.isDir);
 
         // add the new node on the target
@@ -667,7 +679,7 @@ public class NavTransferHandler extends TransferHandler
             int childCount = sourceTuo.node.getChildCount(false, false);
 
             String path = makeToPath(sourceTuo, targetTuo);
-            NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
+            NavTreeUserObject toNodeTuo = setupToNode(sourceTuo, targetTuo, path);
 
             for (int i = 0; i < childCount; ++i)
             {
@@ -676,13 +688,13 @@ public class NavTransferHandler extends TransferHandler
                 if (childTuo.isDir)
                 {
                     ++depth;
-                    count = count + transferDirectory(childTuo, targetTree, thisTuo);
+                    count = count + transferDirectory(childTuo, targetTree, toNodeTuo);
                     --depth;
                 }
                 else
                 {
                     ++count;
-                    transferFile(childTuo, targetTree, thisTuo);
+                    transferFile(childTuo, targetTree, toNodeTuo);
                 }
                 if (guiContext.context.fault)
                     break;
@@ -712,31 +724,40 @@ public class NavTransferHandler extends TransferHandler
             {
                 // local copy
                 path = makeToPath(sourceTuo, targetTuo);
-                NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
                 msg += " to " + path;
                 guiContext.browser.printLog("Local" + msg);
                 if (!guiContext.cfg.isDryRun())
-                    guiContext.context.transfer.copyFile(sourceTuo.path, path, false, true);
+                {
+                    guiContext.context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, false, true);
+                    NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
+                }
             }
             else if (!sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // put to remote
                 path = makeToPath(sourceTuo, targetTuo);
-                NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
                 msg += " to " + path;
                 guiContext.browser.printLog("Put" + msg);
                 if (!guiContext.cfg.isDryRun())
-                    guiContext.context.transfer.copyFile(sourceTuo.path, path, true, false);
+                {
+                    guiContext.context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, true, false);
+                    NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
+                }
             }
             else if (sourceTuo.isRemote && !targetTuo.isRemote)
             {
                 // get from remote
                 path = makeToPath(sourceTuo, targetTuo);
-                NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
                 msg += " to " + path;
                 guiContext.browser.printLog("Get" + msg);
                 if (!guiContext.cfg.isDryRun())
+                {
+                    String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
+                    Files.createDirectories(Paths.get(dir));
                     guiContext.context.clientSftp.get(sourceTuo.path, path);
+                    NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
+                    Files.setLastModifiedTime(Paths.get(path), sourceTuo.fileTime);
+                }
             }
             else if (sourceTuo.isRemote && targetTuo.isRemote)
             {

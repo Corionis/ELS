@@ -2,17 +2,18 @@ package com.groksoft.els.gui;
 
 public class Preferences
 {
-    private boolean binaryScale = true;
-    private boolean confirmation = true;
+    private boolean binaryScale = true; // true = 1024, false = 1000
+    private boolean confirmation = true; // show confirmation dialogs for copy, move, delete
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
+    private boolean hideFilesInTree = true;
+    private boolean hideHiddenFiles = true;
     // The Look 'n Feel, 0-6
     // 0=System default look 'n feel, use for Windows,
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
-    private boolean hideFilesInTree = true;
-    private boolean hideHiddenFiles = true;
+    private boolean preserveFileTime = true;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
@@ -68,6 +69,11 @@ public class Preferences
         return hideHiddenFiles;
     }
 
+    public boolean isPreserveFileTime()
+    {
+        return preserveFileTime;
+    }
+
     public boolean isSortCaseInsensitive()
     {
         return sortCaseInsensitive;
@@ -98,11 +104,6 @@ public class Preferences
         this.dateFormat = dateFormat;
     }
 
-    public void setLafStyle(int lafStyle)
-    {
-        this.lafStyle = lafStyle;
-    }
-
     public void setHideFilesInTree(boolean hideFilesInTree)
     {
         this.hideFilesInTree = hideFilesInTree;
@@ -111,6 +112,16 @@ public class Preferences
     public void setHideHiddenFiles(boolean hideHiddenFiles)
     {
         this.hideHiddenFiles = hideHiddenFiles;
+    }
+
+    public void setLafStyle(int lafStyle)
+    {
+        this.lafStyle = lafStyle;
+    }
+
+    public void setPreserveFileTime(boolean preserveFileTime)
+    {
+        this.preserveFileTime = preserveFileTime;
     }
 
     public void setSortCaseInsensitive(boolean sortCaseInsensitive)

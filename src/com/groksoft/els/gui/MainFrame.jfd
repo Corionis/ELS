@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.4.0.360" Java: "11.0.12" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.0.404" Java: "11.0.12" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -47,8 +47,8 @@ new FormModel {
 									"rollover": true
 									"focusable": false
 									add( new FormComponent( "javax.swing.JButton" ) {
-										name: "buttonCreate"
-										"text": new FormMessage( null, "Navigator.buttonCreate.text" )
+										name: "buttonNewFolder"
+										"text": "New"
 										"toolTipText": "Create directory"
 										"enabled": false
 									} )
@@ -507,12 +507,28 @@ new FormModel {
 					"text": new FormMessage( null, "Navigator.menuEdit.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menuEdit.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemNewFolder"
+						"text": new FormMessage( null, "Navigator.menuItemNewFolder.text" )
+						"accelerator": static javax.swing.KeyStroke getKeyStroke( 118, 0, false )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemNewFolder.mnemonic_2" )
+						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemFind"
 						"text": new FormMessage( null, "Navigator.menuItemFind.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemFind.mnemonic" )
 						"enabled": false
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 70, 130, false )
 						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemRename"
+						"text": new FormMessage( null, "Navigator.menuItemRename.text" )
+						"accelerator": static javax.swing.KeyStroke getKeyStroke( 113, 0, false )
+						"horizontalAlignment": 2
+						"mnemonic": new FormMessage( null, "Navigator.menuItemRename.mnemonic" )
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -529,7 +545,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemCut"
 						"text": new FormMessage( null, "Navigator.menuItemCut.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemCut.mnemonic_2" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemCut.mnemonic" )
 						"horizontalTextPosition": 2
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 88, 130, false )
 						"horizontalAlignment": 2
@@ -537,18 +553,29 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemPaste"
 						"text": new FormMessage( null, "Navigator.menuItemPaste.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemPaste.mnemonic_2" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemPaste.mnemonic" )
 						"horizontalTextPosition": 2
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 86, 130, false )
+						"horizontalAlignment": 2
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator7"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemDelete"
+						"text": new FormMessage( null, "Navigator.menuItemDelete.text" )
+						"accelerator": static javax.swing.KeyStroke getKeyStroke( 127, 0, false )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemDelete.mnemonic" )
+						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separatorEdit1"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemPreferences"
-						"text": new FormMessage( null, "Navigator.menuItemPreferences.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemPreferences.mnemonic_2" )
+						name: "menuItemSettings"
+						"text": new FormMessage( null, "Navigator.menuItemSettings.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemSettings.mnemonic_2" )
 						"horizontalTextPosition": 2
 						"enabled": false
 						"horizontalAlignment": 2
@@ -563,7 +590,6 @@ new FormModel {
 						name: "menuItemRefresh"
 						"text": new FormMessage( null, "Navigator.menuItemRefresh.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemRefresh.mnemonic" )
-						"enabled": false
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 116, 0, false )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2

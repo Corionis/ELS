@@ -1,5 +1,7 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.DateColumn;
+import com.groksoft.els.gui.NavTreeUserObject;
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +18,7 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.security.Key;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -261,6 +264,22 @@ public class Utils
             separator = ":";
         }
         return separator;
+    }
+
+    public static FileTime getLocalFileTime(String path)
+    {
+        if (path != null && path.length() > 0)
+        {
+            try
+            {
+                return Files.getLastModifiedTime(Paths.get(path));
+            }
+            catch (Exception e)
+            {
+                // noop
+            }
+        }
+        return FileTime.from(0, TimeUnit.SECONDS);
     }
 
     /**

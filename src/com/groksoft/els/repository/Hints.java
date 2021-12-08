@@ -282,7 +282,7 @@ public class Hints
                     {
                         candidate = lib.sources[j];
                         // check size of item(s) to be copied
-                        long space = context.transfer.getFreespace(candidate);
+                        long space = context.transfer.getFreespace(candidate, cfg.isRemoteSession());
                         if (space > (item.getSize() + (1024 * 1024 * 10)))
                         {
                             target = candidate + Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor) + item.getItemPath();
@@ -532,7 +532,7 @@ public class Hints
 
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
-                            context.transfer.copyFile(item.getFullPath(), tmpPath, cfg.isRemoteSession(),true);
+                            context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, cfg.isRemoteSession(),true);
 
                             toItem = SerializationUtils.clone(item);
                             toItem.setFullPath(toPath);

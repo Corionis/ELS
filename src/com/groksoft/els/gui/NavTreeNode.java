@@ -21,6 +21,7 @@ import java.util.*;
 
 class NavTreeNode extends DefaultMutableTreeNode
 {
+    private final boolean traceActions = false; // dev-debug
     public SortFoldersBeforeFiles sortFoldersBeforeFiles;
     public SortTreeAlphabetically sortTreeAlphabetically;
 
@@ -475,7 +476,9 @@ class NavTreeNode extends DefaultMutableTreeNode
                     guiContext.navigator.stop();
                 }
 
-                guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + Utils.formatInteger(getChildCount(false, false)) + " node(s)");
+                if (traceActions)
+                    guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + Utils.formatInteger(getChildCount(false, false)) + " node(s)");
+
                 super.done();
             }
 
@@ -512,7 +515,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                             NavTreeNode node = new NavTreeNode(guiContext, myTree);
                             NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
                                     target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
-                                    a.getSize(), a.getATime(), a.isDir());
+                                    a.getSize(), a.getMTime(), a.isDir());
                             node.setNavTreeUserObject(tuo);
                             if (!a.isDir())
                                 node.setVisible(false);
@@ -522,6 +525,7 @@ class NavTreeNode extends DefaultMutableTreeNode
                 }
                 catch (Exception e)
                 {
+// LEFTOFF: Handle directories that cannot be read due to permissions
                     JOptionPane.showMessageDialog(guiContext.form, "Could not retrieve listing from " + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     logger.error(Utils.getStackTrace(e));
