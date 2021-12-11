@@ -20,5 +20,4 @@ public class GuiContext
     Browser browser;
     MainFrame form;
     Preferences preferences;
-    FileSystemView fileSystemView;
 }

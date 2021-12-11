@@ -75,7 +75,7 @@ public class ClientSftp
      * @return True if any directories were created
      * @throws IOException
      */
-    private String makeRemoteDirectory(String pathname) throws Exception
+    public String makeRemoteDirectory(String pathname) throws Exception
     {
         if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS))
         {

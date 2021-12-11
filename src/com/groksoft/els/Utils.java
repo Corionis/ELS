@@ -1,7 +1,5 @@
 package com.groksoft.els;
 
-import com.groksoft.els.gui.DateColumn;
-import com.groksoft.els.gui.NavTreeUserObject;
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -317,6 +315,8 @@ public class Utils
     public static String getLastPath(String full, String sep)
     {
         String path = "";
+        if (sep == null)
+            sep = getSeparatorFromPath(full);
         int p = full.indexOf(sep);
         if (p >= 0)
         {
@@ -339,12 +339,38 @@ public class Utils
     public static String getLeftPath(String full, String sep)
     {
         String path = "";
+        if (sep == null)
+            sep = getSeparatorFromPath(full);
         int p = full.lastIndexOf(sep);
         if (p >= 0)
         {
             path = full.substring(0, p);
         }
         else
+        {
+            path = full;
+        }
+        return path;
+    }
+
+    /**
+     * Get the right path segment
+     *
+     * @param full Full path to parse
+     * @param sep  The directory separator for the local O/S
+     * @return String of right path
+     */
+    public static String getRightPath(String full, String sep)
+    {
+        String path = "";
+        if (sep == null)
+            sep = getSeparatorFromPath(full);
+        int p = full.lastIndexOf(sep);
+        if (p >= 0 && p < full.length() - 1)
+        {
+            path = full.substring(p + 1);
+        }
+        if (path.length() == 0)
         {
             path = full;
         }
@@ -436,6 +462,24 @@ public class Utils
             returnValue = bytes.longValue();
         }
         return returnValue;
+    }
+
+    public static String getSeparatorFromPath(String path)
+    {
+        String separator = "";
+        if (path.contains("\\"))
+        {
+            separator = "\\\\";
+        }
+        else if (path.contains("/"))
+        {
+            separator = "/";
+        }
+        else if (path.contains(":"))
+        {
+            separator = ":";
+        }
+        return separator;
     }
 
     /**

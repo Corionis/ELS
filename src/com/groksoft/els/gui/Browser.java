@@ -14,10 +14,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.ResourceBundle;
-import java.util.Stack;
+import java.util.*;
 
 public class Browser
 {
@@ -30,6 +27,7 @@ public class Browser
     // style selections
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
+
     public JComponent lastComponent = null;
     public int lastFocused = 1;
     public int lastPanel = 1;
@@ -38,7 +36,7 @@ public class Browser
     private transient Logger logger = LogManager.getLogger("applog");
     private Stack<NavTreeNode> navStack = new Stack<>();
     private int navStackIndex = -1;
-    private NavTransferHandler navTransferHandler;
+    public NavTransferHandler navTransferHandler;
     private String os;
     private JProgressBar progressBar;
     private int tabStop = 0;
@@ -207,35 +205,88 @@ public class Browser
 
     public void deleteSelected(JTable sourceTable)
     {
-        sourceTable.getSelectedRow();
+        guiContext.context.fault = false;
         int row = sourceTable.getSelectedRow();
-        if (row > 0)
+        if (row > -1)
         {
+            int dirCount = 0;
+            int fileCount = 0;
+            boolean isRemote = false;
+            long size = 0L;
             int[] rows = sourceTable.getSelectedRows();
-            if (rows.length > 0)
+            for (int i = 0; i < rows.length; ++i)
             {
-                int reply = JOptionPane.YES_OPTION;
-                if (guiContext.preferences.isConfirmation())
+                NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
-                                    rows.length + " item" + (rows.length > 1 ? "s" : "") + " and all content?" +
-                                    (guiContext.cfg.isDryRun() ? " (dry-run)" : ""),
-                            guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                    JOptionPane.showMessageDialog(guiContext.form, "Cannot delete " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    return;
                 }
-
-                if (reply == JOptionPane.YES_OPTION)
+                isRemote = tuo.isRemote;
+                if (tuo.isDir)
                 {
-                    for (int i = 0; i < rows.length; ++i)
+                    ++dirCount;
+                    tuo.node.deepScanChildren();
+                    fileCount += tuo.node.deepGetFileCount();
+                    size += tuo.node.deepGetFileSize();
+                }
+                else
+                {
+                    ++fileCount;
+                    size += tuo.size;
+                }
+            }
+
+            int reply = JOptionPane.YES_OPTION;
+            if (guiContext.preferences.isConfirmation())
+            {
+                reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
+                                rows.length + (isRemote ? " remote" : "") + " item" + (rows.length > 1 ? "s" : "") + " containing " +
+                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
+                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
+                                (guiContext.cfg.isDryRun() ? " (dry-run)?" : "?"),
+                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            }
+
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                for (int i = 0; i < rows.length; ++i)
+                {
+                    NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                    if (tuo.type == NavTreeUserObject.REAL)
+                    {
+                        if (tuo.isDir)
+                        {
+                            navTransferHandler.removeDirectory(tuo);
+                        }
+                        else
+                        {
+                            navTransferHandler.removeFile(tuo);
+                        }
+                        if (guiContext.context.fault)
+                            break;
+                    }
+                    else
+                    {
+                        guiContext.browser.printLog("Skipping " + tuo.name);
+                    }
+                }
+                if (!guiContext.context.fault)
+                {
+                    NavTreeNode parent = null;
+                    for (int i = rows.length - 1; i > -1; --i)
                     {
                         NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                         if (tuo.type == NavTreeUserObject.REAL)
                         {
-                            guiContext.browser.printLog("Delete " + tuo.name);
+                            parent = (NavTreeNode) tuo.node.getParent();
+                            parent.remove(tuo.node);
                         }
-                        else
-                        {
-                            guiContext.browser.printLog("Skipping " + tuo.name);
-                        }
+                    }
+                    if (parent != null)
+                    {
+                        refreshTree(parent.getMyTree());
+                        parent.selectMe();
                     }
                 }
             }
@@ -244,9 +295,14 @@ public class Browser
 
     public void deleteSelected(JTree sourceTree)
     {
+        guiContext.context.fault = false;
         int row = sourceTree.getLeadSelectionRow();
         if (row > -1)
         {
+            int dirCount = 0;
+            int fileCount = 0;
+            boolean isRemote = false;
+            long size = 0L;
             TreePath[] paths = sourceTree.getSelectionPaths();
             for (TreePath path : paths)
             {
@@ -257,14 +313,29 @@ public class Browser
                     JOptionPane.showMessageDialog(guiContext.form, "Cannot delete " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
+                isRemote = tuo.isRemote;
+                if (tuo.isDir)
+                {
+                    ++dirCount;
+                    tuo.node.deepScanChildren();
+                    fileCount += tuo.node.deepGetFileCount();
+                    size += tuo.node.deepGetFileSize();
+                }
+                else
+                {
+                    ++fileCount;
+                    size += tuo.size;
+                }
             }
 
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isConfirmation())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
-                                paths.length + " item" + (paths.length > 1 ? "s" : "") + " and all content?" +
-                                (guiContext.cfg.isDryRun() ? " (dry-run)" : ""),
+                                paths.length + (isRemote ? " remote" : "") + " item" + (paths.length > 1 ? "s" : "") + " containing " +
+                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
+                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
+                                (guiContext.cfg.isDryRun() ? " (dry-run)?" : "?"),
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
@@ -276,15 +347,55 @@ public class Browser
                     NavTreeUserObject tuo = ntn.getUserObject();
                     if (tuo.type == NavTreeUserObject.REAL)
                     {
-                        guiContext.browser.printLog("Delete " + tuo.name);
+                        if (tuo.isDir)
+                        {
+                            navTransferHandler.removeDirectory(tuo);
+                        }
+                        else
+                        {
+                            navTransferHandler.removeFile(tuo);
+                        }
+                        if (guiContext.context.fault)
+                            break;
                     }
                     else
                     {
                         guiContext.browser.printLog("Skipping " + tuo.name);
                     }
                 }
+                if (!guiContext.context.fault)
+                {
+                    NavTreeNode parent = null;
+                    for (int i = paths.length - 1; i > -1; --i)
+                    {
+                        TreePath path = paths[i];
+                        NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
+                        NavTreeUserObject tuo = ntn.getUserObject();
+                        if (tuo.type == NavTreeUserObject.REAL)
+                        {
+                            parent = (NavTreeNode) tuo.node.getParent();
+                            parent.remove(tuo.node);
+                        }
+                    }
+                    if (parent != null)
+                    {
+                        refreshTree(parent.getMyTree());
+                        parent.selectMe();
+                    }
+                }
             }
         }
+    }
+
+    public int findRowIndex(JTable table, NavTreeUserObject tuo)
+    {
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            NavTreeUserObject rowTuo = (NavTreeUserObject) table.getValueAt(i, 1);
+            if (rowTuo.path.equals(tuo.path))
+                return i;
+        }
+        return -1;
     }
 
     public long getFreespace(NavTreeUserObject tuo) throws Exception
@@ -361,33 +472,32 @@ public class Browser
             @Override
             public void keyReleased(KeyEvent keyEvent)
             {
-                // handle F5 refresh
+                // handle F2 Rename
+                if (keyEvent.getKeyCode() == KeyEvent.VK_F2 && keyEvent.getModifiers() == 0)
+                {
+                    for (ActionListener listener : guiContext.form.menuItemRename.getActionListeners())
+                    {
+                        listener.actionPerformed(new ActionEvent(keyEvent.getSource(), ActionEvent.ACTION_PERFORMED, null));
+                    }
+                }
+                // handle F5 Refresh
                 if (keyEvent.getKeyCode() == KeyEvent.VK_F5 && keyEvent.getModifiers() == 0)
                 {
                     refreshByObject(keyEvent.getSource());
                 }
+//                 handle F7 New Folder
+//                if (keyEvent.getKeyCode() == KeyEvent.VK_F7 && keyEvent.getModifiers() == 0)
+//                {
+//                }
             }
 
             @Override
             public void keyTyped(KeyEvent keyEvent)
             {
-                // handle Delete key
-/*                if (keyEvent.getKeyChar() == KeyEvent.VK_DELETE)
-                {
-                    Object object = keyEvent.getSource();
-                    if (object instanceof JTree)
-                    {
-                        JTree sourceTree = (JTree) object;
-                        deleteSelected(sourceTree);
-                    }
-                    else if (object instanceof JTable)
-                    {
-                        JTable sourceTable = (JTable) object;
-                        deleteSelected(sourceTable);
-                    }
-                }
+                // Note: Some keys are accelerators in the menus, such as Delete
+
                 // handle Ctrl-H to toggle Show Hidden
-                else */if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
                     guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
                     if (guiContext.preferences.isHideHiddenFiles())
@@ -448,6 +558,31 @@ public class Browser
                 }
             }, AWTEvent.MOUSE_EVENT_MASK);
         }
+
+        // handle setting the size of the bottom window using the divider location
+        guiContext.form.addComponentListener(new ComponentAdapter()
+        {
+            @Override
+            public void componentResized(ComponentEvent componentEvent)
+            {
+                super.componentResized(componentEvent);
+
+                int whole = guiContext.form.splitPaneBrowser.getHeight();
+                int divider = guiContext.form.splitPaneBrowser.getDividerSize();
+                int pos = whole - divider - guiContext.preferences.getBrowserBottomSize();
+                guiContext.form.splitPaneBrowser.setDividerLocation(pos);
+            }
+        });
+        //
+        guiContext.form.tabbedPaneNavigatorBottom.addComponentListener(new ComponentAdapter()
+        {
+            @Override
+            public void componentResized(ComponentEvent componentEvent)
+            {
+                super.componentResized(componentEvent);
+                guiContext.preferences.setBrowserBottomSize(componentEvent.getComponent().getHeight());
+            }
+        });
 
         // set default start location and related data
         initializeStatus(guiContext.form.treeCollectionTwo);
@@ -936,15 +1071,13 @@ public class Browser
         {
             JTree sourceTree = (JTree) object;
             String sel = sourceTree.getLastSelectedPathComponent().toString();
-            guiContext.browser.printLog("Refresh " + sel);
             refreshTree(sourceTree);
         }
         else if (object instanceof JTable)
         {
             JTable sourceTable = (JTable) object;
-            JTree sourceTree = ((BrowserTableModel)sourceTable.getModel()).getNode().getMyTree();
+            JTree sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
             String sel = sourceTree.getLastSelectedPathComponent().toString();
-            guiContext.browser.printLog("Refresh " + sel);
             refreshTree(sourceTree);
         }
     }

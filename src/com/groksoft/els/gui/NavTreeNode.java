@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -167,7 +168,7 @@ class NavTreeNode extends DefaultMutableTreeNode
             else
             {
                 guiContext.browser.printLog("Deep scan local directory " + myTuo.file.getAbsolutePath());
-                File[] files = guiContext.fileSystemView.getFiles(myTuo.file.getAbsoluteFile(), false);
+                File[] files = FileSystemView.getFileSystemView().getFiles(myTuo.file.getAbsoluteFile(), false);
                 logger.info("found " + Utils.formatInteger(files.length) + " entries from " + myTuo.file.getAbsoluteFile());
                 for (File entry : files)
                 {
@@ -486,7 +487,7 @@ class NavTreeNode extends DefaultMutableTreeNode
             {
                 if (file.isDirectory())
                 {
-                    File[] files = guiContext.fileSystemView.getFiles(file, false);
+                    File[] files = FileSystemView.getFileSystemView().getFiles(file, false);
                     logger.info("found " + Utils.formatInteger(files.length) + " entries from " + file.getAbsolutePath());
                     for (File entry : files)
                     {
@@ -595,7 +596,6 @@ class NavTreeNode extends DefaultMutableTreeNode
         }
 
         ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
-        // TODO Add logic to sort each table based on the saved last-used values from Preferences
         sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
         DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
         sorter.setSortKeys(sortKeys);

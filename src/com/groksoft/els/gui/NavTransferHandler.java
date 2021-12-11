@@ -279,7 +279,7 @@ public class NavTransferHandler extends TransferHandler
         return targetTable;
     }
 
-    private JTree getTargetTree(JTable table)
+    public JTree getTargetTree(JTable table)
     {
         JTree targetTree = null;
         switch (table.getName())
@@ -308,6 +308,7 @@ public class NavTransferHandler extends TransferHandler
     @Override
     public boolean importData(TransferHandler.TransferSupport info)
     {
+        guiContext.context.fault = false;
         isDrop = info.isDrop();
         if (isDrop)
         {
@@ -549,23 +550,24 @@ public class NavTransferHandler extends TransferHandler
         if (action == TransferHandler.MOVE)
         {
             // iterate the selected source row's user object
-            for (NavTreeUserObject sourceTuo : transferData)
+            for (int i = transferData.size(); i > -1; --i)
             {
+                NavTreeUserObject sourceTuo = transferData.get(i);
                 if (sourceTuo.isDir)
                     removeDirectory(sourceTuo);
                 else
                     removeFile(sourceTuo);
 
-                NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
                 if (guiContext.context.fault)
                     break;
 
+                NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
                 parent.remove(sourceTuo.node);
             }
         }
     }
 
-    private void removeDirectory(NavTreeUserObject sourceTuo)
+    public void removeDirectory(NavTreeUserObject sourceTuo)
     {
         try
         {
@@ -602,14 +604,14 @@ public class NavTransferHandler extends TransferHandler
         catch (Exception e)
         {
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error removing directory: " + e.toString() + "\n\nContinue?",
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error deleting directory: " + e.toString() + "\n\nContinue?",
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
                 guiContext.context.fault = true;
         }
     }
 
-    private void removeFile(NavTreeUserObject sourceTuo)
+    public void removeFile(NavTreeUserObject sourceTuo)
     {
         try
         {
@@ -629,7 +631,7 @@ public class NavTransferHandler extends TransferHandler
         catch (Exception e)
         {
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error removing file: " + e.toString() + "\n\nContinue?",
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error deleting file: " + e.toString() + "\n\nContinue?",
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
                 guiContext.context.fault = true;

@@ -591,6 +591,25 @@ public class Transfer
         return fits;
     }
 
+    public boolean makeDirs(String path, boolean isDir, boolean isRemote) throws Exception
+    {
+        boolean sense = true;
+        String create = (isDir) ? path : Utils.getLeftPath(path, null);
+        if (isRemote)
+        {
+            context.clientSftp.makeRemoteDirectory(create);
+        }
+        else
+        {
+            File f = new File(create);
+            if (f != null)
+            {
+                sense = f.mkdirs();
+            }
+        }
+        return sense;
+    }
+
     /**
      * Perform move on either a file or directory
      * <p>
@@ -761,7 +780,8 @@ public class Transfer
      * Remove a file, local or remote
      *
      * @param path      the full from path
-     * @param isRemote  the isDir flag
+     * @param isDir     if this specific path is a directory
+     * @param isRemote  if this specific path is remote
      */
     public void remove(String path, boolean isDir, boolean isRemote) throws Exception
     {

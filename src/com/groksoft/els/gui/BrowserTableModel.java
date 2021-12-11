@@ -73,9 +73,14 @@ public class BrowserTableModel extends DefaultTableModel
     @Override
     public Object getValueAt(int row, int column)
     {
+        return getValueAt(row, column, false, true);
+    }
+
+    public Object getValueAt(int row, int column, boolean hideFilesInTreeFilterActive, boolean hideHiddenFilterActive)
+    {
         NavTreeNode child;
         NavTreeUserObject tuo;
-        child = (NavTreeNode) node.getChildAt(row, false, true);
+        child = (NavTreeNode) node.getChildAt(row, hideFilesInTreeFilterActive, hideHiddenFilterActive);
         if (child == null)
             return null;
         tuo = child.getUserObject();

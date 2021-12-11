@@ -3,6 +3,7 @@ package com.groksoft.els.gui;
 public class Preferences
 {
     private boolean binaryScale = true; // true = 1024, false = 1000
+    private int browserBottomSize = 0;
     private boolean confirmation = true; // show confirmation dialogs for copy, move, delete
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
@@ -17,7 +18,6 @@ public class Preferences
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
-
     public Preferences()
     {
         // Appearance
@@ -32,6 +32,11 @@ public class Preferences
         // Backup
         // Profiles
         // Keys
+    }
+
+    public int getBrowserBottomSize()
+    {
+        return browserBottomSize;
     }
 
     public String getDateFormat()
@@ -92,6 +97,11 @@ public class Preferences
     public void setBinaryScale(boolean binaryScale)
     {
         this.binaryScale = binaryScale;
+    }
+
+    public void setBrowserBottomSize(int browserBottomSize)
+    {
+        this.browserBottomSize = browserBottomSize;
     }
 
     public void setConfirmation(boolean confirmation)
