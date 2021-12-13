@@ -1,11 +1,11 @@
 <component name="libraryTable">
   <library name="els">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/log4j-core-2.8.1.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/log4j-api-2.8.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-api-2.15.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-core-2.15.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-slf4j18-impl-2.15.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-to-slf4j-2.15.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/gson-2.8.0.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar!/" />
-      <root url="jar://$PROJECT_DIR$/lib/slf4j-jdk14-1.7.25.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/guava-30.0-jre.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/mina-core-2.0.21.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sshd-common-2.5.1.jar!/" />
@@ -15,14 +15,14 @@
       <root url="jar://$PROJECT_DIR$/lib/jsch-0.1.55.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/commons-lang3-3.12.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/flatlaf-1.5.jar!/" />
+      <root url="file://$PROJECT_DIR$/lib" />
     </CLASSES>
     <JAVADOC>
-      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-core-2.8.1-javadoc" />
-      <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/log4j-api-2.8.1-javadoc" />
       <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/gson-2.8.0-javadoc" />
       <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/sshd-sftp-2.5.0-javadoc" />
       <root url="file://$PROJECT_DIR$/artifacts/third-party/lib-docs/flatlaf-1.5-javadoc" />
     </JAVADOC>
     <SOURCES />
+    <jarDirectory url="file://$PROJECT_DIR$/lib" recursive="false" />
   </library>
 </component>
