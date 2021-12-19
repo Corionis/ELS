@@ -75,7 +75,7 @@ public class ClientSftp
      * @return True if any directories were created
      * @throws IOException
      */
-    public String makeRemoteDirectory(String pathname) throws Exception
+    public String makeDirectory(String pathname) throws Exception
     {
         if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS))
         {
@@ -131,6 +131,11 @@ public class ClientSftp
             jSftp.rmdir(path);
         else
             jSftp.rm(path);
+    }
+
+    public void rename(String from, String to) throws Exception
+    {
+        jSftp.rename(from, to);
     }
 
     public void setDate(String dest, int mtime) throws Exception
@@ -226,7 +231,7 @@ public class ClientSftp
 
         if (destAttr == null) // file does not exist, try making directory tree
         {
-            makeRemoteDirectory(copyDest);
+            makeDirectory(copyDest);
         }
 
         int mode = jSftp.OVERWRITE;

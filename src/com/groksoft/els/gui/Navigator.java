@@ -1,15 +1,14 @@
 package com.groksoft.els.gui;
 
 import com.groksoft.els.*;
-import jdk.jfr.Name;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URI;
 import java.time.LocalTime;
@@ -32,6 +31,7 @@ public class Navigator
     //     * !-Z alphabetic
     //     * By-source
     //  * View, Wrap log lines (toggle)
+    //  * Overwrite true/false option?
     //  * Help, Controls simple dialog showing all the keys and mouse controls
 
     public Navigator(Main main, Configuration config, Context ctx)
@@ -75,12 +75,11 @@ public class Navigator
 
             // TODO Add Backup, Profiles and Keys creation here
 
-        }
 
-        // disable back-fill
-        guiContext.cfg.setNoBackFill(true);
+            // disable back-fill
+            guiContext.cfg.setNoBackFill(true);
 
-        guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTime());
+            guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTime());
 
 //        Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
 //            logger.error("GOT IT: " + Utils.getStackTrace(throwable));
@@ -97,6 +96,7 @@ public class Navigator
             }
         }));
 */
+        }
 
         return !guiContext.context.fault;
     }
@@ -111,12 +111,11 @@ public class Navigator
         // -- Edit Menu
         //
         // New Folder
-        guiContext.form.menuItemNewFolder.addActionListener(new AbstractAction()
+        AbstractAction newFolderAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.context.fault = false;
                 boolean tooMany = false;
                 JTree tree = null;
                 NavTreeUserObject tuo = null;
@@ -153,7 +152,7 @@ public class Navigator
                             path = tuo.sources[0];
                         else
                         {
-                            int opt = JOptionPane.showOptionDialog(guiContext.form, "Select 1 of " + tuo.sources.length + " locations in library " + tuo.name + ":",
+                            int opt = JOptionPane.showOptionDialog(guiContext.form, "Select one of the " + tuo.sources.length + " locations defined for library " + tuo.name + ":",
                                     guiContext.cfg.getNavigatorName(), JOptionPane.DEFAULT_OPTION,
                                     JOptionPane.QUESTION_MESSAGE, null, tuo.sources, tuo.sources[0]);
                             if (opt > -1)
@@ -168,10 +167,10 @@ public class Navigator
                         return;
                     }
 
+                    boolean errored = false;
                     String reply = "";
                     if (path.length() > 0)
                     {
-// TODO Check target is writable
                         reply = JOptionPane.showInputDialog(guiContext.form, "New folder for " + path + ": ", guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
                         if (reply != null && reply.length() > 0)
                         {
@@ -181,33 +180,42 @@ public class Navigator
                                 path = path + Utils.getSeparatorFromPath(path) + reply;
                                 String msg = "Creating " + (tuo.isRemote ? "remote " : "") + "directory " + path;
                                 guiContext.browser.printLog(msg);
-// LEFTOFF Tree stops working to makeDirs fails ... WTF?????????????????????
-                                if (!guiContext.context.transfer.makeDirs((tuo.isRemote ? path + Utils.getSeparatorFromPath(path) + "dummyfile.txt" : path), true, tuo.isRemote))
-                                    throw new MungeException("fake");
 
-                                // make tuo and add node
-                                NavTreeNode createdNode = new NavTreeNode(guiContext, tree);
-                                if (tuo.isRemote)
+                                if (guiContext.context.transfer.makeDirs((tuo.isRemote ? path + Utils.getSeparatorFromPath(path) + "dummyfile.els" : path), true, tuo.isRemote))
                                 {
-                                    createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null),
-                                            path, 0, LocalTime.now().toSecondOfDay(), true);
+                                    // make tuo and add node
+                                    NavTreeNode createdNode = new NavTreeNode(guiContext, tree);
+                                    if (tuo.isRemote)
+                                    {
+                                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null),
+                                                path, 0, LocalTime.now().toSecondOfDay(), true);
+                                    }
+                                    else
+                                    {
+                                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null), new File(path));
+                                    }
+                                    createdNode.setNavTreeUserObject(createdTuo);
+                                    createdNode.setAllowsChildren(true);
+                                    createdNode.setVisible(true);
+                                    tuo.node.add(createdNode);
                                 }
                                 else
                                 {
-                                    createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null), new File(path));
+                                    errored = true;
+                                    guiContext.browser.printLog("Directory not created, check permissions.", true);
+                                    JOptionPane.showMessageDialog(guiContext.form, "Directory not created, check permissions.", guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                                 }
-                                createdNode.setNavTreeUserObject(createdTuo);
-                                createdNode.setVisible(true);
-                                tuo.node.add(createdNode);
                             }
                             catch (Exception e)
                             {
-                                guiContext.context.fault = false;
-                                JOptionPane.showMessageDialog(guiContext.form, "Error creating " + (tuo.isRemote ? "remote " : "") + "directory " + path, guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);                                guiContext.context.fault = true;
+                                guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                                JOptionPane.showMessageDialog(guiContext.form, "Error creating " + (tuo.isRemote ? "remote " : "") + "directory: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                errored = true;
                             }
-                            guiContext.browser.refreshByObject(tree);
-                            if (!guiContext.context.fault)
+
+                            if (!errored)
                             {
+                                guiContext.browser.refreshByObject(tree);
                                 if (object instanceof JTree)
                                     tuo.node.selectMe();
                                 else
@@ -231,17 +239,17 @@ public class Navigator
                 {
                     JOptionPane.showMessageDialog(guiContext.form, "Please select a single destination for a new folder", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
-
             }
-        });
+        };
+        guiContext.form.menuItemNewFolder.addActionListener(newFolderAction);
+        guiContext.form.popupMenuItemNewFolder.addActionListener(newFolderAction);
         //
         // Rename
-        guiContext.form.menuItemRename.addActionListener(new AbstractAction()
+        ActionListener renameAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.context.fault = false;
                 int[] rows = {0};
                 boolean tooMany = false;
                 JTree tree = null;
@@ -290,19 +298,40 @@ public class Navigator
                         return;
                     }
 
-                    String reply = "";
+                    String reply = name;
                     if (path.length() > 0)
                     {
 
-                        reply = JOptionPane.showInputDialog(guiContext.form, "Rename " + name + " to: ", guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
-                        //
-                        // TODO Rename object here
-                        //
-                        guiContext.browser.refreshByObject(tree);
-                        if (object instanceof JTree)
-                            tuo.node.selectMe();
-                        else
-                            ((JTable) object).setRowSelectionInterval(rows[0], rows[0]);
+                        Object obj = JOptionPane.showInputDialog(guiContext.form, "Rename " + name + " to: ", guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
+                                null, null, reply);
+                        reply = (String) obj;
+                        if (reply != null && reply.length() > 0)
+                        {
+                            try
+                            {
+                                String to = Utils.getLeftPath(path, null);
+                                to = to + Utils.getSeparatorFromPath(path) + reply;
+                                guiContext.context.transfer.rename(path, to, tuo.isRemote);
+
+                                tuo.path = to;
+                                tuo.name = reply;
+                                if (tuo.file != null)
+                                {
+                                    tuo.file = new File(path);
+                                }
+
+                                guiContext.browser.refreshByObject(tree);
+                                if (object instanceof JTree)
+                                    tuo.node.selectMe();
+                                else
+                                    ((JTable) object).setRowSelectionInterval(rows[0], rows[0]);
+                            }
+                            catch (Exception e)
+                            {
+                                guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                                JOptionPane.showMessageDialog(guiContext.form, "Error renaming " + (tuo.isRemote ? "remote " : "") + name + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
                     }
                 }
                 else
@@ -310,59 +339,63 @@ public class Navigator
                     JOptionPane.showMessageDialog(guiContext.form, "Please select a single item to be renamed", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
-        });
+        };
+        guiContext.form.menuItemRename.addActionListener(renameAction);
+        guiContext.form.popupMenuItemRename.addActionListener(renameAction);
         // Copy
-        guiContext.form.menuItemCopy.addActionListener(new AbstractAction()
+        ActionListener copyAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 if (guiContext.browser.lastComponent != null)
                 {
-                    guiContext.context.fault = false;
                     ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "copy");
                     guiContext.browser.lastComponent.requestFocus();
                     guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
                 }
             }
-        });
+        };
+        guiContext.form.menuItemCopy.addActionListener(copyAction);
+        guiContext.form.popupMenuItemCopy.addActionListener(copyAction);
         // Cut
-        guiContext.form.menuItemCut.addActionListener(new AbstractAction()
+        ActionListener cutAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 if (guiContext.browser.lastComponent != null)
                 {
-                    guiContext.context.fault = false;
                     ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "cut");
                     guiContext.browser.lastComponent.requestFocus();
                     guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
                 }
             }
-        });
+        };
+        guiContext.form.menuItemCut.addActionListener(cutAction);
+        guiContext.form.popupMenuItemCut.addActionListener(cutAction);
         // Paste
-        guiContext.form.menuItemPaste.addActionListener(new AbstractAction()
+        ActionListener pasteAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 if (guiContext.browser.lastComponent != null)
                 {
-                    guiContext.context.fault = false;
                     ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "paste");
                     guiContext.browser.lastComponent.requestFocus();
                     guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
                 }
             }
-        });
+        };
+        guiContext.form.menuItemPaste.addActionListener(pasteAction);
+        guiContext.form.popupMenuItemPaste.addActionListener(pasteAction);
         // Delete
-        guiContext.form.menuItemDelete.addActionListener(new AbstractAction()
+        ActionListener deleteAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.context.fault = false;
                 Object object = guiContext.browser.lastComponent;
                 if (object instanceof JTree)
                 {
@@ -375,7 +408,9 @@ public class Navigator
                     guiContext.browser.deleteSelected(sourceTable);
                 }
             }
-        });
+        };
+        guiContext.form.menuItemDelete.addActionListener(deleteAction);
+        guiContext.form.popupMenuItemDelete.addActionListener(deleteAction);
 
         //
         // -- View Menu
@@ -384,7 +419,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.browser.refreshByObject(guiContext.browser.lastComponent);
+                guiContext.browser.rescanByObject(guiContext.browser.lastComponent);
             }
         });
         //
@@ -507,6 +542,30 @@ public class Navigator
                 }
             }
         });
+
+        // popup menu log
+        //
+        // Bottom
+        guiContext.form.popupMenuItemBottom.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JScrollBar vertical = guiContext.form.scrollPaneLog.getVerticalScrollBar();
+                vertical.setValue(vertical.getMaximum());
+            }
+        });
+        //
+        // Clear
+        guiContext.form.popupMenuItemClear.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.form.textAreaLog.setText("");
+            }
+        });
+
     }
 
     public int run() throws Exception

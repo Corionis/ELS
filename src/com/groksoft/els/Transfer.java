@@ -6,7 +6,6 @@ import com.groksoft.els.repository.Location;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.storage.Storage;
 import com.groksoft.els.storage.Target;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -597,7 +596,7 @@ public class Transfer
         String create = (isDir) ? path : Utils.getLeftPath(path, null);
         if (isRemote)
         {
-            context.clientSftp.makeRemoteDirectory(create);
+            context.clientSftp.makeDirectory(create);
         }
         else
         {
@@ -881,6 +880,25 @@ public class Transfer
         }
 
         return libAltered;
+    }
+
+    /**
+     * Rename a file or directory, local or remote
+     *
+     * @param from      the full from path
+     * @param to        the full to path
+     * @param isRemote  if this specific path is remote
+     */
+    public void rename(String from, String to, boolean isRemote) throws Exception
+    {
+        if (isRemote)
+        {
+            context.clientSftp.rename(from, to);
+        }
+        else
+        {
+            Files.move(Paths.get(from), Paths.get(to), StandardCopyOption.ATOMIC_MOVE);
+        }
     }
 
     /**

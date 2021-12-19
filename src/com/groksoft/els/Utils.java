@@ -310,6 +310,7 @@ public class Utils
      * Gets last path that includes a filename
      *
      * @param full the full
+     * @param sep  The directory separator for the local O/S, if null get separator from full
      * @return the last path
      */
     public static String getLastPath(String full, String sep)
@@ -333,7 +334,7 @@ public class Utils
      * Get the path to the left of the filename
      *
      * @param full Full path to parse
-     * @param sep  The directory separator for the local O/S
+     * @param sep  The directory separator for the local O/S, if null get separator from full
      * @return String of left path
      */
     public static String getLeftPath(String full, String sep)
@@ -357,7 +358,7 @@ public class Utils
      * Get the right path segment
      *
      * @param full Full path to parse
-     * @param sep  The directory separator for the local O/S
+     * @param sep  The directory separator for the local O/S, if null get separator from full
      * @return String of right path
      */
     public static String getRightPath(String full, String sep)

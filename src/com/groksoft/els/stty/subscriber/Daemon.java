@@ -12,8 +12,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -154,10 +156,10 @@ public class Daemon extends DaemonBase
             hintKeys = new HintKeys(cfg, context);
             hintKeys.read(cfg.getHintKeysFile());
             hints = new Hints(cfg, context, hintKeys);
-            context.transfer = new Transfer(cfg, context);
         }
 
         // setup i/o
+        context.transfer = new Transfer(cfg, context);
         aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
 
         in = new DataInputStream(aSocket.getInputStream());
@@ -309,6 +311,38 @@ public class Daemon extends DaemonBase
                     catch (MungeException e)
                     {
                         logger.error(e.getMessage());
+                    }
+                    continue;
+                }
+
+                // -------------- copy ------------------------------
+                if (theCommand.equalsIgnoreCase("copy"))
+                {
+                    boolean valid = false;
+                    if (t.hasMoreTokens())
+                    {
+                        String from = getNextToken(t);
+                        String to = getNextToken(t);
+                        if (from.length() > 0 && to.length() > 0)
+                        {
+                            boolean success = true;
+                            try
+                            {
+                                valid = true;
+                                File f = new File(from);
+                                context.transfer.copyFile(from, Files.getLastModifiedTime(f.toPath(), LinkOption.NOFOLLOW_LINKS), to, false, true);
+                            }
+                            catch (Exception e)
+                            {
+                                success = false;
+                                logger.error(Utils.getStackTrace(e));
+                            }
+                            response = (isTerminal ? "ok" + (success ? ", copied" : "") + "\r\n" : Boolean.toString(success));
+                        }
+                    }
+                    if (!valid)
+                    {
+                        response = (isTerminal ? "copy command requires a 2 arguments, from and to\r\n" : "false");
                     }
                     continue;
                 }

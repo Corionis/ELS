@@ -14,7 +14,10 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.ResourceBundle;
+import java.util.Stack;
 
 public class Browser
 {
@@ -27,16 +30,17 @@ public class Browser
     // style selections
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
-
     public JComponent lastComponent = null;
     public int lastFocused = 1;
     public int lastPanel = 1;
+    public NavTransferHandler navTransferHandler;
     private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private GuiContext guiContext;
+    private String keyBuffer = "";
+    private long keyTime = 0L;
     private transient Logger logger = LogManager.getLogger("applog");
     private Stack<NavTreeNode> navStack = new Stack<>();
     private int navStackIndex = -1;
-    public NavTransferHandler navTransferHandler;
     private String os;
     private JProgressBar progressBar;
     private int tabStop = 0;
@@ -133,7 +137,7 @@ public class Browser
         component.setFocusTraversalKeysEnabled(false);
     }
 
-    private void addMouseListenerToTable(JTable table)
+    private void addHandlersToTable(JTable table)
     {
         MouseAdapter tableMouseListener = new MouseAdapter()
         {
@@ -198,14 +202,208 @@ public class Browser
                 }
             }
         };
+
+        table.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyReleased(KeyEvent keyEvent)
+            {
+                super.keyReleased(keyEvent);
+                if (keyEvent.getKeyCode() == KeyEvent.VK_UP || keyEvent.getKeyCode() == KeyEvent.VK_DOWN)
+                {
+                    JTree tree = null;
+                    NavTreeUserObject tuo = null;
+                    Object object = keyEvent.getSource();
+                    if (object instanceof JTable)
+                    {
+                        int[] rows = {0};
+                        tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+                        rows = ((JTable) object).getSelectedRows();
+                        if (rows.length > 0)
+                        {
+                            tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
+                        }
+                        else
+                            return;
+//                        guiContext.form.textFieldLocation.setText(tuo.path);
+                        tuo.node.loadStatus();
+                    }
+                }
+            }
+        });
+
         table.addMouseListener(tableMouseListener);
 
         table.setTransferHandler(navTransferHandler);
+
+        table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
+        table.getActionMap().put("Enter", new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent ae)
+            {
+                // do nothing on JTable Enter pressed
+            }
+        });
+
+        // FIXME Keyboard nav of table does not change location line
+    }
+
+    private void addKeyListener()
+    {
+        // add browser key listener
+        KeyListener browserKeyListener = new KeyListener()
+        {
+            @Override
+            public void keyPressed(KeyEvent keyEvent)
+            {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent keyEvent)
+            {
+                // handle F2 Rename
+                if (keyEvent.getKeyCode() == KeyEvent.VK_F2 && keyEvent.getModifiers() == 0)
+                {
+                    for (ActionListener listener : guiContext.form.menuItemRename.getActionListeners())
+                    {
+                        listener.actionPerformed(new ActionEvent(keyEvent.getSource(), ActionEvent.ACTION_PERFORMED, null));
+                    }
+                }
+                // handle F5 Refresh
+                if (keyEvent.getKeyCode() == KeyEvent.VK_F5 && keyEvent.getModifiers() == 0)
+                {
+                    rescanByObject(keyEvent.getSource());
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent keyEvent)
+            {
+                // handle Ctrl-H to toggle Show Hidden
+                if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                {
+                    guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
+                    if (guiContext.preferences.isHideHiddenFiles())
+                        guiContext.form.menuItemShowHidden.setSelected(false);
+                    else
+                        guiContext.form.menuItemShowHidden.setSelected(true);
+
+                    refreshTree(guiContext.form.treeCollectionOne);
+                    refreshTree(guiContext.form.treeSystemOne);
+                    refreshTree(guiContext.form.treeCollectionTwo);
+                    refreshTree(guiContext.form.treeSystemTwo);
+                }
+                // handle Ctrl-R to Refresh current selection
+                else if (keyEvent.getKeyChar() == KeyEvent.VK_ALT && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                {
+                    refreshByObject(keyEvent.getSource());
+                }
+                // handle Tab forward and backward
+                else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && keyEvent.getModifiers() == 0)
+                {
+                    navTabKey(true);
+                }
+                else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && (keyEvent.getModifiers() & KeyEvent.SHIFT_MASK) != 0)
+                {
+                    navTabKey(false);
+                }
+                // handle ENTER key
+                else if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER)
+                {
+                    JTree tree = null;
+                    NavTreeUserObject tuo = null;
+                    Object object = keyEvent.getSource();
+                    if (object instanceof JTree)
+                    {
+                        tree = (JTree) object;
+                        TreePath[] paths = tree.getSelectionPaths();
+                        if (paths.length > 0)
+                        {
+                            NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
+                            tuo = ntn.getUserObject();
+                        }
+                        else if (paths.length == 0)
+                            return;
+                    }
+                    else if (object instanceof JTable)
+                    {
+                        int[] rows = {0};
+                        tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+                        rows = ((JTable) object).getSelectedRows();
+                        if (rows.length > 0)
+                        {
+                            tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
+                        }
+                        else if (rows.length == 0)
+                            return;
+                    }
+                    if (tuo.isDir)
+                    {
+                        tree.expandPath(tuo.node.getTreePath());
+                        tree.setSelectionPath(tuo.node.getTreePath());
+                        tree.scrollPathToVisible(tuo.node.getTreePath());
+                    }
+                    else
+                    {
+                        if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
+                        {
+                            try
+                            {
+                                Desktop.getDesktop().open(tuo.file);
+                            }
+                            catch (Exception e)
+                            {
+                                JOptionPane.showMessageDialog(guiContext.form, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                        else
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "Launch of " + (tuo.isRemote ? "remote " : "") + "items not supported", guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                        }
+                    }
+                }
+                // handle printable character speed search in tables (only)
+                else if ((keyEvent.getModifiers() & KeyEvent.CTRL_MASK) == 0 &&
+                        (keyEvent.getModifiers() & KeyEvent.ALT_MASK) == 0)
+                {
+                    char c = keyEvent.getKeyChar();
+                    if (c >= 32 && c <= 127)
+                    {
+                        if (keyEvent.getSource() instanceof JTable)
+                        {
+                            JTable table = (JTable) keyEvent.getSource();
+                            // reset the buffer after 2 seconds
+                            if (keyTime == 0 || (keyEvent.getWhen() - keyTime > 2000))
+                            {
+                                keyBuffer = "";
+                                keyTime = keyEvent.getWhen();
+                            }
+                            keyBuffer += c;
+                            int index = findRowIndex(table, keyBuffer);
+                            if (index >= 0)
+                            {
+                                table.setRowSelectionInterval(index, index);
+                                table.scrollRectToVisible(new Rectangle((table.getCellRect(index, 0, true))));
+                            }
+
+                        }
+                    }
+                }
+            }
+        };
+        guiContext.form.treeCollectionOne.addKeyListener(browserKeyListener);
+        guiContext.form.tableCollectionOne.addKeyListener(browserKeyListener);
+        guiContext.form.treeSystemOne.addKeyListener(browserKeyListener);
+        guiContext.form.tableSystemOne.addKeyListener(browserKeyListener);
+        guiContext.form.treeCollectionTwo.addKeyListener(browserKeyListener);
+        guiContext.form.tableCollectionTwo.addKeyListener(browserKeyListener);
+        guiContext.form.treeSystemTwo.addKeyListener(browserKeyListener);
+        guiContext.form.tableSystemTwo.addKeyListener(browserKeyListener);
     }
 
     public void deleteSelected(JTable sourceTable)
     {
-        guiContext.context.fault = false;
         int row = sourceTable.getSelectedRow();
         if (row > -1)
         {
@@ -248,6 +446,7 @@ public class Browser
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
+            boolean errored = false;
             if (reply == JOptionPane.YES_OPTION)
             {
                 for (int i = 0; i < rows.length; ++i)
@@ -257,21 +456,27 @@ public class Browser
                     {
                         if (tuo.isDir)
                         {
-                            navTransferHandler.removeDirectory(tuo);
+                            if (!navTransferHandler.removeDirectory(tuo))
+                            {
+                                errored = true;
+                                break;
+                            }
                         }
                         else
                         {
-                            navTransferHandler.removeFile(tuo);
+                            if (!navTransferHandler.removeFile(tuo))
+                            {
+                                errored = true;
+                                break;
+                            }
                         }
-                        if (guiContext.context.fault)
-                            break;
                     }
                     else
                     {
                         guiContext.browser.printLog("Skipping " + tuo.name);
                     }
                 }
-                if (!guiContext.context.fault)
+                if (!errored)
                 {
                     NavTreeNode parent = null;
                     for (int i = rows.length - 1; i > -1; --i)
@@ -295,7 +500,6 @@ public class Browser
 
     public void deleteSelected(JTree sourceTree)
     {
-        guiContext.context.fault = false;
         int row = sourceTree.getLeadSelectionRow();
         if (row > -1)
         {
@@ -339,6 +543,7 @@ public class Browser
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
+            boolean errored = false;
             if (reply == JOptionPane.YES_OPTION)
             {
                 for (TreePath path : paths)
@@ -349,21 +554,27 @@ public class Browser
                     {
                         if (tuo.isDir)
                         {
-                            navTransferHandler.removeDirectory(tuo);
+                            if (!navTransferHandler.removeDirectory(tuo))
+                            {
+                                errored = true;
+                                break;
+                            }
                         }
                         else
                         {
-                            navTransferHandler.removeFile(tuo);
+                            if (!navTransferHandler.removeFile(tuo))
+                            {
+                                errored = true;
+                                break;
+                            }
                         }
-                        if (guiContext.context.fault)
-                            break;
                     }
                     else
                     {
                         guiContext.browser.printLog("Skipping " + tuo.name);
                     }
                 }
-                if (!guiContext.context.fault)
+                if (!errored)
                 {
                     NavTreeNode parent = null;
                     for (int i = paths.length - 1; i > -1; --i)
@@ -385,6 +596,17 @@ public class Browser
                 }
             }
         }
+    }
+
+    public int findRowIndex(JTable table, String name)
+    {
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            NavTreeUserObject rowTuo = (NavTreeUserObject) table.getValueAt(i, 1);
+            if (rowTuo.name.toLowerCase().startsWith(name.toLowerCase()))
+                return i;
+        }
+        return -1;
     }
 
     public int findRowIndex(JTable table, NavTreeUserObject tuo)
@@ -457,83 +679,11 @@ public class Browser
         progressBar.setVisible(false);
 
         printLog(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getProgramVersion());
+        initializeToolbar();
         initializeNavigation();
         initializeBrowserOne();
         initializeBrowserTwo();
-
-        // add browser key listener
-        KeyListener browserKeyListener = new KeyListener()
-        {
-            @Override
-            public void keyPressed(KeyEvent keyEvent)
-            {
-            }
-
-            @Override
-            public void keyReleased(KeyEvent keyEvent)
-            {
-                // handle F2 Rename
-                if (keyEvent.getKeyCode() == KeyEvent.VK_F2 && keyEvent.getModifiers() == 0)
-                {
-                    for (ActionListener listener : guiContext.form.menuItemRename.getActionListeners())
-                    {
-                        listener.actionPerformed(new ActionEvent(keyEvent.getSource(), ActionEvent.ACTION_PERFORMED, null));
-                    }
-                }
-                // handle F5 Refresh
-                if (keyEvent.getKeyCode() == KeyEvent.VK_F5 && keyEvent.getModifiers() == 0)
-                {
-                    refreshByObject(keyEvent.getSource());
-                }
-//                 handle F7 New Folder
-//                if (keyEvent.getKeyCode() == KeyEvent.VK_F7 && keyEvent.getModifiers() == 0)
-//                {
-//                }
-            }
-
-            @Override
-            public void keyTyped(KeyEvent keyEvent)
-            {
-                // Note: Some keys are accelerators in the menus, such as Delete
-
-                // handle Ctrl-H to toggle Show Hidden
-                if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
-                {
-                    guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
-                    if (guiContext.preferences.isHideHiddenFiles())
-                        guiContext.form.menuItemShowHidden.setSelected(false);
-                    else
-                        guiContext.form.menuItemShowHidden.setSelected(true);
-
-                    refreshTree(guiContext.form.treeCollectionOne);
-                    refreshTree(guiContext.form.treeSystemOne);
-                    refreshTree(guiContext.form.treeCollectionTwo);
-                    refreshTree(guiContext.form.treeSystemTwo);
-                }
-                // handle Ctrl-R to Refresh current selection
-                else if (keyEvent.getKeyChar() == KeyEvent.VK_ALT && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
-                {
-                    refreshByObject(keyEvent.getSource());
-                }
-                // handle Tab forward and backward
-                else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && keyEvent.getModifiers() == 0)
-                {
-                    navTabKey(true);
-                }
-                else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && (keyEvent.getModifiers() & KeyEvent.SHIFT_MASK) != 0)
-                {
-                    navTabKey(false);
-                }
-            }
-        };
-        guiContext.form.treeCollectionOne.addKeyListener(browserKeyListener);
-        guiContext.form.tableCollectionOne.addKeyListener(browserKeyListener);
-        guiContext.form.treeSystemOne.addKeyListener(browserKeyListener);
-        guiContext.form.tableSystemOne.addKeyListener(browserKeyListener);
-        guiContext.form.treeCollectionTwo.addKeyListener(browserKeyListener);
-        guiContext.form.tableCollectionTwo.addKeyListener(browserKeyListener);
-        guiContext.form.treeSystemTwo.addKeyListener(browserKeyListener);
-        guiContext.form.tableSystemTwo.addKeyListener(browserKeyListener);
+        addKeyListener();
 
         // handle mouse back/forward buttons
         if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled() && MouseInfo.getNumberOfButtons() > 3)
@@ -670,7 +820,7 @@ public class Browser
         });
         guiContext.form.treeCollectionOne.setTransferHandler(navTransferHandler);
         addFocusListener(guiContext.form.treeCollectionOne);
-        addMouseListenerToTable(guiContext.form.tableCollectionOne);
+        addHandlersToTable(guiContext.form.tableCollectionOne);
         addFocusListener(guiContext.form.tableCollectionOne);
 
         // --- treeSystemOne
@@ -711,7 +861,7 @@ public class Browser
         });
         guiContext.form.treeSystemOne.setTransferHandler(navTransferHandler);
         addFocusListener(guiContext.form.treeSystemOne);
-        addMouseListenerToTable(guiContext.form.tableSystemOne);
+        addHandlersToTable(guiContext.form.tableSystemOne);
         addFocusListener(guiContext.form.tableSystemOne);
     }
 
@@ -794,7 +944,7 @@ public class Browser
         });
         guiContext.form.treeCollectionTwo.setTransferHandler(navTransferHandler);
         addFocusListener(guiContext.form.treeCollectionTwo);
-        addMouseListenerToTable(guiContext.form.tableCollectionTwo);
+        addHandlersToTable(guiContext.form.tableCollectionTwo);
         addFocusListener(guiContext.form.tableCollectionTwo);
 
         // --- treeSystemTwo
@@ -842,7 +992,7 @@ public class Browser
         });
         guiContext.form.treeSystemTwo.setTransferHandler(navTransferHandler);
         addFocusListener(guiContext.form.treeSystemTwo);
-        addMouseListenerToTable(guiContext.form.tableSystemTwo);
+        addHandlersToTable(guiContext.form.tableSystemTwo);
         addFocusListener(guiContext.form.tableSystemTwo);
     }
 
@@ -873,6 +1023,22 @@ public class Browser
         NavTreeNode root = (NavTreeNode) model.getRoot();
         root.loadStatus();
         root.selectMe();
+    }
+
+    private void initializeToolbar()
+    {
+        guiContext.form.buttonNewFolder.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                ActionListener[] listeners = guiContext.form.menuItemNewFolder.getActionListeners();
+                for (ActionListener listener : listeners)
+                {
+                    listener.actionPerformed(actionEvent);
+                }
+            }
+        });
     }
 
     private void loadCollectionTree(JTree tree, Repository repo, boolean remote)
@@ -1070,14 +1236,12 @@ public class Browser
         if (object instanceof JTree)
         {
             JTree sourceTree = (JTree) object;
-            String sel = sourceTree.getLastSelectedPathComponent().toString();
             refreshTree(sourceTree);
         }
         else if (object instanceof JTable)
         {
             JTable sourceTable = (JTable) object;
             JTree sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
-            String sel = sourceTree.getLastSelectedPathComponent().toString();
             refreshTree(sourceTree);
         }
     }
@@ -1100,6 +1264,30 @@ public class Browser
             tree.setSelectionPaths(paths);
             ((NavTreeNode) tree.getModel().getRoot()).sort();
             tree.setEnabled(true);
+        }
+    }
+
+    public void rescanByObject(Object object)
+    {
+        JTree sourceTree = null;
+        Object sel = null;
+        if (object instanceof JTree)
+        {
+            sourceTree = (JTree) object;
+            sel = sourceTree.getLastSelectedPathComponent();
+        }
+        else if (object instanceof JTable)
+        {
+            JTable sourceTable = (JTable) object;
+            sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
+            sel = sourceTree.getLastSelectedPathComponent();
+        }
+        if (sel != null)
+        {
+            sourceTree.collapsePath(((NavTreeNode) sel).getTreePath());
+            ((NavTreeNode) sel).setRefresh(true);
+            ((NavTreeNode) sel).loadChildren(true);
+            refreshTree(sourceTree);
         }
     }
 

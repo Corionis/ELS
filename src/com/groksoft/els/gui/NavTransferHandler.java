@@ -1,5 +1,6 @@
 package com.groksoft.els.gui;
 
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Handler for Drag 'n Drop (DnD) and Copy/Cut/Paste (CCP) for local and/or remote
@@ -400,6 +402,7 @@ public class NavTransferHandler extends TransferHandler
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
+            // process the selections
             if (reply == JOptionPane.YES_OPTION)
             {
                 count = process(transferData, targetTree, targetTuo);
@@ -451,10 +454,8 @@ public class NavTransferHandler extends TransferHandler
         catch (Exception e)
         {
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error importing: " + e.toString() + "\n\nContinue transfer?",
-                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
-            if (reply == JOptionPane.NO_OPTION)
-                guiContext.context.fault = true;
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error importing: " + e.toString(),
+                    guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
         }
 
         guiContext.form.labelStatusMiddle.setText("");
@@ -537,10 +538,9 @@ public class NavTransferHandler extends TransferHandler
             else
             {
                 ++count;
-                transferFile(sourceTuo, targetTree, targetTuo);
+                if (!transferFile(sourceTuo, targetTree, targetTuo))
+                    break;
             }
-            if (guiContext.context.fault)
-                break;
         }
         return count;
     }
@@ -550,7 +550,7 @@ public class NavTransferHandler extends TransferHandler
         if (action == TransferHandler.MOVE)
         {
             // iterate the selected source row's user object
-            for (int i = transferData.size(); i > -1; --i)
+            for (int i = transferData.size() -1; i > -1; --i)
             {
                 NavTreeUserObject sourceTuo = transferData.get(i);
                 if (sourceTuo.isDir)
@@ -567,7 +567,7 @@ public class NavTransferHandler extends TransferHandler
         }
     }
 
-    public void removeDirectory(NavTreeUserObject sourceTuo)
+    public boolean removeDirectory(NavTreeUserObject sourceTuo)
     {
         try
         {
@@ -578,14 +578,14 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeUserObject childTuo = child.getUserObject();
                 if (childTuo.isDir)
                 {
-                    removeDirectory(childTuo);
+                    if (!removeDirectory(childTuo))
+                        break;
                 }
                 else
                 {
-                    removeFile(childTuo);
+                    if (!removeFile(childTuo))
+                        break;
                 }
-                if (guiContext.context.fault)
-                    break;
             }
 
             String msg;
@@ -607,11 +607,12 @@ public class NavTransferHandler extends TransferHandler
             int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error deleting directory: " + e.toString() + "\n\nContinue?",
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
-                guiContext.context.fault = true;
+                return false;
         }
+        return true;
     }
 
-    public void removeFile(NavTreeUserObject sourceTuo)
+    public boolean removeFile(NavTreeUserObject sourceTuo)
     {
         try
         {
@@ -634,8 +635,9 @@ public class NavTransferHandler extends TransferHandler
             int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error deleting file: " + e.toString() + "\n\nContinue?",
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
-                guiContext.context.fault = true;
+                return false;
         }
+        return true;
     }
 
     private NavTreeUserObject setupToNode(NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo, String path)
@@ -696,24 +698,21 @@ public class NavTransferHandler extends TransferHandler
                 else
                 {
                     ++count;
-                    transferFile(childTuo, targetTree, toNodeTuo);
+                    if (!transferFile(childTuo, targetTree, toNodeTuo))
+                        break;
                 }
-                if (guiContext.context.fault)
-                    break;
             }
         }
         catch (Exception e)
         {
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error copying: " + e.toString() + "\n\nContinue transfer?",
-                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
-            if (reply == JOptionPane.NO_OPTION)
-                guiContext.context.fault = true;
+            int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error copying: " + e.toString(),
+                    guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
         }
         return count;
     }
 
-    private void transferFile(NavTreeUserObject sourceTuo, JTree targetTree, NavTreeUserObject targetTuo)
+    private boolean transferFile(NavTreeUserObject sourceTuo, JTree targetTree, NavTreeUserObject targetTuo)
     {
         String path = "";
         //String msg = " from " + sourceTable.getName() + " of " + sourceTree.getName() + ", node " + sourceTuo.name;
@@ -758,13 +757,31 @@ public class NavTransferHandler extends TransferHandler
                     Files.createDirectories(Paths.get(dir));
                     guiContext.context.clientSftp.get(sourceTuo.path, path);
                     NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
-                    Files.setLastModifiedTime(Paths.get(path), sourceTuo.fileTime);
+                    if (guiContext.preferences.isPreserveFileTime())
+                        Files.setLastModifiedTime(Paths.get(path), sourceTuo.fileTime);
                 }
             }
             else if (sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // send command to remote
+                path = makeToPath(sourceTuo, targetTuo);
+                msg += " to " + path;
                 guiContext.browser.printLog("Remote" + msg);
+                if (!guiContext.cfg.isDryRun())
+                {
+                    String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
+                    Files.createDirectories(Paths.get(dir));
+                    String command = "copy \"" + sourceTuo.path + "\" \"" + path + "\"";
+                    String response = guiContext.context.clientStty.roundTrip(command);
+                    if (response.equalsIgnoreCase("true"))
+                    {
+                        NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
+                        if (guiContext.preferences.isPreserveFileTime())
+                            guiContext.context.clientSftp.setDate(path, (int) sourceTuo.fileTime.to(TimeUnit.SECONDS));
+                    }
+                    else
+                        throw new MungeException("Remote copy of " + sourceTuo.name + " failed");
+                }
             }
 
             // update trees with progress so far, refreshed again in exportDone()
@@ -777,8 +794,9 @@ public class NavTransferHandler extends TransferHandler
             int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error copying: " + e.toString() + "\n\nContinue transfer?",
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
-                guiContext.context.fault = true;
+                return false;
         }
+        return true;
     }
 
 }

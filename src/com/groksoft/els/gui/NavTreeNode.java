@@ -25,7 +25,6 @@ class NavTreeNode extends DefaultMutableTreeNode
     private final boolean traceActions = false; // dev-debug
     public SortFoldersBeforeFiles sortFoldersBeforeFiles;
     public SortTreeAlphabetically sortTreeAlphabetically;
-
     private GuiContext guiContext;
     private boolean loaded = false;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -80,7 +79,7 @@ class NavTreeNode extends DefaultMutableTreeNode
         object.loaded = this.loaded;
         object.refresh = this.refresh;
         object.shown = this.shown;
-        NavTreeUserObject tuo = (NavTreeUserObject)this.getUserObject().clone();
+        NavTreeUserObject tuo = (NavTreeUserObject) this.getUserObject().clone();
         tuo.node = this;
         object.setUserObject(tuo);
         return object;
@@ -219,9 +218,9 @@ class NavTreeNode extends DefaultMutableTreeNode
         int childCount = getChildCount(false, false);
         for (int i = 0; i < childCount; ++i)
         {
-            if (path.equalsIgnoreCase(((NavTreeNode)getChildAt(i, false, false)).getUserObject().path))
+            if (path.equalsIgnoreCase(((NavTreeNode) getChildAt(i, false, false)).getUserObject().path))
             {
-                node = (NavTreeNode)getChildAt(i, false, false);
+                node = (NavTreeNode) getChildAt(i, false, false);
                 break;
             }
         }
@@ -526,15 +525,11 @@ class NavTreeNode extends DefaultMutableTreeNode
                 }
                 catch (Exception e)
                 {
-// LEFTOFF: Handle directories that cannot be read due to permissions
-                    JOptionPane.showMessageDialog(guiContext.form, "Could not retrieve listing from " + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
-                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    logger.error(Utils.getStackTrace(e));
-                    guiContext.context.fault = true;
-                    guiContext.navigator.stop();
+                    String msg = "Could not retrieve listing from " + guiContext.context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
+                    guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.form, msg, guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
-
         };
         worker.execute();
     }
@@ -552,7 +547,6 @@ class NavTreeNode extends DefaultMutableTreeNode
             guiContext.form.textFieldLocation.setText(tuo.getPath());
             guiContext.browser.printProperties(tuo);
         }
-//        guiContext.form.labelStatusMiddle.setText("");
     }
 
     protected void loadTable()
@@ -642,7 +636,8 @@ class NavTreeNode extends DefaultMutableTreeNode
             Collections.sort(children, sortTreeAlphabetically);
             if (guiContext.preferences.isSortFoldersBeforeFiles())
                 Collections.sort(children, sortFoldersBeforeFiles);
-            setAllowsChildren(children.size() > 0);
+            setAllowsChildren(getUserObject().isDir);
+//            setAllowsChildren(children.size() > 0);
             for (NavTreeNode ntn : children)
             {
                 add(ntn);

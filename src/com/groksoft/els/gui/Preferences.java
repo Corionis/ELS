@@ -4,7 +4,7 @@ public class Preferences
 {
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int browserBottomSize = 0;
-    private boolean confirmation = true; // show confirmation dialogs for copy, move, delete
+    private boolean confirmation = true; // show confirmation dialogs for copy, move, delete, etc.
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
     private boolean hideFilesInTree = true;
@@ -13,9 +13,9 @@ public class Preferences
     // 0=System default look 'n feel, use for Windows,
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
-    private int lafStyle = 6;  // 0-6, see getLookAndFeel(),
+    private int lafStyle = 6;
     private boolean preserveFileTime = true;
-    private boolean sortCaseInsensitive = true;
+    private boolean sortCaseInsensitive = false;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
     public Preferences()

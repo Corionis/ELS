@@ -5,7 +5,7 @@ cd ${base}
 cd ../..
 
 if [ "$1" != "-f" ]; then
-    if [ -e ./TestRun ]; then
+    if [ -e ./test ]; then
         echo ""
         echo "Reset Test Directory"
         read -p "Confirm: DESTROY Test directory and recreate from templates (y/N)? " R
