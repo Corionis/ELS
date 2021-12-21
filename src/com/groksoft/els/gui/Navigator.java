@@ -1,6 +1,7 @@
 package com.groksoft.els.gui;
 
 import com.groksoft.els.*;
+import jdk.nashorn.internal.scripts.JD;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -509,6 +510,62 @@ public class Navigator
 
         // -- Help Menu
         //
+        guiContext.form.menuItemControls.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                NavHelp dialog = new NavHelp(guiContext.form);
+                String text = "<html>\n" +
+                        "<head>\n" +
+                        "<style>\n" +
+                        "html, body {\n" +
+                        " height: 100%\n" +
+                        "}\n" +
+                        "table {\n" +
+//                        "  border: 1px solid white;\n" +
+                        "  margin:4px;\n" +
+                        "  padding:4px; \n" +
+                        "  height:100%;\n" +
+                        "  width:100%; \n" +
+                        "}\n" +
+                        "th {\n" +
+                        "  text-align:left;\n" +
+                        "}\n" +
+                        "td {\n" +
+                        "  text-align:left;\n" +
+                        "}\n" +
+                        "</style>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "<table>\n" +
+                        "<tr>\n" +
+                        "  <th>Function:</th><th>Key(s)/Mouse:</th>\n" +
+                        "  <th>Function:</th><th>Key(s)/Mouse:</th>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "  <td>Copy</td><td>Ctrl-C</td>\n" +
+                        "  <td>Back</td><td>Alt-Left, Mouse Back</td>\n" +
+                        "</tr>\n" +
+                        "<tr>\n" +
+                        "  <td>Cut</td><td>Ctrl-X</td>\n" +
+                        "  <td>Forward</td><td>Alt-Right, Mouse Forward</td>\n" +
+                        "</tr>\n" +
+                        "</table>\n" +
+                        "</body></html>\n";
+                dialog.controlsHelpText.setText(text);
+                dialog.okButton.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        dialog.setVisible(false);
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
+        //
         guiContext.form.menuItemDocumentation.addActionListener(new AbstractAction()
         {
             @Override
@@ -565,7 +622,7 @@ public class Navigator
                 guiContext.form.textAreaLog.setText("");
             }
         });
-
+        
     }
 
     public int run() throws Exception

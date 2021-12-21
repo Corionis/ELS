@@ -31,8 +31,7 @@ public class Browser
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
     public JComponent lastComponent = null;
-    public int lastFocused = 1;
-    public int lastPanel = 1;
+    public int lastTab = 0;
     public NavTransferHandler navTransferHandler;
     private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private GuiContext guiContext;
@@ -44,7 +43,7 @@ public class Browser
     private String os;
     private JProgressBar progressBar;
     private int tabStop = 0;
-    private int[] tabStops = {1, 2, 4, 5};
+    private int[] tabStops = {0, 1, 4, 5};
 
     public Browser(GuiContext gctx)
     {
@@ -68,63 +67,60 @@ public class Browser
                     switch (name)
                     {
                         case "treeCollectionOne":
-                            lastFocused = 0;
-                            lastPanel = 1;
+                            lastTab = 0;
                             lastComponent = guiContext.form.treeCollectionOne;
                             tabStops[0] = 0;
                             tabStops[1] = 1;
                             break;
                         case "tableCollectionOne":
-                            lastFocused = 1;
-                            lastPanel = 1;
+                            lastTab = 1;
                             lastComponent = guiContext.form.tableCollectionOne;
                             tabStops[0] = 0;
                             tabStops[1] = 1;
                             break;
                         case "treeSystemOne":
-                            lastFocused = 2;
-                            lastPanel = 2;
+                            lastTab = 0;
                             lastComponent = guiContext.form.treeSystemOne;
                             tabStops[0] = 2;
                             tabStops[1] = 3;
                             break;
                         case "tableSystemOne":
-                            lastFocused = 3;
-                            lastPanel = 2;
+                            lastTab = 1;
                             lastComponent = guiContext.form.tableSystemOne;
                             tabStops[0] = 2;
                             tabStops[1] = 3;
                             break;
                         case "treeCollectionTwo":
-                            lastFocused = 4;
-                            lastPanel = 3;
+                            lastTab = 2;
                             lastComponent = guiContext.form.treeCollectionTwo;
                             tabStops[2] = 4;
                             tabStops[3] = 5;
                             break;
                         case "tableCollectionTwo":
-                            lastFocused = 5;
-                            lastPanel = 3;
+                            lastTab = 3;
                             lastComponent = guiContext.form.tableCollectionTwo;
                             tabStops[2] = 4;
                             tabStops[3] = 5;
                             break;
                         case "treeSystemTwo":
-                            lastFocused = 6;
-                            lastPanel = 4;
+                            lastTab = 2;
                             lastComponent = guiContext.form.treeSystemTwo;
                             tabStops[2] = 6;
                             tabStops[3] = 7;
                             break;
                         case "tableSystemTwo":
-                            lastFocused = 7;
-                            lastPanel = 4;
+                            lastTab = 3;
                             lastComponent = guiContext.form.tableSystemTwo;
                             tabStops[2] = 6;
                             tabStops[3] = 7;
                             break;
                     }
                     //logger.info("focused on " + name + ", index " + lastFocused + ", panel " + lastPanel);
+                    NavTreeUserObject tuo = getSelectedUserObject(active);
+                    if (tuo != null)
+                    {
+                        printProperties(tuo);
+                    }
                 }
             }
 
@@ -225,7 +221,6 @@ public class Browser
                         }
                         else
                             return;
-//                        guiContext.form.textFieldLocation.setText(tuo.path);
                         tuo.node.loadStatus();
                     }
                 }
@@ -622,17 +617,51 @@ public class Browser
 
     public long getFreespace(NavTreeUserObject tuo) throws Exception
     {
+        return getFreespace(tuo.path, tuo.isRemote);
+    }
+
+    public long getFreespace(String path, boolean isRemote) throws Exception
+    {
         long space;
-        if (tuo.isRemote && guiContext.cfg.isRemoteSession())
+        if (isRemote && guiContext.cfg.isRemoteSession())
         {
             // remote subscriber
-            space = guiContext.context.clientStty.availableSpace(tuo.path);
+            space = guiContext.context.clientStty.availableSpace(path);
         }
         else
         {
-            space = Utils.availableSpace(tuo.path);
+            space = Utils.availableSpace(path);
         }
         return space;
+
+    }
+
+    public NavTreeUserObject getSelectedUserObject(Object object)
+    {
+        int[] rows = {0};
+        JTree tree = null;
+        NavTreeUserObject tuo = null;
+        if (object instanceof JTable)
+        {
+            tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+            rows = ((JTable) object).getSelectedRows();
+            if (rows.length > 0)
+            {
+                tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
+            }
+        }
+        if (object instanceof JTree || (tree != null && tuo == null))
+        {
+            if (tree == null)
+                tree = (JTree) object;
+            TreePath[] paths = tree.getSelectionPaths();
+            if (paths != null && paths.length > 0)
+            {
+                NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
+                tuo = ntn.getUserObject();
+            }
+        }
+        return tuo;
     }
 
     private JComponent getTabComponent(int index)
@@ -1144,6 +1173,7 @@ public class Browser
     {
         int next;
         JComponent nextComponent = null;
+        tabStop = lastTab;
         if (forward)
         {
             ++tabStop;
@@ -1181,7 +1211,14 @@ public class Browser
     public void printProperties(NavTreeUserObject tuo)
     {
         guiContext.form.textAreaProperties.setText("");
-        guiContext.form.textAreaProperties.append("Type: " + tuo.getType() + System.getProperty("line.separator"));
+        String msg = "<html>";
+        msg += "<style>table { margin:0; padding:0; }" +
+                "th { margin:0; padding:0; }" +
+                "td { text-align:left; }" +
+                "</style>";
+        msg += "<body>";
+        msg += "Type: " + tuo.getType() + "<br/>" + System.getProperty("line.separator");
+
         try
         {
             switch (tuo.type)
@@ -1189,41 +1226,38 @@ public class Browser
                 case NavTreeUserObject.BOOKMARKS:
                     break;
                 case NavTreeUserObject.COLLECTION:
-                    guiContext.form.textAreaProperties.append("Libraries: " + tuo.node.getChildCount(false, false) + System.getProperty("line.separator"));
+                    msg += "Libraries: " + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.COMPUTER:
-                    guiContext.form.textAreaProperties.append("Drives: " + tuo.node.getChildCount(false, false) + System.getProperty("line.separator"));
+                    msg += "Drives: " + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.DRIVE:
-                    guiContext.form.textAreaProperties.append("Free: " + Utils.formatLong(getFreespace(tuo), true) + System.getProperty("line.separator"));
+                    msg += "Free: " + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.HOME:
-                    guiContext.form.textAreaProperties.append("Free: " + Utils.formatLong(getFreespace(tuo), true) + System.getProperty("line.separator"));
+                    msg += "Free: " + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.LIBRARY:
+                     msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
+                            "<tr><td>Location:</td> <td></td> <td>Free:</td></tr>";
                     for (String source : tuo.sources)
                     {
-                        guiContext.form.textAreaProperties.append("Location: " + source + System.getProperty("line.separator"));
+                        String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true);
+                        msg += "<tr><td>" + source + "</td> <td><div>&nbsp;&nbsp;&nbsp;&nbsp;</div></td> <td>" + free + "</td></tr>";
                     }
+                    msg += "</table>";
+                    msg += System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.REAL:
-//                    if (tuo.file != null && Files.exists(tuo.file.toPath()))
-                {
-                    guiContext.form.textAreaProperties.append("Path: " + tuo.path + System.getProperty("line.separator"));
-//                        if (tuo.isRemote)
-                    guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(tuo.size, true) + System.getProperty("line.separator"));
-//                        else
-//                            guiContext.form.textAreaProperties.append("Size: " + Utils.formatLong(Files.size(tuo.file.toPath()), true) + System.getProperty("line.separator"));
-                    guiContext.form.textAreaProperties.append("isDir: " + tuo.isDir + System.getProperty("line.separator"));
-                }
-//                    else
-//                    {
-//                        guiContext.form.textAreaProperties.setText("");
-//                    }
-                break;
+                     msg += "Path: " + tuo.path + "<br/>" + System.getProperty("line.separator");
+                     msg += "Size: " + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
+                     msg += "isDir: " + tuo.isDir + "<br/>" + System.getProperty("line.separator");
+                    break;
                 case NavTreeUserObject.SYSTEM:
                     break;
             }
+            msg += "</body></html>";
+            guiContext.form.textAreaProperties.setText(msg);
         }
         catch (Exception e)
         {

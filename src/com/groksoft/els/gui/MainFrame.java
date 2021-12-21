@@ -203,6 +203,7 @@ public class MainFrame extends JFrame
         menuItemSplitHorizontal = new JMenuItem();
         menuItemSplitVertical = new JMenuItem();
         menuHelp = new JMenu();
+        menuItemControls = new JMenuItem();
         menuItemDocumentation = new JMenuItem();
         menuItemGitHubProject = new JMenuItem();
         menuItemAbout = new JMenuItem();
@@ -250,7 +251,7 @@ public class MainFrame extends JFrame
         scrollPaneLog = new JScrollPane();
         textAreaLog = new JTextArea();
         scrollPaneProperties = new JScrollPane();
-        textAreaProperties = new JTextArea();
+        textAreaProperties = new JEditorPane();
         splitPaneBackup = new JSplitPane();
         panelLibraries = new JPanel();
         panelStatus = new JPanel();
@@ -573,6 +574,13 @@ public class MainFrame extends JFrame
             {
                 menuHelp.setText(bundle.getString("Navigator.menuHelp.text"));
                 menuHelp.setMnemonic(bundle.getString("Navigator.menuHelp.mnemonic").charAt(0));
+
+                //---- menuItemControls ----
+                menuItemControls.setText(bundle.getString("Navigator.menuItemControls.text"));
+                menuItemControls.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemControls.setMnemonic(bundle.getString("Navigator.menuItemControls.mnemonic").charAt(0));
+                menuItemControls.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuHelp.add(menuItemControls);
 
                 //---- menuItemDocumentation ----
                 menuItemDocumentation.setText(bundle.getString("Navigator.menuItemDocumentation.text"));
@@ -953,8 +961,8 @@ public class MainFrame extends JFrame
 
                             //---- textAreaProperties ----
                             textAreaProperties.setEditable(false);
-                            textAreaProperties.setTabSize(4);
                             textAreaProperties.setMinimumSize(new Dimension(0, 0));
+                            textAreaProperties.setContentType("text/html");
                             scrollPaneProperties.setViewportView(textAreaProperties);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneProperties.tab.title"), scrollPaneProperties);
@@ -1136,6 +1144,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemSplitHorizontal;
     public JMenuItem menuItemSplitVertical;
     public JMenu menuHelp;
+    public JMenuItem menuItemControls;
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemGitHubProject;
     public JMenuItem menuItemAbout;
@@ -1183,7 +1192,7 @@ public class MainFrame extends JFrame
     public JScrollPane scrollPaneLog;
     public JTextArea textAreaLog;
     public JScrollPane scrollPaneProperties;
-    public JTextArea textAreaProperties;
+    public JEditorPane textAreaProperties;
     public JSplitPane splitPaneBackup;
     public JPanel panelLibraries;
     public JPanel panelStatus;

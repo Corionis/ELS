@@ -362,11 +362,11 @@ new FormModel {
 								name: "scrollPaneProperties"
 								"focusable": false
 								"minimumSize": new java.awt.Dimension( 0, 0 )
-								add( new FormComponent( "javax.swing.JTextArea" ) {
+								add( new FormComponent( "javax.swing.JEditorPane" ) {
 									name: "textAreaProperties"
 									"editable": false
-									"tabSize": 4
 									"minimumSize": new java.awt.Dimension( 0, 0 )
+									"contentType": "text/html"
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPaneProperties.tab.title" )
@@ -729,6 +729,13 @@ new FormModel {
 					name: "menuHelp"
 					"text": new FormMessage( null, "Navigator.menuHelp.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menuHelp.mnemonic" )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemControls"
+						"text": new FormMessage( null, "Navigator.menuItemControls.text" )
+						"horizontalAlignment": 2
+						"mnemonic": new FormMessage( null, "Navigator.menuItemControls.mnemonic" )
+						"horizontalTextPosition": 2
+					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemDocumentation"
 						"text": new FormMessage( null, "Navigator.menuItemDocumentation.text" )
