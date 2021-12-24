@@ -106,7 +106,7 @@ public class MainFrame extends JFrame
             // add smart scroll to the log
             new SmartScroller(scrollPaneLog);
 
-            pack();
+//            pack();
         }
         catch(Exception ex)
         {
@@ -214,6 +214,11 @@ public class MainFrame extends JFrame
         panelLocationAndButtons = new JPanel();
         panelBarBrowser = new JPanel();
         buttonNewFolder = new JButton();
+        separator8 = new JToolBar.Separator();
+        buttonJobs = new JButton();
+        comboBoxJobs = new JComboBox<>();
+        buttonRun = new JButton();
+        buttonHintTracking = new JButton();
         panelLocation = new JPanel();
         panelLocationLeft = new JPanel();
         buttonBack = new JButton();
@@ -298,7 +303,6 @@ public class MainFrame extends JFrame
                 menuItemOpenPublisher.setText(bundle.getString("Navigator.menuItemOpenPublisher.text"));
                 menuItemOpenPublisher.setMnemonic(bundle.getString("Navigator.menuItemOpenPublisher.mnemonic_2").charAt(0));
                 menuItemOpenPublisher.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemOpenPublisher.setEnabled(false);
                 menuItemOpenPublisher.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemOpenPublisher.setDisplayedMnemonicIndex(5);
                 menuFile.add(menuItemOpenPublisher);
@@ -306,7 +310,6 @@ public class MainFrame extends JFrame
                 //---- menuItemOpenSubscriber ----
                 menuItemOpenSubscriber.setText(bundle.getString("Navigator.menuItemOpenSubscriber.text"));
                 menuItemOpenSubscriber.setMnemonic(bundle.getString("Navigator.menuItemOpenSubscriber.mnemonic").charAt(0));
-                menuItemOpenSubscriber.setEnabled(false);
                 menuItemOpenSubscriber.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemOpenSubscriber.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemOpenSubscriber);
@@ -315,7 +318,6 @@ public class MainFrame extends JFrame
                 //---- menuItemSaveLayout ----
                 menuItemSaveLayout.setText(bundle.getString("Navigator.menuItemSaveLayout.text"));
                 menuItemSaveLayout.setMnemonic(bundle.getString("Navigator.menuItemSaveLayout.mnemonic_3").charAt(0));
-                menuItemSaveLayout.setEnabled(false);
                 menuItemSaveLayout.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemSaveLayout);
                 menuFile.addSeparator();
@@ -646,8 +648,35 @@ public class MainFrame extends JFrame
                                 buttonNewFolder.setMnemonic(bundle.getString("Navigator.buttonNewFolder.mnemonic").charAt(0));
                                 buttonNewFolder.setFocusable(false);
                                 panelBarBrowser.add(buttonNewFolder);
+                                panelBarBrowser.add(separator8);
+
+                                //---- buttonJobs ----
+                                buttonJobs.setText(bundle.getString("Navigator.buttonJobs.text"));
+                                buttonJobs.setEnabled(false);
+                                panelBarBrowser.add(buttonJobs);
+
+                                //---- comboBoxJobs ----
+                                comboBoxJobs.setModel(new DefaultComboBoxModel<>(new String[] {
+                                    "Clean Junk",
+                                    "Clean junk & renumber episodes",
+                                    "Find and delete duplicates"
+                                }));
+                                comboBoxJobs.setEnabled(false);
+                                panelBarBrowser.add(comboBoxJobs);
+
+                                //---- buttonRun ----
+                                buttonRun.setText(bundle.getString("Navigator.buttonRun.text"));
+                                buttonRun.setEnabled(false);
+                                panelBarBrowser.add(buttonRun);
                             }
-                            panelLocationAndButtons.add(panelBarBrowser, BorderLayout.NORTH);
+                            panelLocationAndButtons.add(panelBarBrowser, BorderLayout.CENTER);
+
+                            //---- buttonHintTracking ----
+                            buttonHintTracking.setText(bundle.getString("Navigator.buttonHintTracking.text"));
+                            buttonHintTracking.setMnemonic(bundle.getString("Navigator.buttonHintTracking.mnemonic").charAt(0));
+                            buttonHintTracking.setToolTipText("Toggle creating hints based on actions in Collections");
+                            buttonHintTracking.setFocusable(false);
+                            panelLocationAndButtons.add(buttonHintTracking, BorderLayout.EAST);
 
                             //======== panelLocation ========
                             {
@@ -1155,6 +1184,11 @@ public class MainFrame extends JFrame
     public JPanel panelLocationAndButtons;
     public JPanel panelBarBrowser;
     public JButton buttonNewFolder;
+    public JToolBar.Separator separator8;
+    public JButton buttonJobs;
+    public JComboBox<String> comboBoxJobs;
+    public JButton buttonRun;
+    public JButton buttonHintTracking;
     public JPanel panelLocation;
     public JPanel panelLocationLeft;
     public JButton buttonBack;

@@ -6,14 +6,17 @@ import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
@@ -35,6 +38,8 @@ public class Browser
     public NavTransferHandler navTransferHandler;
     private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private GuiContext guiContext;
+    private boolean hintTracking = false;
+    private Color hintTrackingColor;
     private String keyBuffer = "";
     private long keyTime = 0L;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -119,6 +124,7 @@ public class Browser
                     NavTreeUserObject tuo = getSelectedUserObject(active);
                     if (tuo != null)
                     {
+                        guiContext.form.textFieldLocation.setText(tuo.getPath());
                         printProperties(tuo);
                     }
                 }
@@ -226,10 +232,7 @@ public class Browser
                 }
             }
         });
-
         table.addMouseListener(tableMouseListener);
-
-        table.setTransferHandler(navTransferHandler);
 
         table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
         table.getActionMap().put("Enter", new AbstractAction()
@@ -241,7 +244,7 @@ public class Browser
             }
         });
 
-        // FIXME Keyboard nav of table does not change location line
+        table.setTransferHandler(navTransferHandler);
     }
 
     private void addKeyListener()
@@ -265,6 +268,7 @@ public class Browser
                         listener.actionPerformed(new ActionEvent(keyEvent.getSource(), ActionEvent.ACTION_PERFORMED, null));
                     }
                 }
+
                 // handle F5 Refresh
                 if (keyEvent.getKeyCode() == KeyEvent.VK_F5 && keyEvent.getModifiers() == 0)
                 {
@@ -289,11 +293,13 @@ public class Browser
                     refreshTree(guiContext.form.treeCollectionTwo);
                     refreshTree(guiContext.form.treeSystemTwo);
                 }
+
                 // handle Ctrl-R to Refresh current selection
                 else if (keyEvent.getKeyChar() == KeyEvent.VK_ALT && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
                     refreshByObject(keyEvent.getSource());
                 }
+
                 // handle Tab forward and backward
                 else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && keyEvent.getModifiers() == 0)
                 {
@@ -303,6 +309,7 @@ public class Browser
                 {
                     navTabKey(false);
                 }
+
                 // handle ENTER key
                 else if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER)
                 {
@@ -358,6 +365,7 @@ public class Browser
                         }
                     }
                 }
+
                 // handle printable character speed search in tables (only)
                 else if ((keyEvent.getModifiers() & KeyEvent.CTRL_MASK) == 0 &&
                         (keyEvent.getModifiers() & KeyEvent.ALT_MASK) == 0)
@@ -431,7 +439,7 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isConfirmation())
+            if (guiContext.preferences.isShowConfirmations())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
                                 rows.length + (isRemote ? " remote" : "") + " item" + (rows.length > 1 ? "s" : "") + " containing " +
@@ -528,7 +536,7 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isConfirmation())
+            if (guiContext.preferences.isShowConfirmations())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
                                 paths.length + (isRemote ? " remote" : "") + " item" + (paths.length > 1 ? "s" : "") + " containing " +
@@ -634,6 +642,11 @@ public class Browser
         }
         return space;
 
+    }
+
+    public Color getHintTrackingColor()
+    {
+        return hintTrackingColor;
     }
 
     public NavTreeUserObject getSelectedUserObject(Object object)
@@ -812,7 +825,7 @@ public class Browser
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionOne, "--Open a publisher profile--", false);
+            setCollectionRoot(guiContext.form.treeCollectionOne, "--Open a publisher library--", false);
         }
         //
         // treeCollectionOne tree expansion event handler
@@ -854,7 +867,14 @@ public class Browser
 
         // --- treeSystemOne
         guiContext.form.treeSystemOne.setName("treeSystemOne");
-        loadSystemTree(guiContext.form.treeSystemOne, System.getProperty("user.home"), false);
+        if (guiContext.context.publisherRepo != null && guiContext.context.publisherRepo.isInitialized())
+        {
+            loadSystemTree(guiContext.form.treeSystemOne, System.getProperty("user.home"), false);
+        }
+        else
+        {
+            setCollectionRoot(guiContext.form.treeSystemOne, "--Open a publisher library--", false);
+        }
         //
         // treeSystemOne tree expansion event handler
         guiContext.form.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -905,18 +925,18 @@ public class Browser
             public void stateChanged(ChangeEvent changeEvent)
             {
                 JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
-                NavTreeModel model = null;
+                TreeModel model = null;
                 NavTreeNode node = null;
                 switch (pane.getSelectedIndex())
                 {
                     case 0:
-                        model = (NavTreeModel) guiContext.form.treeCollectionTwo.getModel();
+                        model = guiContext.form.treeCollectionTwo.getModel();
                         node = (NavTreeNode) guiContext.form.treeCollectionTwo.getLastSelectedPathComponent();
                         tabStops[2] = 4;
                         tabStops[3] = 5;
                         break;
                     case 1:
-                        model = (NavTreeModel) guiContext.form.treeSystemTwo.getModel();
+                        model = guiContext.form.treeSystemTwo.getModel();
                         node = (NavTreeNode) guiContext.form.treeSystemTwo.getLastSelectedPathComponent();
                         tabStops[2] = 6;
                         tabStops[3] = 7;
@@ -936,7 +956,7 @@ public class Browser
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber profile--", guiContext.cfg.isRemoteSession());
+            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber library--", guiContext.cfg.isRemoteSession());
         }
         //
         // treeCollectionTwo tree expansion event handler
@@ -984,7 +1004,7 @@ public class Browser
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber profile--", guiContext.cfg.isRemoteSession());
+            setCollectionRoot(guiContext.form.treeSystemTwo, "--Open a subscriber library--", guiContext.cfg.isRemoteSession());
         }
         //
         // treeSystemTwo tree expansion event handler
@@ -1068,9 +1088,44 @@ public class Browser
                 }
             }
         });
+
+        if (guiContext.preferences.isShowHintTrackingButton())
+        {
+            guiContext.form.buttonHintTracking.addActionListener(new AbstractAction()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    if (!hintTracking)
+                    {
+                        try
+                        {
+                            guiContext.form.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
+                            URL url = Thread.currentThread().getContextClassLoader().getResource("hint-tracking.png");
+                            Image icon = ImageIO.read(url);
+                            guiContext.form.buttonHintTracking.setIcon(new ImageIcon(icon));
+                        }
+                        catch (Exception e)
+                        {
+                        }
+                    }
+                    else
+                    {
+                        guiContext.form.buttonHintTracking.setBackground(hintTrackingColor);
+                        guiContext.form.buttonHintTracking.setIcon(null);
+                    }
+                    hintTracking = !hintTracking;
+                }
+            });
+            hintTrackingColor = guiContext.form.buttonHintTracking.getBackground();
+        }
+        else
+        {
+            guiContext.form.buttonHintTracking.setVisible(false);
+        }
     }
 
-    private void loadCollectionTree(JTree tree, Repository repo, boolean remote)
+    public void loadCollectionTree(JTree tree, Repository repo, boolean remote)
     {
         try
         {
@@ -1098,7 +1153,7 @@ public class Browser
         }
     }
 
-    private void loadSystemTree(JTree tree, String initialLocation, boolean remote)
+    public void loadSystemTree(JTree tree, String initialLocation, boolean remote)
     {
         try
         {
@@ -1148,13 +1203,13 @@ public class Browser
     private NavTreeNode navStackPop()
     {
         NavTreeNode node;
-        if (navStackIndex > 0)
+        if (navStackIndex > 1)
         {
             --navStackIndex;
             node = navStack.get(navStackIndex);
         }
         else
-            node = (navStackIndex > -1) ? navStack.get(0) : null;
+            node = (navStackIndex > -1) ? navStack.get(1) : null;
         return node;
     }
 
@@ -1238,7 +1293,7 @@ public class Browser
                     msg += "Free: " + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.LIBRARY:
-                     msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
+                    msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
                             "<tr><td>Location:</td> <td></td> <td>Free:</td></tr>";
                     for (String source : tuo.sources)
                     {
@@ -1249,9 +1304,9 @@ public class Browser
                     msg += System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.REAL:
-                     msg += "Path: " + tuo.path + "<br/>" + System.getProperty("line.separator");
-                     msg += "Size: " + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
-                     msg += "isDir: " + tuo.isDir + "<br/>" + System.getProperty("line.separator");
+                    msg += "Path: " + tuo.path + "<br/>" + System.getProperty("line.separator");
+                    msg += "Size: " + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
+                    msg += "isDir: " + tuo.isDir + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.SYSTEM:
                     break;
@@ -1338,6 +1393,11 @@ public class Browser
         tree.setLargeModel(true);
         tree.setModel(model);
         return root;
+    }
+
+    public void setHintTrackingColor(Color hintTrackingColor)
+    {
+        this.hintTrackingColor = hintTrackingColor;
     }
 
     private void styleCollectionAll(JTree tree, Repository repo, boolean remote) throws Exception

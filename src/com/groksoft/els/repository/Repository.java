@@ -573,7 +573,7 @@ public class Repository
             if (libraryData != null)
                 libraryData = null;
             Gson gson = new Gson();
-            logger.info("Reading Libraries file " + filename);
+            logger.info("Reading Library file " + filename);
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
@@ -582,7 +582,7 @@ public class Repository
         }
         catch (IOException ioe)
         {
-            throw new MungeException("Exception while reading libraries " + filename + " trace: " + Utils.getStackTrace(ioe));
+            throw new MungeException("Exception while reading library " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
     }
 
@@ -904,7 +904,7 @@ public class Repository
             throw new MungeException("libraries.bibliography must be defined");
         }
 
-        logger.info("Validating " + lbs.description + " Libraries in:+ " + getJsonFilename());
+        logger.info("Validating " + lbs.description + " Libraries in: " + getJsonFilename());
         for (int i = 0; i < lbs.bibliography.length; i++)
         {
             Library lib = lbs.bibliography[i];

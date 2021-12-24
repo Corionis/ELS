@@ -394,7 +394,7 @@ public class NavTransferHandler extends TransferHandler
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isConfirmation())
+            if (guiContext.preferences.isShowConfirmations())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to " + getOperation(true).toLowerCase() + " " +
                                 Utils.formatLong(size, false) + " in " + Utils.formatInteger(count) + " file" + (count > 1 ? "s" : "") + " to " + targetTuo.name + "?" +
@@ -757,7 +757,7 @@ public class NavTransferHandler extends TransferHandler
                     Files.createDirectories(Paths.get(dir));
                     guiContext.context.clientSftp.get(sourceTuo.path, path);
                     NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
-                    if (guiContext.preferences.isPreserveFileTime())
+                    if (guiContext.preferences.isPreserveFileTimes())
                         Files.setLastModifiedTime(Paths.get(path), sourceTuo.fileTime);
                 }
             }
@@ -776,7 +776,7 @@ public class NavTransferHandler extends TransferHandler
                     if (response.equalsIgnoreCase("true"))
                     {
                         NavTreeUserObject thisTuo = setupToNode(sourceTuo, targetTuo, path);
-                        if (guiContext.preferences.isPreserveFileTime())
+                        if (guiContext.preferences.isPreserveFileTimes())
                             guiContext.context.clientSftp.setDate(path, (int) sourceTuo.fileTime.to(TimeUnit.SECONDS));
                     }
                     else

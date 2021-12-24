@@ -384,16 +384,16 @@ class NavTreeNode extends DefaultMutableTreeNode
                 switch (myTuo.type)
                 {
                     case NavTreeUserObject.BOOKMARKS:
-                        logger.debug("bookmarks");
+                        //logger.debug("bookmarks");
                         break;
                     case NavTreeUserObject.SYSTEM: // for completeness, hidden
-                        logger.debug("system");
+                        //logger.debug("system");
                         break;
                     case NavTreeUserObject.COLLECTION:
-                        logger.debug("collection"); // root of collection
+                        //logger.debug("collection"); // root of collection
                         break;
                     case NavTreeUserObject.COMPUTER: // virtual node, not processed
-                        logger.debug("computer");
+                        //logger.debug("computer");
                         break;
                     case NavTreeUserObject.DRIVE:
                         if (myTuo.isDir)
@@ -552,15 +552,15 @@ class NavTreeNode extends DefaultMutableTreeNode
     protected void loadTable()
     {
         TableColumn column;
+        if (myTable.getColumnModel().getColumnCount() > 0)
+            guiContext.preferences.extractColumnSizes(guiContext, myTable);
         BrowserTableModel btm = new BrowserTableModel(this);
         myTable.setModel(btm);
 
         // tweak the columns
-        // TODO Add remembering & restoring each table's column widths, etc.
-
         for (int i = 0; i < myTable.getColumnCount(); ++i)
         {
-            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer(); //(DefaultTableCellRenderer) myTable.getCellRenderer(1, i);
+            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
             column = myTable.getColumnModel().getColumn(i);
             switch (i)
             {
@@ -588,6 +588,9 @@ class NavTreeNode extends DefaultMutableTreeNode
                     break;
             }
         }
+
+        if (myTable.getColumnModel().getColumnCount() > 0)
+            guiContext.preferences.fixColumnSizes(guiContext, myTable);
 
         ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
         sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));

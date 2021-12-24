@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.0.404" Java: "11.0.12" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.2.410" Java: "11.0.13" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -56,8 +56,40 @@ new FormModel {
 										"mnemonic": new FormMessage( null, "Navigator.buttonNewFolder.mnemonic" )
 										"focusable": false
 									} )
+									add( new FormComponent( "javax.swing.JToolBar$Separator" ) {
+										name: "separator8"
+									} )
+									add( new FormComponent( "javax.swing.JButton" ) {
+										name: "buttonJobs"
+										"text": new FormMessage( null, "Navigator.buttonJobs.text" )
+										"enabled": false
+									} )
+									add( new FormComponent( "javax.swing.JComboBox" ) {
+										name: "comboBoxJobs"
+										"model": new javax.swing.DefaultComboBoxModel {
+											selectedItem: "Clean Junk"
+											addElement( "Clean Junk" )
+											addElement( "Clean junk & renumber episodes" )
+											addElement( "Find and delete duplicates" )
+										}
+										"enabled": false
+									} )
+									add( new FormComponent( "javax.swing.JButton" ) {
+										name: "buttonRun"
+										"text": new FormMessage( null, "Navigator.buttonRun.text" )
+										"enabled": false
+									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
-									"value": "North"
+									"value": "Center"
+								} )
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "buttonHintTracking"
+									"text": new FormMessage( null, "Navigator.buttonHintTracking.text" )
+									"mnemonic": new FormMessage( null, "Navigator.buttonHintTracking.mnemonic" )
+									"toolTipText": "Toggle creating hints based on actions in Collections"
+									"focusable": false
+								}, new FormLayoutConstraints( class java.lang.String ) {
+									"value": "East"
 								} )
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 									name: "panelLocation"
@@ -447,7 +479,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemOpenPublisher.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenPublisher.mnemonic_2" )
 						"horizontalTextPosition": 2
-						"enabled": false
 						"horizontalAlignment": 2
 						"displayedMnemonicIndex": 5
 					} )
@@ -455,7 +486,6 @@ new FormModel {
 						name: "menuItemOpenSubscriber"
 						"text": new FormMessage( null, "Navigator.menuItemOpenSubscriber.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenSubscriber.mnemonic" )
-						"enabled": false
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
 					} )
@@ -466,7 +496,6 @@ new FormModel {
 						name: "menuItemSaveLayout"
 						"text": new FormMessage( null, "Navigator.menuItemSaveLayout.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemSaveLayout.mnemonic_3" )
-						"enabled": false
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {

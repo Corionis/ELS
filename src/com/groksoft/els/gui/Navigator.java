@@ -1,18 +1,29 @@
 package com.groksoft.els.gui;
 
+import com.google.gson.Gson;
 import com.groksoft.els.*;
-import jdk.nashorn.internal.scripts.JD;
+import com.groksoft.els.repository.Repository;
+import com.groksoft.els.sftp.ClientSftp;
+import com.groksoft.els.stty.ClientStty;
+import jdk.nashorn.internal.scripts.JO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class Navigator
@@ -27,13 +38,11 @@ public class Navigator
 
     // TODO:
     //  ! TEST Hints with spread-out files, e.g. TV Show in two locations.
+    //  * Hint tracking in Browser
     //  * Display Collection:
-    //     * Whole tree
+    //     * Whole tree - done
     //     * !-Z alphabetic
-    //     * By-source
-    //  * View, Wrap log lines (toggle)
     //  * Overwrite true/false option?
-    //  * Help, Controls simple dialog showing all the keys and mouse controls
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -52,12 +61,13 @@ public class Navigator
      */
     private boolean initialize()
     {
+        readPreferences();
+
         // setup the needed tools
         guiContext.context.transfer = new Transfer(guiContext.cfg, guiContext.context);
         try
         {
             guiContext.context.transfer.initialize();
-            guiContext.preferences.initialize();
         }
         catch (Exception e)
         {
@@ -74,13 +84,13 @@ public class Navigator
             initializeMainMenu();
             guiContext.browser = new Browser(guiContext);
 
-            // TODO Add Backup, Profiles and Keys creation here
+            // TODO Add Backup, and other tab content creation here
 
 
             // disable back-fill
             guiContext.cfg.setNoBackFill(true);
 
-            guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTime());
+            guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTimes());
 
 //        Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
 //            logger.error("GOT IT: " + Utils.getStackTrace(throwable));
@@ -107,6 +117,256 @@ public class Navigator
         // --- Main Menu ------------------------------------------
         //
         // -- File Menu
+        //
+        // Open Publisher
+        AbstractAction openPublisherAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JFileChooser fc = new JFileChooser();
+                fc.setFileFilter(new FileFilter()
+                {
+                    @Override
+                    public boolean accept(File file)
+                    {
+                        if (file.isDirectory())
+                            return true;
+                        return (file.getName().toLowerCase().endsWith(".json"));
+                    }
+
+                    @Override
+                    public String getDescription()
+                    {
+                        return "ELS Library files (*.json)";
+                    }
+                });
+                fc.setDialogTitle("Open ELS Publisher Library");
+                fc.setFileHidingEnabled(false);
+                if (guiContext.preferences.getLastPublisherOpenPath().length() > 0)
+                {
+                    File ld = new File(guiContext.preferences.getLastPublisherOpenPath());
+                    if (ld.exists() && ld.isDirectory())
+                        fc.setCurrentDirectory(ld);
+                }
+                if (guiContext.preferences.getLastPublisherOpenFile().length() > 0)
+                {
+                    File lf = new File(guiContext.preferences.getLastPublisherOpenFile());
+                    if (lf.exists())
+                        fc.setSelectedFile(lf);
+                }
+
+                while (true)
+                {
+                    int selection = fc.showOpenDialog(guiContext.form);
+                    if (selection == JFileChooser.APPROVE_OPTION)
+                    {
+                        File last = fc.getCurrentDirectory();
+                        guiContext.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
+                        File file = fc.getSelectedFile();
+                        if (!file.exists())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "File not found: " + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        if (file.isDirectory())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "Select a file only", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        try
+                        {
+                            guiContext.preferences.setLastPublisherOpenFile(file.getAbsolutePath());
+                            guiContext.cfg.setPublisherLibrariesFileName(file.getAbsolutePath());
+                            guiContext.context.publisherRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                            guiContext.browser.loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo, false);
+                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemOne, null, false);
+                        }
+                        catch (Exception e)
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "Error opening publisher library:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        };
+        guiContext.form.menuItemOpenPublisher.addActionListener(openPublisherAction);
+
+        // Open Subscriber
+        AbstractAction openSubscriberAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.cfg.getPublisherLibrariesFileName().length() < 1 ||
+                    guiContext.context.publisherRepo == null)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Please open a Publisher Library first", guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                JFileChooser fc = new JFileChooser();
+                fc.setFileFilter(new FileFilter()
+                {
+                    @Override
+                    public boolean accept(File file)
+                    {
+                        if (file.isDirectory())
+                            return true;
+                        return (file.getName().toLowerCase().endsWith(".json"));
+                    }
+
+                    @Override
+                    public String getDescription()
+                    {
+                        return "ELS Library files (*.json)";
+                    }
+                });
+                fc.setDialogTitle("Open ELS Subscriber Library");
+                fc.setFileHidingEnabled(false);
+                if (guiContext.preferences.getLastSubscriberOpenPath().length() > 0)
+                {
+                    File ld = new File(guiContext.preferences.getLastSubscriberOpenPath());
+                    if (ld.exists() && ld.isDirectory())
+                        fc.setCurrentDirectory(ld);
+                }
+                if (guiContext.preferences.getLastSubscriberOpenFile().length() > 0)
+                {
+                    File lf = new File(guiContext.preferences.getLastSubscriberOpenFile());
+                    if (lf.exists())
+                        fc.setSelectedFile(lf);
+                }
+
+                JPanel jp = new JPanel();
+                GridBagLayout gb = new GridBagLayout();
+                jp.setLayout(gb);
+                jp.setBackground(UIManager.getColor("TextField.background"));
+                jp.setBorder(guiContext.form.textFieldLocation.getBorder());
+                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>&nbsp;&nbsp;Remote<br/>Connection&nbsp;&nbsp;</body></html>");
+                cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
+                cbIsRemote.setToolTipText("Be sure an ELS Subscriber Listener is running on the remote system");
+                cbIsRemote.setSelected(guiContext.preferences.isLastIsRemote());
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(0, 0, 0, 4);
+                gb.setConstraints(cbIsRemote, gbc);
+                jp.add(cbIsRemote);
+                fc.setAccessory(jp);
+
+                while (true)
+                {
+                    int selection = fc.showOpenDialog(guiContext.form);
+                    if (selection == JFileChooser.APPROVE_OPTION)
+                    {
+                        if (guiContext.cfg.isRemoteSession())
+                        {
+                            if (guiContext.preferences.isShowConfirmations())
+                            {
+                                int r = JOptionPane.showConfirmDialog(guiContext.form, "Close current remote connection?", guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                                if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                                    return;
+                            }
+                            try
+                            {
+                                guiContext.context.clientStty.send("logout");
+                            }
+                            catch (Exception e)
+                            {
+                            }
+                            guiContext.context.clientStty.disconnect();
+                            guiContext.context.clientSftp.stopClient();
+                        }
+
+                        guiContext.preferences.setLastIsRemote(cbIsRemote.isSelected());
+                        File last = fc.getCurrentDirectory();
+                        guiContext.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
+                        File file = fc.getSelectedFile();
+                        if (!file.exists())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "File not found: " + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        if (file.isDirectory())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "Select a file only", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        try
+                        {
+                            if (guiContext.preferences.isLastIsRemote())
+                            {
+                                guiContext.cfg.setRemoteType("P");
+                            }
+                            else
+                            {
+                                guiContext.cfg.setRemoteType("-");
+                            }
+
+                            guiContext.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
+                            guiContext.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
+                            guiContext.context.subscriberRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.SUBSCRIBER, !guiContext.preferences.isLastIsRemote());
+
+                            if (guiContext.preferences.isLastIsRemote())
+                            {
+                                guiContext.cfg.setRemoteType("P");
+
+                                // connect to the hint status server if defined
+                                guiContext.context.main.connectHintServer(guiContext.context.publisherRepo);
+
+                                // start the serveStty client for automation
+                                guiContext.context.clientStty = new ClientStty(guiContext.cfg, false, true);
+                                if (!guiContext.context.clientStty.connect(guiContext.context.publisherRepo, guiContext.context.subscriberRepo))
+                                {
+                                    JOptionPane.showMessageDialog(guiContext.form, "Remote subscriber failed to connect", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    guiContext.cfg.setRemoteType("-");
+                                    return;
+                                }
+
+                                // start the serveSftp client
+                                guiContext.context.clientSftp = new ClientSftp(guiContext.cfg, guiContext.context.publisherRepo, guiContext.context.subscriberRepo, true);
+                                if (!guiContext.context.clientSftp.startClient())
+                                {
+                                    JOptionPane.showMessageDialog(guiContext.form, "Subscriber sftp failed to connect", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    guiContext.cfg.setRemoteType("-");
+                                    return;
+                                }
+                            }
+
+                            // load the subscriber library
+                            guiContext.browser.loadCollectionTree(guiContext.form.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
+                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemTwo, null, guiContext.preferences.isLastIsRemote());
+                        }
+                        catch (Exception e)
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "Error opening subscriber library: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        };
+        guiContext.form.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
+
+        // Save Layout
+        AbstractAction saveLayoutAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    guiContext.preferences.export(guiContext);
+                }
+                catch (Exception e)
+                {
+                    guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                    JOptionPane.showMessageDialog(guiContext.form, "Error saving layout " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        guiContext.form.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         //
         // -- Edit Menu
@@ -244,6 +504,7 @@ public class Navigator
         };
         guiContext.form.menuItemNewFolder.addActionListener(newFolderAction);
         guiContext.form.popupMenuItemNewFolder.addActionListener(newFolderAction);
+
         //
         // Rename
         ActionListener renameAction = new AbstractAction()
@@ -343,6 +604,8 @@ public class Navigator
         };
         guiContext.form.menuItemRename.addActionListener(renameAction);
         guiContext.form.popupMenuItemRename.addActionListener(renameAction);
+
+        //
         // Copy
         ActionListener copyAction = new AbstractAction()
         {
@@ -359,6 +622,8 @@ public class Navigator
         };
         guiContext.form.menuItemCopy.addActionListener(copyAction);
         guiContext.form.popupMenuItemCopy.addActionListener(copyAction);
+
+        //
         // Cut
         ActionListener cutAction = new AbstractAction()
         {
@@ -375,6 +640,8 @@ public class Navigator
         };
         guiContext.form.menuItemCut.addActionListener(cutAction);
         guiContext.form.popupMenuItemCut.addActionListener(cutAction);
+
+        //
         // Paste
         ActionListener pasteAction = new AbstractAction()
         {
@@ -391,6 +658,8 @@ public class Navigator
         };
         guiContext.form.menuItemPaste.addActionListener(pasteAction);
         guiContext.form.popupMenuItemPaste.addActionListener(pasteAction);
+
+        //
         // Delete
         ActionListener deleteAction = new AbstractAction()
         {
@@ -415,6 +684,8 @@ public class Navigator
 
         //
         // -- View Menu
+        //
+        // Refresh
         guiContext.form.menuItemRefresh.addActionListener(new AbstractAction()
         {
             @Override
@@ -423,7 +694,9 @@ public class Navigator
                 guiContext.browser.rescanByObject(guiContext.browser.lastComponent);
             }
         });
+
         //
+        // Show Hidden
         guiContext.form.menuItemShowHidden.addActionListener(new AbstractAction()
         {
             @Override
@@ -455,6 +728,8 @@ public class Navigator
 
         //
         // -- Window Menu
+        //
+        // Maximize
         guiContext.form.menuItemMaximize.addActionListener(new AbstractAction()
         {
             @Override
@@ -463,7 +738,9 @@ public class Navigator
                 guiContext.form.setExtendedState(guiContext.form.getExtendedState() | JFrame.MAXIMIZED_BOTH);
             }
         });
+
         //
+        // Minimize
         guiContext.form.menuItemMinimize.addActionListener(new AbstractAction()
         {
             @Override
@@ -472,7 +749,9 @@ public class Navigator
                 guiContext.form.setState(JFrame.ICONIFIED);
             }
         });
+
         //
+        // Restore
         guiContext.form.menuItemRestore.addActionListener(new AbstractAction()
         {
             @Override
@@ -481,7 +760,9 @@ public class Navigator
                 guiContext.form.setExtendedState(JFrame.NORMAL);
             }
         });
+
         //
+        // Split Horizontal
         guiContext.form.menuItemSplitHorizontal.addActionListener(new AbstractAction()
         {
             @Override
@@ -494,7 +775,9 @@ public class Navigator
                 guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
             }
         });
+
         //
+        // Split Vertical
         guiContext.form.menuItemSplitVertical.addActionListener(new AbstractAction()
         {
             @Override
@@ -510,62 +793,35 @@ public class Navigator
 
         // -- Help Menu
         //
+        // Controls
         guiContext.form.menuItemControls.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 NavHelp dialog = new NavHelp(guiContext.form);
-                String text = "<html>\n" +
-                        "<head>\n" +
-                        "<style>\n" +
-                        "html, body {\n" +
-                        " height: 100%\n" +
-                        "}\n" +
-                        "table {\n" +
-//                        "  border: 1px solid white;\n" +
-                        "  margin:4px;\n" +
-                        "  padding:4px; \n" +
-                        "  height:100%;\n" +
-                        "  width:100%; \n" +
-                        "}\n" +
-                        "th {\n" +
-                        "  text-align:left;\n" +
-                        "}\n" +
-                        "td {\n" +
-                        "  text-align:left;\n" +
-                        "}\n" +
-                        "</style>\n" +
-                        "</head>\n" +
-                        "<body>\n" +
-                        "<table>\n" +
-                        "<tr>\n" +
-                        "  <th>Function:</th><th>Key(s)/Mouse:</th>\n" +
-                        "  <th>Function:</th><th>Key(s)/Mouse:</th>\n" +
-                        "</tr>\n" +
-                        "<tr>\n" +
-                        "  <td>Copy</td><td>Ctrl-C</td>\n" +
-                        "  <td>Back</td><td>Alt-Left, Mouse Back</td>\n" +
-                        "</tr>\n" +
-                        "<tr>\n" +
-                        "  <td>Cut</td><td>Ctrl-X</td>\n" +
-                        "  <td>Forward</td><td>Alt-Right, Mouse Forward</td>\n" +
-                        "</tr>\n" +
-                        "</table>\n" +
-                        "</body></html>\n";
-                dialog.controlsHelpText.setText(text);
-                dialog.okButton.addActionListener(new AbstractAction()
+                String text = "";
+                try
                 {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
+                    URL url = Thread.currentThread().getContextClassLoader().getResource("controls.html");
+                    List<String> lines = IoUtils.readAllLines(url);
+                    for (int i = 0; i < lines.size(); ++i)
                     {
-                        dialog.setVisible(false);
+                        text += lines.get(i) + "\n";
                     }
-                });
-                dialog.setVisible(true);
+                    dialog.controlsHelpText.setText(text);
+                    dialog.setVisible(true);
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                }
+
             }
         });
+
         //
+        // Documentation
         guiContext.form.menuItemDocumentation.addActionListener(new AbstractAction()
         {
             @Override
@@ -582,7 +838,9 @@ public class Navigator
                 }
             }
         });
+
         //
+        // GitHub Project
         guiContext.form.menuItemGitHubProject.addActionListener(new AbstractAction()
         {
             @Override
@@ -622,7 +880,26 @@ public class Navigator
                 guiContext.form.textAreaLog.setText("");
             }
         });
-        
+
+    }
+
+    public void readPreferences()
+    {
+        try
+        {
+            String json;
+            Gson gson = new Gson();
+            json = new String(Files.readAllBytes(Paths.get(guiContext.preferences.getFilename())));
+            Preferences prefs = gson.fromJson(json, guiContext.preferences.getClass());
+            if (prefs != null)
+            {
+                guiContext.preferences = gson.fromJson(json, guiContext.preferences.getClass());
+            }
+        }
+        catch (IOException e)
+        {
+            // file might not exist
+        }
     }
 
     public int run() throws Exception
@@ -635,14 +912,14 @@ public class Navigator
                 logger.info("Initializing Navigator");
                 if (initialize())
                 {
-                    logger.info("Displaying Navigator");
-                    guiContext.form.setVisible(true);
-
-                    guiContext.preferences.setBrowserBottomSize(guiContext.form.tabbedPaneNavigatorBottom.getHeight());
+                    guiContext.preferences.fixApplication(guiContext);
 
                     String os = Utils.getOS();
                     logger.debug("Detected local system as " + os);
                     guiContext.form.labelStatusMiddle.setText("Detected local system as " + os);
+
+                    logger.info("Displaying Navigator");
+                    guiContext.form.setVisible(true);
                 }
                 else
                 {
@@ -679,12 +956,19 @@ public class Navigator
         }
 
         // report stats and shutdown
-        Main.stopVerbiage();
         if (guiContext.form != null)
         {
+            try // save the settings
+            {
+                guiContext.preferences.export(guiContext);
+            }
+            catch (Exception e)
+            {
+            }
             guiContext.form.setVisible(false);
             guiContext.form.dispose();
         }
+        Main.stopVerbiage();
 
         // stop the program if something blew-up
         if (guiContext.context.fault)

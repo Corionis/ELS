@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.Date;
 
@@ -23,7 +24,7 @@ import static com.groksoft.els.Configuration.*;
  */
 public class Main
 {
-    public static Main els;
+    public static Main main;
     public final Context context = new Context();
     public Configuration cfg;
     private boolean isListening = false;
@@ -35,6 +36,7 @@ public class Main
      */
     public Main()
     {
+        context.main = this;
     }
 
     /**
@@ -44,8 +46,8 @@ public class Main
      */
     public static void main(String[] args)
     {
-        els = new Main();
-        els.process(args);          // ELS Processor
+        main = new Main();
+        main.process(args);          // ELS Processor
     } // main
 
     /**
@@ -54,7 +56,7 @@ public class Main
      * @param repo The Repository that is connecting to the tracker/server
      * @throws Exception Configuration and connection exceptions
      */
-    private void connectHintServer(Repository repo) throws Exception
+    public void connectHintServer(Repository repo) throws Exception
     {
         if (cfg.isUsingHintTracker())
         {
@@ -285,14 +287,14 @@ public class Main
                         context.clientStty = new ClientStty(cfg, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
-                            throw new MungeException("Publisher remote failed to connect");
+                            throw new MungeException("Remote subscriber failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(cfg, context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungeException("Publisher sftp client failed to connect");
+                            throw new MungeException("Subscriber sftp failed to connect");
                         }
 
                         // handle -n | --navigator to display the Navigator
@@ -381,7 +383,7 @@ public class Main
                         context.clientSftp = new ClientSftp(cfg, context.subscriberRepo, context.publisherRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungeException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp failed to connect");
                         }
 
                         // start serveStty server
@@ -477,6 +479,8 @@ public class Main
             {
                 System.out.println(Utils.getStackTrace(e));
             }
+            if (cfg.isNavigator())
+                JOptionPane.showMessageDialog(null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             isListening = false; // force stop
             returnValue = 1;
         }
@@ -505,11 +509,11 @@ public class Main
                         try
                         {
                             // optionally command status server to quit
-                            if (els.context.statusStty != null)
-                                els.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
+                            if (main.context.statusStty != null)
+                                main.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
                             Main.stopVerbiage();
-                            els.stopServices();
+                            main.stopServices();
                             Thread.sleep(4000L);
                         }
                         catch (Exception e)
@@ -536,7 +540,7 @@ public class Main
      * @return Repository object
      * @throws Exception
      */
-    private Repository readRepo(Configuration cfg, boolean isPublisher, boolean validate) throws Exception
+    public Repository readRepo(Configuration cfg, boolean isPublisher, boolean validate) throws Exception
     {
         Repository repo = new Repository(cfg);
         if (isPublisher)
@@ -629,7 +633,7 @@ public class Main
             {
                 try
                 {
-                    context.statusStty.send("logout");
+                    context.statusStty.send("quit");
                 }
                 catch (Exception e)
                 {
@@ -659,17 +663,17 @@ public class Main
 
     public static void stopVerbiage()
     {
-        if (!els.cfg.getConsoleLevel().equalsIgnoreCase(els.cfg.getDebugLevel()))
-            els.logger.info("Log file has more details: " + els.cfg.getLogFilename());
+        if (!main.cfg.getConsoleLevel().equalsIgnoreCase(main.cfg.getDebugLevel()))
+            main.logger.info("Log file has more details: " + main.cfg.getLogFilename());
 
         Date done = new Date();
-        long millis = Math.abs(done.getTime() - els.stamp.getTime());
-        els.logger.fatal("Runtime: " + Utils.getDuration(millis));
+        long millis = Math.abs(done.getTime() - main.stamp.getTime());
+        main.logger.fatal("Runtime: " + Utils.getDuration(millis));
 
-        if (!els.context.fault)
-            els.logger.fatal("Process completed normally\n");
+        if (!main.context.fault)
+            main.logger.fatal("Process completed normally\n");
         else
-            els.logger.fatal("Process failed\n");
+            main.logger.fatal("Process failed\n");
     }
 
 } // Main

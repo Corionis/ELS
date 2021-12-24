@@ -1367,10 +1367,6 @@ public class Configuration
      */
     public void setRemoteType(String type) throws MungeException
     {
-        if (!this.remoteType.equals("-"))
-        {
-            throw new MungeException("The -r option may only be used once");
-        }
         this.remoteType = type;
         this.remoteFlag = NOT_REMOTE;
         if (type.equalsIgnoreCase("P"))
@@ -1383,7 +1379,7 @@ public class Configuration
             this.remoteFlag = PUBLISHER_LISTENER;
         else if (type.equalsIgnoreCase("T"))
             this.remoteFlag = SUBSCRIBER_TERMINAL;
-        else
+        else if (!type.equals("-"))
             throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
     }
 

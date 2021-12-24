@@ -409,8 +409,10 @@ public class Daemon extends DaemonBase
                     }
                     else
                     {
-                        theCommand = "quit";
-                        // let the logic fall through to the 'quit' handler below
+                        //theCommand = "quit";
+                        //// let the logic fall through to the 'quit' handler below
+
+                        break; // end loop and let the connection close
                     }
                 }
 
