@@ -556,7 +556,6 @@ public class Hints
                                     if (updatePubSide)
                                     {
                                         subLib.rescanNeeded = true;
-                                        //++executedHints;
                                     }
                                 }
                                 else
@@ -573,7 +572,6 @@ public class Hints
                                 if (toItem.isHintExecuted())
                                 {
                                     subLib.rescanNeeded = true;
-                                    //++executedHints;
                                     updatePubSide = true;
                                 }
                             }

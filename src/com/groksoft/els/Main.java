@@ -423,7 +423,7 @@ public class Main
                     context.statusRepo = new Repository(cfg);
                     context.statusRepo.read(cfg.getHintsDaemonFilename());
 
-                    // Get ELS hints keys if specified
+                    // Get ELS hints keys
                     context.hintKeys = new HintKeys(cfg, context);
                     context.hintKeys.read(cfg.getHintKeysFile());
 

@@ -2,7 +2,6 @@ package com.groksoft.els.gui;
 
 import com.groksoft.els.Utils;
 
-import javax.management.remote.rmi._RMIConnection_Stub;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -225,4 +224,20 @@ public class NavTreeUserObject implements Comparable, Serializable
     {
         return name;
     }
+
+    public boolean isSubscriber()
+    {
+        if (node.getMyTree().getName().equalsIgnoreCase("treeCollectionTwo") ||
+            node.getMyTree().getName().equalsIgnoreCase("tableCollectionTwo"))
+            return true;
+        return false;
+    }
+
+    public boolean isSubscriberCollection()
+    {
+        if (node.getMyTree().getName().equalsIgnoreCase("treeCollectionTwo"))
+            return true;
+        return false;
+    }
+
 }

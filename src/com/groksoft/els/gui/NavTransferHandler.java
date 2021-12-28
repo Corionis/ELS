@@ -166,6 +166,32 @@ public class NavTransferHandler extends TransferHandler
         guiContext.browser.refreshTree(targetTree);
     }
 
+    /**
+     * Export one or more Hint files to subscriber
+     * <br/>
+     * Only move operations that impact a media server collection are tracked with Hints
+     *
+     * @param transferData
+     * @param targetTuo
+     * @throws Exception
+     */
+    private void exportHints(ArrayList<NavTreeUserObject> transferData, NavTreeUserObject targetTuo) throws Exception
+    {
+        // hints are for moves in this context
+        // copies to or within a collection are a basic add
+        if (action == TransferHandler.MOVE)
+        {
+            // iterate the selected source row's user object
+            for (NavTreeUserObject sourceTuo : transferData)
+            {
+                if (sourceTuo.isSubscriberCollection()) // wrong. what about on-media-server ops?
+                {
+                    guiContext.context.transfer.writeHint("mv", sourceTuo, targetTuo);
+                }
+            }
+        }
+    }
+
     private String getOperation(boolean currentTense)
     {
         String op = "";
@@ -522,10 +548,12 @@ public class NavTransferHandler extends TransferHandler
      * @param targetTuo
      * @return
      */
-    private int process(ArrayList<NavTreeUserObject> transferData, JTree targetTree, NavTreeUserObject targetTuo)
+    private int process(ArrayList<NavTreeUserObject> transferData, JTree targetTree, NavTreeUserObject targetTuo) throws Exception
     {
         int count = 0;
         depth = 0;
+        boolean error = false;
+
         // iterate the selected source row's user object
         for (NavTreeUserObject sourceTuo : transferData)
         {
@@ -539,9 +567,17 @@ public class NavTransferHandler extends TransferHandler
             {
                 ++count;
                 if (!transferFile(sourceTuo, targetTree, targetTuo))
+                {
+                    error = true;
                     break;
+                }
             }
         }
+        if (!error && guiContext.browser.trackingHints)
+        {
+            exportHints(transferData, targetTuo);
+        }
+
         return count;
     }
 

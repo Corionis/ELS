@@ -1,6 +1,5 @@
 package com.groksoft.els.gui;
 
-import javax.swing.border.*;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
@@ -12,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import javax.swing.text.DefaultCaret;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ResourceBundle;
@@ -43,7 +41,7 @@ public class MainFrame extends JFrame
 
         try
         {
-            if (guiContext.preferences.getLafStyle() == 0)
+            if (guiContext.preferences.getLookAndFeel() == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
             {
@@ -117,7 +115,7 @@ public class MainFrame extends JFrame
 
     private LookAndFeel getLookAndFeel()
     {
-        switch (guiContext.preferences.getLafStyle())
+        switch (guiContext.preferences.getLookAndFeel())
         {
             // Built-in themes
             case 1:

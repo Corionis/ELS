@@ -13,6 +13,10 @@ import java.io.Serializable;
 
 public class Preferences implements Serializable
 {
+    private int appHeight = 640; // tracked value
+    private int appWidth = 1024; // tracked value
+    private int appXpos = -1; // tracked value
+    private int appYpos = -1; // tracked value
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int browserBottomSize = 143; // tracked value
     private int centerDividerLocation = 512; // tracked value
@@ -27,24 +31,23 @@ public class Preferences implements Serializable
     private int collectionTwoSizeWidth = 80; // tracked value
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
-    private int height = 640; // tracked value
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
-    // The Look 'n Feel, 0-6
-    // 0=System default look 'n feel - use for Windows,
-    // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
-    // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
-    private int lafStyle = 6;
+    private boolean lastIsCollection = true;
     private boolean lastIsRemote = true;
     private String lastPublisherOpenFile = "";
     private String lastPublisherOpenPath = "";
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
+    // The Look 'n Feel, 0-6
+    // 0=System default look 'n feel - use for Windows,
+    // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
+    // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
+    private int lookAndFeel = 6;
     private boolean preserveFileTimes = true;
     private boolean showConfirmations = true; // show confirmation dialogs for copy, move, delete, etc.
-    private boolean showHintTrackingButton = true;
-    private boolean sortCaseInsensitive = false;
+    private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
     private int systemOneDateWidth = 80; // tracked value
@@ -55,9 +58,6 @@ public class Preferences implements Serializable
     private int systemTwoDividerLocation = 152; // tracked value
     private int systemTwoNameWidth = 128; // tracked value
     private int systemTwoSizeWidth = 80; // tracked value
-    private int width = 1024; // tracked value
-    private int xpos = -1; // tracked value
-    private int ypos = -1; // tracked value
     /**
      * Constructor
      */
@@ -92,13 +92,17 @@ public class Preferences implements Serializable
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         // size & position
-        width = guiContext.form.getWidth();
-        height = guiContext.form.getHeight();
+        appWidth = guiContext.form.getWidth();
+        appHeight = guiContext.form.getHeight();
         Point location = guiContext.form.getLocation();
-        xpos = location.x;
-        ypos = location.y;
+        appXpos = location.x;
+        appYpos = location.y;
 
         // dividers
+//        int whole = guiContext.form.splitPaneBrowser.getHeight();
+//        int divider = guiContext.form.splitPaneBrowser.getDividerSize();
+//        int pos = whole - divider - guiContext.preferences.getBrowserBottomSize();
+//        browserBottomSize = pos;
         centerDividerOrientation = guiContext.form.splitPaneTwoBrowsers.getOrientation();
         centerDividerLocation = guiContext.form.splitPaneTwoBrowsers.getDividerLocation();
         collectionOneDividerLocation = guiContext.form.splitPaneCollectionOne.getDividerLocation();
@@ -168,10 +172,10 @@ public class Preferences implements Serializable
     public void fixApplication(GuiContext guiContext)
     {
         // set position and size
-        if (guiContext.preferences.getXpos() > -1)
-            guiContext.form.setLocation(guiContext.preferences.getXpos(), guiContext.preferences.getYpos());
-        if (guiContext.preferences.getWidth() > -1)
-            guiContext.form.setSize(guiContext.preferences.getWidth(), guiContext.preferences.getHeight());
+        if (guiContext.preferences.getAppXpos() > -1)
+            guiContext.form.setLocation(guiContext.preferences.getAppXpos(), guiContext.preferences.getAppYpos());
+        if (guiContext.preferences.getAppWidth() > -1)
+            guiContext.form.setSize(guiContext.preferences.getAppWidth(), guiContext.preferences.getAppHeight());
 
         // dividers
         // the bottom divider is handler elsewhere
@@ -245,6 +249,26 @@ public class Preferences implements Serializable
         }
     }
 
+    public int getAppHeight()
+    {
+        return appHeight;
+    }
+
+    public int getAppWidth()
+    {
+        return appWidth;
+    }
+
+    public int getAppXpos()
+    {
+        return appXpos;
+    }
+
+    public int getAppYpos()
+    {
+        return appYpos;
+    }
+
     public int getBrowserBottomSize()
     {
         return browserBottomSize;
@@ -307,23 +331,13 @@ public class Preferences implements Serializable
 
     public String getFilename()
     {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") + ".els-settings.json";
+        String path = System.getProperty("user.home") + System.getProperty("file.separator") + ".els";
         return path;
-    }
-
-    public int getHeight()
-    {
-        return height;
     }
 
     public String getHintTrackingColor()
     {
         return hintTrackingColor;
-    }
-
-    public int getLafStyle()
-    {
-        return lafStyle;
     }
 
     public String getLastPublisherOpenFile()
@@ -344,6 +358,11 @@ public class Preferences implements Serializable
     public String getLastSubscriberOpenPath()
     {
         return lastSubscriberOpenPath;
+    }
+
+    public int getLookAndFeel()
+    {
+        return lookAndFeel;
     }
 
     public int getSystemOneDateWidth()
@@ -386,21 +405,6 @@ public class Preferences implements Serializable
         return systemTwoSizeWidth;
     }
 
-    public int getWidth()
-    {
-        return width;
-    }
-
-    public int getXpos()
-    {
-        return xpos;
-    }
-
-    public int getYpos()
-    {
-        return ypos;
-    }
-
     public boolean isBinaryScale()
     {
         return binaryScale;
@@ -414,6 +418,11 @@ public class Preferences implements Serializable
     public boolean isHideHiddenFiles()
     {
         return hideHiddenFiles;
+    }
+
+    public boolean isLastIsCollection()
+    {
+        return lastIsCollection;
     }
 
     public boolean isLastIsRemote()
@@ -431,11 +440,6 @@ public class Preferences implements Serializable
         return showConfirmations;
     }
 
-    public boolean isShowHintTrackingButton()
-    {
-        return showHintTrackingButton;
-    }
-
     public boolean isSortCaseInsensitive()
     {
         return sortCaseInsensitive;
@@ -449,6 +453,26 @@ public class Preferences implements Serializable
     public boolean isSortReverse()
     {
         return sortReverse;
+    }
+
+    public void setAppHeight(int appHeight)
+    {
+        this.appHeight = appHeight;
+    }
+
+    public void setAppWidth(int appWidth)
+    {
+        this.appWidth = appWidth;
+    }
+
+    public void setAppXpos(int appXpos)
+    {
+        this.appXpos = appXpos;
+    }
+
+    public void setAppYpos(int appYpos)
+    {
+        this.appYpos = appYpos;
     }
 
     public void setBinaryScale(boolean binaryScale)
@@ -516,11 +540,6 @@ public class Preferences implements Serializable
         this.dateFormat = dateFormat;
     }
 
-    public void setHeight(int height)
-    {
-        this.height = height;
-    }
-
     public void setHideFilesInTree(boolean hideFilesInTree)
     {
         this.hideFilesInTree = hideFilesInTree;
@@ -536,9 +555,9 @@ public class Preferences implements Serializable
         this.hintTrackingColor = hintTrackingColor;
     }
 
-    public void setLafStyle(int lafStyle)
+    public void setLastIsCollection(boolean lastIsCollection)
     {
-        this.lafStyle = lafStyle;
+        this.lastIsCollection = lastIsCollection;
     }
 
     public void setLastIsRemote(boolean lastIsRemote)
@@ -566,6 +585,11 @@ public class Preferences implements Serializable
         this.lastSubscriberOpenPath = lastSubscriberOpenPath;
     }
 
+    public void setLookAndFeel(int lookAndFeel)
+    {
+        this.lookAndFeel = lookAndFeel;
+    }
+
     public void setPreserveFileTimes(boolean preserveFileTimes)
     {
         this.preserveFileTimes = preserveFileTimes;
@@ -574,11 +598,6 @@ public class Preferences implements Serializable
     public void setShowConfirmations(boolean showConfirmations)
     {
         this.showConfirmations = showConfirmations;
-    }
-
-    public void setShowHintTrackingButton(boolean showHintTrackingButton)
-    {
-        this.showHintTrackingButton = showHintTrackingButton;
     }
 
     public void setSortCaseInsensitive(boolean sortCaseInsensitive)
@@ -634,20 +653,5 @@ public class Preferences implements Serializable
     public void setSystemTwoSizeWidth(int systemTwoSizeWidth)
     {
         this.systemTwoSizeWidth = systemTwoSizeWidth;
-    }
-
-    public void setWidth(int width)
-    {
-        this.width = width;
-    }
-
-    public void setXpos(int xpos)
-    {
-        this.xpos = xpos;
-    }
-
-    public void setYpos(int ypos)
-    {
-        this.ypos = ypos;
     }
 }

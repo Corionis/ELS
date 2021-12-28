@@ -41,6 +41,11 @@ public class HintKeys
         return null;
     }
 
+    public ArrayList<HintKey> get()
+    {
+        return keys;
+    }
+
     public String getFilename()
     {
         return filename;

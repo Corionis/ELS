@@ -1,9 +1,7 @@
 package com.groksoft.els;
 
-import com.groksoft.els.repository.Item;
-import com.groksoft.els.repository.Library;
-import com.groksoft.els.repository.Location;
-import com.groksoft.els.repository.Repository;
+import com.groksoft.els.gui.NavTreeUserObject;
+import com.groksoft.els.repository.*;
 import com.groksoft.els.storage.Storage;
 import com.groksoft.els.storage.Target;
 import org.apache.commons.lang3.SerializationUtils;
@@ -187,8 +185,6 @@ public class Transfer
         }
         else
         {
-//            File folder = new File(path);
-//            path = folder.getAbsolutePath();
             space = Utils.availableSpace(path);
         }
         return space;
@@ -982,6 +978,29 @@ public class Transfer
         }
         toItem.setFullPath(path);
         return toItem;
+    }
+
+    public void writeHint(String action, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
+    {
+        /*
+         * Hint-able:
+         *   If source is a collection and target is not it is a delete.
+         *
+         * Not hint-able:
+         *   Copies to or within a collection are a basic add.
+         */
+        String act = action.trim().toLowerCase();
+        ArrayList<HintKeys.HintKey> keys = context.hintKeys.get();
+
+        if (act.equals("mv") || act.equals("rm"))
+        {
+            for (HintKeys.HintKey key : keys)
+            {
+
+            }
+        }
+        else
+            throw new MungeException("Action must be 'mv' or 'rm'");
     }
 
 }

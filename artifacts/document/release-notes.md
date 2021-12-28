@@ -8,6 +8,29 @@ media collection easier. Using the built-in capabilities of ELS the Navigator pr
 visual tool for adding media and curating a collection either locally or remotely to a
 media server.
 
+Features:
+ * Modes (where it's running)
+   * On a media collection
+   * On a separate workstation
+ * Browser
+   * Split-pane publisher/subscriber view     
+   * Collection and System tabs for each
+   * Local or remote subscriber
+   * Drag 'n Drop and Copy, Cut, Paste
+   * Optional ELS Hint Tracking
+   * Multiple named tool configurations to help when collecting new media
+     * Duplicate finder
+     * Junk remover
+     * Mass renamer
+     * External tools supported
+   * Named Jobs to assemble named tools into sequences of work
+ * BackUp
+   * Configure named ELS back-up with different configurations
+   * Execute and monitor back-up runs
+   * Generate scripts for command line execution
+ * Libraries
+   * Create and edit ELS Publisher, Subscriber, and Hint Server JSON files
+
 Like the rest of ELS the new Navigator is a general tool for any media system compatible
 with ELS. And similarly it works on Windows, Linux and Mac.
 
@@ -16,8 +39,24 @@ It's all built-in with the -n | --navigator option.
 ### Enhancements
 
  1. ELS Navigator.
+    1. Navigator by design is a publisher in ELS terms.
+    2. Navigator supports two scenarios:
+       1. Run on a media collection such as a media server system, and optionally
+          connected to a back-up running an ELS subscriber listener.
+       2. Run on a separate workstation, and optionally connected to a media
+          collection system or back-up running an ELS subscriber listener.
+       3. The File, Open Publisher dialog shows radio buttons for Collection or Workstation.
+          1. This setting determines where Hints are stored when the Hint Tracking button
+             is enabled.
+             1. If a Collection then the left-side Publisher.
+             2. If a Workstation then the right-side Subscriber.
+       4. Command-line behavior changes when using -n | --navigator:
+          1. -P sets the Navigator for running on a Collection
+          2. -p sets the Navigator as a Workstation
+          3. -S sets the Navigator for a remote Subscriber
+          4. -s sets the Navigator as a local Subscriber
 
- 2. New download options including an all-in-one with a dedicated embedded Java JRE.
+ 2. New ELS project download options including an all-in-one with a dedicated embedded Java JRE.
 
 ### Command Line Changes
 
@@ -28,8 +67,8 @@ It's all built-in with the -n | --navigator option.
 
  3. Added option -y | --preserve-dates to retain original file dates.
 
- 4. Added option -z | --decimal-scale to format numeric values with a 1000 decimal
-     scale instead of a 1024 binary scale.
+ 4. Added option -z | --decimal-scale to format numeric (B, KB, MB, GB, TB) values with
+    a 1000 decimal scale instead of a 1024 binary scale.
 
 ### Bug Fixes
 
@@ -39,7 +78,7 @@ It's all built-in with the -n | --navigator option.
  1. The ELS Navigator was built using [JFormDesigner](https://www.formdev.com/jformdesigner/doc/).<br/> 
     This inexpensive plug-in for IntelliJ allowed the creation of the Navigator
     much faster and with far fewer mistakes.
-
+ 
 ## Version 3.1.0
 
 Release 3.1.0 of ELS adds the Hint Status Tracker and a new mode - the Hint Status

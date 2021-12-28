@@ -33,12 +33,13 @@ public class Browser
     // style selections
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
+    //
     public JComponent lastComponent = null;
     public int lastTab = 0;
     public NavTransferHandler navTransferHandler;
     private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private GuiContext guiContext;
-    private boolean hintTracking = false;
+    public boolean trackingHints = false;
     private Color hintTrackingColor;
     private String keyBuffer = "";
     private long keyTime = 0L;
@@ -869,7 +870,7 @@ public class Browser
         guiContext.form.treeSystemOne.setName("treeSystemOne");
         if (guiContext.context.publisherRepo != null && guiContext.context.publisherRepo.isInitialized())
         {
-            loadSystemTree(guiContext.form.treeSystemOne, System.getProperty("user.home"), false);
+            loadSystemTree(guiContext.form.treeSystemOne, false);
         }
         else
         {
@@ -1000,7 +1001,7 @@ public class Browser
         guiContext.form.treeSystemTwo.setName("treeSystemTwo");
         if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
         {
-            loadSystemTree(guiContext.form.treeSystemTwo, "/", guiContext.cfg.isRemoteSession());
+            loadSystemTree(guiContext.form.treeSystemTwo, guiContext.cfg.isRemoteSession());
         }
         else
         {
@@ -1089,14 +1090,14 @@ public class Browser
             }
         });
 
-        if (guiContext.preferences.isShowHintTrackingButton())
+        if (guiContext.navigator.showHintTrackingButton)
         {
             guiContext.form.buttonHintTracking.addActionListener(new AbstractAction()
             {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
                 {
-                    if (!hintTracking)
+                    if (!trackingHints)
                     {
                         try
                         {
@@ -1114,7 +1115,7 @@ public class Browser
                         guiContext.form.buttonHintTracking.setBackground(hintTrackingColor);
                         guiContext.form.buttonHintTracking.setIcon(null);
                     }
-                    hintTracking = !hintTracking;
+                    trackingHints = !trackingHints;
                 }
             });
             hintTrackingColor = guiContext.form.buttonHintTracking.getBackground();
@@ -1153,7 +1154,7 @@ public class Browser
         }
     }
 
-    public void loadSystemTree(JTree tree, String initialLocation, boolean remote)
+    public void loadSystemTree(JTree tree, boolean remote)
     {
         try
         {
@@ -1161,7 +1162,7 @@ public class Browser
             switch (styleTwo)
             {
                 case STYLE_SYSTEM_ALL:
-                    root = styleSystemAll(tree, initialLocation, remote);
+                    root = styleSystemAll(tree, remote);
                     break;
                 default:
                     break;
@@ -1415,7 +1416,7 @@ public class Browser
         root.setLoaded(true);
     }
 
-    private NavTreeNode styleSystemAll(JTree tree, String initialLocation, boolean remote) throws Exception
+    private NavTreeNode styleSystemAll(JTree tree, boolean remote) throws Exception
     {
         /*
          * Computer

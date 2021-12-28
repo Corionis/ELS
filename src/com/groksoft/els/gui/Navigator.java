@@ -2,10 +2,10 @@ package com.groksoft.els.gui;
 
 import com.google.gson.Gson;
 import com.groksoft.els.*;
+import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
-import jdk.nashorn.internal.scripts.JO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sshd.common.util.io.IoUtils;
@@ -31,6 +31,7 @@ public class Navigator
     public static GuiContext guiContext;
     ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private transient Logger logger = LogManager.getLogger("applog");
+    public boolean showHintTrackingButton = false;
 
     // QUESTION:
     //  1. How to organize editing JSON server and targets files with N-libraries with N-sources each?
@@ -63,11 +64,49 @@ public class Navigator
     {
         readPreferences();
 
+        if (guiContext.cfg.getPublisherCollectionFilename().length() > 0)
+        {
+            guiContext.preferences.setLastIsCollection(true);
+            guiContext.preferences.setLastPublisherOpenFile(guiContext.cfg.getPublisherCollectionFilename());
+            guiContext.preferences.setLastPublisherOpenPath(Utils.getLeftPath(guiContext.cfg.getPublisherCollectionFilename(),
+                    Utils.getSeparatorFromPath(guiContext.cfg.getPublisherCollectionFilename())));
+        }
+        else if (guiContext.cfg.getPublisherLibrariesFileName().length() > 0)
+        {
+            guiContext.preferences.setLastIsCollection(false);
+            guiContext.preferences.setLastPublisherOpenPath(guiContext.cfg.getPublisherLibrariesFileName());
+            guiContext.preferences.setLastPublisherOpenPath(Utils.getLeftPath(guiContext.cfg.getPublisherLibrariesFileName(),
+                    Utils.getSeparatorFromPath(guiContext.cfg.getPublisherLibrariesFileName())));
+        }
+
+        if (guiContext.cfg.getSubscriberCollectionFilename().length() > 0)
+        {
+            guiContext.preferences.setLastIsRemote(true);
+            guiContext.preferences.setLastSubscriberOpenFile(guiContext.cfg.getSubscriberCollectionFilename());
+            guiContext.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(guiContext.cfg.getSubscriberCollectionFilename(),
+                    Utils.getSeparatorFromPath(guiContext.cfg.getSubscriberCollectionFilename())));
+        }
+        else if (guiContext.cfg.getSubscriberLibrariesFileName().length() > 0)
+        {
+            guiContext.preferences.setLastIsRemote(false);
+            guiContext.preferences.setLastSubscriberOpenFile(guiContext.cfg.getSubscriberLibrariesFileName());
+            guiContext.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(guiContext.cfg.getSubscriberLibrariesFileName(),
+                    Utils.getSeparatorFromPath(guiContext.cfg.getSubscriberLibrariesFileName())));
+        }
+
         // setup the needed tools
         guiContext.context.transfer = new Transfer(guiContext.cfg, guiContext.context);
         try
         {
             guiContext.context.transfer.initialize();
+
+            if (guiContext.cfg.getHintKeysFile() != null && guiContext.cfg.getHintKeysFile().length() > 0)
+            {
+                // Get ELS hints keys
+                guiContext.context.hintKeys = new HintKeys(guiContext.cfg, guiContext.context);
+                guiContext.context.hintKeys.read(guiContext.cfg.getHintKeysFile());
+                showHintTrackingButton = true;
+            }
         }
         catch (Exception e)
         {
@@ -156,11 +195,31 @@ public class Navigator
                         fc.setSelectedFile(lf);
                 }
 
+                // Workstation/Collection radio button accessory
+                JPanel jp = new JPanel();
+                GridBagLayout layout = new GridBagLayout();
+                jp.setLayout(layout);
+                jp.setBackground(UIManager.getColor("TextField.background"));
+                jp.setBorder(guiContext.form.textFieldLocation.getBorder());
+                JRadioButton rbCollection = new JRadioButton("Collection");
+                rbCollection.setToolTipText("Running on a media collection (server/back-up)");
+                rbCollection.setSelected(guiContext.preferences.isLastIsCollection());
+                JRadioButton rbWorkstation = new JRadioButton("Workstation");
+                rbWorkstation.setToolTipText("Running on a media workstation");
+                rbWorkstation.setSelected(!guiContext.preferences.isLastIsCollection());
+                ButtonGroup group = new ButtonGroup();
+                group.add(rbCollection);
+                group.add(rbWorkstation);
+                jp.add(rbCollection);
+                jp.add(rbWorkstation);
+                fc.setAccessory(jp);
+
                 while (true)
                 {
                     int selection = fc.showOpenDialog(guiContext.form);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
+                        guiContext.preferences.setLastIsCollection(rbCollection.isSelected());
                         File last = fc.getCurrentDirectory();
                         guiContext.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
                         File file = fc.getSelectedFile();
@@ -180,7 +239,7 @@ public class Navigator
                             guiContext.cfg.setPublisherLibrariesFileName(file.getAbsolutePath());
                             guiContext.context.publisherRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.PUBLISHER, Repository.VALIDATE);
                             guiContext.browser.loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo, false);
-                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemOne, null, false);
+                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemOne, false);
                         }
                         catch (Exception e)
                         {
@@ -200,8 +259,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (guiContext.cfg.getPublisherLibrariesFileName().length() < 1 ||
-                    guiContext.context.publisherRepo == null)
+                if (guiContext.context.publisherRepo == null)
                 {
                     JOptionPane.showMessageDialog(guiContext.form, "Please open a Publisher Library first", guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                     return;
@@ -239,6 +297,7 @@ public class Navigator
                         fc.setSelectedFile(lf);
                 }
 
+                // Remote Connection checkbox accessory
                 JPanel jp = new JPanel();
                 GridBagLayout gb = new GridBagLayout();
                 jp.setLayout(gb);
@@ -246,7 +305,7 @@ public class Navigator
                 jp.setBorder(guiContext.form.textFieldLocation.getBorder());
                 JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>&nbsp;&nbsp;Remote<br/>Connection&nbsp;&nbsp;</body></html>");
                 cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
-                cbIsRemote.setToolTipText("Be sure an ELS Subscriber Listener is running on the remote system");
+                cbIsRemote.setToolTipText("Be sure an ELS Subscriber Listener (--remote S) is running on the remote system");
                 cbIsRemote.setSelected(guiContext.preferences.isLastIsRemote());
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(0, 0, 0, 4);
@@ -295,13 +354,9 @@ public class Navigator
                         try
                         {
                             if (guiContext.preferences.isLastIsRemote())
-                            {
-                                guiContext.cfg.setRemoteType("P");
-                            }
+                                guiContext.cfg.setRemoteType("P"); // publisher to remote subscriber
                             else
-                            {
-                                guiContext.cfg.setRemoteType("-");
-                            }
+                                guiContext.cfg.setRemoteType("-"); // not remote
 
                             guiContext.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                             guiContext.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
@@ -309,8 +364,6 @@ public class Navigator
 
                             if (guiContext.preferences.isLastIsRemote())
                             {
-                                guiContext.cfg.setRemoteType("P");
-
                                 // connect to the hint status server if defined
                                 guiContext.context.main.connectHintServer(guiContext.context.publisherRepo);
 
@@ -335,7 +388,7 @@ public class Navigator
 
                             // load the subscriber library
                             guiContext.browser.loadCollectionTree(guiContext.form.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
-                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemTwo, null, guiContext.preferences.isLastIsRemote());
+                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemTwo, guiContext.preferences.isLastIsRemote());
                         }
                         catch (Exception e)
                         {
