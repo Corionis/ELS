@@ -34,8 +34,8 @@ public class Preferences implements Serializable
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
-    private boolean lastIsCollection = true;
     private boolean lastIsRemote = true;
+    private boolean lastIsWorkstation = false;
     private String lastPublisherOpenFile = "";
     private String lastPublisherOpenPath = "";
     private String lastSubscriberOpenFile = "";
@@ -58,6 +58,7 @@ public class Preferences implements Serializable
     private int systemTwoDividerLocation = 152; // tracked value
     private int systemTwoNameWidth = 128; // tracked value
     private int systemTwoSizeWidth = 80; // tracked value
+
     /**
      * Constructor
      */
@@ -73,6 +74,7 @@ public class Preferences implements Serializable
         //      Show Hint Tracking button
         // Appearance
         //      Look 'n Feel
+        //      Language
         //      Binary/decimal scale
         //      Date format
         //      Hint Tracking button color
@@ -420,14 +422,14 @@ public class Preferences implements Serializable
         return hideHiddenFiles;
     }
 
-    public boolean isLastIsCollection()
-    {
-        return lastIsCollection;
-    }
-
     public boolean isLastIsRemote()
     {
         return lastIsRemote;
+    }
+
+    public boolean isLastIsWorkstation()
+    {
+        return lastIsWorkstation;
     }
 
     public boolean isPreserveFileTimes()
@@ -555,14 +557,14 @@ public class Preferences implements Serializable
         this.hintTrackingColor = hintTrackingColor;
     }
 
-    public void setLastIsCollection(boolean lastIsCollection)
-    {
-        this.lastIsCollection = lastIsCollection;
-    }
-
     public void setLastIsRemote(boolean lastIsRemote)
     {
         this.lastIsRemote = lastIsRemote;
+    }
+
+    public void setLastIsWorkstation(boolean lastIsWorkstation)
+    {
+        this.lastIsWorkstation = lastIsWorkstation;
     }
 
     public void setLastPublisherOpenFile(String lastPublisherOpenFile)

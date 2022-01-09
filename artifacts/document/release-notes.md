@@ -1,31 +1,31 @@
 ## Version 4.0.0
 
-Major release 4.0.0 of ELS adds the ELS Navigator GUI and a variety of bugs fixes and
-related enhancements. 
+This major release 4.0.0 of ELS adds the ELS Navigator GUI and a variety related
+enhancements and bug fixes. 
 
-The Navigator is purpose-built to make the building and on-going maintenance of a home
+The Navigator is purpose-built to make building and the on-going maintenance of a home
 media collection easier. Using the built-in capabilities of ELS the Navigator provides a
 visual tool for adding media and curating a collection either locally or remotely to a
-media server.
+media server. Tools and jobs are provided to make performing repetitive tasks easier.
 
 Features:
  * Modes (where it's running)
    * On a media collection
    * On a separate workstation
  * Browser
-   * Split-pane publisher/subscriber view     
+   * Split-pane Publisher/Subscriber view     
    * Collection and System tabs for each
    * Local or remote subscriber
    * Drag 'n Drop and Copy, Cut, Paste
    * Optional ELS Hint Tracking
-   * Multiple named tool configurations to help when collecting new media
+   * Multiple named tool configurations
      * Duplicate finder
      * Junk remover
      * Mass renamer
      * External tools supported
-   * Named Jobs to assemble named tools into sequences of work
+   * Named jobs of sequenced named tools to automate repetitive tasks
  * BackUp
-   * Configure named ELS back-up with different configurations
+   * Configure named ELS back-ups with different configurations
    * Execute and monitor back-up runs
    * Generate scripts for command line execution
  * Libraries
@@ -39,24 +39,36 @@ It's all built-in with the -n | --navigator option.
 ### Enhancements
 
  1. ELS Navigator.
-    1. Navigator by design is a publisher in ELS terms.
+    1. Navigator is a publisher in ELS terms, by design.
     2. Navigator supports two scenarios:
-       1. Run on a media collection such as a media server system, and optionally
+       1. On a media collection such as a media server system, and optionally
           connected to a back-up running an ELS subscriber listener.
-       2. Run on a separate workstation, and optionally connected to a media
+       2. On a separate workstation, and optionally connected to a media
           collection system or back-up running an ELS subscriber listener.
        3. The File, Open Publisher dialog shows radio buttons for Collection or Workstation.
-          1. This setting determines where Hints are stored when the Hint Tracking button
-             is enabled.
-             1. If a Collection then the left-side Publisher.
-             2. If a Workstation then the right-side Subscriber.
+          1. This setting determines where Hints are stored when Hint Tracking is enabled.
+             1. If Collection then the left-side Publisher.
+             2. If Workstation then the right-side Subscriber.
        4. Command-line behavior changes when using -n | --navigator:
           1. -P sets the Navigator for running on a Collection
           2. -p sets the Navigator as a Workstation
           3. -S sets the Navigator for a remote Subscriber
           4. -s sets the Navigator as a local Subscriber
+          5. Note: The distinction of collection or library is not used with
+             the Navigator. All data displayed are from active storage scans.
 
- 2. New ELS project download options including an all-in-one with a dedicated embedded Java JRE.
+ 2. New ELS project download options including an all-in-one with an embedded Java JRE.
+ 
+ 3. Two new optional elements have been added to the library/collection JSON files. Previously
+    versions had dated filenames that build-up. These options make managing temporary files easier.
+    1. temp_dated: true or false. If true temporary files have a time stamp in the filename
+       otherwise the same file is overwritten each time it is used.
+    2. temp_location: path. Path used for temporary files. Default is the location of the
+       matching library or collection file of the repository of the relevant system.
+
+ 4. The listener daemons "logout" command behavior has changed. Now logout will leave the daemon
+    running instead of shutting down. Exit, bye and quit still perform a shutdown.
+    
 
 ### Command Line Changes
 

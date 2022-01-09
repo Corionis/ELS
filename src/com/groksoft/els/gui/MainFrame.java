@@ -147,11 +147,6 @@ public class MainFrame extends JFrame
         guiContext.navigator.stop();
     }
 
-    private void SaveActionPerformed(ActionEvent e)
-    {
-        // something
-    }
-
     private void thisWindowClosing(WindowEvent e)
     {
         guiContext.navigator.stop();
@@ -168,7 +163,10 @@ public class MainFrame extends JFrame
         menuFile = new JMenu();
         menuItemOpenPublisher = new JMenuItem();
         menuItemOpenSubscriber = new JMenuItem();
+        menuItemOpenKeys = new JMenuItem();
+        menuItemOpenHintServer = new JMenuItem();
         menuItemSaveLayout = new JMenuItem();
+        menuItemQuitTerminate = new JMenuItem();
         menuItemFileQuit = new JMenuItem();
         menuEdit = new JMenu();
         menuItemFind = new JMenuItem();
@@ -311,6 +309,19 @@ public class MainFrame extends JFrame
                 menuItemOpenSubscriber.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemOpenSubscriber.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemOpenSubscriber);
+
+                //---- menuItemOpenKeys ----
+                menuItemOpenKeys.setText(bundle.getString("Navigator.menuItemOpenKeys.text"));
+                menuItemOpenKeys.setSelected(true);
+                menuItemOpenKeys.setMnemonic(bundle.getString("Navigator.menuItemOpenKeys.mnemonic").charAt(0));
+                menuItemOpenKeys.setEnabled(false);
+                menuFile.add(menuItemOpenKeys);
+
+                //---- menuItemOpenHintServer ----
+                menuItemOpenHintServer.setText(bundle.getString("Navigator.menuItemOpenHintServer.text"));
+                menuItemOpenHintServer.setMnemonic(bundle.getString("Navigator.menuItemOpenHintServer.mnemonic").charAt(0));
+                menuItemOpenHintServer.setEnabled(false);
+                menuFile.add(menuItemOpenHintServer);
                 menuFile.addSeparator();
 
                 //---- menuItemSaveLayout ----
@@ -319,6 +330,14 @@ public class MainFrame extends JFrame
                 menuItemSaveLayout.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemSaveLayout);
                 menuFile.addSeparator();
+
+                //---- menuItemQuitTerminate ----
+                menuItemQuitTerminate.setText(bundle.getString("Navigator.menuItemQuitTerminate.text"));
+                menuItemQuitTerminate.setMnemonic(bundle.getString("Navigator.menuItemQuitTerminate.mnemonic").charAt(0));
+                menuItemQuitTerminate.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemQuitTerminate.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemQuitTerminate.setDisplayedMnemonicIndex(8);
+                menuFile.add(menuItemQuitTerminate);
 
                 //---- menuItemFileQuit ----
                 menuItemFileQuit.setText(bundle.getString("Navigator.menuItemFileQuit.text"));
@@ -1138,7 +1157,10 @@ public class MainFrame extends JFrame
     public JMenu menuFile;
     public JMenuItem menuItemOpenPublisher;
     public JMenuItem menuItemOpenSubscriber;
+    public JMenuItem menuItemOpenKeys;
+    public JMenuItem menuItemOpenHintServer;
     public JMenuItem menuItemSaveLayout;
+    public JMenuItem menuItemQuitTerminate;
     public JMenuItem menuItemFileQuit;
     public JMenu menuEdit;
     public JMenuItem menuItemFind;

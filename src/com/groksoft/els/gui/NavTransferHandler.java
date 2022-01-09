@@ -15,6 +15,7 @@ import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -177,16 +178,33 @@ public class NavTransferHandler extends TransferHandler
      */
     private void exportHints(ArrayList<NavTreeUserObject> transferData, NavTreeUserObject targetTuo) throws Exception
     {
-        // hints are for moves in this context
+        // hints are for moves in the context of DnD/CCP
         // copies to or within a collection are a basic add
         if (action == TransferHandler.MOVE)
         {
-            // iterate the selected source row's user object
+            // iterate the selected rows of user objects
             for (NavTreeUserObject sourceTuo : transferData)
             {
-                if (sourceTuo.isSubscriberCollection()) // wrong. what about on-media-server ops?
+                String hintPath = guiContext.context.transfer.writeHint("mv", guiContext.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
+                // create a tree node if a new Hint file was created
+                if (hintPath.length() > 0)
                 {
-                    guiContext.context.transfer.writeHint("mv", sourceTuo, targetTuo);
+                    // make tuo and add node
+                    NavTreeUserObject createdTuo = null;
+                    NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyTree());
+                    if (sourceTuo.isRemote)
+                    {
+                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
+                                hintPath, 0, LocalTime.now().toSecondOfDay(), true);
+                    }
+                    else
+                    {
+                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null), new File(hintPath));
+                    }
+                    createdNode.setNavTreeUserObject(createdTuo);
+                    createdNode.setAllowsChildren(false);
+                    createdNode.setVisible(true);
+                    ((NavTreeNode)sourceTuo.node.getParent()).add(createdNode);
                 }
             }
         }
@@ -208,23 +226,6 @@ public class NavTransferHandler extends TransferHandler
             op = "Copy or Move";
         }
         return op;
-    }
-
-    private Repository getRepo(NavTreeUserObject tuo)
-    {
-        Repository repo = null;
-        switch (tuo.node.getMyTree().getName())
-        {
-            case "treeCollectionOne":
-            case "treeSystemOne":
-                repo = guiContext.context.publisherRepo;
-                break;
-            case "treeCollectionTwo":
-            case "treeSystemTwo":
-                repo = guiContext.context.subscriberRepo;
-                break;
-        }
-        return repo;
     }
 
     @Override
@@ -497,15 +498,15 @@ public class NavTransferHandler extends TransferHandler
         String sourceSep;
         String targetSep;
 
-        sourceRepo = getRepo(sourceTuo);
+        sourceRepo = guiContext.context.transfer.getRepo(sourceTuo);
         sourceSep = sourceRepo.getSeparator();
-        targetRepo = getRepo(targetTuo);
+        targetRepo = guiContext.context.transfer.getRepo(targetTuo);
         targetSep = targetRepo.getSeparator();
 
         // get the directory
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
-            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, sourceTuo.size, targetRepo, !targetIsPublisher, sourceTuo.path);
+            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, sourceTuo.size, targetRepo, targetTuo.isRemote, sourceTuo.path);
             File physical = new File(directory);
             directory = physical.getAbsolutePath();
         }

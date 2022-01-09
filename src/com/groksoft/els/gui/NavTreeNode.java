@@ -20,7 +20,7 @@ import java.util.*;
  * NavTreeNode class is a customized DefaultMutableTreeNode
  */
 
-class NavTreeNode extends DefaultMutableTreeNode
+public class NavTreeNode extends DefaultMutableTreeNode
 {
     private final boolean traceActions = false; // dev-debug
     public SortFoldersBeforeFiles sortFoldersBeforeFiles;

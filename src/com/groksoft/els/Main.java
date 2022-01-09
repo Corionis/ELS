@@ -159,12 +159,12 @@ public class Main
                         logger.info("ELS: Navigator begin, version " + cfg.getProgramVersion());
                         cfg.dump();
 
-                        if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
+                        if (cfg.getPublisherFilename().length() > 0)
                         {
                             context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
                         }
 
-                        if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
+                        if (cfg.getSubscriberFilename().length() > 0)
                         {
                             context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
@@ -410,10 +410,10 @@ public class Main
                     if (cfg.getHintKeysFile() == null || cfg.getHintKeysFile().length() == 0)
                         throw new MungeException("-H | --status-server requires a -k | -K hint keys file");
 
-                    if (cfg.getPublisherLibrariesFileName().length() > 0 || cfg.getPublisherCollectionFilename().length() > 0)
+                    if (cfg.getPublisherFilename().length() > 0)
                         throw new MungeException("-H | --status-server does not use -p | -P");
 
-                    if (cfg.getSubscriberLibrariesFileName().length() > 0 || cfg.getSubscriberCollectionFilename().length() > 0)
+                    if (cfg.getSubscriberFilename().length() > 0)
                         throw new MungeException("-H | --status-server does not use -s | -S");
 
                     if (cfg.isTargetsEnabled())
@@ -563,17 +563,8 @@ public class Main
                 }
             }
 
-            // get -p Publisher libraries
-            if (cfg.getPublisherLibrariesFileName().length() > 0)
-            {
-                repo.read(cfg.getPublisherLibrariesFileName());
-
-            }
-            // get -P Publisher collection
-            if (cfg.getPublisherCollectionFilename().length() > 0)
-            {
-                repo.read(cfg.getPublisherCollectionFilename());
-            }
+            // get Publisher data
+            repo.read(cfg.getPublisherFilename());
         }
         else
         {
@@ -599,17 +590,8 @@ public class Main
                 }
             }
 
-            // get -s Subscriber libraries
-            if (cfg.getSubscriberLibrariesFileName().length() > 0)
-            {
-                repo.read(cfg.getSubscriberLibrariesFileName());
-            }
-
-            // get -S Subscriber collection
-            if (cfg.getSubscriberCollectionFilename().length() > 0)
-            {
-                repo.read(cfg.getSubscriberCollectionFilename());
-            }
+            // get Subscriber data
+            repo.read(cfg.getSubscriberFilename());
         }
 
         // -v | --validate option

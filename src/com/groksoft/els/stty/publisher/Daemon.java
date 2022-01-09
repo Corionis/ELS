@@ -251,11 +251,24 @@ public class Daemon extends DaemonBase
                 {
                     try
                     {
-                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                        LocalDateTime now = LocalDateTime.now();
-                        String stamp = dtf.format(now);
+                        String stamp = "";
+                        if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
+                        {
+                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                            LocalDateTime now = LocalDateTime.now();
+                            stamp = "-" + dtf.format(now);
+                        }
 
-                        String location = myRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
+                        String path = "";
+                        if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
+                        {
+                            path = myRepo.getLibraryData().libraries.temp_location;
+                            String sep = myRepo.getSeparator();
+                            if (!path.endsWith(sep))
+                                path += sep;
+                        }
+
+                        String location = path + myRepo.getJsonFilename() + "_collection-generated" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)

@@ -489,6 +489,19 @@ new FormModel {
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
 					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemOpenKeys"
+						"text": new FormMessage( null, "Navigator.menuItemOpenKeys.text" )
+						"selected": true
+						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenKeys.mnemonic" )
+						"enabled": false
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemOpenHintServer"
+						"text": new FormMessage( null, "Navigator.menuItemOpenHintServer.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintServer.mnemonic" )
+						"enabled": false
+					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator2"
 					} )
@@ -500,6 +513,14 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separatorFile2"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemQuitTerminate"
+						"text": new FormMessage( null, "Navigator.menuItemQuitTerminate.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemQuitTerminate.mnemonic" )
+						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
+						"displayedMnemonicIndex": 8
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemFileQuit"

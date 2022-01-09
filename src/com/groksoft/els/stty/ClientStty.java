@@ -41,6 +41,7 @@ public class ClientStty
      *
      * @param config           The Configuration object
      * @param isManualTerminal True if an interactive client, false if an automated client
+     * @param primaryServers   True if base servers, false if secondary servers for Publisher
      */
     public ClientStty(Configuration config, boolean isManualTerminal, boolean primaryServers)
     {
@@ -337,13 +338,24 @@ public class ClientStty
         response = roundTrip(command);
         if (response != null && response.length() > 0)
         {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-            LocalDateTime now = LocalDateTime.now();
-            String stamp = dtf.format(now);
+            String stamp = "";
+            if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
+            {
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                LocalDateTime now = LocalDateTime.now();
+                stamp = "-" + dtf.format(now);
+            }
 
-            // TODO Make better paths for the temporary -received- files
+            String path = "";
+            if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
+            {
+                path = myRepo.getLibraryData().libraries.temp_location;
+                String sep = myRepo.getSeparator();
+                if (!path.endsWith(sep))
+                    path += sep;
+            }
 
-            location = filename + "_" + command + "-received-" + stamp + ".json";
+            location = path + filename + "_" + command + "-received" + stamp + ".json";
             try
             {
                 PrintWriter outputStream = new PrintWriter(location);

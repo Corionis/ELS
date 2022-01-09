@@ -1,0 +1,1139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="ELS-complete.zip" />
+      <artifact name="ELS:jar" />
+    </artifacts-to-build>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7d75f892-320d-4109-a22c-4f7fce5e3a2c" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/lib/log4j-api-2.15.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/log4j-core-2.15.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/log4j-slf4j18-impl-2.15.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/log4j-to-slf4j-2.15.0.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/artifacts/ELS_jar.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/artifacts/ELS_jar.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/els.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/els.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deploy/ELS-complete.zip" beforeDir="false" afterPath="$PROJECT_DIR$/deploy/ELS-complete.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deploy/ELS.jar" beforeDir="false" afterPath="$PROJECT_DIR$/deploy/ELS.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/log-example.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/log4j-api-2.8.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/log4j-core-2.8.1.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/slf4j-jdk14-1.7.25.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/mock/scripts/linux/reset.sh" beforeDir="false" afterPath="$PROJECT_DIR$/mock/scripts/linux/reset.sh" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JSON" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="Version-3.0.0" />
+  </component>
+  <component name="Git.Settings">
+    <excluded-from-favorite>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="master" />
+              </list>
+            </value>
+          </entry>
+          <entry type="REMOTE">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="origin/master" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </excluded-from-favorite>
+    <favorite-branches>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="Version-3.1.0" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </favorite-branches>
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Todd Hill" />
+      </list>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="ROOT_SYNC" value="DONT_SYNC" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="GithubDefaultAccount">
+    <option name="defaultAccountId" value="b49c5ff4-ea24-4563-b124-fb85d3e05998" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/src/com/groksoft/els/Main.java" />
+      </list>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="2104" />
+    <option name="y" value="22" />
+    <option name="width" value="1441" />
+    <option name="height" value="1000" />
+  </component>
+  <component name="ProjectId" id="1nMK6JGHbHPG2KCMOojuXDKOKxT" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <autoscrollFromSource ProjectPane="true" />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="ELS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ELS" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ELS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ELS" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="ELS" type="b2602c69:ProjectViewProjectNode" />
+              <item name="ELS" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="els" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/lib" />
+    <property name="project.structure.last.edited" value="Artifacts" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/Status-Server-META-INF" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/mock/scripts" />
+    </key>
+    <key name="MoveInnerDialog.RECENTS_KEY">
+      <recent name="com.groksoft.els.gui" />
+      <recent name="com.groksoft.els" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.groksoft.els.stty.hints" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.80-10 Navigator local">
+    <configuration name="89-23 Navigator RockPlex" type="Application" factoryName="Application" folderName="80-00 Navigator">
+      <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+      <module name="ELS" />
+      <option name="PROGRAM_PARAMETERS" value=" --navigator -c debug -d debug --remote P -p test/publisher/publisher.json -S rockplex.json -F output/89-23_Navigator-remote.log" />
+      <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
+      <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CompoundRunConfigurationType">
+      <toRun name="C. Hints Remote Publisher backup" type="Application" />
+      <toRun name="A. Hints Subscriber listener" type="Application" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.00-01 Version" />
+      <item itemvalue="Application.00-02 Bad-arguments" />
+      <item itemvalue="Application.00-03 Validate" />
+      <item itemvalue="Application.00-04 Export" />
+      <item itemvalue="Application.00-05 Duplicates" />
+      <item itemvalue="Application.00-06 Duplicates crosscheck" />
+      <item itemvalue="Application.10-22 Backup dryrun" />
+      <item itemvalue="Application.10-23 Backup" />
+      <item itemvalue="Application.10-24 Backup include lib" />
+      <item itemvalue="Application.10-25 Backup exclude lib" />
+      <item itemvalue="Application.20-21 Subscriber listener" />
+      <item itemvalue="Application.20-22 Publisher dryrun" />
+      <item itemvalue="Application.20-23 Publisher backup" />
+      <item itemvalue="Application.30-21 Subscriber listener" />
+      <item itemvalue="Application.30-29 Publisher manual" />
+      <item itemvalue="Application.30-31 Publisher listener" />
+      <item itemvalue="Application.30-39 Subscriber terminal" />
+      <item itemvalue="Application.40-01 Hints publisher" />
+      <item itemvalue="Application.40-02 Hints publisher dryrun" />
+      <item itemvalue="Application.40-22 Publisher dryrun" />
+      <item itemvalue="Application.40-23 Publisher backup" />
+      <item itemvalue="Application.50-01 Hints publisher" />
+      <item itemvalue="Application.50-21 Subscriber One listener" />
+      <item itemvalue="Application.50-22 Publisher One dryrun" />
+      <item itemvalue="Application.50-23 Publisher One backup" />
+      <item itemvalue="Application.50-31 Subscriber Two listener" />
+      <item itemvalue="Application.50-32 Publisher Two dryrun" />
+      <item itemvalue="Application.50-33 Publisher Two backup" />
+      <item itemvalue="Application.60-01 Hints publisher" />
+      <item itemvalue="Application.60-22 Publisher One dryrun" />
+      <item itemvalue="Application.60-23 Publisher One backup" />
+      <item itemvalue="Application.60-32 Publisher Two dryrun" />
+      <item itemvalue="Application.60-33 Publisher Two backup" />
+      <item itemvalue="Application.70-01 Hints publisher" />
+      <item itemvalue="Application.70-10 Status Server listener" />
+      <item itemvalue="Application.70-21 Subscriber One listener, Quit" />
+      <item itemvalue="Application.70-22 Publisher One dryrun" />
+      <item itemvalue="Application.70-23 Publisher One backup" />
+      <item itemvalue="Application.70-31 Subscriber Two listener" />
+      <item itemvalue="Application.70-32 Publisher Two dryrun" />
+      <item itemvalue="Application.70-33 Publisher Two backup" />
+      <item itemvalue="Application.70-99 Quit Status Server" />
+      <item itemvalue="Application.80-01 Navigator no args" />
+      <item itemvalue="Application.80-10 Navigator local" />
+      <item itemvalue="Application.80-21 Subscriber listener" />
+      <item itemvalue="Application.80-23 Navigator remote" />
+      <item itemvalue="Application.89-23 Navigator RockPlex" />
+      <item itemvalue="Multirun.Status Server listener + Subscriber One listener  + Publisher One backup" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="project-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7d75f892-320d-4109-a22c-4f7fce5e3a2c" name="Default Changelist" comment="" />
+      <created>1611187136527</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1611187136527</updated>
+      <workItem from="1611187139395" duration="85000" />
+      <workItem from="1611187238918" duration="235000" />
+      <workItem from="1611187537077" duration="1091000" />
+      <workItem from="1611194346397" duration="146000" />
+      <workItem from="1611195411514" duration="1496000" />
+      <workItem from="1611427320376" duration="1978000" />
+      <workItem from="1611440279003" duration="1487000" />
+      <workItem from="1611441785461" duration="1593000" />
+      <workItem from="1611443622794" duration="1428000" />
+      <workItem from="1611445132068" duration="224000" />
+      <workItem from="1611680466843" duration="72000" />
+      <workItem from="1611680560347" duration="682000" />
+      <workItem from="1612288624326" duration="1381000" />
+      <workItem from="1614094459959" duration="186000" />
+      <workItem from="1614120118929" duration="2603000" />
+      <workItem from="1616365564654" duration="16000" />
+      <workItem from="1619804436551" duration="222000" />
+      <workItem from="1619804695341" duration="136000" />
+      <workItem from="1619804875894" duration="2217000" />
+      <workItem from="1619807112840" duration="111000" />
+      <workItem from="1619807344248" duration="6454000" />
+      <workItem from="1619882922322" duration="25288000" />
+      <workItem from="1620514001357" duration="2102000" />
+      <workItem from="1620516469701" duration="2612000" />
+      <workItem from="1620521760594" duration="2706000" />
+      <workItem from="1620576508936" duration="4959000" />
+      <workItem from="1620834917183" duration="9909000" />
+      <workItem from="1620864553701" duration="55000" />
+      <workItem from="1620864954874" duration="379000" />
+      <workItem from="1621015674884" duration="181000" />
+      <workItem from="1622650032309" duration="308000" />
+      <workItem from="1623966891901" duration="3374000" />
+      <workItem from="1623970317838" duration="3007000" />
+      <workItem from="1624640343611" duration="10923000" />
+      <workItem from="1624725695396" duration="20405000" />
+      <workItem from="1624811335584" duration="13496000" />
+      <workItem from="1624979993583" duration="3894000" />
+      <workItem from="1624986334316" duration="13120000" />
+      <workItem from="1625073171437" duration="10001000" />
+      <workItem from="1625153425327" duration="1515000" />
+      <workItem from="1625421585566" duration="12846000" />
+      <workItem from="1625588275415" duration="830000" />
+      <workItem from="1625590395720" duration="21396000" />
+      <workItem from="1625673625424" duration="7396000" />
+      <workItem from="1625682532801" duration="11652000" />
+      <workItem from="1625760185560" duration="11405000" />
+      <workItem from="1625851154872" duration="8196000" />
+      <workItem from="1625936430510" duration="7661000" />
+      <workItem from="1626628861842" duration="126000" />
+      <workItem from="1626629225597" duration="13982000" />
+      <workItem from="1626725494000" duration="11730000" />
+      <workItem from="1626792021102" duration="10706000" />
+      <workItem from="1626884948043" duration="15674000" />
+      <workItem from="1627052645288" duration="14887000" />
+      <workItem from="1627149406503" duration="10209000" />
+      <workItem from="1627235465927" duration="21293000" />
+      <workItem from="1627321575108" duration="640000" />
+      <workItem from="1627322362457" duration="16008000" />
+      <workItem from="1627423948786" duration="2138000" />
+      <workItem from="1627426104781" duration="608000" />
+      <workItem from="1627426751916" duration="74000" />
+      <workItem from="1627426895582" duration="7489000" />
+      <workItem from="1627487322351" duration="746000" />
+      <workItem from="1627489317734" duration="12805000" />
+      <workItem from="1627656006805" duration="10191000" />
+      <workItem from="1627767413441" duration="13046000" />
+      <workItem from="1627854892876" duration="16141000" />
+      <workItem from="1627921496298" duration="17688000" />
+      <workItem from="1628100599444" duration="2504000" />
+      <workItem from="1628179273626" duration="17568000" />
+      <workItem from="1628287379538" duration="10048000" />
+      <workItem from="1628349064473" duration="21889000" />
+      <workItem from="1628441794368" duration="3058000" />
+      <workItem from="1628547801491" duration="9859000" />
+      <workItem from="1628610887469" duration="6962000" />
+      <workItem from="1628697056507" duration="17319000" />
+      <workItem from="1628781731911" duration="20173000" />
+      <workItem from="1628874954256" duration="7337000" />
+      <workItem from="1628899000324" duration="701000" />
+      <workItem from="1628969508809" duration="3979000" />
+      <workItem from="1629041508757" duration="19138000" />
+      <workItem from="1629068748658" duration="1000" />
+      <workItem from="1629068771139" duration="1000" />
+      <workItem from="1629070258606" duration="426000" />
+      <workItem from="1629070725798" duration="273000" />
+      <workItem from="1629071354823" duration="752000" />
+      <workItem from="1629153283048" duration="6793000" />
+      <workItem from="1629177239276" duration="3957000" />
+      <workItem from="1629214914078" duration="12395000" />
+      <workItem from="1629238378293" duration="3390000" />
+      <workItem from="1629322532474" duration="47000" />
+      <workItem from="1629322844058" duration="70000" />
+      <workItem from="1629323264184" duration="129000" />
+      <workItem from="1629323458815" duration="15118000" />
+      <workItem from="1629385671474" duration="718000" />
+      <workItem from="1629388207223" duration="28040000" />
+      <workItem from="1629475728924" duration="21771000" />
+      <workItem from="1629559109628" duration="20581000" />
+      <workItem from="1629647805627" duration="21679000" />
+      <workItem from="1629737044570" duration="20260000" />
+      <workItem from="1629806170250" duration="25774000" />
+      <workItem from="1629906482534" duration="26814000" />
+      <workItem from="1629991986542" duration="23211000" />
+      <workItem from="1630079061703" duration="704000" />
+      <workItem from="1630083628169" duration="13842000" />
+      <workItem from="1630175130258" duration="2087000" />
+      <workItem from="1630254863744" duration="2849000" />
+      <workItem from="1630257930242" duration="127000" />
+      <workItem from="1630258076492" duration="14891000" />
+      <workItem from="1630340971066" duration="27683000" />
+      <workItem from="1630376885878" duration="17197000" />
+      <workItem from="1630432708245" duration="46341000" />
+      <workItem from="1630716078022" duration="13432000" />
+      <workItem from="1630772051398" duration="24771000" />
+      <workItem from="1630943126641" duration="6020000" />
+      <workItem from="1630952669458" duration="648000" />
+      <workItem from="1630953329010" duration="99000" />
+      <workItem from="1630953461106" duration="3656000" />
+      <workItem from="1630962983426" duration="6346000" />
+      <workItem from="1630969348540" duration="16818000" />
+      <workItem from="1631034486433" duration="7523000" />
+      <workItem from="1631116858855" duration="18583000" />
+      <workItem from="1631146196865" duration="9540000" />
+      <workItem from="1631156337377" duration="999000" />
+      <workItem from="1631199941316" duration="2906000" />
+      <workItem from="1631202867125" duration="1155000" />
+      <workItem from="1631204282667" duration="30338000" />
+      <workItem from="1631289221780" duration="5218000" />
+      <workItem from="1631295773308" duration="8989000" />
+      <workItem from="1631311210154" duration="15082000" />
+      <workItem from="1631371605634" duration="23520000" />
+      <workItem from="1631458525211" duration="20592000" />
+      <workItem from="1631546938919" duration="781000" />
+      <workItem from="1631547745857" duration="338000" />
+      <workItem from="1631548130405" duration="375000" />
+      <workItem from="1631555682315" duration="28658000" />
+      <workItem from="1631637177022" duration="614000" />
+      <workItem from="1631637851683" duration="16313000" />
+      <workItem from="1631805940492" duration="22261000" />
+      <workItem from="1631897915728" duration="16838000" />
+      <workItem from="1631981457711" duration="17116000" />
+      <workItem from="1632179574936" duration="22604000" />
+      <workItem from="1632241413913" duration="30698000" />
+      <workItem from="1632284509118" duration="105000" />
+      <workItem from="1632291930549" duration="492000" />
+      <workItem from="1632323735140" duration="6897000" />
+      <workItem from="1632365691436" duration="8273000" />
+      <workItem from="1632418895367" duration="19297000" />
+      <workItem from="1632465673787" duration="2817000" />
+      <workItem from="1632500367242" duration="24119000" />
+      <workItem from="1632587665828" duration="17082000" />
+      <workItem from="1632675389947" duration="5083000" />
+      <workItem from="1632775687265" duration="1345000" />
+      <workItem from="1632844519659" duration="19263000" />
+      <workItem from="1633119512864" duration="2594000" />
+      <workItem from="1633382869421" duration="14280000" />
+      <workItem from="1633448214214" duration="748000" />
+      <workItem from="1633450714242" duration="1029000" />
+      <workItem from="1633451819644" duration="37000" />
+      <workItem from="1633451917941" duration="27000" />
+      <workItem from="1633453133242" duration="66000" />
+      <workItem from="1633453224918" duration="154000" />
+      <workItem from="1633453396060" duration="25014000" />
+      <workItem from="1635538907195" duration="18254000" />
+      <workItem from="1635712720892" duration="20721000" />
+      <workItem from="1635800036005" duration="18544000" />
+      <workItem from="1635834523512" duration="909000" />
+      <workItem from="1635870642294" duration="12189000" />
+      <workItem from="1636214627818" duration="34768000" />
+      <workItem from="1636292628629" duration="12429000" />
+      <workItem from="1636477913236" duration="1709000" />
+      <workItem from="1636651572890" duration="12105000" />
+      <workItem from="1636734640625" duration="8971000" />
+      <workItem from="1636779684228" duration="4745000" />
+      <workItem from="1636818747130" duration="5675000" />
+      <workItem from="1636824886095" duration="21709000" />
+      <workItem from="1636910517349" duration="3015000" />
+      <workItem from="1636914532819" duration="23949000" />
+      <workItem from="1636989203482" duration="8895000" />
+      <workItem from="1637076949857" duration="22104000" />
+      <workItem from="1637117927550" duration="3029000" />
+      <workItem from="1637136385363" duration="318000" />
+      <workItem from="1637164042994" duration="1923000" />
+      <workItem from="1637169298613" duration="24657000" />
+      <workItem from="1637252606210" duration="15298000" />
+      <workItem from="1637336025470" duration="23569000" />
+      <workItem from="1637387017561" duration="6796000" />
+      <workItem from="1637393831629" duration="835000" />
+      <workItem from="1637424360914" duration="24643000" />
+      <workItem from="1637513919033" duration="13150000" />
+      <workItem from="1637531260263" duration="6025000" />
+      <workItem from="1637622554718" duration="21741000" />
+      <workItem from="1637683633895" duration="8237000" />
+      <workItem from="1637792155426" duration="7319000" />
+      <workItem from="1637811236749" duration="2625000" />
+      <workItem from="1637965663147" duration="8205000" />
+      <workItem from="1638034891071" duration="12208000" />
+      <workItem from="1638057264956" duration="5978000" />
+      <workItem from="1638075430513" duration="1484000" />
+      <workItem from="1638119936087" duration="18081000" />
+      <workItem from="1638295520434" duration="15363000" />
+      <workItem from="1638333251889" duration="5845000" />
+      <workItem from="1638569788291" duration="234000" />
+      <workItem from="1638570083217" duration="4179000" />
+      <workItem from="1638574280140" duration="8715000" />
+      <workItem from="1638583199753" duration="185000" />
+      <workItem from="1638637658160" duration="18417000" />
+      <workItem from="1638747311804" duration="5974000" />
+      <workItem from="1638824581631" duration="15822000" />
+      <workItem from="1638840737362" duration="75000" />
+      <workItem from="1638840828118" duration="120000" />
+      <workItem from="1638840963497" duration="5273000" />
+      <workItem from="1638898065267" duration="22406000" />
+      <workItem from="1638947842288" duration="1212000" />
+      <workItem from="1638981198404" duration="583000" />
+      <workItem from="1638982027858" duration="6750000" />
+      <workItem from="1639025437175" duration="1496000" />
+      <workItem from="1639092373281" duration="24679000" />
+      <workItem from="1639162068159" duration="26382000" />
+      <workItem from="1639243321627" duration="2171000" />
+      <workItem from="1639245571126" duration="72000" />
+      <workItem from="1639245689270" duration="484000" />
+      <workItem from="1639246189604" duration="953000" />
+      <workItem from="1639247590929" duration="206000" />
+      <workItem from="1639247887206" duration="21000" />
+      <workItem from="1639247927597" duration="174000" />
+      <workItem from="1639248619980" duration="366000" />
+      <workItem from="1639249059425" duration="979000" />
+      <workItem from="1639411204709" duration="66000" />
+      <workItem from="1639411291402" duration="681000" />
+    </task>
+    <task id="LOCAL-00023" summary="Local mode progress">
+      <created>1628730029770</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1628730029770</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Remote mode for hints progress">
+      <created>1628898078348</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1628898078348</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Hints mechanism coded">
+      <created>1629067047081</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1629067047081</updated>
+    </task>
+    <task id="LOCAL-00026" summary="ELS 3.0.0 release">
+      <created>1629233684796</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1629233684796</updated>
+    </task>
+    <task id="LOCAL-00027" summary="Adjusted features">
+      <created>1629234974368</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1629234974368</updated>
+    </task>
+    <task id="LOCAL-00028" summary="Progress on 3.1.0">
+      <created>1629426617150</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1629426617150</updated>
+    </task>
+    <task id="LOCAL-00029" summary="Progress on 3.1.0 remote">
+      <created>1629679213990</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1629679213990</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Progress on 3.1.0 remote">
+      <created>1629854585777</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1629854585777</updated>
+    </task>
+    <task id="LOCAL-00031" summary="3.1.0 remote code complete">
+      <created>1629950607965</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1629950607966</updated>
+    </task>
+    <task id="LOCAL-00032" summary="3.1.0 remote code complete better; beginnings of more-methodical tests">
+      <created>1630285316853</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1630285316853</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Add the test files">
+      <created>1630285491450</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1630285491450</updated>
+    </task>
+    <task id="LOCAL-00034" summary="Progress on testing and the resulting changes">
+      <created>1630383599911</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1630383599911</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Added new mock content">
+      <created>1630383674093</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1630383674093</updated>
+    </task>
+    <task id="LOCAL-00036" summary="Build was missing a library Jar">
+      <created>1630425875616</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1630425875616</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Fixed distro with missing Jar">
+      <created>1630426951803</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1630426951803</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Repo update">
+      <created>1630428012808</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1630428012808</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Repo update">
+      <created>1630428920739</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1630428920739</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Addition of more-methodical testing and many example scripts">
+      <created>1630729744285</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1630729744286</updated>
+    </task>
+    <task id="LOCAL-00041" summary="ELS 3.1.0 release">
+      <created>1630948781765</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1630948781765</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Created Version-4.0.0 branch for next major release">
+      <created>1630953714128</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1630953714128</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Initial layout of the Navigator GUI. Only File, Quit works.">
+      <created>1631235206601</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1631235206601</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Progress on Navigator browser">
+      <created>1631548334540</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1631548334540</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Working on the dynamic trees">
+      <created>1632620989813</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1632620989813</updated>
+    </task>
+    <task id="LOCAL-00046" summary="Working on the dynamic trees">
+      <created>1632621088363</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1632621088363</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Working on the dynamic trees">
+      <created>1632621689064</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1632621689065</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Working on the dynamic trees">
+      <created>1632676834680</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1632676834680</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Working on the dynamic trees">
+      <created>1632776055698</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1632776055698</updated>
+    </task>
+    <task id="LOCAL-00050" summary="Working on the dynamic trees">
+      <created>1633450821360</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1633450821360</updated>
+    </task>
+    <task id="LOCAL-00051" summary="Progress on multi-function trees">
+      <created>1635538977739</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1635538977739</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Progress on multi-function trees">
+      <created>1635558721180</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1635558721180</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Multi-function trees done for now">
+      <created>1635718523077</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1635718523077</updated>
+    </task>
+    <task id="LOCAL-00054" summary="Progress on browser table functionality">
+      <created>1635731589261</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1635731589261</updated>
+    </task>
+    <task id="LOCAL-00055" summary="Progress on browser table functionality">
+      <created>1635821537402</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1635821537402</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Progress on remote functionality">
+      <created>1635905941586</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1635905941586</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Basic publisher &amp; subscriber navigation for local &amp; remote">
+      <created>1636261986067</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1636261986068</updated>
+    </task>
+    <task id="LOCAL-00058" summary="GUI clean-up and menu work">
+      <created>1636479280459</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1636479280459</updated>
+    </task>
+    <task id="LOCAL-00059" summary="Table name sort refactor">
+      <created>1636767145947</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1636767145947</updated>
+    </task>
+    <task id="LOCAL-00060" summary="General clean-up to this point">
+      <created>1636821757768</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1636821757768</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Added beginning of log and properties tabs output; DnD and CCP setup working; heavy lifting next">
+      <created>1636949109769</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1636949109769</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Commit before refactoring NavTreeUserObject">
+      <created>1637081044056</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1637081044056</updated>
+    </task>
+    <task id="LOCAL-00063" summary="Added DnD, CCP to tree elements; started on back/forward navigation">
+      <created>1637202946714</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1637202946714</updated>
+    </task>
+    <task id="LOCAL-00064" summary="Added --decimal-scale option; added view hidden GUI option for tree and table; transfer work progress">
+      <created>1637383499418</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1637383499418</updated>
+    </task>
+    <task id="LOCAL-00065" summary="Reworked Show Hidden items and added menu option and Ctrl-H handling; added refreshTree() method">
+      <created>1637454965578</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1637454965579</updated>
+    </task>
+    <task id="LOCAL-00066" summary="Copy/cut/paste menu options; special tab key handling; support for mouse forward/back buttons; alt-key accelerators on all primary components">
+      <created>1637645948732</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1637645948732</updated>
+    </task>
+    <task id="LOCAL-00067" summary="Progress on actual transfers and changes to trees and tables">
+      <created>1638075539164</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1638075539164</updated>
+    </task>
+    <task id="LOCAL-00068" summary="Progress on actual transfers and changes to trees and tables">
+      <created>1638583310610</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1638583310610</updated>
+    </task>
+    <task id="LOCAL-00069" summary="Refined drag and drop">
+      <created>1638840641411</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1638840641411</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Adding menu items and keys">
+      <created>1638997741424</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1638997741424</updated>
+    </task>
+    <task id="LOCAL-00071" summary="Progress adding menu items and keys">
+      <created>1639243368905</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1639243368905</updated>
+    </task>
+    <option name="localTasksCounter" value="72" />
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="1411000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="2104" y="22" width="1441" height="1000" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4976744" visible="true" weight="0.2494639" />
+      <window_info id="Structure" order="1" sideWeight="0.5023256" side_tool="true" visible="true" weight="0.2494639" />
+      <window_info id="Designer" order="2" />
+      <window_info id="UI Designer" order="3" />
+      <window_info id="Favorites" order="4" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="Terminal" order="10" />
+      <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Palette" order="3" />
+      <window_info anchor="right" id="Database" order="4" />
+      <window_info anchor="right" id="Palette&#9;" order="5" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="1">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="1c8258f7-2a95-44ef-85e3-ee3a0deda58c">
+          <value>
+            <State>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="roots">
+                    <value>
+                      <list>
+                        <option value="$PROJECT_DIR$" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="1c8258f7-2a95-44ef-85e3-ee3a0deda58c" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="false" />
+    <MESSAGE value="Repo update" />
+    <MESSAGE value="Addition of more-methodical testing and many example scripts" />
+    <MESSAGE value="ELS 3.1.0 release" />
+    <MESSAGE value="Created Version-4.0.0 branch for next major release" />
+    <MESSAGE value="Initial layout of the Navigator GUI. Only File, Quit works." />
+    <MESSAGE value="Progress on Navigator browser" />
+    <MESSAGE value="Working on the dynamic trees" />
+    <MESSAGE value="Progress on multi-function trees" />
+    <MESSAGE value="Multi-function trees done for now" />
+    <MESSAGE value="Progress on browser table functionality" />
+    <MESSAGE value="Progress on remote functionality" />
+    <MESSAGE value="Basic publisher &amp; subscriber navigation for local &amp; remote" />
+    <MESSAGE value="GUI clean-up and menu work" />
+    <MESSAGE value="Table name sort refactor" />
+    <MESSAGE value="General clean-up to this point" />
+    <MESSAGE value="Added beginning of log and properties tabs output; DnD and CCP setup working; heavy lifting next" />
+    <MESSAGE value="Commit before refactoring NavTreeUserObject" />
+    <MESSAGE value="Added DnD, CCP to tree elements; started on back/forward navigation" />
+    <MESSAGE value="Added --decimal-scale option; added view hidden GUI option for tree and table; transfer work progress" />
+    <MESSAGE value="Reworked Show Hidden items and added menu option and Ctrl-H handling; added refreshTree() method" />
+    <MESSAGE value="Copy/cut/paste menu options; special tab key handling; support for mouse forward/back buttons; alt-key accelerators on all primary components" />
+    <MESSAGE value="Progress on actual transfers and changes to trees and tables" />
+    <MESSAGE value="Refined drag and drop" />
+    <MESSAGE value="Adding menu items and keys" />
+    <MESSAGE value="Progress adding menu items and keys" />
+    <option name="LAST_COMMIT_MESSAGE" value="Progress adding menu items and keys" />
+    <option name="GROUP_MULTIFILE_MERGE_BY_DIRECTORY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/NavTransferHandler.java</url>
+          <line>568</line>
+          <option name="timeStamp" value="52" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>742</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>746</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>736</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>767</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>420</line>
+          <option name="timeStamp" value="67" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/NavTransferHandler.java</url>
+          <line>575</line>
+          <option name="timeStamp" value="69" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>398</line>
+          <option name="timeStamp" value="72" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Navigator.java</url>
+          <line>394</line>
+          <option name="timeStamp" value="73" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Navigator.java</url>
+          <line>414</line>
+          <option name="timeStamp" value="78" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Navigator.java</url>
+          <line>436</line>
+          <option name="timeStamp" value="79" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>471</line>
+          <option name="timeStamp" value="80" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Browser.java</url>
+          <line>401</line>
+          <option name="timeStamp" value="84" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Navigator.java</url>
+          <line>537</line>
+          <option name="timeStamp" value="94" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/com/groksoft/els/gui/Navigator.java</url>
+          <line>452</line>
+          <option name="timeStamp" value="95" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/com/groksoft/els/Main.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="5" column="12" selection-start-line="5" selection-start-column="12" selection-end-line="5" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <last-edited>ELS-complete.zip</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.5" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>11</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>ELS</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.6" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>els</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
+  </component>
+</project>

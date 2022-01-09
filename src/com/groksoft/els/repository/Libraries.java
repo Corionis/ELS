@@ -37,6 +37,21 @@ public class Libraries
     public String flavor;
 
     /**
+     * If case-sensitive true/false.
+     */
+    public Boolean case_sensitive;
+
+    /**
+     * If files in temp are dated (unique) or a single file that is overwritten
+     */
+    public Boolean temp_dated;
+
+    /**
+     * Optional location for temp files generated and/or received
+     */
+    public String temp_location;
+
+    /**
      * If remote terminal session is allowed then true, else false
      */
     public Boolean terminal_allowed;
@@ -45,11 +60,6 @@ public class Libraries
      * The UUID of this system
      */
     public String key;
-
-    /**
-     * If case-sensitive true/false.
-     */
-    public Boolean case_sensitive;
 
     /**
      * Ignore patterns. Regular expressions are supported.

@@ -1,5 +1,6 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.NavTreeNode;
 import com.groksoft.els.gui.NavTreeUserObject;
 import com.groksoft.els.repository.*;
 import com.groksoft.els.storage.Storage;
@@ -9,10 +10,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
@@ -67,7 +70,7 @@ public class Transfer
         {
             context.clientSftp.transmitFile(from, to, overwrite);
             if (cfg.isPreserveDates() && filetime != null)
-                context.clientSftp.setDate(to, (int)filetime.to(TimeUnit.SECONDS));
+                context.clientSftp.setDate(to, (int) filetime.to(TimeUnit.SECONDS));
         }
         else
         {
@@ -294,6 +297,23 @@ public class Transfer
         return removedFiles;
     }
 
+    public Repository getRepo(NavTreeUserObject tuo)
+    {
+        Repository repo = null;
+        switch (tuo.node.getMyTree().getName())
+        {
+            case "treeCollectionOne":
+            case "treeSystemOne":
+                repo = context.publisherRepo;
+                break;
+            case "treeCollectionTwo":
+            case "treeSystemTwo":
+                repo = context.subscriberRepo;
+                break;
+        }
+        return repo;
+    }
+
     /**
      * Get the count of items skipped because they are missing
      *
@@ -344,8 +364,8 @@ public class Transfer
      * Otherwise will return one of the subscriber targets for the library of the item
      * that has enough space to hold the item, otherwise an empty string is returned.
      *
-     * @param library the publisher library.definition.name
-     * @param size    the total size of item(s) to be copied
+     * @param library  the publisher library.definition.name
+     * @param size     the total size of item(s) to be copied
      * @param itemPath the getItemPath() value
      * @return the target
      * @throws MungeException the els exception
@@ -366,10 +386,10 @@ public class Transfer
      * that has enough space to hold the item, otherwise an empty string is returned.
      *
      * @param sourceRepo the source publisher or subscriber repo
-     * @param library the publisher library.definition.name
-     * @param size    the total size of item(s) to be copied
+     * @param library    the publisher library.definition.name
+     * @param size       the total size of item(s) to be copied
      * @param targetRepo the target publisher or subscriber repo
-     * @param itemPath the getItemPath() value
+     * @param itemPath   the getItemPath() value
      * @return the target
      * @throws MungeException the els exception
      */
@@ -771,12 +791,43 @@ public class Transfer
         return libAltered;
     }
 
+    public String reduceCollectionPath(NavTreeUserObject tuo)
+    {
+        String path = null;
+        if (tuo.node.getMyTree().getName().contains("Collection"))
+        {
+            Repository repo = getRepo(tuo);
+            if (repo != null)
+            {
+                String tuoPath = (repo.getLibraryData().libraries.case_sensitive) ? tuo.path : tuo.path.toLowerCase();
+                for (Library lib : repo.getLibraryData().libraries.bibliography)
+                {
+                    for (String source : lib.sources)
+                    {
+                        File srcDir = new File(source);
+                        String srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcDir.getAbsolutePath() : srcDir.getAbsolutePath().toLowerCase();
+                        if (tuoPath.startsWith(srcPath))
+                        {
+                            path = lib.name + " | " + tuo.path.substring(srcPath.length() + 1);
+                            break;
+                        }
+                    }
+                    if (path != null)
+                        break;
+                }
+            }
+        }
+        if (path == null)
+            path = tuo.path;
+        return path;
+    }
+
     /**
      * Remove a file, local or remote
      *
-     * @param path      the full from path
-     * @param isDir     if this specific path is a directory
-     * @param isRemote  if this specific path is remote
+     * @param path     the full from path
+     * @param isDir    if this specific path is a directory
+     * @param isRemote if this specific path is remote
      */
     public void remove(String path, boolean isDir, boolean isRemote) throws Exception
     {
@@ -881,9 +932,9 @@ public class Transfer
     /**
      * Rename a file or directory, local or remote
      *
-     * @param from      the full from path
-     * @param to        the full to path
-     * @param isRemote  if this specific path is remote
+     * @param from     the full from path
+     * @param to       the full to path
+     * @param isRemote if this specific path is remote
      */
     public void rename(String from, String to, boolean isRemote) throws Exception
     {
@@ -909,7 +960,7 @@ public class Transfer
         if (cfg.isRemoteSession())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "collection");
+            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "collection");
             if (location == null || location.length() < 1)
                 throw new MungeException("Could not retrieve remote collection file");
             cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
@@ -928,7 +979,7 @@ public class Transfer
         if (cfg.isRemoteSession())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberLibrariesFileName(), "library");
+            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "library");
             if (location == null || location.length() < 1)
                 throw new MungeException("Could not retrieve remote library file");
             cfg.setSubscriberLibrariesFileName(location);
@@ -980,27 +1031,126 @@ public class Transfer
         return toItem;
     }
 
-    public void writeHint(String action, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
+    public String writeHint(String action, boolean isWorkstation, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
     {
         /*
-         * Hint-able:
-         *   If source is a collection and target is not it is a delete.
+         * Publisher Workstation & Subscriber Collection
+         *      Source                  Target                  Action
+         *      ----------------------  ----------------------  ----------------------
+         *      Workstation *           Workstation *           none
+         *      Workstation *           Subscriber Collection   basic add, none
+         *      Workstation *           Subscriber System       none
+         *      Subscriber Collection   Workstation *           hint rm
+         *      Subscriber System       Workstation *           none
          *
-         * Not hint-able:
-         *   Copies to or within a collection are a basic add.
+         *      Subscriber Collection   Subscriber Collection   hint
+         *      Subscriber System       Subscriber Collection   basic add, none
+         *      Subscriber Collection   Subscriber System       hint rm
+         *      Subscriber System       Subscriber System       none
+         *
+         * Publisher Collection & Subscriber Collection
+         *      Source                  Target                  Action
+         *      ----------------------  ----------------------  ----------------------
+         *      Publisher Collection    Publisher Collection    hint
+         *      Publisher System        Publisher Collection    basic add, none
+         *      Publisher Collection    Publisher System        hint rm
+         *      Publisher System        Publisher System        none
+         *
+         *      Publisher Collection    Subscriber Collection
+         *      Publisher System        Subscriber Collection
+         *      Publisher Collection    Subscriber System       hint rm
+         *      Publisher System        Subscriber System       none
+         *
+         *      Subscriber Collection    Publisher Collection
+         *      Subscriber System        Publisher Collection
+         *      Subscriber Collection    Publisher System       hint rm
+         *      Subscriber System        Publisher System       none
+         *
+         *      Subscriber Collection    Subscriber Collection
+         *      Subscriber System        Subscriber Collection
+         *      Subscriber Collection    Subscriber System
+         *      Subscriber System        Subscriber System
+         *
          */
-        String act = action.trim().toLowerCase();
-        ArrayList<HintKeys.HintKey> keys = context.hintKeys.get();
+        String hintPath = "";
 
-        if (act.equals("mv") || act.equals("rm"))
+        // if a workstation and source is publisher then it is a basic add and there is no hint
+        if (isWorkstation && !sourceTuo.isSubscriber())
+            return "";
+
+        boolean sourceIsCollection = sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection");
+        boolean targetIsCollection = targetTuo.node.getMyTree().getName().toLowerCase().contains("collection");
+
+        // if source is subscriber system tab this it is a basic add, no hint
+        if (sourceTuo.isSubscriber() && !sourceIsCollection)
+            return "";
+
+        // if either the source or target are not a collection there is no hint
+        if (sourceIsCollection || targetIsCollection)
         {
-            for (HintKeys.HintKey key : keys)
+            String command = "";
+            String act = action.trim().toLowerCase();
+
+            // a move out of a collection is an rm from the collection's point of view
+            if (!targetIsCollection)
+                act = "rm";
+
+            if (act.equals("mv"))
             {
+                command = "mv \"" + reduceCollectionPath(sourceTuo) + "\" \"" + reduceCollectionPath(targetTuo) + "\"\n";
+            }
+            else if (act.equals("rm"))
+            {
+                command = "rm \"" + reduceCollectionPath(sourceTuo) + "\"\n";
+            }
+            else
+                throw new MungeException("Action must be 'mv' or 'rm'");
+
+            hintPath = Utils.getLeftPath(sourceTuo.path, null);
+            String hintName = Utils.getRightPath(hintPath, null);
+            hintPath = hintPath + Utils.getSeparatorFromPath(hintPath) + hintName + ".els";
+
+            writeUpdateHint(hintPath, command);
+        }
+        return hintPath;
+    }
+
+    public String writeUpdateHint(String hintPath, String command) throws Exception
+    {
+        // LEFTOFF
+        if (cfg.isRemoteSession() && !context.hintMode)
+        {
+            hintPath = context.clientStty.roundTrip("\'" + hintPath + "\' \'" + command + "\'");
+        }
+        else
+        {
+            File hintFile = new File(hintPath);
+            if (Files.exists(hintFile.toPath()))
+            {
+                Files.write(hintFile.toPath(), command.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+                logger.info("Updated Hint file " + hintFile.getAbsolutePath());
+                hintPath = "";
+            }
+            else
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("# Created " + new Date().toString() + "\n");
+
+                ArrayList<HintKeys.HintKey> keys = context.hintKeys.get();
+                for (HintKeys.HintKey key : keys)
+                {
+                    if (!key.uuid.equalsIgnoreCase(context.publisherRepo.getLibraryData().libraries.key))
+                    {
+                        sb.append("For " + key.name + "\n");
+                    }
+                }
+                sb.append(command);
+                Files.write(hintFile.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+                logger.info("Created Hint file " + hintFile.getAbsolutePath());
 
             }
         }
-        else
-            throw new MungeException("Action must be 'mv' or 'rm'");
+        return hintPath;
     }
 
 }

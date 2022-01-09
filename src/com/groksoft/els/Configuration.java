@@ -360,6 +360,20 @@ public class Configuration
     }
 
     /**
+     * Get the publisher file name
+     * <br/>
+     * Either the Collection or Libraries file name is returned depending on which is defined.
+     * To get one or the other specifically use the appropriate direct method.
+     * @return the publisher file name being used
+     */
+    public String getPublisherFilename()
+    {
+        if (getPublisherCollectionFilename().length() > 0)
+            return getPublisherCollectionFilename();
+        return getPublisherLibrariesFileName();
+    }
+
+    /**
      * Gets publisher configuration file name
      *
      * @return the publisher configuration file name
@@ -425,6 +439,20 @@ public class Configuration
     public String getSubscriberCollectionFilename()
     {
         return subscriberCollectionFilename;
+    }
+
+    /**
+     * Get the subscriber file name
+     * <br/>
+     * Either the Collection or Libraries file name is returned depending on which is defined.
+     * To get one or the other specifically use the appropriate direct method.
+     * @return the subscriber file name being used
+     */
+    public String getSubscriberFilename()
+    {
+        if (getSubscriberCollectionFilename().length() > 0)
+            return getSubscriberCollectionFilename();
+        return getSubscriberLibrariesFileName();
     }
 
     /**

@@ -31,6 +31,8 @@ public class Navigator
     public static GuiContext guiContext;
     ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private transient Logger logger = LogManager.getLogger("applog");
+
+    private boolean quitRemote = false;
     public boolean showHintTrackingButton = false;
 
     // QUESTION:
@@ -39,11 +41,14 @@ public class Navigator
 
     // TODO:
     //  ! TEST Hints with spread-out files, e.g. TV Show in two locations.
-    //  * Hint tracking in Browser
     //  * Display Collection:
     //     * Whole tree - done
     //     * !-Z alphabetic
     //  * Overwrite true/false option?
+    //
+    // TODO:
+    //  * Try using skeleton JSON file with forced pull of collection from subscriber
+    //  * Remove -n | --rename options and JSON objects; Update documentation
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -66,14 +71,14 @@ public class Navigator
 
         if (guiContext.cfg.getPublisherCollectionFilename().length() > 0)
         {
-            guiContext.preferences.setLastIsCollection(true);
+            guiContext.preferences.setLastIsWorkstation(true);
             guiContext.preferences.setLastPublisherOpenFile(guiContext.cfg.getPublisherCollectionFilename());
             guiContext.preferences.setLastPublisherOpenPath(Utils.getLeftPath(guiContext.cfg.getPublisherCollectionFilename(),
                     Utils.getSeparatorFromPath(guiContext.cfg.getPublisherCollectionFilename())));
         }
         else if (guiContext.cfg.getPublisherLibrariesFileName().length() > 0)
         {
-            guiContext.preferences.setLastIsCollection(false);
+            guiContext.preferences.setLastIsWorkstation(false);
             guiContext.preferences.setLastPublisherOpenPath(guiContext.cfg.getPublisherLibrariesFileName());
             guiContext.preferences.setLastPublisherOpenPath(Utils.getLeftPath(guiContext.cfg.getPublisherLibrariesFileName(),
                     Utils.getSeparatorFromPath(guiContext.cfg.getPublisherLibrariesFileName())));
@@ -201,15 +206,21 @@ public class Navigator
                 jp.setLayout(layout);
                 jp.setBackground(UIManager.getColor("TextField.background"));
                 jp.setBorder(guiContext.form.textFieldLocation.getBorder());
+
                 JRadioButton rbCollection = new JRadioButton("Collection");
                 rbCollection.setToolTipText("Running on a media collection (server/back-up)");
-                rbCollection.setSelected(guiContext.preferences.isLastIsCollection());
+                rbCollection.setSelected(!guiContext.preferences.isLastIsWorkstation());
                 JRadioButton rbWorkstation = new JRadioButton("Workstation");
                 rbWorkstation.setToolTipText("Running on a media workstation");
-                rbWorkstation.setSelected(!guiContext.preferences.isLastIsCollection());
+                rbWorkstation.setSelected(guiContext.preferences.isLastIsWorkstation());
                 ButtonGroup group = new ButtonGroup();
                 group.add(rbCollection);
                 group.add(rbWorkstation);
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(0, 4, 0, 2);
+                layout.setConstraints(rbCollection, gbc);
+                gbc.insets = new Insets(0, 2, 0, 4);
+                layout.setConstraints(rbWorkstation, gbc);
                 jp.add(rbCollection);
                 jp.add(rbWorkstation);
                 fc.setAccessory(jp);
@@ -219,7 +230,7 @@ public class Navigator
                     int selection = fc.showOpenDialog(guiContext.form);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        guiContext.preferences.setLastIsCollection(rbCollection.isSelected());
+                        guiContext.preferences.setLastIsWorkstation(rbWorkstation.isSelected());
                         File last = fc.getCurrentDirectory();
                         guiContext.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
                         File file = fc.getSelectedFile();
@@ -353,10 +364,17 @@ public class Navigator
                         }
                         try
                         {
+                            // this defines the value returned by guiContext.cfg.isRemoteSession()
                             if (guiContext.preferences.isLastIsRemote())
+                            {
                                 guiContext.cfg.setRemoteType("P"); // publisher to remote subscriber
+                                guiContext.form.menuItemQuitTerminate.setVisible(true);
+                            }
                             else
+                            {
                                 guiContext.cfg.setRemoteType("-"); // not remote
+                                guiContext.form.menuItemQuitTerminate.setVisible(false);
+                            }
 
                             guiContext.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                             guiContext.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
@@ -420,6 +438,19 @@ public class Navigator
             }
         };
         guiContext.form.menuItemSaveLayout.addActionListener(saveLayoutAction);
+
+        // Quit & Exit Remote
+        guiContext.form.menuItemQuitTerminate.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                quitRemote = true;
+                stop();
+            }
+        });
+        if (!guiContext.cfg.isRemoteSession())
+            guiContext.form.menuItemQuitTerminate.setVisible(false);
 
         //
         // -- Edit Menu
@@ -967,6 +998,14 @@ public class Navigator
                 {
                     guiContext.preferences.fixApplication(guiContext);
 
+                    if (showHintTrackingButton)
+                    {
+                        for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
+                        {
+                            listener.actionPerformed(new ActionEvent(guiContext.form.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
+                        }
+                    }
+
                     String os = Utils.getOS();
                     logger.debug("Detected local system as " + os);
                     guiContext.form.labelStatusMiddle.setText("Detected local system as " + os);
@@ -989,22 +1028,21 @@ public class Navigator
         // tell remote end to exit
         if (guiContext.context.clientStty != null)
         {
-            String resp;
             try
             {
-                resp = guiContext.context.clientStty.roundTrip("quit");
+                guiContext.context.clientSftp.stopClient();
+                if (quitRemote)
+                {
+                    guiContext.context.clientStty.send("exit");
+                }
+                else
+                {
+                    guiContext.context.clientStty.send("logout");
+                }
             }
             catch (Exception e)
             {
-                resp = null;
-            }
-            if (resp != null && !resp.equalsIgnoreCase("End-Execution"))
-            {
-                logger.warn("Remote might not have quit");
-            }
-            else if (resp == null)
-            {
-                logger.warn("Remote is in an unknown state");
+                logger.error(Utils.getStackTrace(e));
             }
         }
 

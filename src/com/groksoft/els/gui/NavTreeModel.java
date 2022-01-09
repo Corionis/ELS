@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
-class NavTreeModel extends DefaultTreeModel
+public class NavTreeModel extends DefaultTreeModel
 {
     protected boolean filterIsActive;
     private transient Logger logger = LogManager.getLogger("applog");

@@ -278,11 +278,24 @@ public class Daemon extends DaemonBase
                 {
                     try
                     {
-                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                        LocalDateTime now = LocalDateTime.now();
-                        String stamp = dtf.format(now);
+                        String stamp = "";
+                        if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
+                        {
+                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                            LocalDateTime now = LocalDateTime.now();
+                            stamp = "-" + dtf.format(now);
+                        }
 
-                        String location = myRepo.getJsonFilename() + "_collection-generated-" + stamp + ".json";
+                        String path = "";
+                        if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
+                        {
+                            path = myRepo.getLibraryData().libraries.temp_location;
+                            String sep = myRepo.getSeparator();
+                            if (!path.endsWith(sep))
+                                path += sep;
+                        }
+
+                        String location = path + myRepo.getJsonFilename() + "_collection-generated" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
@@ -354,22 +367,56 @@ public class Daemon extends DaemonBase
                     {
                         response = (isTerminal ? "execute command requires a --keys file\r\n" : "false");
                     }
-                    boolean valid = false;
-                    if (t.hasMoreTokens())
+                    else
                     {
-                        String libName = getNextToken(t);
-                        String itemPath = getNextToken(t);
-                        String toPath = getNextToken(t);
-                        if (libName.length() > 0 && itemPath.length() > 0 && toPath.length() > 0)
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
                         {
-                            valid = true;
-                            boolean sense = hints.hintRun(libName, itemPath, toPath);
-                            response = (isTerminal ? "ok" + (sense ? ", executed" : "") + "\r\n" : Boolean.toString(sense));
+                            String libName = getNextToken(t);
+                            String itemPath = getNextToken(t);
+                            String toPath = getNextToken(t);
+                            if (libName.length() > 0 && itemPath.length() > 0 && toPath.length() > 0)
+                            {
+                                valid = true;
+                                boolean sense = hints.hintRun(libName, itemPath, toPath);
+                                response = (isTerminal ? "ok" + (sense ? ", executed" : "") + "\r\n" : Boolean.toString(sense));
+                            }
+                        }
+                        if (!valid)
+                        {
+                            response = (isTerminal ? "execute command requires a 3 arguments, libName, itemPath, fullPath\r\n" : "false");
                         }
                     }
-                    if (!valid)
+                    continue;
+                }
+
+                // -------------- hint -----------------------------------
+                if (theCommand.equalsIgnoreCase("hint"))
+                {
+                    // LEFTOFF
+                    if (hintKeys == null)
                     {
-                        response = (isTerminal ? "execute command requires a 3 arguments, libName, itemPath, fullPath\r\n" : "false");
+                        response = (isTerminal ? "hint command requires a --keys file\r\n" : "false");
+                    }
+                    else
+                    {
+                        boolean valid = false;
+                        if (t.hasMoreTokens())
+                        {
+                            String filename = getNextToken(t);
+                            String command = getNextToken(t);
+                            if (filename.length() > 0 && command.length() > 0)
+                            {
+                                valid = true;
+                                context.hintMode = true;
+                                response = context.transfer.writeUpdateHint(filename, command);
+                                context.hintMode = false;
+                            }
+                        }
+                        if (!valid)
+                        {
+                            response = (isTerminal ? "hint command requires a 2 arguments, filename, command\r\n" : "false");
+                        }
                     }
                     continue;
                 }
@@ -379,11 +426,24 @@ public class Daemon extends DaemonBase
                 {
                     try
                     {
-                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                        LocalDateTime now = LocalDateTime.now();
-                        String stamp = dtf.format(now);
+                        String stamp = "";
+                        if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
+                        {
+                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                            LocalDateTime now = LocalDateTime.now();
+                            stamp = "-" + dtf.format(now);
+                        }
 
-                        String location = myRepo.getJsonFilename() + "_library-generated-" + stamp + ".json";
+                        String path = "";
+                        if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
+                        {
+                            path = myRepo.getLibraryData().libraries.temp_location;
+                            String sep = myRepo.getSeparator();
+                            if (!path.endsWith(sep))
+                                path += sep;
+                        }
+
+                        String location = path + myRepo.getJsonFilename() + "_library-generated" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
                         // do not scan
