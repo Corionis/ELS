@@ -160,10 +160,10 @@ public class Hints
                 if (hintItemSubdirectory != null)
                     toName = hintItemSubdirectory + "|" + toName;
 
-                context.hintMode = true;
+                context.localMode = true;
                 if (context.transfer.move(repo, fromLib.trim(), fromName.trim(), toLib.trim(), toName.trim()))
                     libAltered = true;
-                context.hintMode = false;
+                context.localMode = false;
 
                 item.setHintExecuted(true);
             }
@@ -650,7 +650,7 @@ public class Hints
      */
     public void hintsSubscriberCleanup() throws Exception
     {
-        if (cfg.isRemoteSession() && !context.hintMode)
+        if (cfg.isRemoteSession() && !context.localMode)
         {
             logger.debug("Sending hints cleanup command to remote: " + context.subscriberRepo.getLibraryData().libraries.description);
 

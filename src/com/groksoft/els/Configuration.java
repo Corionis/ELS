@@ -930,6 +930,9 @@ public class Configuration
                         throw new MungeException("Error: -i requires a collection output filename");
                     }
                     break;
+                case "-j":                                             // Job
+                    // TODO Implement execution of a defined Job in batch/background mode
+                    break;
                 case "-k":                                             // ELS keys file
                 case "--keys":
                     if (index <= args.length - 2)

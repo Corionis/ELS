@@ -4,9 +4,11 @@
         "host": "localhost:50371",
         "listen": "localhost:50371",
         "flavor": "linux",
+        "case_sensitive": "false",
+        "temp_dated": "false",
+        "temp_location": "",
         "terminal_allowed": "true",
         "key": "bb12a499-97a6-44e1-8a91-4cc898e45849",
-        "case_sensitive": "false",
         "ignore_patterns": [
             "(?i)desktop\\.ini",
             ".*\\.fuse.*",

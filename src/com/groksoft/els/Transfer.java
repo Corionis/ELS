@@ -1,6 +1,5 @@
 package com.groksoft.els;
 
-import com.groksoft.els.gui.NavTreeNode;
 import com.groksoft.els.gui.NavTreeUserObject;
 import com.groksoft.els.repository.*;
 import com.groksoft.els.storage.Storage;
@@ -8,15 +7,14 @@ import com.groksoft.els.storage.Target;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.sshd.common.util.io.IoUtils;
 
 import java.io.File;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -181,7 +179,7 @@ public class Transfer
     public long getFreespace(String path, boolean isRemote) throws Exception
     {
         long space;
-        if (isRemote && !context.hintMode)
+        if (isRemote && !context.localMode)
         {
             // remote subscriber
             space = context.clientStty.availableSpace(path);
@@ -791,6 +789,24 @@ public class Transfer
         return libAltered;
     }
 
+    public String readTextFile(NavTreeUserObject tuo) throws Exception
+    {
+        String content = "";
+        List<String> lines = null;
+        if (tuo.isRemote)
+        {
+            context.clientStty.send("read \"" + tuo.path + "\"");
+            content = context.clientStty.receive();
+            if (content.equalsIgnoreCase("false"))
+                content = "";
+        }
+        else
+        {
+            content = Utils.readString(tuo.path);
+        }
+        return content;
+    }
+
     public String reduceCollectionPath(NavTreeUserObject tuo)
     {
         String path = null;
@@ -804,8 +820,9 @@ public class Transfer
                 {
                     for (String source : lib.sources)
                     {
-                        File srcDir = new File(source);
-                        String srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcDir.getAbsolutePath() : srcDir.getAbsolutePath().toLowerCase();
+                        //File srcDir = new File(source);
+                        //String srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcDir.getAbsolutePath() : srcDir.getAbsolutePath().toLowerCase();
+                        String srcPath = (repo.getLibraryData().libraries.case_sensitive) ? source : source.toLowerCase();
                         if (tuoPath.startsWith(srcPath))
                         {
                             path = lib.name + " | " + tuo.path.substring(srcPath.length() + 1);
@@ -1074,7 +1091,7 @@ public class Transfer
          */
         String hintPath = "";
 
-        // if a workstation and source is publisher then it is a basic add and there is no hint
+        // if a workstation and source is publisher then it is local or a basic add and there is no hint
         if (isWorkstation && !sourceTuo.isSubscriber())
             return "";
 
@@ -1110,19 +1127,23 @@ public class Transfer
             String hintName = Utils.getRightPath(hintPath, null);
             hintPath = hintPath + Utils.getSeparatorFromPath(hintPath) + hintName + ".els";
 
-            writeUpdateHint(hintPath, command);
+            if (!sourceTuo.isSubscriber())
+                context.localMode = true;
+            hintPath = writeUpdateHint(hintPath, command);
+            context.localMode = false;
         }
         return hintPath;
     }
 
     public String writeUpdateHint(String hintPath, String command) throws Exception
     {
-        // LEFTOFF
-        if (cfg.isRemoteSession() && !context.hintMode)
+        if (cfg.isRemoteSession() && !context.localMode)
         {
-            hintPath = context.clientStty.roundTrip("\'" + hintPath + "\' \'" + command + "\'");
+            String line = "hint \"" + hintPath + "\" " + command;
+            logger.info("Sending remote: " + line);
+            hintPath = context.clientStty.roundTrip(line);
         }
-        else
+        else // local operation
         {
             File hintFile = new File(hintPath);
             if (Files.exists(hintFile.toPath()))
@@ -1147,7 +1168,6 @@ public class Transfer
                 sb.append(command);
                 Files.write(hintFile.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
                 logger.info("Created Hint file " + hintFile.getAbsolutePath());
-
             }
         }
         return hintPath;

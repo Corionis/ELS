@@ -33,7 +33,6 @@ public class Daemon extends DaemonBase
 
     private Context context;
     private boolean fault = false;
-    private HintKeys hintKeys = null;
     private Hints hints = null;
     private boolean isTerminal = false;
     private Transfer transfer;
@@ -139,9 +138,9 @@ public class Daemon extends DaemonBase
         // Get ELS hints keys if specified
         if (cfg.getHintKeysFile().length() > 0) // v3.0.0
         {
-            hintKeys = new HintKeys(cfg, context);
-            hintKeys.read(cfg.getHintKeysFile());
-            hints = new Hints(cfg, context, hintKeys);
+            context.hintKeys = new HintKeys(cfg, context);
+            context.hintKeys.read(cfg.getHintKeysFile());
+            hints = new Hints(cfg, context, context.hintKeys);
             context.transfer = new Transfer(cfg, context);
         }
 

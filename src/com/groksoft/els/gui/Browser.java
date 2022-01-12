@@ -5,6 +5,7 @@ import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -17,8 +18,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
@@ -1307,7 +1312,19 @@ public class Browser
                 case NavTreeUserObject.REAL:
                     msg += "Path: " + tuo.path + "<br/>" + System.getProperty("line.separator");
                     msg += "Size: " + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
-                    msg += "isDir: " + tuo.isDir + "<br/>" + System.getProperty("line.separator");
+                    //msg += "isDir: " + tuo.isDir + "<br/>" + System.getProperty("line.separator");
+                    if (tuo.path.endsWith(".els"))
+                    {
+                        String content = guiContext.context.transfer.readTextFile(tuo);
+                        if (content.length() > 0)
+                        {
+                            content = content.replaceAll("\r\n", "<br/>" + System.getProperty("line.separator"));
+                            content = content.replaceAll("\n", "<br/>" + System.getProperty("line.separator"));
+                            content = content.replaceAll("\r", "<br/>" + System.getProperty("line.separator"));
+                        }
+                        msg += "<hr>" + System.getProperty("line.separator");
+                        msg += content;
+                    }
                     break;
                 case NavTreeUserObject.SYSTEM:
                     break;

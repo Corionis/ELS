@@ -73,7 +73,7 @@ public class NavTransferHandler extends TransferHandler
     {
         guiContext.context.fault = false;
         ArrayList<NavTreeUserObject> rowList = new ArrayList<NavTreeUserObject>();
-        guiContext.form.labelStatusMiddle.setText("CREATE");
+        //guiContext.form.labelStatusMiddle.setText("CREATE");
         if (c instanceof JTable)
         {
             sourceTable = (JTable) c;
@@ -700,7 +700,7 @@ public class NavTransferHandler extends TransferHandler
         NavTreeUserObject toTuo = toNode.getUserObject();
         toTuo.node = toNode;
         toTuo.path = path;
-        toTuo.isRemote = !targetIsPublisher;
+        toTuo.isRemote = !targetIsPublisher && guiContext.cfg.isRemoteSession();
         toTuo.file = new File(path);
         toNode.setAllowsChildren(toTuo.isDir);
 

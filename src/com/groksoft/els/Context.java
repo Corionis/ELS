@@ -20,7 +20,7 @@ public class Context
     public Datastore datastore;
     public boolean fault = false;
     public HintKeys hintKeys;
-    public boolean hintMode = false;
+    public boolean localMode = false;
     public Main main;
     public Navigator navigator;
     public Repository publisherRepo;

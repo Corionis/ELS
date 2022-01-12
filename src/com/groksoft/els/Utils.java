@@ -4,15 +4,13 @@ import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +18,7 @@ import java.nio.file.attribute.FileTime;
 import java.security.Key;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -665,6 +664,23 @@ public class Utils
         if (buf.length > 0)
             input = decrypt(key, buf);
         return input;
+    }
+
+    /**
+     * Read an entire file as a String
+     *
+     * @param filename The local file to read
+     */
+    public static String readString(String filename) throws Exception
+    {
+        String content = "";
+        URL url = new URL("file:" + filename);
+        List<String> lines = IoUtils.readAllLines(url);
+        for (int i = 0; i < lines.size(); ++i)
+        {
+            content += lines.get(i) + System.getProperty("line.separator");
+        }
+        return content;
     }
 
     /**

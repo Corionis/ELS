@@ -49,6 +49,10 @@ public class Navigator
     // TODO:
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
+    //
+    // QUESTION:
+    //  * Can a Library be added for updating JSON files?
+    //     * Or should skeleton files be used with pull options always enabled?
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -419,6 +423,8 @@ public class Navigator
             }
         };
         guiContext.form.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
+        if (guiContext.context.subscriberRepo != null)
+            guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
 
         // Save Layout
         AbstractAction saveLayoutAction = new AbstractAction()

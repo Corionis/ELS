@@ -34,7 +34,6 @@ public class Daemon extends DaemonBase
 
     private Context context;
     private boolean fault = false;
-    private HintKeys hintKeys = null;
     private Hints hints = null;
     private boolean isTerminal = false;
 
@@ -153,9 +152,9 @@ public class Daemon extends DaemonBase
         // Get ELS hints keys if specified
         if (cfg.getHintKeysFile().length() > 0) // v3.0.0
         {
-            hintKeys = new HintKeys(cfg, context);
-            hintKeys.read(cfg.getHintKeysFile());
-            hints = new Hints(cfg, context, hintKeys);
+            context.hintKeys = new HintKeys(cfg, context);
+            context.hintKeys.read(cfg.getHintKeysFile());
+            hints = new Hints(cfg, context, context.hintKeys);
         }
 
         // setup i/o
@@ -265,9 +264,9 @@ public class Daemon extends DaemonBase
                 {
                     if (hints != null)
                     {
-                        context.hintMode = true;
+                        context.localMode = true;
                         hints.hintsSubscriberCleanup();
-                        context.hintMode = false;
+                        context.localMode = false;
                         response = "true";
                     }
                     continue;
@@ -363,9 +362,10 @@ public class Daemon extends DaemonBase
                 // -------------- execute hint ------------------------------
                 if (theCommand.equalsIgnoreCase("execute"))
                 {
-                    if (hintKeys == null)
+                    if (context.hintKeys == null)
                     {
                         response = (isTerminal ? "execute command requires a --keys file\r\n" : "false");
+                        logger.warn("execute command received with no --keys file specified");
                     }
                     else
                     {
@@ -394,9 +394,10 @@ public class Daemon extends DaemonBase
                 if (theCommand.equalsIgnoreCase("hint"))
                 {
                     // LEFTOFF
-                    if (hintKeys == null)
+                    if (context.hintKeys == null)
                     {
                         response = (isTerminal ? "hint command requires a --keys file\r\n" : "false");
+                        logger.warn("hint command received with no --keys file specified");
                     }
                     else
                     {
@@ -404,18 +405,21 @@ public class Daemon extends DaemonBase
                         if (t.hasMoreTokens())
                         {
                             String filename = getNextToken(t);
-                            String command = getNextToken(t);
+                            String command = getNextToken(t);;
+                            command += " \"" + getNextToken(t) + "\""; // arg1
+                            if (t.hasMoreTokens())
+                                command += " \"" + getNextToken(t) + "\""; // possible arg2
                             if (filename.length() > 0 && command.length() > 0)
                             {
                                 valid = true;
-                                context.hintMode = true;
+                                context.localMode = true;
                                 response = context.transfer.writeUpdateHint(filename, command);
-                                context.hintMode = false;
+                                context.localMode = false;
                             }
                         }
                         if (!valid)
                         {
-                            response = (isTerminal ? "hint command requires a 2 arguments, filename, command\r\n" : "false");
+                            response = (isTerminal ? "hint command requires a 2 arguments, filename and command\r\n" : "false");
                         }
                     }
                     continue;
@@ -484,6 +488,26 @@ public class Daemon extends DaemonBase
                     Thread.sleep(1000);
                     stop = true;
                     break; // break the loop
+                }
+
+                // -------------- read -----------------------------------
+                if (theCommand.equalsIgnoreCase("read"))
+                {
+                    boolean valid = false;
+                    if (t.hasMoreTokens())
+                    {
+                        String filename = getNextToken(t);
+                        if (filename.length() > 0)
+                        {
+                            valid = true;
+                            response = Utils.readString(filename);
+                        }
+                    }
+                    if (!valid)
+                    {
+                        response = (isTerminal ? "read command requires a 1 argument, filename\r\n" : "false");
+                    }
+                    continue;
                 }
 
                 // -------------- available disk space ----------------------
