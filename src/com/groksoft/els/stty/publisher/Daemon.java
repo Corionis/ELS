@@ -245,6 +245,12 @@ public class Daemon extends DaemonBase
                     continue;
                 }
 
+                // -------------- bye ---------------------------------------
+                if (theCommand.equalsIgnoreCase("bye"))
+                {
+                    break;  // let the connection close
+                }
+
                 // -------------- return collection file --------------------
                 if (theCommand.equalsIgnoreCase("collection"))
                 {
@@ -465,8 +471,8 @@ public class Daemon extends DaemonBase
                     }
                 }
 
-                // -------------- quit, bye, exit ---------------------------
-                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
+                // -------------- quit, exit --------------------------------
+                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                 {
                     Utils.writeStream(out, myKey, "End-Execution");
                     stop = true;
@@ -542,8 +548,8 @@ public class Daemon extends DaemonBase
 
                     if (authorized)
                     {
-                        response += "  find [text] = search collection for all matching text, use collection command to refresh\r\n" +
-                                "  get [text] = like find but offers the option to get/copy the listed items in overwrite mode\r\n" +
+                        response += "  find \"[text]\" = search collection for all matching text, use collection command to refresh\r\n" +
+                                "  get \"[text]\" = like find but offers the option to get/copy the listed items in overwrite mode\r\n" +
                                 "  status = server and console status information\r\n" +
                                 "\r\n" + "" +
                                 " And:\r\n";
@@ -551,11 +557,12 @@ public class Daemon extends DaemonBase
 
                     response += "  auth \"password\" = access Authorized commands, enclose password in quote\r\n" +
                             "  collection = get collection data from remote, can take a few moments to scan\r\n" +
-                            "  space [location] = free space at location on remote\r\n" +
+                            "  space \"[location]\" = free space at location on remote\r\n" +
                             "  targets = get targets file from remote\r\n" +
                             "\r\n  help or ? = this list\r\n" +
                             "  logout = exit current level\r\n" +
-                            "  quit, bye, exit = disconnect\r\n" +
+                            "  bye = disconnect and leave remote end running\r\n" +
+                            "  quit, exit = disconnect and quit remote end\r\n" +
                             "\r\n";
                     // @formatter:on
                     continue;

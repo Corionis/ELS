@@ -615,7 +615,7 @@ public class Main
             {
                 try
                 {
-                    context.statusStty.send("quit");
+                    context.statusStty.send("bye");
                 }
                 catch (Exception e)
                 {

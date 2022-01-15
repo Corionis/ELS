@@ -259,6 +259,12 @@ public class Daemon extends DaemonBase
                     continue;
                 }
 
+                // -------------- bye ---------------------------------------
+                if (theCommand.equalsIgnoreCase("bye"))
+                {
+                    break;  // let the connection close
+                }
+
                 // -------------- cleanup -----------------------------------
                 if (theCommand.equalsIgnoreCase("cleanup"))
                 {
@@ -473,15 +479,13 @@ public class Daemon extends DaemonBase
                     }
                     else
                     {
-                        //theCommand = "quit";
+                        theCommand = "quit";
                         //// let the logic fall through to the 'quit' handler below
-
-                        break; // end loop and let the connection close
                     }
                 }
 
-                // -------------- quit, bye, exit ---------------------------
-                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
+                // -------------- quit, exit --------------------------------
+                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                 {
                     Utils.writeStream(out, myKey, "End-Execution");
                     out.flush();
@@ -586,11 +590,12 @@ public class Daemon extends DaemonBase
 
                     response += "  auth \"password\" = access Authorized commands, enclose password in quote\r\n" +
                             "  collection = get collection data from remote, can take a few moments to scan\r\n" +
-                            "  space [location] = free space at location on remote\r\n" +
+                            "  space \"[location]\" = free space at location on remote\r\n" +
                             "  targets = get targets file from remote\r\n" +
                             "\r\n  help or ? = this list\r\n" +
                             "  logout = exit current level\r\n" +
-                            "  quit, bye, exit = disconnect\r\n" +
+                            "  bye = disconnect and leave remote end running\r\n" +
+                            "  quit, exit = disconnect and quit remote end\r\n" +
                             "\r\n";
                     // @formatter:on
                     continue;

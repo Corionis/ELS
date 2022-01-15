@@ -82,6 +82,12 @@ It's all built-in with the -n | --navigator option.
  4. Added option -z | --decimal-scale to format numeric (B, KB, MB, GB, TB) values with
     a 1000 decimal scale instead of a 1024 binary scale.
 
+### Other Changes
+
+ 1. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
+    "bye" command has been changed to end the terminal session but leave the remote listener
+    running. Commands quit, exit and logout will shutdown the remote listener.
+
 ### Bug Fixes
 
 

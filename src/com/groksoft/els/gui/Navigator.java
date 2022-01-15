@@ -53,6 +53,7 @@ public class Navigator
     // QUESTION:
     //  * Can a Library be added for updating JSON files?
     //     * Or should skeleton files be used with pull options always enabled?
+    //     * Or both?
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -343,7 +344,7 @@ public class Navigator
                             }
                             try
                             {
-                                guiContext.context.clientStty.send("logout");
+                                guiContext.context.clientStty.send("bye");
                             }
                             catch (Exception e)
                             {
@@ -1039,11 +1040,11 @@ public class Navigator
                 guiContext.context.clientSftp.stopClient();
                 if (quitRemote)
                 {
-                    guiContext.context.clientStty.send("exit");
+                    guiContext.context.clientStty.send("quit");
                 }
                 else
                 {
-                    guiContext.context.clientStty.send("logout");
+                    guiContext.context.clientStty.send("bye");
                 }
             }
             catch (Exception e)

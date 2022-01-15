@@ -4,10 +4,10 @@ Command-line scripts to test specific ELS application-level functionalities.
 
 *Note:* These are also an excellent example of the various ways ELS can be executed.
 
-ELS is composed of several different capabilties:
+ELS is composed of several different capabilities:
 
  * Stand-alone back-up tool - the original
- * Networked back-up tool
+ * Network back-up tool, LAN or Internet
  * Built-in SFTP
  * Built-in STTY
  * Built-in interactive terminals
@@ -15,6 +15,7 @@ ELS is composed of several different capabilties:
  * Networked hint processing
  * Local Hint Tracker
  * Networked Hint Status Server (Hint Status Server/HSS)
+ * Desktop ELS Navigator GUI
 
 
 ## Test Organization
@@ -148,6 +149,8 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``50-33_Publisher-Two-backup.sh`` : Separate terminal 2
 
+Note: This sequence results in orphaned .els files in Subscriber Two.
+
 ### 60-00 Local Hint Tracker
 
 * ``reset.sh`` : Reset the test/ directory
@@ -164,8 +167,9 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``60-23_Publisher-One-backup.sh`` : Run once
 
-* ``60-33_Publisher-Two-backup.sh`` : Run once, all test/ directory .els files should be gone and the
-  test/hints/datastore/ directory should be empty
+* ``60-33_Publisher-Two-backup.sh`` : Run once
+
+Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty.
 
 ### 70-00 Remote Hint Server
 
@@ -173,7 +177,7 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``70-01_Hints-publisher.sh`` : Run once, hints are tracked locally
 
-* ``70-10_Status-Server-listener.sh`` : Separate terminal 1
+* ``70-10_Status-Server-listener.sh`` : Separate terminal 1.
 
 * ``70-21_Subscriber-One-listener-quit.sh`` : Separate terminal 2
 
@@ -203,8 +207,9 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``70-31_Subscriber-Two-listener.sh`` : Separate terminal 2
 
-* ``70-33_Publisher-Two-backup.sh`` : Separate terminal 3, status server continues to run, 
-  all test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
+* ``70-33_Publisher-Two-backup.sh`` : Separate terminal 3, status server continues to run
+
+Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
 
 * ``70-90_Quit-Status-Server.sh`` : Separate terminal 2, stop the status server directly
 

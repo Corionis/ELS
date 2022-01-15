@@ -219,6 +219,12 @@ public class Daemon extends DaemonBase
 
                     String theCommand = t.nextToken().trim();
 
+                    // -------------- bye ---------------------------------------
+                    if (theCommand.equalsIgnoreCase("bye"))
+                    {
+                        break;  // let the connection close
+                    }
+
                     // -------------- get status --------------------------------
                     if (theCommand.equalsIgnoreCase("get"))
                     {
@@ -252,13 +258,13 @@ public class Daemon extends DaemonBase
                         }
                         else
                         {
-                            // break read loop and let the connection be closed
-                            break;
+                            theCommand = "quit";
+                            // let the logic fall through to the 'quit' handler below
                         }
                     }
 
-                    // -------------- quit, bye, exit ---------------------------
-                    if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("bye") || theCommand.equalsIgnoreCase("exit"))
+                    // -------------- quit, exit --------------------------------
+                    if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                     {
                         //Utils.writeStream(out, myKey, "End-Execution");
                         stop = true;

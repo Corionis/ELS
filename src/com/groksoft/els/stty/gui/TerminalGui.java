@@ -62,7 +62,14 @@ public class TerminalGui implements WindowListener, ActionListener
                     commandField.requestFocus();
                     break;
                 case "command":
-                    response = roundTrip(commandField.getText());
+                    String cmd = commandField.getText();
+                    if (cmd.trim().equalsIgnoreCase("bye"))
+                    {
+                        send(cmd);
+                        frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+                        break;
+                    }
+                    response = roundTrip(cmd);
                     frame.revalidate();
                     sb = scroll.getVerticalScrollBar();
                     sb.setValue(sb.getMaximum());
