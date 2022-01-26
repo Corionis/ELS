@@ -103,8 +103,6 @@ public class MainFrame extends JFrame
 
             // add smart scroll to the log
             new SmartScroller(scrollPaneLog);
-
-//            pack();
         }
         catch(Exception ex)
         {
@@ -163,7 +161,7 @@ public class MainFrame extends JFrame
         menuFile = new JMenu();
         menuItemOpenPublisher = new JMenuItem();
         menuItemOpenSubscriber = new JMenuItem();
-        menuItemOpenKeys = new JMenuItem();
+        menuItemOpenHintKeys = new JMenuItem();
         menuItemOpenHintServer = new JMenuItem();
         menuItemSaveLayout = new JMenuItem();
         menuItemQuitTerminate = new JMenuItem();
@@ -310,17 +308,18 @@ public class MainFrame extends JFrame
                 menuItemOpenSubscriber.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemOpenSubscriber);
 
-                //---- menuItemOpenKeys ----
-                menuItemOpenKeys.setText(bundle.getString("Navigator.menuItemOpenKeys.text"));
-                menuItemOpenKeys.setSelected(true);
-                menuItemOpenKeys.setMnemonic(bundle.getString("Navigator.menuItemOpenKeys.mnemonic").charAt(0));
-                menuItemOpenKeys.setEnabled(false);
-                menuFile.add(menuItemOpenKeys);
+                //---- menuItemOpenHintKeys ----
+                menuItemOpenHintKeys.setText(bundle.getString("Navigator.menuItemOpenHintKeys.text"));
+                menuItemOpenHintKeys.setSelected(true);
+                menuItemOpenHintKeys.setMnemonic(bundle.getString("Navigator.menuItemOpenHintKeys.mnemonic").charAt(0));
+                menuItemOpenHintKeys.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuFile.add(menuItemOpenHintKeys);
 
                 //---- menuItemOpenHintServer ----
                 menuItemOpenHintServer.setText(bundle.getString("Navigator.menuItemOpenHintServer.text"));
                 menuItemOpenHintServer.setMnemonic(bundle.getString("Navigator.menuItemOpenHintServer.mnemonic").charAt(0));
                 menuItemOpenHintServer.setEnabled(false);
+                menuItemOpenHintServer.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuFile.add(menuItemOpenHintServer);
                 menuFile.addSeparator();
 
@@ -426,7 +425,6 @@ public class MainFrame extends JFrame
                 menuItemSettings.setText(bundle.getString("Navigator.menuItemSettings.text"));
                 menuItemSettings.setMnemonic(bundle.getString("Navigator.menuItemSettings.mnemonic_2").charAt(0));
                 menuItemSettings.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemSettings.setEnabled(false);
                 menuItemSettings.setHorizontalAlignment(SwingConstants.LEFT);
                 menuEdit.add(menuItemSettings);
             }
@@ -650,6 +648,7 @@ public class MainFrame extends JFrame
 
                         //======== panelLocationAndButtons ========
                         {
+                            panelLocationAndButtons.setFocusable(false);
                             panelLocationAndButtons.setLayout(new BorderLayout());
 
                             //======== panelBarBrowser ========
@@ -670,6 +669,7 @@ public class MainFrame extends JFrame
                                 //---- buttonJobs ----
                                 buttonJobs.setText(bundle.getString("Navigator.buttonJobs.text"));
                                 buttonJobs.setEnabled(false);
+                                buttonJobs.setToolTipText("Manage jobs");
                                 panelBarBrowser.add(buttonJobs);
 
                                 //---- comboBoxJobs ----
@@ -679,11 +679,13 @@ public class MainFrame extends JFrame
                                     "Find and delete duplicates"
                                 }));
                                 comboBoxJobs.setEnabled(false);
+                                comboBoxJobs.setToolTipText("Select a job");
                                 panelBarBrowser.add(comboBoxJobs);
 
                                 //---- buttonRun ----
                                 buttonRun.setText(bundle.getString("Navigator.buttonRun.text"));
                                 buttonRun.setEnabled(false);
+                                buttonRun.setToolTipText("Process selected job");
                                 panelBarBrowser.add(buttonRun);
                             }
                             panelLocationAndButtons.add(panelBarBrowser, BorderLayout.CENTER);
@@ -697,6 +699,7 @@ public class MainFrame extends JFrame
 
                             //======== panelLocation ========
                             {
+                                panelLocation.setFocusable(false);
                                 panelLocation.setLayout(new BorderLayout());
 
                                 //======== panelLocationLeft ========
@@ -738,9 +741,11 @@ public class MainFrame extends JFrame
                                 //---- textFieldLocation ----
                                 textFieldLocation.setPreferredSize(new Dimension(850, 30));
                                 textFieldLocation.setHorizontalAlignment(SwingConstants.LEFT);
-                                textFieldLocation.setEditable(false);
                                 textFieldLocation.setToolTipText("Location");
+                                textFieldLocation.setRequestFocusEnabled(false);
+                                textFieldLocation.setEditable(false);
                                 textFieldLocation.setFocusable(false);
+                                textFieldLocation.setEnabled(false);
                                 panelLocation.add(textFieldLocation, BorderLayout.CENTER);
 
                                 //---- separatorSections ----
@@ -1157,7 +1162,7 @@ public class MainFrame extends JFrame
     public JMenu menuFile;
     public JMenuItem menuItemOpenPublisher;
     public JMenuItem menuItemOpenSubscriber;
-    public JMenuItem menuItemOpenKeys;
+    public JMenuItem menuItemOpenHintKeys;
     public JMenuItem menuItemOpenHintServer;
     public JMenuItem menuItemSaveLayout;
     public JMenuItem menuItemQuitTerminate;

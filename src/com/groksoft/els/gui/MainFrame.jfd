@@ -40,6 +40,7 @@ new FormModel {
 							name: "panelBrowserTop"
 							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 								name: "panelLocationAndButtons"
+								"focusable": false
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
 									"vgap": 2
 									"hgap": 4
@@ -63,6 +64,7 @@ new FormModel {
 										name: "buttonJobs"
 										"text": new FormMessage( null, "Navigator.buttonJobs.text" )
 										"enabled": false
+										"toolTipText": "Manage jobs"
 									} )
 									add( new FormComponent( "javax.swing.JComboBox" ) {
 										name: "comboBoxJobs"
@@ -73,11 +75,13 @@ new FormModel {
 											addElement( "Find and delete duplicates" )
 										}
 										"enabled": false
+										"toolTipText": "Select a job"
 									} )
 									add( new FormComponent( "javax.swing.JButton" ) {
 										name: "buttonRun"
 										"text": new FormMessage( null, "Navigator.buttonRun.text" )
 										"enabled": false
+										"toolTipText": "Process selected job"
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "Center"
@@ -93,6 +97,7 @@ new FormModel {
 								} )
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 									name: "panelLocation"
+									"focusable": false
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 										"$columnSpecs": "0:1.0, 0:1.0, 0:1.0"
 										"$rowSpecs": "0:1.0"
@@ -135,9 +140,11 @@ new FormModel {
 										name: "textFieldLocation"
 										"preferredSize": new java.awt.Dimension( 850, 30 )
 										"horizontalAlignment": 2
-										"editable": false
 										"toolTipText": "Location"
+										"requestFocusEnabled": false
+										"editable": false
 										"focusable": false
+										"enabled": false
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "Center"
 									} )
@@ -490,17 +497,18 @@ new FormModel {
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemOpenKeys"
-						"text": new FormMessage( null, "Navigator.menuItemOpenKeys.text" )
+						name: "menuItemOpenHintKeys"
+						"text": new FormMessage( null, "Navigator.menuItemOpenHintKeys.text" )
 						"selected": true
-						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenKeys.mnemonic" )
-						"enabled": false
+						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintKeys.mnemonic" )
+						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemOpenHintServer"
 						"text": new FormMessage( null, "Navigator.menuItemOpenHintServer.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintServer.mnemonic" )
 						"enabled": false
+						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator2"
@@ -614,7 +622,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemSettings.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemSettings.mnemonic_2" )
 						"horizontalTextPosition": 2
-						"enabled": false
 						"horizontalAlignment": 2
 					} )
 				} )

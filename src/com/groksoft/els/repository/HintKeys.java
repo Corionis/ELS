@@ -76,7 +76,7 @@ public class HintKeys
                     throw new MungeException("Malformed line " + count + " reading ELS keys file: " + file);
                 }
 
-                if (!cfg.isStatusServer())
+                if (!cfg.isStatusServer() && !cfg.isNavigator())
                 {
                     if (parts[1].equals(context.publisherRepo.getLibraryData().libraries.key))
                     {
@@ -100,7 +100,7 @@ public class HintKeys
             }
         }
 
-        if (!cfg.isStatusServer())
+        if (!cfg.isStatusServer() && !cfg.isNavigator())
         {
             if (!foundPublisher)
                 throw new MungeException("The current publisher key was not found in ELS keys file: " + file);

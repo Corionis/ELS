@@ -1,0 +1,215 @@
+JFDML JFormDesigner: "7.0.5.2.410" Java: "11.0.13" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.groksoft.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "Settings"
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": "ELS Navigator Settings"
+			"minimumSize": new java.awt.Dimension( 50, 31 )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"minimumSize": new java.awt.Dimension( 500, 100 )
+				"preferredSize": new java.awt.Dimension( 570, 470 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+					name: "contentPanel"
+					add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+						name: "tabbedPane1"
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+							"columns": 2
+							"rows": 4
+						} ) {
+							name: "panel1"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label2"
+								"text": new FormMessage( null, "Settings.label2.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox1"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label3"
+								"text": new FormMessage( null, "Settings.label3.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox2"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label4"
+								"text": new FormMessage( null, "Settings.label4.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox3"
+							} )
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.panel1.tab.title" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+							"columns": 2
+							"hgap": 2
+							"vgap": 2
+							"rows": 5
+						} ) {
+							name: "panel2"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label5"
+								"text": new FormMessage( null, "Settings.label5.text" )
+							} )
+							add( new FormComponent( "javax.swing.JComboBox" ) {
+								name: "comboBox2"
+								"model": new javax.swing.DefaultComboBoxModel {
+									selectedItem: "System default, use for Windows"
+									addElement( "System default, use for Windows" )
+									addElement( "Metal" )
+									addElement( "Nimbus" )
+									addElement( "Flat light" )
+									addElement( "Flat dark" )
+									addElement( "IntelliJ light" )
+									addElement( "IntelliJ dark" )
+								}
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label6"
+								"text": new FormMessage( null, "Settings.label6.text" )
+							} )
+							add( new FormComponent( "javax.swing.JComboBox" ) {
+								name: "comboBox3"
+								"model": new javax.swing.DefaultComboBoxModel {
+									selectedItem: "en_US"
+									addElement( "en_US" )
+								}
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label7"
+								"text": new FormMessage( null, "Settings.label7.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox4"
+								"text": "otherwise decimal (1000) K scale"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label8"
+								"text": new FormMessage( null, "Settings.label8.text" )
+							} )
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "textField1"
+								"text": "yyyy-MM-dd hh:mm:ss aa"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label9"
+								"text": new FormMessage( null, "Settings.label9.text" )
+							} )
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.panel2.tab.title" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+							"columns": 2
+							"hgap": 2
+							"vgap": 2
+							"rows": 5
+						} ) {
+							name: "panel3"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label10"
+								"text": new FormMessage( null, "Settings.label10.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox5"
+								"text": new FormMessage( null, "Settings.checkBox5.text" )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label11"
+								"text": new FormMessage( null, "Settings.label11.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox6"
+								"text": new FormMessage( null, "Settings.checkBox6.text" )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label12"
+								"text": new FormMessage( null, "Settings.label12.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox7"
+								"text": new FormMessage( null, "Settings.checkBox7.text" )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label13"
+								"text": new FormMessage( null, "Settings.label13.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox8"
+								"text": new FormMessage( null, "Settings.checkBox8.text" )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "label14"
+								"text": new FormMessage( null, "Settings.label14.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBox9"
+								"text": new FormMessage( null, "Settings.checkBox9.text" )
+							} )
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.panel3.tab.title" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+							"columns": 2
+							"hgap": 2
+							"vgap": 2
+						} ) {
+							name: "panel4"
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.panel4.tab.title" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+							"columns": 2
+							"hgap": 2
+							"vgap": 2
+						} ) {
+							name: "panel5"
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.panel5.tab.title" )
+						} )
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80, 80"
+					"$rowSpecs": "0"
+					"$hGap": 5
+					"$vGap": 5
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "okButton"
+						"text": new FormMessage( null, "Settings.okButton.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 0
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "cancelButton"
+						"text": new FormMessage( null, "Settings.cancelButton.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 570, 470 )
+		} )
+	}
+}

@@ -29,11 +29,10 @@ import java.util.ResourceBundle;
 public class Navigator
 {
     public static GuiContext guiContext;
+    public boolean showHintTrackingButton = false;
     ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private transient Logger logger = LogManager.getLogger("applog");
-
     private boolean quitRemote = false;
-    public boolean showHintTrackingButton = false;
 
     // QUESTION:
     //  1. How to organize editing JSON server and targets files with N-libraries with N-sources each?
@@ -427,6 +426,90 @@ public class Navigator
         if (guiContext.context.subscriberRepo != null)
             guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
 
+        // Open Hint Keys
+        AbstractAction openHintKeysAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JFileChooser fc = new JFileChooser();
+                fc.setFileFilter(new FileFilter()
+                {
+                    @Override
+                    public boolean accept(File file)
+                    {
+                        if (file.isDirectory())
+                            return true;
+                        return (file.getName().toLowerCase().endsWith(".keys"));
+                    }
+
+                    @Override
+                    public String getDescription()
+                    {
+                        return "ELS Hint Keys (*.keys)";
+                    }
+                });
+                fc.setDialogTitle("Open ELS Hint Keys");
+                fc.setFileHidingEnabled(false);
+                if (guiContext.preferences.getLastHintKeysOpenPath().length() > 0)
+                {
+                    File ld = new File(guiContext.preferences.getLastHintKeysOpenPath());
+                    if (ld.exists() && ld.isDirectory())
+                        fc.setCurrentDirectory(ld);
+                }
+                if (guiContext.preferences.getLastHintKeysOpenFile().length() > 0)
+                {
+                    File lf = new File(guiContext.preferences.getLastHintKeysOpenFile());
+                    if (lf.exists())
+                        fc.setSelectedFile(lf);
+                }
+
+                while (true)
+                {
+                    int selection = fc.showOpenDialog(guiContext.form);
+                    if (selection == JFileChooser.APPROVE_OPTION)
+                    {
+                        File last = fc.getCurrentDirectory();
+                        guiContext.preferences.setLastHintKeysOpenPath(last.getAbsolutePath());
+                        File file = fc.getSelectedFile();
+                        if (!file.exists())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "File not found: " + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        if (file.isDirectory())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "Select a file only", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        try
+                        {
+                            guiContext.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
+                            guiContext.cfg.setHintKeysFile(file.getAbsolutePath());
+                            guiContext.context.hintKeys = new HintKeys(guiContext.cfg, guiContext.context);
+                            guiContext.context.hintKeys.read(guiContext.cfg.getHintKeysFile());
+                            if (!showHintTrackingButton)
+                            {
+                                showHintTrackingButton = true;
+                                guiContext.form.buttonHintTracking.setVisible(true);
+//                                for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
+//                                {
+//                                    listener.actionPerformed(new ActionEvent(guiContext.form.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
+//                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            JOptionPane.showMessageDialog(guiContext.form, "Error opening hint keys:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        };
+        guiContext.form.menuItemOpenHintKeys.addActionListener(openHintKeysAction);
+
         // Save Layout
         AbstractAction saveLayoutAction = new AbstractAction()
         {
@@ -666,11 +749,24 @@ public class Navigator
                                 to = to + Utils.getSeparatorFromPath(path) + reply;
                                 guiContext.context.transfer.rename(path, to, tuo.isRemote);
 
+                                NavTreeUserObject orig = (NavTreeUserObject) tuo.clone();
+                                orig.node = tuo.node;
+
                                 tuo.path = to;
                                 tuo.name = reply;
                                 if (tuo.file != null)
                                 {
                                     tuo.file = new File(path);
+                                }
+
+                                try
+                                {
+                                    ((NavTransferHandler) tree.getTransferHandler()).exportHint("mv", orig, tuo);
+                                }
+                                catch (Exception e)
+                                {
+                                    logger.error(Utils.getStackTrace(e));
+                                    JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 }
 
                                 guiContext.browser.refreshByObject(tree);
@@ -772,6 +868,18 @@ public class Navigator
         };
         guiContext.form.menuItemDelete.addActionListener(deleteAction);
         guiContext.form.popupMenuItemDelete.addActionListener(deleteAction);
+
+        //
+        // Settings
+        guiContext.form.menuItemSettings.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                Settings dialog = new Settings(guiContext.form);
+                dialog.setVisible(true);
+            }
+        });
 
         //
         // -- View Menu
@@ -894,7 +1002,8 @@ public class Navigator
                 String text = "";
                 try
                 {
-                    URL url = Thread.currentThread().getContextClassLoader().getResource("controls.html");
+                    // TODO Add logic from locales Setting
+                    URL url = Thread.currentThread().getContextClassLoader().getResource("controls_en_US.html");
                     List<String> lines = IoUtils.readAllLines(url);
                     for (int i = 0; i < lines.size(); ++i)
                     {
@@ -1005,7 +1114,7 @@ public class Navigator
                 {
                     guiContext.preferences.fixApplication(guiContext);
 
-                    if (showHintTrackingButton)
+                    //if (showHintTrackingButton)
                     {
                         for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
                         {

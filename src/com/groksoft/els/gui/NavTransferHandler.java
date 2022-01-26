@@ -31,13 +31,13 @@ public class NavTransferHandler extends TransferHandler
     private GuiContext guiContext;
     private boolean isDrop = false;
     private transient Logger logger = LogManager.getLogger("applog");
+    private Repository sourceRepo;
     private JTable sourceTable;
     private JTree sourceTree;
     private boolean targetIsPublisher = false;
+    private Repository targetRepo;
     private JTable targetTable;
     private JTree targetTree;
-    private Repository sourceRepo;
-    private Repository targetRepo;
 
     public NavTransferHandler(GuiContext gctxt)
     {
@@ -168,6 +168,42 @@ public class NavTransferHandler extends TransferHandler
     }
 
     /**
+     * Export a Hint to subscriber
+     *
+     * @param act       Action mv or rm
+     * @param sourceTuo
+     * @param targetTuo
+     * @throws Exception
+     */
+    public void exportHint(String act, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
+    {
+        String hintPath = guiContext.context.transfer.writeHint(act, guiContext.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
+        // create a tree node if a new Hint file was created
+        if (hintPath.length() > 0)
+        {
+            // make tuo and add node
+            NavTreeUserObject createdTuo = null;
+            NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyTree());
+            if (sourceTuo.isRemote)
+            {
+                createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
+                        hintPath, 0, LocalTime.now().toSecondOfDay(), true);
+            }
+            else
+            {
+                createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null), new File(hintPath));
+            }
+            createdNode.setNavTreeUserObject(createdTuo);
+            createdNode.setAllowsChildren(false);
+            if (guiContext.preferences.isHideFilesInTree())
+                createdNode.setVisible(false);
+            else
+                createdNode.setVisible(true);
+            ((NavTreeNode) sourceTuo.node.getParent()).add(createdNode);
+        }
+    }
+
+    /**
      * Export one or more Hint files to subscriber
      * <br/>
      * Only move operations that impact a media server collection are tracked with Hints
@@ -185,27 +221,7 @@ public class NavTransferHandler extends TransferHandler
             // iterate the selected rows of user objects
             for (NavTreeUserObject sourceTuo : transferData)
             {
-                String hintPath = guiContext.context.transfer.writeHint("mv", guiContext.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
-                // create a tree node if a new Hint file was created
-                if (hintPath.length() > 0)
-                {
-                    // make tuo and add node
-                    NavTreeUserObject createdTuo = null;
-                    NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyTree());
-                    if (sourceTuo.isRemote)
-                    {
-                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
-                                hintPath, 0, LocalTime.now().toSecondOfDay(), true);
-                    }
-                    else
-                    {
-                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null), new File(hintPath));
-                    }
-                    createdNode.setNavTreeUserObject(createdTuo);
-                    createdNode.setAllowsChildren(false);
-                    createdNode.setVisible(true);
-                    ((NavTreeNode)sourceTuo.node.getParent()).add(createdNode);
-                }
+                exportHint("mv", sourceTuo, targetTuo);
             }
         }
     }
@@ -587,7 +603,7 @@ public class NavTransferHandler extends TransferHandler
         if (action == TransferHandler.MOVE)
         {
             // iterate the selected source row's user object
-            for (int i = transferData.size() -1; i > -1; --i)
+            for (int i = transferData.size() - 1; i > -1; --i)
             {
                 NavTreeUserObject sourceTuo = transferData.get(i);
                 if (sourceTuo.isDir)

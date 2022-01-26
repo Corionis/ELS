@@ -857,6 +857,7 @@ public class Transfer
             Path fromPath = Paths.get(path).toRealPath();
             Files.delete(fromPath);
         }
+
     }
 
     /**
@@ -1096,7 +1097,7 @@ public class Transfer
             return "";
 
         boolean sourceIsCollection = sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection");
-        boolean targetIsCollection = targetTuo.node.getMyTree().getName().toLowerCase().contains("collection");
+        boolean targetIsCollection = (targetTuo != null) ? targetTuo.node.getMyTree().getName().toLowerCase().contains("collection") : false;
 
         // if source is subscriber system tab this it is a basic add, no hint
         if (sourceTuo.isSubscriber() && !sourceIsCollection)

@@ -592,9 +592,19 @@ public class NavTreeNode extends DefaultMutableTreeNode
         if (myTable.getColumnModel().getColumnCount() > 0)
             guiContext.preferences.fixColumnSizes(guiContext, myTable);
 
-        ArrayList<RowSorter.SortKey> sortKeys = new ArrayList<>();
-        sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+        // LEFTOFF Fix sort column & order changing
+        int sc = 1;
+        SortOrder so = SortOrder.ASCENDING;
         DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
+        List sortKeys = sorter.getSortKeys();
+        if (sortKeys != null && sortKeys.size() > 0)
+        {
+            RowSorter.SortKey sk = (RowSorter.SortKey) sortKeys.get(1);
+            sc = sk.getColumn();
+            so = sk.getSortOrder();
+        }
+        sortKeys = new ArrayList();
+        sortKeys.add(new RowSorter.SortKey(sc, so));
         sorter.setSortKeys(sortKeys);
         sorter.sort();
 

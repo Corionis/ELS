@@ -479,6 +479,18 @@ public class Browser
                                 break;
                             }
                         }
+                        if (!errored && guiContext.browser.trackingHints)
+                        {
+                            try
+                            {
+                                navTransferHandler.exportHint("rm", tuo, null);
+                            }
+                            catch (Exception e)
+                            {
+                                logger.error(Utils.getStackTrace(e));
+                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
                     }
                     else
                     {
@@ -575,6 +587,18 @@ public class Browser
                             {
                                 errored = true;
                                 break;
+                            }
+                        }
+                        if (!errored && guiContext.browser.trackingHints)
+                        {
+                            try
+                            {
+                                navTransferHandler.exportHint("rm", tuo, null);
+                            }
+                            catch (Exception e)
+                            {
+                                logger.error(Utils.getStackTrace(e));
+                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -784,7 +808,7 @@ public class Browser
 
         // set default start location and related data
         initializeStatus(guiContext.form.treeCollectionTwo);
-        initializeStatus(guiContext.form.treeCollectionOne); // initial focus on left/top
+        initializeStatus(guiContext.form.treeCollectionOne);
 
         return true;
     }
@@ -1095,7 +1119,7 @@ public class Browser
             }
         });
 
-        if (guiContext.navigator.showHintTrackingButton)
+        //if (guiContext.navigator.showHintTrackingButton)
         {
             guiContext.form.buttonHintTracking.addActionListener(new AbstractAction()
             {
@@ -1125,7 +1149,8 @@ public class Browser
             });
             hintTrackingColor = guiContext.form.buttonHintTracking.getBackground();
         }
-        else
+        //else
+        if (!guiContext.navigator.showHintTrackingButton)
         {
             guiContext.form.buttonHintTracking.setVisible(false);
         }

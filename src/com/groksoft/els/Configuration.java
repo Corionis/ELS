@@ -364,6 +364,7 @@ public class Configuration
      * <br/>
      * Either the Collection or Libraries file name is returned depending on which is defined.
      * To get one or the other specifically use the appropriate direct method.
+     *
      * @return the publisher file name being used
      */
     public String getPublisherFilename()
@@ -446,6 +447,7 @@ public class Configuration
      * <br/>
      * Either the Collection or Libraries file name is returned depending on which is defined.
      * To get one or the other specifically use the appropriate direct method.
+     *
      * @return the subscriber file name being used
      */
     public String getSubscriberFilename()
@@ -937,7 +939,7 @@ public class Configuration
                 case "--keys":
                     if (index <= args.length - 2)
                     {
-                        hintKeysFile = args[index + 1];
+                        setHintKeysFile(args[index + 1]);
                         ++index;
                     }
                     else
@@ -949,7 +951,7 @@ public class Configuration
                 case "--keys-only":
                     if (index <= args.length - 2)
                     {
-                        hintKeysFile = args[index + 1];
+                        setHintKeysFile(args[index + 1]);
                         ++index;
                         setHintSkipMainProcess(true);
                     }
@@ -1261,6 +1263,11 @@ public class Configuration
     public void setForceTargets(boolean forceTargets)
     {
         this.forceTargets = forceTargets;
+    }
+
+    public void setHintKeysFile(String hintKeysFile)
+    {
+        this.hintKeysFile = hintKeysFile;
     }
 
     /**

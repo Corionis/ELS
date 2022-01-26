@@ -34,6 +34,8 @@ public class Preferences implements Serializable
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
+    private String lastHintKeysOpenFile = "";
+    private String lastHintKeysOpenPath = "";
     private boolean lastIsRemote = true;
     private boolean lastIsWorkstation = false;
     private String lastPublisherOpenFile = "";
@@ -71,7 +73,6 @@ public class Preferences implements Serializable
         //      Preserve file time stamps
         //      Restore previous session
         //      Show confirmation dialogs
-        //      Show Hint Tracking button
         // Appearance
         //      Look 'n Feel
         //      Language
@@ -342,6 +343,16 @@ public class Preferences implements Serializable
         return hintTrackingColor;
     }
 
+    public String getLastHintKeysOpenFile()
+    {
+        return lastHintKeysOpenFile;
+    }
+
+    public String getLastHintKeysOpenPath()
+    {
+        return lastHintKeysOpenPath;
+    }
+
     public String getLastPublisherOpenFile()
     {
         return lastPublisherOpenFile;
@@ -555,6 +566,16 @@ public class Preferences implements Serializable
     public void setHintTrackingColor(String hintTrackingColor)
     {
         this.hintTrackingColor = hintTrackingColor;
+    }
+
+    public void setLastHintKeysOpenFile(String lastHintKeysOpenFile)
+    {
+        this.lastHintKeysOpenFile = lastHintKeysOpenFile;
+    }
+
+    public void setLastHintKeysOpenPath(String lastHintKeysOpenPath)
+    {
+        this.lastHintKeysOpenPath = lastHintKeysOpenPath;
     }
 
     public void setLastIsRemote(boolean lastIsRemote)
