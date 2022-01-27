@@ -45,28 +45,12 @@ public class MainFrame extends JFrame
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
             {
-                laf = getLookAndFeel();
+                laf = getLookAndFeel(guiContext.preferences.getLookAndFeel());
                 UIManager.setLookAndFeel(laf);
             }
 
             initComponents();
-
-            // change browser tabs orientation to vertical
-            JLabel label = new JLabel(bundle.getString("Navigator.panelCollectionOne.tab.title"));
-            label.setUI(new VerticalLabelUI(false));
-            tabbedPaneBrowserOne.setTabComponentAt(0, label);
-            //
-            label = new JLabel(bundle.getString("Navigator.panelSystemOne.tab.title"));
-            label.setUI(new VerticalLabelUI(false));
-            tabbedPaneBrowserOne.setTabComponentAt(1, label);
-
-            label = new JLabel(bundle.getString("Navigator.panelCollectionTwo.tab.title"));
-            label.setUI(new VerticalLabelUI(false));
-            tabbedPaneBrowserTwo.setTabComponentAt(0, label);
-            //
-            label = new JLabel(bundle.getString("Navigator.panelSystemTwo.tab.title"));
-            label.setUI(new VerticalLabelUI(false));
-            tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+            rotateBrowserTabs();
 
             // setup the right-side tables
             tableCollectionOne.setName("tableCollectionOne");
@@ -111,9 +95,9 @@ public class MainFrame extends JFrame
         }
     }
 
-    private LookAndFeel getLookAndFeel()
+    public LookAndFeel getLookAndFeel(int value)
     {
-        switch (guiContext.preferences.getLookAndFeel())
+        switch (value)
         {
             // Built-in themes
             case 1:
@@ -143,6 +127,26 @@ public class MainFrame extends JFrame
     private void menuItemFileQuitActionPerformed(ActionEvent e)
     {
         guiContext.navigator.stop();
+    }
+
+    public void rotateBrowserTabs()
+    {
+        // change browser tabs orientation to vertical
+        JLabel label = new JLabel(bundle.getString("Navigator.panelCollectionOne.tab.title"));
+        label.setUI(new VerticalLabelUI(false));
+        tabbedPaneBrowserOne.setTabComponentAt(0, label);
+        //
+        label = new JLabel(bundle.getString("Navigator.panelSystemOne.tab.title"));
+        label.setUI(new VerticalLabelUI(false));
+        tabbedPaneBrowserOne.setTabComponentAt(1, label);
+
+        label = new JLabel(bundle.getString("Navigator.panelCollectionTwo.tab.title"));
+        label.setUI(new VerticalLabelUI(false));
+        tabbedPaneBrowserTwo.setTabComponentAt(0, label);
+        //
+        label = new JLabel(bundle.getString("Navigator.panelSystemTwo.tab.title"));
+        label.setUI(new VerticalLabelUI(false));
+        tabbedPaneBrowserTwo.setTabComponentAt(1, label);
     }
 
     private void thisWindowClosing(WindowEvent e)

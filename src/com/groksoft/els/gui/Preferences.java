@@ -42,6 +42,7 @@ public class Preferences implements Serializable
     private String lastPublisherOpenPath = "";
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
+    private String locale = "en_US";
     // The Look 'n Feel, 0-6
     // 0=System default look 'n feel - use for Windows,
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
@@ -60,33 +61,11 @@ public class Preferences implements Serializable
     private int systemTwoDividerLocation = 152; // tracked value
     private int systemTwoNameWidth = 128; // tracked value
     private int systemTwoSizeWidth = 80; // tracked value
-
     /**
      * Constructor
      */
     public Preferences()
     {
-        // Ideas for a Settings tool.
-        // Tracked values are not preferences/settings.
-        //
-        // General
-        //      Preserve file time stamps
-        //      Restore previous session
-        //      Show confirmation dialogs
-        // Appearance
-        //      Look 'n Feel
-        //      Language
-        //      Binary/decimal scale
-        //      Date format
-        //      Hint Tracking button color
-        // Browser
-        //      Hide files in tree
-        //      Hide hidden files
-        //      Sort case insensitive
-        //      Sort folders before files
-        //      Sort reverse
-        // Backup
-        // Libraries
     }
 
     public void export(GuiContext guiContext) throws Exception
@@ -373,6 +352,11 @@ public class Preferences implements Serializable
         return lastSubscriberOpenPath;
     }
 
+    public String getLocale()
+    {
+        return locale;
+    }
+
     public int getLookAndFeel()
     {
         return lookAndFeel;
@@ -606,6 +590,11 @@ public class Preferences implements Serializable
     public void setLastSubscriberOpenPath(String lastSubscriberOpenPath)
     {
         this.lastSubscriberOpenPath = lastSubscriberOpenPath;
+    }
+
+    public void setLocale(String locale)
+    {
+        this.locale = locale;
     }
 
     public void setLookAndFeel(int lookAndFeel)

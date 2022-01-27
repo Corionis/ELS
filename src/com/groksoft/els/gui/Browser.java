@@ -5,7 +5,6 @@ import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,12 +17,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Stack;
 
@@ -1378,6 +1373,14 @@ public class Browser
         }
     }
 
+    public void refreshAll()
+    {
+        refreshTree(guiContext.form.treeCollectionOne);
+        refreshTree(guiContext.form.treeSystemOne);
+        refreshTree(guiContext.form.treeCollectionTwo);
+        refreshTree(guiContext.form.treeSystemTwo);
+    }
+
     public void refreshTree(JTree tree)
     {
         if (tree != null)
@@ -1388,10 +1391,13 @@ public class Browser
             TreePath[] paths = tree.getSelectionPaths();
             tree.setExpandsSelectedPaths(true);
             ((NavTreeModel) tree.getModel()).reload();
-            while (expandedDescendants.hasMoreElements())
+            if (expandedDescendants != null)
             {
-                TreePath tp = expandedDescendants.nextElement();
-                tree.expandPath(tp);
+                while (expandedDescendants.hasMoreElements())
+                {
+                    TreePath tp = expandedDescendants.nextElement();
+                    tree.expandPath(tp);
+                }
             }
             tree.setSelectionPaths(paths);
             ((NavTreeNode) tree.getModel().getRoot()).sort();

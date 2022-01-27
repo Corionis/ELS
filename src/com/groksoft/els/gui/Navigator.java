@@ -49,6 +49,11 @@ public class Navigator
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
+    // TODO:
+    //  * Touch
+    //  * Optimize mv on same system
+    //  * Progress
+    //
     // QUESTION:
     //  * Can a Library be added for updating JSON files?
     //     * Or should skeleton files be used with pull options always enabled?
@@ -876,7 +881,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                Settings dialog = new Settings(guiContext.form);
+                Settings dialog = new Settings(guiContext.form, guiContext);
                 dialog.setVisible(true);
             }
         });
@@ -998,12 +1003,12 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(guiContext.form);
+                NavControls dialog = new NavControls(guiContext.form);
                 String text = "";
                 try
                 {
-                    // TODO Add logic from locales Setting
-                    URL url = Thread.currentThread().getContextClassLoader().getResource("controls_en_US.html");
+                    String localized = "controls_" + guiContext.preferences.getLocale() + ".html";
+                    URL url = Thread.currentThread().getContextClassLoader().getResource(localized);
                     List<String> lines = IoUtils.readAllLines(url);
                     for (int i = 0; i < lines.size(); ++i)
                     {

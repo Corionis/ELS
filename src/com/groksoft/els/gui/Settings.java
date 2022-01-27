@@ -1,8 +1,9 @@
-/*
- * Created by JFormDesigner on Tue Jan 25 15:26:24 MST 2022
- */
-
 package com.groksoft.els.gui;
+
+import java.awt.event.*;
+import com.groksoft.els.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,18 +14,43 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 /**
- * @author unknown
+ * ELS Settings dialog
  */
-public class Settings extends JDialog {
-    public Settings(Window owner) {
+public class Settings extends JDialog
+{
+    GuiContext guiContext;
+    private transient Logger logger = LogManager.getLogger("applog");
+    private NavHelp helpDialog;
+    Settings thisDialog;
+
+    public Settings(Window owner, GuiContext ctxt)
+    {
         super(owner);
+        guiContext = ctxt;
         initComponents();
+        thisDialog = this;
+        setDialog();
 
         okButton.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                setPreferences();
+                guiContext.browser.refreshAll();
+                if (helpDialog != null && helpDialog.isVisible())
+                    helpDialog.setVisible(false);
+                setVisible(false);
+            }
+        });
+
+        cancelButton.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (helpDialog != null && helpDialog.isVisible())
+                    helpDialog.setVisible(false);
                 setVisible(false);
             }
         });
@@ -46,117 +72,286 @@ public class Settings extends JDialog {
             {
                 if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER || keyEvent.getKeyChar() == KeyEvent.VK_ESCAPE)
                 {
-                    okButton.doClick();
+                    if (keyEvent.getSource() == okButton)
+                        okButton.doClick();
+                    else if (keyEvent.getSource() == cancelButton)
+                        cancelButton.doClick();
                 }
             }
         });
 
-        cancelButton.addActionListener(new AbstractAction()
+        lookFeelComboBox.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                setVisible(false);
+                JComboBox combobox = (JComboBox) actionEvent.getSource();
+                int index = combobox.getSelectedIndex();
+                try
+                {
+                    if (index == 0)
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    else
+                        UIManager.setLookAndFeel(guiContext.form.getLookAndFeel(index));
+
+                    for (Frame frame : Frame.getFrames())
+                    {
+                        updateLAFRecursively(frame);
+                    }
+                    guiContext.form.rotateBrowserTabs();
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    JOptionPane.showMessageDialog(settingsDialogPane, "Error changing Look 'n Feel:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        dateInfoButton.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (helpDialog == null)
+                {
+                    helpDialog = new NavHelp(owner, thisDialog, guiContext, "Date Format Help", "formats_" + guiContext.preferences.getLocale() + ".html");
+                }
+                if (!helpDialog.isVisible())
+                {
+                    helpDialog.setVisible(true);
+                    // offset the help dialog from the settings dialog
+                    Point loc = thisDialog.getLocation();
+                    loc.x = loc.x + 32;
+                    loc.y = loc.y + 32;
+                    helpDialog.setLocation(loc);
+                }
+                else
+                {
+                    helpDialog.toFront();
+                }
             }
         });
 
         getRootPane().setDefaultButton(okButton);
+    }
 
+    private void setDialog()
+    {
+        // general
+        preserveFileTimestampsCheckBox.setSelected(guiContext.preferences.isPreserveFileTimes());
+        restoreSessionCheckBox.setSelected(false);
+        showConfirmationsCheckBox.setSelected(guiContext.preferences.isShowConfirmations());
 
+        // appearance
+        lookFeelComboBox.setAutoscrolls(true);
+        lookFeelComboBox.setSelectedIndex(guiContext.preferences.getLookAndFeel());
+        ComboBoxModel<String> model = localeComboBox.getModel(); // TODO Scan for available locales & populate combobox
+        localeComboBox.setAutoscrolls(true);
+        for (int i = 0; i < model.getSize(); ++i)
+        {
+            String loc = model.getElementAt(i);
+            if (loc.equals(guiContext.preferences.getLocale()))
+            {
+                localeComboBox.setSelectedIndex(i);
+                break;
+            }
+        }
+        scaleCheckBox.setSelected(guiContext.preferences.isBinaryScale());
+        dateFormatTextField.setText(guiContext.preferences.getDateFormat());
+
+        // browser
+        hideFilesInTreeCheckBox.setSelected(guiContext.preferences.isHideFilesInTree());
+        hideHiddenFilesCheckBox.setSelected(guiContext.preferences.isHideHiddenFiles());
+        sortCaseSensitiveCheckBox.setSelected(guiContext.preferences.isSortCaseInsensitive());
+        sortFoldersBeforeFilesCheckBox.setSelected(guiContext.preferences.isSortFoldersBeforeFiles());
+        sortReverseCheckBox.setSelected(guiContext.preferences.isSortReverse());
+
+        // backup
+
+        // libraries
 
     }
 
-    private void initComponents() {
+    private void setPreferences()
+    {
+        // general
+        guiContext.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
+        // TODO Add Restore Session?
+        guiContext.preferences.setShowConfirmations(showConfirmationsCheckBox.isSelected());
+
+        // appearance
+        guiContext.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
+        guiContext.preferences.setLocale((String) localeComboBox.getSelectedItem());
+        guiContext.preferences.setBinaryScale(scaleCheckBox.isSelected());
+        guiContext.preferences.setDateFormat(dateFormatTextField.getText());
+
+        // browser
+        guiContext.preferences.setHideFilesInTree(hideFilesInTreeCheckBox.isSelected());
+        guiContext.preferences.setHideHiddenFiles(hideHiddenFilesCheckBox.isSelected());
+        guiContext.preferences.setSortCaseInsensitive(sortCaseSensitiveCheckBox.isSelected());
+        guiContext.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
+        guiContext.preferences.setSortReverse(sortReverseCheckBox.isSelected());
+    }
+
+    public static void updateLAFRecursively(Window window)
+    {
+        for (Window childWindow : window.getOwnedWindows())
+        {
+            updateLAFRecursively(childWindow);
+        }
+        SwingUtilities.updateComponentTreeUI(window);
+    }
+
+    private void thisWindowClosed(WindowEvent e) {
+        if (helpDialog != null && helpDialog.isVisible())
+            helpDialog.setVisible(false);
+    }
+
+    private void thisWindowClosing(WindowEvent e) {
+        if (helpDialog != null && helpDialog.isVisible())
+            helpDialog.setVisible(false);
+    }
+
+    private void initComponents()
+    {
+        // <editor-fold desc="Generated component code (Fold)">
+        // @formatter:off
+        //
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
-        dialogPane = new JPanel();
-        contentPanel = new JPanel();
-        tabbedPane1 = new JTabbedPane();
-        panel1 = new JPanel();
-        label2 = new JLabel();
-        checkBox1 = new JCheckBox();
-        label3 = new JLabel();
-        checkBox2 = new JCheckBox();
-        label4 = new JLabel();
-        checkBox3 = new JCheckBox();
-        panel2 = new JPanel();
-        label5 = new JLabel();
-        comboBox2 = new JComboBox<>();
-        label6 = new JLabel();
-        comboBox3 = new JComboBox<>();
-        label7 = new JLabel();
-        checkBox4 = new JCheckBox();
-        label8 = new JLabel();
-        textField1 = new JTextField();
-        label9 = new JLabel();
-        panel3 = new JPanel();
-        label10 = new JLabel();
-        checkBox5 = new JCheckBox();
-        label11 = new JLabel();
-        checkBox6 = new JCheckBox();
-        label12 = new JLabel();
-        checkBox7 = new JCheckBox();
-        label13 = new JLabel();
-        checkBox8 = new JCheckBox();
-        label14 = new JLabel();
-        checkBox9 = new JCheckBox();
-        panel4 = new JPanel();
-        panel5 = new JPanel();
+        settingsDialogPane = new JPanel();
+        settingsContentPanel = new JPanel();
+        settingsTabbedPane = new JTabbedPane();
+        generalPanel = new JPanel();
+        preserveFileTimestampsLabel = new JLabel();
+        preserveFileTimestampsCheckBox = new JCheckBox();
+        restoreSessionLabel = new JLabel();
+        restoreSessionCheckBox = new JCheckBox();
+        showConfirmationsLabel = new JLabel();
+        showConfirmationsCheckBox = new JCheckBox();
+        apperancePanel = new JPanel();
+        lookFeelLabel = new JLabel();
+        lookFeelComboBox = new JComboBox<>();
+        localeLabel = new JLabel();
+        localeComboBox = new JComboBox<>();
+        scaleLabel = new JLabel();
+        scaleCheckBox = new JCheckBox();
+        dateFormatLabel = new JLabel();
+        dateFormatTextField = new JTextField();
+        hintButtonColorLabel = new JLabel();
+        dateInfoButton = new JButton();
+        browserPanel = new JPanel();
+        hideFilesInTreeLabel = new JLabel();
+        hideFilesInTreeCheckBox = new JCheckBox();
+        hideHiddenFilesLabel = new JLabel();
+        hideHiddenFilesCheckBox = new JCheckBox();
+        sortCaseSensitiveLabel = new JLabel();
+        sortCaseSensitiveCheckBox = new JCheckBox();
+        sortFoldersBeforeFilesLabel = new JLabel();
+        sortFoldersBeforeFilesCheckBox = new JCheckBox();
+        sortReverseLabel = new JLabel();
+        sortReverseCheckBox = new JCheckBox();
+        backupPanel = new JPanel();
+        librariesPanel = new JPanel();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
 
         //======== this ========
         setTitle("ELS Navigator Settings");
-        setMinimumSize(new Dimension(50, 31));
+        setMinimumSize(new Dimension(100, 50));
+        setName("settingsDialog");
+        setResizable(false);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                thisWindowClosed(e);
+            }
+            @Override
+            public void windowClosing(WindowEvent e) {
+                thisWindowClosing(e);
+            }
+        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        //======== dialogPane ========
+        //======== settingsDialogPane ========
         {
-            dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-            dialogPane.setMinimumSize(new Dimension(500, 100));
-            dialogPane.setPreferredSize(new Dimension(570, 470));
-            dialogPane.setLayout(new BorderLayout());
+            settingsDialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
+            settingsDialogPane.setMinimumSize(new Dimension(500, 100));
+            settingsDialogPane.setPreferredSize(new Dimension(570, 470));
+            settingsDialogPane.setLayout(new BorderLayout());
 
-            //======== contentPanel ========
+            //======== settingsContentPanel ========
             {
-                contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.X_AXIS));
+                settingsContentPanel.setLayout(new BoxLayout(settingsContentPanel, BoxLayout.X_AXIS));
 
-                //======== tabbedPane1 ========
+                //======== settingsTabbedPane ========
                 {
+                    settingsTabbedPane.setTabPlacement(SwingConstants.LEFT);
 
-                    //======== panel1 ========
+                    //======== generalPanel ========
                     {
-                        panel1.setLayout(new GridLayout(4, 2));
 
-                        //---- label2 ----
-                        label2.setText(bundle.getString("Settings.label2.text"));
-                        panel1.add(label2);
-                        panel1.add(checkBox1);
+                        //---- preserveFileTimestampsLabel ----
+                        preserveFileTimestampsLabel.setText(bundle.getString("Settings.preserveFileTimestampsLabel.text"));
 
-                        //---- label3 ----
-                        label3.setText(bundle.getString("Settings.label3.text"));
-                        panel1.add(label3);
-                        panel1.add(checkBox2);
+                        //---- restoreSessionLabel ----
+                        restoreSessionLabel.setText(bundle.getString("Settings.restoreSessionLabel.text"));
 
-                        //---- label4 ----
-                        label4.setText(bundle.getString("Settings.label4.text"));
-                        panel1.add(label4);
-                        panel1.add(checkBox3);
+                        //---- showConfirmationsLabel ----
+                        showConfirmationsLabel.setText(bundle.getString("Settings.showConfirmationsLabel.text"));
+
+                        GroupLayout generalPanelLayout = new GroupLayout(generalPanel);
+                        generalPanel.setLayout(generalPanelLayout);
+                        generalPanelLayout.setHorizontalGroup(
+                            generalPanelLayout.createParallelGroup()
+                                .addGroup(generalPanelLayout.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addGroup(generalPanelLayout.createParallelGroup()
+                                        .addGroup(generalPanelLayout.createSequentialGroup()
+                                            .addComponent(preserveFileTimestampsLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(generalPanelLayout.createSequentialGroup()
+                                            .addComponent(restoreSessionLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(restoreSessionCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(generalPanelLayout.createSequentialGroup()
+                                            .addComponent(showConfirmationsLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(showConfirmationsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
+                                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        );
+                        generalPanelLayout.setVerticalGroup(
+                            generalPanelLayout.createParallelGroup()
+                                .addGroup(generalPanelLayout.createSequentialGroup()
+                                    .addGap(0, 0, 0)
+                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(preserveFileTimestampsCheckBox, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE)
+                                        .addComponent(preserveFileTimestampsLabel, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE))
+                                    .addGap(1, 1, 1)
+                                    .addGroup(generalPanelLayout.createParallelGroup()
+                                        .addComponent(restoreSessionLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(restoreSessionCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                    .addGap(1, 1, 1)
+                                    .addGroup(generalPanelLayout.createParallelGroup()
+                                        .addComponent(showConfirmationsLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(showConfirmationsCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                    .addContainerGap(265, Short.MAX_VALUE))
+                        );
                     }
-                    tabbedPane1.addTab(bundle.getString("Settings.panel1.tab.title"), panel1);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.generalPanel.tab.title"), generalPanel);
 
-                    //======== panel2 ========
+                    //======== apperancePanel ========
                     {
-                        panel2.setLayout(new GridLayout(5, 2, 2, 2));
 
-                        //---- label5 ----
-                        label5.setText(bundle.getString("Settings.label5.text"));
-                        panel2.add(label5);
+                        //---- lookFeelLabel ----
+                        lookFeelLabel.setText(bundle.getString("Settings.lookFeelLabel.text"));
 
-                        //---- comboBox2 ----
-                        comboBox2.setModel(new DefaultComboBoxModel<>(new String[] {
+                        //---- lookFeelComboBox ----
+                        lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
                             "System default, use for Windows",
                             "Metal",
                             "Nimbus",
@@ -165,101 +360,175 @@ public class Settings extends JDialog {
                             "IntelliJ light",
                             "IntelliJ dark"
                         }));
-                        panel2.add(comboBox2);
 
-                        //---- label6 ----
-                        label6.setText(bundle.getString("Settings.label6.text"));
-                        panel2.add(label6);
+                        //---- localeLabel ----
+                        localeLabel.setText(bundle.getString("Settings.localeLabel.text"));
 
-                        //---- comboBox3 ----
-                        comboBox3.setModel(new DefaultComboBoxModel<>(new String[] {
+                        //---- localeComboBox ----
+                        localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
                             "en_US"
                         }));
-                        panel2.add(comboBox3);
 
-                        //---- label7 ----
-                        label7.setText(bundle.getString("Settings.label7.text"));
-                        panel2.add(label7);
+                        //---- scaleLabel ----
+                        scaleLabel.setText(bundle.getString("Settings.scaleLabel.text"));
 
-                        //---- checkBox4 ----
-                        checkBox4.setText("otherwise decimal (1000) K scale");
-                        panel2.add(checkBox4);
+                        //---- scaleCheckBox ----
+                        scaleCheckBox.setText("uncheck for decimal (1000) K");
 
-                        //---- label8 ----
-                        label8.setText(bundle.getString("Settings.label8.text"));
-                        panel2.add(label8);
+                        //---- dateFormatLabel ----
+                        dateFormatLabel.setText(bundle.getString("Settings.dateFormatLabel.text"));
 
-                        //---- textField1 ----
-                        textField1.setText("yyyy-MM-dd hh:mm:ss aa");
-                        panel2.add(textField1);
+                        //---- dateFormatTextField ----
+                        dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
 
-                        //---- label9 ----
-                        label9.setText(bundle.getString("Settings.label9.text"));
-                        panel2.add(label9);
+                        //---- hintButtonColorLabel ----
+                        hintButtonColorLabel.setText(bundle.getString("Settings.hintButtonColorLabel.text"));
+
+                        //---- dateInfoButton ----
+                        dateInfoButton.setText("Info");
+                        dateInfoButton.setToolTipText("Display date formatting help");
+
+                        GroupLayout apperancePanelLayout = new GroupLayout(apperancePanel);
+                        apperancePanel.setLayout(apperancePanelLayout);
+                        apperancePanelLayout.setHorizontalGroup(
+                            apperancePanelLayout.createParallelGroup()
+                                .addGroup(apperancePanelLayout.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addGroup(apperancePanelLayout.createParallelGroup()
+                                        .addGroup(apperancePanelLayout.createSequentialGroup()
+                                            .addGroup(apperancePanelLayout.createParallelGroup()
+                                                .addComponent(lookFeelLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(localeLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                                .addGroup(apperancePanelLayout.createSequentialGroup()
+                                                    .addComponent(dateFormatLabel, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
+                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                    .addComponent(dateInfoButton)))
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGroup(apperancePanelLayout.createParallelGroup()
+                                                .addComponent(lookFeelComboBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
+                                        .addGroup(apperancePanelLayout.createSequentialGroup()
+                                            .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(0, 0, Short.MAX_VALUE)))
+                                    .addContainerGap())
+                        );
+                        apperancePanelLayout.setVerticalGroup(
+                            apperancePanelLayout.createParallelGroup()
+                                .addGroup(apperancePanelLayout.createSequentialGroup()
+                                    .addGap(1, 1, 1)
+                                    .addGroup(apperancePanelLayout.createParallelGroup()
+                                        .addGroup(apperancePanelLayout.createSequentialGroup()
+                                            .addComponent(lookFeelLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(2, 2, 2)
+                                            .addComponent(localeLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(2, 2, 2)
+                                            .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(dateFormatLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(apperancePanelLayout.createSequentialGroup()
+                                            .addComponent(lookFeelComboBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(apperancePanelLayout.createSequentialGroup()
+                                            .addGap(114, 114, 114)
+                                            .addComponent(dateInfoButton)))
+                                    .addGap(1, 1, 1)
+                                    .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                    .addContainerGap())
+                        );
                     }
-                    tabbedPane1.addTab(bundle.getString("Settings.panel2.tab.title"), panel2);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.apperancePanel.tab.title"), apperancePanel);
 
-                    //======== panel3 ========
+                    //======== browserPanel ========
                     {
-                        panel3.setLayout(new GridLayout(5, 2, 2, 2));
 
-                        //---- label10 ----
-                        label10.setText(bundle.getString("Settings.label10.text"));
-                        panel3.add(label10);
+                        //---- hideFilesInTreeLabel ----
+                        hideFilesInTreeLabel.setText(bundle.getString("Settings.hideFilesInTreeLabel.text"));
 
-                        //---- checkBox5 ----
-                        checkBox5.setText(bundle.getString("Settings.checkBox5.text"));
-                        panel3.add(checkBox5);
+                        //---- hideHiddenFilesLabel ----
+                        hideHiddenFilesLabel.setText(bundle.getString("Settings.hideHiddenFilesLabel.text"));
 
-                        //---- label11 ----
-                        label11.setText(bundle.getString("Settings.label11.text"));
-                        panel3.add(label11);
+                        //---- sortCaseSensitiveLabel ----
+                        sortCaseSensitiveLabel.setText(bundle.getString("Settings.sortCaseSensitiveLabel.text"));
 
-                        //---- checkBox6 ----
-                        checkBox6.setText(bundle.getString("Settings.checkBox6.text"));
-                        panel3.add(checkBox6);
+                        //---- sortFoldersBeforeFilesLabel ----
+                        sortFoldersBeforeFilesLabel.setText(bundle.getString("Settings.sortFoldersBeforeFilesLabel.text"));
 
-                        //---- label12 ----
-                        label12.setText(bundle.getString("Settings.label12.text"));
-                        panel3.add(label12);
+                        //---- sortReverseLabel ----
+                        sortReverseLabel.setText(bundle.getString("Settings.sortReverseLabel.text"));
 
-                        //---- checkBox7 ----
-                        checkBox7.setText(bundle.getString("Settings.checkBox7.text"));
-                        panel3.add(checkBox7);
-
-                        //---- label13 ----
-                        label13.setText(bundle.getString("Settings.label13.text"));
-                        panel3.add(label13);
-
-                        //---- checkBox8 ----
-                        checkBox8.setText(bundle.getString("Settings.checkBox8.text"));
-                        panel3.add(checkBox8);
-
-                        //---- label14 ----
-                        label14.setText(bundle.getString("Settings.label14.text"));
-                        panel3.add(label14);
-
-                        //---- checkBox9 ----
-                        checkBox9.setText(bundle.getString("Settings.checkBox9.text"));
-                        panel3.add(checkBox9);
+                        GroupLayout browserPanelLayout = new GroupLayout(browserPanel);
+                        browserPanel.setLayout(browserPanelLayout);
+                        browserPanelLayout.setHorizontalGroup(
+                            browserPanelLayout.createParallelGroup()
+                                .addGroup(browserPanelLayout.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addGroup(browserPanelLayout.createParallelGroup()
+                                        .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE))
+                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                    .addGroup(browserPanelLayout.createParallelGroup()
+                                        .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortCaseSensitiveCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortFoldersBeforeFilesCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
+                                    .addContainerGap())
+                        );
+                        browserPanelLayout.setVerticalGroup(
+                            browserPanelLayout.createParallelGroup()
+                                .addGroup(browserPanelLayout.createSequentialGroup()
+                                    .addGroup(browserPanelLayout.createParallelGroup()
+                                        .addGroup(browserPanelLayout.createSequentialGroup()
+                                            .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(browserPanelLayout.createSequentialGroup()
+                                            .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(sortCaseSensitiveCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(sortFoldersBeforeFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(1, 1, 1)
+                                            .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)))
+                                    .addGap(187, 187, 187))
+                        );
                     }
-                    tabbedPane1.addTab(bundle.getString("Settings.panel3.tab.title"), panel3);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.browserPanel.tab.title"), browserPanel);
 
-                    //======== panel4 ========
+                    //======== backupPanel ========
                     {
-                        panel4.setLayout(new GridLayout(1, 2, 2, 2));
+                        backupPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    tabbedPane1.addTab(bundle.getString("Settings.panel4.tab.title"), panel4);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.backupPanel.tab.title"), backupPanel);
 
-                    //======== panel5 ========
+                    //======== librariesPanel ========
                     {
-                        panel5.setLayout(new GridLayout(1, 2, 2, 2));
+                        librariesPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    tabbedPane1.addTab(bundle.getString("Settings.panel5.tab.title"), panel5);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.librariesPanel.tab.title"), librariesPanel);
                 }
-                contentPanel.add(tabbedPane1);
+                settingsContentPanel.add(settingsTabbedPane);
             }
-            dialogPane.add(contentPanel, BorderLayout.CENTER);
+            settingsDialogPane.add(settingsContentPanel, BorderLayout.CENTER);
 
             //======== buttonBar ========
             {
@@ -280,50 +549,60 @@ public class Settings extends JDialog {
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
             }
-            dialogPane.add(buttonBar, BorderLayout.SOUTH);
+            settingsDialogPane.add(buttonBar, BorderLayout.SOUTH);
         }
-        contentPane.add(dialogPane, BorderLayout.CENTER);
+        contentPane.add(settingsDialogPane, BorderLayout.CENTER);
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
+        //
+        // @formatter:on
+        // </editor-fold>
     }
 
+    // <editor-fold desc="Generated code (Fold)">
+    // @formatter:off
+    //
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JPanel dialogPane;
-    private JPanel contentPanel;
-    private JTabbedPane tabbedPane1;
-    private JPanel panel1;
-    private JLabel label2;
-    private JCheckBox checkBox1;
-    private JLabel label3;
-    private JCheckBox checkBox2;
-    private JLabel label4;
-    private JCheckBox checkBox3;
-    private JPanel panel2;
-    private JLabel label5;
-    private JComboBox<String> comboBox2;
-    private JLabel label6;
-    private JComboBox<String> comboBox3;
-    private JLabel label7;
-    private JCheckBox checkBox4;
-    private JLabel label8;
-    private JTextField textField1;
-    private JLabel label9;
-    private JPanel panel3;
-    private JLabel label10;
-    private JCheckBox checkBox5;
-    private JLabel label11;
-    private JCheckBox checkBox6;
-    private JLabel label12;
-    private JCheckBox checkBox7;
-    private JLabel label13;
-    private JCheckBox checkBox8;
-    private JLabel label14;
-    private JCheckBox checkBox9;
-    private JPanel panel4;
-    private JPanel panel5;
+    private JPanel settingsDialogPane;
+    private JPanel settingsContentPanel;
+    private JTabbedPane settingsTabbedPane;
+    private JPanel generalPanel;
+    private JLabel preserveFileTimestampsLabel;
+    private JCheckBox preserveFileTimestampsCheckBox;
+    private JLabel restoreSessionLabel;
+    private JCheckBox restoreSessionCheckBox;
+    private JLabel showConfirmationsLabel;
+    private JCheckBox showConfirmationsCheckBox;
+    private JPanel apperancePanel;
+    private JLabel lookFeelLabel;
+    private JComboBox<String> lookFeelComboBox;
+    private JLabel localeLabel;
+    private JComboBox<String> localeComboBox;
+    private JLabel scaleLabel;
+    private JCheckBox scaleCheckBox;
+    private JLabel dateFormatLabel;
+    private JTextField dateFormatTextField;
+    private JLabel hintButtonColorLabel;
+    private JButton dateInfoButton;
+    private JPanel browserPanel;
+    private JLabel hideFilesInTreeLabel;
+    private JCheckBox hideFilesInTreeCheckBox;
+    private JLabel hideHiddenFilesLabel;
+    private JCheckBox hideHiddenFilesCheckBox;
+    private JLabel sortCaseSensitiveLabel;
+    private JCheckBox sortCaseSensitiveCheckBox;
+    private JLabel sortFoldersBeforeFilesLabel;
+    private JCheckBox sortFoldersBeforeFilesCheckBox;
+    private JLabel sortReverseLabel;
+    private JCheckBox sortReverseCheckBox;
+    private JPanel backupPanel;
+    private JPanel librariesPanel;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
+    //
+    // @formatter:on
+    // </editor-fold>
 }

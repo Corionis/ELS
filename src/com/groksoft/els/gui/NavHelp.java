@@ -1,38 +1,37 @@
-/*
- * Created by JFormDesigner on Sat Dec 18 20:22:39 MST 2021
- */
-
 package com.groksoft.els.gui;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
+import java.awt.event.*;
+import com.groksoft.els.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.sshd.common.util.io.IoUtils;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ResourceBundle;
+import java.net.URL;
+import java.util.*;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.border.*;
 
 /**
- *
+ * ELS Help dialog
  */
 public class NavHelp extends JDialog
 {
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JPanel dialogPane;
-    private JPanel contentPanel;
-    public JEditorPane controlsHelpText;
-    private JPanel vSpacer1;
-    private JPanel buttonBar;
-    private JButton okButton;
-    // JFormDesigner - End of variables declaration  //GEN-END:variables
+    private transient Logger logger = LogManager.getLogger("applog");
+    GuiContext guiContext;
+    Component previous;
 
-    public NavHelp(Window owner)
-    {
+    public NavHelp(Window owner, Component prev, GuiContext ctxt, String title, String resourceFilename) {
         super(owner);
+        previous = prev;
+        guiContext = ctxt;
+
         initComponents();
+        this.setTitle(title);
 
         okButton.addActionListener(new AbstractAction()
         {
@@ -40,6 +39,7 @@ public class NavHelp extends JDialog
             public void actionPerformed(ActionEvent actionEvent)
             {
                 setVisible(false);
+                previous.requestFocus();
             }
         });
 
@@ -65,80 +65,126 @@ public class NavHelp extends JDialog
             }
         });
 
-        getRootPane().setDefaultButton(okButton);
+        load(resourceFilename);
+    }
+
+    public void buttonFocus()
+    {
         okButton.requestFocus();
+    }
+
+    private void load(String resourceFilename)
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource(resourceFilename);
+            List<String> lines = IoUtils.readAllLines(url);
+            for (int i = 0; i < lines.size(); ++i)
+            {
+                text += lines.get(i) + "\n";
+            }
+            helpText.setText(text);
+
+            // scroll to the top
+            javax.swing.SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    JScrollBar bar = scrollPane.getVerticalScrollBar();
+                    bar.setValue(bar.getMinimum());
+                }
+            });
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+            JOptionPane.showMessageDialog(this.getOwner(), "Error opening publisher library:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void thisWindowActivated(WindowEvent e)
+    {
+        toFront();
+        buttonFocus();
+    }
+
+    private void thisWindowClosing(WindowEvent e)
+    {
+        previous.requestFocus();
+    }
+
+    private void thisWindowClosed(WindowEvent e)
+    {
+        previous.requestFocus();
     }
 
     private void initComponents()
     {
+        // <editor-fold desc="Generated component code (Fold)">
+        // @formatter:off
+        //
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
         dialogPane = new JPanel();
         contentPanel = new JPanel();
-        controlsHelpText = new JEditorPane();
-        vSpacer1 = new JPanel(null);
+        scrollPane = new JScrollPane();
+        helpText = new JEditorPane();
         buttonBar = new JPanel();
         okButton = new JButton();
 
         //======== this ========
-        setTitle("ELS Navigator Controls");
-        setName("controlsDialog");
-        setResizable(false);
+        setName("helpDialog");
+        setTitle("ELS Help");
+        setMinimumSize(new Dimension(100, 50));
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowActivated(WindowEvent e) {
+                thisWindowActivated(e);
+            }
+            @Override
+            public void windowClosed(WindowEvent e) {
+                thisWindowClosed(e);
+            }
+            @Override
+            public void windowClosing(WindowEvent e) {
+                thisWindowClosing(e);
+            }
+        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
         //======== dialogPane ========
         {
             dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-            dialogPane.setPreferredSize(new Dimension(582, 400));
-            dialogPane.setMinimumSize(new Dimension(582, 400));
-            dialogPane.setMaximumSize(new Dimension(582, 400));
-            dialogPane.setFocusable(false);
-            dialogPane.setLayout(new BorderLayout(0, 4));
+            dialogPane.setPreferredSize(new Dimension(570, 470));
+            dialogPane.setLayout(new BorderLayout());
 
             //======== contentPanel ========
             {
-                contentPanel.setMinimumSize(new Dimension(550, 360));
-                contentPanel.setPreferredSize(new Dimension(550, 360));
-                contentPanel.setMaximumSize(new Dimension(550, 360));
-                contentPanel.setFocusable(false);
-                contentPanel.setRequestFocusEnabled(false);
-                contentPanel.setVerifyInputWhenFocusTarget(false);
-                contentPanel.setDoubleBuffered(false);
-                contentPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
-                ((FlowLayout)contentPanel.getLayout()).setAlignOnBaseline(true);
+                contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
 
-                //---- controlsHelpText ----
-                controlsHelpText.setPreferredSize(new Dimension(550, 360));
-                controlsHelpText.setMinimumSize(new Dimension(550, 360));
-                controlsHelpText.setContentType("text/html");
-                controlsHelpText.setEditable(false);
-                controlsHelpText.setAutoscrolls(false);
-                controlsHelpText.setText("<html></html>");
-                controlsHelpText.setBorder(new BevelBorder(BevelBorder.LOWERED));
-                controlsHelpText.setBackground(UIManager.getColor("TextField.background"));
-                controlsHelpText.setMaximumSize(new Dimension(550, 360));
-                controlsHelpText.setRequestFocusEnabled(false);
-                controlsHelpText.setMargin(new Insets(0, 0, 0, 0));
-                controlsHelpText.setFocusable(false);
-                contentPanel.add(controlsHelpText);
+                //======== scrollPane ========
+                {
+
+                    //---- helpText ----
+                    helpText.setEditable(false);
+                    helpText.setContentType("text/html");
+                    scrollPane.setViewportView(helpText);
+                }
+                contentPanel.add(scrollPane);
             }
-            dialogPane.add(contentPanel, BorderLayout.NORTH);
-            dialogPane.add(vSpacer1, BorderLayout.CENTER);
+            dialogPane.add(contentPanel, BorderLayout.CENTER);
 
             //======== buttonBar ========
             {
                 buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
-                buttonBar.setMinimumSize(new Dimension(102, 36));
-                buttonBar.setPreferredSize(new Dimension(102, 36));
-                buttonBar.setFocusable(false);
                 buttonBar.setLayout(new GridBagLayout());
                 ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 80};
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(bundle.getString("NavHelp.okButton.text"));
-                okButton.setMnemonic(bundle.getString("NavHelp.okButton.mnemonic").charAt(0));
+                okButton.setText(bundle.getString("NavHelp.okButton.text_2"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
@@ -149,5 +195,23 @@ public class NavHelp extends JDialog
         pack();
         setLocationRelativeTo(getOwner());
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
+        //
+        // @formatter:on
+        // </editor-fold>
     }
+
+    // <editor-fold desc="Generated code (Fold)">
+    // @formatter:off
+    //
+    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    private JPanel dialogPane;
+    private JPanel contentPanel;
+    public JScrollPane scrollPane;
+    private JEditorPane helpText;
+    private JPanel buttonBar;
+    private JButton okButton;
+    // JFormDesigner - End of variables declaration  //GEN-END:variables
+    //
+    // @formatter:on
+    // </editor-fold>
 }

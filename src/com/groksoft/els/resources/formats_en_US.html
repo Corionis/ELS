@@ -1,0 +1,226 @@
+<html>
+<head>
+    <style>
+        html, body {
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+        }
+
+        div {
+            margin-left: 10px;
+            margin-right: 4px;
+        }
+
+        table {
+            border-bottom: 1px solid;
+            margin: 0;
+            padding: 4px;
+            width: 100%;
+        }
+
+        th {
+            border-bottom: 1px solid ;
+            text-align: left;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        ul {
+            margin-left: 22px;
+        }
+    </style>
+</head>
+
+<body>
+<p>
+    Date and time formats are specified by <em>date and time pattern</em> strings.
+<p>
+    Within date and time pattern strings, unquoted letters from
+    <code>'A'</code> to <code>'Z'</code> and from <code>'a'</code> to
+    <code>'z'</code> are interpreted as pattern letters representing the
+    components of a date or time string.
+<p>
+    Text can be quoted using single quotes (<code>'</code>) to avoid
+    interpretation.
+    <code>"''"</code> represents a single quote.
+<p>
+    All other characters are not interpreted; they're simply copied into the
+    output string during formatting or matched against the input string
+    during parsing.
+<p>
+    The following pattern letters are defined (all other characters from
+    <code>'A'</code> to <code>'Z'</code> and from <code>'a'</code> to
+    <code>'z'</code> are reserved):
+
+    <table>
+        <tr>
+            <th>Letter
+            <th>Component
+            <th>Presentation
+            <th>Examples
+        <tr>
+            <td><code>G</code>
+            <td>Era designator
+            <td>Text
+            <td><code>AD</code>
+        <tr>
+            <td><code>y</code>
+            <td>Year
+            <td>Year
+            <td><code>1996</code>; <code>96</code>
+        <tr>
+            <td><code>Y</code>
+            <td>Week year
+            <td>Year
+            <td><code>2009</code>; <code>09</code>
+        <tr>
+            <td><code>M</code>
+            <td>Month in year (context sensitive)
+            <td>Month
+            <td><code>July</code>; <code>Jul</code>; <code>07</code>
+        <tr>
+            <td><code>L</code>
+            <td>Month in year (standalone form)
+            <td>Month
+            <td><code>July</code>; <code>Jul</code>; <code>07</code>
+        <tr>
+            <td><code>w</code>
+            <td>Week in year
+            <td>Number
+            <td><code>27</code>
+        <tr>
+            <td><code>W</code>
+            <td>Week in month
+            <td>Number
+            <td><code>2</code>
+        <tr>
+            <td><code>D</code>
+            <td>Day in year
+            <td>Number
+            <td><code>189</code>
+        <tr>
+            <td><code>d</code>
+            <td>Day in month
+            <td>Number
+            <td><code>10</code>
+        <tr>
+            <td><code>F</code>
+            <td>Day of week in month
+            <td>Number
+            <td><code>2</code>
+        <tr>
+            <td><code>E</code>
+            <td>Day name in week
+            <td>Text
+            <td><code>Tuesday</code>; <code>Tue</code>
+        <tr>
+            <td><code>u</code>
+            <td>Day number of week (1 = Monday, ..., 7 = Sunday)
+            <td>Number
+            <td><code>1</code>
+        <tr>
+            <td><code>a</code>
+            <td>Am/pm marker
+            <td>Text
+            <td><code>PM</code>
+        <tr>
+            <td><code>H</code>
+            <td>Hour in day (0-23)
+            <td>Number
+            <td><code>0</code>
+        <tr>
+            <td><code>k</code>
+            <td>Hour in day (1-24)
+            <td>Number
+            <td><code>24</code>
+        <tr>
+            <td><code>K</code>
+            <td>Hour in am/pm (0-11)
+            <td>Number
+            <td><code>0</code>
+        <tr>
+            <td><code>h</code>
+            <td>Hour in am/pm (1-12)
+            <td>Number
+            <td><code>12</code>
+        <tr>
+            <td><code>m</code>
+            <td>Minute in hour
+            <td>Number
+            <td><code>30</code>
+        <tr>
+            <td><code>s</code>
+            <td>Second in minute
+            <td>Number
+            <td><code>55</code>
+        <tr>
+            <td><code>S</code>
+            <td>Millisecond
+            <td>Number
+            <td><code>978</code>
+        <tr>
+            <td><code>z</code>
+            <td>Time zone
+            <td>General time zone
+            <td><code>Pacific Standard Time</code>; <code>PST</code>; <code>GMT-08:00</code>
+        <tr>
+            <td><code>Z</code>
+            <td>Time zone
+            <td>RFC 822 time zone
+            <td><code>-0800</code>
+        <tr>
+            <td><code>X</code>
+            <td>Time zone
+            <td>ISO 8601 time zone
+            <td><code>-08</code>; <code>-0800</code>;  <code>-08:00</code>
+    </table>
+<p>
+
+Pattern letters are usually repeated. The number of letters determines the exact presentation:
+<ul>
+    <li><strong>Text:</strong>
+        If the number of pattern letters is 4 or more, the full form is used; otherwise a short
+        or abbreviated form is used if available.<br><br></li>
+    <li><strong>Number:</strong>
+        The number of pattern letters is the minimum number of digits, and shorter numbers are
+        zero-padded to this amount.<br><br></li>
+    <li><strong>Year:</strong>
+        <ul>
+            <li>If the number of pattern letters is 2, the year is truncated to 2 digits;
+                otherwise it is interpreted as a number.<br><br></li>
+            <li>If the number of pattern letters is 4 or more, a calendar specific long form
+                is used.<br></li>
+        </ul>
+        If week year <code>'Y'</code> is specified and the calendar doesn't support any Gregorian
+        calendar week years, the calendar year (<code>'y'</code>) is used instead.<br><br></li>
+    <li><strong>Month:</strong>
+        If the number of pattern letters is 3 or more, the month is interpreted as text; otherwise,
+        it is interpreted as a number.<br>
+        <ul>
+            <li>Letter <em>M</em> produces context-sensitive month names, such as the embedded form
+                of names.<br><br></li>
+            <li>Letter <em>L</em> produces the standalone form of month names.</li>
+        </ul></li>
+    <li><strong>General time zone:</strong>
+        Time zones are interpreted as text if they have names. For time zones representing a GMT
+        offset value, the following syntax is used:
+        <pre>
+             <i>GMTOffsetTimeZone:</i>
+                     <code>GMT</code> <i>Sign</i> <i>Hours</i> <code>:</code> <i>Minutes</i>
+             <i>Sign:</i> one of
+                     <code>+ -</code>
+             <i>Hours:</i>
+                     <i>Digit</i>
+                     <i>Digit</i> <i>Digit</i>
+             <i>Minutes:</i>
+                     <i>Digit</i> <i>Digit</i>
+             <i>Digit:</i> one of
+                     <code>0 1 2 3 4 5 6 7 8 9</code></pre>
+        <i>Hours</i> must be between 0 and 23, and <i>Minutes</i> must be between 00 and 59. The
+        format is locale independent and digits must be taken from the Basic Latin block of the
+        Unicode standard.
+</ul>
+</p>
+</body>
+</html>

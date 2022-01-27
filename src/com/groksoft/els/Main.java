@@ -48,7 +48,7 @@ public class Main
     {
         main = new Main();
         main.process(args);          // ELS Processor
-    } // main
+    }
 
     /**
      * Connect to or setup hint tracking, connect to hint server if specified
@@ -658,4 +658,4 @@ public class Main
             main.logger.fatal("Process failed\n");
     }
 
-} // Main
+}

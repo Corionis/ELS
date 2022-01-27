@@ -1,0 +1,93 @@
+JFDML JFormDesigner: "7.0.5.2.410" Java: "11.0.13" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.groksoft.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "NavHelp"
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": "ELS Navigator Controls"
+			"name": "controlsDialog"
+			"resizable": false
+			auxiliary() {
+				"JavaCodeGenerator.variableModifiers": 1
+			}
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) {
+				"vgap": 4
+			} ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"preferredSize": new java.awt.Dimension( 582, 400 )
+				"minimumSize": new java.awt.Dimension( 582, 400 )
+				"maximumSize": new java.awt.Dimension( 582, 400 )
+				"focusable": false
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+					"hgap": 0
+					"vgap": 0
+					"alignOnBaseline": true
+				} ) {
+					name: "contentPanel"
+					"minimumSize": new java.awt.Dimension( 550, 360 )
+					"preferredSize": new java.awt.Dimension( 550, 360 )
+					"maximumSize": new java.awt.Dimension( 550, 360 )
+					"focusable": false
+					"requestFocusEnabled": false
+					"verifyInputWhenFocusTarget": false
+					"doubleBuffered": false
+					add( new FormComponent( "javax.swing.JEditorPane" ) {
+						name: "controlsHelpText"
+						"preferredSize": new java.awt.Dimension( 550, 360 )
+						"minimumSize": new java.awt.Dimension( 550, 360 )
+						"contentType": "text/html"
+						"editable": false
+						"autoscrolls": false
+						"text": "<html></html>"
+						"border": new javax.swing.border.BevelBorder( 1, null, null, null, null )
+						"background": new com.jformdesigner.model.SwingColor( "TextField.background" )
+						"maximumSize": new java.awt.Dimension( 550, 360 )
+						"requestFocusEnabled": false
+						"margin": new java.awt.Insets( 0, 0, 0, 0 )
+						"focusable": false
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "North"
+				} )
+				add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+					name: "vSpacer1"
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80"
+					"$rowSpecs": "0, 0"
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					"minimumSize": new java.awt.Dimension( 102, 36 )
+					"preferredSize": new java.awt.Dimension( 102, 36 )
+					"focusable": false
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "okButton"
+						"text": new FormMessage( null, "NavHelp.okButton.text" )
+						"mnemonic": new FormMessage( null, "NavHelp.okButton.mnemonic" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 595, 450 )
+		} )
+	}
+}
