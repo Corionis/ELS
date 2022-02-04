@@ -5,16 +5,12 @@ import javax.swing.table.DefaultTableModel;
 
 public class BrowserTableModel extends DefaultTableModel
 {
+    private boolean initialized = false;
     private NavTreeNode node;
 
-    private BrowserTableModel()
-    {
-    }
-
-    public BrowserTableModel(NavTreeNode treeNode)
+    public BrowserTableModel()
     {
         super();
-        node = treeNode;
     }
 
     @Override
@@ -116,8 +112,6 @@ public class BrowserTableModel extends DefaultTableModel
 
             if (column == 1) // name
             {
-//                JComponent comp = tuo.node.getMyTable().getRow.getComponentAt(row, column);
-
                 return tuo;
             }
 
@@ -174,6 +168,21 @@ public class BrowserTableModel extends DefaultTableModel
     public boolean isCellEditable(int row, int col)
     {
         return false;
+    }
+
+    public boolean isInitialized()
+    {
+        return initialized;
+    }
+
+    public void setInitialized(boolean initialized)
+    {
+        this.initialized = initialized;
+    }
+
+    public void setNode(NavTreeNode treeNode)
+    {
+        node = treeNode;
     }
 
 /*

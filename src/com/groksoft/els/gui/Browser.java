@@ -17,10 +17,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.net.URL;
+import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 public class Browser
 {
@@ -450,7 +452,7 @@ public class Browser
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
-            boolean errored = false;
+            boolean error = false;
             if (reply == JOptionPane.YES_OPTION)
             {
                 for (int i = 0; i < rows.length; ++i)
@@ -462,7 +464,7 @@ public class Browser
                         {
                             if (!navTransferHandler.removeDirectory(tuo))
                             {
-                                errored = true;
+                                error = true;
                                 break;
                             }
                         }
@@ -470,11 +472,11 @@ public class Browser
                         {
                             if (!navTransferHandler.removeFile(tuo))
                             {
-                                errored = true;
+                                error = true;
                                 break;
                             }
                         }
-                        if (!errored && guiContext.browser.trackingHints)
+                        if (!error && guiContext.browser.trackingHints)
                         {
                             try
                             {
@@ -483,7 +485,7 @@ public class Browser
                             catch (Exception e)
                             {
                                 logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -492,7 +494,7 @@ public class Browser
                         guiContext.browser.printLog("Skipping " + tuo.name);
                     }
                 }
-                if (!errored)
+                if (!error)
                 {
                     NavTreeNode parent = null;
                     for (int i = rows.length - 1; i > -1; --i)
@@ -559,7 +561,7 @@ public class Browser
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
-            boolean errored = false;
+            boolean error = false;
             if (reply == JOptionPane.YES_OPTION)
             {
                 for (TreePath path : paths)
@@ -572,7 +574,7 @@ public class Browser
                         {
                             if (!navTransferHandler.removeDirectory(tuo))
                             {
-                                errored = true;
+                                error = true;
                                 break;
                             }
                         }
@@ -580,11 +582,11 @@ public class Browser
                         {
                             if (!navTransferHandler.removeFile(tuo))
                             {
-                                errored = true;
+                                error = true;
                                 break;
                             }
                         }
-                        if (!errored && guiContext.browser.trackingHints)
+                        if (!error && guiContext.browser.trackingHints)
                         {
                             try
                             {
@@ -593,7 +595,7 @@ public class Browser
                             catch (Exception e)
                             {
                                 logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
@@ -602,7 +604,7 @@ public class Browser
                         guiContext.browser.printLog("Skipping " + tuo.name);
                     }
                 }
-                if (!errored)
+                if (!error)
                 {
                     NavTreeNode parent = null;
                     for (int i = paths.length - 1; i > -1; --i)
@@ -740,11 +742,6 @@ public class Browser
     {
         navTransferHandler = new NavTransferHandler(guiContext);  // single instance
 
-        JPanel simpleOutput = new JPanel(new BorderLayout(3, 3));
-        progressBar = new JProgressBar();
-        simpleOutput.add(progressBar, BorderLayout.EAST);
-        progressBar.setVisible(false);
-
         printLog(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getProgramVersion());
         initializeToolbar();
         initializeNavigation();
@@ -803,7 +800,7 @@ public class Browser
 
         // set default start location and related data
         initializeStatus(guiContext.form.treeCollectionTwo);
-        initializeStatus(guiContext.form.treeCollectionOne);
+        initializeStatus(guiContext.form.treeCollectionOne); // do One last for focus
 
         return true;
     }
@@ -1531,4 +1528,171 @@ public class Browser
         root.setLoaded(true);
         return root;
     }
+
+    public void touchSelected(JTable sourceTable)
+    {
+        int row = sourceTable.getSelectedRow();
+        if (row > -1)
+        {
+            int dirCount = 0;
+            int fileCount = 0;
+            boolean isRemote = false;
+            long size = 0L;
+            int[] rows = sourceTable.getSelectedRows();
+            for (int i = 0; i < rows.length; ++i)
+            {
+                NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                if (tuo.type != NavTreeUserObject.REAL)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Cannot touch: " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                isRemote = tuo.isRemote;
+                if (tuo.isDir)
+                {
+                    ++dirCount;
+                    tuo.node.deepScanChildren();
+                    fileCount += tuo.node.deepGetFileCount();
+                    size += tuo.node.deepGetFileSize();
+                }
+                else
+                {
+                    ++fileCount;
+                    size += tuo.size;
+                }
+            }
+
+            int reply = JOptionPane.YES_OPTION;
+            if (guiContext.preferences.isShowConfirmations())
+            {
+                reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to touch " +
+                                rows.length + (isRemote ? " remote" : "") + " item" + (rows.length > 1 ? "s" : "") + " containing " +
+                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
+                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
+                                "?",
+                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            }
+
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                for (int i = 0; i < rows.length; ++i)
+                {
+                    NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                    if (tuo.type == NavTreeUserObject.REAL)
+                    {
+                        try
+                        {
+                            long seconds = guiContext.context.transfer.touch(tuo.path, tuo.isRemote);
+                            if (tuo.isRemote)
+                            {
+                                tuo.mtime = (int)seconds;
+                            }
+                            tuo.fileTime = FileTime.from(seconds, TimeUnit.SECONDS);
+                        }
+                        catch (Exception e)
+                        {
+                            logger.error(Utils.getStackTrace(e));
+                            JOptionPane.showMessageDialog(guiContext.form, "Error touching: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        }
+                        NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
+                        if (parent != null)
+                        {
+                            DefaultRowSorter sorter = ((DefaultRowSorter) sourceTable.getRowSorter());
+                            sorter.sort();
+//                            refreshTree(parent.getMyTree());
+//                            parent.selectMe();
+                        }
+                    }
+                    else
+                    {
+                        guiContext.browser.printLog("Skipping " + tuo.name);
+                    }
+                }
+            }
+        }
+    }
+
+    public void touchSelected(JTree sourceTree)
+    {
+        int row = sourceTree.getLeadSelectionRow();
+        if (row > -1)
+        {
+            int dirCount = 0;
+            int fileCount = 0;
+            boolean isRemote = false;
+            long size = 0L;
+            TreePath[] paths = sourceTree.getSelectionPaths();
+            for (TreePath path : paths)
+            {
+                NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
+                NavTreeUserObject tuo = ntn.getUserObject();
+                if (tuo.type != NavTreeUserObject.REAL)
+                {
+                    JOptionPane.showMessageDialog(guiContext.form, "Cannot touch: " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                isRemote = tuo.isRemote;
+                if (tuo.isDir)
+                {
+                    ++dirCount;
+                    tuo.node.deepScanChildren();
+                    fileCount += tuo.node.deepGetFileCount();
+                    size += tuo.node.deepGetFileSize();
+                }
+                else
+                {
+                    ++fileCount;
+                    size += tuo.size;
+                }
+            }
+
+            int reply = JOptionPane.YES_OPTION;
+            if (guiContext.preferences.isShowConfirmations())
+            {
+                reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to touch " +
+                                paths.length + (isRemote ? " remote" : "") + " item" + (paths.length > 1 ? "s" : "") + " containing " +
+                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
+                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
+                                "?",
+                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            }
+
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                for (TreePath path : paths)
+                {
+                    NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
+                    NavTreeUserObject tuo = ntn.getUserObject();
+                    if (tuo.type == NavTreeUserObject.REAL)
+                    {
+                        try
+                        {
+                            long seconds = guiContext.context.transfer.touch(tuo.path, tuo.isRemote);
+                            if (tuo.isRemote)
+                            {
+                                tuo.mtime = (int)seconds;
+                            }
+                            tuo.fileTime = FileTime.from(seconds, TimeUnit.SECONDS);
+                        }
+                        catch (Exception e)
+                        {
+                            logger.error(Utils.getStackTrace(e));
+                            JOptionPane.showMessageDialog(guiContext.form, "Error touching: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        }
+                        NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
+                        if (parent != null)
+                        {
+                            refreshTree(parent.getMyTree());
+//                            parent.selectMe();
+                        }
+                    }
+                    else
+                    {
+                        guiContext.browser.printLog("Skipping " + tuo.name);
+                    }
+                }
+            }
+        }
+    }
+
 }

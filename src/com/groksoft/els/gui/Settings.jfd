@@ -26,8 +26,8 @@ new FormModel {
 						name: "settingsTabbedPane"
 						"tabPlacement": 2
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:200:p, space :::p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp restoreSessionLabel:::p:200:p, space :::p, comp restoreSessionCheckBox:::p:238:p}, seq l {comp showConfirmationsLabel:::p:200:p, space :::p, comp showConfirmationsCheckBox:::p:238:p}}, space :::x}}"
-							"$verticalGroup": "par l {seq {space :0:0:p, par l:::p {comp preserveFileTimestampsCheckBox::::36:x, comp preserveFileTimestampsLabel::::36:x}, space :p:1:p, par l {comp restoreSessionLabel:::p:36:p, comp restoreSessionCheckBox::l:p:36:p}, space :p:1:p, par l {comp showConfirmationsLabel:::p:36:p, comp showConfirmationsCheckBox:::p:36:p}, space ::265:x}}"
+							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:200:p, space :::p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp showConfirmationsLabel:::p:200:p, space :::p, comp showConfirmationsCheckBox:::p:238:p}}, space :::x}}"
+							"$verticalGroup": "par l {seq {space :0:0:p, par l:::p {comp preserveFileTimestampsCheckBox::::36:x, comp preserveFileTimestampsLabel::::36:x}, space :0:0:p, par l {comp showConfirmationsLabel:::p:36:p, comp showConfirmationsCheckBox:::p:36:p}, space ::303:x}}"
 						} ) {
 							name: "generalPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
@@ -36,13 +36,6 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "preserveFileTimestampsCheckBox"
-							} )
-							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "restoreSessionLabel"
-								"text": new FormMessage( null, "Settings.restoreSessionLabel.text" )
-							} )
-							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "restoreSessionCheckBox"
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "showConfirmationsLabel"

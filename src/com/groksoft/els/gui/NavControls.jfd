@@ -20,9 +20,9 @@ new FormModel {
 			} ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
-				"preferredSize": new java.awt.Dimension( 582, 400 )
-				"minimumSize": new java.awt.Dimension( 582, 400 )
-				"maximumSize": new java.awt.Dimension( 582, 400 )
+				"preferredSize": new java.awt.Dimension( 570, 400 )
+				"minimumSize": new java.awt.Dimension( 570, 400 )
+				"maximumSize": new java.awt.Dimension( 570, 400 )
 				"focusable": false
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
 					"hgap": 0
@@ -87,7 +87,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 595, 450 )
+			"size": new java.awt.Dimension( 600, 450 )
 		} )
 	}
 }

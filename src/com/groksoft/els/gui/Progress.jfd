@@ -1,0 +1,41 @@
+JFDML JFormDesigner: "7.0.5.3.411" Java: "11.0.13" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.groksoft.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "Progress"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.defaultVariableModifiers": 1
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.FlowLayout ) {
+			"alignOnBaseline": true
+		} ) {
+			name: "this"
+			"name": "ProgressBox"
+			"minimumSize": new java.awt.Dimension( 400, 75 )
+			"title": "ELS Progress"
+			"resizable": false
+			"alwaysOnTop": true
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "progressText"
+				"text": new FormMessage( null, "Progress.progressText.text" )
+				"horizontalAlignment": 0
+				"preferredSize": new java.awt.Dimension( 382, 16 )
+				"minimumSize": new java.awt.Dimension( 382, 16 )
+				"maximumSize": new java.awt.Dimension( 382, 16 )
+			} )
+			add( new FormComponent( "javax.swing.JProgressBar" ) {
+				name: "progressBar"
+				"preferredSize": new java.awt.Dimension( 382, 10 )
+				"minimumSize": new java.awt.Dimension( 382, 10 )
+				"maximumSize": new java.awt.Dimension( 382, 10 )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 400, 75 )
+		} )
+	}
+}

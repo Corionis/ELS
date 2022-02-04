@@ -58,6 +58,7 @@ public class Transfer
      *
      * @param from      the full from path
      * @param to        the full to path
+     * @param isRemote  true/false
      * @param overwrite true/false
      */
     public void copyFile(String from, FileTime filetime, String to, boolean isRemote, boolean overwrite) throws Exception
@@ -622,7 +623,7 @@ public class Transfer
     }
 
     /**
-     * Perform move on either a file or directory
+     * Perform collection move on either a file or directory
      * <p>
      * This is a local-only method, v3.0.0
      */
@@ -726,7 +727,29 @@ public class Transfer
     }
 
     /**
-     * Move an individual item, directory or file
+     * Move a local file
+     *
+     * @param from      the full from path
+     * @param to        the full to path
+     * @param overwrite true/false
+     */
+    public void moveFile(String from, FileTime filetime, String to, boolean overwrite) throws Exception
+    {
+        Path fromPath = Paths.get(from).toRealPath();
+        Path toPath = Paths.get(to);
+        File f = new File(to);
+        if (f != null)
+        {
+            f.getParentFile().mkdirs();
+        }
+        if (cfg.isPreserveDates() && filetime != null)
+            Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
+        else
+            Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
+    }
+
+    /**
+     * Move an individual collection item, directory or file
      * <p>
      * This is a local-only method, v3.0.0
      */
@@ -818,9 +841,13 @@ public class Transfer
                 {
                     for (String source : lib.sources)
                     {
-                        //File srcDir = new File(source);
-                        //String srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcDir.getAbsolutePath() : srcDir.getAbsolutePath().toLowerCase();
-                        String srcPath = (repo.getLibraryData().libraries.case_sensitive) ? source : source.toLowerCase();
+                        String srcPath = "";
+                        if (!tuo.isRemote)
+                        {
+                            File srcDir = new File(source);
+                            srcPath = srcDir.getAbsolutePath();
+                        }
+                        srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcPath : srcPath.toLowerCase();
                         if (tuoPath.startsWith(srcPath))
                         {
                             path = lib.name + " | " + tuo.path.substring(srcPath.length() + 1);
@@ -859,7 +886,7 @@ public class Transfer
     }
 
     /**
-     * Remove an item, directory or file
+     * Remove a collection item, directory or file
      * <p>
      * If a directory ALL contents are deleted recursively.
      * <p>
@@ -1047,6 +1074,21 @@ public class Transfer
         return toItem;
     }
 
+    public long touch(String path, boolean isRemote) throws Exception
+    {
+        long seconds = (int) (System.currentTimeMillis() / 1000l);
+        if (isRemote)
+        {
+            context.clientSftp.setDate(path, seconds);
+        }
+        else
+        {
+            File touchFile = new File(path);
+            touchFile.setLastModified(seconds);
+        }
+        return seconds;
+    }
+
     public String writeHint(String action, boolean isWorkstation, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
     {
         /*
@@ -1108,7 +1150,7 @@ public class Transfer
             String act = action.trim().toLowerCase();
 
             // a move out of a collection is an rm from the collection's point of view
-            if (!targetIsCollection)
+            if (!targetIsCollection || !targetTuo.isSubscriber())
                 act = "rm";
 
             if (act.equals("mv"))
@@ -1125,6 +1167,10 @@ public class Transfer
             hintPath = Utils.getLeftPath(sourceTuo.path, null);
             String hintName = Utils.getRightPath(hintPath, null);
             hintPath = hintPath + Utils.getSeparatorFromPath(hintPath) + hintName + ".els";
+
+            // do not write a Hint about the same Hint
+            if (Utils.getRightPath(sourceTuo.path, null).equals(hintName + ".els"))
+                return "";
 
             if (!sourceTuo.isSubscriber())
                 context.localMode = true;

@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Vector;
 
 /**
@@ -138,9 +139,9 @@ public class ClientSftp
         jSftp.rename(from, to);
     }
 
-    public void setDate(String dest, int mtime) throws Exception
+    public void setDate(String dest, long mtime) throws Exception
     {
-        jSftp.setMtime(dest, mtime);
+        jSftp.setMtime(dest, (int) mtime);
     }
 
     /**

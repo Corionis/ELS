@@ -399,7 +399,6 @@ public class Daemon extends DaemonBase
                 // -------------- hint -----------------------------------
                 if (theCommand.equalsIgnoreCase("hint"))
                 {
-                    // LEFTOFF
                     if (context.hintKeys == null)
                     {
                         response = (isTerminal ? "hint command requires a --keys file\r\n" : "false");

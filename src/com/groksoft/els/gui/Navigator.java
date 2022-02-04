@@ -50,8 +50,6 @@ public class Navigator
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
     // TODO:
-    //  * Touch
-    //  * Optimize mv on same system
     //  * Progress
     //
     // QUESTION:
@@ -145,9 +143,11 @@ public class Navigator
 
             guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTimes());
 
-//        Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
-//            logger.error("GOT IT: " + Utils.getStackTrace(throwable));
-//        });
+/*
+        Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
+            logger.error("GOT IT: " + Utils.getStackTrace(throwable));
+        });
+*/
 
 /*
         PrintStream originalOut = System.out;
@@ -170,7 +170,7 @@ public class Navigator
         // --- Main Menu ------------------------------------------
         //
         // -- File Menu
-        //
+        //-
         // Open Publisher
         AbstractAction openPublisherAction = new AbstractAction()
         {
@@ -273,6 +273,7 @@ public class Navigator
         };
         guiContext.form.menuItemOpenPublisher.addActionListener(openPublisherAction);
 
+        //-
         // Open Subscriber
         AbstractAction openSubscriberAction = new AbstractAction()
         {
@@ -431,6 +432,7 @@ public class Navigator
         if (guiContext.context.subscriberRepo != null)
             guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
 
+        //-
         // Open Hint Keys
         AbstractAction openHintKeysAction = new AbstractAction()
         {
@@ -534,6 +536,7 @@ public class Navigator
         };
         guiContext.form.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
+        //-
         // Quit & Exit Remote
         guiContext.form.menuItemQuitTerminate.addActionListener(new AbstractAction()
         {
@@ -549,7 +552,7 @@ public class Navigator
 
         //
         // -- Edit Menu
-        //
+        //-
         // New Folder
         AbstractAction newFolderAction = new AbstractAction()
         {
@@ -607,7 +610,7 @@ public class Navigator
                         return;
                     }
 
-                    boolean errored = false;
+                    boolean error = false;
                     String reply = "";
                     if (path.length() > 0)
                     {
@@ -641,7 +644,7 @@ public class Navigator
                                 }
                                 else
                                 {
-                                    errored = true;
+                                    error = true;
                                     guiContext.browser.printLog("Directory not created, check permissions.", true);
                                     JOptionPane.showMessageDialog(guiContext.form, "Directory not created, check permissions.", guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                                 }
@@ -650,10 +653,10 @@ public class Navigator
                             {
                                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
                                 JOptionPane.showMessageDialog(guiContext.form, "Error creating " + (tuo.isRemote ? "remote " : "") + "directory: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                errored = true;
+                                error = true;
                             }
 
-                            if (!errored)
+                            if (!error)
                             {
                                 guiContext.browser.refreshByObject(tree);
                                 if (object instanceof JTree)
@@ -684,7 +687,7 @@ public class Navigator
         guiContext.form.menuItemNewFolder.addActionListener(newFolderAction);
         guiContext.form.popupMenuItemNewFolder.addActionListener(newFolderAction);
 
-        //
+        //-
         // Rename
         ActionListener renameAction = new AbstractAction()
         {
@@ -797,7 +800,30 @@ public class Navigator
         guiContext.form.menuItemRename.addActionListener(renameAction);
         guiContext.form.popupMenuItemRename.addActionListener(renameAction);
 
-        //
+        //-
+        // Touch Date/Time
+        ActionListener touchAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                Object object = guiContext.browser.lastComponent;
+                if (object instanceof JTree)
+                {
+                    JTree sourceTree = (JTree) object;
+                    guiContext.browser.touchSelected(sourceTree);
+                }
+                else if (object instanceof JTable)
+                {
+                    JTable sourceTable = (JTable) object;
+                    guiContext.browser.touchSelected(sourceTable);
+                }
+            }
+        };
+        guiContext.form.menuItemTouch.addActionListener(touchAction);
+        guiContext.form.popupMenuItemTouch.addActionListener(touchAction);
+
+        //-
         // Copy
         ActionListener copyAction = new AbstractAction()
         {
@@ -815,7 +841,7 @@ public class Navigator
         guiContext.form.menuItemCopy.addActionListener(copyAction);
         guiContext.form.popupMenuItemCopy.addActionListener(copyAction);
 
-        //
+        //-
         // Cut
         ActionListener cutAction = new AbstractAction()
         {
@@ -833,7 +859,7 @@ public class Navigator
         guiContext.form.menuItemCut.addActionListener(cutAction);
         guiContext.form.popupMenuItemCut.addActionListener(cutAction);
 
-        //
+        //-
         // Paste
         ActionListener pasteAction = new AbstractAction()
         {
@@ -851,7 +877,7 @@ public class Navigator
         guiContext.form.menuItemPaste.addActionListener(pasteAction);
         guiContext.form.popupMenuItemPaste.addActionListener(pasteAction);
 
-        //
+        //-
         // Delete
         ActionListener deleteAction = new AbstractAction()
         {
@@ -888,7 +914,7 @@ public class Navigator
 
         //
         // -- View Menu
-        //
+        //-
         // Refresh
         guiContext.form.menuItemRefresh.addActionListener(new AbstractAction()
         {
@@ -899,7 +925,7 @@ public class Navigator
             }
         });
 
-        //
+        //-
         // Show Hidden
         guiContext.form.menuItemShowHidden.addActionListener(new AbstractAction()
         {
@@ -932,7 +958,7 @@ public class Navigator
 
         //
         // -- Window Menu
-        //
+        //-
         // Maximize
         guiContext.form.menuItemMaximize.addActionListener(new AbstractAction()
         {
@@ -943,7 +969,7 @@ public class Navigator
             }
         });
 
-        //
+        //-
         // Minimize
         guiContext.form.menuItemMinimize.addActionListener(new AbstractAction()
         {
@@ -954,7 +980,7 @@ public class Navigator
             }
         });
 
-        //
+        //-
         // Restore
         guiContext.form.menuItemRestore.addActionListener(new AbstractAction()
         {
@@ -965,7 +991,7 @@ public class Navigator
             }
         });
 
-        //
+        //-
         // Split Horizontal
         guiContext.form.menuItemSplitHorizontal.addActionListener(new AbstractAction()
         {
@@ -980,7 +1006,7 @@ public class Navigator
             }
         });
 
-        //
+        //-
         // Split Vertical
         guiContext.form.menuItemSplitVertical.addActionListener(new AbstractAction()
         {
@@ -996,7 +1022,7 @@ public class Navigator
         });
 
         // -- Help Menu
-        //
+        //-
         // Controls
         guiContext.form.menuItemControls.addActionListener(new AbstractAction()
         {
@@ -1025,7 +1051,7 @@ public class Navigator
             }
         });
 
-        //
+        //-
         // Documentation
         guiContext.form.menuItemDocumentation.addActionListener(new AbstractAction()
         {
@@ -1044,7 +1070,7 @@ public class Navigator
             }
         });
 
-        //
+        //-
         // GitHub Project
         guiContext.form.menuItemGitHubProject.addActionListener(new AbstractAction()
         {
@@ -1064,7 +1090,7 @@ public class Navigator
         });
 
         // popup menu log
-        //
+        //-
         // Bottom
         guiContext.form.popupMenuItemBottom.addActionListener(new AbstractAction()
         {
@@ -1075,7 +1101,7 @@ public class Navigator
                 vertical.setValue(vertical.getMaximum());
             }
         });
-        //
+        //-
         // Clear
         guiContext.form.popupMenuItemClear.addActionListener(new AbstractAction()
         {

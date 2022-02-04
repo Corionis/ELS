@@ -8,8 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableColumn;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -551,64 +550,32 @@ public class NavTreeNode extends DefaultMutableTreeNode
 
     protected void loadTable()
     {
-        TableColumn column;
-        if (myTable.getColumnModel().getColumnCount() > 0)
-            guiContext.preferences.extractColumnSizes(guiContext, myTable);
-        BrowserTableModel btm = new BrowserTableModel(this);
-        myTable.setModel(btm);
+        DefaultTableModel btm = (DefaultTableModel) myTable.getModel();
+        DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
 
-        // tweak the columns
-        for (int i = 0; i < myTable.getColumnCount(); ++i)
+        // remove all & set new data to use
+        btm.getDataVector().removeAllElements();
+        ((BrowserTableModel) btm).setNode(this);
+
+        // initialize model when there are columns; done once per table
+        if (!((BrowserTableModel)btm).isInitialized() && btm.getColumnCount() > 0)
         {
-            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
-            column = myTable.getColumnModel().getColumn(i);
-            switch (i)
-            {
-                case 0:
-                    column.setResizable(false);
-                    column.setWidth(22);
-                    column.setPreferredWidth(22);
-                    column.setMaxWidth(22);
-                    column.setMinWidth(22);
-                    break;
-                case 1:
-                    cellRenderer.setHorizontalAlignment(JLabel.LEFT);
-                    column.setCellRenderer(cellRenderer);
-                    column.setResizable(true);
-                    break;
-                case 2:
-                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
-                    column.setCellRenderer(cellRenderer);
-                    column.setResizable(true);
-                    break;
-                case 3:
-                    column.setResizable(true);
-                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
-                    column.setCellRenderer(cellRenderer);
-                    break;
-            }
-        }
-
-        if (myTable.getColumnModel().getColumnCount() > 0)
+            // restore saved column sizes
             guiContext.preferences.fixColumnSizes(guiContext, myTable);
 
-        // LEFTOFF Fix sort column & order changing
-        int sc = 1;
-        SortOrder so = SortOrder.ASCENDING;
-        DefaultRowSorter sorter = ((DefaultRowSorter) myTable.getRowSorter());
-        List sortKeys = sorter.getSortKeys();
-        if (sortKeys != null && sortKeys.size() > 0)
-        {
-            RowSorter.SortKey sk = (RowSorter.SortKey) sortKeys.get(1);
-            sc = sk.getColumn();
-            so = sk.getSortOrder();
-        }
-        sortKeys = new ArrayList();
-        sortKeys.add(new RowSorter.SortKey(sc, so));
-        sorter.setSortKeys(sortKeys);
-        sorter.sort();
+            // start with sorting by name ascending
+            List sortKeys = new ArrayList();
+            RowSorter.SortKey sortkey = new RowSorter.SortKey(1, SortOrder.ASCENDING);
+            sortKeys.add(sortkey);
+            sorter.setSortKeys(sortKeys);
 
-        loadStatus(); // set the left or right status message
+            ((BrowserTableModel) btm).setInitialized(true);
+        }
+
+        sorter.sort();
+        btm.fireTableDataChanged();
+
+        loadStatus(); // set the left or right status message & properties
     }
 
     public void selectMe()

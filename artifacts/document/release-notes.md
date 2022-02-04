@@ -9,7 +9,7 @@ visual tool for adding media and curating a collection either locally or remotel
 media server. Tools and jobs are provided to make performing repetitive tasks easier.
 
 Features:
- * Modes (where it's running)
+ * Modes (where the Navigator is running)
    * On a media collection
    * On a separate workstation
  * Browser
@@ -17,7 +17,7 @@ Features:
    * Collection and System tabs for each
    * Local or remote subscriber
    * Drag 'n Drop and Copy, Cut, Paste
-   * Optional ELS Hint Tracking
+   * Optional automatic ELS Hint Tracking
    * Multiple named tool configurations
      * Duplicate finder
      * Junk remover
@@ -27,9 +27,13 @@ Features:
  * BackUp
    * Configure named ELS back-ups with different configurations
    * Execute and monitor back-up runs
-   * Generate scripts for command line execution
+   * Generate scripts for command line and/or background scheduled execution
  * Libraries
    * Create and edit ELS Publisher, Subscriber, and Hint Server JSON files
+   * Create and edit ELS Hint keys file
+ * Options
+   * Numerous display options
+   * Multiple Look 'n Feel options
 
 Like the rest of ELS the new Navigator is a general tool for any media system compatible
 with ELS. And similarly it works on Windows, Linux and Mac.

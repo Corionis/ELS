@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ResourceBundle;
@@ -59,6 +61,8 @@ public class MainFrame extends JFrame
             tableCollectionOne.getTableHeader().setReorderingAllowed(false);
             tableCollectionOne.setRowSelectionAllowed(true);
             tableCollectionOne.setColumnSelectionAllowed(false);
+            tableCollectionOne.setModel(new BrowserTableModel());
+            adjustTableColumns(tableCollectionOne);
 
             tableSystemOne.setName("tableSystemOne");
             tableSystemOne.setAutoCreateRowSorter(true);
@@ -66,6 +70,8 @@ public class MainFrame extends JFrame
             tableSystemOne.getTableHeader().setReorderingAllowed(false);
             tableSystemOne.setRowSelectionAllowed(true);
             tableSystemOne.setColumnSelectionAllowed(false);
+            tableSystemOne.setModel(new BrowserTableModel());
+            adjustTableColumns(tableSystemOne);
 
             tableCollectionTwo.setName("tableCollectionTwo");
             tableCollectionTwo.setAutoCreateRowSorter(true);
@@ -73,6 +79,8 @@ public class MainFrame extends JFrame
             tableCollectionTwo.getTableHeader().setReorderingAllowed(false);
             tableCollectionTwo.setRowSelectionAllowed(true);
             tableCollectionTwo.setColumnSelectionAllowed(false);
+            tableCollectionTwo.setModel(new BrowserTableModel());
+            adjustTableColumns(tableCollectionTwo);
 
             tableSystemTwo.setName("tableSystemTwo");
             tableSystemTwo.setAutoCreateRowSorter(true);
@@ -80,6 +88,8 @@ public class MainFrame extends JFrame
             tableSystemTwo.getTableHeader().setReorderingAllowed(false);
             tableSystemTwo.setRowSelectionAllowed(true);
             tableSystemTwo.setColumnSelectionAllowed(false);
+            tableSystemTwo.setModel(new BrowserTableModel());
+            adjustTableColumns(tableSystemTwo);
 
             // set Back/Forward keys
             buttonBack.setMnemonic(KeyEvent.VK_LEFT);
@@ -92,6 +102,40 @@ public class MainFrame extends JFrame
         {
             logger.error(Utils.getStackTrace(ex));
             guiContext.context.fault = true;
+        }
+    }
+
+    private void adjustTableColumns(JTable table)
+    {
+        for (int i = 0; i < table.getColumnCount(); ++i)
+        {
+            DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
+            TableColumn column = table.getColumnModel().getColumn(i);
+            switch (i)
+            {
+                case 0:
+                    column.setResizable(false);
+                    column.setWidth(22);
+                    column.setPreferredWidth(22);
+                    column.setMaxWidth(22);
+                    column.setMinWidth(22);
+                    break;
+                case 1:
+                    cellRenderer.setHorizontalAlignment(JLabel.LEFT);
+                    column.setCellRenderer(cellRenderer);
+                    column.setResizable(true);
+                    break;
+                case 2:
+                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
+                    column.setCellRenderer(cellRenderer);
+                    column.setResizable(true);
+                    break;
+                case 3:
+                    column.setResizable(true);
+                    cellRenderer.setHorizontalAlignment(JLabel.RIGHT);
+                    column.setCellRenderer(cellRenderer);
+                    break;
+            }
         }
     }
 
@@ -386,7 +430,6 @@ public class MainFrame extends JFrame
                 menuItemTouch.setText(bundle.getString("Navigator.menuItemTouch.text"));
                 menuItemTouch.setMnemonic(bundle.getString("Navigator.menuItemTouch.mnemonic").charAt(0));
                 menuItemTouch.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemTouch.setEnabled(false);
                 menuItemTouch.setHorizontalAlignment(SwingConstants.LEFT);
                 menuEdit.add(menuItemTouch);
                 menuEdit.addSeparator();
@@ -568,8 +611,8 @@ public class MainFrame extends JFrame
                 menuWindows.add(menuItemMinimize);
 
                 //---- menuItemRestore ----
-                menuItemRestore.setText(bundle.getString("Navigator.menuItemRestore.text"));
-                menuItemRestore.setMnemonic(bundle.getString("Navigator.menuItemRestore.mnemonic_2").charAt(0));
+                menuItemRestore.setText("Restore");
+                menuItemRestore.setMnemonic(bundle.getString("Navigator.menuItemRestore.mnemonic").charAt(0));
                 menuItemRestore.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemRestore.setHorizontalAlignment(SwingConstants.LEFT);
                 menuWindows.add(menuItemRestore);
@@ -1107,7 +1150,6 @@ public class MainFrame extends JFrame
             popupMenuItemTouch.setHorizontalAlignment(SwingConstants.LEFT);
             popupMenuItemTouch.setMnemonic(bundle.getString("Navigator.popupMenuItemTouch.mnemonic").charAt(0));
             popupMenuItemTouch.setHorizontalTextPosition(SwingConstants.LEFT);
-            popupMenuItemTouch.setEnabled(false);
             popupMenuBrowser.add(popupMenuItemTouch);
             popupMenuBrowser.addSeparator();
 

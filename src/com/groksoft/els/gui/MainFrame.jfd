@@ -573,7 +573,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemTouch.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemTouch.mnemonic" )
 						"horizontalTextPosition": 2
-						"enabled": false
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -759,8 +758,8 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRestore"
-						"text": new FormMessage( null, "Navigator.menuItemRestore.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemRestore.mnemonic_2" )
+						"text": "Restore"
+						"mnemonic": new FormMessage( null, "Navigator.menuItemRestore.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
@@ -854,7 +853,6 @@ new FormModel {
 				"horizontalAlignment": 2
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemTouch.mnemonic" )
 				"horizontalTextPosition": 2
-				"enabled": false
 			} )
 			add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 				name: "separator4"

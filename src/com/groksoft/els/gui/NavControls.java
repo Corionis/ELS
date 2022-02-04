@@ -1,7 +1,3 @@
-/*
- * Created by JFormDesigner on Sat Dec 18 20:22:39 MST 2021
- */
-
 package com.groksoft.els.gui;
 
 import javax.swing.*;
@@ -88,9 +84,9 @@ public class NavControls extends JDialog
         //======== dialogPane ========
         {
             dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-            dialogPane.setPreferredSize(new Dimension(582, 400));
-            dialogPane.setMinimumSize(new Dimension(582, 400));
-            dialogPane.setMaximumSize(new Dimension(582, 400));
+            dialogPane.setPreferredSize(new Dimension(570, 400));
+            dialogPane.setMinimumSize(new Dimension(570, 400));
+            dialogPane.setMaximumSize(new Dimension(570, 400));
             dialogPane.setFocusable(false);
             dialogPane.setLayout(new BorderLayout(0, 4));
 

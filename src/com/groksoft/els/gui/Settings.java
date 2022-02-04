@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -36,11 +37,13 @@ public class Settings extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                setPreferences();
-                guiContext.browser.refreshAll();
-                if (helpDialog != null && helpDialog.isVisible())
-                    helpDialog.setVisible(false);
-                setVisible(false);
+                if (setPreferences())
+                {
+                    refreshLookAndFeel(guiContext.preferences.getLookAndFeel());
+                    if (helpDialog != null && helpDialog.isVisible())
+                        helpDialog.setVisible(false);
+                    setVisible(false);
+                }
             }
         });
 
@@ -49,6 +52,7 @@ public class Settings extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                refreshLookAndFeel(guiContext.preferences.getLookAndFeel());
                 if (helpDialog != null && helpDialog.isVisible())
                     helpDialog.setVisible(false);
                 setVisible(false);
@@ -87,24 +91,7 @@ public class Settings extends JDialog
             {
                 JComboBox combobox = (JComboBox) actionEvent.getSource();
                 int index = combobox.getSelectedIndex();
-                try
-                {
-                    if (index == 0)
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    else
-                        UIManager.setLookAndFeel(guiContext.form.getLookAndFeel(index));
-
-                    for (Frame frame : Frame.getFrames())
-                    {
-                        updateLAFRecursively(frame);
-                    }
-                    guiContext.form.rotateBrowserTabs();
-                }
-                catch (Exception e)
-                {
-                    logger.error(Utils.getStackTrace(e));
-                    JOptionPane.showMessageDialog(settingsDialogPane, "Error changing Look 'n Feel:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
+                refreshLookAndFeel(index);
             }
         });
 
@@ -120,7 +107,7 @@ public class Settings extends JDialog
                 if (!helpDialog.isVisible())
                 {
                     helpDialog.setVisible(true);
-                    // offset the help dialog from the settings dialog
+                    // offset the help dialog from the Settings dialog
                     Point loc = thisDialog.getLocation();
                     loc.x = loc.x + 32;
                     loc.y = loc.y + 32;
@@ -136,11 +123,33 @@ public class Settings extends JDialog
         getRootPane().setDefaultButton(okButton);
     }
 
+    private void refreshLookAndFeel(int index)
+    {
+        try
+        {
+            if (index == 0)
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            else
+                UIManager.setLookAndFeel(guiContext.form.getLookAndFeel(index));
+
+            for (Frame frame : Frame.getFrames())
+            {
+                updateLAFRecursively(frame);
+            }
+            guiContext.form.rotateBrowserTabs();
+            guiContext.browser.refreshAll();
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+            JOptionPane.showMessageDialog(settingsDialogPane, "Error changing Look 'n Feel:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void setDialog()
     {
         // general
         preserveFileTimestampsCheckBox.setSelected(guiContext.preferences.isPreserveFileTimes());
-        restoreSessionCheckBox.setSelected(false);
         showConfirmationsCheckBox.setSelected(guiContext.preferences.isShowConfirmations());
 
         // appearance
@@ -173,11 +182,23 @@ public class Settings extends JDialog
 
     }
 
-    private void setPreferences()
+    private boolean setPreferences()
     {
+        try
+        {
+            new SimpleDateFormat(dateFormatTextField.getText());
+        }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(guiContext.form, "The date format is not valid", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            settingsTabbedPane.setSelectedIndex(1);
+            dateFormatTextField.requestFocus();
+            guiContext.form.labelStatusMiddle.setText("Invalid date format");
+            return false;
+        }
+
         // general
         guiContext.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
-        // TODO Add Restore Session?
         guiContext.preferences.setShowConfirmations(showConfirmationsCheckBox.isSelected());
 
         // appearance
@@ -192,6 +213,9 @@ public class Settings extends JDialog
         guiContext.preferences.setSortCaseInsensitive(sortCaseSensitiveCheckBox.isSelected());
         guiContext.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
         guiContext.preferences.setSortReverse(sortReverseCheckBox.isSelected());
+
+        guiContext.form.labelStatusMiddle.setText("");
+        return true;
     }
 
     public static void updateLAFRecursively(Window window)
@@ -226,8 +250,6 @@ public class Settings extends JDialog
         generalPanel = new JPanel();
         preserveFileTimestampsLabel = new JLabel();
         preserveFileTimestampsCheckBox = new JCheckBox();
-        restoreSessionLabel = new JLabel();
-        restoreSessionCheckBox = new JCheckBox();
         showConfirmationsLabel = new JLabel();
         showConfirmationsCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
@@ -297,9 +319,6 @@ public class Settings extends JDialog
                         //---- preserveFileTimestampsLabel ----
                         preserveFileTimestampsLabel.setText(bundle.getString("Settings.preserveFileTimestampsLabel.text"));
 
-                        //---- restoreSessionLabel ----
-                        restoreSessionLabel.setText(bundle.getString("Settings.restoreSessionLabel.text"));
-
                         //---- showConfirmationsLabel ----
                         showConfirmationsLabel.setText(bundle.getString("Settings.showConfirmationsLabel.text"));
 
@@ -315,10 +334,6 @@ public class Settings extends JDialog
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                             .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(restoreSessionLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(restoreSessionCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(generalPanelLayout.createSequentialGroup()
                                             .addComponent(showConfirmationsLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                             .addComponent(showConfirmationsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
@@ -331,15 +346,11 @@ public class Settings extends JDialog
                                     .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
                                         .addComponent(preserveFileTimestampsCheckBox, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE)
                                         .addComponent(preserveFileTimestampsLabel, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE))
-                                    .addGap(1, 1, 1)
-                                    .addGroup(generalPanelLayout.createParallelGroup()
-                                        .addComponent(restoreSessionLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(restoreSessionCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addGap(1, 1, 1)
+                                    .addGap(0, 0, 0)
                                     .addGroup(generalPanelLayout.createParallelGroup()
                                         .addComponent(showConfirmationsLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(showConfirmationsCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(265, Short.MAX_VALUE))
+                                    .addContainerGap(303, Short.MAX_VALUE))
                         );
                     }
                     settingsTabbedPane.addTab(bundle.getString("Settings.generalPanel.tab.title"), generalPanel);
@@ -570,8 +581,6 @@ public class Settings extends JDialog
     private JPanel generalPanel;
     private JLabel preserveFileTimestampsLabel;
     private JCheckBox preserveFileTimestampsCheckBox;
-    private JLabel restoreSessionLabel;
-    private JCheckBox restoreSessionCheckBox;
     private JLabel showConfirmationsLabel;
     private JCheckBox showConfirmationsCheckBox;
     private JPanel apperancePanel;
