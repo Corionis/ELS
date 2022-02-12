@@ -10,6 +10,7 @@ import javax.activation.ActivationDataFlavor;
 import javax.activation.DataHandler;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
@@ -158,6 +159,7 @@ public class NavTransferHandler extends TransferHandler
                 }
                 catch (Exception e)
                 {
+                    guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     guiContext.browser.printLog(Utils.getStackTrace(e), true);
                     JOptionPane.showMessageDialog(guiContext.form, "Error getting transfer data: " + e.toString(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
@@ -391,6 +393,7 @@ public class NavTransferHandler extends TransferHandler
 
         if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
         {
+            guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             JOptionPane.showMessageDialog(guiContext.form, "Cannot transfer to currently selected location", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -412,6 +415,7 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeNode parent = (NavTreeNode) sourceNode.getParent();
                 if (parent == targetNode)
                 {
+                    guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     JOptionPane.showMessageDialog(guiContext.form, "Source & target are the same", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     guiContext.form.labelStatusMiddle.setText("Action cancelled");
                     guiContext.browser.printLog("Action cancelled");
@@ -435,6 +439,7 @@ public class NavTransferHandler extends TransferHandler
                 }
                 else
                 {
+                    guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     JOptionPane.showMessageDialog(guiContext.form, "Cannot transfer " + sourceTuo.getType(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     guiContext.form.labelStatusMiddle.setText("Action cancelled");
                     guiContext.browser.printLog("Action cancelled");
@@ -446,6 +451,7 @@ public class NavTransferHandler extends TransferHandler
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowConfirmations())
             {
+                guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to " + getOperation(true).toLowerCase() + " " +
                                 Utils.formatLong(size, false) + " in " + Utils.formatInteger(count) + " file" + (count > 1 ? "s" : "") + " to " + targetTuo.name + "?" +
                                 (guiContext.cfg.isDryRun() ? " (dry-run)" : ""),
@@ -455,6 +461,7 @@ public class NavTransferHandler extends TransferHandler
             // process the selections
             if (reply == JOptionPane.YES_OPTION)
             {
+                filesCompleted = 0;
                 filesToCopy = count;
                 process(transferData, targetTree, targetTuo);
                 if (!guiContext.context.fault)
@@ -504,12 +511,12 @@ public class NavTransferHandler extends TransferHandler
         }
         catch (Exception e)
         {
+            guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
             int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error importing: " + e.toString(),
                     guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
         }
 
-        guiContext.form.labelStatusMiddle.setText("");
         action = TransferHandler.NONE;
         return false;
     }
@@ -578,9 +585,11 @@ public class NavTransferHandler extends TransferHandler
         depth = 0;
         boolean error = false;
 
-        progress = new Progress(guiContext.form);
+        guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+        progress = new Progress(guiContext.form, guiContext);
         progress.setVisible(true);
-        progress.toFront();
+        progress.update("Transferring file " + filesCompleted + " of " + filesToCopy);
 
         // iterate the selected source row's user object
         for (NavTreeUserObject sourceTuo : transferData)
@@ -593,7 +602,7 @@ public class NavTransferHandler extends TransferHandler
                 transferDirectory(sourceTuo, targetTree, targetTuo);
             else
             {
-                if (!transferFile(sourceTuo, targetTree, targetTuo))
+                if (transferFile(sourceTuo, targetTree, targetTuo))
                 {
                     error = true;
                     break;
@@ -605,6 +614,7 @@ public class NavTransferHandler extends TransferHandler
             exportHints(transferData, targetTuo);
         }
 
+        guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         progress.setVisible(false);
     }
 
@@ -646,7 +656,7 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeUserObject childTuo = child.getUserObject();
                 if (childTuo.isDir)
                 {
-                    if (!removeDirectory(childTuo))
+                    if (removeDirectory(childTuo))
                     {
                         error = true;
                         break;
@@ -654,7 +664,7 @@ public class NavTransferHandler extends TransferHandler
                 }
                 else
                 {
-                    if (!removeFile(childTuo))
+                    if (removeFile(childTuo))
                     {
                         error = true;
                         break;
@@ -681,6 +691,7 @@ public class NavTransferHandler extends TransferHandler
         }
         catch (Exception e)
         {
+            guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
             int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error deleting directory: " + e.toString() + "\n\nContinue?",
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
@@ -712,6 +723,7 @@ public class NavTransferHandler extends TransferHandler
         {
             if (!(e instanceof NoSuchFileException)) // ignore missing file
             {
+                guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
                 int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error deleting file: " + e.toString() + "\n\nContinue?",
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
@@ -777,13 +789,14 @@ public class NavTransferHandler extends TransferHandler
                 }
                 else
                 {
-                    if (!transferFile(childTuo, targetTree, toNodeTuo))
+                    if (transferFile(childTuo, targetTree, toNodeTuo))
                         break;
                 }
             }
         }
         catch (Exception e)
         {
+            guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
             int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error transferring: " + e.toString(),
                     guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
@@ -792,31 +805,15 @@ public class NavTransferHandler extends TransferHandler
 
     private boolean transferFile(NavTreeUserObject sourceTuo, JTree targetTree, NavTreeUserObject targetTuo)
     {
+        boolean error = false;
         String path = "";
         String msg = " " + getOperation(true).toLowerCase() + (guiContext.cfg.isDryRun() ? " dry-run from " : " from ") + sourceTuo.path;
+        guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         try
         {
             ++filesCompleted;
-
-/*
-            javax.swing.SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    progress.progressText.setText("Transferring file " + filesCompleted + " of " + filesToCopy);
-                    int pc = (filesCompleted / filesToCopy) * 100;
-                    progress.progressBar.setValue(pc);
-                    progress.repaint();
-                }
-            });
-*/
-
-            progress.progressText.setText("Transferring file " + filesCompleted + " of " + filesToCopy);
-            progress.progressBar.setValue((filesCompleted / filesToCopy) * 100);
-            progress.repaint();
-            progress.progressText.repaint();
-            progress.progressBar.repaint();
+            progress.update("Transferring file " + filesCompleted + " of " + filesToCopy);
 
             // perform the transfer
             if (!sourceTuo.isRemote && !targetTuo.isRemote)
@@ -895,13 +892,14 @@ public class NavTransferHandler extends TransferHandler
         }
         catch (Exception e)
         {
+            guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
             int reply = JOptionPane.showConfirmDialog(guiContext.form, "Error " + getOperation(true).toLowerCase() + ": " + e.toString() + "\n\nContinue transfer?",
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
-                return false;
+                error = true;
         }
-        return true;
+        return error;
     }
 
 }

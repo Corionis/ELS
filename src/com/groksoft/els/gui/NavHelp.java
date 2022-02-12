@@ -109,12 +109,12 @@ public class NavHelp extends JDialog
         buttonFocus();
     }
 
-    private void thisWindowClosing(WindowEvent e)
+    private void thisWindowClosed(WindowEvent e)
     {
         previous.requestFocus();
     }
 
-    private void thisWindowClosed(WindowEvent e)
+    private void thisWindowClosing(WindowEvent e)
     {
         previous.requestFocus();
     }

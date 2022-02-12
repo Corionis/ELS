@@ -79,6 +79,7 @@ public class BrowserTableModel extends DefaultTableModel
         child = (NavTreeNode) node.getChildAt(row, hideFilesInTreeFilterActive, hideHiddenFilterActive);
         if (child == null)
             return null;
+
         tuo = child.getUserObject();
         if (tuo != null)
         {
@@ -185,26 +186,4 @@ public class BrowserTableModel extends DefaultTableModel
         node = treeNode;
     }
 
-/*
-     while (true)
-    {
-        child = (NavTreeNode) node.getChildAt(row, false);
-        tuo = child.getUserObject();
-        if (tuo.type == NavTreeUserObject.REAL && !guiContext.preferences.isViewHidden())
-        {
-            if (tuo.isRemote)
-            {
-                if (tuo.name.startsWith("."))
-                    continue;
-            }
-            else
-            {
-                if (tuo.file.isHidden())
-                    continue;
-            }
-        }
-        break;
-    }
-*/
 }
-

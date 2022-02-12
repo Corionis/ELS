@@ -462,7 +462,7 @@ public class Browser
                     {
                         if (tuo.isDir)
                         {
-                            if (!navTransferHandler.removeDirectory(tuo))
+                            if (navTransferHandler.removeDirectory(tuo))
                             {
                                 error = true;
                                 break;
@@ -470,7 +470,7 @@ public class Browser
                         }
                         else
                         {
-                            if (!navTransferHandler.removeFile(tuo))
+                            if (navTransferHandler.removeFile(tuo))
                             {
                                 error = true;
                                 break;
@@ -572,7 +572,7 @@ public class Browser
                     {
                         if (tuo.isDir)
                         {
-                            if (!navTransferHandler.removeDirectory(tuo))
+                            if (navTransferHandler.removeDirectory(tuo))
                             {
                                 error = true;
                                 break;
@@ -580,7 +580,7 @@ public class Browser
                         }
                         else
                         {
-                            if (!navTransferHandler.removeFile(tuo))
+                            if (navTransferHandler.removeFile(tuo))
                             {
                                 error = true;
                                 break;
@@ -1284,6 +1284,8 @@ public class Browser
     {
         logger.info(text);
         guiContext.form.textAreaLog.append(text + System.getProperty("line.separator"));
+//        guiContext.form.textAreaLog.update(guiContext.form.textAreaLog.getGraphics());
+        guiContext.form.textAreaLog.repaint();
     }
 
     public void printProperties(NavTreeUserObject tuo)

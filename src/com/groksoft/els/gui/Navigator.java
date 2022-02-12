@@ -49,9 +49,6 @@ public class Navigator
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
-    // TODO:
-    //  * Progress
-    //
     // QUESTION:
     //  * Can a Library be added for updating JSON files?
     //     * Or should skeleton files be used with pull options always enabled?
@@ -1167,12 +1164,12 @@ public class Navigator
                 }
             }
         });
+
         return 0;
     }
 
     public void stop()
     {
-        // tell remote end to exit
         if (guiContext.context.clientStty != null)
         {
             try

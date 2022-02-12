@@ -742,6 +742,7 @@ public class MainFrame extends JFrame
                             buttonHintTracking.setMnemonic(bundle.getString("Navigator.buttonHintTracking.mnemonic").charAt(0));
                             buttonHintTracking.setToolTipText("Toggle creating hints based on actions in Collections");
                             buttonHintTracking.setFocusable(false);
+                            buttonHintTracking.setMargin(new Insets(0, 0, 0, 4));
                             panelLocationAndButtons.add(buttonHintTracking, BorderLayout.EAST);
 
                             //======== panelLocation ========
