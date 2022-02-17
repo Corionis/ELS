@@ -173,9 +173,10 @@ public class Browser
                     NavTreeUserObject tuo = (NavTreeUserObject) target.getValueAt(row, 1);
                     if (tuo != null)
                     {
+                        boolean doubleClick = (mouseEvent.getClickCount() == 2);
                         guiContext.form.textFieldLocation.setText(tuo.getPath());
                         printProperties(tuo);
-                        if (mouseEvent.getClickCount() == 2)
+                        if (doubleClick)
                         {
                             if (tuo.isDir)
                             {
@@ -442,7 +443,7 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowConfirmations())
+            if (guiContext.preferences.isShowDeleteConfirmation())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
                                 rows.length + (isRemote ? " remote" : "") + " item" + (rows.length > 1 ? "s" : "") + " containing " +
@@ -476,7 +477,7 @@ public class Browser
                                 break;
                             }
                         }
-                        if (!error && guiContext.browser.trackingHints)
+                        if (!error)
                         {
                             try
                             {
@@ -551,7 +552,7 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowConfirmations())
+            if (guiContext.preferences.isShowDeleteConfirmation())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
                                 paths.length + (isRemote ? " remote" : "") + " item" + (paths.length > 1 ? "s" : "") + " containing " +
@@ -586,7 +587,7 @@ public class Browser
                                 break;
                             }
                         }
-                        if (!error && guiContext.browser.trackingHints)
+                        if (!error)
                         {
                             try
                             {
@@ -886,6 +887,7 @@ public class Browser
         addFocusListener(guiContext.form.treeCollectionOne);
         addHandlersToTable(guiContext.form.tableCollectionOne);
         addFocusListener(guiContext.form.tableCollectionOne);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.form.treeCollectionOne);
 
         // --- treeSystemOne
         guiContext.form.treeSystemOne.setName("treeSystemOne");
@@ -934,6 +936,7 @@ public class Browser
         addFocusListener(guiContext.form.treeSystemOne);
         addHandlersToTable(guiContext.form.tableSystemOne);
         addFocusListener(guiContext.form.tableSystemOne);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.form.treeSystemOne);
     }
 
     private void initializeBrowserTwo()
@@ -1017,6 +1020,7 @@ public class Browser
         addFocusListener(guiContext.form.treeCollectionTwo);
         addHandlersToTable(guiContext.form.tableCollectionTwo);
         addFocusListener(guiContext.form.tableCollectionTwo);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.form.treeCollectionTwo);
 
         // --- treeSystemTwo
         guiContext.form.treeSystemTwo.setName("treeSystemTwo");
@@ -1065,6 +1069,7 @@ public class Browser
         addFocusListener(guiContext.form.treeSystemTwo);
         addHandlersToTable(guiContext.form.tableSystemTwo);
         addFocusListener(guiContext.form.tableSystemTwo);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.form.treeSystemTwo);
     }
 
     private void initializeNavigation()
@@ -1118,30 +1123,33 @@ public class Browser
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
                 {
-                    if (!trackingHints)
+                    if (guiContext.form.buttonHintTracking.isVisible())
                     {
-                        try
+                        if (!trackingHints) // toggle hint tacking
                         {
-                            guiContext.form.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
-                            URL url = Thread.currentThread().getContextClassLoader().getResource("hint-tracking.png");
-                            Image icon = ImageIO.read(url);
-                            guiContext.form.buttonHintTracking.setIcon(new ImageIcon(icon));
+                            try
+                            {
+                                guiContext.form.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
+                                URL url = Thread.currentThread().getContextClassLoader().getResource("hint-tracking.png");
+                                Image icon = ImageIO.read(url);
+                                guiContext.form.buttonHintTracking.setIcon(new ImageIcon(icon));
+                                trackingHints = true;
+                            }
+                            catch (Exception e)
+                            {
+                            }
                         }
-                        catch (Exception e)
+                        else
                         {
+                            guiContext.form.buttonHintTracking.setBackground(hintTrackingColor);
+                            guiContext.form.buttonHintTracking.setIcon(null);
+                            trackingHints = false;
                         }
                     }
-                    else
-                    {
-                        guiContext.form.buttonHintTracking.setBackground(hintTrackingColor);
-                        guiContext.form.buttonHintTracking.setIcon(null);
-                    }
-                    trackingHints = !trackingHints;
                 }
             });
             hintTrackingColor = guiContext.form.buttonHintTracking.getBackground();
         }
-        //else
         if (!guiContext.navigator.showHintTrackingButton)
         {
             guiContext.form.buttonHintTracking.setVisible(false);
@@ -1319,7 +1327,7 @@ public class Browser
                     break;
                 case NavTreeUserObject.LIBRARY:
                     msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
-                            "<tr><td>Location:</td> <td></td> <td>Free:</td></tr>";
+                            "<tr><td>Source:</td> <td></td> <td>Free:</td></tr>";
                     for (String source : tuo.sources)
                     {
                         String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true);
@@ -1426,6 +1434,29 @@ public class Browser
             ((NavTreeNode) sel).loadChildren(true);
             refreshTree(sourceTree);
         }
+    }
+
+    public String select(NavTreeUserObject tuo)
+    {
+        String path = "";
+        if (tuo.type == NavTreeUserObject.REAL)
+            path = tuo.path;
+        else if (tuo.type == NavTreeUserObject.LIBRARY)
+        {
+            if (tuo.sources.length == 1)
+                path = tuo.sources[0];
+            else
+            {
+                int opt = JOptionPane.showOptionDialog(guiContext.form, "Select one of the " + tuo.sources.length + " locations defined for library " + tuo.name + ":",
+                        guiContext.cfg.getNavigatorName(), JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.QUESTION_MESSAGE, null, tuo.sources, tuo.sources[0]);
+                if (opt > -1)
+                {
+                    path = tuo.sources[opt];
+                }
+            }
+        }
+        return path;
     }
 
     private NavTreeNode setCollectionRoot(JTree tree, String title, boolean remote)
@@ -1565,7 +1596,7 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowConfirmations())
+            if (guiContext.preferences.isShowTouchConfirmation())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to touch " +
                                 rows.length + (isRemote ? " remote" : "") + " item" + (rows.length > 1 ? "s" : "") + " containing " +
@@ -1649,7 +1680,7 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowConfirmations())
+            if (guiContext.preferences.isShowTouchConfirmation())
             {
                 reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to touch " +
                                 paths.length + (isRemote ? " remote" : "") + " item" + (paths.length > 1 ? "s" : "") + " containing " +

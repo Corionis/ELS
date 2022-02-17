@@ -49,7 +49,10 @@ public class Preferences implements Serializable
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
     private boolean preserveFileTimes = true;
-    private boolean showConfirmations = true; // show confirmation dialogs for copy, move, delete, etc.
+    private boolean showCcpConfirmation = true;
+    private boolean showDeleteConfirmation = true;
+    private boolean showDnDConfirmation = true;
+    private boolean showTouchConfirmation = true;
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
@@ -432,9 +435,24 @@ public class Preferences implements Serializable
         return preserveFileTimes;
     }
 
-    public boolean isShowConfirmations()
+    public boolean isShowCcpConfirmation()
     {
-        return showConfirmations;
+        return showCcpConfirmation;
+    }
+
+    public boolean isShowDeleteConfirmation()
+    {
+        return showDeleteConfirmation;
+    }
+
+    public boolean isShowDnDConfirmation()
+    {
+        return showDnDConfirmation;
+    }
+
+    public boolean isShowTouchConfirmation()
+    {
+        return showTouchConfirmation;
     }
 
     public boolean isSortCaseInsensitive()
@@ -607,9 +625,24 @@ public class Preferences implements Serializable
         this.preserveFileTimes = preserveFileTimes;
     }
 
-    public void setShowConfirmations(boolean showConfirmations)
+    public void setShowCcpConfirmation(boolean showCcpConfirmation)
     {
-        this.showConfirmations = showConfirmations;
+        this.showCcpConfirmation = showCcpConfirmation;
+    }
+
+    public void setShowDeleteConfirmation(boolean showDeleteConfirmation)
+    {
+        this.showDeleteConfirmation = showDeleteConfirmation;
+    }
+
+    public void setShowDnDConfirmation(boolean showDnDConfirmation)
+    {
+        this.showDnDConfirmation = showDnDConfirmation;
+    }
+
+    public void setShowTouchConfirmation(boolean showTouchConfirmation)
+    {
+        this.showTouchConfirmation = showTouchConfirmation;
     }
 
     public void setSortCaseInsensitive(boolean sortCaseInsensitive)

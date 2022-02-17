@@ -742,7 +742,7 @@ public class Transfer
         {
             f.getParentFile().mkdirs();
         }
-        if (cfg.isPreserveDates() && filetime != null)
+        if (cfg.isPreserveDates() && filetime != null) // TODO Fix file time handling here
             Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
         else
             Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
@@ -837,25 +837,32 @@ public class Transfer
             if (repo != null)
             {
                 String tuoPath = (repo.getLibraryData().libraries.case_sensitive) ? tuo.path : tuo.path.toLowerCase();
-                for (Library lib : repo.getLibraryData().libraries.bibliography)
+                if (tuoPath.length() == 0)
                 {
-                    for (String source : lib.sources)
+                    path = tuo.name + " | ";
+                }
+                else
+                {
+                    for (Library lib : repo.getLibraryData().libraries.bibliography)
                     {
-                        String srcPath = "";
-                        if (!tuo.isRemote)
+                        for (String source : lib.sources)
                         {
-                            File srcDir = new File(source);
-                            srcPath = srcDir.getAbsolutePath();
+                            String srcPath = source;
+                            if (!tuo.isRemote)
+                            {
+                                File srcDir = new File(source);
+                                srcPath = srcDir.getAbsolutePath();
+                            }
+                            srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcPath : srcPath.toLowerCase();
+                            if (tuoPath.startsWith(srcPath))
+                            {
+                                path = lib.name + " | " + tuo.path.substring(srcPath.length() + 1);
+                                break;
+                            }
                         }
-                        srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcPath : srcPath.toLowerCase();
-                        if (tuoPath.startsWith(srcPath))
-                        {
-                            path = lib.name + " | " + tuo.path.substring(srcPath.length() + 1);
+                        if (path != null)
                             break;
-                        }
                     }
-                    if (path != null)
-                        break;
                 }
             }
         }
@@ -882,7 +889,6 @@ public class Transfer
             Path fromPath = Paths.get(path).toRealPath();
             Files.delete(fromPath);
         }
-
     }
 
     /**
@@ -1155,11 +1161,11 @@ public class Transfer
 
             if (act.equals("mv"))
             {
-                command = "mv \"" + reduceCollectionPath(sourceTuo) + "\" \"" + reduceCollectionPath(targetTuo) + "\"\n";
+                command = "mv \"" + reduceCollectionPath(sourceTuo) + "\" \"" + reduceCollectionPath(targetTuo) + "\"";
             }
             else if (act.equals("rm"))
             {
-                command = "rm \"" + reduceCollectionPath(sourceTuo) + "\"\n";
+                command = "rm \"" + reduceCollectionPath(sourceTuo) + "\"";
             }
             else
                 throw new MungeException("Action must be 'mv' or 'rm'");
@@ -1186,11 +1192,12 @@ public class Transfer
         {
             String line = "hint \"" + hintPath + "\" " + command;
             logger.info("Sending remote: " + line);
-            hintPath = context.clientStty.roundTrip(line);
+            hintPath = context.clientStty.roundTrip(line + "\n");
         }
         else // local operation
         {
             File hintFile = new File(hintPath);
+            command = command + "\n";
             if (Files.exists(hintFile.toPath()))
             {
                 Files.write(hintFile.toPath(), command.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);

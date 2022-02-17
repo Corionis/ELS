@@ -69,6 +69,7 @@ public class NavTreeUserObject implements Comparable, Serializable
         {
             this.size = -1L;
         }
+
     }
 
     // A collection of libraries

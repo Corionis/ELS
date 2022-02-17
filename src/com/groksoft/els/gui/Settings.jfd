@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.2.410" Java: "11.0.13" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.3.411" Java: "11.0.13" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -26,8 +26,8 @@ new FormModel {
 						name: "settingsTabbedPane"
 						"tabPlacement": 2
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:200:p, space :::p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp showConfirmationsLabel:::p:200:p, space :::p, comp showConfirmationsCheckBox:::p:238:p}}, space :::x}}"
-							"$verticalGroup": "par l {seq {space :0:0:p, par l:::p {comp preserveFileTimestampsCheckBox::::36:x, comp preserveFileTimestampsLabel::::36:x}, space :0:0:p, par l {comp showConfirmationsLabel:::p:36:p, comp showConfirmationsCheckBox:::p:36:p}, space ::303:x}}"
+							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:200:p, space :::p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp showDeleteConfirmationLabel:::p:200:p, space :::p, comp showDeleteConfirmationCheckBox:::p:238:p}, seq l {comp showCcpConfirmationLabel:::p:200:p, space :::p, comp showCcpConfirmationCheckBox:::p:238:p}, seq l {comp showDndConfirmationLabel:::p:200:p, space :::p, comp showDndConfirmationCheckBox:::p:238:p}, seq l {comp showTouchConfirmationLabel:::p:200:p, space :::p, comp showTouchConfirmationCheckBox:::p:238:p}}, space :::x}}"
+							"$verticalGroup": "par l {seq {space :0:0:p, par l:::p {comp preserveFileTimestampsCheckBox::::36:x, comp preserveFileTimestampsLabel::::36:x}, space :0:0:p, par l {comp showDeleteConfirmationLabel:::p:36:p, comp showDeleteConfirmationCheckBox:::p:36:p}, space :0:0:p, par b {comp showCcpConfirmationLabel::b:p:36:p, comp showCcpConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showDndConfirmationLabel::b:p:36:p, comp showDndConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showTouchConfirmationLabel::b:p:36:p, comp showTouchConfirmationCheckBox::b:p:36:p}, space ::195:x}}"
 						} ) {
 							name: "generalPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
@@ -38,11 +38,32 @@ new FormModel {
 								name: "preserveFileTimestampsCheckBox"
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "showConfirmationsLabel"
-								"text": new FormMessage( null, "Settings.showConfirmationsLabel.text" )
+								name: "showDeleteConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showDeleteConfirmationLabel.text" )
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "showConfirmationsCheckBox"
+								name: "showDeleteConfirmationCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showCcpConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showCcpConfirmationLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showCcpConfirmationCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showDndConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showDndConfirmationLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showDndConfirmationCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showTouchConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showTouchConfirmationLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showTouchConfirmationCheckBox"
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )

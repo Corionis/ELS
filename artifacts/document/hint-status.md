@@ -11,17 +11,36 @@ between the media server and multiple back-ups. The tracker may be used locally 
 the Hint Status Server may be run to provide the needed functionality when using
 the -r | --remote option for ELS runs.
 
-ELS Hints are optional. The Hint Tracker is optional when using hints. But the ELS
-Hint Status Server (HSS) is **required** when using hints and hint tracking with the
--r | --remote option. The Hint Status Server is the remote variant of the Hint
-Tracker and is run as a separate stand-alone process.
+ELS Hints are optional. The Hint Tracker (-h option) is optional when using hints. 
+But the ELS Hint Status Server (HSS) is **required** when using hints and hint
+tracking with the -r | --remote option. The Hint Status Server is the remote
+variant of the Hint Tracker and is run as a separate stand-alone process.
 
  * Hints are enabled with the -k | -K option, see [Hints](Hints).
- * Hint tracking is enabled with the -h option.
- * The Hint Status Server is run with the -H option.
+ * Hint Tracker is enabled with the -h option.
+ * Hint Status Server is run as a process with the -H option.
 
-The -h and -H option use the same JSON file. -h connects to the Hint
+The -h and -H options use the same JSON file. -h client connects to the Hint
 Status Server running with -H when using the -r | --remote option for ELS runs.
+
+## Example
+
+A complete setup, in order of execution: 
+
+### Hint Status Server (listener)
+
+   ```java -jar ELS.jar --hint-server hint-server.json -k hints.keys -F status-listener.log```
+ 
+### Subscriber (listener)
+
+   ```java -jar ELS.jar --hints hint-server.json -k hints.keys --remote S -p publisher.json -S subscriber.json -T -F subscriber-listener.log```
+
+### Publisher (client)
+
+   ```java -jar ELS.jar --hints hint-server.json -k hints.keys --remote P -p publisher.json -s subscriber.json -T -m mismatches.txt -W whatsnew.txt -F publisher-backup.log```
+
+In this configuration the Status Server continues to run after the Subscriber and Publisher are done. The
+Subscriber is automatically shutdown by the Publisher.
 
 ## Hint Tracker/Status Server JSON
 

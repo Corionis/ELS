@@ -150,7 +150,10 @@ public class Settings extends JDialog
     {
         // general
         preserveFileTimestampsCheckBox.setSelected(guiContext.preferences.isPreserveFileTimes());
-        showConfirmationsCheckBox.setSelected(guiContext.preferences.isShowConfirmations());
+        showDeleteConfirmationCheckBox.setSelected(guiContext.preferences.isShowDeleteConfirmation());
+        showCcpConfirmationCheckBox.setSelected(guiContext.preferences.isShowCcpConfirmation());
+        showDndConfirmationCheckBox.setSelected(guiContext.preferences.isShowDnDConfirmation());
+        showTouchConfirmationCheckBox.setSelected(guiContext.preferences.isShowTouchConfirmation());
 
         // appearance
         lookFeelComboBox.setAutoscrolls(true);
@@ -199,7 +202,10 @@ public class Settings extends JDialog
 
         // general
         guiContext.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
-        guiContext.preferences.setShowConfirmations(showConfirmationsCheckBox.isSelected());
+        guiContext.preferences.setShowDeleteConfirmation(showDeleteConfirmationCheckBox.isSelected());
+        guiContext.preferences.setShowCcpConfirmation(showCcpConfirmationCheckBox.isSelected());
+        guiContext.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
+        guiContext.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
 
         // appearance
         guiContext.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
@@ -250,8 +256,14 @@ public class Settings extends JDialog
         generalPanel = new JPanel();
         preserveFileTimestampsLabel = new JLabel();
         preserveFileTimestampsCheckBox = new JCheckBox();
-        showConfirmationsLabel = new JLabel();
-        showConfirmationsCheckBox = new JCheckBox();
+        showDeleteConfirmationLabel = new JLabel();
+        showDeleteConfirmationCheckBox = new JCheckBox();
+        showCcpConfirmationLabel = new JLabel();
+        showCcpConfirmationCheckBox = new JCheckBox();
+        showDndConfirmationLabel = new JLabel();
+        showDndConfirmationCheckBox = new JCheckBox();
+        showTouchConfirmationLabel = new JLabel();
+        showTouchConfirmationCheckBox = new JCheckBox();
         apperancePanel = new JPanel();
         lookFeelLabel = new JLabel();
         lookFeelComboBox = new JComboBox<>();
@@ -319,8 +331,17 @@ public class Settings extends JDialog
                         //---- preserveFileTimestampsLabel ----
                         preserveFileTimestampsLabel.setText(bundle.getString("Settings.preserveFileTimestampsLabel.text"));
 
-                        //---- showConfirmationsLabel ----
-                        showConfirmationsLabel.setText(bundle.getString("Settings.showConfirmationsLabel.text"));
+                        //---- showDeleteConfirmationLabel ----
+                        showDeleteConfirmationLabel.setText(bundle.getString("Settings.showDeleteConfirmationLabel.text"));
+
+                        //---- showCcpConfirmationLabel ----
+                        showCcpConfirmationLabel.setText(bundle.getString("Settings.showCcpConfirmationLabel.text"));
+
+                        //---- showDndConfirmationLabel ----
+                        showDndConfirmationLabel.setText(bundle.getString("Settings.showDndConfirmationLabel.text"));
+
+                        //---- showTouchConfirmationLabel ----
+                        showTouchConfirmationLabel.setText(bundle.getString("Settings.showTouchConfirmationLabel.text"));
 
                         GroupLayout generalPanelLayout = new GroupLayout(generalPanel);
                         generalPanel.setLayout(generalPanelLayout);
@@ -334,9 +355,21 @@ public class Settings extends JDialog
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                             .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showConfirmationsLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(showConfirmationsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
+                                            .addComponent(showDeleteConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(generalPanelLayout.createSequentialGroup()
+                                            .addComponent(showCcpConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(showCcpConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(generalPanelLayout.createSequentialGroup()
+                                            .addComponent(showDndConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(showDndConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(generalPanelLayout.createSequentialGroup()
+                                            .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
                                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         );
                         generalPanelLayout.setVerticalGroup(
@@ -348,9 +381,21 @@ public class Settings extends JDialog
                                         .addComponent(preserveFileTimestampsLabel, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE))
                                     .addGap(0, 0, 0)
                                     .addGroup(generalPanelLayout.createParallelGroup()
-                                        .addComponent(showConfirmationsLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(showConfirmationsCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(303, Short.MAX_VALUE))
+                                        .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(showDeleteConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                    .addGap(0, 0, 0)
+                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(showCcpConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(showCcpConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                    .addGap(0, 0, 0)
+                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(showDndConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(showDndConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                    .addGap(0, 0, 0)
+                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                    .addContainerGap(195, Short.MAX_VALUE))
                         );
                     }
                     settingsTabbedPane.addTab(bundle.getString("Settings.generalPanel.tab.title"), generalPanel);
@@ -581,8 +626,14 @@ public class Settings extends JDialog
     private JPanel generalPanel;
     private JLabel preserveFileTimestampsLabel;
     private JCheckBox preserveFileTimestampsCheckBox;
-    private JLabel showConfirmationsLabel;
-    private JCheckBox showConfirmationsCheckBox;
+    private JLabel showDeleteConfirmationLabel;
+    private JCheckBox showDeleteConfirmationCheckBox;
+    private JLabel showCcpConfirmationLabel;
+    private JCheckBox showCcpConfirmationCheckBox;
+    private JLabel showDndConfirmationLabel;
+    private JCheckBox showDndConfirmationCheckBox;
+    private JLabel showTouchConfirmationLabel;
+    private JCheckBox showTouchConfirmationCheckBox;
     private JPanel apperancePanel;
     private JLabel lookFeelLabel;
     private JComboBox<String> lookFeelComboBox;

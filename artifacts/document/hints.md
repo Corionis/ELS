@@ -7,6 +7,18 @@ needed to coordinate manual changes.
 A "hint" is a special file used to keep track of manual changes to a collection.
 The hint is used by ELS to coordinate those changes with one or more back-ups.
 
+This allows a multi-backup setup to have one backup synchronize with another
+on different schedules and the main media system does not have to be involved.
+The Hints are propagated, executed, and coordinated between the various systems
+no matter which system connects with which over any period of time. As long as
+they all "talk" one way or another the Hint will eventually be completed everywhere
+then removed when all have seen that all have completed the Hint. 
+
+For configurations with more than one computer-based (remote) backup the 
+ELS Hint Server added in version 3.1.0 is required to coordinate Hint status 
+between systems and avoid the "odd man out" problem, discussed elsewhere.
+The Hint Server (-H option) is another built-in option of ELS 3.1.0.
+
 A hint file contains one or more status lines, one for each back-up, and one or
 more commands. As each system processes the hint it's status line is updated.
 When all systems have executed the hint the file is automatically deleted.

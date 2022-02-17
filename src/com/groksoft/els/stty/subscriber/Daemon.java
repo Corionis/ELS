@@ -410,10 +410,15 @@ public class Daemon extends DaemonBase
                         if (t.hasMoreTokens())
                         {
                             String filename = getNextToken(t);
-                            String command = getNextToken(t);;
+                            String command = getNextToken(t).trim();
                             command += " \"" + getNextToken(t) + "\""; // arg1
                             if (t.hasMoreTokens())
-                                command += " \"" + getNextToken(t) + "\""; // possible arg2
+                            {
+                                String arg = getNextToken(t);
+                                if (arg.equals("\n"))
+                                    arg = "";
+                                command += " \"" + arg + "\""; // possible arg2
+                            }
                             if (filename.length() > 0 && command.length() > 0)
                             {
                                 valid = true;
@@ -481,6 +486,38 @@ public class Daemon extends DaemonBase
                         theCommand = "quit";
                         //// let the logic fall through to the 'quit' handler below
                     }
+                }
+
+                // -------------- move ------------------------------
+                if (theCommand.equalsIgnoreCase("move"))
+                {
+                    boolean valid = false;
+                    if (t.hasMoreTokens())
+                    {
+                        String from = getNextToken(t);
+                        String to = getNextToken(t);
+                        if (from.length() > 0 && to.length() > 0)
+                        {
+                            boolean success = true;
+                            try
+                            {
+                                valid = true;
+                                File f = new File(from);
+                                context.transfer.moveFile(from, Files.getLastModifiedTime(f.toPath(), LinkOption.NOFOLLOW_LINKS), to, true);
+                            }
+                            catch (Exception e)
+                            {
+                                success = false;
+                                logger.error(Utils.getStackTrace(e));
+                            }
+                            response = (isTerminal ? "ok" + (success ? ", moved" : "") + "\r\n" : Boolean.toString(success));
+                        }
+                    }
+                    if (!valid)
+                    {
+                        response = (isTerminal ? "move command requires a 2 arguments, from and to\r\n" : "false");
+                    }
+                    continue;
                 }
 
                 // -------------- quit, exit --------------------------------

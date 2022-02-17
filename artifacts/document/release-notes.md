@@ -90,7 +90,13 @@ It's all built-in with the -n | --navigator option.
 
  1. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
     "bye" command has been changed to end the terminal session but leave the remote listener
-    running. Commands quit, exit and logout will shutdown the remote listener.
+    running. Commands quit, exit and logout will shutdown the remote listener as they have.
+ 
+ 2. Added JSON library elements:
+    1. temp_dated "true/false" : If temporary files such as received collection files have
+       date and time embedded in the filename. If false the same file is overwritten.
+    2. temp_location "path" : Where to place temporary files. An empty string "" is the
+       location of the ELS Jar file.
 
 ### Bug Fixes
 

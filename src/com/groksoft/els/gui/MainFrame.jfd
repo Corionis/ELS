@@ -86,13 +86,20 @@ new FormModel {
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "Center"
 								} )
-								add( new FormComponent( "javax.swing.JButton" ) {
-									name: "buttonHintTracking"
-									"text": new FormMessage( null, "Navigator.buttonHintTracking.text" )
-									"mnemonic": new FormMessage( null, "Navigator.buttonHintTracking.mnemonic" )
-									"toolTipText": "Toggle creating hints based on actions in Collections"
-									"focusable": false
-									"margin": new java.awt.Insets( 0, 0, 0, 4 )
+								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+									"alignment": 2
+									"hgap": 4
+									"vgap": 2
+								} ) {
+									name: "panel1"
+									add( new FormComponent( "javax.swing.JButton" ) {
+										name: "buttonHintTracking"
+										"text": new FormMessage( null, "Navigator.buttonHintTracking.text" )
+										"mnemonic": new FormMessage( null, "Navigator.buttonHintTracking.mnemonic" )
+										"toolTipText": "Toggle creating hints based on actions in Collections"
+										"focusable": false
+										"margin": new java.awt.Insets( 0, 0, 0, 4 )
+									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "East"
 								} )
@@ -393,6 +400,7 @@ new FormModel {
 									"lineWrap": true
 									"minimumSize": new java.awt.Dimension( 0, 0 )
 									"componentPopupMenu": new FormReference( "popupMenuLog" )
+									"verifyInputWhenFocusTarget": false
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPaneLog.tab.title" )

@@ -1,5 +1,6 @@
 package com.groksoft.els.sftp;
 
+import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sshd.server.session.ServerSession;
@@ -94,6 +95,8 @@ public class EventListener implements SftpEventListener
     public void modifiedAttributes(ServerSession session, Path path, Map<String, ?> attrs, Throwable thrown) throws IOException
     {
         logger.debug("event: modifiedAttributes " + path.toString());
+        if (thrown != null)
+            logger.error(Utils.getStackTrace(thrown));
     }
 
     @Override
@@ -106,6 +109,8 @@ public class EventListener implements SftpEventListener
     public void moved(ServerSession session, Path srcPath, Path dstPath, Collection<CopyOption> opts, Throwable thrown) throws IOException
     {
         logger.debug("event: moved " + srcPath + " -> " + dstPath);
+        if (thrown != null)
+            logger.error(Utils.getStackTrace(thrown));
     }
 
     @Override
@@ -142,6 +147,8 @@ public class EventListener implements SftpEventListener
     public void read(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, byte[] data, int dataOffset, int dataLen, int readLen, Throwable thrown) throws IOException
     {
         logger.trace("event: read " + localHandle.getFile().toString());
+        if (thrown != null)
+            logger.error(Utils.getStackTrace(thrown));
     }
 
     @Override
@@ -153,7 +160,12 @@ public class EventListener implements SftpEventListener
     @Override
     public void removed(ServerSession session, Path path, boolean isDirectory, Throwable thrown) throws IOException
     {
-        logger.debug("event: removed " + (isDirectory ? "directory " : "file ") + path);
+        if (thrown != null)
+        {
+            if (!(thrown instanceof java.nio.file.NoSuchFileException)) // ignore file not found exceptions
+                logger.error(Utils.getStackTrace(thrown));
+        } else
+            logger.debug("event: removed " + (isDirectory ? "directory " : "file ") + path);
     }
 
     @Override

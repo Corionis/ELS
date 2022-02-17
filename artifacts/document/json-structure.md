@@ -38,19 +38,11 @@ For publisher and subscriber library JSON files:
         "terminal_allowed": "true",                     // allow interactive access true/false
         "key": "f9bd7a64-f8a7-11ea-adc1-0242ac120002",  // UUID unique to each publisher and subscriber
         "case_sensitive": false,                        // perform case-sensitive comparisons
+        "temp_dated": "false",                          // if temp filenames have dates embedded
+        "temp_location": "",                            // where to place temp files, e.g. received collection files
         "ignore_patterns": [                            // one or more filenames to ignore/skip,
             "desktop.ini",                              //   separated by commas
             "Thumbs.db"
-        ],
-        "renaming": [                                   // optional substitution(s) for renaming
-            {
-                "from": "(?i) Moms dvd",                // regular expressions supported
-                "to": " DVD"                            // plain text or empty ""
-            },
-            {
-                "from": "(?i) Moms Bluray",
-                "to": ""
-            }
         ],
         "locations": [
             {
@@ -93,8 +85,8 @@ For publisher and subscriber library JSON files:
  5. The terminal_allowed can disable interactive access. However, a complex automatic handshake is done so it is relatively safe.
  6. The key element ***must be unique*** for each publisher and subscriber. It is a version-1 UUID, see below.
  7. The case_sensitive element controls the type of comparison that is done between publisher and subscriber content.
- 8. ignore_patterns and renaming sections are optional.
-    1. ignore_patterns and renaming 'from' support regular expressions, see [Regular Expressions](Regular-Expressions).
+ 8. ignore_patterns section is optional.
+    1. ignore_patterns support regular expressions, see [Regular Expressions](Regular-Expressions).
  9. locations are matched against library sources to get the desired minimum disk free space. However if a -t | -T targets
     file is specified it overrides values in locations, new in version 3.0.0.
  10. Any number of libraries may be added to the bibliography.

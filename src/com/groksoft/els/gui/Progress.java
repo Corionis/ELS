@@ -21,6 +21,17 @@ public class Progress extends JDialog
         setSize(400, 75);
     }
 
+    public void done()
+    {
+        javax.swing.SwingUtilities.invokeLater(new Runnable()
+        {
+            public void run()
+            {
+                setVisible(false);
+            }
+        });
+
+    }
 
     private void thisWindowActivated(WindowEvent e)
     {

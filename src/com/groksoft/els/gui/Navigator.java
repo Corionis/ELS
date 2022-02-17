@@ -49,6 +49,21 @@ public class Navigator
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
+    // TODO:
+    //  * Handle multiple operations; keep GUI alive;
+    //  * Use a queue mechanism for operations
+    //  * Put NavTransferHandler to use a thread, see:
+    //      https://stackoverflow.com/questions/69224236/why-is-drag-and-drop-taking-time-on-huge-files
+    //  * Change Progress dialog
+    //    + more info
+    //    + Pause & Cancel buttons
+    //    + Make "not on top"
+    //    + allow GUI to be minimized with Progress up
+    //    + add Window controls
+    //
+    // TODO:
+    //    * Tool-tips in tree
+    //
     // QUESTION:
     //  * Can a Library be added for updating JSON files?
     //     * Or should skeleton files be used with pull options always enabled?
@@ -338,12 +353,9 @@ public class Navigator
                     {
                         if (guiContext.cfg.isRemoteSession())
                         {
-                            if (guiContext.preferences.isShowConfirmations())
-                            {
-                                int r = JOptionPane.showConfirmDialog(guiContext.form, "Close current remote connection?", guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
-                                if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
-                                    return;
-                            }
+                            int r = JOptionPane.showConfirmDialog(guiContext.form, "Close current remote connection?", guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                            if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                                return;
                             try
                             {
                                 guiContext.context.clientStty.send("bye");
@@ -496,10 +508,6 @@ public class Navigator
                             {
                                 showHintTrackingButton = true;
                                 guiContext.form.buttonHintTracking.setVisible(true);
-//                                for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
-//                                {
-//                                    listener.actionPerformed(new ActionEvent(guiContext.form.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
-//                                }
                             }
                         }
                         catch (Exception e)
@@ -583,25 +591,8 @@ public class Navigator
 
                 if (!tooMany)
                 {
-                    String path = "";
-                    if (tuo.type == NavTreeUserObject.REAL)
-                        path = tuo.path;
-                    else if (tuo.type == NavTreeUserObject.LIBRARY)
-                    {
-                        if (tuo.sources.length == 1)
-                            path = tuo.sources[0];
-                        else
-                        {
-                            int opt = JOptionPane.showOptionDialog(guiContext.form, "Select one of the " + tuo.sources.length + " locations defined for library " + tuo.name + ":",
-                                    guiContext.cfg.getNavigatorName(), JOptionPane.DEFAULT_OPTION,
-                                    JOptionPane.QUESTION_MESSAGE, null, tuo.sources, tuo.sources[0]);
-                            if (opt > -1)
-                            {
-                                path = tuo.sources[opt];
-                            }
-                        }
-                    }
-                    else
+                    String path = guiContext.browser.select(tuo);
+                    if (path == null || path.length() < 1)
                     {
                         JOptionPane.showMessageDialog(guiContext.form, "Cannot create new folder in current location", guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                         return;
@@ -1142,12 +1133,9 @@ public class Navigator
                 {
                     guiContext.preferences.fixApplication(guiContext);
 
-                    //if (showHintTrackingButton)
+                    for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
                     {
-                        for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
-                        {
-                            listener.actionPerformed(new ActionEvent(guiContext.form.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
-                        }
+                        listener.actionPerformed(new ActionEvent(guiContext.form.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
                     }
 
                     String os = Utils.getOS();

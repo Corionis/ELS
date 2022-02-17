@@ -260,6 +260,7 @@ public class MainFrame extends JFrame
         buttonJobs = new JButton();
         comboBoxJobs = new JComboBox<>();
         buttonRun = new JButton();
+        panel1 = new JPanel();
         buttonHintTracking = new JButton();
         panelLocation = new JPanel();
         panelLocationLeft = new JPanel();
@@ -737,13 +738,19 @@ public class MainFrame extends JFrame
                             }
                             panelLocationAndButtons.add(panelBarBrowser, BorderLayout.CENTER);
 
-                            //---- buttonHintTracking ----
-                            buttonHintTracking.setText(bundle.getString("Navigator.buttonHintTracking.text"));
-                            buttonHintTracking.setMnemonic(bundle.getString("Navigator.buttonHintTracking.mnemonic").charAt(0));
-                            buttonHintTracking.setToolTipText("Toggle creating hints based on actions in Collections");
-                            buttonHintTracking.setFocusable(false);
-                            buttonHintTracking.setMargin(new Insets(0, 0, 0, 4));
-                            panelLocationAndButtons.add(buttonHintTracking, BorderLayout.EAST);
+                            //======== panel1 ========
+                            {
+                                panel1.setLayout(new FlowLayout(FlowLayout.RIGHT, 4, 2));
+
+                                //---- buttonHintTracking ----
+                                buttonHintTracking.setText(bundle.getString("Navigator.buttonHintTracking.text"));
+                                buttonHintTracking.setMnemonic(bundle.getString("Navigator.buttonHintTracking.mnemonic").charAt(0));
+                                buttonHintTracking.setToolTipText("Toggle creating hints based on actions in Collections");
+                                buttonHintTracking.setFocusable(false);
+                                buttonHintTracking.setMargin(new Insets(0, 0, 0, 4));
+                                panel1.add(buttonHintTracking);
+                            }
+                            panelLocationAndButtons.add(panel1, BorderLayout.EAST);
 
                             //======== panelLocation ========
                             {
@@ -1048,6 +1055,7 @@ public class MainFrame extends JFrame
                             textAreaLog.setLineWrap(true);
                             textAreaLog.setMinimumSize(new Dimension(0, 0));
                             textAreaLog.setComponentPopupMenu(popupMenuLog);
+                            textAreaLog.setVerifyInputWhenFocusTarget(false);
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(bundle.getString("Navigator.scrollPaneLog.tab.title"), scrollPaneLog);
@@ -1260,6 +1268,7 @@ public class MainFrame extends JFrame
     public JButton buttonJobs;
     public JComboBox<String> comboBoxJobs;
     public JButton buttonRun;
+    public JPanel panel1;
     public JButton buttonHintTracking;
     public JPanel panelLocation;
     public JPanel panelLocationLeft;
