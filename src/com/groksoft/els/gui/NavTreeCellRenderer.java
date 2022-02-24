@@ -1,15 +1,23 @@
 package com.groksoft.els.gui;
 
+import com.groksoft.els.Configuration;
+
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
-import java.awt.event.MouseEvent;
 
 /**
  * Tree Cell Renderer class for System tree
  */
 public class NavTreeCellRenderer extends DefaultTreeCellRenderer
 {
+    Configuration cfg;
+    
+    public NavTreeCellRenderer(Configuration config)
+    {
+        cfg = config;
+    }
+
     @Override
     public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus)
     {
@@ -29,11 +37,11 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         break;
                     case NavTreeUserObject.COLLECTION:
                         setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
-                        setToolTipText((tuo.isRemote ? "Remote" : "Local"));
+                        setToolTipText((tuo.isRemote ? cfg.gs("NavTreeNode.remote") : cfg.gs("NavTreeNode.local")));
                         break;
                     case NavTreeUserObject.COMPUTER:
                         setIcon(UIManager.getIcon("FileView.computerIcon"));
-                        setToolTipText((tuo.isRemote ? "Remote" : "Local"));
+                        setToolTipText((tuo.isRemote ? cfg.gs("NavTreeNode.remote") : cfg.gs("NavTreeNode.local")));
                         break;
                     case NavTreeUserObject.DRIVE:
                         setIcon(UIManager.getIcon("FileView.hardDriveIcon"));
@@ -45,7 +53,7 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         break;
                     case NavTreeUserObject.LIBRARY:
                         setIcon(UIManager.getIcon("FileView.directoryIcon"));
-                        setToolTipText(tuo.sources.length + ((tuo.sources.length == 1) ? " source" : " sources"));
+                        setToolTipText(tuo.sources.length + (tuo.sources.length == 1 ? cfg.gs("NavTreeNode.source") : cfg.gs("NavTreeNode.sources")));
                         break;
                     case NavTreeUserObject.REAL:
                         setToolTipText(tuo.path);

@@ -9,6 +9,7 @@ new FormModel {
 	root: new FormRoot {
 		auxiliary() {
 			"JavaCodeGenerator.defaultVariableModifiers": 1
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.navigator.bundle()"
 		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.FlowLayout ) {
 			"alignOnBaseline": true

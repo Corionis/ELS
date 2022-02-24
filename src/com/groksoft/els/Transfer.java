@@ -1,5 +1,6 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavTreeUserObject;
 import com.groksoft.els.repository.*;
 import com.groksoft.els.storage.Storage;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +33,7 @@ public class Transfer
     private long grandTotalItems = 0L;
     private long grandTotalOriginalLocation = 0L;
     private long grandTotalSize = 0L;
+    private GuiContext guiContext = null;
     private boolean isInitialized = false;
     private String lastGroupName = "";
     private int movedDirectories = 0;
@@ -42,7 +45,7 @@ public class Transfer
     private boolean toIsNew = false;
 
     /**
-     * Constructor
+     * Constructor with fixed en_US locale
      *
      * @param config Configuration
      * @param ctx    Context
@@ -51,6 +54,20 @@ public class Transfer
     {
         cfg = config;
         context = ctx;
+    }
+
+    /**
+     * Constructor for Navigator with selectable locale
+     *
+     * @param config Configuration
+     * @param ctx    Context
+     * @param gtxt   GuiContext
+     */
+    public Transfer(Configuration config, Context ctx, GuiContext gtxt)
+    {
+        cfg = config;
+        context = ctx;
+        guiContext = gtxt;
     }
 
     /**
@@ -101,7 +118,7 @@ public class Transfer
         String response = "";
         if (!cfg.isTargetsEnabled())
         {
-            throw new MungeException("-t or -T target is required for this operation");
+            throw new MungeException(cfg.gs("Transfer.t.target.is.required.for.this.operation"));
         }
 
         if (group.size() > 0)
@@ -112,7 +129,7 @@ public class Transfer
                 {
                     // -D Dry run option
                     ++copyCount;
-                    logger.info("  > Would copy #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath());
+                    logger.info("  > " + cfg.gs("Transfer.would.copy") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath());
                 }
                 else
                 {
@@ -125,7 +142,8 @@ public class Transfer
                         String to = targetPath + context.subscriberRepo.getWriteSeparator();
                         to += context.publisherRepo.normalizePath(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
 
-                        String msg = "  > Copying #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath() + " to " + to;
+                        String msg = "  > " + cfg.gs("Transfer.copying") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) +
+                                ", " + groupItem.getFullPath() + cfg.gs("NavTransferHandler.transfer.file.to") + to;
                         logger.info(msg);
                         response += (msg + "\r\n");
 
@@ -133,8 +151,8 @@ public class Transfer
                     }
                     else
                     {
-                        throw new MungeException("No space on any target location of " + group.get(0).getLibrary() + " for " +
-                                lastGroupName + " that is " + Utils.formatLong(totalSize, false));
+                        throw new MungeException(MessageFormat.format(cfg.gs("Transfer.no.space.on.any.target.location"),
+                                group.get(0).getLibrary(), lastGroupName, Utils.formatLong(totalSize, false)));
                     }
                 }
             }
@@ -419,14 +437,14 @@ public class Transfer
                 // check size of item(s) to be copied
                 if (itFits(path, isRemote, size, minimum, target != null))
                 {
-                    logger.info("Using original storage location for " + itemPath + " at " + path);
+                    logger.info(MessageFormat.format(cfg.gs("Transfer.using.original.storage.location"), itemPath, path));
                     //
                     // inline return
                     //
                     ++grandTotalOriginalLocation;
                     return path;
                 }
-                logger.info("Original storage location too full for " + itemPath + " " + Utils.formatLong(size, false) + " at " + path);
+                logger.info(MessageFormat.format(cfg.gs("Transfer.original.storage.location.too.full"), itemPath, Utils.formatLong(size, false), path));
                 path = null;
             }
         }
@@ -466,7 +484,7 @@ public class Transfer
         }
         if (notFound)
         {
-            logger.error("No target library match found for library " + library);
+            logger.error(cfg.gs("Transfer.no.target.library.match.found.for.library") + library);
         }
         return path;
     }
@@ -487,20 +505,20 @@ public class Transfer
                 if (context.publisherRepo.getLibraryData().libraries.flavor == null ||
                         context.publisherRepo.getLibraryData().libraries.flavor.length() < 1)
                 {
-                    throw new MungeException("Publisher data incomplete, missing 'flavor'");
+                    throw new MungeException(cfg.gs("Transfer.publisher.data.incomplete.missing.flavor"));
                 }
 
                 if (context.subscriberRepo.getLibraryData().libraries.flavor == null ||
                         context.subscriberRepo.getLibraryData().libraries.flavor.length() < 1)
                 {
-                    throw new MungeException("Subscriber data incomplete, missing 'flavor'");
+                    throw new MungeException(cfg.gs("Transfer.subscriber.data.incomplete.missing.flavor"));
                 }
 
                 // check for opening commands from Subscriber
                 // *** might change cfg options for subscriber and targets that are handled below ***
                 if (context.clientStty.checkBannerCommands())
                 {
-                    logger.info("Received subscriber commands:" + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
+                    logger.info(cfg.gs("Transfer.received.subscriber.commands") + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
                 }
             }
 
@@ -508,7 +526,7 @@ public class Transfer
             {
                 if (cfg.isRemoteSession())
                 {
-                    logger.info("Requesting subscriber library");
+                    logger.info(cfg.gs("Transfer.requesting.subscriber.library"));
                     requestLibrary();
                 }
             }
@@ -554,7 +572,7 @@ public class Transfer
         int i = publisherItem.getItemPath().lastIndexOf(context.publisherRepo.getSeparator());
         if (i < 0)
         {
-            logger.warn("No subdirectory in path : " + publisherItem.getItemPath());
+            logger.warn(cfg.gs("Transfer.no.subdirectory.in.path") + publisherItem.getItemPath());
             return true;
         }
         String path = publisherItem.getItemPath().substring(0, i);
@@ -590,11 +608,8 @@ public class Transfer
             }
         }
 
-        logger.info("Checking " + (hasTarget ? "target location" : "library source") +
-                " for " + (Utils.formatLong(size, false)) +
-                " with minimum " + Utils.formatLong(minimum, false) +
-                " on " + (cfg.isRemoteSession() ? "remote" : "local") +
-                " path " + path + " has " + (Utils.formatLong(space, false)));
+        logger.info(MessageFormat.format(cfg.gs("Transfer.checking"), hasTarget ? 0 : 1, Utils.formatLong(size, false),
+                Utils.formatLong(minimum, false), cfg.isRemoteSession() ? 0 : 1, path) + (Utils.formatLong(space, false)));
 
         if (space > (size + minimum))
         {
@@ -634,13 +649,13 @@ public class Transfer
         Library fromLib = repo.getLibrary(fromLibName);
         if (fromLib == null)
         {
-            logger.info("  ! From library not found: " + fromLibName);
+            logger.info(cfg.gs("Transfer.from.library.not.found") + fromLibName);
             return false;
         }
         Library toLib = repo.getLibrary(toLibName);
         if (toLib == null)
         {
-            logger.info("  ! To library not found: " + toLibName);
+            logger.info(cfg.gs("Transfer.to.library.not.found") + toLibName);
             return false;
         }
 
@@ -692,7 +707,7 @@ public class Transfer
                                 File prevDir = new File(fromItem.getFullPath());
                                 if (Utils.removeDirectoryTree(prevDir))
                                 {
-                                    logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                                    logger.warn(cfg.gs("Transfer.previous.directory.was.not.empty") + fromItem.getFullPath());
                                 }
                                 ++movedDirectories;
                             }
@@ -713,13 +728,13 @@ public class Transfer
             }
             else
             {
-                logger.info("  ! Does not exist (A), skipping: " + fromLibName + "|" + fromName);
+                logger.info(cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
                 ++skippedMissing;
             }
         }
         else
         {
-            logger.info("  ! Does not exist (B), skipping: " + fromLibName + "|" + fromName);
+            logger.info(cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
             ++skippedMissing;
         }
 
@@ -769,8 +784,9 @@ public class Transfer
 
             if (cfg.isDryRun())
             {
-                logger.info("  > Would mv " + (fromItem.isDirectory() ? "directory " : "file ") +
-                        "\"" + fromLib.name + "|" + fromPath + "\" to \"" + toLib.name + "|" + toPath + "\"");
+                logger.info(MessageFormat.format(cfg.gs("Transfer.would.mv.directory.file"), fromItem.isDirectory() ? 0 : 1) +
+                        "\"" + fromLib.name + "|" + fromPath + "\"" + cfg.gs("NavTransferHandler.transfer.file.to") + "\"" +
+                        toLib.name + "|" + toPath + "\"");
                 return false;
             }
 
@@ -778,7 +794,7 @@ public class Transfer
             File toFile = new File(toPath);
             if (toFile.exists())
             {
-                logger.info("  ! Target exists, will overwrite: " + toItem.getFullPath());
+                logger.info(cfg.gs("Transfer.target.exists.will.overwrite") + toItem.getFullPath());
             }
 
             // make sure the parent directories exist
@@ -788,8 +804,9 @@ public class Transfer
                 libAltered = true;
             }
 
-            logger.info("  > mv " + (fromItem.isDirectory() ? "directory " : "file ") +
-                    "\"" + fromLib.name + "|" + fromPath + "\" to \"" + toLib.name + "|" + toPath + "\"");
+            logger.info(MessageFormat.format(cfg.gs("Transfer.mv.directory.file"), fromItem.isDirectory() ? 0 : 1) +
+                    "\"" + fromLib.name + "|" + fromPath + "\"" + cfg.gs("NavTransferHandler.transfer.file.to") + "\"" +
+                    toLib.name + "|" + toPath + "\"");
             Files.move(fromFile.toPath(), toFile.toPath(), REPLACE_EXISTING);
 
             // no exception thrown
@@ -804,7 +821,7 @@ public class Transfer
         }
         else
         {
-            logger.info("  ! Does not exist (C), skipping: " + fromItem.getFullPath());
+            logger.info(cfg.gs("Transfer.does.not.exist.skipping") + fromItem.getFullPath());
             ++skippedMissing;
         }
         return libAltered;
@@ -905,7 +922,7 @@ public class Transfer
         Library fromLib = repo.getLibrary(fromLibName);
         if (fromLib == null)
         {
-            logger.info("  ! From library not found: " + fromLibName);
+            logger.info(cfg.gs("Transfer.from.library.not.found") + fromLibName);
             return false;
         }
 
@@ -925,7 +942,7 @@ public class Transfer
                     {
                         if (cfg.isDryRun())
                         {
-                            logger.info("  > Would rm directory: \"" + fromLibName + "|" + fromItem.getFullPath() + "\"");
+                            logger.info(cfg.gs("Transfer.would.rm.directory") + "\"" + fromLibName + "|" + fromItem.getFullPath() + "\"");
                         }
                         else
                         {
@@ -936,7 +953,7 @@ public class Transfer
                             {
                                 logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
                             }
-                            logger.info("  > rm directory: \"" + fromItem.getFullPath() + "\"");
+                            logger.info(cfg.gs("Transfer.rm.directory") + "\"" + fromItem.getFullPath() + "\"");
                             fromLib.rescanNeeded = true;
                             libAltered = true;
                             ++removedDirectories;
@@ -946,7 +963,7 @@ public class Transfer
                     {
                         if (cfg.isDryRun())
                         {
-                            logger.info("  > Would rm file: " + fromLibName + "|" + fromItem.getFullPath());
+                            logger.info(cfg.gs("Transfer.would.rm.file") + fromLibName + "|" + fromItem.getFullPath());
                         }
                         else
                         {
@@ -954,7 +971,7 @@ public class Transfer
                             File rmFile = new File(rmPath);
                             if (rmFile.delete())
                             {
-                                logger.info("  > rm file: \"" + fromItem.getFullPath() + "\"");
+                                logger.info(cfg.gs("Transfer.rm.file") + "\"" + fromItem.getFullPath() + "\"");
                                 fromLib.rescanNeeded = true;
                                 libAltered = true;
                                 ++removedFiles;
@@ -965,13 +982,13 @@ public class Transfer
             }
             else
             {
-                logger.info("  ! Does not exist (D), skipping: " + fromLibName + "|" + fromName);
+                logger.info(cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
                 ++skippedMissing;
             }
         }
         else
         {
-            logger.info("  ! Does not exist (E), skipping: " + fromLibName + "|" + fromName);
+            logger.info(cfg.gs("Transfer.does.not.exist.skipping") + fromLibName + "|" + fromName);
             ++skippedMissing;
         }
 
@@ -1011,7 +1028,7 @@ public class Transfer
             // request collection data from remote subscriber
             String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "collection");
             if (location == null || location.length() < 1)
-                throw new MungeException("Could not retrieve remote collection file");
+                throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.collection.file"));
             cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
             cfg.setSubscriberCollectionFilename(location);
             context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
@@ -1030,7 +1047,7 @@ public class Transfer
             // request collection data from remote subscriber
             String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "library");
             if (location == null || location.length() < 1)
-                throw new MungeException("Could not retrieve remote library file");
+                throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.library.file"));
             cfg.setSubscriberLibrariesFileName(location);
             cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
             context.subscriberRepo.read(cfg.getSubscriberLibrariesFileName());
@@ -1201,7 +1218,7 @@ public class Transfer
             if (Files.exists(hintFile.toPath()))
             {
                 Files.write(hintFile.toPath(), command.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                logger.info("Updated Hint file " + hintFile.getAbsolutePath());
+                logger.info(cfg.gs("Transfer.updated.hint.file") + hintFile.getAbsolutePath());
                 hintPath = "";
             }
             else
@@ -1219,7 +1236,7 @@ public class Transfer
                 }
                 sb.append(command);
                 Files.write(hintFile.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
-                logger.info("Created Hint file " + hintFile.getAbsolutePath());
+                logger.info(cfg.gs("Transfer.created.hint.file") + hintFile.getAbsolutePath());
             }
         }
         return hintPath;

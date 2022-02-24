@@ -12,12 +12,12 @@ import javax.swing.filechooser.FileSystemView;
 public class GuiContext
 {
     // Base ELS
-    Configuration cfg;
-    Context context;
+    public Configuration cfg;
+    public Context context;
 
     // Navigator-related
-    Navigator navigator;
-    Browser browser;
-    MainFrame form;
-    Preferences preferences;
+    public Navigator navigator;
+    public Browser browser;
+    public MainFrame form;
+    public Preferences preferences;
 }

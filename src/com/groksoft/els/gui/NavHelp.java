@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.net.URL;
-import java.util.*;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -99,7 +98,7 @@ public class NavHelp extends JDialog
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(this.getOwner(), "Error opening publisher library:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getOwner(), guiContext.cfg.gs("NavHelp.error.opening.help.file") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -125,7 +124,6 @@ public class NavHelp extends JDialog
         // @formatter:off
         //
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
         dialogPane = new JPanel();
         contentPanel = new JPanel();
         scrollPane = new JScrollPane();
@@ -134,8 +132,8 @@ public class NavHelp extends JDialog
         okButton = new JButton();
 
         //======== this ========
-        setName("helpDialog");
-        setTitle("ELS Help");
+        setName(guiContext.cfg.gs("NavHelp.this.name"));
+        setTitle(guiContext.cfg.gs("NavHelp.this.title"));
         setMinimumSize(new Dimension(100, 50));
         addWindowListener(new WindowAdapter() {
             @Override
@@ -184,7 +182,9 @@ public class NavHelp extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(bundle.getString("NavHelp.okButton.text_2"));
+                okButton.setText(guiContext.cfg.gs("NavHelp.okButton.text"));
+                okButton.setActionCommand(guiContext.cfg.gs("NavHelp.okButton.text"));
+                okButton.setMnemonic(guiContext.cfg.gs("NavHelp.okButton.mnemonic").charAt(0));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

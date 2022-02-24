@@ -2,6 +2,7 @@ package com.groksoft.els.gui;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.groksoft.els.Configuration;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 
@@ -42,7 +43,7 @@ public class Preferences implements Serializable
     private String lastPublisherOpenPath = "";
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
-    private String locale = "en_US";
+    private String locale = "";
     // The Look 'n Feel, 0-6
     // 0=System default look 'n feel - use for Windows,
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
@@ -64,11 +65,14 @@ public class Preferences implements Serializable
     private int systemTwoDividerLocation = 152; // tracked value
     private int systemTwoNameWidth = 128; // tracked value
     private int systemTwoSizeWidth = 80; // tracked value
+    private transient Configuration cfg;
+
     /**
      * Constructor
      */
-    public Preferences()
+    public Preferences(Configuration config)
     {
+        cfg = config;
     }
 
     public void export(GuiContext guiContext) throws Exception
@@ -107,7 +111,7 @@ public class Preferences implements Serializable
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing file " + getFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Error writing: " + getFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -357,6 +361,8 @@ public class Preferences implements Serializable
 
     public String getLocale()
     {
+        if (locale.length() == 0)
+            locale = cfg.getCurrentFilePart();
         return locale;
     }
 

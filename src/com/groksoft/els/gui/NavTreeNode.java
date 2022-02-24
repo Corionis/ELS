@@ -24,7 +24,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
     private final boolean traceActions = false; // dev-debug
     public SortFoldersBeforeFiles sortFoldersBeforeFiles;
     public SortTreeAlphabetically sortTreeAlphabetically;
-    private GuiContext guiContext;
+    public GuiContext guiContext;
     private boolean loaded = false;
     private transient Logger logger = LogManager.getLogger("applog");
     private JLabel myStatus;
@@ -129,11 +129,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
         {
             if (myTuo.isRemote)
             {
-                guiContext.browser.printLog("Deep scan remote directory " + myTuo.path);
+                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.remote.directory") + myTuo.path);
                 try
                 {
                     Vector listing = guiContext.context.clientSftp.listDirectory(myTuo.path);
-                    logger.info("received " + Utils.formatInteger(listing.size()) + " entries from " + myTuo.path);
+                    logger.info(Utils.formatInteger(listing.size()) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + myTuo.path);
                     for (int i = 0; i < listing.size(); ++i)
                     {
                         ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
@@ -156,7 +156,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Could not retrieve listing from " + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     logger.error(Utils.getStackTrace(e));
                     guiContext.context.fault = true;
@@ -165,9 +165,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
             }
             else
             {
-                guiContext.browser.printLog("Deep scan local directory " + myTuo.file.getAbsolutePath());
+                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.local.directory") + myTuo.file.getAbsolutePath());
                 File[] files = FileSystemView.getFileSystemView().getFiles(myTuo.file.getAbsoluteFile(), false);
-                logger.info("found " + Utils.formatInteger(files.length) + " entries from " + myTuo.file.getAbsoluteFile());
+                logger.info(Utils.formatInteger(files.length) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + myTuo.file.getAbsoluteFile());
                 for (File entry : files)
                 {
                     NavTreeNode node = new NavTreeNode(guiContext, myTree);
@@ -399,12 +399,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         {
                             if (myTuo.isRemote)
                             {
-                                guiContext.browser.printLog("Scanning remote drive " + myTuo.path);
+                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
                                 scanRemote(myTuo.path);
                             }
                             else
                             {
-                                guiContext.browser.printLog("Scanning local drive " + myTuo.path);
+                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
                                 scan(new File(myTuo.path).getAbsoluteFile());
                             }
                         }
@@ -413,7 +413,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         File file = new File(myTuo.path);
                         if (file.isDirectory())
                         {
-                            guiContext.browser.printLog("Scanning home directory " + myTuo.path);
+                            guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
                             scan(file.getAbsoluteFile());
                         }
                         break;
@@ -424,12 +424,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                             {
                                 if (myTuo.isRemote)
                                 {
-                                    guiContext.browser.printLog("Scanning remote library " + path);
+                                    guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.library") + path);
                                     scanRemote(path);
                                 }
                                 else
                                 {
-                                    guiContext.browser.printLog("Scanning local library " + path);
+                                    guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.library") + path);
                                     scan(new File(path).getAbsoluteFile());
                                 }
                             }
@@ -440,12 +440,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         {
                             if (myTuo.isRemote)
                             {
-                                guiContext.browser.printLog("Scanning remote directory " + myTuo.path);
+                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
                                 scanRemote(myTuo.path);
                             }
                             else
                             {
-                                guiContext.browser.printLog("Scanning local directory " + myTuo.file.getAbsolutePath());
+                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
                                 scan(myTuo.file.getAbsoluteFile());
                             }
                         }
@@ -468,7 +468,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Swing worker fault during get of " + ((NavTreeNode) parent).getTreePath().toString() + ", " + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("NavTreeNode.swing.worker.fault.during.get.of") +
+                                    ((NavTreeNode) parent).getTreePath().toString() + ", " +
+                                    guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     logger.error(Utils.getStackTrace(e));
                     guiContext.context.fault = true;
@@ -476,7 +478,8 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 }
 
                 if (traceActions)
-                    guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " + Utils.formatInteger(getChildCount(false, false)) + " node(s)");
+                    guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " +
+                            Utils.formatInteger(getChildCount(false, false)) + " node(s)");
 
                 super.done();
             }
@@ -486,7 +489,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 if (file.isDirectory())
                 {
                     File[] files = FileSystemView.getFileSystemView().getFiles(file, false);
-                    logger.info("found " + Utils.formatInteger(files.length) + " entries from " + file.getAbsolutePath());
+                    logger.info(Utils.formatInteger(files.length) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + file.getAbsolutePath());
                     for (File entry : files)
                     {
                         NavTreeNode node = new NavTreeNode(guiContext, myTree);
@@ -504,7 +507,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 try
                 {
                     Vector listing = guiContext.context.clientSftp.listDirectory(target);
-                    logger.info("received " + Utils.formatInteger(listing.size()) + " entries from " + target);
+                    logger.info(Utils.formatInteger(listing.size()) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + target);
                     for (int i = 0; i < listing.size(); ++i)
                     {
                         ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
@@ -524,7 +527,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 }
                 catch (Exception e)
                 {
-                    String msg = "Could not retrieve listing from " + guiContext.context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
+                    String msg = guiContext.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") + guiContext.context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
                     guiContext.browser.printLog(msg, true);
                     JOptionPane.showMessageDialog(guiContext.form, msg, guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
@@ -538,7 +541,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         if (myStatus != null)
         {
             int count = getChildCount(false, true);
-            myStatus.setText(Utils.formatInteger(count) + " item" + (count != 1 ? "s" : ""));
+            myStatus.setText(Utils.formatInteger(count) + (count > 1 ? guiContext.cfg.gs("NavTreeNode.items") : guiContext.cfg.gs("NavTreeNode.item")));
         }
         NavTreeUserObject tuo = getUserObject();
         if (tuo != null)
@@ -617,7 +620,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
             if (guiContext.preferences.isSortFoldersBeforeFiles())
                 Collections.sort(children, sortFoldersBeforeFiles);
             setAllowsChildren(getUserObject().isDir);
-//            setAllowsChildren(children.size() > 0);
             for (NavTreeNode ntn : children)
             {
                 add(ntn);

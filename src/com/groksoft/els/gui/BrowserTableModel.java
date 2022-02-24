@@ -1,16 +1,20 @@
 package com.groksoft.els.gui;
 
+import com.groksoft.els.Configuration;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class BrowserTableModel extends DefaultTableModel
 {
+    Configuration cfg;
     private boolean initialized = false;
     private NavTreeNode node;
 
-    public BrowserTableModel()
+    public BrowserTableModel(Configuration config)
     {
         super();
+        cfg = config;
     }
 
     @Override
@@ -44,13 +48,13 @@ public class BrowserTableModel extends DefaultTableModel
             case 0:
                 return "";
             case 1:
-                return "Name";
+                return cfg.gs("BrowserTable.column.name");
             case 2:
-                return "Size";
+                return cfg.gs("BrowserTable.column.size");
             case 3:
-                return "Modified";
+                return cfg.gs("BrowserTable.column.modified");
         }
-        return "unknown";
+        return cfg.gs("NavTreeNode.unknown");
     }
 
     public NavTreeNode getNode()
@@ -125,7 +129,7 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
                     case NavTreeUserObject.LIBRARY:
-                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), true) + " items";
+                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), true) + cfg.gs("NavTreeNode.items");
                     case NavTreeUserObject.DRIVE:
                         return null;
                     case NavTreeUserObject.REAL:

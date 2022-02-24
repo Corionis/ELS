@@ -6,6 +6,9 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Configuration class.
@@ -29,9 +32,13 @@ public class Configuration
     private final String NAVIGATOR_NAME = "ELS Navigator";
     private final String PROGRAM_VERSION = "4.0.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
+    // add new locales here
+    public String[] availableLocales = {"en_US"}; // List of built-in locales; TODO: Update locales here
     private String authorizedPassword = "";
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean crossCheck = false;
+    private ResourceBundle currentBundle = null;
+    private String currentFilePart = "";
     private String debugLevel = "debug";
     private boolean dryRun = false;
     private boolean dumpSystem = false;
@@ -99,6 +106,16 @@ public class Configuration
     public void addPublisherLibraryName(String publisherLibraryName)
     {
         this.selectedLibraryNames.add(publisherLibraryName);
+    }
+
+    /**
+     * Return locale bundle
+     *
+     * @return bundle ResourceBundle
+     */
+    public ResourceBundle bundle()
+    {
+        return currentBundle;
     }
 
     /**
@@ -219,6 +236,11 @@ public class Configuration
     public String getConsoleLevel()
     {
         return consoleLevel;
+    }
+
+    public String getCurrentFilePart()
+    {
+        return currentFilePart;
     }
 
     /**
@@ -485,6 +507,16 @@ public class Configuration
     public String getWhatsNewFilename()
     {
         return whatsNewFilename;
+    }
+
+    /**
+     * Return locale bundle string
+     *
+     * @return String from built-in locale
+     */
+    public String gs(String key)
+    {
+        return currentBundle.getString(key);
     }
 
     /**
@@ -795,6 +827,28 @@ public class Configuration
     public boolean isWhatsNewAll()
     {
         return this.whatsNewAll;
+    }
+
+    /**
+     * Load a locale and set current locale bundle
+     * <br/>
+     * Requires the abbreviated language_country part of the locale filename, e.g. en_US.
+     * It must be one of the built-in locale files. If not available en_US is used.
+     *
+     * @param filePart Locale file end
+     */
+    public void loadLocale(String filePart)
+    {
+        if (!currentFilePart.equals(filePart))
+        {
+            // load the language file if available
+            if (!Arrays.asList(availableLocales).contains(filePart))
+            {
+                filePart = "en_US"; // default locale
+            }
+            currentFilePart = filePart;
+            currentBundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + currentFilePart);
+        }
     }
 
     /**
@@ -1158,6 +1212,13 @@ public class Configuration
                     throw new MungeException("Error: unknown option: " + args[index]);
             }
         }
+
+        // attempt to load the language Java started with, default en_US
+        Locale locale = Locale.getDefault();
+        String lang = locale.getLanguage();
+        String country = locale.getCountry();
+        String filePart = lang + "_" + country;
+        loadLocale(filePart);
     }
 
     /**

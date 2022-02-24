@@ -8,7 +8,6 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -19,25 +18,27 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.ResourceBundle;
 
 public class Navigator
 {
     public static GuiContext guiContext;
     public boolean showHintTrackingButton = false;
-    ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
     private transient Logger logger = LogManager.getLogger("applog");
     private boolean quitRemote = false;
 
     // QUESTION:
     //  1. How to organize editing JSON server and targets files with N-libraries with N-sources each?
     //      a. A tree control of JSON nodes and values with add/delete?
-
+    //
+    // QUESTION:
+    //  * Can a Library be added for updating JSON files?
+    //     * Or should skeleton files be used with pull options always enabled?
+    //     * Or both?
+    //
     // TODO:
     //  ! TEST Hints with spread-out files, e.g. TV Show in two locations.
     //  * Display Collection:
@@ -61,13 +62,6 @@ public class Navigator
     //    + allow GUI to be minimized with Progress up
     //    + add Window controls
     //
-    // TODO:
-    //    * Tool-tips in tree
-    //
-    // QUESTION:
-    //  * Can a Library be added for updating JSON files?
-    //     * Or should skeleton files be used with pull options always enabled?
-    //     * Or both?
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -75,7 +69,7 @@ public class Navigator
         guiContext.cfg = config;
         guiContext.context = ctx;
         guiContext.navigator = this;
-        guiContext.preferences = new Preferences();
+        guiContext.preferences = new Preferences(config);
         guiContext.cfg.setLongScale(guiContext.preferences.isBinaryScale());
     }
 
@@ -87,6 +81,7 @@ public class Navigator
     private boolean initialize()
     {
         readPreferences();
+        guiContext.cfg.loadLocale(guiContext.preferences.getLocale());
 
         if (guiContext.cfg.getPublisherCollectionFilename().length() > 0)
         {
@@ -119,7 +114,7 @@ public class Navigator
         }
 
         // setup the needed tools
-        guiContext.context.transfer = new Transfer(guiContext.cfg, guiContext.context);
+        guiContext.context.transfer = new Transfer(guiContext.cfg, guiContext.context, guiContext);
         try
         {
             guiContext.context.transfer.initialize();
@@ -203,10 +198,10 @@ public class Navigator
                     @Override
                     public String getDescription()
                     {
-                        return "ELS Library files (*.json)";
+                        return guiContext.cfg.gs("File.open.publisher.files");
                     }
                 });
-                fc.setDialogTitle("Open ELS Publisher Library");
+                fc.setDialogTitle(guiContext.cfg.gs("File.open.publisher"));
                 fc.setFileHidingEnabled(false);
                 if (guiContext.preferences.getLastPublisherOpenPath().length() > 0)
                 {
@@ -224,24 +219,37 @@ public class Navigator
                 // Workstation/Collection radio button accessory
                 JPanel jp = new JPanel();
                 GridBagLayout layout = new GridBagLayout();
+
                 jp.setLayout(layout);
                 jp.setBackground(UIManager.getColor("TextField.background"));
                 jp.setBorder(guiContext.form.textFieldLocation.getBorder());
 
-                JRadioButton rbCollection = new JRadioButton("Collection");
-                rbCollection.setToolTipText("Running on a media collection (server/back-up)");
+                JLabel lab = new JLabel(guiContext.cfg.gs("File.open.publisher.system.type"));
+
+                JRadioButton rbCollection = new JRadioButton(guiContext.cfg.gs("File.open.publisher.collection.radio"));
+                rbCollection.setToolTipText(guiContext.cfg.gs("File.open.publisher.collection.radio.tooltip"));
                 rbCollection.setSelected(!guiContext.preferences.isLastIsWorkstation());
-                JRadioButton rbWorkstation = new JRadioButton("Workstation");
-                rbWorkstation.setToolTipText("Running on a media workstation");
+
+                JRadioButton rbWorkstation = new JRadioButton(guiContext.cfg.gs("File.open.publisher.workstation.radio"));
+                rbWorkstation.setToolTipText(guiContext.cfg.gs("File.open.publisher.workstation.radio.tooltip"));
                 rbWorkstation.setSelected(guiContext.preferences.isLastIsWorkstation());
+
                 ButtonGroup group = new ButtonGroup();
                 group.add(rbCollection);
                 group.add(rbWorkstation);
+
                 GridBagConstraints gbc = new GridBagConstraints();
-                gbc.insets = new Insets(0, 4, 0, 2);
+                gbc.insets = new Insets(0, 8, 4, 8);
+                gbc.gridx = 0;
+                gbc.gridy = 0;
+                gbc.anchor = GridBagConstraints.WEST;
+                layout.setConstraints(lab, gbc);
+                gbc.gridy = 1;
                 layout.setConstraints(rbCollection, gbc);
-                gbc.insets = new Insets(0, 2, 0, 4);
+                gbc.insets = new Insets(0, 8, 0, 8);
+                gbc.gridy = 2;
                 layout.setConstraints(rbWorkstation, gbc);
+                jp.add(lab);
                 jp.add(rbCollection);
                 jp.add(rbWorkstation);
                 fc.setAccessory(jp);
@@ -257,12 +265,12 @@ public class Navigator
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "File not found: " + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("File.open.error.file.not.found") + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "Select a file only", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("File.open.error.select.a.file.only"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         try
@@ -275,7 +283,7 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "Error opening publisher library:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("File.open.publisher.error.opening.publisher.library") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                     }
@@ -294,7 +302,7 @@ public class Navigator
             {
                 if (guiContext.context.publisherRepo == null)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Please open a Publisher Library first", guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("File.open.subscriber.please.open.a.publisher.library.first"), guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
 
@@ -312,10 +320,10 @@ public class Navigator
                     @Override
                     public String getDescription()
                     {
-                        return "ELS Library files (*.json)";
+                        return guiContext.cfg.gs("File.open.subscriber.files");
                     }
                 });
-                fc.setDialogTitle("Open ELS Subscriber Library");
+                fc.setDialogTitle(guiContext.cfg.gs("File.open.subscriber"));
                 fc.setFileHidingEnabled(false);
                 if (guiContext.preferences.getLastSubscriberOpenPath().length() > 0)
                 {
@@ -336,12 +344,13 @@ public class Navigator
                 jp.setLayout(gb);
                 jp.setBackground(UIManager.getColor("TextField.background"));
                 jp.setBorder(guiContext.form.textFieldLocation.getBorder());
-                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>&nbsp;&nbsp;Remote<br/>Connection&nbsp;&nbsp;</body></html>");
+                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>" +
+                        guiContext.cfg.gs("File.open.subscriber.connection.checkbox") + "</body></html>");
                 cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
-                cbIsRemote.setToolTipText("Be sure an ELS Subscriber Listener (--remote S) is running on the remote system");
+                cbIsRemote.setToolTipText(guiContext.cfg.gs("File.open.subscriber.connection.checkbox.tooltip"));
                 cbIsRemote.setSelected(guiContext.preferences.isLastIsRemote());
                 GridBagConstraints gbc = new GridBagConstraints();
-                gbc.insets = new Insets(0, 0, 0, 4);
+                gbc.insets = new Insets(0, 0, 0, 8);
                 gb.setConstraints(cbIsRemote, gbc);
                 jp.add(cbIsRemote);
                 fc.setAccessory(jp);
@@ -353,7 +362,9 @@ public class Navigator
                     {
                         if (guiContext.cfg.isRemoteSession())
                         {
-                            int r = JOptionPane.showConfirmDialog(guiContext.form, "Close current remote connection?", guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                            int r = JOptionPane.showConfirmDialog(guiContext.form,
+                                    guiContext.cfg.gs("File.open.subscriber.close.current.remote.connection"),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                                 return;
                             try
@@ -373,12 +384,16 @@ public class Navigator
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "File not found: " + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form,
+                                    guiContext.cfg.gs("File.open.error.file.not.found") + file.getName(),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "Select a file only", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form,
+                                    guiContext.cfg.gs("File.open.error.select.a.file.only"),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         try
@@ -408,7 +423,9 @@ public class Navigator
                                 guiContext.context.clientStty = new ClientStty(guiContext.cfg, false, true);
                                 if (!guiContext.context.clientStty.connect(guiContext.context.publisherRepo, guiContext.context.subscriberRepo))
                                 {
-                                    JOptionPane.showMessageDialog(guiContext.form, "Remote subscriber failed to connect", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(guiContext.form,
+                                            guiContext.cfg.gs("File.open.subscriber.remote.subscriber.failed.to.connect"),
+                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     guiContext.cfg.setRemoteType("-");
                                     return;
                                 }
@@ -417,7 +434,9 @@ public class Navigator
                                 guiContext.context.clientSftp = new ClientSftp(guiContext.cfg, guiContext.context.publisherRepo, guiContext.context.subscriberRepo, true);
                                 if (!guiContext.context.clientSftp.startClient())
                                 {
-                                    JOptionPane.showMessageDialog(guiContext.form, "Subscriber sftp failed to connect", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(guiContext.form,
+                                            guiContext.cfg.gs("File.open.subscriber.subscriber.sftp.failed.to.connect"),
+                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     guiContext.cfg.setRemoteType("-");
                                     return;
                                 }
@@ -429,7 +448,9 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "Error opening subscriber library: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form,
+                                    guiContext.cfg.gs("File.open.subscriber.error.opening.subscriber.library") + e.getMessage(),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                     }
@@ -462,10 +483,10 @@ public class Navigator
                     @Override
                     public String getDescription()
                     {
-                        return "ELS Hint Keys (*.keys)";
+                        return guiContext.cfg.gs("File.open.hint.keys.files");
                     }
                 });
-                fc.setDialogTitle("Open ELS Hint Keys");
+                fc.setDialogTitle(guiContext.cfg.gs("File.open.hint.keys"));
                 fc.setFileHidingEnabled(false);
                 if (guiContext.preferences.getLastHintKeysOpenPath().length() > 0)
                 {
@@ -490,12 +511,16 @@ public class Navigator
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "File not found: " + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form,
+                                    guiContext.cfg.gs("File.open.error.file.not.found") + file.getName(),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "Select a file only", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form,
+                                    guiContext.cfg.gs("File.open.error.select.a.file.only"),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         try
@@ -512,7 +537,9 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "Error opening hint keys:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form,
+                                    guiContext.cfg.gs("File.open.hint.keys.error.opening.hint.keys") + e.getMessage(),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                     }
@@ -535,7 +562,9 @@ public class Navigator
                 catch (Exception e)
                 {
                     guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                    JOptionPane.showMessageDialog(guiContext.form, "Error saving layout " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form,
+                            guiContext.cfg.gs("File.save.layout.error.saving.layout") + e.getMessage(),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -591,25 +620,34 @@ public class Navigator
 
                 if (!tooMany)
                 {
+                    // select source in library
                     String path = guiContext.browser.select(tuo);
                     if (path == null || path.length() < 1)
                     {
-                        JOptionPane.showMessageDialog(guiContext.form, "Cannot create new folder in current location", guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(guiContext.form,
+                                guiContext.cfg.gs("Edit.new.folder.cannot.create.new.folder.in.current.location"),
+                                guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    else if (path.equals("_cancelled_"))
+                        return;
 
                     boolean error = false;
                     String reply = "";
                     if (path.length() > 0)
                     {
-                        reply = JOptionPane.showInputDialog(guiContext.form, "New folder for " + path + ": ", guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
+                        reply = JOptionPane.showInputDialog(guiContext.form,
+                                guiContext.cfg.gs("Edit.new.folder.for") + path + ": ",
+                                guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
                         if (reply != null && reply.length() > 0)
                         {
                             NavTreeUserObject createdTuo = null;
                             try
                             {
                                 path = path + Utils.getSeparatorFromPath(path) + reply;
-                                String msg = "Creating " + (tuo.isRemote ? "remote " : "") + "directory " + path;
+                                String msg = guiContext.cfg.gs("Edit.new.folder.creating") +
+                                        (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") + " " : "") +
+                                        guiContext.cfg.gs("Edit.new.folder.directory") + ": " + path;
                                 guiContext.browser.printLog(msg);
 
                                 if (guiContext.context.transfer.makeDirs((tuo.isRemote ? path + Utils.getSeparatorFromPath(path) + "dummyfile.els" : path), true, tuo.isRemote))
@@ -633,14 +671,20 @@ public class Navigator
                                 else
                                 {
                                     error = true;
-                                    guiContext.browser.printLog("Directory not created, check permissions.", true);
-                                    JOptionPane.showMessageDialog(guiContext.form, "Directory not created, check permissions.", guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                                    guiContext.browser.printLog(guiContext.cfg.gs("Edit.new.folder.directory.not.created.check.permissions"), true);
+                                    JOptionPane.showMessageDialog(guiContext.form,
+                                            guiContext.cfg.gs("Edit.new.folder.directory.not.created.check.permissions"),
+                                            guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                                 }
                             }
                             catch (Exception e)
                             {
                                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                                JOptionPane.showMessageDialog(guiContext.form, "Error creating " + (tuo.isRemote ? "remote " : "") + "directory: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form,
+                                        guiContext.cfg.gs("Edit.new.folder.error.creating") +
+                                                (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") + " " : "") +
+                                                guiContext.cfg.gs("Edit.new.folder.directory") + ": "  +
+                                                e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 error = true;
                             }
 
@@ -668,7 +712,9 @@ public class Navigator
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Please select a single destination for a new folder", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form,
+                            guiContext.cfg.gs("Edit.new.folder.please.select.a.single.destination.for.a.new.folder"),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -726,7 +772,9 @@ public class Navigator
                     }
                     else
                     {
-                        JOptionPane.showMessageDialog(guiContext.form, "Cannot rename current location", guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(guiContext.form,
+                                guiContext.cfg.gs("Edit.rename.cannot.rename.current.location"),
+                                guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
@@ -734,7 +782,10 @@ public class Navigator
                     if (path.length() > 0)
                     {
 
-                        Object obj = JOptionPane.showInputDialog(guiContext.form, "Rename " + name + " to: ", guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
+                        Object obj = JOptionPane.showInputDialog(guiContext.form,
+                                guiContext.cfg.gs("Edit.rename.rename") + name + " " +
+                                        guiContext.cfg.gs("Edit.rename.to"),
+                                guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
                                 null, null, reply);
                         reply = (String) obj;
                         if (reply != null && reply.length() > 0)
@@ -762,7 +813,9 @@ public class Navigator
                                 catch (Exception e)
                                 {
                                     logger.error(Utils.getStackTrace(e));
-                                    JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(guiContext.form,
+                                            guiContext.cfg.gs("Navigator.error.writing.hint") + "  " +
+                                                    e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 }
 
                                 guiContext.browser.refreshByObject(tree);
@@ -774,14 +827,20 @@ public class Navigator
                             catch (Exception e)
                             {
                                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                                JOptionPane.showMessageDialog(guiContext.form, "Error renaming " + (tuo.isRemote ? "remote " : "") + name + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form,
+                                        guiContext.cfg.gs("Edit.rename.error.renaming") +
+                                                (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") +
+                                                        " " : "") + name + ": " + e.getMessage(),
+                                        guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Please select a single item to be renamed", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form,
+                            guiContext.cfg.gs("Edit.rename.please.select.a.single.item.to.be.renamed"),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
@@ -1017,25 +1076,9 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavControls dialog = new NavControls(guiContext.form);
-                String text = "";
-                try
-                {
-                    String localized = "controls_" + guiContext.preferences.getLocale() + ".html";
-                    URL url = Thread.currentThread().getContextClassLoader().getResource(localized);
-                    List<String> lines = IoUtils.readAllLines(url);
-                    for (int i = 0; i < lines.size(); ++i)
-                    {
-                        text += lines.get(i) + "\n";
-                    }
-                    dialog.controlsHelpText.setText(text);
-                    dialog.setVisible(true);
-                }
-                catch (Exception e)
-                {
-                    logger.error(Utils.getStackTrace(e));
-                }
-
+                NavHelp dialog = new NavHelp(guiContext.form, guiContext.form, guiContext, guiContext.cfg.gs("Settings.date.format.help.title"), "controls_" + guiContext.preferences.getLocale() + ".html");
+                dialog.setTitle(guiContext.cfg.gs("Navigator.help.controls.title"));
+                dialog.setVisible(true);
             }
         });
 
@@ -1053,7 +1096,7 @@ public class Navigator
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.error.launching.browser"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -1072,7 +1115,7 @@ public class Navigator
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Error launching browser", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.error.launching.browser"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -1128,9 +1171,9 @@ public class Navigator
             @Override
             public void run()
             {
-                logger.info("Initializing Navigator");
                 if (initialize())
                 {
+                    logger.info(guiContext.cfg.gs("Navigator.initialized"));
                     guiContext.preferences.fixApplication(guiContext);
 
                     for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
@@ -1139,10 +1182,10 @@ public class Navigator
                     }
 
                     String os = Utils.getOS();
-                    logger.debug("Detected local system as " + os);
-                    guiContext.form.labelStatusMiddle.setText("Detected local system as " + os);
+                    logger.debug(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
+                    guiContext.form.labelStatusMiddle.setText(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
 
-                    logger.info("Displaying Navigator");
+                    logger.info(guiContext.cfg.gs("Navigator.displaying"));
                     guiContext.form.setVisible(true);
                 }
                 else

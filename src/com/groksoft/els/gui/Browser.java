@@ -18,6 +18,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.attribute.FileTime;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
@@ -39,9 +40,8 @@ public class Browser
     public JComponent lastComponent = null;
     public int lastTab = 0;
     public NavTransferHandler navTransferHandler;
-    private ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
-    private GuiContext guiContext;
     public boolean trackingHints = false;
+    private GuiContext guiContext;
     private Color hintTrackingColor;
     private String keyBuffer = "";
     private long keyTime = 0L;
@@ -55,8 +55,8 @@ public class Browser
 
     public Browser(GuiContext gctx)
     {
-        guiContext = gctx;
-        guiContext.browser = this;
+        this.guiContext = gctx;
+        this.guiContext.browser = this;
         initialize();
     }
 
@@ -123,7 +123,7 @@ public class Browser
                             tabStops[3] = 7;
                             break;
                     }
-                    //logger.info("focused on " + name + ", index " + lastFocused + ", panel " + lastPanel);
+
                     NavTreeUserObject tuo = getSelectedUserObject(active);
                     if (tuo != null)
                     {
@@ -195,12 +195,18 @@ public class Browser
                                     }
                                     catch (Exception e)
                                     {
-                                        JOptionPane.showMessageDialog(guiContext.form, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                        JOptionPane.showMessageDialog(guiContext.form,
+                                                guiContext.cfg.gs("Browser.error.launching.item"),
+                                                guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     }
                                 }
                                 else
                                 {
-                                    JOptionPane.showMessageDialog(guiContext.form, "Launch of " + (tuo.isRemote ? "remote " : "") + "items not supported", guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                                    JOptionPane.showMessageDialog(guiContext.form,
+                                            guiContext.cfg.gs("Browser.launch.of") +
+                                                    (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") : "") +
+                                                    guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
+                                            guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                                 }
                             }
                         }
@@ -360,12 +366,18 @@ public class Browser
                             }
                             catch (Exception e)
                             {
-                                JOptionPane.showMessageDialog(guiContext.form, "Error launching item", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form,
+                                        guiContext.cfg.gs("Browser.error.launching.item"),
+                                        guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                         else
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, "Launch of " + (tuo.isRemote ? "remote " : "") + "items not supported", guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form,
+                                    guiContext.cfg.gs("Browser.launch.of") +
+                                            (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") : "") +
+                                            guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                         }
                     }
                 }
@@ -424,7 +436,9 @@ public class Browser
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Cannot delete " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form,
+                            guiContext.cfg.gs("Browser.delete.cannot") + tuo.name,
+                            guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -445,11 +459,12 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowDeleteConfirmation())
             {
-                reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
-                                rows.length + (isRemote ? " remote" : "") + " item" + (rows.length > 1 ? "s" : "") + " containing " +
-                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
-                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
-                                (guiContext.cfg.isDryRun() ? " (dry-run)?" : "?"),
+                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure1"),
+                        rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
@@ -486,13 +501,13 @@ public class Browser
                             catch (Exception e)
                             {
                                 logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
                     else
                     {
-                        guiContext.browser.printLog("Skipping " + tuo.name);
+                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
                 if (!error)
@@ -533,7 +548,7 @@ public class Browser
                 NavTreeUserObject tuo = ntn.getUserObject();
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Cannot delete " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.delete.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -554,11 +569,12 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowDeleteConfirmation())
             {
-                reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to delete " +
-                                paths.length + (isRemote ? " remote" : "") + " item" + (paths.length > 1 ? "s" : "") + " containing " +
-                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
-                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
-                                (guiContext.cfg.isDryRun() ? " (dry-run)?" : "?"),
+                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure1"),
+                        paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
@@ -596,13 +612,13 @@ public class Browser
                             catch (Exception e)
                             {
                                 logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(guiContext.form, "Error writing Hint: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
                     else
                     {
-                        guiContext.browser.printLog("Skipping " + tuo.name);
+                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
                 if (!error)
@@ -848,7 +864,7 @@ public class Browser
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionOne, "--Open a publisher library--", false);
+            setCollectionRoot(guiContext.form.treeCollectionOne, guiContext.cfg.gs("Browser.open.a.publisher"), false);
         }
         //
         // treeCollectionOne tree expansion event handler
@@ -897,7 +913,7 @@ public class Browser
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeSystemOne, "--Open a publisher library--", false);
+            setCollectionRoot(guiContext.form.treeSystemOne, guiContext.cfg.gs("Browser.open.a.publisher"), false);
         }
         //
         // treeSystemOne tree expansion event handler
@@ -981,7 +997,7 @@ public class Browser
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeCollectionTwo, "--Open a subscriber library--", guiContext.cfg.isRemoteSession());
+            setCollectionRoot(guiContext.form.treeCollectionTwo, guiContext.cfg.gs("Browser.open.a.subscriber"), guiContext.cfg.isRemoteSession());
         }
         //
         // treeCollectionTwo tree expansion event handler
@@ -1030,7 +1046,7 @@ public class Browser
         }
         else
         {
-            setCollectionRoot(guiContext.form.treeSystemTwo, "--Open a subscriber library--", guiContext.cfg.isRemoteSession());
+            setCollectionRoot(guiContext.form.treeSystemTwo, guiContext.cfg.gs("Browser.open.a.subscriber"), guiContext.cfg.isRemoteSession());
         }
         //
         // treeSystemTwo tree expansion event handler
@@ -1282,7 +1298,7 @@ public class Browser
         if (isError)
         {
             logger.error(text);
-            guiContext.form.textAreaLog.append("ERROR: " + text + System.getProperty("line.separator"));
+            guiContext.form.textAreaLog.append(guiContext.cfg.gs("Browser.error") + text + System.getProperty("line.separator"));
         }
         else
             printLog(text);
@@ -1305,7 +1321,7 @@ public class Browser
                 "td { text-align:left; }" +
                 "</style>";
         msg += "<body>";
-        msg += "Type: " + tuo.getType() + "<br/>" + System.getProperty("line.separator");
+        msg += guiContext.cfg.gs("Properties.type") + tuo.getType() + "<br/>" + System.getProperty("line.separator");
 
         try
         {
@@ -1314,20 +1330,21 @@ public class Browser
                 case NavTreeUserObject.BOOKMARKS:
                     break;
                 case NavTreeUserObject.COLLECTION:
-                    msg += "Libraries: " + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
+                    msg += guiContext.cfg.gs("Properties.libraries") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.COMPUTER:
-                    msg += "Drives: " + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
+                    msg += guiContext.cfg.gs("Properties.drives") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.DRIVE:
-                    msg += "Free: " + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
+                    msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.HOME:
-                    msg += "Free: " + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
+                    msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.LIBRARY:
                     msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
-                            "<tr><td>Source:</td> <td></td> <td>Free:</td></tr>";
+                            "<tr><td>" + guiContext.cfg.gs("Properties.source") + "</td> <td></td> <td>" +
+                            guiContext.cfg.gs("Properties.free") + "</td></tr>";
                     for (String source : tuo.sources)
                     {
                         String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true);
@@ -1337,9 +1354,8 @@ public class Browser
                     msg += System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.REAL:
-                    msg += "Path: " + tuo.path + "<br/>" + System.getProperty("line.separator");
-                    msg += "Size: " + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
-                    //msg += "isDir: " + tuo.isDir + "<br/>" + System.getProperty("line.separator");
+                    msg += guiContext.cfg.gs("Properties.path") + tuo.path + "<br/>" + System.getProperty("line.separator");
+                    msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
                     if (tuo.path.endsWith(".els"))
                     {
                         String content = guiContext.context.transfer.readTextFile(tuo);
@@ -1365,6 +1381,14 @@ public class Browser
         }
     }
 
+    public void refreshAll()
+    {
+        refreshTree(guiContext.form.treeCollectionOne);
+        refreshTree(guiContext.form.treeSystemOne);
+        refreshTree(guiContext.form.treeCollectionTwo);
+        refreshTree(guiContext.form.treeSystemTwo);
+    }
+
     public void refreshByObject(Object object)
     {
         if (object instanceof JTree)
@@ -1378,14 +1402,6 @@ public class Browser
             JTree sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
             refreshTree(sourceTree);
         }
-    }
-
-    public void refreshAll()
-    {
-        refreshTree(guiContext.form.treeCollectionOne);
-        refreshTree(guiContext.form.treeSystemOne);
-        refreshTree(guiContext.form.treeCollectionTwo);
-        refreshTree(guiContext.form.treeSystemTwo);
     }
 
     public void refreshTree(JTree tree)
@@ -1447,12 +1463,16 @@ public class Browser
                 path = tuo.sources[0];
             else
             {
-                int opt = JOptionPane.showOptionDialog(guiContext.form, "Select one of the " + tuo.sources.length + " locations defined for library " + tuo.name + ":",
+                int opt = JOptionPane.showOptionDialog(guiContext.form, MessageFormat.format(guiContext.cfg.gs("Browser.select.library.source"), tuo.sources.length, tuo.name),
                         guiContext.cfg.getNavigatorName(), JOptionPane.DEFAULT_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, tuo.sources, tuo.sources[0]);
                 if (opt > -1)
                 {
                     path = tuo.sources[opt];
+                }
+                else
+                {
+                    path = "_cancelled_";
                 }
             }
         }
@@ -1466,7 +1486,7 @@ public class Browser
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(guiContext.preferences.isHideFilesInTree());
-        tree.setCellRenderer(new NavTreeCellRenderer());
+        tree.setCellRenderer(new NavTreeCellRenderer(guiContext.cfg));
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
         tree.setLargeModel(true);
@@ -1506,7 +1526,7 @@ public class Browser
 
         // setup new invisible root for Computer, Home & Bookmarks
         NavTreeNode root = new NavTreeNode(guiContext, tree);
-        NavTreeUserObject tuo = new NavTreeUserObject(root, "System", NavTreeUserObject.SYSTEM, remote);
+        NavTreeUserObject tuo = new NavTreeUserObject(root, guiContext.cfg.gs("Browser.system"), NavTreeUserObject.SYSTEM, remote);
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(guiContext.preferences.isHideFilesInTree());
@@ -1514,12 +1534,12 @@ public class Browser
 //        tree.setRootVisible(true);
         tree.setRootVisible(false);
         tree.setLargeModel(true);
-        tree.setCellRenderer(new NavTreeCellRenderer());
+        tree.setCellRenderer(new NavTreeCellRenderer(guiContext.cfg));
         tree.setModel(model);
 
         // add Computer node
         NavTreeNode rootNode = new NavTreeNode(guiContext, tree);
-        tuo = new NavTreeUserObject(rootNode, "Computer", NavTreeUserObject.COMPUTER, remote);
+        tuo = new NavTreeUserObject(rootNode, guiContext.cfg.gs("Browser.computer"), NavTreeUserObject.COMPUTER, remote);
         rootNode.setNavTreeUserObject(tuo);
         root.add(rootNode);
         if (remote && tree.getName().equalsIgnoreCase("treeSystemTwo"))
@@ -1552,7 +1572,7 @@ public class Browser
         {
             // add Home root node
             NavTreeNode homeNode = new NavTreeNode(guiContext, tree);
-            tuo = new NavTreeUserObject(homeNode, "Home", System.getProperty("user.home"), NavTreeUserObject.HOME, false);
+            tuo = new NavTreeUserObject(homeNode, guiContext.cfg.gs("Browser.home"), System.getProperty("user.home"), NavTreeUserObject.HOME, false);
             homeNode.setNavTreeUserObject(tuo);
             root.add(homeNode);
             homeNode.loadChildren(false);
@@ -1577,7 +1597,7 @@ public class Browser
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Cannot touch: " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -1598,11 +1618,12 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowTouchConfirmation())
             {
-                reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to touch " +
-                                rows.length + (isRemote ? " remote" : "") + " item" + (rows.length > 1 ? "s" : "") + " containing " +
-                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
-                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
-                                "?",
+                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure1"),
+                        rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
@@ -1618,14 +1639,14 @@ public class Browser
                             long seconds = guiContext.context.transfer.touch(tuo.path, tuo.isRemote);
                             if (tuo.isRemote)
                             {
-                                tuo.mtime = (int)seconds;
+                                tuo.mtime = (int) seconds;
                             }
                             tuo.fileTime = FileTime.from(seconds, TimeUnit.SECONDS);
                         }
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(guiContext.form, "Error touching: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                         NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
                         if (parent != null)
@@ -1638,7 +1659,7 @@ public class Browser
                     }
                     else
                     {
-                        guiContext.browser.printLog("Skipping " + tuo.name);
+                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
             }
@@ -1661,7 +1682,7 @@ public class Browser
                 NavTreeUserObject tuo = ntn.getUserObject();
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, "Cannot touch: " + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -1682,11 +1703,12 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowTouchConfirmation())
             {
-                reply = JOptionPane.showConfirmDialog(guiContext.form, "Are you sure you want to touch " +
-                                paths.length + (isRemote ? " remote" : "") + " item" + (paths.length > 1 ? "s" : "") + " containing " +
-                                fileCount + " file" + (fileCount > 1 ? "s" : "") + ", " + Utils.formatLong(size, false) +
-                                (dirCount > 0 ? " and the content of " + (dirCount > 1 ? "all directories" : "the directory") : "") +
-                                "?",
+                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure1"),
+                        paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
@@ -1703,14 +1725,14 @@ public class Browser
                             long seconds = guiContext.context.transfer.touch(tuo.path, tuo.isRemote);
                             if (tuo.isRemote)
                             {
-                                tuo.mtime = (int)seconds;
+                                tuo.mtime = (int) seconds;
                             }
                             tuo.fileTime = FileTime.from(seconds, TimeUnit.SECONDS);
                         }
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(guiContext.form, "Error touching: " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                         NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
                         if (parent != null)
@@ -1721,7 +1743,7 @@ public class Browser
                     }
                     else
                     {
-                        guiContext.browser.printLog("Skipping " + tuo.name);
+                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
             }

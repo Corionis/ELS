@@ -7,9 +7,12 @@ new FormModel {
 	"i18n.keyPrefix": "Settings"
 	contentType: "form/swing"
 	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.navigator.bundle()"
+		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
-			"title": "ELS Navigator Settings"
+			"title": new FormMessage( null, "Settings.this.title" )
 			"minimumSize": new java.awt.Dimension( 100, 50 )
 			"name": "settingsDialog"
 			"resizable": false
@@ -70,7 +73,7 @@ new FormModel {
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 							"$horizontalGroup": "par l {seq {space :::p, par l {seq {par l {comp lookFeelLabel::l:p:200:p, comp localeLabel::l:p:200:p, comp scaleLabel::l:p:200:p, seq l {comp dateFormatLabel:::p:96:p, space :::x, comp dateInfoButton:::p::p}}, space :::p, par l {comp lookFeelComboBox::l:p:238:p, comp localeComboBox::l:p:238:p, comp scaleCheckBox::l:p:238:p, comp dateFormatTextField::l:p:238:p}}, seq l {comp hintButtonColorLabel:::p:200:p, space :0:0:x}}, space :::p}}"
-							"$verticalGroup": "par l {seq l {space :1:1:p, par l {seq {comp lookFeelLabel:::p:36:p, space :2:2:p, comp localeLabel:::p:36:p, space :2:2:p, comp scaleLabel:::p:36:p, space :p:1:p, comp dateFormatLabel:::p:36:p}, seq {comp lookFeelComboBox:::p:36:p, space :p:1:p, comp localeComboBox:::p:36:p, space :p:1:p, comp scaleCheckBox:::p:36:p, space :p:1:p, comp dateFormatTextField:::p:36:p}, seq {space :p:114:p, comp dateInfoButton:::p::p}}, space :p:1:p, comp hintButtonColorLabel:::p:36:p, space :::p}}"
+							"$verticalGroup": "par l {seq l {space :0:0:p, par l {seq {comp lookFeelLabel:::p:36:p, space :0:0:p, comp localeLabel:::p:36:p, space :0:0:p, comp scaleLabel:::p:36:p, space :0:0:p, comp dateFormatLabel:::p:36:p}, seq {comp lookFeelComboBox:::p:36:p, space :0:0:p, comp localeComboBox:::p:36:p, space :0:0:p, comp scaleCheckBox:::p:36:p, space :0:0:p, comp dateFormatTextField:::p:36:p}, seq {space :p:114:p, comp dateInfoButton:::p::p}}, space :0:0:p, comp hintButtonColorLabel:::p:36:p, space :::p}}"
 						} ) {
 							name: "apperancePanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
@@ -107,7 +110,7 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JCheckBox" ) {
 								name: "scaleCheckBox"
-								"text": "uncheck for decimal (1000) K"
+								"text": new FormMessage( null, "Settings.scaleCheckBox.text" )
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "dateFormatLabel"
@@ -123,15 +126,15 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "dateInfoButton"
-								"text": "Info"
+								"text": new FormMessage( null, "Settings.dateInfoButton.text" )
 								"toolTipText": "Display date formatting help"
 							} )
 						}, new FormLayoutConstraints( null ) {
-							"title": new FormMessage( null, "Settings.apperancePanel.tab.title" )
+							"title": new FormMessage( null, "Settings.appearance.Panel.tab.title" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 							"$horizontalGroup": "par l {seq {space :::p, par l {comp hideFilesInTreeLabel::l:p:200:p, comp hideHiddenFilesLabel::l:p:200:p, comp sortCaseSensitiveLabel::l:p:200:p, comp sortFoldersBeforeFilesLabel::l:p:200:p, comp sortReverseLabel::l:p:200:p}, space :::p, par l {comp hideFilesInTreeCheckBox::l:p:238:p, comp hideHiddenFilesCheckBox::l:p:238:p, comp sortCaseSensitiveCheckBox::l:p:238:p, comp sortFoldersBeforeFilesCheckBox::l:p:238:p, comp sortReverseCheckBox::l:p:238:p}, space :::p}}"
-							"$verticalGroup": "par l {seq {par l {seq {comp hideFilesInTreeLabel:::p:36:p, space :p:1:p, comp hideHiddenFilesLabel:::p:36:p, space :p:1:p, comp sortCaseSensitiveLabel:::p:36:p, space :p:1:p, comp sortFoldersBeforeFilesLabel:::p:36:p, space :p:1:p, comp sortReverseLabel:::p:36:p}, seq {comp hideFilesInTreeCheckBox:::p:36:p, space :p:1:p, comp hideHiddenFilesCheckBox:::p:36:p, space :p:1:p, comp sortCaseSensitiveCheckBox:::p:36:p, space :p:1:p, comp sortFoldersBeforeFilesCheckBox:::p:36:p, space :p:1:p, comp sortReverseCheckBox:::p:36:p}}, space :p:187:p}}"
+							"$verticalGroup": "par l {seq {par l {seq {comp hideFilesInTreeLabel:::p:36:p, space :0:0:p, comp hideHiddenFilesLabel:::p:36:p, space :0:0:p, comp sortCaseSensitiveLabel:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesLabel:::p:36:p, space :0:0:p, comp sortReverseLabel:::p:36:p}, seq {comp hideFilesInTreeCheckBox:::p:36:p, space :0:0:p, comp hideHiddenFilesCheckBox:::p:36:p, space :0:0:p, comp sortCaseSensitiveCheckBox:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesCheckBox:::p:36:p, space :0:0:p, comp sortReverseCheckBox:::p:36:p}}, space :p:187:p}}"
 						} ) {
 							name: "browserPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {

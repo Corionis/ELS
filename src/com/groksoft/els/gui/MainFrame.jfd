@@ -9,15 +9,16 @@ new FormModel {
 	root: new FormRoot {
 		auxiliary() {
 			"JavaCodeGenerator.defaultVariableModifiers": 1
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.navigator.bundle()"
 		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
 			"minimumSize": new java.awt.Dimension( 100, 100 )
-			"title": "ELS Navigator"
 			"iconImage": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
 			"defaultCloseOperation": 3
 			"locationByPlatform": true
 			"$sizePolicy": 1
+			"title": "ELS Navigator"
 			auxiliary() {
 				"JavaCodeGenerator.variableGetter": true
 			}
@@ -52,13 +53,13 @@ new FormModel {
 									"preferredSize": new java.awt.Dimension( 86, 30 )
 									add( new FormComponent( "javax.swing.JButton" ) {
 										name: "buttonNewFolder"
-										"text": "New ..."
+										"text": new FormMessage( null, "Navigator.newFolder" )
 										"toolTipText": "Create directory"
 										"mnemonic": new FormMessage( null, "Navigator.buttonNewFolder.mnemonic" )
 										"focusable": false
 									} )
 									add( new FormComponent( "javax.swing.JToolBar$Separator" ) {
-										name: "separator8"
+										name: "separatorNewJobs"
 									} )
 									add( new FormComponent( "javax.swing.JButton" ) {
 										name: "buttonJobs"
@@ -88,10 +89,10 @@ new FormModel {
 								} )
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
 									"alignment": 2
-									"hgap": 4
+									"hgap": 2
 									"vgap": 2
 								} ) {
-									name: "panel1"
+									name: "panelHintTracking"
 									add( new FormComponent( "javax.swing.JButton" ) {
 										name: "buttonHintTracking"
 										"text": new FormMessage( null, "Navigator.buttonHintTracking.text" )
@@ -99,6 +100,12 @@ new FormModel {
 										"toolTipText": "Toggle creating hints based on actions in Collections"
 										"focusable": false
 										"margin": new java.awt.Insets( 0, 0, 0, 4 )
+									} )
+									add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+										name: "hSpacerHintTracking"
+										"preferredSize": new java.awt.Dimension( 2, 30 )
+										"minimumSize": new java.awt.Dimension( 2, 30 )
+										"maximumSize": new java.awt.Dimension( 2, 30 )
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "East"
@@ -767,7 +774,7 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRestore"
-						"text": "Restore"
+						"text": new FormMessage( null, "Navigator.menuItemRestore.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemRestore.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2

@@ -69,7 +69,6 @@ public class NavTreeUserObject implements Comparable, Serializable
         {
             this.size = -1L;
         }
-
     }
 
     // A collection of libraries
@@ -191,33 +190,33 @@ public class NavTreeUserObject implements Comparable, Serializable
             case SYSTEM:
                 return this.name;
             default:
-                return "Unknown";
         }
+        return node.guiContext.cfg.gs("NavTreeNode.unknown");
     }
 
     public String getType()
     {
-        String label = (isRemote ? "Remote " : "Local ");
+        String label = (isRemote ? node.guiContext.cfg.gs("NavTreeNode.remote") : node.guiContext.cfg.gs("NavTreeNode.local"));
         switch (type)
         {
             case BOOKMARKS:
-                return label + "Bookmark";
+                return label + node.guiContext.cfg.gs("NavTreeNode.bookmark");
             case COLLECTION:
-                return label + "Collection";
+                return label + node.guiContext.cfg.gs("NavTreeNode.collection");
             case COMPUTER:
-                return label + "Computer";
+                return label + node.guiContext.cfg.gs("NavTreeNode.computer");
             case DRIVE:
-                return label + "Drive";
+                return label + node.guiContext.cfg.gs("NavTreeNode.drive");
             case HOME:
-                return label + "Home";
+                return label + node.guiContext.cfg.gs("NavTreeNode.home");
             case LIBRARY:
-                return label + "Library";
+                return label + node.guiContext.cfg.gs("NavTreeNode.library");
             case REAL:
-                return label + (isDir ? "Directory" : "File");
+                return label + (isDir ? node.guiContext.cfg.gs("NavTreeNode.directory") : node.guiContext.cfg.gs("NavTreeNode.file"));
             case SYSTEM:
-                return label + "System";
+                return label + node.guiContext.cfg.gs("NavTreeNode.system");
             default:
-                return label + "Unknown";
+                return label + node.guiContext.cfg.gs("NavTreeNode.unknown");
         }
     }
 

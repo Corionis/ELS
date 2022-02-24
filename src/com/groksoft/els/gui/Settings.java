@@ -1,6 +1,7 @@
 package com.groksoft.els.gui;
 
 import java.awt.event.*;
+
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -19,8 +19,8 @@ import javax.swing.border.*;
  */
 public class Settings extends JDialog
 {
-    GuiContext guiContext;
     private transient Logger logger = LogManager.getLogger("applog");
+    GuiContext guiContext;
     private NavHelp helpDialog;
     Settings thisDialog;
 
@@ -102,7 +102,7 @@ public class Settings extends JDialog
             {
                 if (helpDialog == null)
                 {
-                    helpDialog = new NavHelp(owner, thisDialog, guiContext, "Date Format Help", "formats_" + guiContext.preferences.getLocale() + ".html");
+                    helpDialog = new NavHelp(owner, thisDialog, guiContext, guiContext.cfg.gs("Settings.date.format.help.title"), "formats_" + guiContext.preferences.getLocale() + ".html");
                 }
                 if (!helpDialog.isVisible())
                 {
@@ -142,7 +142,7 @@ public class Settings extends JDialog
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(settingsDialogPane, "Error changing Look 'n Feel:  " + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(settingsDialogPane, guiContext.cfg.gs("Settings.error.changing.look.n.feel") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -158,8 +158,17 @@ public class Settings extends JDialog
         // appearance
         lookFeelComboBox.setAutoscrolls(true);
         lookFeelComboBox.setSelectedIndex(guiContext.preferences.getLookAndFeel());
-        ComboBoxModel<String> model = localeComboBox.getModel(); // TODO Scan for available locales & populate combobox
+        // locale - add new locales to Preferences.availableLocales
+        ComboBoxModel<String> model = localeComboBox.getModel();
         localeComboBox.setAutoscrolls(true);
+        if (guiContext.cfg.availableLocales.length > 0)
+        {
+            localeComboBox.removeAllItems();
+            for (String loc : guiContext.cfg.availableLocales)
+            {
+                localeComboBox.addItem(loc);
+            }
+        }
         for (int i = 0; i < model.getSize(); ++i)
         {
             String loc = model.getElementAt(i);
@@ -193,10 +202,10 @@ public class Settings extends JDialog
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(guiContext.form, "The date format is not valid", guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Settings.date.format.not.valid"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             settingsTabbedPane.setSelectedIndex(1);
             dateFormatTextField.requestFocus();
-            guiContext.form.labelStatusMiddle.setText("Invalid date format");
+            guiContext.form.labelStatusMiddle.setText(guiContext.cfg.gs("Settings.date.format.not.valid"));
             return false;
         }
 
@@ -249,7 +258,6 @@ public class Settings extends JDialog
         // @formatter:off
         //
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        ResourceBundle bundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle");
         settingsDialogPane = new JPanel();
         settingsContentPanel = new JPanel();
         settingsTabbedPane = new JTabbedPane();
@@ -293,7 +301,7 @@ public class Settings extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
-        setTitle("ELS Navigator Settings");
+        setTitle(guiContext.cfg.gs("Settings.this.title"));
         setMinimumSize(new Dimension(100, 50));
         setName("settingsDialog");
         setResizable(false);
@@ -329,19 +337,19 @@ public class Settings extends JDialog
                     {
 
                         //---- preserveFileTimestampsLabel ----
-                        preserveFileTimestampsLabel.setText(bundle.getString("Settings.preserveFileTimestampsLabel.text"));
+                        preserveFileTimestampsLabel.setText(guiContext.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
 
                         //---- showDeleteConfirmationLabel ----
-                        showDeleteConfirmationLabel.setText(bundle.getString("Settings.showDeleteConfirmationLabel.text"));
+                        showDeleteConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
 
                         //---- showCcpConfirmationLabel ----
-                        showCcpConfirmationLabel.setText(bundle.getString("Settings.showCcpConfirmationLabel.text"));
+                        showCcpConfirmationLabel.setText(guiContext.cfg.gs("Settings.showCcpConfirmationLabel.text"));
 
                         //---- showDndConfirmationLabel ----
-                        showDndConfirmationLabel.setText(bundle.getString("Settings.showDndConfirmationLabel.text"));
+                        showDndConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDndConfirmationLabel.text"));
 
                         //---- showTouchConfirmationLabel ----
-                        showTouchConfirmationLabel.setText(bundle.getString("Settings.showTouchConfirmationLabel.text"));
+                        showTouchConfirmationLabel.setText(guiContext.cfg.gs("Settings.showTouchConfirmationLabel.text"));
 
                         GroupLayout generalPanelLayout = new GroupLayout(generalPanel);
                         generalPanel.setLayout(generalPanelLayout);
@@ -398,17 +406,17 @@ public class Settings extends JDialog
                                     .addContainerGap(195, Short.MAX_VALUE))
                         );
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.generalPanel.tab.title"), generalPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
 
                     //======== apperancePanel ========
                     {
 
                         //---- lookFeelLabel ----
-                        lookFeelLabel.setText(bundle.getString("Settings.lookFeelLabel.text"));
+                        lookFeelLabel.setText(guiContext.cfg.gs("Settings.lookFeelLabel.text"));
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
-                            "System default, use for Windows",
+                            "System default",
                             "Metal",
                             "Nimbus",
                             "Flat light",
@@ -418,7 +426,7 @@ public class Settings extends JDialog
                         }));
 
                         //---- localeLabel ----
-                        localeLabel.setText(bundle.getString("Settings.localeLabel.text"));
+                        localeLabel.setText(guiContext.cfg.gs("Settings.localeLabel.text"));
 
                         //---- localeComboBox ----
                         localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -426,23 +434,23 @@ public class Settings extends JDialog
                         }));
 
                         //---- scaleLabel ----
-                        scaleLabel.setText(bundle.getString("Settings.scaleLabel.text"));
+                        scaleLabel.setText(guiContext.cfg.gs("Settings.scaleLabel.text"));
 
                         //---- scaleCheckBox ----
-                        scaleCheckBox.setText("uncheck for decimal (1000) K");
+                        scaleCheckBox.setText(guiContext.cfg.gs("Settings.scaleCheckBox.text"));
 
                         //---- dateFormatLabel ----
-                        dateFormatLabel.setText(bundle.getString("Settings.dateFormatLabel.text"));
+                        dateFormatLabel.setText(guiContext.cfg.gs("Settings.dateFormatLabel.text"));
 
                         //---- dateFormatTextField ----
                         dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
 
                         //---- hintButtonColorLabel ----
-                        hintButtonColorLabel.setText(bundle.getString("Settings.hintButtonColorLabel.text"));
+                        hintButtonColorLabel.setText(guiContext.cfg.gs("Settings.hintButtonColorLabel.text"));
 
                         //---- dateInfoButton ----
-                        dateInfoButton.setText("Info");
-                        dateInfoButton.setToolTipText("Display date formatting help");
+                        dateInfoButton.setText(guiContext.cfg.gs("Settings.dateInfoButton.text"));
+                        dateInfoButton.setToolTipText(guiContext.cfg.gs("Settings.dateInfoButton.text.tooltip"));
 
                         GroupLayout apperancePanelLayout = new GroupLayout(apperancePanel);
                         apperancePanel.setLayout(apperancePanelLayout);
@@ -474,51 +482,51 @@ public class Settings extends JDialog
                         apperancePanelLayout.setVerticalGroup(
                             apperancePanelLayout.createParallelGroup()
                                 .addGroup(apperancePanelLayout.createSequentialGroup()
-                                    .addGap(1, 1, 1)
+                                    .addGap(0, 0, 0)
                                     .addGroup(apperancePanelLayout.createParallelGroup()
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
                                             .addComponent(lookFeelLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(2, 2, 2)
+                                            .addGap(0, 0, 0)
                                             .addComponent(localeLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(2, 2, 2)
+                                            .addGap(0, 0, 0)
                                             .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(dateFormatLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
                                             .addComponent(lookFeelComboBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
                                             .addGap(114, 114, 114)
                                             .addComponent(dateInfoButton)))
-                                    .addGap(1, 1, 1)
+                                    .addGap(0, 0, 0)
                                     .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                     .addContainerGap())
                         );
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.apperancePanel.tab.title"), apperancePanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.appearance.Panel.tab.title"), apperancePanel);
 
                     //======== browserPanel ========
                     {
 
                         //---- hideFilesInTreeLabel ----
-                        hideFilesInTreeLabel.setText(bundle.getString("Settings.hideFilesInTreeLabel.text"));
+                        hideFilesInTreeLabel.setText(guiContext.cfg.gs("Settings.hideFilesInTreeLabel.text"));
 
                         //---- hideHiddenFilesLabel ----
-                        hideHiddenFilesLabel.setText(bundle.getString("Settings.hideHiddenFilesLabel.text"));
+                        hideHiddenFilesLabel.setText(guiContext.cfg.gs("Settings.hideHiddenFilesLabel.text"));
 
                         //---- sortCaseSensitiveLabel ----
-                        sortCaseSensitiveLabel.setText(bundle.getString("Settings.sortCaseSensitiveLabel.text"));
+                        sortCaseSensitiveLabel.setText(guiContext.cfg.gs("Settings.sortCaseSensitiveLabel.text"));
 
                         //---- sortFoldersBeforeFilesLabel ----
-                        sortFoldersBeforeFilesLabel.setText(bundle.getString("Settings.sortFoldersBeforeFilesLabel.text"));
+                        sortFoldersBeforeFilesLabel.setText(guiContext.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
 
                         //---- sortReverseLabel ----
-                        sortReverseLabel.setText(bundle.getString("Settings.sortReverseLabel.text"));
+                        sortReverseLabel.setText(guiContext.cfg.gs("Settings.sortReverseLabel.text"));
 
                         GroupLayout browserPanelLayout = new GroupLayout(browserPanel);
                         browserPanel.setLayout(browserPanelLayout);
@@ -547,40 +555,40 @@ public class Settings extends JDialog
                                     .addGroup(browserPanelLayout.createParallelGroup()
                                         .addGroup(browserPanelLayout.createSequentialGroup()
                                             .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(browserPanelLayout.createSequentialGroup()
                                             .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(sortCaseSensitiveCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(sortFoldersBeforeFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(1, 1, 1)
+                                            .addGap(0, 0, 0)
                                             .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)))
                                     .addGap(187, 187, 187))
                         );
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.browserPanel.tab.title"), browserPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
 
                     //======== backupPanel ========
                     {
                         backupPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.backupPanel.tab.title"), backupPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.backupPanel.tab.title"), backupPanel);
 
                     //======== librariesPanel ========
                     {
                         librariesPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.librariesPanel.tab.title"), librariesPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.librariesPanel.tab.title"), librariesPanel);
                 }
                 settingsContentPanel.add(settingsTabbedPane);
             }
@@ -594,13 +602,13 @@ public class Settings extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(bundle.getString("Settings.okButton.text"));
+                okButton.setText(guiContext.cfg.gs("Settings.okButton.text"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(bundle.getString("Settings.cancelButton.text"));
+                cancelButton.setText(guiContext.cfg.gs("Settings.cancelButton.text"));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
