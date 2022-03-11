@@ -12,6 +12,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributeView;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
 import java.util.*;
@@ -78,7 +80,7 @@ public class Transfer
      * @param isRemote  true/false
      * @param overwrite true/false
      */
-    public void copyFile(String from, FileTime filetime, String to, boolean isRemote, boolean overwrite) throws Exception
+    public synchronized void copyFile(String from, FileTime filetime, String to, boolean isRemote, boolean overwrite) throws Exception
     {
         if (isRemote)
         {
@@ -312,7 +314,7 @@ public class Transfer
         return removedFiles;
     }
 
-    public Repository getRepo(NavTreeUserObject tuo)
+    public synchronized Repository getRepo(NavTreeUserObject tuo)
     {
         Repository repo = null;
         switch (tuo.node.getMyTree().getName())
@@ -408,7 +410,7 @@ public class Transfer
      * @return the target
      * @throws MungeException the els exception
      */
-    public String getTarget(Repository sourceRepo, String library, long size, Repository targetRepo, boolean isRemote, String itemPath) throws Exception
+    public synchronized String getTarget(Repository sourceRepo, String library, long size, Repository targetRepo, boolean isRemote, String itemPath) throws Exception
     {
         String path = null;
         boolean notFound = true;
@@ -748,7 +750,7 @@ public class Transfer
      * @param to        the full to path
      * @param overwrite true/false
      */
-    public void moveFile(String from, FileTime filetime, String to, boolean overwrite) throws Exception
+    public synchronized void moveFile(String from, FileTime filetime, String to, boolean overwrite) throws Exception
     {
         Path fromPath = Paths.get(from).toRealPath();
         Path toPath = Paths.get(to);
@@ -1099,16 +1101,18 @@ public class Transfer
 
     public long touch(String path, boolean isRemote) throws Exception
     {
-        long seconds = (int) (System.currentTimeMillis() / 1000l);
+        long seconds = System.currentTimeMillis();
         if (isRemote)
         {
-            context.clientSftp.setDate(path, seconds);
+            context.clientSftp.setDate(path, (int) (seconds / 1000l));
         }
         else
         {
-            File touchFile = new File(path);
-            touchFile.setLastModified(seconds);
+            Path file = Paths.get(path);
+            FileTime ft = FileTime.fromMillis(seconds);
+            Files.setLastModifiedTime(file, ft);
         }
+        seconds = seconds / 1000l;
         return seconds;
     }
 

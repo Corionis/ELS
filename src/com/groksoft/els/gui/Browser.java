@@ -49,7 +49,6 @@ public class Browser
     private Stack<NavTreeNode> navStack = new Stack<>();
     private int navStackIndex = -1;
     private String os;
-    private JProgressBar progressBar;
     private int tabStop = 0;
     private int[] tabStops = {0, 1, 4, 5};
 
@@ -326,58 +325,71 @@ public class Browser
                     JTree tree = null;
                     NavTreeUserObject tuo = null;
                     Object object = keyEvent.getSource();
-                    if (object instanceof JTree)
+                    if (object instanceof JTextField)
                     {
-                        tree = (JTree) object;
-                        TreePath[] paths = tree.getSelectionPaths();
-                        if (paths.length > 0)
-                        {
-                            NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
-                            tuo = ntn.getUserObject();
-                        }
-                        else if (paths.length == 0)
-                            return;
-                    }
-                    else if (object instanceof JTable)
-                    {
-                        int[] rows = {0};
-                        tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
-                        rows = ((JTable) object).getSelectedRows();
-                        if (rows.length > 0)
-                        {
-                            tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
-                        }
-                        else if (rows.length == 0)
-                            return;
-                    }
-                    if (tuo.isDir)
-                    {
-                        tree.expandPath(tuo.node.getTreePath());
-                        tree.setSelectionPath(tuo.node.getTreePath());
-                        tree.scrollPathToVisible(tuo.node.getTreePath());
+//                        JTextField field = (JTextField) object;
+//                        if (field.getName() != null && field.getName().equals("location"))
+//                        {
+//                            JOptionPane.showMessageDialog(guiContext.form,
+//                                    "change location",
+//                                    guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+//                        }
                     }
                     else
                     {
-                        if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
+                        if (object instanceof JTree)
                         {
-                            try
+                            tree = (JTree) object;
+                            TreePath[] paths = tree.getSelectionPaths();
+                            if (paths.length > 0)
                             {
-                                Desktop.getDesktop().open(tuo.file);
+                                NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
+                                tuo = ntn.getUserObject();
                             }
-                            catch (Exception e)
+                            else if (paths.length == 0)
+                                return;
+                        }
+                        else if (object instanceof JTable)
+                        {
+                            int[] rows = {0};
+                            tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+                            rows = ((JTable) object).getSelectedRows();
+                            if (rows.length > 0)
                             {
-                                JOptionPane.showMessageDialog(guiContext.form,
-                                        guiContext.cfg.gs("Browser.error.launching.item"),
-                                        guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
                             }
+                            else if (rows.length == 0)
+                                return;
+                        }
+                        if (tuo.isDir)
+                        {
+                            tree.expandPath(tuo.node.getTreePath());
+                            tree.setSelectionPath(tuo.node.getTreePath());
+                            tree.scrollPathToVisible(tuo.node.getTreePath());
                         }
                         else
                         {
-                            JOptionPane.showMessageDialog(guiContext.form,
-                                    guiContext.cfg.gs("Browser.launch.of") +
-                                            (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") : "") +
-                                            guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
-                                    guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                            if (tuo.type == NavTreeUserObject.REAL && !tuo.isRemote)
+                            {
+                                try
+                                {
+                                    Desktop.getDesktop().open(tuo.file);
+                                }
+                                catch (Exception e)
+                                {
+                                    JOptionPane.showMessageDialog(guiContext.form,
+                                            guiContext.cfg.gs("Browser.error.launching.item"),
+                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                            else
+                            {
+                                JOptionPane.showMessageDialog(guiContext.form,
+                                        guiContext.cfg.gs("Browser.launch.of") +
+                                                (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") : "") +
+                                                guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
+                                        guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                            }
                         }
                     }
                 }
@@ -419,6 +431,33 @@ public class Browser
         guiContext.form.tableCollectionTwo.addKeyListener(browserKeyListener);
         guiContext.form.treeSystemTwo.addKeyListener(browserKeyListener);
         guiContext.form.tableSystemTwo.addKeyListener(browserKeyListener);
+
+        // add location text field key listener
+        guiContext.form.textFieldLocation.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyTyped(KeyEvent keyEvent)
+            {
+/*
+                super.keyTyped(keyEvent);
+                if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER)
+                {
+                    JComponent component = getTabComponent(lastTab);
+                    // TODO Not sure if this can be done with the node-based lazy loading
+                    JOptionPane.showMessageDialog(guiContext.form,
+                            "change location Typed",
+                            guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                }
+*/
+            }
+
+            @Override
+            public void keyPressed(KeyEvent keyEvent)
+            {
+
+            }
+        });
+
     }
 
     public void deleteSelected(JTable sourceTable)
@@ -1107,6 +1146,15 @@ public class Browser
                 navForward();
             }
         });
+
+        guiContext.form.buttonUp.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                navUp();
+            }
+        });
     }
 
     private void initializeStatus(JTree tree)
@@ -1247,6 +1295,18 @@ public class Browser
         }
     }
 
+    private void navUp()
+    {
+        NavTreeNode node = navStack.get(navStackIndex);
+        node = (NavTreeNode) node.getParent();
+        if (node != null)
+        {
+            node.selectMyTab();
+            node.selectMe();
+            navStackPush(node);
+        }
+    }
+
     private NavTreeNode navStackPop()
     {
         NavTreeNode node;
@@ -1293,7 +1353,7 @@ public class Browser
         nextComponent.requestFocus();
     }
 
-    public void printLog(String text, boolean isError)
+    public synchronized void printLog(String text, boolean isError)
     {
         if (isError)
         {
@@ -1304,7 +1364,7 @@ public class Browser
             printLog(text);
     }
 
-    public void printLog(String text)
+    public synchronized void printLog(String text)
     {
         logger.info(text);
         guiContext.form.textAreaLog.append(text + System.getProperty("line.separator"));
@@ -1312,7 +1372,7 @@ public class Browser
         guiContext.form.textAreaLog.repaint();
     }
 
-    public void printProperties(NavTreeUserObject tuo)
+    public synchronized void printProperties(NavTreeUserObject tuo)
     {
         guiContext.form.textAreaProperties.setText("");
         String msg = "<html>";
@@ -1345,17 +1405,21 @@ public class Browser
                     msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
                             "<tr><td>" + guiContext.cfg.gs("Properties.source") + "</td> <td></td> <td>" +
                             guiContext.cfg.gs("Properties.free") + "</td></tr>";
+                    if (tuo.isRemote)
+                        guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     for (String source : tuo.sources)
                     {
                         String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true);
                         msg += "<tr><td>" + source + "</td> <td><div>&nbsp;&nbsp;&nbsp;&nbsp;</div></td> <td>" + free + "</td></tr>";
                     }
+                    guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     msg += "</table>";
                     msg += System.getProperty("line.separator");
                     break;
                 case NavTreeUserObject.REAL:
                     msg += guiContext.cfg.gs("Properties.path") + tuo.path + "<br/>" + System.getProperty("line.separator");
-                    msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
+                    if (!tuo.isDir)
+                        msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
                     if (tuo.path.endsWith(".els"))
                     {
                         String content = guiContext.context.transfer.readTextFile(tuo);
@@ -1653,8 +1717,6 @@ public class Browser
                         {
                             DefaultRowSorter sorter = ((DefaultRowSorter) sourceTable.getRowSorter());
                             sorter.sort();
-//                            refreshTree(parent.getMyTree());
-//                            parent.selectMe();
                         }
                     }
                     else

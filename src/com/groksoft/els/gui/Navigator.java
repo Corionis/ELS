@@ -21,7 +21,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalTime;
-import java.util.ResourceBundle;
 
 public class Navigator
 {
@@ -577,12 +576,19 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                quitRemote = true;
-                stop();
+                if (guiContext.form.verifyClose())
+                {
+                    quitRemote = true;
+                    stop();
+                }
             }
         });
         if (!guiContext.cfg.isRemoteSession())
             guiContext.form.menuItemQuitTerminate.setVisible(false);
+
+        //-
+        // Quit
+        // Handled in MainFrame.menuItemFileQuitActionPerformed()
 
         //
         // -- Edit Menu
@@ -973,6 +979,18 @@ public class Navigator
         });
 
         //-
+        // Progress
+        guiContext.form.menuItemProgress.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.progress != null && guiContext.progress.isActive())
+                    guiContext.progress.display();
+            }
+        });
+
+        //-
         // Show Hidden
         guiContext.form.menuItemShowHidden.addActionListener(new AbstractAction()
         {
@@ -1120,6 +1138,18 @@ public class Navigator
             }
         });
 
+        //-
+        // About
+        guiContext.form.menuItemAbout.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                About about = new About(guiContext.form, guiContext);
+                about.setVisible(true);
+            }
+        });
+
         // popup menu log
         //-
         // Bottom
@@ -1187,6 +1217,7 @@ public class Navigator
 
                     logger.info(guiContext.cfg.gs("Navigator.displaying"));
                     guiContext.form.setVisible(true);
+                    guiContext.form.treeCollectionOne.requestFocus();
                 }
                 else
                 {

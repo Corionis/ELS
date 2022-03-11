@@ -1,6 +1,7 @@
 package com.groksoft.els.gui;
 
 import java.awt.event.*;
+import java.util.*;
 
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,7 @@ public class Settings extends JDialog
     private transient Logger logger = LogManager.getLogger("applog");
     GuiContext guiContext;
     private NavHelp helpDialog;
+    Color hintTrackingColor;
     Settings thisDialog;
 
     public Settings(Window owner, GuiContext ctxt)
@@ -127,6 +129,11 @@ public class Settings extends JDialog
     {
         try
         {
+            if (guiContext.browser.trackingHints)
+                guiContext.form.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
+            else
+                guiContext.form.buttonHintTracking.setBackground(hintTrackingColor);
+
             if (index == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
@@ -180,6 +187,8 @@ public class Settings extends JDialog
         }
         scaleCheckBox.setSelected(guiContext.preferences.isBinaryScale());
         dateFormatTextField.setText(guiContext.preferences.getDateFormat());
+        hintTrackingColor = guiContext.form.buttonHintTracking.getBackground();
+        textFieldHintButtonColor.setText(guiContext.preferences.getHintTrackingColor());
 
         // browser
         hideFilesInTreeCheckBox.setSelected(guiContext.preferences.isHideFilesInTree());
@@ -221,6 +230,7 @@ public class Settings extends JDialog
         guiContext.preferences.setLocale((String) localeComboBox.getSelectedItem());
         guiContext.preferences.setBinaryScale(scaleCheckBox.isSelected());
         guiContext.preferences.setDateFormat(dateFormatTextField.getText());
+        guiContext.preferences.setHintTrackingColor(textFieldHintButtonColor.getText());
 
         // browser
         guiContext.preferences.setHideFilesInTree(hideFilesInTreeCheckBox.isSelected());
@@ -252,12 +262,23 @@ public class Settings extends JDialog
             helpDialog.setVisible(false);
     }
 
+    private void chooseColor(ActionEvent e) {
+        Color color = new Color(Integer.parseInt(textFieldHintButtonColor.getText(), 16));
+        color = JColorChooser.showDialog(guiContext.form, "Select Hint Button Color", color);
+        if (color != null)
+        {
+            textFieldHintButtonColor.setText(Integer.toHexString(color.getRed()) + Integer.toHexString(color.getGreen()) + Integer.toHexString(color.getBlue()));
+            guiContext.form.buttonHintTracking.setBackground(color);
+        }
+    }
+
     private void initComponents()
     {
         // <editor-fold desc="Generated component code (Fold)">
         // @formatter:off
         //
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        ResourceBundle bundle = guiContext.cfg.bundle();
         settingsDialogPane = new JPanel();
         settingsContentPanel = new JPanel();
         settingsTabbedPane = new JTabbedPane();
@@ -283,6 +304,8 @@ public class Settings extends JDialog
         dateFormatTextField = new JTextField();
         hintButtonColorLabel = new JLabel();
         dateInfoButton = new JButton();
+        textFieldHintButtonColor = new JTextField();
+        buttonChooseColor = new JButton();
         browserPanel = new JPanel();
         hideFilesInTreeLabel = new JLabel();
         hideFilesInTreeCheckBox = new JCheckBox();
@@ -301,7 +324,7 @@ public class Settings extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
-        setTitle(guiContext.cfg.gs("Settings.this.title"));
+        setTitle(bundle.getString("Settings.this.title"));
         setMinimumSize(new Dimension(100, 50));
         setName("settingsDialog");
         setResizable(false);
@@ -337,19 +360,19 @@ public class Settings extends JDialog
                     {
 
                         //---- preserveFileTimestampsLabel ----
-                        preserveFileTimestampsLabel.setText(guiContext.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
+                        preserveFileTimestampsLabel.setText(bundle.getString("Settings.preserveFileTimestampsLabel.text"));
 
                         //---- showDeleteConfirmationLabel ----
-                        showDeleteConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
+                        showDeleteConfirmationLabel.setText(bundle.getString("Settings.showDeleteConfirmationLabel.text"));
 
                         //---- showCcpConfirmationLabel ----
-                        showCcpConfirmationLabel.setText(guiContext.cfg.gs("Settings.showCcpConfirmationLabel.text"));
+                        showCcpConfirmationLabel.setText(bundle.getString("Settings.showCcpConfirmationLabel.text"));
 
                         //---- showDndConfirmationLabel ----
-                        showDndConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDndConfirmationLabel.text"));
+                        showDndConfirmationLabel.setText(bundle.getString("Settings.showDndConfirmationLabel.text"));
 
                         //---- showTouchConfirmationLabel ----
-                        showTouchConfirmationLabel.setText(guiContext.cfg.gs("Settings.showTouchConfirmationLabel.text"));
+                        showTouchConfirmationLabel.setText(bundle.getString("Settings.showTouchConfirmationLabel.text"));
 
                         GroupLayout generalPanelLayout = new GroupLayout(generalPanel);
                         generalPanel.setLayout(generalPanelLayout);
@@ -406,17 +429,17 @@ public class Settings extends JDialog
                                     .addContainerGap(195, Short.MAX_VALUE))
                         );
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.generalPanel.tab.title"), generalPanel);
 
                     //======== apperancePanel ========
                     {
 
                         //---- lookFeelLabel ----
-                        lookFeelLabel.setText(guiContext.cfg.gs("Settings.lookFeelLabel.text"));
+                        lookFeelLabel.setText(bundle.getString("Settings.lookFeelLabel.text"));
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
-                            "System default",
+                            "System default, use for Windows",
                             "Metal",
                             "Nimbus",
                             "Flat light",
@@ -426,7 +449,7 @@ public class Settings extends JDialog
                         }));
 
                         //---- localeLabel ----
-                        localeLabel.setText(guiContext.cfg.gs("Settings.localeLabel.text"));
+                        localeLabel.setText(bundle.getString("Settings.localeLabel.text"));
 
                         //---- localeComboBox ----
                         localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -434,23 +457,31 @@ public class Settings extends JDialog
                         }));
 
                         //---- scaleLabel ----
-                        scaleLabel.setText(guiContext.cfg.gs("Settings.scaleLabel.text"));
+                        scaleLabel.setText(bundle.getString("Settings.scaleLabel.text"));
 
                         //---- scaleCheckBox ----
-                        scaleCheckBox.setText(guiContext.cfg.gs("Settings.scaleCheckBox.text"));
+                        scaleCheckBox.setText(bundle.getString("Settings.scaleCheckBox.text"));
 
                         //---- dateFormatLabel ----
-                        dateFormatLabel.setText(guiContext.cfg.gs("Settings.dateFormatLabel.text"));
+                        dateFormatLabel.setText(bundle.getString("Settings.dateFormatLabel.text"));
 
                         //---- dateFormatTextField ----
                         dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
 
                         //---- hintButtonColorLabel ----
-                        hintButtonColorLabel.setText(guiContext.cfg.gs("Settings.hintButtonColorLabel.text"));
+                        hintButtonColorLabel.setText(bundle.getString("Settings.hintButtonColorLabel.text"));
 
                         //---- dateInfoButton ----
-                        dateInfoButton.setText(guiContext.cfg.gs("Settings.dateInfoButton.text"));
-                        dateInfoButton.setToolTipText(guiContext.cfg.gs("Settings.dateInfoButton.text.tooltip"));
+                        dateInfoButton.setText(bundle.getString("Settings.dateInfoButton.text"));
+                        dateInfoButton.setToolTipText(bundle.getString("Settings.dateInfoButton.text.tooltip"));
+
+                        //---- textFieldHintButtonColor ----
+                        textFieldHintButtonColor.setToolTipText(bundle.getString("Settings.textFieldHintButtonColor.toolTipText"));
+
+                        //---- buttonChooseColor ----
+                        buttonChooseColor.setText(bundle.getString("Settings.buttonChooseColor.text"));
+                        buttonChooseColor.setToolTipText(bundle.getString("Settings.buttonChooseColor.toolTipText"));
+                        buttonChooseColor.addActionListener(e -> chooseColor(e));
 
                         GroupLayout apperancePanelLayout = new GroupLayout(apperancePanel);
                         apperancePanel.setLayout(apperancePanelLayout);
@@ -476,6 +507,10 @@ public class Settings extends JDialog
                                                 .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
                                             .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(textFieldHintButtonColor, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+                                            .addComponent(buttonChooseColor)
                                             .addGap(0, 0, Short.MAX_VALUE)))
                                     .addContainerGap())
                         );
@@ -504,29 +539,32 @@ public class Settings extends JDialog
                                             .addGap(114, 114, 114)
                                             .addComponent(dateInfoButton)))
                                     .addGap(0, 0, 0)
-                                    .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(apperancePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(buttonChooseColor)
+                                        .addComponent(textFieldHintButtonColor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                     .addContainerGap())
                         );
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.appearance.Panel.tab.title"), apperancePanel);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.appearance.Panel.tab.title"), apperancePanel);
 
                     //======== browserPanel ========
                     {
 
                         //---- hideFilesInTreeLabel ----
-                        hideFilesInTreeLabel.setText(guiContext.cfg.gs("Settings.hideFilesInTreeLabel.text"));
+                        hideFilesInTreeLabel.setText(bundle.getString("Settings.hideFilesInTreeLabel.text"));
 
                         //---- hideHiddenFilesLabel ----
-                        hideHiddenFilesLabel.setText(guiContext.cfg.gs("Settings.hideHiddenFilesLabel.text"));
+                        hideHiddenFilesLabel.setText(bundle.getString("Settings.hideHiddenFilesLabel.text"));
 
                         //---- sortCaseSensitiveLabel ----
-                        sortCaseSensitiveLabel.setText(guiContext.cfg.gs("Settings.sortCaseSensitiveLabel.text"));
+                        sortCaseSensitiveLabel.setText(bundle.getString("Settings.sortCaseSensitiveLabel.text"));
 
                         //---- sortFoldersBeforeFilesLabel ----
-                        sortFoldersBeforeFilesLabel.setText(guiContext.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
+                        sortFoldersBeforeFilesLabel.setText(bundle.getString("Settings.sortFoldersBeforeFilesLabel.text"));
 
                         //---- sortReverseLabel ----
-                        sortReverseLabel.setText(guiContext.cfg.gs("Settings.sortReverseLabel.text"));
+                        sortReverseLabel.setText(bundle.getString("Settings.sortReverseLabel.text"));
 
                         GroupLayout browserPanelLayout = new GroupLayout(browserPanel);
                         browserPanel.setLayout(browserPanelLayout);
@@ -576,19 +614,19 @@ public class Settings extends JDialog
                                     .addGap(187, 187, 187))
                         );
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.browserPanel.tab.title"), browserPanel);
 
                     //======== backupPanel ========
                     {
                         backupPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.backupPanel.tab.title"), backupPanel);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.backupPanel.tab.title"), backupPanel);
 
                     //======== librariesPanel ========
                     {
                         librariesPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.librariesPanel.tab.title"), librariesPanel);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.librariesPanel.tab.title"), librariesPanel);
                 }
                 settingsContentPanel.add(settingsTabbedPane);
             }
@@ -602,13 +640,13 @@ public class Settings extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Settings.okButton.text"));
+                okButton.setText(bundle.getString("Settings.okButton.text"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("Settings.cancelButton.text"));
+                cancelButton.setText(bundle.getString("Settings.cancelButton.text"));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
@@ -653,6 +691,8 @@ public class Settings extends JDialog
     private JTextField dateFormatTextField;
     private JLabel hintButtonColorLabel;
     private JButton dateInfoButton;
+    private JTextField textFieldHintButtonColor;
+    private JButton buttonChooseColor;
     private JPanel browserPanel;
     private JLabel hideFilesInTreeLabel;
     private JCheckBox hideFilesInTreeCheckBox;

@@ -2,6 +2,7 @@ package com.groksoft.els;
 
 import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.repository.HintKeys;
+import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
@@ -82,6 +83,13 @@ public class Main
                 context.datastore.initialize();
             }
         }
+        else
+            // Validate ELS hints keys if specified
+            if (cfg.getHintKeysFile().length() > 0) // v3.0.0
+            {
+                context.hintKeys = new HintKeys(cfg, context);
+                context.hintKeys.read(cfg.getHintKeysFile());
+            }
     }
 
     /**

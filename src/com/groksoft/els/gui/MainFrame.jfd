@@ -9,13 +9,13 @@ new FormModel {
 	root: new FormRoot {
 		auxiliary() {
 			"JavaCodeGenerator.defaultVariableModifiers": 1
-			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.navigator.bundle()"
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.cfg.bundle()"
 		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
 			"minimumSize": new java.awt.Dimension( 100, 100 )
 			"iconImage": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
-			"defaultCloseOperation": 3
+			"defaultCloseOperation": 0
 			"locationByPlatform": true
 			"$sizePolicy": 1
 			"title": "ELS Navigator"
@@ -42,6 +42,8 @@ new FormModel {
 							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 								name: "panelLocationAndButtons"
 								"focusable": false
+								"preferredSize": new java.awt.Dimension( 952, 64 )
+								"minimumSize": new java.awt.Dimension( 219, 64 )
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
 									"vgap": 2
 									"hgap": 4
@@ -99,13 +101,13 @@ new FormModel {
 										"mnemonic": new FormMessage( null, "Navigator.buttonHintTracking.mnemonic" )
 										"toolTipText": "Toggle creating hints based on actions in Collections"
 										"focusable": false
-										"margin": new java.awt.Insets( 0, 0, 0, 4 )
 									} )
 									add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 										name: "hSpacerHintTracking"
-										"preferredSize": new java.awt.Dimension( 2, 30 )
-										"minimumSize": new java.awt.Dimension( 2, 30 )
-										"maximumSize": new java.awt.Dimension( 2, 30 )
+										"preferredSize": new java.awt.Dimension( 0, 30 )
+										"minimumSize": new java.awt.Dimension( 0, 30 )
+										"maximumSize": new java.awt.Dimension( 0, 30 )
+										"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "East"
@@ -113,13 +115,17 @@ new FormModel {
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 									name: "panelLocation"
 									"focusable": false
+									"preferredSize": new java.awt.Dimension( 952, 34 )
+									"minimumSize": new java.awt.Dimension( 191, 34 )
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-										"$columnSpecs": "0:1.0, 0:1.0, 0:1.0"
-										"$rowSpecs": "0:1.0"
+										"$columnSpecs": "0:1.0, 0:1.0, 0:1.0, 0"
+										"$rowSpecs": "0:1.0, 0"
 										"$alignTop": true
 										"$alignLeft": true
 									} ) {
 										name: "panelLocationLeft"
+										"preferredSize": new java.awt.Dimension( 142, 30 )
+										"minimumSize": new java.awt.Dimension( 142, 30 )
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonBack"
 											"text": "<html>&lt;</html>"
@@ -130,9 +136,10 @@ new FormModel {
 											"actionCommand": "navBack"
 											"focusable": false
 											"defaultCapable": false
+											"horizontalTextPosition": 0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"gridx": 1
 											"insets": new java.awt.Insets( 0, 4, 0, 2 )
+											"gridheight": 2
 										} )
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonForward"
@@ -144,24 +151,48 @@ new FormModel {
 											"actionCommand": "NavForward"
 											"focusable": false
 											"defaultCapable": false
+											"horizontalTextPosition": 0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+											"gridx": 1
+											"insets": new java.awt.Insets( 0, 2, 0, 4 )
+											"gridheight": 2
+										} )
+										add( new FormComponent( "javax.swing.JButton" ) {
+											name: "buttonUp"
+											"text": "^"
+											"maximumSize": new java.awt.Dimension( 36, 30 )
+											"minimumSize": new java.awt.Dimension( 36, 30 )
+											"preferredSize": new java.awt.Dimension( 36, 30 )
+											"toolTipText": new FormMessage( null, "Navigator.buttonUp.toolTipText" )
+											"actionCommand": "NavUp"
+											"focusable": false
+											"defaultCapable": false
+											"horizontalTextPosition": 0
+										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+											"insets": new java.awt.Insets( 0, 4, 0, 2 )
 											"gridx": 2
-											"insets": new java.awt.Insets( 0, 0, 0, 4 )
+											"gridheight": 2
 										} )
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "West"
 									} )
 									add( new FormComponent( "javax.swing.JTextField" ) {
 										name: "textFieldLocation"
-										"preferredSize": new java.awt.Dimension( 850, 30 )
+										"preferredSize": new java.awt.Dimension( 810, 30 )
 										"horizontalAlignment": 2
 										"toolTipText": "Location"
-										"requestFocusEnabled": false
+										"name": "location"
 										"editable": false
-										"focusable": false
-										"enabled": false
+										"maximumSize": new java.awt.Dimension( 2147483647, 30 )
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "Center"
+									} )
+									add( new FormComponent( "javax.swing.JSeparator" ) {
+										name: "separatorLocationRight"
+										"preferredSize": new java.awt.Dimension( 4, 3 )
+										"minimumSize": new java.awt.Dimension( 4, 3 )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "East"
 									} )
 									add( new FormComponent( "javax.swing.JSeparator" ) {
 										name: "separatorSections"
@@ -486,7 +517,7 @@ new FormModel {
 					"gridx": 2
 					"hAlign": 4
 					"weightx": 1.0
-					"insets": new java.awt.Insets( 0, 0, 0, 4 )
+					"insets": new java.awt.Insets( 0, 0, 0, 8 )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
 				"value": "South"
@@ -652,6 +683,14 @@ new FormModel {
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 116, 0, false )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemProgress"
+						"text": new FormMessage( null, "Navigator.menuItemProgress.text" )
+						"horizontalAlignment": 2
+						"mnemonic": new FormMessage( null, "Navigator.menuItemProgress.mnemonic" )
+						"horizontalTextPosition": 2
+						"accelerator": static javax.swing.KeyStroke getKeyStroke( 117, 0, false )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator3"
@@ -830,7 +869,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemAbout.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemAbout.mnemonic" )
 						"horizontalTextPosition": 2
-						"enabled": false
 						"horizontalAlignment": 2
 					} )
 				} )

@@ -238,6 +238,15 @@ public class Utils
         return (sb.toString());
     }
 
+    public static String getFileExtension(String name)
+    {
+        String ext = "";
+        int i = name.lastIndexOf(".");
+        if (i > 0)
+            ext = name.substring(i + 1);
+        return ext;
+    }
+
     /**
      * Get the file separator for the flavor of operating system
      *

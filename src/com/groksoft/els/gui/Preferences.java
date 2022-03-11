@@ -22,6 +22,7 @@ public class Preferences implements Serializable
     private int browserBottomSize = 143; // tracked value
     private int centerDividerLocation = 512; // tracked value
     private int centerDividerOrientation = 1; // tracked value
+    private transient Configuration cfg;
     private int collectionOneDateWidth = 80; // tracked value
     private int collectionOneDividerLocation = 150; // tracked value
     private int collectionOneNameWidth = 128; // tracked value
@@ -50,6 +51,8 @@ public class Preferences implements Serializable
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
     private boolean preserveFileTimes = true;
+    private int progressXpos = -1;
+    private int progressYpos = -1;
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
     private boolean showDnDConfirmation = true;
@@ -65,8 +68,6 @@ public class Preferences implements Serializable
     private int systemTwoDividerLocation = 152; // tracked value
     private int systemTwoNameWidth = 128; // tracked value
     private int systemTwoSizeWidth = 80; // tracked value
-    private transient Configuration cfg;
-
     /**
      * Constructor
      */
@@ -371,6 +372,16 @@ public class Preferences implements Serializable
         return lookAndFeel;
     }
 
+    public int getProgressXpos()
+    {
+        return progressXpos;
+    }
+
+    public int getProgressYpos()
+    {
+        return progressYpos;
+    }
+
     public int getSystemOneDateWidth()
     {
         return systemOneDateWidth;
@@ -629,6 +640,16 @@ public class Preferences implements Serializable
     public void setPreserveFileTimes(boolean preserveFileTimes)
     {
         this.preserveFileTimes = preserveFileTimes;
+    }
+
+    public void setProgressXpos(int progressXpos)
+    {
+        this.progressXpos = progressXpos;
+    }
+
+    public void setProgressYpos(int progressYpos)
+    {
+        this.progressYpos = progressYpos;
     }
 
     public void setShowCcpConfirmation(boolean showCcpConfirmation)

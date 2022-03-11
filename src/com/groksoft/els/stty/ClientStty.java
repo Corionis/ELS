@@ -233,7 +233,7 @@ public class ClientStty
     {
         boolean valid = false;
         String input = Utils.readStream(in, theirKey);
-        if (input.equals("HELO"))
+        if (input != null && input.equals("HELO"))
         {
             Utils.writeStream(out, theirKey, (isTerminal ? "DribNit" : "DribNlt"));
 

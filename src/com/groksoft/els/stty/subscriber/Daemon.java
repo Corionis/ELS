@@ -415,9 +415,8 @@ public class Daemon extends DaemonBase
                             if (t.hasMoreTokens())
                             {
                                 String arg = getNextToken(t);
-                                if (arg.equals("\n"))
-                                    arg = "";
-                                command += " \"" + arg + "\""; // possible arg2
+                                if (!arg.equals("\n"))
+                                    command += " \"" + arg + "\""; // possible arg2
                             }
                             if (filename.length() > 0 && command.length() > 0)
                             {

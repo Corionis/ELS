@@ -227,7 +227,7 @@ public class NavTreeUserObject implements Comparable, Serializable
 
     public boolean isSubscriber()
     {
-        if (node.getMyTree().getName().toLowerCase().contains("two"))
+        if (node.getMyTree().getName().toLowerCase().endsWith("two"))
             return true;
         return false;
     }

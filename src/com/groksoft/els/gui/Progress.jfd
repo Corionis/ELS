@@ -9,18 +9,18 @@ new FormModel {
 	root: new FormRoot {
 		auxiliary() {
 			"JavaCodeGenerator.defaultVariableModifiers": 1
-			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.navigator.bundle()"
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.cfg.bundle()"
 		}
-		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.FlowLayout ) {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.FlowLayout ) {
 			"alignOnBaseline": true
 		} ) {
 			name: "this"
 			"minimumSize": new java.awt.Dimension( 400, 75 )
-			"title": "ELS Progress"
+			"title": new FormMessage( null, "Progress.this.title" )
 			"resizable": false
-			"alwaysOnTop": true
 			"cursor": &Cursor0 new java.awt.Cursor( 3 )
 			"name": "ProgressBox"
+			"$locationPolicy": 2
 			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowActivated", "thisWindowActivated", true ) )
 			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosed", "thisWindowClosed", true ) )
 			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "thisWindowClosing", true ) )

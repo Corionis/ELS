@@ -20,4 +20,5 @@ public class GuiContext
     public Browser browser;
     public MainFrame form;
     public Preferences preferences;
+    public Progress progress;
 }

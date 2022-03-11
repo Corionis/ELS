@@ -9,15 +9,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.Vector;
 
 /**
  * ClientSftp -to- ServerSftp
  * <br/>
  * This implementation uses the Jsch client library:
- * http://www.jcraft.com/jsch/
- * https://epaul.github.io/jsch-documentation/
+ *      http://www.jcraft.com/jsch/
+ *      https://epaul.github.io/jsch-documentation/
  */
 public class ClientSftp
 {
@@ -26,7 +25,6 @@ public class ClientSftp
     private int hostport;
     private Channel jChannel;
     private Session jSession;
-    private ChannelSftp jSftp;
     private JSch jsch;
     private transient Logger logger = LogManager.getLogger("applog");
     private Repository myRepo;
@@ -60,13 +58,17 @@ public class ClientSftp
 
     public synchronized Vector listDirectory(String directory) throws Exception
     {
+        ChannelSftp jSftp = connect();
         Vector listing = jSftp.ls(directory);
+        jSftp.disconnect();
         return listing;
     }
 
     public void get(String source, String dest) throws Exception
     {
+        ChannelSftp jSftp = connect();
         jSftp.get(source, dest);
+        jSftp.disconnect();
     }
 
     /**
@@ -114,7 +116,9 @@ public class ClientSftp
                     continue;
 
                 // try to create next directory segment
+                ChannelSftp jSftp = connect();
                 jSftp.mkdir(whole);
+                jSftp.disconnect();
             }
             catch (SftpException e)
             {
@@ -126,22 +130,44 @@ public class ClientSftp
         return whole;
     }
 
+    private ChannelSftp connect()
+    {
+        ChannelSftp jSftp = null;
+        try
+        {
+            jChannel = jSession.openChannel("sftp");
+            jChannel.connect();
+            jSftp = (ChannelSftp) jChannel;
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+        }
+        return jSftp;
+    }
+
     public void remove(String path, boolean isDir) throws Exception
     {
+        ChannelSftp jSftp = connect();
         if (isDir)
             jSftp.rmdir(path);
         else
             jSftp.rm(path);
+        jSftp.disconnect();
     }
 
     public void rename(String from, String to) throws Exception
     {
+        ChannelSftp jSftp = connect();
         jSftp.rename(from, to);
+        jSftp.disconnect();
     }
 
     public void setDate(String dest, long mtime) throws Exception
     {
+        ChannelSftp jSftp = connect();
         jSftp.setMtime(dest, (int) mtime);
+        jSftp.disconnect();
     }
 
     /**
@@ -164,10 +190,6 @@ public class ClientSftp
             // If this is a remote Navigator session then "keep alive" the connection
             if (cfg.isRemoteSession() && cfg.isNavigator())
                 jSession.setServerAliveInterval(500000);  // Apache Mina sftp server time-out is 600,000 millis
-
-            jChannel = jSession.openChannel("sftp");
-            jChannel.connect();
-            jSftp = (ChannelSftp) jChannel;
         }
         catch (Exception e)
         {
@@ -182,10 +204,10 @@ public class ClientSftp
      */
     public void stopClient()
     {
-        if (jSftp.isConnected())
-        {
-            jSftp.quit();
-        }
+//        if (jSftp.isConnected())
+//        {
+//            jSftp.quit();
+//        }
         logger.debug("Disconnecting sftp: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
         if (jChannel != null)
             jChannel.disconnect();
@@ -207,6 +229,7 @@ public class ClientSftp
         int readOffset = 0;
         long writeOffset = 0L;
 
+        ChannelSftp jSftp = connect();
         String copyDest = dest + ".els-part";
 
         // does the destination already exist?
@@ -260,6 +283,8 @@ public class ClientSftp
 
         // rename .els-part file to original
         jSftp.rename(copyDest, dest);
+
+        jSftp.disconnect();
     }
 
 }

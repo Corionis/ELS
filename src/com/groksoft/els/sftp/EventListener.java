@@ -76,7 +76,7 @@ public class EventListener implements SftpEventListener
     @Override
     public void initialized(ServerSession session, int version) throws IOException
     {
-        logger.debug("event: initialized");
+        //logger.debug("event: initialized");
     }
 
     @Override

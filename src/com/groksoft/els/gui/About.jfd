@@ -1,0 +1,81 @@
+JFDML JFormDesigner: "7.0.5.3.411" Java: "11.0.13" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.groksoft.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "About"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"alwaysOnTop": true
+			"defaultCloseOperation": 2
+			"modalityType": enum java.awt.Dialog$ModalityType APPLICATION_MODAL
+			"resizable": false
+			"title": new FormMessage( null, "About.this.title" )
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosed", "thisWindowClosed", true ) )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"preferredSize": new java.awt.Dimension( 320, 210 )
+				"minimumSize": new java.awt.Dimension( 320, 210 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "contentPanel"
+					"minimumSize": new java.awt.Dimension( 296, 246 )
+					"preferredSize": new java.awt.Dimension( 296, 246 )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelForIcon"
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "West"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelTitle"
+						"text": "ELS - Entertainment Library Synchronizer"
+						"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 2, false )
+						"horizontalTextPosition": 10
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "North"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+						"columns": 1
+						"rows": 3
+						"hgap": 4
+						"vgap": 8
+					} ) {
+						name: "panel1"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelVersion"
+							"text": "Version 4.0.0"
+							"horizontalAlignment": 11
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelBy"
+							"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
+						} )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelBuild"
+							"text": "Built 10 March 2022, 17:45:00 MST"
+							"horizontalAlignment": 11
+							"verticalAlignment": 3
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "East"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 400, 270 )
+		} )
+	}
+}
+

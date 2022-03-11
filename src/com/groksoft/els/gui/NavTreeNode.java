@@ -12,8 +12,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.io.File;
 import java.util.*;
+import java.util.List;
 
 /**
  * NavTreeNode class is a customized DefaultMutableTreeNode
@@ -129,6 +131,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         {
             if (myTuo.isRemote)
             {
+                guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.remote.directory") + myTuo.path);
                 try
                 {
@@ -156,12 +159,14 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 }
                 catch (Exception e)
                 {
+                    guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     logger.error(Utils.getStackTrace(e));
                     guiContext.context.fault = true;
                     guiContext.navigator.stop();
                 }
+                guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
             else
             {
@@ -366,9 +371,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
         // if a fault occurred (to avoid cascading exceptions)
         if (guiContext.context.fault || !isRefresh())
             return;
-
-        //progressBar.setVisible(true);
-        //progressBar.setIndeterminate(true);
 
         SwingWorker<List<NavTreeNode>, Void> worker = new SwingWorker<List<NavTreeNode>, Void>()
         {

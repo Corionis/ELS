@@ -8,7 +8,7 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		auxiliary() {
-			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.navigator.bundle()"
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.cfg.bundle()"
 		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
@@ -72,8 +72,8 @@ new FormModel {
 							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq {space :::p, par l {seq {par l {comp lookFeelLabel::l:p:200:p, comp localeLabel::l:p:200:p, comp scaleLabel::l:p:200:p, seq l {comp dateFormatLabel:::p:96:p, space :::x, comp dateInfoButton:::p::p}}, space :::p, par l {comp lookFeelComboBox::l:p:238:p, comp localeComboBox::l:p:238:p, comp scaleCheckBox::l:p:238:p, comp dateFormatTextField::l:p:238:p}}, seq l {comp hintButtonColorLabel:::p:200:p, space :0:0:x}}, space :::p}}"
-							"$verticalGroup": "par l {seq l {space :0:0:p, par l {seq {comp lookFeelLabel:::p:36:p, space :0:0:p, comp localeLabel:::p:36:p, space :0:0:p, comp scaleLabel:::p:36:p, space :0:0:p, comp dateFormatLabel:::p:36:p}, seq {comp lookFeelComboBox:::p:36:p, space :0:0:p, comp localeComboBox:::p:36:p, space :0:0:p, comp scaleCheckBox:::p:36:p, space :0:0:p, comp dateFormatTextField:::p:36:p}, seq {space :p:114:p, comp dateInfoButton:::p::p}}, space :0:0:p, comp hintButtonColorLabel:::p:36:p, space :::p}}"
+							"$horizontalGroup": "par l {seq {space :::p, par l {seq {par l {comp lookFeelLabel::l:p:200:p, comp localeLabel::l:p:200:p, comp scaleLabel::l:p:200:p, seq l {comp dateFormatLabel:::p:96:p, space :::x, comp dateInfoButton:::p::p}}, space :::p, par l {comp lookFeelComboBox::l:p:238:p, comp localeComboBox::l:p:238:p, comp scaleCheckBox::l:p:238:p, comp dateFormatTextField::l:p:238:p}}, seq l {comp hintButtonColorLabel:::p:200:p, space :::p, comp textFieldHintButtonColor:::p:143:p, space u:::p, comp buttonChooseColor:::p::p, space :0:0:x}}, space :::p}}"
+							"$verticalGroup": "par l {seq l {space :0:0:p, par l {seq {comp lookFeelLabel:::p:36:p, space :0:0:p, comp localeLabel:::p:36:p, space :0:0:p, comp scaleLabel:::p:36:p, space :0:0:p, comp dateFormatLabel:::p:36:p}, seq {comp lookFeelComboBox:::p:36:p, space :0:0:p, comp localeComboBox:::p:36:p, space :0:0:p, comp scaleCheckBox:::p:36:p, space :0:0:p, comp dateFormatTextField:::p:36:p}, seq {space :p:114:p, comp dateInfoButton:::p::p}}, space :0:0:p, par b {comp hintButtonColorLabel::b:p:36:p, comp buttonChooseColor::b:p::p, comp textFieldHintButtonColor::b:p::p}, space :::p}}"
 						} ) {
 							name: "apperancePanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
@@ -127,7 +127,17 @@ new FormModel {
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "dateInfoButton"
 								"text": new FormMessage( null, "Settings.dateInfoButton.text" )
-								"toolTipText": "Display date formatting help"
+								"toolTipText": new FormMessage( null, "Settings.dateInfoButton.text.tooltip" )
+							} )
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "textFieldHintButtonColor"
+								"toolTipText": new FormMessage( null, "Settings.textFieldHintButtonColor.toolTipText" )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonChooseColor"
+								"text": new FormMessage( null, "Settings.buttonChooseColor.text" )
+								"toolTipText": new FormMessage( null, "Settings.buttonChooseColor.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "chooseColor", true ) )
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.appearance.Panel.tab.title" )
@@ -231,3 +241,4 @@ new FormModel {
 		} )
 	}
 }
+
