@@ -18,13 +18,12 @@ public class Item implements Serializable
     private boolean directory = false;
     private boolean symLink = false;
 
+    private transient List<Item> hasList = null;
     private transient boolean hintExecuted = false;
     private transient String itemShortName;
     private transient String itemSubdirectory;
     private transient FileTime modifiedDate;
     private transient boolean reported = false;
-
-    private transient List<Item> hasList = null;
     // @formatter:on
 
     /**

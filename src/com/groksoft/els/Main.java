@@ -13,10 +13,13 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.swing.*;
 import java.io.File;
+import java.net.URL;
 import java.util.Date;
+import java.util.List;
 
 import static com.groksoft.els.Configuration.*;
 
@@ -92,6 +95,25 @@ public class Main
             }
     }
 
+    public String getBuildStamp()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() > 0)
+            {
+                text += lines.get(0);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+        }
+        return text;
+    }
+
     /**
      * Execute the process
      *
@@ -102,7 +124,7 @@ public class Main
     {
         int returnValue = 0;
         ThreadGroup sessionThreads = null;
-        cfg = new Configuration();
+        cfg = new Configuration(context);
         Process proc;
 
         try

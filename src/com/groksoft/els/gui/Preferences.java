@@ -8,6 +8,7 @@ import com.groksoft.els.Utils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -106,6 +107,11 @@ public class Preferences implements Serializable
         json = gson.toJson(this);
         try
         {
+            File f = new File(getFilename());
+            if (f != null)
+            {
+                f.getParentFile().mkdirs();
+            }
             PrintWriter outputStream = new PrintWriter(getFilename());
             outputStream.println(json);
             outputStream.close();
@@ -321,7 +327,8 @@ public class Preferences implements Serializable
 
     public String getFilename()
     {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") + ".els";
+        String path = System.getProperty("user.home") + System.getProperty("file.separator") + ".els"  +
+                System.getProperty("file.separator") + "preferences.json";
         return path;
     }
 

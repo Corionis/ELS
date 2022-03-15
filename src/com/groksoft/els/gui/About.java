@@ -1,19 +1,15 @@
 package com.groksoft.els.gui;
 
 import java.awt.event.*;
-import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.sshd.common.util.io.IoUtils;
 
 import java.awt.*;
-import java.net.URL;
-import java.util.*;
-import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
 
-public class About extends JDialog {
+public class About extends JDialog
+{
     private transient Logger logger = LogManager.getLogger("applog");
     GuiContext guiContext;
     Window parent;
@@ -26,29 +22,11 @@ public class About extends JDialog {
         initComponents();
 
         labelVersion.setText("Version " + guiContext.cfg.getProgramVersion());
-        labelBuild.setText(loadBuildStamp());
+        labelBuild.setText(guiContext.context.main.getBuildStamp());
     }
 
-    private String loadBuildStamp()
+    private void thisWindowClosed(WindowEvent e)
     {
-        String text = "";
-        try
-        {
-            URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
-            List<String> lines = IoUtils.readAllLines(url);
-            if (lines.size() > 0)
-            {
-                text += lines.get(0);
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-        }
-        return text;
-    }
-
-    private void thisWindowClosed(WindowEvent e) {
         parent.requestFocus();
     }
 

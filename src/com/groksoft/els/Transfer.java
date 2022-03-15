@@ -1,7 +1,7 @@
 package com.groksoft.els;
 
 import com.groksoft.els.gui.GuiContext;
-import com.groksoft.els.gui.NavTreeUserObject;
+import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.repository.*;
 import com.groksoft.els.storage.Storage;
 import com.groksoft.els.storage.Target;
@@ -12,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
 import java.util.*;

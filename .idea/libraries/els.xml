@@ -9,6 +9,7 @@
       <root url="jar://$PROJECT_DIR$/lib/sshd-mina-2.5.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/sshd-sftp-2.5.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/jsch-0.1.55.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-io-2.11.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/commons-lang3-3.12.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/flatlaf-1.5.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/log4j-api-2.16.0.jar!/" />

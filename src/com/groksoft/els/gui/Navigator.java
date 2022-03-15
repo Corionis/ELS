@@ -2,6 +2,11 @@ package com.groksoft.els.gui;
 
 import com.google.gson.Gson;
 import com.groksoft.els.*;
+import com.groksoft.els.gui.browser.Browser;
+import com.groksoft.els.gui.browser.NavTransferHandler;
+import com.groksoft.els.gui.browser.NavTreeNode;
+import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.gui.tools.junkremover.JunkRemoverUI;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
@@ -1020,6 +1025,35 @@ public class Navigator
 
         //
         // -- Tools Menu
+        guiContext.form.menuItemJunk.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JunkRemoverUI dialog = new JunkRemoverUI(guiContext.form, guiContext);
+                dialog.setVisible(true);
+/*
+        // TODO For execution - but not here
+
+                Object object = guiContext.browser.lastComponent;
+                if (object instanceof JTree)
+                {
+                    JTree sourceTree = (JTree) object;
+                    // do something with (sourceTree);
+                }
+                else if (object instanceof JTable)
+                {
+                    JTable sourceTable = (JTable) object;
+                    // do something with (sourceTable);
+                }
+
+                // something
+                JunkRemoverTool jrTool = new JunkRemoverTool(guiContext, null);
+                jrTool.process();
+*/
+
+            }
+        });
 
         //
         // -- Window Menu

@@ -5,6 +5,7 @@ import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
+import com.groksoft.els.stty.subscriber.Daemon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -130,7 +131,7 @@ public class ServeStty extends Thread
             }
             else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
+                theConnection = new Connection(aSocket, new Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
             }
             else if (cfg.isStatusServer())
             {

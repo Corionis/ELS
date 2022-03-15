@@ -1,0 +1,162 @@
+JFDML JFormDesigner: "7.0.5.3.411" Java: "11.0.13" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.groksoft.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "JunkRemover"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": new FormMessage( null, "JunkRemover.this.title" )
+			"name": "junkRemoverUI"
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "contentPanel"
+					"preferredSize": new java.awt.Dimension( 640, 500 )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+						name: "panelTop"
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 0
+							"hgap": 2
+							"vgap": 4
+						} ) {
+							name: "panelTopButtons"
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonNew"
+								"text": new FormMessage( null, "JunkRemover.buttonNew.text" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "newClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonCopy"
+								"text": new FormMessage( null, "JunkRemover.buttonCopy.text" )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonDelete"
+								"text": new FormMessage( null, "JunkRemover.buttonDelete.text" )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "Before"
+						} )
+						add( new FormComponent( "javax.swing.JTextField" ) {
+							name: "textFieldName"
+							"preferredSize": new java.awt.Dimension( 280, 30 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "textFieldNameChanged", true ) )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "Center"
+						} )
+						add( new FormComponent( "javax.swing.JSeparator" ) {
+							name: "separatorSections"
+							"preferredSize": new java.awt.Dimension( 0, 3 )
+							"minimumSize": new java.awt.Dimension( 0, 3 )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "South"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "North"
+					} )
+					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
+						name: "splitPaneContent"
+						"dividerLocation": 142
+						"lastDividerLocation": 142
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPaneList"
+							add( new FormComponent( "javax.swing.JList" ) {
+								name: "listItems"
+								"preferredSize": new java.awt.Dimension( 128, 54 )
+								"selectionMode": 0
+								"focusable": false
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "listItemsMouseClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "left"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+							name: "panelOptions"
+							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+								name: "scrollPaneOptions"
+								add( new FormComponent( "javax.swing.JTable" ) {
+									name: "tableJunk"
+									"showVerticalLines": false
+									"name": "tableJunk"
+									"autoCreateRowSorter": true
+									"cellSelectionEnabled": true
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "Center"
+							} )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+								"alignment": 0
+								"vgap": 2
+							} ) {
+								name: "panelOptionsButtons"
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "buttonNewRow"
+									"text": new FormMessage( null, "JunkRemover.buttonNewRow.text" )
+									"font": &SwingDerivedFont0 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
+									"preferredSize": &Dimension0 new java.awt.Dimension( 68, 24 )
+									"minimumSize": &Dimension1 new java.awt.Dimension( 68, 24 )
+									"maximumSize": &Dimension2 new java.awt.Dimension( 68, 24 )
+								} )
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "buttonDeleteRow2"
+									"text": new FormMessage( null, "JunkRemover.buttonDeleteRow2.text" )
+									"font": #SwingDerivedFont0
+									"preferredSize": #Dimension0
+									"minimumSize": #Dimension1
+									"maximumSize": #Dimension2
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "South"
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "right"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80, 80"
+					"$rowSpecs": "0"
+					"$hGap": 5
+					"$vGap": 5
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "doneButton"
+						"text": new FormMessage( null, "JunkRemover.doneButton.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "doneClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 0
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "cancelButton"
+						"text": new FormMessage( null, "JunkRemover.cancelButton.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 640, 500 )
+		} )
+	}
+}

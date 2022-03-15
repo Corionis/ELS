@@ -4,11 +4,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.apache.sshd.common.util.io.IoUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.net.URL;
+import java.util.*;
 
 /**
  * Configuration class.
@@ -35,6 +34,7 @@ public class Configuration
     // add new locales here
     public String[] availableLocales = {"en_US"}; // List of built-in locales; TODO: Update locales here
     private String authorizedPassword = "";
+    private Context context;
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean crossCheck = false;
     private ResourceBundle currentBundle = null;
@@ -81,11 +81,14 @@ public class Configuration
     private boolean validation = false;
     private boolean whatsNewAll = false;
     private String whatsNewFilename = "";
+
+
     /**
      * Instantiates a new Configuration
      */
-    public Configuration()
+    public Configuration(Context ctxt)
     {
+        context = ctxt;
     }
 
     /**
@@ -1165,7 +1168,7 @@ public class Configuration
                     break;
                 case "--version":                                       // version
                     System.out.println("");
-                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION);
+                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION + ", " + context.main.getBuildStamp());
                     System.out.println("See the ELS wiki on GitHub for documentation at:");
                     System.out.println("  https://github.com/GrokSoft/ELS/wiki");
                     System.out.println("");

@@ -63,12 +63,6 @@ new FormModel {
 									add( new FormComponent( "javax.swing.JToolBar$Separator" ) {
 										name: "separatorNewJobs"
 									} )
-									add( new FormComponent( "javax.swing.JButton" ) {
-										name: "buttonJobs"
-										"text": new FormMessage( null, "Navigator.buttonJobs.text" )
-										"enabled": false
-										"toolTipText": "Manage jobs"
-									} )
 									add( new FormComponent( "javax.swing.JComboBox" ) {
 										name: "comboBoxJobs"
 										"model": new javax.swing.DefaultComboBoxModel {
@@ -85,6 +79,11 @@ new FormModel {
 										"text": new FormMessage( null, "Navigator.buttonRun.text" )
 										"enabled": false
 										"toolTipText": "Process selected job"
+									} )
+									add( new FormComponent( "javax.swing.JCheckBox" ) {
+										name: "checkBoxDryRun"
+										"text": new FormMessage( null, "Navigator.checkBoxDryRun.text" )
+										"enabled": false
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "Center"
@@ -746,7 +745,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemJunk.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemJunk.mnemonic" )
 						"horizontalTextPosition": 2
-						"enabled": false
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {

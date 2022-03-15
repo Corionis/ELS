@@ -12,7 +12,7 @@
       <format property="RIGHTNOW" pattern="dd MMMM yyyy, HH:mm zzz" locale="en,US"/>
     </tstamp>
 
-    <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">Built ${RIGHTNOW}</echo>
+    <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
   </target>
 
 </project>

@@ -719,6 +719,17 @@ public class Utils
     }
 
     /**
+     * Scrub invalid filename characters from a filename
+     * @param name Filename to scrub
+     * @return Scrubbed filename, may be the same if there were no invalid characters
+     */
+    public static String scrubFilename(String name)
+    {
+        String scubbed = name.replaceAll("[\\\\/:*?\"<>|]", "");
+        return scubbed;
+    }
+
+    /**
      * Set Utils configuration value for some Utils methods
      * @param c
      */

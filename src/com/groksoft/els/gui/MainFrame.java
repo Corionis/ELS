@@ -6,6 +6,11 @@ import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.groksoft.els.Utils;
+import com.groksoft.els.gui.browser.BrowserTableModel;
+import com.groksoft.els.gui.util.RotatedIcon;
+import com.groksoft.els.gui.util.SmartScroller;
+import com.groksoft.els.gui.util.TextIcon;
+import com.groksoft.els.gui.util.VerticalLabel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -96,13 +101,16 @@ public class MainFrame extends JFrame
             buttonForward.setMnemonic(KeyEvent.VK_RIGHT);
 
             // set Up key and rotate the text
+            // http://www.camick.com/java/source/TextIcon.java
             TextIcon t1 = new TextIcon(buttonUp, ">", TextIcon.Layout.HORIZONTAL);
             buttonUp.setText("");
+            // http://www.camick.com/java/source/RotatedIcon.java
             RotatedIcon r1 = new RotatedIcon(t1, RotatedIcon.Rotate.UP);
             buttonUp.setIcon(r1);
             buttonUp.setMnemonic(KeyEvent.VK_UP);
 
             // add smart scroll to the log
+            // https://tips4java.wordpress.com/2013/03/03/smart-scrolling/
             new SmartScroller(scrollPaneLog);
         }
         catch(Exception ex)
@@ -185,19 +193,19 @@ public class MainFrame extends JFrame
     {
         // change browser tabs orientation to vertical
         JLabel label = new JLabel(guiContext.cfg.gs("Navigator.panelCollectionOne.tab.title"));
-        label.setUI(new VerticalLabelUI(false));
+        label.setUI(new VerticalLabel(false));
         tabbedPaneBrowserOne.setTabComponentAt(0, label);
         //
         label = new JLabel(guiContext.cfg.gs("Navigator.panelSystemOne.tab.title"));
-        label.setUI(new VerticalLabelUI(false));
+        label.setUI(new VerticalLabel(false));
         tabbedPaneBrowserOne.setTabComponentAt(1, label);
 
         label = new JLabel(guiContext.cfg.gs("Navigator.panelCollectionTwo.tab.title"));
-        label.setUI(new VerticalLabelUI(false));
+        label.setUI(new VerticalLabel(false));
         tabbedPaneBrowserTwo.setTabComponentAt(0, label);
         //
         label = new JLabel(guiContext.cfg.gs("Navigator.panelSystemTwo.tab.title"));
-        label.setUI(new VerticalLabelUI(false));
+        label.setUI(new VerticalLabel(false));
         tabbedPaneBrowserTwo.setTabComponentAt(1, label);
     }
 
@@ -287,9 +295,9 @@ public class MainFrame extends JFrame
         panelBarBrowser = new JPanel();
         buttonNewFolder = new JButton();
         separatorNewJobs = new JToolBar.Separator();
-        buttonJobs = new JButton();
         comboBoxJobs = new JComboBox<>();
         buttonRun = new JButton();
+        checkBoxDryRun = new JCheckBox();
         panelHintTracking = new JPanel();
         buttonHintTracking = new JButton();
         hSpacerHintTracking = new JPanel(null);
@@ -586,7 +594,6 @@ public class MainFrame extends JFrame
                 menuItemJunk.setText(bundle.getString("Navigator.menuItemJunk.text"));
                 menuItemJunk.setMnemonic(bundle.getString("Navigator.menuItemJunk.mnemonic").charAt(0));
                 menuItemJunk.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemJunk.setEnabled(false);
                 menuItemJunk.setHorizontalAlignment(SwingConstants.LEFT);
                 menuTools.add(menuItemJunk);
 
@@ -756,12 +763,6 @@ public class MainFrame extends JFrame
                                 panelBarBrowser.add(buttonNewFolder);
                                 panelBarBrowser.add(separatorNewJobs);
 
-                                //---- buttonJobs ----
-                                buttonJobs.setText(bundle.getString("Navigator.buttonJobs.text"));
-                                buttonJobs.setEnabled(false);
-                                buttonJobs.setToolTipText("Manage jobs");
-                                panelBarBrowser.add(buttonJobs);
-
                                 //---- comboBoxJobs ----
                                 comboBoxJobs.setModel(new DefaultComboBoxModel<>(new String[] {
                                     "Clean Junk",
@@ -777,6 +778,11 @@ public class MainFrame extends JFrame
                                 buttonRun.setEnabled(false);
                                 buttonRun.setToolTipText("Process selected job");
                                 panelBarBrowser.add(buttonRun);
+
+                                //---- checkBoxDryRun ----
+                                checkBoxDryRun.setText(bundle.getString("Navigator.checkBoxDryRun.text"));
+                                checkBoxDryRun.setEnabled(false);
+                                panelBarBrowser.add(checkBoxDryRun);
                             }
                             panelLocationAndButtons.add(panelBarBrowser, BorderLayout.CENTER);
 
@@ -1338,9 +1344,9 @@ public class MainFrame extends JFrame
     public JPanel panelBarBrowser;
     public JButton buttonNewFolder;
     public JToolBar.Separator separatorNewJobs;
-    public JButton buttonJobs;
     public JComboBox<String> comboBoxJobs;
     public JButton buttonRun;
+    public JCheckBox checkBoxDryRun;
     public JPanel panelHintTracking;
     public JButton buttonHintTracking;
     public JPanel hSpacerHintTracking;

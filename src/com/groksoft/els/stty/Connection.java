@@ -21,7 +21,7 @@ public class Connection extends Thread
     /**
      * The service for the connection
      */
-    protected DaemonBase service;
+    protected AbstractDaemon service;
     /**
      * The socket for the connection
      */
@@ -37,7 +37,7 @@ public class Connection extends Thread
      * @param aSocket  Socket for connection
      * @param aService Service for connection
      */
-    public Connection(Socket aSocket, DaemonBase aService)
+    public Connection(Socket aSocket, AbstractDaemon aService)
     {
         super("Daemon.Connection:" + Utils.formatAddresses(aSocket));
         this.socket = aSocket;
@@ -47,7 +47,7 @@ public class Connection extends Thread
     /**
      * Get the associated Daemon instance
      */
-    public DaemonBase getConsole()
+    public AbstractDaemon getConsole()
     {
         return service;
     }

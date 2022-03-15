@@ -4,7 +4,6 @@ import com.groksoft.els.*;
 import com.groksoft.els.repository.*;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
-import com.groksoft.els.stty.DaemonBase;
 import com.groksoft.els.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +26,7 @@ import java.util.StringTokenizer;
  * the endpoints.
  */
 @SuppressWarnings("Duplicates")
-public class Daemon extends DaemonBase
+public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 

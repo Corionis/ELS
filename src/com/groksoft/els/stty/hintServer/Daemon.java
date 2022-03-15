@@ -7,7 +7,6 @@ import com.groksoft.els.Utils;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
-import com.groksoft.els.stty.DaemonBase;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,7 +25,7 @@ import java.util.StringTokenizer;
  * the endpoints.
  */
 @SuppressWarnings("Duplicates")
-public class Daemon extends DaemonBase
+public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
