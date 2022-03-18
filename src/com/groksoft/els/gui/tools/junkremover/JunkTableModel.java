@@ -79,6 +79,21 @@ public class JunkTableModel extends DefaultTableModel
         return true;
     }
 
+    public JunkRemoverTool getTool()
+    {
+        return tool;
+    }
+
+    @Override
+    public void removeRow(int index)
+    {
+        if (tool != null)
+        {
+            tool.getJunkList().remove(index);
+            tool.setDataHasChanged(true);
+        }
+    }
+
     public void setTool(JunkRemoverTool junkRemoverTool)
     {
         tool = junkRemoverTool;
@@ -93,11 +108,13 @@ public class JunkTableModel extends DefaultTableModel
             if (column == 0)
             {
                 ji.wildcard = ((JTextField) object).getText();
+                tool.setDataHasChanged(true);
             }
 
             if (column == 1)
             {
                 ji.caseSensitive = ((Boolean) object).booleanValue();
+                tool.setDataHasChanged(true);
             }
         }
     }

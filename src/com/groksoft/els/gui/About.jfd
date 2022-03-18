@@ -28,12 +28,6 @@ new FormModel {
 					"minimumSize": new java.awt.Dimension( 296, 246 )
 					"preferredSize": new java.awt.Dimension( 296, 246 )
 					add( new FormComponent( "javax.swing.JLabel" ) {
-						name: "labelForIcon"
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
-					}, new FormLayoutConstraints( class java.lang.String ) {
-						"value": "West"
-					} )
-					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "labelTitle"
 						"text": "ELS - Entertainment Library Synchronizer"
 						"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 2, false )
@@ -41,13 +35,26 @@ new FormModel {
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "North"
 					} )
+					add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+						name: "hSpacer1"
+						"preferredSize": new java.awt.Dimension( 10, 80 )
+						"minimumSize": new java.awt.Dimension( 10, 80 )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "West"
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelForIcon"
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
 						"columns": 1
 						"rows": 3
 						"hgap": 4
 						"vgap": 8
 					} ) {
-						name: "panel1"
+						name: "panelVersion"
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "labelVersion"
 							"text": "Version 4.0.0"
@@ -78,4 +85,3 @@ new FormModel {
 		} )
 	}
 }
-

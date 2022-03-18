@@ -777,11 +777,13 @@ public class MainFrame extends JFrame
                                 buttonRun.setText(bundle.getString("Navigator.buttonRun.text"));
                                 buttonRun.setEnabled(false);
                                 buttonRun.setToolTipText("Process selected job");
+                                buttonRun.setMnemonic(bundle.getString("Navigator.buttonRun.mnemonic").charAt(0));
                                 panelBarBrowser.add(buttonRun);
 
                                 //---- checkBoxDryRun ----
                                 checkBoxDryRun.setText(bundle.getString("Navigator.checkBoxDryRun.text"));
                                 checkBoxDryRun.setEnabled(false);
+                                checkBoxDryRun.setMnemonic(bundle.getString("Navigator.checkBoxDryRun.mnemonic").charAt(0));
                                 panelBarBrowser.add(checkBoxDryRun);
                             }
                             panelLocationAndButtons.add(panelBarBrowser, BorderLayout.CENTER);

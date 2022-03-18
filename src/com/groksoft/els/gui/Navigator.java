@@ -73,7 +73,7 @@ public class Navigator
         guiContext.cfg = config;
         guiContext.context = ctx;
         guiContext.navigator = this;
-        guiContext.preferences = new Preferences(config);
+        guiContext.preferences = new Preferences(config, guiContext);
         guiContext.cfg.setLongScale(guiContext.preferences.isBinaryScale());
     }
 
@@ -561,7 +561,7 @@ public class Navigator
             {
                 try
                 {
-                    guiContext.preferences.export(guiContext);
+                    guiContext.preferences.write();
                 }
                 catch (Exception e)
                 {
@@ -1213,9 +1213,8 @@ public class Navigator
     {
         try
         {
-            String json;
             Gson gson = new Gson();
-            json = new String(Files.readAllBytes(Paths.get(guiContext.preferences.getFilename())));
+            String json = new String(Files.readAllBytes(Paths.get(guiContext.preferences.getFullPath())));
             Preferences prefs = gson.fromJson(json, guiContext.preferences.getClass());
             if (prefs != null)
             {
@@ -1291,7 +1290,7 @@ public class Navigator
         {
             try // save the settings
             {
-                guiContext.preferences.export(guiContext);
+                guiContext.preferences.write();
             }
             catch (Exception e)
             {

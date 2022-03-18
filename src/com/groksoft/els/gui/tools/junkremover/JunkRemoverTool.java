@@ -1,8 +1,11 @@
 package com.groksoft.els.gui.tools.junkremover;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
+import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
@@ -12,10 +15,12 @@ import com.groksoft.els.repository.Repository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class JunkRemoverTool extends AbstractTool
 {
@@ -30,6 +35,7 @@ public class JunkRemoverTool extends AbstractTool
 
     // transients
     transient private static String ALL = "#ALL_LIBRARIES";
+    transient boolean dataHasChanged = false;
     transient private GuiContext guiContext = null;
     transient private NavTreeNode node;
     transient private Repository repo;
@@ -38,19 +44,27 @@ public class JunkRemoverTool extends AbstractTool
 
     public JunkRemoverTool(Configuration config, Context ctxt)
     {
-        super(config, ctxt);
-        setToolName("JunkRemover");
+        super(config, ctxt, "JunkRemover");
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
     }
 
     public JunkRemoverTool(GuiContext guiContext)
     {
-        super(guiContext.cfg, guiContext.context);
-        setToolName("JunkRemoverTool");
+        super(guiContext.cfg, guiContext.context, "JunkRemover");
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
 
         this.guiContext = guiContext;
         this.node = null;
+    }
+
+    public JunkItem addJunkItem()
+    {
+        if (junkList == null)
+            createJunkList();
+        JunkItem ji = new JunkItem();
+        junkList.add(ji);
+        setDataHasChanged(true);
+        return ji;
     }
 
     /**
@@ -107,7 +121,7 @@ public class JunkRemoverTool extends AbstractTool
                         throw new MungeException("-S|--subscriber-location requires a path");
                     break;
                 default:
-                    throw new MungeException(getToolName() + ": " + "Unknown argument " + arg);
+                    throw new MungeException(getInternalName() + ": " + "Unknown argument " + arg);
             }
         }
     }
@@ -168,15 +182,23 @@ public class JunkRemoverTool extends AbstractTool
             throw new MungeException("Both library and location cannot be used");
     }
 
+    public JunkRemoverTool clone()
+    {
+        assert guiContext != null;
+        JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
+        jrt.setArguments(getArguments());
+        jrt.setConfigName(getConfigName());
+        jrt.setDataHasChanged(isDataChanged());
+        jrt.setDisplayName(getDisplayName());
+        jrt.setDryRun(isDryRun());
+        jrt.setInternalName(getInternalName());
+        jrt.setJunkList(getJunkList());
+        return jrt;
+    }
+
     public void createJunkList()
     {
         junkList = new ArrayList<JunkItem>();
-    }
-
-    public String getConfigPath()
-    {
-        String path = getToolPath() + System.getProperty("file.separator") + getConfigName() + ".json";
-        return path;
     }
 
     public ArrayList<JunkItem> getJunkList()
@@ -184,13 +206,9 @@ public class JunkRemoverTool extends AbstractTool
         return junkList;
     }
 
-    public String getToolPath()
+    public boolean isDataChanged()
     {
-        String path = System.getProperty("user.home") +
-                System.getProperty("file.separator") + ".els" +
-                System.getProperty("file.separator") + "tools" +
-                System.getProperty("file.separator") + getToolName();
-        return path;
+        return dataHasChanged;
     }
 
     private boolean match(String filename, JunkItem junk)
@@ -199,15 +217,6 @@ public class JunkRemoverTool extends AbstractTool
         // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html
         // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html#wildcardMatch(java.lang.String,%20java.lang.String)
         return FilenameUtils.wildcardMatch(filename, junk.wildcard, (junk.caseSensitive ? IOCase.SENSITIVE : IOCase.INSENSITIVE));
-    }
-
-    public JunkItem newJunkItem()
-    {
-        if (junkList == null)
-            createJunkList();
-        JunkItem ji = new JunkItem();
-        junkList.add(ji);
-        return ji;
     }
 
     /**
@@ -235,17 +244,48 @@ public class JunkRemoverTool extends AbstractTool
         return false;
     }
 
+    public void setDataHasChanged(boolean sense)
+    {
+        dataHasChanged = sense;
+    }
+
+    public void setGuiContext(GuiContext gctxt)
+    {
+        guiContext = gctxt;
+    }
+
     public void setJunkList(ArrayList<JunkItem> junkList)
     {
         this.junkList = junkList;
+    }
+
+    public void write() throws Exception
+    {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(this);
+        try
+        {
+            File f = new File(getFullPath());
+            if (f != null)
+            {
+                f.getParentFile().mkdirs();
+            }
+            PrintWriter outputStream = new PrintWriter(getFullPath());
+            outputStream.println(json);
+            outputStream.close();
+        }
+        catch (FileNotFoundException fnf)
+        {
+            throw new MungeException("Error writing: " + getFullPath() + " trace: " + Utils.getStackTrace(fnf));
+        }
     }
 
     // ================================================================================================================
 
     public class JunkItem implements Serializable
     {
-        boolean caseSensitive = false;
         String wildcard;
+        boolean caseSensitive = false;
     }
 
 }

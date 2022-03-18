@@ -8,10 +8,7 @@ import com.groksoft.els.Utils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.Serializable;
+import java.io.*;
 
 public class Preferences implements Serializable
 {
@@ -34,6 +31,7 @@ public class Preferences implements Serializable
     private int collectionTwoSizeWidth = 80; // tracked value
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
+    private transient GuiContext guiContext;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
@@ -69,57 +67,15 @@ public class Preferences implements Serializable
     private int systemTwoDividerLocation = 152; // tracked value
     private int systemTwoNameWidth = 128; // tracked value
     private int systemTwoSizeWidth = 80; // tracked value
+
+
     /**
      * Constructor
      */
-    public Preferences(Configuration config)
+    public Preferences(Configuration config, GuiContext gctxt)
     {
         cfg = config;
-    }
-
-    public void export(GuiContext guiContext) throws Exception
-    {
-        String json;
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        // size & position
-        appWidth = guiContext.form.getWidth();
-        appHeight = guiContext.form.getHeight();
-        Point location = guiContext.form.getLocation();
-        appXpos = location.x;
-        appYpos = location.y;
-
-        // dividers
-//        int whole = guiContext.form.splitPaneBrowser.getHeight();
-//        int divider = guiContext.form.splitPaneBrowser.getDividerSize();
-//        int pos = whole - divider - guiContext.preferences.getBrowserBottomSize();
-//        browserBottomSize = pos;
-        centerDividerOrientation = guiContext.form.splitPaneTwoBrowsers.getOrientation();
-        centerDividerLocation = guiContext.form.splitPaneTwoBrowsers.getDividerLocation();
-        collectionOneDividerLocation = guiContext.form.splitPaneCollectionOne.getDividerLocation();
-        systemOneDividerLocation = guiContext.form.splitPaneSystemOne.getDividerLocation();
-        collectionTwoDividerLocation = guiContext.form.splitPaneCollectionTwo.getDividerLocation();
-        systemTwoDividerLocation = guiContext.form.splitPaneSystemTwo.getDividerLocation();
-
-        // all columns
-        extractColumnSizes(guiContext, null);
-
-        json = gson.toJson(this);
-        try
-        {
-            File f = new File(getFilename());
-            if (f != null)
-            {
-                f.getParentFile().mkdirs();
-            }
-            PrintWriter outputStream = new PrintWriter(getFilename());
-            outputStream.println(json);
-            outputStream.close();
-        }
-        catch (FileNotFoundException fnf)
-        {
-            throw new MungeException("Error writing: " + getFilename() + " trace: " + Utils.getStackTrace(fnf));
-        }
+        guiContext = gctxt;
     }
 
     public void extractColumnSizes(GuiContext guiContext, JTable table)
@@ -325,10 +281,11 @@ public class Preferences implements Serializable
         return dateFormat;
     }
 
-    public String getFilename()
+    public String getFullPath()
     {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") + ".els"  +
-                System.getProperty("file.separator") + "preferences.json";
+        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
+                ".els"  + System.getProperty("file.separator") +
+                "preferences.json";
         return path;
     }
 
@@ -733,4 +690,50 @@ public class Preferences implements Serializable
     {
         this.systemTwoSizeWidth = systemTwoSizeWidth;
     }
+
+    public void write() throws Exception
+    {
+        String json;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        // size & position
+        appWidth = guiContext.form.getWidth();
+        appHeight = guiContext.form.getHeight();
+        Point location = guiContext.form.getLocation();
+        appXpos = location.x;
+        appYpos = location.y;
+
+        // dividers
+//        int whole = guiContext.form.splitPaneBrowser.getHeight();
+//        int divider = guiContext.form.splitPaneBrowser.getDividerSize();
+//        int pos = whole - divider - guiContext.preferences.getBrowserBottomSize();
+//        browserBottomSize = pos;
+        centerDividerOrientation = guiContext.form.splitPaneTwoBrowsers.getOrientation();
+        centerDividerLocation = guiContext.form.splitPaneTwoBrowsers.getDividerLocation();
+        collectionOneDividerLocation = guiContext.form.splitPaneCollectionOne.getDividerLocation();
+        systemOneDividerLocation = guiContext.form.splitPaneSystemOne.getDividerLocation();
+        collectionTwoDividerLocation = guiContext.form.splitPaneCollectionTwo.getDividerLocation();
+        systemTwoDividerLocation = guiContext.form.splitPaneSystemTwo.getDividerLocation();
+
+        // all columns
+        extractColumnSizes(guiContext, null);
+
+        json = gson.toJson(this);
+        try
+        {
+            File f = new File(getFullPath());
+            if (f != null)
+            {
+                f.getParentFile().mkdirs();
+            }
+            PrintWriter outputStream = new PrintWriter(getFullPath());
+            outputStream.println(json);
+            outputStream.close();
+        }
+        catch (FileNotFoundException fnf)
+        {
+            throw new MungeException("Error writing: " + getFullPath() + " trace: " + Utils.getStackTrace(fnf));
+        }
+    }
+
 }

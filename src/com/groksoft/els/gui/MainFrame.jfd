@@ -79,11 +79,13 @@ new FormModel {
 										"text": new FormMessage( null, "Navigator.buttonRun.text" )
 										"enabled": false
 										"toolTipText": "Process selected job"
+										"mnemonic": new FormMessage( null, "Navigator.buttonRun.mnemonic" )
 									} )
 									add( new FormComponent( "javax.swing.JCheckBox" ) {
 										name: "checkBoxDryRun"
 										"text": new FormMessage( null, "Navigator.checkBoxDryRun.text" )
 										"enabled": false
+										"mnemonic": new FormMessage( null, "Navigator.checkBoxDryRun.mnemonic" )
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "Center"

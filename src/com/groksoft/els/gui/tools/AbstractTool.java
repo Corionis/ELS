@@ -10,25 +10,26 @@ import java.io.Serializable;
 public abstract class AbstractTool implements Serializable
 {
     // @formatter:off
-    private String arguments;
+    private String internalName; // internal name
+    private String configName; // user name for this instance
     private boolean dryRun = false;
-    private String toolName; // internal name
-    private String configName; // name of this configuration instance
+    private String arguments = "";
 
     protected transient static Logger logger = LogManager.getLogger("applog");
     private transient Configuration cfg;
     private transient Context context;
-    private transient String displayName;
+    private transient String displayName; // GUI i18n display name
     private transient boolean stop = false;
     // @formatter:on
 
     /**
      * Constructor
      */
-    public AbstractTool(Configuration config, Context ctxt)
+    public AbstractTool(Configuration config, Context ctxt, String internalId)
     {
         this.cfg = config;
         this.context = ctxt;
+        this.internalName = internalId;
     }
 
     /**
@@ -72,14 +73,30 @@ public abstract class AbstractTool implements Serializable
         return displayName;
     }
 
-    public String getToolName()
+    public String getInternalName()
     {
-        return toolName;
+        return internalName;
     }
 
     public String getConfigName()
     {
         return configName;
+    }
+
+    public String getDirectoryPath()
+    {
+        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
+                ".els" + System.getProperty("file.separator") +
+                "tools" + System.getProperty("file.separator") +
+                getInternalName();
+        return path;
+    }
+
+    public String getFullPath()
+    {
+        String path = getDirectoryPath() + System.getProperty("file.separator")+
+                getConfigName() + ".json";
+        return path;
     }
 
     public boolean isDryRun()
@@ -100,7 +117,7 @@ public abstract class AbstractTool implements Serializable
     public void requestStop()
     {
         this.stop = true;
-        logger.debug("Requesting stop for: " + configName + ":" + toolName);
+        logger.debug("Requesting stop for: " + configName + ":" + internalName);
     }
 
     public void setArguments(String arguments)
@@ -118,9 +135,9 @@ public abstract class AbstractTool implements Serializable
         this.dryRun = dryRun;
     }
 
-    public void setToolName(String toolName)
+    public void setInternalName(String internalName)
     {
-        this.toolName = toolName;
+        this.internalName = internalName;
     }
 
     public void setConfigName(String configName)

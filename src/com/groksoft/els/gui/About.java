@@ -34,9 +34,10 @@ public class About extends JDialog
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         dialogPane = new JPanel();
         contentPanel = new JPanel();
-        labelForIcon = new JLabel();
         labelTitle = new JLabel();
-        panel1 = new JPanel();
+        hSpacer1 = new JPanel(null);
+        labelForIcon = new JLabel();
+        panelVersion = new JPanel();
         labelVersion = new JLabel();
         labelBy = new JLabel();
         labelBuild = new JLabel();
@@ -69,36 +70,41 @@ public class About extends JDialog
                 contentPanel.setPreferredSize(new Dimension(296, 246));
                 contentPanel.setLayout(new BorderLayout());
 
-                //---- labelForIcon ----
-                labelForIcon.setIcon(new ImageIcon(getClass().getResource("/els-logo-98px.png")));
-                contentPanel.add(labelForIcon, BorderLayout.WEST);
-
                 //---- labelTitle ----
                 labelTitle.setText("ELS - Entertainment Library Synchronizer");
                 labelTitle.setFont(labelTitle.getFont().deriveFont(labelTitle.getFont().getStyle() | Font.BOLD, labelTitle.getFont().getSize() + 2f));
                 labelTitle.setHorizontalTextPosition(SwingConstants.LEADING);
                 contentPanel.add(labelTitle, BorderLayout.NORTH);
 
-                //======== panel1 ========
+                //---- hSpacer1 ----
+                hSpacer1.setPreferredSize(new Dimension(10, 80));
+                hSpacer1.setMinimumSize(new Dimension(10, 80));
+                contentPanel.add(hSpacer1, BorderLayout.WEST);
+
+                //---- labelForIcon ----
+                labelForIcon.setIcon(new ImageIcon(getClass().getResource("/els-logo-98px.png")));
+                contentPanel.add(labelForIcon, BorderLayout.CENTER);
+
+                //======== panelVersion ========
                 {
-                    panel1.setLayout(new GridLayout(3, 1, 4, 8));
+                    panelVersion.setLayout(new GridLayout(3, 1, 4, 8));
 
                     //---- labelVersion ----
                     labelVersion.setText("Version 4.0.0");
                     labelVersion.setHorizontalAlignment(SwingConstants.TRAILING);
-                    panel1.add(labelVersion);
+                    panelVersion.add(labelVersion);
 
                     //---- labelBy ----
                     labelBy.setBorder(null);
-                    panel1.add(labelBy);
+                    panelVersion.add(labelBy);
 
                     //---- labelBuild ----
                     labelBuild.setText("Built 10 March 2022, 17:45:00 MST");
                     labelBuild.setHorizontalAlignment(SwingConstants.TRAILING);
                     labelBuild.setVerticalAlignment(SwingConstants.BOTTOM);
-                    panel1.add(labelBuild);
+                    panelVersion.add(labelBuild);
                 }
-                contentPanel.add(panel1, BorderLayout.EAST);
+                contentPanel.add(panelVersion, BorderLayout.EAST);
             }
             dialogPane.add(contentPanel, BorderLayout.CENTER);
         }
@@ -111,9 +117,10 @@ public class About extends JDialog
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     private JPanel dialogPane;
     private JPanel contentPanel;
-    private JLabel labelForIcon;
     private JLabel labelTitle;
-    private JPanel panel1;
+    private JPanel hSpacer1;
+    private JLabel labelForIcon;
+    private JPanel panelVersion;
     private JLabel labelVersion;
     private JLabel labelBy;
     private JLabel labelBuild;
