@@ -12,41 +12,48 @@ new FormModel {
 		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
-			"title": new FormMessage( null, "JunkRemover.this.title" )
+			"title": new FormMessage( null, "JunkRemover.title" )
 			"name": "junkRemoverUI"
+			"minimumSize": new java.awt.Dimension( 150, 126 )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"preferredSize": new java.awt.Dimension( 570, 470 )
+				"minimumSize": new java.awt.Dimension( 150, 80 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 					name: "contentPanel"
-					"preferredSize": new java.awt.Dimension( 640, 500 )
+					"preferredSize": new java.awt.Dimension( 570, 470 )
+					"minimumSize": new java.awt.Dimension( 140, 120 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 						name: "panelTop"
+						"minimumSize": new java.awt.Dimension( 140, 38 )
+						"preferredSize": new java.awt.Dimension( 570, 38 )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
 							"alignment": 0
 							"hgap": 2
 							"vgap": 4
 						} ) {
 							name: "panelTopButtons"
+							"minimumSize": new java.awt.Dimension( 140, 38 )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonNew"
-								"text": new FormMessage( null, "JunkRemover.buttonNew.text" )
-								"mnemonic": new FormMessage( null, "JunkRemover.buttonNew.mnemonic" )
-								"toolTipText": new FormMessage( null, "JunkRemover.buttonNew.toolTipText" )
+								"text": new FormMessage( null, "JunkRemover.button.New.text" )
+								"mnemonic": new FormMessage( null, "JunkRemover.button.New.mnemonic" )
+								"toolTipText": new FormMessage( null, "JunkRemover.button.New.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "newClicked", true ) )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonCopy"
-								"text": new FormMessage( null, "JunkRemover.buttonCopy.text" )
-								"mnemonic": new FormMessage( null, "JunkRemover.buttonCopy.mnemonic" )
-								"toolTipText": new FormMessage( null, "JunkRemover.buttonCopy.toolTipText" )
+								"text": new FormMessage( null, "JunkRemover.button.Copy.text" )
+								"mnemonic": new FormMessage( null, "JunkRemover.button.Copy.mnemonic" )
+								"toolTipText": new FormMessage( null, "JunkRemover.button.Copy.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "copyClicked", true ) )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonDelete"
-								"text": new FormMessage( null, "JunkRemover.buttonDelete.text" )
-								"mnemonic": new FormMessage( null, "JunkRemover.buttonDelete.mnemonic" )
-								"toolTipText": new FormMessage( null, "JunkRemover.buttonDelete.toolTipText" )
+								"text": new FormMessage( null, "JunkRemover.button.Delete.text" )
+								"mnemonic": new FormMessage( null, "JunkRemover.button.Delete.mnemonic" )
+								"toolTipText": new FormMessage( null, "JunkRemover.button.Delete.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteClicked", true ) )
 							} )
 							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
@@ -56,12 +63,34 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonRun"
-								"text": new FormMessage( null, "JunkRemover.buttonRun.text" )
-								"mnemonic": new FormMessage( null, "JunkRemover.buttonRun.mnemonic" )
-								"toolTipText": new FormMessage( null, "JunkRemover.buttonRun.toolTipText" )
+								"text": new FormMessage( null, "JunkRemover.button.Run.text" )
+								"mnemonic": new FormMessage( null, "JunkRemover.button.Run.mnemonic" )
+								"toolTipText": new FormMessage( null, "JunkRemover.button.Run.toolTipText" )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
-							"value": "Before"
+							"value": "West"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 2
+							"hgap": 4
+							"vgap": 4
+						} ) {
+							name: "panelHelp"
+							"preferredSize": new java.awt.Dimension( 40, 38 )
+							"minimumSize": new java.awt.Dimension( 0, 38 )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "labelHelp"
+								"icon": new com.jformdesigner.model.SwingIcon( 2, "OptionPane.informationIcon" )
+								"preferredSize": new java.awt.Dimension( 32, 30 )
+								"minimumSize": new java.awt.Dimension( 32, 30 )
+								"maximumSize": new java.awt.Dimension( 32, 30 )
+								"toolTipText": new FormMessage( null, "JunkRemover.labelHelp.toolTipText" )
+								"cursor": new java.awt.Cursor( 12 )
+								"iconTextGap": 0
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "labelHelpMouseClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "East"
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "North"
@@ -70,8 +99,11 @@ new FormModel {
 						name: "splitPaneContent"
 						"dividerLocation": 142
 						"lastDividerLocation": 142
+						"minimumSize": new java.awt.Dimension( 140, 80 )
 						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 							name: "scrollPaneList"
+							"minimumSize": new java.awt.Dimension( 140, 16 )
+							"preferredSize": new java.awt.Dimension( 142, 146 )
 							add( new FormComponent( "javax.swing.JList" ) {
 								name: "listItems"
 								"preferredSize": new java.awt.Dimension( 128, 54 )
@@ -84,6 +116,7 @@ new FormModel {
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 							name: "panelOptions"
+							"minimumSize": new java.awt.Dimension( 0, 78 )
 							add( new FormComponent( "javax.swing.JTextField" ) {
 								name: "textFieldName"
 								"preferredSize": new java.awt.Dimension( 150, 30 )
@@ -112,29 +145,25 @@ new FormModel {
 								name: "panelOptionsButtons"
 								add( new FormComponent( "javax.swing.JButton" ) {
 									name: "buttonAddRow"
-									"text": new FormMessage( null, "JunkRemover.buttonAddRow.text" )
+									"text": new FormMessage( null, "JunkRemover.button.AddRow.text" )
 									"font": &SwingDerivedFont0 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
 									"preferredSize": new java.awt.Dimension( 78, 24 )
 									"minimumSize": new java.awt.Dimension( 78, 24 )
 									"maximumSize": new java.awt.Dimension( 78, 24 )
-									"mnemonic": new FormMessage( null, "JunkRemover.buttonAddRow.mnemonic" )
-									"toolTipText": new FormMessage( null, "JunkRemover.buttonAddRow.toolTipText" )
+									"mnemonic": new FormMessage( null, "JunkRemover.button.AddRow.mnemonic" )
+									"toolTipText": new FormMessage( null, "JunkRemover.button.AddRow.toolTipText" )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addRowClicked", true ) )
 								} )
 								add( new FormComponent( "javax.swing.JButton" ) {
 									name: "buttonRemoveRow"
-									"text": new FormMessage( null, "JunkRemover.buttonRemoveRow.text" )
+									"text": new FormMessage( null, "JunkRemover.button.RemoveRow.text" )
 									"font": #SwingDerivedFont0
 									"preferredSize": new java.awt.Dimension( 78, 24 )
 									"minimumSize": new java.awt.Dimension( 78, 24 )
 									"maximumSize": new java.awt.Dimension( 78, 24 )
-									"mnemonic": new FormMessage( null, "JunkRemover.buttonRemoveRow.mnemonic" )
-									"toolTipText": new FormMessage( null, "JunkRemover.buttonRemoveRow.toolTipText" )
+									"mnemonic": new FormMessage( null, "JunkRemover.button.RemoveRow.mnemonic" )
+									"toolTipText": new FormMessage( null, "JunkRemover.button.RemoveRow.toolTipText" )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "removeRowClicked", true ) )
-								} )
-								add( new FormComponent( "javax.swing.JLabel" ) {
-									name: "labelWildcards"
-									"text": new FormMessage( null, "JunkRemover.labelWildcards.text" )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "South"
@@ -151,15 +180,15 @@ new FormModel {
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 					"$columnSpecs": "0:1.0, 80, 80"
 					"$rowSpecs": "0"
-					"$hGap": 5
+					"$hGap": 2
 					"$vGap": 5
 				} ) {
 					name: "buttonBar"
 					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "okButton"
-						"text": new FormMessage( null, "JunkRemover.okButton.text" )
-						"mnemonic": new FormMessage( null, "JunkRemover.okButton.mnemonic" )
+						"text": new FormMessage( null, "JunkRemover.button.Ok.text" )
+						"mnemonic": new FormMessage( null, "JunkRemover.button.Ok.mnemonic" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "doneClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
@@ -167,7 +196,7 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "cancelButton"
-						"text": new FormMessage( null, "JunkRemover.cancelButton.text" )
+						"text": new FormMessage( null, "JunkRemover.button.Cancel.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2
@@ -181,7 +210,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 640, 500 )
+			"size": new java.awt.Dimension( 570, 470 )
 		} )
 	}
 }

@@ -154,7 +154,7 @@ public class Progress extends JFrame
 
         //======== this ========
         setMinimumSize(new Dimension(400, 75));
-        setTitle(bundle.getString("Progress.this.title"));
+        setTitle(bundle.getString("Progress.title"));
         setResizable(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         setName("ProgressBox");

@@ -10,7 +10,7 @@ import java.net.URL;
 import java.util.*;
 
 /**
- * Configuration class.
+ * Configuration class
  * <p>
  * Contains all command-line options and any other application-level configuration.
  */

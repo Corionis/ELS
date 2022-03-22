@@ -476,7 +476,7 @@ public class Browser
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
                     JOptionPane.showMessageDialog(guiContext.form,
-                            guiContext.cfg.gs("Browser.delete.cannot") + tuo.name,
+                            guiContext.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name,
                             guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
@@ -498,10 +498,10 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowDeleteConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure1"),
+                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
@@ -587,7 +587,7 @@ public class Browser
                 NavTreeUserObject tuo = ntn.getUserObject();
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.delete.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -608,10 +608,10 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowDeleteConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure1"),
+                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
@@ -1527,7 +1527,7 @@ public class Browser
                 path = tuo.sources[0];
             else
             {
-                int opt = JOptionPane.showOptionDialog(guiContext.form, MessageFormat.format(guiContext.cfg.gs("Browser.select.library.source"), tuo.sources.length, tuo.name),
+                int opt = JOptionPane.showOptionDialog(guiContext.form, MessageFormat.format(guiContext.cfg.gs("Navigator.menu.New.folder.select.library.source"), tuo.sources.length, tuo.name),
                         guiContext.cfg.getNavigatorName(), JOptionPane.DEFAULT_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, tuo.sources, tuo.sources[0]);
                 if (opt > -1)
@@ -1653,7 +1653,7 @@ public class Browser
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -1674,10 +1674,10 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowTouchConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure1"),
+                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
@@ -1702,7 +1702,7 @@ public class Browser
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.menu.Touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                         NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
                         if (parent != null)
@@ -1736,7 +1736,7 @@ public class Browser
                 NavTreeUserObject tuo = ntn.getUserObject();
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -1757,10 +1757,10 @@ public class Browser
             int reply = JOptionPane.YES_OPTION;
             if (guiContext.preferences.isShowTouchConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure1"),
+                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Browser.touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.form, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
@@ -1786,7 +1786,7 @@ public class Browser
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Browser.touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.menu.Touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                         NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
                         if (parent != null)

@@ -469,18 +469,18 @@ public class Settings extends JDialog
                         dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
 
                         //---- hintButtonColorLabel ----
-                        hintButtonColorLabel.setText(bundle.getString("Settings.hintButtonColorLabel.text"));
+                        hintButtonColorLabel.setText(bundle.getString("Settings.hintButton.ColorLabel.text"));
 
                         //---- dateInfoButton ----
-                        dateInfoButton.setText(bundle.getString("Settings.dateInfoButton.text"));
-                        dateInfoButton.setToolTipText(bundle.getString("Settings.dateInfoButton.text.tooltip"));
+                        dateInfoButton.setText(bundle.getString("Settings.button.dateInfo.text"));
+                        dateInfoButton.setToolTipText(bundle.getString("Settings.button.dateInfo.text.tooltip"));
 
                         //---- textFieldHintButtonColor ----
-                        textFieldHintButtonColor.setToolTipText(bundle.getString("Settings.textFieldHintButtonColor.toolTipText"));
+                        textFieldHintButtonColor.setToolTipText(bundle.getString("Settings.textField.HintButtonColor.toolTipText"));
 
                         //---- buttonChooseColor ----
-                        buttonChooseColor.setText(bundle.getString("Settings.buttonChooseColor.text"));
-                        buttonChooseColor.setToolTipText(bundle.getString("Settings.buttonChooseColor.toolTipText"));
+                        buttonChooseColor.setText(bundle.getString("Settings.button.ChooseColor.text"));
+                        buttonChooseColor.setToolTipText(bundle.getString("Settings.button.ChooseColor.toolTipText"));
                         buttonChooseColor.addActionListener(e -> chooseColor(e));
 
                         GroupLayout apperancePanelLayout = new GroupLayout(apperancePanel);
@@ -546,7 +546,7 @@ public class Settings extends JDialog
                                     .addContainerGap())
                         );
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.appearance.Panel.tab.title"), apperancePanel);
+                    settingsTabbedPane.addTab(bundle.getString("Settings.appearance.tab.title"), apperancePanel);
 
                     //======== browserPanel ========
                     {
@@ -640,13 +640,13 @@ public class Settings extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(bundle.getString("Settings.okButton.text"));
+                okButton.setText(bundle.getString("Settings.button.Ok.text"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(bundle.getString("Settings.cancelButton.text"));
+                cancelButton.setText(bundle.getString("Settings.button.Cancel.text"));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

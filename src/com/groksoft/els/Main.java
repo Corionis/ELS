@@ -24,7 +24,7 @@ import java.util.List;
 import static com.groksoft.els.Configuration.*;
 
 /**
- * ELS main program.
+ * ELS main program
  */
 public class Main
 {

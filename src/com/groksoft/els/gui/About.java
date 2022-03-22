@@ -47,7 +47,7 @@ public class About extends JDialog
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         setResizable(false);
-        setTitle(guiContext.cfg.gs("About.this.title"));
+        setTitle(guiContext.cfg.gs("About.title"));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
@@ -72,7 +72,6 @@ public class About extends JDialog
 
                 //---- labelTitle ----
                 labelTitle.setText("ELS - Entertainment Library Synchronizer");
-                labelTitle.setFont(labelTitle.getFont().deriveFont(labelTitle.getFont().getStyle() | Font.BOLD, labelTitle.getFont().getSize() + 2f));
                 labelTitle.setHorizontalTextPosition(SwingConstants.LEADING);
                 contentPanel.add(labelTitle, BorderLayout.NORTH);
 

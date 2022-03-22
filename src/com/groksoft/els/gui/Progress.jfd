@@ -16,7 +16,7 @@ new FormModel {
 		} ) {
 			name: "this"
 			"minimumSize": new java.awt.Dimension( 400, 75 )
-			"title": new FormMessage( null, "Progress.this.title" )
+			"title": new FormMessage( null, "Progress.title" )
 			"resizable": false
 			"cursor": &Cursor0 new java.awt.Cursor( 3 )
 			"name": "ProgressBox"

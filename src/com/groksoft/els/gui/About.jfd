@@ -16,7 +16,7 @@ new FormModel {
 			"defaultCloseOperation": 2
 			"modalityType": enum java.awt.Dialog$ModalityType APPLICATION_MODAL
 			"resizable": false
-			"title": new FormMessage( null, "About.this.title" )
+			"title": new FormMessage( null, "About.title" )
 			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosed", "thisWindowClosed", true ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
@@ -30,7 +30,6 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "labelTitle"
 						"text": "ELS - Entertainment Library Synchronizer"
-						"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 2, false )
 						"horizontalTextPosition": 10
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "North"

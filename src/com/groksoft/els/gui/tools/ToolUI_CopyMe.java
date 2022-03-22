@@ -50,7 +50,7 @@ public class ToolUI_CopyMe extends JDialog {
         cancelButton = new JButton();
 
         //======== this ========
-        setTitle(guiContext.cfg.gs("ToolUI.this.title"));
+        setTitle(guiContext.cfg.gs("ToolUI.title"));
         setName("junkRemoverUI");
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -74,15 +74,15 @@ public class ToolUI_CopyMe extends JDialog {
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                         //---- buttonNew ----
-                        buttonNew.setText(guiContext.cfg.gs("ToolUI.buttonNew.text"));
+                        buttonNew.setText(guiContext.cfg.gs("ToolUI.button.New.text"));
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
-                        buttonCopy.setText(guiContext.cfg.gs("ToolUI.buttonCopy.text"));
+                        buttonCopy.setText(guiContext.cfg.gs("ToolUI.button.Copy.text"));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText(guiContext.cfg.gs("ToolUI.buttonDelete.text"));
+                        buttonDelete.setText(guiContext.cfg.gs("ToolUI.button.Delete.text"));
                         panelTopButtons.add(buttonDelete);
                     }
                     panelTop.add(panelTopButtons, BorderLayout.LINE_START);
@@ -144,7 +144,7 @@ public class ToolUI_CopyMe extends JDialog {
                             ((GridBagLayout)panelOptionsButtons.getLayout()).columnWeights = new double[] {0.0, 1.0E-4};
 
                             //---- buttonDeleteRow ----
-                            buttonDeleteRow.setText(guiContext.cfg.gs("ToolUI.buttonDeleteRow.text"));
+                            buttonDeleteRow.setText(guiContext.cfg.gs("ToolUI.button.DeleteRow.text"));
                             buttonDeleteRow.setFont(buttonDeleteRow.getFont().deriveFont(buttonDeleteRow.getFont().getSize() - 2f));
                             buttonDeleteRow.setPreferredSize(new Dimension(68, 24));
                             buttonDeleteRow.setMinimumSize(new Dimension(68, 24));
@@ -169,14 +169,14 @@ public class ToolUI_CopyMe extends JDialog {
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- doneButton ----
-                doneButton.setText(guiContext.cfg.gs("ToolUI.doneButton.text"));
+                doneButton.setText(guiContext.cfg.gs("ToolUI.button.done.text"));
                 doneButton.addActionListener(e -> doneClicked(e));
                 buttonBar.add(doneButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("ToolUI.cancelButton.text"));
+                cancelButton.setText(guiContext.cfg.gs("ToolUI.button.cancel.text"));
                 cancelButton.addActionListener(e -> cancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

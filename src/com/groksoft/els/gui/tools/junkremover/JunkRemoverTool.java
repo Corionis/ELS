@@ -54,7 +54,6 @@ public class JunkRemoverTool extends AbstractTool
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
 
         this.guiContext = guiContext;
-        this.node = null;
     }
 
     public JunkItem addJunkItem()
@@ -174,7 +173,7 @@ public class JunkRemoverTool extends AbstractTool
     {
         if (onPublisher == false && onSubscriber == false)
             throw new MungeException("Parameters for publisher or subscriber are required");
-        if (onPublisher == true && true == false)
+        if (onPublisher == true && onSubscriber == true)
             throw new MungeException("Both publisher and subscriber cannot be used");
         if (library.length() == 0 && location.length() == 0)
             throw new MungeException("Requires a library or location");
@@ -208,7 +207,7 @@ public class JunkRemoverTool extends AbstractTool
 
     public boolean isDataChanged()
     {
-        return dataHasChanged;
+        return dataHasChanged; // used by the GUI
     }
 
     private boolean match(String filename, JunkItem junk)
@@ -225,7 +224,7 @@ public class JunkRemoverTool extends AbstractTool
     @Override
     public boolean process() throws Exception
     {
-        // validate the arguments
+        // validate the arguments, no news is good news
         String msg;
         if ((msg = validate()).length() == 0)
         {

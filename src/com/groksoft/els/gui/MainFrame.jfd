@@ -9,7 +9,7 @@ new FormModel {
 	root: new FormRoot {
 		auxiliary() {
 			"JavaCodeGenerator.defaultVariableModifiers": 1
-			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.cfg.bundle()"
+			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
 		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
@@ -55,9 +55,9 @@ new FormModel {
 									"preferredSize": new java.awt.Dimension( 86, 30 )
 									add( new FormComponent( "javax.swing.JButton" ) {
 										name: "buttonNewFolder"
-										"text": new FormMessage( null, "Navigator.newFolder" )
-										"toolTipText": "Create directory"
-										"mnemonic": new FormMessage( null, "Navigator.buttonNewFolder.mnemonic" )
+										"text": new FormMessage( null, "Navigator.button.NewFolder.text" )
+										"toolTipText": new FormMessage( null, "Navigator.button.NewFolder.toolTipText" )
+										"mnemonic": new FormMessage( null, "Navigator.button.NewFolder.mnemonic" )
 										"focusable": false
 									} )
 									add( new FormComponent( "javax.swing.JToolBar$Separator" ) {
@@ -76,16 +76,16 @@ new FormModel {
 									} )
 									add( new FormComponent( "javax.swing.JButton" ) {
 										name: "buttonRun"
-										"text": new FormMessage( null, "Navigator.buttonRun.text" )
+										"text": new FormMessage( null, "Navigator.button.Run.text" )
 										"enabled": false
-										"toolTipText": "Process selected job"
-										"mnemonic": new FormMessage( null, "Navigator.buttonRun.mnemonic" )
+										"toolTipText": new FormMessage( null, "Navigator.button.Run.toolTipText" )
+										"mnemonic": new FormMessage( null, "Navigator.button.Run.mnemonic" )
 									} )
 									add( new FormComponent( "javax.swing.JCheckBox" ) {
 										name: "checkBoxDryRun"
-										"text": new FormMessage( null, "Navigator.checkBoxDryRun.text" )
+										"text": new FormMessage( null, "Navigator.checkBox.DryRun.text" )
 										"enabled": false
-										"mnemonic": new FormMessage( null, "Navigator.checkBoxDryRun.mnemonic" )
+										"mnemonic": new FormMessage( null, "Navigator.checkBox.DryRun.mnemonic" )
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "Center"
@@ -98,9 +98,9 @@ new FormModel {
 									name: "panelHintTracking"
 									add( new FormComponent( "javax.swing.JButton" ) {
 										name: "buttonHintTracking"
-										"text": new FormMessage( null, "Navigator.buttonHintTracking.text" )
-										"mnemonic": new FormMessage( null, "Navigator.buttonHintTracking.mnemonic" )
-										"toolTipText": "Toggle creating hints based on actions in Collections"
+										"text": new FormMessage( null, "Navigator.button.HintTracking.text" )
+										"mnemonic": new FormMessage( null, "Navigator.button.HintTracking.mnemonic" )
+										"toolTipText": new FormMessage( null, "Navigator.button.HintTracking.toolTipText" )
 										"focusable": false
 									} )
 									add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
@@ -133,7 +133,7 @@ new FormModel {
 											"maximumSize": new java.awt.Dimension( 36, 30 )
 											"minimumSize": new java.awt.Dimension( 36, 30 )
 											"preferredSize": new java.awt.Dimension( 36, 30 )
-											"toolTipText": new FormMessage( null, "Navigator.buttonBack.toolTipText" )
+											"toolTipText": new FormMessage( null, "Navigator.button.Back.toolTipText" )
 											"actionCommand": "navBack"
 											"focusable": false
 											"defaultCapable": false
@@ -148,7 +148,7 @@ new FormModel {
 											"maximumSize": new java.awt.Dimension( 36, 30 )
 											"minimumSize": new java.awt.Dimension( 36, 30 )
 											"preferredSize": new java.awt.Dimension( 36, 30 )
-											"toolTipText": new FormMessage( null, "Navigator.buttonForward.toolTipText" )
+											"toolTipText": new FormMessage( null, "Navigator.button.Forward.toolTipText" )
 											"actionCommand": "NavForward"
 											"focusable": false
 											"defaultCapable": false
@@ -164,7 +164,7 @@ new FormModel {
 											"maximumSize": new java.awt.Dimension( 36, 30 )
 											"minimumSize": new java.awt.Dimension( 36, 30 )
 											"preferredSize": new java.awt.Dimension( 36, 30 )
-											"toolTipText": new FormMessage( null, "Navigator.buttonUp.toolTipText" )
+											"toolTipText": new FormMessage( null, "Navigator.button.Up.toolTipText" )
 											"actionCommand": "NavUp"
 											"focusable": false
 											"defaultCapable": false
@@ -181,7 +181,7 @@ new FormModel {
 										name: "textFieldLocation"
 										"preferredSize": new java.awt.Dimension( 810, 30 )
 										"horizontalAlignment": 2
-										"toolTipText": "Location"
+										"toolTipText": new FormMessage( null, "Navigator.textField.Location.toolTipText" )
 										"name": "location"
 										"editable": false
 										"maximumSize": new java.awt.Dimension( 2147483647, 30 )
@@ -267,8 +267,8 @@ new FormModel {
 											} )
 										} )
 									}, new FormLayoutConstraints( null ) {
-										"title": new FormMessage( null, "Navigator.panelCollectionOne.tab.title" )
-										"mnemonic": new FormMessage( null, "Navigator.panelCollectionOne.tab.mnemonic" )
+										"title": new FormMessage( null, "Navigator.panel.CollectionOne.tab.title" )
+										"mnemonic": new FormMessage( null, "Navigator.panel.CollectionOne.tab.mnemonic" )
 									} )
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 										name: "panelSystemOne"
@@ -310,8 +310,8 @@ new FormModel {
 											} )
 										} )
 									}, new FormLayoutConstraints( null ) {
-										"title": new FormMessage( null, "Navigator.panelSystemOne.tab.title" )
-										"mnemonic": new FormMessage( null, "Navigator.panelSystemOne.tab.mnemonic" )
+										"title": new FormMessage( null, "Navigator.panel.SystemOne.tab.title" )
+										"mnemonic": new FormMessage( null, "Navigator.panel.SystemOne.tab.mnemonic" )
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "left"
@@ -366,8 +366,8 @@ new FormModel {
 											} )
 										} )
 									}, new FormLayoutConstraints( null ) {
-										"title": new FormMessage( null, "Navigator.panelCollectionTwo.tab.title" )
-										"mnemonic": new FormMessage( null, "Navigator.panelCollectionTwo.tab.mnemonic_2" )
+										"title": new FormMessage( null, "Navigator.panel.CollectionTwo.tab.title" )
+										"mnemonic": new FormMessage( null, "Navigator.panel.CollectionTwo.tab.mnemonic" )
 									} )
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 										name: "panelSystemTwo"
@@ -408,8 +408,8 @@ new FormModel {
 											} )
 										} )
 									}, new FormLayoutConstraints( null ) {
-										"title": new FormMessage( null, "Navigator.panelSystemTwo.tab.title" )
-										"mnemonic": new FormMessage( null, "Navigator.panelSystemTwo.tab.mnemonic" )
+										"title": new FormMessage( null, "Navigator.panel.SystemTwo.tab.title" )
+										"mnemonic": new FormMessage( null, "Navigator.panel.SystemTwo.tab.mnemonic" )
 									} )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "right"
@@ -442,8 +442,8 @@ new FormModel {
 									"verifyInputWhenFocusTarget": false
 								} )
 							}, new FormLayoutConstraints( null ) {
-								"title": new FormMessage( null, "Navigator.scrollPaneLog.tab.title" )
-								"mnemonic": new FormMessage( null, "Navigator.scrollPaneLog.tab.mnemonic" )
+								"title": new FormMessage( null, "Navigator.scrollPane.Log.tab.title" )
+								"mnemonic": new FormMessage( null, "Navigator.scrollPane.Log.tab.mnemonic" )
 							} )
 							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 								name: "scrollPaneProperties"
@@ -456,15 +456,15 @@ new FormModel {
 									"contentType": "text/html"
 								} )
 							}, new FormLayoutConstraints( null ) {
-								"title": new FormMessage( null, "Navigator.scrollPaneProperties.tab.title" )
-								"mnemonic": new FormMessage( null, "Navigator.scrollPaneProperties.tab.mnemonic" )
+								"title": new FormMessage( null, "Navigator.scrollPane.Properties.tab.title" )
+								"mnemonic": new FormMessage( null, "Navigator.scrollPane.Properties.tab.mnemonic" )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "right"
 						} )
 					}, new FormLayoutConstraints( null ) {
-						"title": "Browser"
-						"mnemonic": new FormMessage( null, "Navigator.splitPaneBrowser.tab.mnemonic" )
+						"title": new FormMessage( null, "Navigator.splitPane.Browser.tab.title" )
+						"mnemonic": new FormMessage( null, "Navigator.splitPane.Browser.tab.mnemonic" )
 					} )
 					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 						name: "splitPaneBackup"
@@ -472,14 +472,14 @@ new FormModel {
 						"dividerLocation": 450
 						"lastDividerLocation": 450
 					}, new FormLayoutConstraints( null ) {
-						"title": new FormMessage( null, "Navigator.splitPaneBackup.tab.title" )
-						"mnemonic": new FormMessage( null, "Navigator.splitPaneBackup.tab.mnemonic" )
+						"title": new FormMessage( null, "Navigator.splitPane.Backup.tab.title" )
+						"mnemonic": new FormMessage( null, "Navigator.splitPane.Backup.tab.mnemonic" )
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 						name: "panelLibraries"
 					}, new FormLayoutConstraints( null ) {
-						"title": "Libraries"
-						"mnemonic": new FormMessage( null, "Navigator.panelLibraries.tab.mnemonic" )
+						"title": new FormMessage( null, "Navigator.splitPane.Libraries.tab.title" )
+						"mnemonic": new FormMessage( null, "Navigator.splitPane.Libraries.tab.mnemonic" )
 					} )
 				} )
 			}, new FormLayoutConstraints( class java.lang.String ) {
@@ -494,7 +494,7 @@ new FormModel {
 				name: "panelStatus"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "labelStatusLeft"
-					"text": new FormMessage( null, "Navigator.labelStatusLeft.text" )
+					"text": new FormMessage( null, "Navigator.label.StatusLeft.text" )
 					"horizontalAlignment": 2
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"hAlign": 2
@@ -512,7 +512,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "labelStatusRight"
-					"text": new FormMessage( null, "Navigator.labelStatusRight.text" )
+					"text": new FormMessage( null, "Navigator.label.StatusRight.text" )
 					"horizontalAlignment": 4
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 2
@@ -527,34 +527,34 @@ new FormModel {
 				name: "menuBarMain"
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuFile"
-					"text": new FormMessage( null, "Navigator.menuFile.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuFile.mnemonic" )
+					"text": new FormMessage( null, "Navigator.menu.File.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.File.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemOpenPublisher"
-						"text": new FormMessage( null, "Navigator.menuItemOpenPublisher.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenPublisher.mnemonic_2" )
+						"text": new FormMessage( null, "Navigator.menu.OpenPublisher.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.OpenPublisher.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 						"displayedMnemonicIndex": 5
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemOpenSubscriber"
-						"text": new FormMessage( null, "Navigator.menuItemOpenSubscriber.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenSubscriber.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.OpenSubscriber.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.OpenSubscriber.mnemonic" )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemOpenHintKeys"
-						"text": new FormMessage( null, "Navigator.menuItemOpenHintKeys.text" )
+						"text": new FormMessage( null, "Navigator.menu.OpenHintKeys.text" )
 						"selected": true
-						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintKeys.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.OpenHintKeys.mnemonic" )
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemOpenHintServer"
-						"text": new FormMessage( null, "Navigator.menuItemOpenHintServer.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintServer.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.OpenHintServer.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.OpenHintServer.mnemonic" )
 						"enabled": false
 						"horizontalTextPosition": 2
 					} )
@@ -563,8 +563,8 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSaveLayout"
-						"text": new FormMessage( null, "Navigator.menuItemSaveLayout.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemSaveLayout.mnemonic_3" )
+						"text": new FormMessage( null, "Navigator.menu.SaveLayout.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.SaveLayout.mnemonic_3" )
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -572,16 +572,16 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemQuitTerminate"
-						"text": new FormMessage( null, "Navigator.menuItemQuitTerminate.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemQuitTerminate.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.QuitTerminate.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.QuitTerminate.mnemonic" )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
 						"displayedMnemonicIndex": 8
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemFileQuit"
-						"text": new FormMessage( null, "Navigator.menuItemFileQuit.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemFileQuit.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Quit.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Quit.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "menuItemFileQuitActionPerformed", true ) )
@@ -589,12 +589,12 @@ new FormModel {
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuEdit"
-					"text": new FormMessage( null, "Navigator.menuEdit.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuEdit.mnemonic" )
+					"text": new FormMessage( null, "Navigator.menu.Edit.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.Edit.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemFind"
-						"text": new FormMessage( null, "Navigator.menuItemFind.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemFind.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Find.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Find.mnemonic" )
 						"enabled": false
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 70, 130, false )
 						"horizontalAlignment": 2
@@ -602,24 +602,24 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemNewFolder"
-						"text": new FormMessage( null, "Navigator.menuItemNewFolder.text" )
+						"text": new FormMessage( null, "Navigator.menu.New.folder.text" )
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 118, 0, false )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemNewFolder.mnemonic_2" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.New.folder.mnemonic" )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRename"
-						"text": new FormMessage( null, "Navigator.menuItemRename.text" )
+						"text": new FormMessage( null, "Navigator.menu.Rename.text" )
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 113, 0, false )
 						"horizontalAlignment": 2
-						"mnemonic": new FormMessage( null, "Navigator.menuItemRename.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Rename.mnemonic" )
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemTouch"
-						"text": new FormMessage( null, "Navigator.menuItemTouch.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemTouch.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Touch.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Touch.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
@@ -628,24 +628,24 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemCopy"
-						"text": new FormMessage( null, "Navigator.menuItemCopy.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemCopy.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Copy.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Copy.mnemonic" )
 						"horizontalTextPosition": 2
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 67, 130, false )
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemCut"
-						"text": new FormMessage( null, "Navigator.menuItemCut.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemCut.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Cut.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Cut.mnemonic" )
 						"horizontalTextPosition": 2
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 88, 130, false )
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemPaste"
-						"text": new FormMessage( null, "Navigator.menuItemPaste.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemPaste.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Paste.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Paste.mnemonic" )
 						"horizontalTextPosition": 2
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 86, 130, false )
 						"horizontalAlignment": 2
@@ -655,9 +655,9 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemDelete"
-						"text": new FormMessage( null, "Navigator.menuItemDelete.text" )
+						"text": new FormMessage( null, "Navigator.menu.Delete.text" )
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 127, 0, false )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemDelete.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Delete.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
@@ -666,30 +666,29 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSettings"
-						"text": new FormMessage( null, "Navigator.menuItemSettings.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemSettings.mnemonic_2" )
+						"text": new FormMessage( null, "Navigator.menu.Settings.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Settings.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuView"
-					"text": new FormMessage( null, "Navigator.menuView.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuView.mnemonic" )
-					"selectedIcon": sfield com.jformdesigner.model.FormObject NULL_VALUE
+					"text": new FormMessage( null, "Navigator.menu.View.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.View.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRefresh"
-						"text": new FormMessage( null, "Navigator.menuItemRefresh.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemRefresh.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Refresh.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Refresh.mnemonic" )
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 116, 0, false )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemProgress"
-						"text": new FormMessage( null, "Navigator.menuItemProgress.text" )
+						"text": new FormMessage( null, "Navigator.menu.Progress.text" )
 						"horizontalAlignment": 2
-						"mnemonic": new FormMessage( null, "Navigator.menuItemProgress.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Progress.mnemonic" )
 						"horizontalTextPosition": 2
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 117, 0, false )
 					} )
@@ -698,8 +697,8 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemShowHidden"
-						"text": new FormMessage( null, "Navigator.menuItemShowHidden.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemShowHidden.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.ShowHidden.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.ShowHidden.mnemonic" )
 						"accelerator": static javax.swing.KeyStroke getKeyStroke( 72, 130, false )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
@@ -708,20 +707,20 @@ new FormModel {
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuBookmarks"
-					"text": new FormMessage( null, "Navigator.menuBookmarks.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuBookmarks.mnemonic" )
+					"text": new FormMessage( null, "Navigator.menu.Bookmarks.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.Bookmarks.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemBookmarksManage"
-						"text": new FormMessage( null, "Navigator.menuItemBookmarksManage.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemBookmarksManage.mnemonic_2" )
+						"text": new FormMessage( null, "Navigator.menu.BookmarksManage.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.BookmarksManage.mnemonic" )
 						"horizontalTextPosition": 2
 						"enabled": false
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAddBookmark"
-						"text": new FormMessage( null, "Navigator.menuItemAddBookmark.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemAddBookmark.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.AddBookmark.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.AddBookmark.mnemonic" )
 						"horizontalTextPosition": 2
 						"enabled": false
 						"horizontalAlignment": 2
@@ -732,35 +731,35 @@ new FormModel {
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuTools"
-					"text": new FormMessage( null, "Navigator.menuTools.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuTools.mnemonic" )
+					"text": new FormMessage( null, "Navigator.menu.Tools.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.Tools.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemDuplicates"
-						"text": new FormMessage( null, "Navigator.menuItemDuplicates.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemDuplicates.mnemonic_2" )
+						"text": new FormMessage( null, "Navigator.menu.Duplicates.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Duplicates.mnemonic" )
 						"horizontalTextPosition": 2
 						"enabled": false
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemJunk"
-						"text": new FormMessage( null, "Navigator.menuItemJunk.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemJunk.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Junk.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Junk.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemPlexGenerator"
-						"text": new FormMessage( null, "Navigator.menuItemPlexGenerator.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemPlexGenerator.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.PlexGenerator.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.PlexGenerator.mnemonic" )
 						"horizontalTextPosition": 2
 						"enabled": false
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRenamer"
-						"text": new FormMessage( null, "Navigator.menuItemRenamer.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemRenamer.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Renamer.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Renamer.mnemonic" )
 						"horizontalAlignment": 2
 						"enabled": false
 						"horizontalTextPosition": 2
@@ -770,8 +769,8 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemExternalTools"
-						"text": new FormMessage( null, "Navigator.menuItemExternalTools.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemExternalTools.mnemonic_2" )
+						"text": new FormMessage( null, "Navigator.menu.ExternalTools.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.ExternalTools.mnemonic" )
 						"horizontalTextPosition": 2
 						"enabled": false
 						"horizontalAlignment": 2
@@ -779,12 +778,12 @@ new FormModel {
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuJobs"
-					"text": new FormMessage( null, "Navigator.menuJobs.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuJobs.mnemonic" )
+					"text": new FormMessage( null, "Navigator.menu.Jobs.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.Jobs.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemJobsManage"
-						"text": new FormMessage( null, "Navigator.menuItemJobsManage.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemJobsManage.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.JobsManage.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.JobsManage.mnemonic" )
 						"enabled": false
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
@@ -795,26 +794,26 @@ new FormModel {
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuWindows"
-					"text": new FormMessage( null, "Navigator.menuWindows.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuWindows.mnemonic" )
+					"text": new FormMessage( null, "Navigator.menu.Windows.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.Windows.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemMaximize"
-						"text": new FormMessage( null, "Navigator.menuItemMaximize.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemMaximize.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Maximize.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Maximize.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemMinimize"
-						"text": new FormMessage( null, "Navigator.menuItemMinimize.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemMinimize.mnemonic_2" )
+						"text": new FormMessage( null, "Navigator.menu.Minimize.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Minimize.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRestore"
-						"text": new FormMessage( null, "Navigator.menuItemRestore.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemRestore.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Restore.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Restore.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
@@ -823,41 +822,41 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSplitHorizontal"
-						"text": new FormMessage( null, "Navigator.menuItemSplitHorizontal.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemSplitHorizontal.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.SplitHorizontal.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.SplitHorizontal.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemSplitVertical"
-						"text": new FormMessage( null, "Navigator.menuItemSplitVertical.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemSplitVertical.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.SplitVertical.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.SplitVertical.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuHelp"
-					"text": new FormMessage( null, "Navigator.menuHelp.text" )
-					"mnemonic": new FormMessage( null, "Navigator.menuHelp.mnemonic" )
+					"text": new FormMessage( null, "Navigator.menu.Help.text" )
+					"mnemonic": new FormMessage( null, "Navigator.menu.Help.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemControls"
-						"text": new FormMessage( null, "Navigator.menuItemControls.text" )
+						"text": new FormMessage( null, "Navigator.menu.Controls.text" )
 						"horizontalAlignment": 2
-						"mnemonic": new FormMessage( null, "Navigator.menuItemControls.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Controls.mnemonic" )
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemDocumentation"
-						"text": new FormMessage( null, "Navigator.menuItemDocumentation.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemDocumentation.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.Documentation.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Documentation.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGitHubProject"
-						"text": new FormMessage( null, "Navigator.menuItemGitHubProject.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemGitHubProject.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.GitHubProject.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.GitHubProject.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
@@ -866,8 +865,8 @@ new FormModel {
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAbout"
-						"text": new FormMessage( null, "Navigator.menuItemAbout.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemAbout.mnemonic" )
+						"text": new FormMessage( null, "Navigator.menu.About.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.About.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
@@ -881,31 +880,31 @@ new FormModel {
 			name: "popupMenuBrowser"
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemFind"
-				"text": new FormMessage( null, "Navigator.popupMenuItemFind.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Find.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemFind.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Find.mnemonic" )
 				"horizontalTextPosition": 2
 				"enabled": false
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemNewFolder"
-				"text": new FormMessage( null, "Navigator.popupMenuItemNewFolder.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.NewFolder.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemNewFolder.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.NewFolder.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemRename"
-				"text": new FormMessage( null, "Navigator.popupMenuItemRename.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Rename.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemRename.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Rename.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemTouch"
-				"text": new FormMessage( null, "Navigator.popupMenuItemTouch.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Touch.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemTouch.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Touch.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 			add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -913,23 +912,23 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemCopy"
-				"text": new FormMessage( null, "Navigator.popupMenuItemCopy.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Copy.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemCopy.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Copy.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemCut"
-				"text": new FormMessage( null, "Navigator.popupMenuItemCut.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Cut.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemCut.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Cut.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemPaste"
-				"text": new FormMessage( null, "Navigator.popupMenuItemPaste.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Paste.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemPaste.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Paste.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 			add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -937,9 +936,9 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemDelete"
-				"text": new FormMessage( null, "Navigator.popupMenuItemDelete.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Delete.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemDelete.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Delete.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 		}, new FormLayoutConstraints( null ) {
@@ -949,16 +948,16 @@ new FormModel {
 			name: "popupMenuLog"
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemBottom"
-				"text": new FormMessage( null, "Navigator.popupMenuItemBottom.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Bottom.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemBottom.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Bottom.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemClear"
-				"text": new FormMessage( null, "Navigator.popupMenuItemClear.text" )
+				"text": new FormMessage( null, "Navigator.popupMenu.Clear.text" )
 				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemClear.mnemonic" )
+				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Clear.mnemonic" )
 				"horizontalTextPosition": 2
 			} )
 		}, new FormLayoutConstraints( null ) {

@@ -8,6 +8,9 @@ import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.*;
@@ -528,6 +531,33 @@ public class Utils
         final PrintWriter pw = new PrintWriter(sw, true);
         throwable.printStackTrace(pw);
         return sw.getBuffer().toString();
+    }
+
+    /**
+     * Convert an icon to an image including the alpha channel
+     *
+     * @param icon Icon to convert
+     * @return Image from icon
+     */
+    public static Image iconToImage(Icon icon)
+    {
+        if (icon instanceof ImageIcon)
+        {
+            return ((ImageIcon)icon).getImage();
+        }
+        else
+        {
+            int w = icon.getIconWidth();
+            int h = icon.getIconHeight();
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            GraphicsDevice gd = ge.getDefaultScreenDevice();
+            GraphicsConfiguration gc = gd.getDefaultConfiguration();
+            BufferedImage image = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g = image.createGraphics();
+            icon.paintIcon(null, g, 0, 0);
+            g.dispose();
+            return image;
+        }
     }
 
     /**

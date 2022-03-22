@@ -2,6 +2,7 @@ package com.groksoft.els.gui.tools;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
+import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -95,7 +96,7 @@ public abstract class AbstractTool implements Serializable
     public String getFullPath()
     {
         String path = getDirectoryPath() + System.getProperty("file.separator")+
-                getConfigName() + ".json";
+                Utils.scrubFilename(getConfigName()) + ".json";
         return path;
     }
 

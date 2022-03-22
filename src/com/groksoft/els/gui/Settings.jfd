@@ -122,25 +122,25 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "hintButtonColorLabel"
-								"text": new FormMessage( null, "Settings.hintButtonColorLabel.text" )
+								"text": new FormMessage( null, "Settings.hintButton.ColorLabel.text" )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "dateInfoButton"
-								"text": new FormMessage( null, "Settings.dateInfoButton.text" )
-								"toolTipText": new FormMessage( null, "Settings.dateInfoButton.text.tooltip" )
+								"text": new FormMessage( null, "Settings.button.dateInfo.text" )
+								"toolTipText": new FormMessage( null, "Settings.button.dateInfo.text.tooltip" )
 							} )
 							add( new FormComponent( "javax.swing.JTextField" ) {
 								name: "textFieldHintButtonColor"
-								"toolTipText": new FormMessage( null, "Settings.textFieldHintButtonColor.toolTipText" )
+								"toolTipText": new FormMessage( null, "Settings.textField.HintButtonColor.toolTipText" )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonChooseColor"
-								"text": new FormMessage( null, "Settings.buttonChooseColor.text" )
-								"toolTipText": new FormMessage( null, "Settings.buttonChooseColor.toolTipText" )
+								"text": new FormMessage( null, "Settings.button.ChooseColor.text" )
+								"toolTipText": new FormMessage( null, "Settings.button.ChooseColor.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "chooseColor", true ) )
 							} )
 						}, new FormLayoutConstraints( null ) {
-							"title": new FormMessage( null, "Settings.appearance.Panel.tab.title" )
+							"title": new FormMessage( null, "Settings.appearance.tab.title" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 							"$horizontalGroup": "par l {seq {space :::p, par l {comp hideFilesInTreeLabel::l:p:200:p, comp hideHiddenFilesLabel::l:p:200:p, comp sortCaseSensitiveLabel::l:p:200:p, comp sortFoldersBeforeFilesLabel::l:p:200:p, comp sortReverseLabel::l:p:200:p}, space :::p, par l {comp hideFilesInTreeCheckBox::l:p:238:p, comp hideHiddenFilesCheckBox::l:p:238:p, comp sortCaseSensitiveCheckBox::l:p:238:p, comp sortFoldersBeforeFilesCheckBox::l:p:238:p, comp sortReverseCheckBox::l:p:238:p}, space :::p}}"
@@ -217,14 +217,14 @@ new FormModel {
 					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "okButton"
-						"text": new FormMessage( null, "Settings.okButton.text" )
+						"text": new FormMessage( null, "Settings.button.Ok.text" )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
 						"gridy": 0
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "cancelButton"
-						"text": new FormMessage( null, "Settings.cancelButton.text" )
+						"text": new FormMessage( null, "Settings.button.Cancel.text" )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2
 						"gridy": 0

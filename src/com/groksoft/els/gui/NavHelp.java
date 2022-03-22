@@ -132,8 +132,8 @@ public class NavHelp extends JDialog
         okButton = new JButton();
 
         //======== this ========
-        setName(guiContext.cfg.gs("NavHelp.this.name"));
-        setTitle(guiContext.cfg.gs("NavHelp.this.title"));
+        setName(guiContext.cfg.gs("NavHelp.name"));
+        setTitle(guiContext.cfg.gs("NavHelp.title"));
         setMinimumSize(new Dimension(100, 50));
         addWindowListener(new WindowAdapter() {
             @Override
@@ -182,9 +182,9 @@ public class NavHelp extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("NavHelp.okButton.text"));
-                okButton.setActionCommand(guiContext.cfg.gs("NavHelp.okButton.text"));
-                okButton.setMnemonic(guiContext.cfg.gs("NavHelp.okButton.mnemonic").charAt(0));
+                okButton.setText(guiContext.cfg.gs("NavHelp.button.Ok.text"));
+                okButton.setActionCommand(guiContext.cfg.gs("NavHelp.button.Ok.text"));
+                okButton.setMnemonic(guiContext.cfg.gs("NavHelp.button.Ok.mnemonic").charAt(0));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

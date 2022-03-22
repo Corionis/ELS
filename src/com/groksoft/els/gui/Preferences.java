@@ -31,7 +31,6 @@ public class Preferences implements Serializable
     private int collectionTwoSizeWidth = 80; // tracked value
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
-    private transient GuiContext guiContext;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
@@ -72,10 +71,9 @@ public class Preferences implements Serializable
     /**
      * Constructor
      */
-    public Preferences(Configuration config, GuiContext gctxt)
+    public Preferences(Configuration config)
     {
         cfg = config;
-        guiContext = gctxt;
     }
 
     public void extractColumnSizes(GuiContext guiContext, JTable table)
@@ -691,7 +689,7 @@ public class Preferences implements Serializable
         this.systemTwoSizeWidth = systemTwoSizeWidth;
     }
 
-    public void write() throws Exception
+    public void write(GuiContext guiContext) throws Exception
     {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
