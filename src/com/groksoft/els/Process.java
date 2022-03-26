@@ -222,10 +222,10 @@ public class Process
                 // if processing all libraries, or this one was specified on the command line with -l,
                 // and it has not been excluded with -L
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
+                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) 
                 {
                     // if the subscriber has included and not excluded this library
-                    if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) // v3.0.0
+                    if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) 
                     {
                         String n = subLib.name.replaceFirst(context.subscriberRepo.SUB_EXCLUDE, "");
                         logger.info("Skipping subscriber library: " + n);
@@ -486,7 +486,7 @@ public class Process
             }
 
             // Get ELS hints keys if specified
-            if (cfg.getHintKeysFile().length() > 0) // v3.0.0
+            if (cfg.getHintKeysFile().length() > 0) 
             {
                 context.hintKeys = new HintKeys(cfg, context);
                 context.hintKeys.read(cfg.getHintKeysFile());
@@ -539,7 +539,7 @@ public class Process
             }
 
             // if all the pieces are specified perform a full munge of the collections
-            if (!localHints && !cfg.isHintSkipMainProcess()) // v3.0.0
+            if (!localHints && !cfg.isHintSkipMainProcess()) 
             {
                 if (cfg.isTargetsEnabled() &&
                         (cfg.getPublisherLibrariesFileName().length() > 0 ||

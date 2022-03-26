@@ -88,7 +88,7 @@ public class Main
         }
         else
             // Validate ELS hints keys if specified
-            if (cfg.getHintKeysFile().length() > 0) // v3.0.0
+            if (cfg.getHintKeysFile().length() > 0) 
             {
                 context.hintKeys = new HintKeys(cfg, context);
                 context.hintKeys.read(cfg.getHintKeysFile());
@@ -217,7 +217,7 @@ public class Main
                         }
                         else if (cfg.isTargetsEnabled())
                         {
-                            context.subscriberRepo = context.publisherRepo; // v3.00 for publisher ELS Hints
+                            context.subscriberRepo = context.publisherRepo; 
                         }
 
                         // setup the hint status server for local use if defined

@@ -359,7 +359,7 @@ public class Transfer
             cfg.setTargetsFilename(location);
         }
 
-        if (location != null && location.length() > 0) // v3.0.0 allow targets to be empty to use sources as target locations
+        if (location != null && location.length() > 0) 
         {
             if (storageTargets == null)
                 storageTargets = new Storage();
@@ -464,7 +464,7 @@ public class Transfer
                 }
             }
         }
-        else // v3.0.0, use sources for target locations
+        else 
         {
             Library lib = targetRepo.getLibrary(library);
             if (lib != null)
@@ -602,7 +602,7 @@ public class Transfer
         if (!hasTarget) // provided targets file overrides subscriber file locations minimum values
         {
             if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
-                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) // v3.0.0
+                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) 
             {
                 minimum = getLocationMinimum(path);
             }

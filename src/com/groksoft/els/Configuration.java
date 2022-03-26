@@ -4,9 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import org.apache.sshd.common.util.io.IoUtils;
 
-import java.net.URL;
 import java.util.*;
 
 /**
@@ -98,7 +96,7 @@ public class Configuration
      */
     public void addExcludedLibraryName(String publisherLibraryName)
     {
-        this.selectedLibraryExcludes.add(publisherLibraryName); // v3.0.0
+        this.selectedLibraryExcludes.add(publisherLibraryName); 
     }
 
     /**
@@ -175,7 +173,7 @@ public class Configuration
         }
         if (!getExcludedLibraryNames().isEmpty())
         {
-            logger.info(SHORT, "  cfg: -L Excluded library name(s):"); // v3.0.0
+            logger.info(SHORT, "  cfg: -L Excluded library name(s):"); 
             for (String ln : getExcludedLibraryNames())
             {
                 logger.info(SHORT, "          " + ln);
@@ -263,7 +261,7 @@ public class Configuration
      */
     public ArrayList<String> getExcludedLibraryNames()
     {
-        return selectedLibraryExcludes; // v3.0.0
+        return selectedLibraryExcludes; 
     }
 
     /**
@@ -564,7 +562,7 @@ public class Configuration
      */
     public boolean isExcludedLibrary(String name)
     {
-        for (String library : selectedLibraryExcludes) // v3.0.0
+        for (String library : selectedLibraryExcludes) 
         {
             if (library.equalsIgnoreCase(name))
             {
@@ -755,7 +753,7 @@ public class Configuration
      */
     public boolean isSpecificExclude()
     {
-        return this.specificExclude; // v3.0.0
+        return this.specificExclude; 
     }
 
     /**
@@ -1034,7 +1032,7 @@ public class Configuration
                 case "--exclude":
                     if (index <= args.length - 2)
                     {
-                        addExcludedLibraryName(args[index + 1]); // v3.0.0
+                        addExcludedLibraryName(args[index + 1]); 
                         setSpecificExclude(true);
                         ++index;
                     }
@@ -1543,7 +1541,7 @@ public class Configuration
      */
     public void setSpecificExclude(boolean sense)
     {
-        this.specificExclude = sense; // v3.0.0
+        this.specificExclude = sense; 
     }
 
     /**

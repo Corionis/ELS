@@ -11,6 +11,7 @@ import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,6 +46,7 @@ public class Navigator
     //
     // TODO:
     //  ! TEST Hints with spread-out files, e.g. TV Show in two locations.
+    //  ? Can Navigator be made to work without a Collection, i.e. secure SFTP tool, no "media" required?
     //  * Display Collection:
     //     * Whole tree - done
     //     * !-Z alphabetic
@@ -54,18 +56,6 @@ public class Navigator
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
-    // TODO:
-    //  * Handle multiple operations; keep GUI alive;
-    //  * Use a queue mechanism for operations
-    //  * Put NavTransferHandler to use a thread, see:
-    //      https://stackoverflow.com/questions/69224236/why-is-drag-and-drop-taking-time-on-huge-files
-    //  * Change Progress dialog
-    //    + more info
-    //    + Pause & Cancel buttons
-    //    + Make "not on top"
-    //    + allow GUI to be minimized with Progress up
-    //    + add Window controls
-    //
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -73,9 +63,6 @@ public class Navigator
         guiContext.cfg = config;
         guiContext.context = ctx;
         guiContext.navigator = this;
-        guiContext.preferences = new Preferences(config);
-        readPreferences();
-        guiContext.cfg.setLongScale(guiContext.preferences.isBinaryScale());
     }
 
     /**
@@ -129,6 +116,11 @@ public class Navigator
                 guiContext.context.hintKeys = new HintKeys(guiContext.cfg, guiContext.context);
                 guiContext.context.hintKeys.read(guiContext.cfg.getHintKeysFile());
                 showHintTrackingButton = true;
+
+                File json = new File(guiContext.cfg.getHintKeysFile());
+                String path = json.getAbsolutePath();
+                guiContext.preferences.setLastHintKeysOpenFile(path);
+                guiContext.preferences.setLastHintKeysOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
             }
         }
         catch (Exception e)
@@ -1234,6 +1226,10 @@ public class Navigator
             @Override
             public void run()
             {
+                guiContext.preferences = new Preferences(guiContext.cfg);
+                readPreferences();
+                guiContext.cfg.setLongScale(guiContext.preferences.isBinaryScale());
+
                 if (initialize())
                 {
                     logger.info(guiContext.cfg.gs("Navigator.initialized"));

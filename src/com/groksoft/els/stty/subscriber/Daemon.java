@@ -149,7 +149,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         boolean tout = false;
 
         // Get ELS hints keys if specified
-        if (cfg.getHintKeysFile().length() > 0) // v3.0.0
+        if (cfg.getHintKeysFile().length() > 0) 
         {
             context.hintKeys = new HintKeys(cfg, context);
             context.hintKeys.read(cfg.getHintKeysFile());
@@ -305,7 +305,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                         {
                             if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) // v3.0.0
+                                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) 
                             {
                                 if (subLib.items != null)
                                 {
@@ -316,7 +316,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             else
                             {
                                 logger.info("Skipping subscriber library: " + subLib.name);
-                                subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name; // v3.0.0
+                                subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name; 
                             }
                         }
 

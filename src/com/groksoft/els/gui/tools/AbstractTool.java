@@ -41,13 +41,6 @@ public abstract class AbstractTool implements Serializable
     protected abstract void argsParse() throws Exception;
 
     /**
-     * Replace arguments with GUI data
-     *
-     * @throws Exception
-     */
-    protected abstract void argsReplace() throws Exception;
-
-    /**
      * Test values of arguments for sanity
      *
      * @throws Exception
@@ -163,7 +156,6 @@ public abstract class AbstractTool implements Serializable
         try
         {
             argsParse();
-            argsReplace();
             argsTest();
         }
         catch (Exception e)

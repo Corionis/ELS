@@ -4,6 +4,7 @@ import com.groksoft.els.Utils;
 import com.groksoft.els.gui.*;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -899,6 +900,11 @@ public class Browser
         guiContext.form.treeCollectionOne.setName("treeCollectionOne");
         if (guiContext.context.publisherRepo != null && guiContext.context.publisherRepo.isInitialized())
         {
+            File json = new File(guiContext.context.publisherRepo.getJsonFilename());
+            String path = json.getAbsolutePath();
+            guiContext.preferences.setLastPublisherOpenFile(path);
+            guiContext.preferences.setLastPublisherOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
+
             loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo, false);
         }
         else
@@ -1032,6 +1038,11 @@ public class Browser
         guiContext.form.treeCollectionTwo.setName("treeCollectionTwo");
         if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
         {
+            File json = new File(guiContext.context.subscriberRepo.getJsonFilename());
+            String path = json.getAbsolutePath();
+            guiContext.preferences.setLastSubscriberOpenFile(path);
+            guiContext.preferences.setLastSubscriberOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
+
             loadCollectionTree(guiContext.form.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.cfg.isRemoteSession());
         }
         else

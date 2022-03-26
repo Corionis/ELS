@@ -20,7 +20,7 @@ public class NavTreeUserObject implements Comparable, Serializable
     public static final int DRIVE = 3;
     public static final int HOME = 4;
     public static final int LIBRARY = 5; // ELS library node
-    public static final int REAL = 6; // use File
+    public static final int REAL = 6; // physical file or directory
     public static final int SYSTEM = 7; // hidden; holds System tab Computer, Bookmarks, etc.
 
     public File file;

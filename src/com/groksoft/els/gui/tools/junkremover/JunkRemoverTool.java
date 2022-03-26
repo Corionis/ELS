@@ -25,16 +25,10 @@ import java.util.List;
 public class JunkRemoverTool extends AbstractTool
 {
     // @formatter:off
-
-    // data members
-    private String library = "";
-    private String location = "";
     private boolean onPublisher = false;
     private boolean onSubscriber = false;
     private ArrayList<JunkItem> junkList;
 
-    // transients
-    transient private static String ALL = "#ALL_LIBRARIES";
     transient boolean dataHasChanged = false;
     transient private GuiContext guiContext = null;
     transient private NavTreeNode node;
@@ -69,6 +63,17 @@ public class JunkRemoverTool extends AbstractTool
     /**
      * Parse defined arguments for this tool
      *
+     *  -D | --dry-run
+     *
+     *  -l | --library [name] : Library to process
+     *
+     *  -L | --exclude [name] : Library to exclude
+     *
+     *  -p | --publisher : Run on publisher
+     *
+     *  -s | --subscriber : Run on subscriber
+     *
+     *
      * @throws Exception
      */
     @Override
@@ -87,80 +92,30 @@ public class JunkRemoverTool extends AbstractTool
                 case "--dry-run":
                     setDryRun(true);
                     break;
-                case "-p":                                              // publisher library
-                case "--publisher-library":
+                case "-l":                                              // library
+                case "--library":
+                    if (index < args.size() - 1)
+                        guiContext.cfg.addPublisherLibraryName(args.get(++index));
+                    else
+                        throw new MungeException("-l | --library requires a library name");
+                    break;
+                case "-L":                                              // excluded library
+                case "--exclude":
+                    if (index < args.size() - 1)
+                        guiContext.cfg.addExcludedLibraryName(args.get(++index));
+                    else
+                        throw new MungeException("-L | --exclude requires a library name");
+                    break;
+                case "-p":                                              // on publisher
+                case "--publisher":
                     onPublisher = true;
-                    if (index < args.size() - 1)
-                        library = args.get(++index);
-                    else
-                        throw new MungeException("-p|--publisher-library requires a library name");
                     break;
-                case "-P":                                              // publisher location
-                case "--publisher-location":
-                    onPublisher = true;
-                    if (index < args.size() - 1)
-                        location = args.get(++index);
-                    else
-                        throw new MungeException("-P|--publisher-location requires a path");
-                    break;
-                case "-s":                                              // subscriber library
-                case "--subscriber-library":
+                case "-s":                                              // on subscriber
+                case "--subscriber":
                     onSubscriber = true;
-                    if (index < args.size() - 1)
-                        library = args.get(++index);
-                    else
-                        throw new MungeException("-s|--subscriber-library requires a library name");
-                    break;
-                case "-S":                                              // // subscriber location
-                case "--subscriber-location":
-                    onSubscriber = true;
-                    if (index < args.size() - 1)
-                        location = args.get(++index);
-                    else
-                        throw new MungeException("-S|--subscriber-location requires a path");
                     break;
                 default:
                     throw new MungeException(getInternalName() + ": " + "Unknown argument " + arg);
-            }
-        }
-    }
-
-    /**
-     * Replace arguments with GUI data
-     */
-    @Override
-    protected void argsReplace() throws Exception
-    {
-        if (node != null) // if an item is selected in the Navigator GUI
-        {
-            tuo = node.getUserObject();
-            repo = guiContext.context.transfer.getRepo(tuo);
-
-            if (tuo.type == NavTreeUserObject.COLLECTION)
-            {
-                library = ALL;
-            }
-            else if (tuo.type == NavTreeUserObject.LIBRARY)
-            {
-                library = tuo.name;
-                location = tuo.path;
-            }
-            else if (tuo.type == NavTreeUserObject.REAL)
-            {
-                location = tuo.path;
-            }
-            else
-                throw new MungeException("Cannot run " + getDisplayName() + " on the current selection");
-
-            if (tuo.isSubscriber())
-            {
-                onPublisher = false;
-                onSubscriber = true;
-            }
-            else
-            {
-                onPublisher = true;
-                onSubscriber = false;
             }
         }
     }
@@ -172,13 +127,9 @@ public class JunkRemoverTool extends AbstractTool
     protected void argsTest() throws Exception
     {
         if (onPublisher == false && onSubscriber == false)
-            throw new MungeException("Parameters for publisher or subscriber are required");
+            throw new MungeException("Either -p or -s is required");
         if (onPublisher == true && onSubscriber == true)
-            throw new MungeException("Both publisher and subscriber cannot be used");
-        if (library.length() == 0 && location.length() == 0)
-            throw new MungeException("Requires a library or location");
-        if (library.length() > 0 && location.length() > 0)
-            throw new MungeException("Both library and location cannot be used");
+            throw new MungeException("Both -p and -s cannot be used");
     }
 
     public JunkRemoverTool clone()
@@ -228,11 +179,19 @@ public class JunkRemoverTool extends AbstractTool
         String msg;
         if ((msg = validate()).length() == 0)
         {
+            if (guiContext != null)
+            {
+                // interactive
 
+            }
+            else
+            {
+                // command line
+            }
         }
         else
         {
-
+            // validation error, report for interactive or command line
         }
 
         if (guiContext != null)

@@ -7,6 +7,8 @@ import com.google.gson.Gson;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.gui.browser.NavTreeNode;
+import com.groksoft.els.gui.browser.NavTreeUserObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,6 +24,7 @@ import javax.swing.border.*;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.tree.TreePath;
 
 public class JunkRemoverUI extends JDialog
 {
@@ -385,6 +388,55 @@ public class JunkRemoverUI extends JDialog
         tableJunk.requestFocus();
     }
 
+    private void runClicked(ActionEvent e)
+    {
+        if (tableJunk.isEditing())
+        {
+            tableJunk.getCellEditor().stopCellEditing();
+        }
+if (0 == 1)
+{
+    int index = listItems.getSelectedIndex();
+    if (index >= 0)
+    {
+        JunkRemoverTool jrt = listModel.getElementAt(index);
+
+        // process what was selected last
+        Object object = guiContext.browser.lastComponent;
+        if (object instanceof JTree)
+        {
+            JTree sourceTree = (JTree) object;
+            int row = sourceTree.getLeadSelectionRow();
+            if (row > -1)
+            {
+                boolean isRemote = false;
+                TreePath[] paths = sourceTree.getSelectionPaths();
+                for (TreePath path : paths)
+                {
+                    NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
+                    NavTreeUserObject tuo = ntn.getUserObject();
+                }
+            }
+        }
+        else if (object instanceof JTable)
+        {
+            JTable sourceTable = (JTable) object;
+            int row = sourceTable.getSelectedRow();
+            if (row > -1)
+            {
+                boolean isRemote = false;
+                int[] rows = sourceTable.getSelectedRows();
+                for (int i = 0; i < rows.length; ++i)
+                {
+                    NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                }
+            }
+
+        }
+    }
+}
+    }
+
     private void saveConfigurations()
     {
         JunkRemoverTool jrt = null;
@@ -398,7 +450,7 @@ public class JunkRemoverUI extends JDialog
                     jrt.write();
             }
 
-            // remove any deleted tool JSON configuration file
+            // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
                 jrt = deletedTools.get(i);
@@ -551,6 +603,7 @@ public class JunkRemoverUI extends JDialog
                         buttonRun.setText(guiContext.cfg.gs("JunkRemover.button.Run.text"));
                         buttonRun.setMnemonic(guiContext.cfg.gs("JunkRemover.button.Run.mnemonic").charAt(0));
                         buttonRun.setToolTipText(guiContext.cfg.gs("JunkRemover.button.Run.toolTipText"));
+                        buttonRun.addActionListener(e -> runClicked(e));
                         panelTopButtons.add(buttonRun);
                     }
                     panelTop.add(panelTopButtons, BorderLayout.WEST);
