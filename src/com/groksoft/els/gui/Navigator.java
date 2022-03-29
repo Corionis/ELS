@@ -6,6 +6,7 @@ import com.groksoft.els.gui.browser.Browser;
 import com.groksoft.els.gui.browser.NavTransferHandler;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.gui.jobs.JobsUI;
 import com.groksoft.els.gui.tools.junkremover.JunkRemoverUI;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
@@ -56,6 +57,45 @@ public class Navigator
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
+    // IDEA:
+    //  # Tools
+    //      + Duplicate Finder
+    //          * Parameters
+    //              + Auto-delete duplicates
+    //                  - Newest, oldest
+    //          * Runtime
+    //              + Dry run
+    //              + Publisher or Subscriber
+    //              + List of Libraries and/or locations
+    //      + Junk Remover
+    //          * Parameters
+    //              + List of junk patterns
+    //              + Case sensitive flag each
+    //          * Runtime
+    //              + Dry run
+    //              + Publisher or Subscriber
+    //              + List of Libraries and/or locations
+    //      + Plex Generator
+    //          * Parameters
+    //              + URL
+    //              + Port
+    //              + Output filename
+    //          * Runtime
+    //              + Plex security key
+    //      + Renamer
+    //          * Parameters
+    //              + List of from/to patterns & other knobs
+    //              + Case sensitive flag each
+    //          * Runtime
+    //              + Dry run
+    //              + Publisher or Subscriber
+    //              + List of Libraries and/or locations
+    //  # Jobs
+    //      + List of Tools to execute in order
+    //          - Up/down buttons at bottom
+    //      + Each tool
+    //          + Publisher or Subscriber
+    //          + List of Libraries and/or locations
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -1024,26 +1064,18 @@ public class Navigator
             {
                 JunkRemoverUI dialog = new JunkRemoverUI(guiContext.form, guiContext);
                 dialog.setVisible(true);
-/*
-        // TODO For execution - but not here
+            }
+        });
 
-                Object object = guiContext.browser.lastComponent;
-                if (object instanceof JTree)
-                {
-                    JTree sourceTree = (JTree) object;
-                    // do something with (sourceTree);
-                }
-                else if (object instanceof JTable)
-                {
-                    JTable sourceTable = (JTable) object;
-                    // do something with (sourceTable);
-                }
-
-                // something
-                JunkRemoverTool jrTool = new JunkRemoverTool(guiContext, null);
-                jrTool.process();
-*/
-
+        //
+        // -- Jobs Menu
+        guiContext.form.menuItemJobsManage.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JobsUI dialog = new JobsUI(guiContext.form, guiContext);
+                dialog.setVisible(true);
             }
         });
 

@@ -73,6 +73,7 @@ public class About extends JDialog
                 //---- labelTitle ----
                 labelTitle.setText("ELS - Entertainment Library Synchronizer");
                 labelTitle.setHorizontalTextPosition(SwingConstants.LEADING);
+                labelTitle.setHorizontalAlignment(SwingConstants.RIGHT);
                 contentPanel.add(labelTitle, BorderLayout.NORTH);
 
                 //---- hSpacer1 ----

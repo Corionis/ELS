@@ -25,15 +25,20 @@ import java.util.List;
 public class JunkRemoverTool extends AbstractTool
 {
     // @formatter:off
-    private boolean onPublisher = false;
-    private boolean onSubscriber = false;
+
+    // data members
     private ArrayList<JunkItem> junkList;
 
+    // runtime data
+    transient static final String ALL = "#ALL_LIBRARIES#";
     transient boolean dataHasChanged = false;
     transient private GuiContext guiContext = null;
     transient private NavTreeNode node;
+    transient private boolean onPublisher = false;
+    transient private boolean onSubscriber = false;
     transient private Repository repo;
     transient private NavTreeUserObject tuo;
+
     // @formatter:on
 
     public JunkRemoverTool(Configuration config, Context ctxt)
@@ -89,29 +94,18 @@ public class JunkRemoverTool extends AbstractTool
             switch (arg)
             {
                 case "-D":                                              // dry run
-                case "--dry-run":
                     setDryRun(true);
                     break;
                 case "-l":                                              // library
-                case "--library":
                     if (index < args.size() - 1)
                         guiContext.cfg.addPublisherLibraryName(args.get(++index));
                     else
                         throw new MungeException("-l | --library requires a library name");
                     break;
-                case "-L":                                              // excluded library
-                case "--exclude":
-                    if (index < args.size() - 1)
-                        guiContext.cfg.addExcludedLibraryName(args.get(++index));
-                    else
-                        throw new MungeException("-L | --exclude requires a library name");
-                    break;
                 case "-p":                                              // on publisher
-                case "--publisher":
                     onPublisher = true;
                     break;
                 case "-s":                                              // on subscriber
-                case "--subscriber":
                     onSubscriber = true;
                     break;
                 default:

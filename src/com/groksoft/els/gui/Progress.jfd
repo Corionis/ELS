@@ -10,6 +10,7 @@ new FormModel {
 		auxiliary() {
 			"JavaCodeGenerator.defaultVariableModifiers": 1
 			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.cfg.bundle()"
+			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
 		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.FlowLayout ) {
 			"alignOnBaseline": true

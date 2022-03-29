@@ -10,18 +10,23 @@ import java.io.Serializable;
 
 public abstract class AbstractTool implements Serializable
 {
-    // @formatter:off
+    //@formatter:off
+
+    // data members
     private String internalName; // internal name
     private String configName; // user name for this instance
-    private boolean dryRun = false;
-    private String arguments = "";
 
-    protected transient static Logger logger = LogManager.getLogger("applog");
-    private transient Configuration cfg;
-    private transient Context context;
-    private transient String displayName; // GUI i18n display name
-    private transient boolean stop = false;
-    // @formatter:on
+    // runtime data
+    transient private String arguments = "";
+    transient protected static Logger logger = LogManager.getLogger("applog");
+    transient private Configuration cfg;
+    transient private Context context;
+    transient private boolean dryRun = false;
+    transient private String displayName; // GUI i18n display name
+    transient private boolean includeInToolsList = true; // set by tool at runtime
+    transient private boolean stop = false;
+
+    //@formatter:on
 
     /**
      * Constructor
@@ -98,6 +103,11 @@ public abstract class AbstractTool implements Serializable
         return dryRun;
     }
 
+    public boolean isIncludeInToolsList()
+    {
+        return includeInToolsList;
+    }
+
     /**
      * Process the tool with the arguments provided
      *
@@ -127,6 +137,11 @@ public abstract class AbstractTool implements Serializable
     public void setDryRun(boolean dryRun)
     {
         this.dryRun = dryRun;
+    }
+
+    public void setIncludeInToolsList(boolean includeInToolsList)
+    {
+        this.includeInToolsList = includeInToolsList;
     }
 
     public void setInternalName(String internalName)

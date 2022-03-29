@@ -630,7 +630,6 @@ public class MainFrame extends JFrame
                 //---- menuItemJobsManage ----
                 menuItemJobsManage.setText(guiContext.cfg.gs("Navigator.menu.JobsManage.text"));
                 menuItemJobsManage.setMnemonic(guiContext.cfg.gs("Navigator.menu.JobsManage.mnemonic").charAt(0));
-                menuItemJobsManage.setEnabled(false);
                 menuItemJobsManage.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemJobsManage.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuJobs.add(menuItemJobsManage);

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.3.411" Java: "11.0.13" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.13" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -10,6 +10,7 @@ new FormModel {
 		auxiliary() {
 			"JavaCodeGenerator.defaultVariableModifiers": 1
 			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.bundle()"
 		}
 		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
@@ -784,7 +785,6 @@ new FormModel {
 						name: "menuItemJobsManage"
 						"text": new FormMessage( null, "Navigator.menu.JobsManage.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.JobsManage.mnemonic" )
-						"enabled": false
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
 					} )

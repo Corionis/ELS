@@ -147,14 +147,13 @@ public class Progress extends JFrame
     //
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        ResourceBundle bundle = guiContext.cfg.bundle();
         hSpacer1 = new JPanel(null);
         vSpacer1 = new JPanel(null);
         progressTextField = new JTextField();
 
         //======== this ========
         setMinimumSize(new Dimension(400, 75));
-        setTitle(bundle.getString("Progress.title"));
+        setTitle(guiContext.cfg.gs("Progress.title"));
         setResizable(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         setName("ProgressBox");

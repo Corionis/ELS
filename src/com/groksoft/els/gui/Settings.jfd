@@ -9,6 +9,7 @@ new FormModel {
 	root: new FormRoot {
 		auxiliary() {
 			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.cfg.bundle()"
+			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
 		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"

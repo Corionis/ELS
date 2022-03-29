@@ -278,7 +278,6 @@ public class Settings extends JDialog
         // @formatter:off
         //
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        ResourceBundle bundle = guiContext.cfg.bundle();
         settingsDialogPane = new JPanel();
         settingsContentPanel = new JPanel();
         settingsTabbedPane = new JTabbedPane();
@@ -324,7 +323,7 @@ public class Settings extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
-        setTitle(bundle.getString("Settings.this.title"));
+        setTitle(guiContext.cfg.gs("Settings.this.title"));
         setMinimumSize(new Dimension(100, 50));
         setName("settingsDialog");
         setResizable(false);
@@ -360,19 +359,19 @@ public class Settings extends JDialog
                     {
 
                         //---- preserveFileTimestampsLabel ----
-                        preserveFileTimestampsLabel.setText(bundle.getString("Settings.preserveFileTimestampsLabel.text"));
+                        preserveFileTimestampsLabel.setText(guiContext.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
 
                         //---- showDeleteConfirmationLabel ----
-                        showDeleteConfirmationLabel.setText(bundle.getString("Settings.showDeleteConfirmationLabel.text"));
+                        showDeleteConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
 
                         //---- showCcpConfirmationLabel ----
-                        showCcpConfirmationLabel.setText(bundle.getString("Settings.showCcpConfirmationLabel.text"));
+                        showCcpConfirmationLabel.setText(guiContext.cfg.gs("Settings.showCcpConfirmationLabel.text"));
 
                         //---- showDndConfirmationLabel ----
-                        showDndConfirmationLabel.setText(bundle.getString("Settings.showDndConfirmationLabel.text"));
+                        showDndConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDndConfirmationLabel.text"));
 
                         //---- showTouchConfirmationLabel ----
-                        showTouchConfirmationLabel.setText(bundle.getString("Settings.showTouchConfirmationLabel.text"));
+                        showTouchConfirmationLabel.setText(guiContext.cfg.gs("Settings.showTouchConfirmationLabel.text"));
 
                         GroupLayout generalPanelLayout = new GroupLayout(generalPanel);
                         generalPanel.setLayout(generalPanelLayout);
@@ -429,13 +428,13 @@ public class Settings extends JDialog
                                     .addContainerGap(195, Short.MAX_VALUE))
                         );
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.generalPanel.tab.title"), generalPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
 
                     //======== apperancePanel ========
                     {
 
                         //---- lookFeelLabel ----
-                        lookFeelLabel.setText(bundle.getString("Settings.lookFeelLabel.text"));
+                        lookFeelLabel.setText(guiContext.cfg.gs("Settings.lookFeelLabel.text"));
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -449,7 +448,7 @@ public class Settings extends JDialog
                         }));
 
                         //---- localeLabel ----
-                        localeLabel.setText(bundle.getString("Settings.localeLabel.text"));
+                        localeLabel.setText(guiContext.cfg.gs("Settings.localeLabel.text"));
 
                         //---- localeComboBox ----
                         localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -457,30 +456,30 @@ public class Settings extends JDialog
                         }));
 
                         //---- scaleLabel ----
-                        scaleLabel.setText(bundle.getString("Settings.scaleLabel.text"));
+                        scaleLabel.setText(guiContext.cfg.gs("Settings.scaleLabel.text"));
 
                         //---- scaleCheckBox ----
-                        scaleCheckBox.setText(bundle.getString("Settings.scaleCheckBox.text"));
+                        scaleCheckBox.setText(guiContext.cfg.gs("Settings.scaleCheckBox.text"));
 
                         //---- dateFormatLabel ----
-                        dateFormatLabel.setText(bundle.getString("Settings.dateFormatLabel.text"));
+                        dateFormatLabel.setText(guiContext.cfg.gs("Settings.dateFormatLabel.text"));
 
                         //---- dateFormatTextField ----
                         dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
 
                         //---- hintButtonColorLabel ----
-                        hintButtonColorLabel.setText(bundle.getString("Settings.hintButton.ColorLabel.text"));
+                        hintButtonColorLabel.setText(guiContext.cfg.gs("Settings.hintButton.ColorLabel.text"));
 
                         //---- dateInfoButton ----
-                        dateInfoButton.setText(bundle.getString("Settings.button.dateInfo.text"));
-                        dateInfoButton.setToolTipText(bundle.getString("Settings.button.dateInfo.text.tooltip"));
+                        dateInfoButton.setText(guiContext.cfg.gs("Settings.button.dateInfo.text"));
+                        dateInfoButton.setToolTipText(guiContext.cfg.gs("Settings.button.dateInfo.text.tooltip"));
 
                         //---- textFieldHintButtonColor ----
-                        textFieldHintButtonColor.setToolTipText(bundle.getString("Settings.textField.HintButtonColor.toolTipText"));
+                        textFieldHintButtonColor.setToolTipText(guiContext.cfg.gs("Settings.textField.HintButtonColor.toolTipText"));
 
                         //---- buttonChooseColor ----
-                        buttonChooseColor.setText(bundle.getString("Settings.button.ChooseColor.text"));
-                        buttonChooseColor.setToolTipText(bundle.getString("Settings.button.ChooseColor.toolTipText"));
+                        buttonChooseColor.setText(guiContext.cfg.gs("Settings.button.ChooseColor.text"));
+                        buttonChooseColor.setToolTipText(guiContext.cfg.gs("Settings.button.ChooseColor.toolTipText"));
                         buttonChooseColor.addActionListener(e -> chooseColor(e));
 
                         GroupLayout apperancePanelLayout = new GroupLayout(apperancePanel);
@@ -546,25 +545,25 @@ public class Settings extends JDialog
                                     .addContainerGap())
                         );
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.appearance.tab.title"), apperancePanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
 
                     //======== browserPanel ========
                     {
 
                         //---- hideFilesInTreeLabel ----
-                        hideFilesInTreeLabel.setText(bundle.getString("Settings.hideFilesInTreeLabel.text"));
+                        hideFilesInTreeLabel.setText(guiContext.cfg.gs("Settings.hideFilesInTreeLabel.text"));
 
                         //---- hideHiddenFilesLabel ----
-                        hideHiddenFilesLabel.setText(bundle.getString("Settings.hideHiddenFilesLabel.text"));
+                        hideHiddenFilesLabel.setText(guiContext.cfg.gs("Settings.hideHiddenFilesLabel.text"));
 
                         //---- sortCaseSensitiveLabel ----
-                        sortCaseSensitiveLabel.setText(bundle.getString("Settings.sortCaseSensitiveLabel.text"));
+                        sortCaseSensitiveLabel.setText(guiContext.cfg.gs("Settings.sortCaseSensitiveLabel.text"));
 
                         //---- sortFoldersBeforeFilesLabel ----
-                        sortFoldersBeforeFilesLabel.setText(bundle.getString("Settings.sortFoldersBeforeFilesLabel.text"));
+                        sortFoldersBeforeFilesLabel.setText(guiContext.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
 
                         //---- sortReverseLabel ----
-                        sortReverseLabel.setText(bundle.getString("Settings.sortReverseLabel.text"));
+                        sortReverseLabel.setText(guiContext.cfg.gs("Settings.sortReverseLabel.text"));
 
                         GroupLayout browserPanelLayout = new GroupLayout(browserPanel);
                         browserPanel.setLayout(browserPanelLayout);
@@ -614,19 +613,19 @@ public class Settings extends JDialog
                                     .addGap(187, 187, 187))
                         );
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.browserPanel.tab.title"), browserPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
 
                     //======== backupPanel ========
                     {
                         backupPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.backupPanel.tab.title"), backupPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.backupPanel.tab.title"), backupPanel);
 
                     //======== librariesPanel ========
                     {
                         librariesPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(bundle.getString("Settings.librariesPanel.tab.title"), librariesPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.librariesPanel.tab.title"), librariesPanel);
                 }
                 settingsContentPanel.add(settingsTabbedPane);
             }
@@ -640,13 +639,13 @@ public class Settings extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(bundle.getString("Settings.button.Ok.text"));
+                okButton.setText(guiContext.cfg.gs("Settings.button.Ok.text"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(bundle.getString("Settings.button.Cancel.text"));
+                cancelButton.setText(guiContext.cfg.gs("Settings.button.Cancel.text"));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
