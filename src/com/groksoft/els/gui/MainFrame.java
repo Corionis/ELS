@@ -269,10 +269,12 @@ public class MainFrame extends JFrame
         menuItemAddBookmark = new JMenuItem();
         menuTools = new JMenu();
         menuItemDuplicates = new JMenuItem();
+        menuItemEmptyFinder = new JMenuItem();
         menuItemJunk = new JMenuItem();
-        menuItemPlexGenerator = new JMenuItem();
         menuItemRenamer = new JMenuItem();
         menuItemExternalTools = new JMenuItem();
+        menuItem1 = new JMenuItem();
+        menuItemPlexGenerator = new JMenuItem();
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
         menuWindows = new JMenu();
@@ -588,20 +590,20 @@ public class MainFrame extends JFrame
                 menuItemDuplicates.setHorizontalAlignment(SwingConstants.LEFT);
                 menuTools.add(menuItemDuplicates);
 
+                //---- menuItemEmptyFinder ----
+                menuItemEmptyFinder.setText(guiContext.cfg.gs("Navigator.menuItemEmptyFinder.text"));
+                menuItemEmptyFinder.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemEmptyFinder.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemEmptyFinder.setEnabled(false);
+                menuItemEmptyFinder.setMnemonic(guiContext.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
+                menuTools.add(menuItemEmptyFinder);
+
                 //---- menuItemJunk ----
                 menuItemJunk.setText(guiContext.cfg.gs("Navigator.menu.Junk.text"));
                 menuItemJunk.setMnemonic(guiContext.cfg.gs("Navigator.menu.Junk.mnemonic").charAt(0));
                 menuItemJunk.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemJunk.setHorizontalAlignment(SwingConstants.LEFT);
                 menuTools.add(menuItemJunk);
-
-                //---- menuItemPlexGenerator ----
-                menuItemPlexGenerator.setText(guiContext.cfg.gs("Navigator.menu.PlexGenerator.text"));
-                menuItemPlexGenerator.setMnemonic(guiContext.cfg.gs("Navigator.menu.PlexGenerator.mnemonic").charAt(0));
-                menuItemPlexGenerator.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemPlexGenerator.setEnabled(false);
-                menuItemPlexGenerator.setHorizontalAlignment(SwingConstants.LEFT);
-                menuTools.add(menuItemPlexGenerator);
 
                 //---- menuItemRenamer ----
                 menuItemRenamer.setText(guiContext.cfg.gs("Navigator.menu.Renamer.text"));
@@ -614,11 +616,25 @@ public class MainFrame extends JFrame
 
                 //---- menuItemExternalTools ----
                 menuItemExternalTools.setText(guiContext.cfg.gs("Navigator.menu.ExternalTools.text"));
-                menuItemExternalTools.setMnemonic(guiContext.cfg.gs("Navigator.menu.ExternalTools.mnemonic").charAt(0));
+                menuItemExternalTools.setMnemonic(guiContext.cfg.gs("Navigator.menuItemExternalTools.mnemonic").charAt(0));
                 menuItemExternalTools.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemExternalTools.setEnabled(false);
                 menuItemExternalTools.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemExternalTools.setDisplayedMnemonicIndex(Integer.parseInt(guiContext.cfg.gs("Navigator.menuItemExternalTools.displayedMnemonicIndex")));
                 menuTools.add(menuItemExternalTools);
+
+                //---- menuItem1 ----
+                menuItem1.setText("Handbrake");
+                menuItem1.setMargin(new Insets(2, 6, 2, 2));
+                menuItem1.setEnabled(false);
+                menuTools.add(menuItem1);
+
+                //---- menuItemPlexGenerator ----
+                menuItemPlexGenerator.setText(guiContext.cfg.gs("Navigator.menu.PlexGenerator.text"));
+                menuItemPlexGenerator.setMnemonic(guiContext.cfg.gs("Navigator.menu.PlexGenerator.mnemonic").charAt(0));
+                menuItemPlexGenerator.setEnabled(false);
+                menuItemPlexGenerator.setMargin(new Insets(2, 6, 2, 2));
+                menuTools.add(menuItemPlexGenerator);
             }
             menuBarMain.add(menuTools);
 
@@ -778,7 +794,7 @@ public class MainFrame extends JFrame
                                 panelBarBrowser.add(buttonRun);
 
                                 //---- checkBoxDryRun ----
-                                checkBoxDryRun.setText(guiContext.cfg.gs("Navigator.checkBox.DryRun.text"));
+                                checkBoxDryRun.setText(guiContext.cfg.gs("Navigator.dryrun"));
                                 checkBoxDryRun.setEnabled(false);
                                 checkBoxDryRun.setMnemonic(guiContext.cfg.gs("Navigator.checkBox.DryRun.mnemonic").charAt(0));
                                 panelBarBrowser.add(checkBoxDryRun);
@@ -1318,10 +1334,12 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemAddBookmark;
     public JMenu menuTools;
     public JMenuItem menuItemDuplicates;
+    public JMenuItem menuItemEmptyFinder;
     public JMenuItem menuItemJunk;
-    public JMenuItem menuItemPlexGenerator;
     public JMenuItem menuItemRenamer;
     public JMenuItem menuItemExternalTools;
+    public JMenuItem menuItem1;
+    public JMenuItem menuItemPlexGenerator;
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
     public JMenu menuWindows;

@@ -21,7 +21,7 @@ public class About extends JDialog
         guiContext = gctxt;
         initComponents();
 
-        labelVersion.setText("Version " + guiContext.cfg.getProgramVersion());
+        labelVersion.setText("Version " + guiContext.cfg.getVersion());
         labelBuild.setText(guiContext.context.main.getBuildStamp());
     }
 

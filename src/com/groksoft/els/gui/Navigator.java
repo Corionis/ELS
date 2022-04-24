@@ -57,12 +57,32 @@ public class Navigator
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
+    // IDEA Multi-Platform Delivery and Update
+    //  * Original install:
+    //      * Windows - Download and run installer
+    //      * Linux - Download Zip and run script to execute it
+    //  * Updates
+    //      * Built-in update tool
+    //      * Checks text file from URL
+    //      * URL in file as part of distro - separate to it can be edited
+    //      * Grab version file, check build number, download HTTPS if needed
+    //      * Windows - Run installer
+    //      * Linux, Debian - Unpack .gz
+    //      * Linux, RedHat - Unpack .gz
+    //
     // IDEA:
     //  # Tools
     //      + Duplicate Finder
     //          * Parameters
     //              + Auto-delete duplicates
     //                  - Newest, oldest
+    //          * Runtime
+    //              + Dry run
+    //              + Publisher or Subscriber
+    //              + List of Libraries and/or locations
+    //      + Empty Directory Finder
+    //          * Parameters
+    //              + Auto-delete empty directories
     //          * Runtime
     //              + Dry run
     //              + Publisher or Subscriber
@@ -75,7 +95,7 @@ public class Navigator
     //              + Dry run
     //              + Publisher or Subscriber
     //              + List of Libraries and/or locations
-    //      + Plex Generator
+    //      + Plex Generator - Make first included External Tool
     //          * Parameters
     //              + URL
     //              + Port
@@ -84,18 +104,27 @@ public class Navigator
     //              + Plex security key
     //      + Renamer
     //          * Parameters
-    //              + List of from/to patterns & other knobs
+    //              + List of from/to patterns & other knobs TBD
     //              + Case sensitive flag each
     //          * Runtime
     //              + Dry run
     //              + Publisher or Subscriber
     //              + List of Libraries and/or locations
+    //      + Backup Tab Configurations
+    //          * Because ELS is a backup tool this is one of the main tabs
+    //          * Uses Job structure so a Backup configs can be a step in a Job
     //  # Jobs
     //      + List of Tools to execute in order
     //          - Up/down buttons at bottom
+    //          - Built-in Tools:
+    //             + Prompt user with property name, prompt, command line string and parameter replacement
+    //             + Pause with seconds parameter
+    //             + Make it extendable
     //      + Each tool
     //          + Publisher or Subscriber
     //          + List of Libraries and/or locations
+    //          + Dry run is a runtime parameter not stored
+    //
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -295,7 +324,8 @@ public class Navigator
                     int selection = fc.showOpenDialog(guiContext.form);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        guiContext.preferences.setLastIsWorkstation(rbWorkstation.isSelected());
+                        boolean isWorkstation = rbWorkstation.isSelected();
+                        guiContext.preferences.setLastIsWorkstation(isWorkstation);
                         File last = fc.getCurrentDirectory();
                         guiContext.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
                         File file = fc.getSelectedFile();
@@ -312,7 +342,16 @@ public class Navigator
                         try
                         {
                             guiContext.preferences.setLastPublisherOpenFile(file.getAbsolutePath());
-                            guiContext.cfg.setPublisherLibrariesFileName(file.getAbsolutePath());
+                            if (isWorkstation)
+                            {
+                                guiContext.cfg.setPublisherCollectionFilename("");
+                                guiContext.cfg.setPublisherLibrariesFileName(file.getAbsolutePath());
+                            }
+                            else
+                            {
+                                guiContext.cfg.setPublisherCollectionFilename(file.getAbsolutePath());
+                                guiContext.cfg.setPublisherLibrariesFileName("");
+                            }
                             guiContext.context.publisherRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.PUBLISHER, Repository.VALIDATE);
                             guiContext.browser.loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo, false);
                             guiContext.browser.loadSystemTree(guiContext.form.treeSystemOne, false);

@@ -34,3 +34,12 @@ the testing sequence.
 
 For IntelliJ users several run/debug configurations have been added that match the scripts in
 the mock/scripts/linux/ directory organized in the same way and use the same mock/ data.
+
+### Jump Start / Demo
+
+To run the ELS Navigator GUI with the built-in test environment, assuming
+deploy/ELS.jar exists:
+
+ 1. Goto mock/scripts/<your O/S, linux/mac or windows>/
+ 2. Run reset.bat or reset.sh  that creates a mock/test environment
+ 3. Run 80-10-Navigator-local.bat or 80-10-Navigator-local.sh

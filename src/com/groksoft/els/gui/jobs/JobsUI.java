@@ -1,12 +1,12 @@
 package com.groksoft.els.gui.jobs;
 
-import java.awt.event.*;
-import javax.swing.event.*;
 import com.groksoft.els.gui.GuiContext;
 
-import java.awt.*;
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import java.awt.*;
+import java.awt.event.*;
 
 public class JobsUI extends JDialog
 {
@@ -55,30 +55,37 @@ public class JobsUI extends JDialog
         // TODO add your code here
     }
 
-    private void listItemsMouseClicked(MouseEvent e) {
+    private void listItemsMouseClicked(MouseEvent e)
+    {
         // TODO add your code here
     }
 
-    private void listItemsValueChanged(ListSelectionEvent e) {
+    private void listItemsValueChanged(ListSelectionEvent e)
+    {
         // TODO add your code here
     }
 
-    private void textFieldNameChanged(ActionEvent e) {
+    private void textFieldNameChanged(ActionEvent e)
+    {
         // TODO add your code here
     }
 
-    private void textFieldNameFocusLost(FocusEvent e) {
+    private void textFieldNameFocusLost(FocusEvent e)
+    {
         // TODO add your code here
     }
 
-    private void addRowClicked(ActionEvent e) {
+    private void addRowClicked(ActionEvent e)
+    {
         // TODO add your code here
     }
 
-    private void removeRowClicked(ActionEvent e) {
+    private void removeRowClicked(ActionEvent e)
+    {
         // TODO add your code here
     }
 
+    // @formatter:off
     private void initComponents()
     {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -221,8 +228,8 @@ public class JobsUI extends JDialog
                         listItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         listItems.setModel(new AbstractListModel<String>() {
                             String[] values = {
-                                "Config 1",
-                                "Config 2"
+                                "Job 1",
+                                "Job 2"
                             };
                             @Override
                             public int getSize() { return values.length; }
@@ -250,7 +257,7 @@ public class JobsUI extends JDialog
 
                             //---- textFieldName ----
                             textFieldName.setPreferredSize(new Dimension(150, 30));
-                            textFieldName.setText("Config 1");
+                            textFieldName.setText("Job 1");
                             textFieldName.addActionListener(e -> textFieldNameChanged(e));
                             textFieldName.addFocusListener(new FocusAdapter() {
                                 @Override
@@ -466,4 +473,6 @@ public class JobsUI extends JDialog
     private JButton okButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
+
+    // @formatter:on
 }

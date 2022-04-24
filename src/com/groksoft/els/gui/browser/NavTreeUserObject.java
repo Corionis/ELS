@@ -10,7 +10,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.concurrent.TimeUnit;
 
 /**
- * TreeUserObject for tree user objects
+ * NavTreeUserObject for tree objects
  */
 public class NavTreeUserObject implements Comparable, Serializable
 {

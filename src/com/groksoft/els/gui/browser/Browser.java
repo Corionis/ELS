@@ -799,7 +799,7 @@ public class Browser
     {
         navTransferHandler = new NavTransferHandler(guiContext);  // single instance
 
-        printLog(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getProgramVersion());
+        printLog(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());
         initializeToolbar();
         initializeNavigation();
         initializeBrowserOne();
@@ -1414,7 +1414,7 @@ public class Browser
                     break;
                 case NavTreeUserObject.LIBRARY:
                     msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
-                            "<tr><td>" + guiContext.cfg.gs("Properties.source") + "</td> <td></td> <td>" +
+                            "<tr><td>" + MessageFormat.format(guiContext.cfg.gs("Properties.sources"), tuo.sources.length) + "</td> <td></td> <td>" +
                             guiContext.cfg.gs("Properties.free") + "</td></tr>";
                     if (tuo.isRemote)
                         guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -1538,12 +1538,28 @@ public class Browser
                 path = tuo.sources[0];
             else
             {
-                int opt = JOptionPane.showOptionDialog(guiContext.form, MessageFormat.format(guiContext.cfg.gs("Navigator.menu.New.folder.select.library.source"), tuo.sources.length, tuo.name),
-                        guiContext.cfg.getNavigatorName(), JOptionPane.DEFAULT_OPTION,
-                        JOptionPane.QUESTION_MESSAGE, null, tuo.sources, tuo.sources[0]);
-                if (opt > -1)
+                // make dialog pieces
+                String message = java.text.MessageFormat.format(guiContext.cfg.gs("Navigator.menu.New.folder.select.library.source"), tuo.sources.length, tuo.name);
+                JList<String> sources = new JList<String>();
+                DefaultListModel<String> listModel = new DefaultListModel<String>();
+                sources.setModel(listModel);
+                sources.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                for (String src : tuo.sources)
                 {
-                    path = tuo.sources[opt];
+                    listModel.addElement(src);
+                }
+                sources.setSelectedIndex(0);
+
+                JScrollPane pane = new JScrollPane();
+                pane.setViewportView(sources);
+                sources.requestFocus();
+                Object[] params = {message, pane};
+
+                int opt = JOptionPane.showConfirmDialog(guiContext.form, params, guiContext.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);
+                if (opt == JOptionPane.YES_OPTION)
+                {
+                    int index = sources.getSelectedIndex();
+                    path = sources.getSelectedValue();
                 }
                 else
                 {
@@ -1561,7 +1577,7 @@ public class Browser
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
         model.activateFilter(guiContext.preferences.isHideFilesInTree());
-        tree.setCellRenderer(new NavTreeCellRenderer(guiContext.cfg));
+        tree.setCellRenderer(new NavTreeCellRenderer(guiContext));
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
         tree.setLargeModel(true);
@@ -1601,7 +1617,7 @@ public class Browser
 //        tree.setRootVisible(true);
         tree.setRootVisible(false);
         tree.setLargeModel(true);
-        tree.setCellRenderer(new NavTreeCellRenderer(guiContext.cfg));
+        tree.setCellRenderer(new NavTreeCellRenderer(guiContext));
         tree.setModel(model);
 
         // add Computer node

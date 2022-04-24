@@ -23,6 +23,6 @@ encrypted.
 # Hint Status Server
 
 When ELS dry-runs and back-ups are executed as remote operations with
-hints and hint tracking enabled this mode provices an optional stand-alone
-server process used coordinate hint completion status between multiple
+hints and hint tracking enabled this mode provides an optional stand-alone
+server process used to coordinate hint completion status between multiple
 back-ups. See [Hint Status](Hint-Status).

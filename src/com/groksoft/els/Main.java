@@ -2,7 +2,6 @@ package com.groksoft.els;
 
 import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.repository.HintKeys;
-import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
@@ -186,7 +185,7 @@ public class Main
                     // handle -n | --navigator to display the Navigator
                     if (cfg.isNavigator())
                     {
-                        logger.info("ELS: Navigator begin, version " + cfg.getProgramVersion());
+                        logger.info("ELS: Navigator begin, version " + cfg.getVersionStamp());
                         cfg.dump();
 
                         if (cfg.getPublisherFilename().length() > 0)
@@ -205,7 +204,7 @@ public class Main
                     }
                     else
                     {
-                        logger.info("ELS: Local Process begin, version " + cfg.getProgramVersion());
+                        logger.info("ELS: Local Process begin, version " + cfg.getVersionStamp());
                         cfg.dump();
 
                         context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -231,7 +230,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS: Publisher Listener begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Publisher Listener begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -261,7 +260,7 @@ public class Main
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS: Publisher Manual Terminal begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Publisher Manual Terminal begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -298,9 +297,9 @@ public class Main
                 case PUBLISH_REMOTE:
                     // handle -n | --navigator to display the Navigator
                     if (cfg.isNavigator())
-                        logger.info("ELS: Navigator Remote begin, version " + cfg.getProgramVersion());
+                        logger.info("ELS: Navigator Remote begin, version " + cfg.getVersionStamp());
                     else
-                        logger.info("ELS: Publish Process to Remote Subscriber begin, version " + cfg.getProgramVersion());
+                        logger.info("ELS: Publish Process to Remote Subscriber begin, version " + cfg.getVersionStamp());
 
                     cfg.dump();
 
@@ -349,7 +348,7 @@ public class Main
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS: Subscriber Listener begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Subscriber Listener begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -382,7 +381,7 @@ public class Main
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS: Subscriber Manual Terminal begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Subscriber Manual Terminal begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -434,7 +433,7 @@ public class Main
 
                 // handle -H | --hint-server stand-alone hints status server
                 case STATUS_SERVER:
-                    logger.info("ELS: Hint Status Server begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Hint Status Server begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getHintKeysFile() == null || cfg.getHintKeysFile().length() == 0)
@@ -478,7 +477,7 @@ public class Main
 
                 // handle -Q | --force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Quit Hint Status Server begin, version " + cfg.getProgramVersion());
+                    logger.info("ELS: Quit Hint Status Server begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)

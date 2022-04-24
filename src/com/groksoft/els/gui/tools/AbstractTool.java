@@ -17,13 +17,14 @@ public abstract class AbstractTool implements Serializable
     private String configName; // user name for this instance
 
     // runtime data
-    transient private String arguments = "";
+//    transient private String arguments = "";
     transient protected static Logger logger = LogManager.getLogger("applog");
     transient private Configuration cfg;
     transient private Context context;
     transient private boolean dryRun = false;
     transient private String displayName; // GUI i18n display name
     transient private boolean includeInToolsList = true; // set by tool at runtime
+    transient boolean isSubscriber = false;
     transient private boolean stop = false;
 
     //@formatter:on
@@ -43,19 +44,21 @@ public abstract class AbstractTool implements Serializable
      *
      * @throws Exception
      */
-    protected abstract void argsParse() throws Exception;
+//    protected abstract void argsParse() throws Exception;
 
     /**
      * Test values of arguments for sanity
      *
      * @throws Exception
      */
-    protected abstract void argsTest() throws Exception;
+//    protected abstract void argsTest() throws Exception;
 
+/*
     public String getArguments()
     {
         return arguments;
     }
+*/
 
     public Configuration getCfg()
     {
@@ -103,6 +106,11 @@ public abstract class AbstractTool implements Serializable
         return dryRun;
     }
 
+    public boolean isSubscriber()
+    {
+        return isSubscriber;
+    }
+
     public boolean isIncludeInToolsList()
     {
         return includeInToolsList;
@@ -124,9 +132,16 @@ public abstract class AbstractTool implements Serializable
         logger.debug("Requesting stop for: " + configName + ":" + internalName);
     }
 
+/*
     public void setArguments(String arguments)
     {
         this.arguments = arguments;
+    }
+*/
+
+    public void setConfigName(String configName)
+    {
+        this.configName = configName;
     }
 
     public void setDisplayName(String displayName)
@@ -149,9 +164,9 @@ public abstract class AbstractTool implements Serializable
         this.internalName = internalName;
     }
 
-    public void setConfigName(String configName)
+    public void setIsSubscriber(boolean flag)
     {
-        this.configName = configName;
+        this.isSubscriber = flag;
     }
 
     @Override
@@ -165,6 +180,7 @@ public abstract class AbstractTool implements Serializable
      *
      * @return An error message or an empty string if the settings are valid
      */
+/*
     public String validate()
     {
         String result = "";
@@ -179,5 +195,6 @@ public abstract class AbstractTool implements Serializable
         }
         return result;
     }
+*/
 
 }

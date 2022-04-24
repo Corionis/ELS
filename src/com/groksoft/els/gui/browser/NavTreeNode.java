@@ -103,6 +103,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
         return count;
     }
 
+    /**
+     * Total the file sizes after deepScanChildren()
+     *
+     * @return Total size of all children
+     */
     public long deepGetFileSize()
     {
         long size = 0L;

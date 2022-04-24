@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.13" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.14.1" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -84,7 +84,7 @@ new FormModel {
 									} )
 									add( new FormComponent( "javax.swing.JCheckBox" ) {
 										name: "checkBoxDryRun"
-										"text": new FormMessage( null, "Navigator.checkBox.DryRun.text" )
+										"text": new FormMessage( null, "Navigator.dryrun" )
 										"enabled": false
 										"mnemonic": new FormMessage( null, "Navigator.checkBox.DryRun.mnemonic" )
 									} )
@@ -743,18 +743,18 @@ new FormModel {
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemEmptyFinder"
+						"text": new FormMessage( null, "Navigator.menuItemEmptyFinder.text" )
+						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
+						"enabled": false
+						"mnemonic": new FormMessage( null, "Navigator.menuItemEmptyFinder.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemJunk"
 						"text": new FormMessage( null, "Navigator.menu.Junk.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Junk.mnemonic" )
 						"horizontalTextPosition": 2
-						"horizontalAlignment": 2
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemPlexGenerator"
-						"text": new FormMessage( null, "Navigator.menu.PlexGenerator.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.PlexGenerator.mnemonic" )
-						"horizontalTextPosition": 2
-						"enabled": false
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
@@ -771,10 +771,24 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemExternalTools"
 						"text": new FormMessage( null, "Navigator.menu.ExternalTools.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.ExternalTools.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemExternalTools.mnemonic" )
 						"horizontalTextPosition": 2
 						"enabled": false
 						"horizontalAlignment": 2
+						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemExternalTools.displayedMnemonicIndex" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItem1"
+						"text": "Handbrake"
+						"margin": new java.awt.Insets( 2, 6, 2, 2 )
+						"enabled": false
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemPlexGenerator"
+						"text": new FormMessage( null, "Navigator.menu.PlexGenerator.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.PlexGenerator.mnemonic" )
+						"enabled": false
+						"margin": new java.awt.Insets( 2, 6, 2, 2 )
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {

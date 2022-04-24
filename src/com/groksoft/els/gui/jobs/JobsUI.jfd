@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.13" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.14.1" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -109,8 +109,8 @@ new FormModel {
 								"preferredSize": new java.awt.Dimension( 128, 54 )
 								"selectionMode": 0
 								"model": new javax.swing.DefaultListModel {
-									addElement( "Config 1" )
-									addElement( "Config 2" )
+									addElement( "Job 1" )
+									addElement( "Job 2" )
 								}
 								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "listItemsMouseClicked", true ) )
 								addEvent( new FormEvent( "javax.swing.event.ListSelectionListener", "valueChanged", "listItemsValueChanged", true ) )
@@ -125,7 +125,7 @@ new FormModel {
 								add( new FormComponent( "javax.swing.JTextField" ) {
 									name: "textFieldName"
 									"preferredSize": new java.awt.Dimension( 150, 30 )
-									"text": "Config 1"
+									"text": "Job 1"
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "textFieldNameChanged", true ) )
 									addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "textFieldNameFocusLost", true ) )
 								}, new FormLayoutConstraints( class java.lang.String ) {

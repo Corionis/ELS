@@ -10,7 +10,6 @@ import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.tools.AbstractTool;
-import com.groksoft.els.gui.util.ArgumentTokenizer;
 import com.groksoft.els.repository.Repository;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
@@ -20,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 public class JunkRemoverTool extends AbstractTool
 {
@@ -33,11 +31,13 @@ public class JunkRemoverTool extends AbstractTool
     transient static final String ALL = "#ALL_LIBRARIES#";
     transient boolean dataHasChanged = false;
     transient private GuiContext guiContext = null;
-    transient private NavTreeNode node;
-    transient private boolean onPublisher = false;
-    transient private boolean onSubscriber = false;
+    transient ArrayList<String> selectedNames;
+
+//    transient private boolean onPublisher = false;
+//    transient private boolean onSubscriber = false;
+//    transient private NavTreeNode node;
     transient private Repository repo;
-    transient private NavTreeUserObject tuo;
+//    transient private NavTreeUserObject tuo;
 
     // @formatter:on
 
@@ -67,20 +67,20 @@ public class JunkRemoverTool extends AbstractTool
 
     /**
      * Parse defined arguments for this tool
-     *
-     *  -D | --dry-run
-     *
-     *  -l | --library [name] : Library to process
-     *
-     *  -L | --exclude [name] : Library to exclude
-     *
-     *  -p | --publisher : Run on publisher
-     *
-     *  -s | --subscriber : Run on subscriber
-     *
+     * <p>
+     * -D | --dry-run
+     * <p>
+     * -l | --library [name] : Library to process
+     * <p>
+     * -L | --exclude [name] : Library to exclude
+     * <p>
+     * -p | --publisher : Run on publisher
+     * <p>
+     * -s | --subscriber : Run on subscriber
      *
      * @throws Exception
      */
+/*
     @Override
     protected void argsParse() throws Exception
     {
@@ -113,10 +113,12 @@ public class JunkRemoverTool extends AbstractTool
             }
         }
     }
+*/
 
     /**
      * Test values of arguments for sanity
      */
+/*
     @Override
     protected void argsTest() throws Exception
     {
@@ -125,12 +127,13 @@ public class JunkRemoverTool extends AbstractTool
         if (onPublisher == true && onSubscriber == true)
             throw new MungeException("Both -p and -s cannot be used");
     }
+*/
 
     public JunkRemoverTool clone()
     {
         assert guiContext != null;
         JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
-        jrt.setArguments(getArguments());
+//        jrt.setArguments(getArguments());
         jrt.setConfigName(getConfigName());
         jrt.setDataHasChanged(isDataChanged());
         jrt.setDisplayName(getDisplayName());
@@ -169,29 +172,34 @@ public class JunkRemoverTool extends AbstractTool
     @Override
     public boolean process() throws Exception
     {
-        // validate the arguments, no news is good news
-        String msg;
-        if ((msg = validate()).length() == 0)
-        {
-            if (guiContext != null)
-            {
-                // interactive
+        // TODO
+        //  * Iterate "thing" list HERE
+        //  * Either interactive or command line have to:
+        //     + Iterate an entire Collection
+        //     + Iterate the sources of a Library
+        //     + Process an individual path - detect if the String contains any path character
+        //     + Ultimately iterate a directory or individual file
+        //  * Use the Repository either way
+        //  * Interactive refreshes the selected items when done
+        //  * Command line rescans when done
 
-            }
-            else
-            {
-                // command line
-            }
-        }
+        if (selectedNames == null || selectedNames.size() == 0)
+            return false;
+
+        if (isSubscriber())
+            repo = guiContext.context.subscriberRepo;
         else
-        {
-            // validation error, report for interactive or command line
-        }
+            repo = guiContext.context.publisherRepo;
 
-        if (guiContext != null)
-        {
-            // deep scan node and update tree
-        }
+        if (repo == null)
+            throw new MungeException("Repository does not appear to be loaded");
+
+
+
+
+
+
+
 
         return false;
     }
@@ -201,9 +209,14 @@ public class JunkRemoverTool extends AbstractTool
         dataHasChanged = sense;
     }
 
-    public void setGuiContext(GuiContext gctxt)
+    public void setGuiContext(GuiContext guicontext)
     {
-        guiContext = gctxt;
+        this.guiContext = guicontext;
+    }
+
+    public void setSelectedNames(ArrayList<String> names)
+    {
+        this.selectedNames = names;
     }
 
     public void setJunkList(ArrayList<JunkItem> junkList)

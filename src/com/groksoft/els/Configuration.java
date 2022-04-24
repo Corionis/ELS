@@ -363,16 +363,6 @@ public class Configuration
     }
 
     /**
-     * Gets Main version
-     *
-     * @return the Main version
-     */
-    public String getProgramVersion()
-    {
-        return PROGRAM_VERSION;
-    }
-
-    /**
      * Gets publisher import filename
      *
      * @return the publisher import filename
@@ -498,6 +488,26 @@ public class Configuration
     public String getTargetsFilename()
     {
         return targetsFilename;
+    }
+
+    /**
+     * Get program version, build stamp
+     *
+     * @return version, build stamp
+     */
+    public String getVersionStamp()
+    {
+        return getVersion() + ", " + context.main.getBuildStamp();
+    }
+
+    /**
+     * Gets program version
+     *
+     * @return the version
+     */
+    public String getVersion()
+    {
+        return PROGRAM_VERSION;
     }
 
     /**
