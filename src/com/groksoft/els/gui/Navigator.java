@@ -57,6 +57,8 @@ public class Navigator
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //  * Remove -n | --rename options and JSON objects; Update documentation
     //
+    // IDEA Add built-in SMTP mail sender; add as tool for emailing What's New files, logs, whatever.
+    //
     // IDEA Multi-Platform Delivery and Update
     //  * Original install:
     //      * Windows - Download and run installer
@@ -210,7 +212,7 @@ public class Navigator
             // TODO Add Backup, and other tab content creation here
 
 
-            // disable back-fill
+            // disable back-fill because we never know what combination of items might be selected
             guiContext.cfg.setNoBackFill(true);
 
             guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTimes());

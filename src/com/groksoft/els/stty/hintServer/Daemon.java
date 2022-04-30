@@ -59,16 +59,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     } // dumpStatistics
 
     /**
-     * Get the short name of the service.
-     *
-     * @return Short name of this service.
-     */
-    public String getName()
-    {
-        return "Daemon";
-    } // getName
-
-    /**
      * Get the next available token trimmed
      *
      * @param t StringTokenizer

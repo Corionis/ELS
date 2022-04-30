@@ -12,7 +12,7 @@ import javax.swing.*;
 
 public class Progress extends JFrame
 {
-    private final int MAX_STATUS = 62;
+    private final int MAX_STATUS = 60;
     private transient Logger logger = LogManager.getLogger("applog");
 
     private boolean active = false;

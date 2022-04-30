@@ -379,15 +379,15 @@ public class Transfer
      * Otherwise will return one of the subscriber targets for the library of the item
      * that has enough space to hold the item, otherwise an empty string is returned.
      *
-     * @param library  the publisher library.definition.name
-     * @param size     the total size of item(s) to be copied
-     * @param itemPath the getItemPath() value
+     * @param library    the publisher library.definition.name
+     * @param totalSize  the total size of item(s) to be copied
+     * @param itemPath   the getItemPath() value
      * @return the target
      * @throws MungeException the els exception
      */
-    private String getTarget(String library, boolean isRemote, long size, String itemPath) throws Exception
+    private String getTarget(String library, boolean isRemote, long totalSize, String itemPath) throws Exception
     {
-        String path = getTarget(context.publisherRepo, library, size, context.subscriberRepo, isRemote, itemPath);
+        String path = getTarget(context.publisherRepo, library, totalSize, context.subscriberRepo, isRemote, itemPath);
         return path;
     }
 
@@ -402,13 +402,13 @@ public class Transfer
      *
      * @param sourceRepo the source publisher or subscriber repo
      * @param library    the publisher library.definition.name
-     * @param size       the total size of item(s) to be copied
+     * @param totalSize       the total size of item(s) to be copied
      * @param targetRepo the target publisher or subscriber repo
      * @param itemPath   the getItemPath() value
      * @return the target
      * @throws MungeException the els exception
      */
-    public synchronized String getTarget(Repository sourceRepo, String library, long size, Repository targetRepo, boolean isRemote, String itemPath) throws Exception
+    public synchronized String getTarget(Repository sourceRepo, String library, long totalSize, Repository targetRepo, boolean isRemote, String itemPath) throws Exception
     {
         String path = null;
         boolean notFound = true;
@@ -435,7 +435,7 @@ public class Transfer
             if (path != null)
             {
                 // check size of item(s) to be copied
-                if (itFits(path, isRemote, size, minimum, target != null))
+                if (itFits(path, isRemote, totalSize, minimum, target != null))
                 {
                     logger.info(MessageFormat.format(cfg.gs("Transfer.using.original.storage.location"), itemPath, path));
                     //
@@ -444,7 +444,7 @@ public class Transfer
                     ++grandTotalOriginalLocation;
                     return path;
                 }
-                logger.info(MessageFormat.format(cfg.gs("Transfer.original.storage.location.too.full"), itemPath, Utils.formatLong(size, false), path));
+                logger.info(MessageFormat.format(cfg.gs("Transfer.original.storage.location.too.full"), itemPath, Utils.formatLong(totalSize, false), path));
                 path = null;
             }
         }
@@ -457,7 +457,7 @@ public class Transfer
             {
                 candidate = target.locations[j];
                 // check size of item(s) to be copied
-                if (itFits(candidate, isRemote, size, minimum, true))
+                if (itFits(candidate, isRemote, totalSize, minimum, true))
                 {
                     path = candidate;             // has space, use it
                     break;
@@ -475,7 +475,7 @@ public class Transfer
             {
                 candidate = lib.sources[j];
                 // check size of item(s) to be copied
-                if (itFits(candidate, isRemote, size, minimum, false))
+                if (itFits(candidate, isRemote, totalSize, minimum, false))
                 {
                     path = candidate;             // has space, use it
                     break;
@@ -594,7 +594,7 @@ public class Transfer
     /**
      * Will the needed size fit?
      */
-    private boolean itFits(String path, boolean isRemote, long size, long minimum, boolean hasTarget) throws Exception
+    private boolean itFits(String path, boolean isRemote, long totalSize, long minimum, boolean hasTarget) throws Exception
     {
         boolean fits = false;
         long space = getFreespace(path, isRemote);
@@ -608,10 +608,10 @@ public class Transfer
             }
         }
 
-        logger.info(MessageFormat.format(cfg.gs("Transfer.checking"), hasTarget ? 0 : 1, Utils.formatLong(size, false),
+        logger.info(MessageFormat.format(cfg.gs("Transfer.checking"), hasTarget ? 0 : 1, Utils.formatLong(totalSize, false),
                 Utils.formatLong(minimum, false), cfg.isRemoteSession() ? 0 : 1, path) + (Utils.formatLong(space, false)));
 
-        if (space > (size + minimum))
+        if (space > (totalSize + minimum))
         {
             fits = true;
         }
@@ -1075,7 +1075,7 @@ public class Transfer
                 toItem = SerializationUtils.clone(fromItem);
                 toItem.setLibrary(toLib.name);
                 toItem.setItemPath(toName);
-                path = getTarget(toLib.name, false, toItem.getSize(), toItem.getItemPath());
+                path = getTarget(toLib.name, false, toItem.getSize(), toItem.getItemPath()); // TODO toItem.getSize() should be a totalSize value
                 path = path + repo.getSeparator() + toName;
             }
             else // exists, use same object

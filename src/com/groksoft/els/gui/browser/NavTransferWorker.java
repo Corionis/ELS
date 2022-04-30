@@ -20,6 +20,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 {
     private transient Logger logger = LogManager.getLogger("applog");
     private int action = TransferHandler.NONE;
+    private long batchSize = 0L;
     private int depth = 0;
     private int fileNumber = 0;
     private int filesToCopy = 0;
@@ -63,6 +64,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             transferData = batch.transferData;
             targetTree = batch.targetTree;
             targetTuo = batch.targetTuo;
+            batchSize = batch.batchSize;
             targetIsPublisher = targetTree.getName().toLowerCase().endsWith("one");
 
             // iterate the selected source row's user object
@@ -121,7 +123,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
     public void add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
     {
-        Batch batch = new Batch(action, transferData, target, tuo);
+        Batch batch = new Batch(action, transferData, target, tuo, size);
         queue.add(batch);
         filesToCopy += count;
         filesSize += size;
@@ -177,7 +179,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         // get the directory
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
-            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, sourceTuo.size, targetRepo, targetTuo.isRemote, sourceTuo.path);
+            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, batchSize, targetRepo, targetTuo.isRemote, sourceTuo.path);
             File physical = new File(directory);
             directory = physical.getAbsolutePath();
         }
@@ -437,13 +439,15 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         public ArrayList<NavTreeUserObject> transferData;
         public JTree targetTree;
         public NavTreeUserObject targetTuo;
+        public long batchSize;
 
-        public Batch(int act, ArrayList<NavTreeUserObject> td, JTree target, NavTreeUserObject tuo)
+        public Batch(int act, ArrayList<NavTreeUserObject> td, JTree target, NavTreeUserObject tuo, long size)
         {
             action = act;
             transferData = td;
             targetTree = target;
             targetTuo = tuo;
+            batchSize = size;
         }
     }
 }

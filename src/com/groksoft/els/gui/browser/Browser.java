@@ -719,6 +719,8 @@ public class Browser
         {
             // remote subscriber
             space = guiContext.context.clientStty.availableSpace(path);
+            // TODO Handle java.net.SocketException: Broken pipe if listener stops
+            //  * Add to all stty (and sftp?) I/O calls
         }
         else
         {

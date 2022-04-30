@@ -32,7 +32,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     protected static Logger logger = LogManager.getLogger("applog");
 
     private Context context;
-    private boolean fault = false;
     private Hints hints = null;
     private boolean isTerminal = false;
 
@@ -58,17 +57,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         data += "  Connected to: " + address + "\r\n";
         return data;
     } // dumpStatistics
-
-    /**
-     * Get the short name of the service.
-     *
-     * @return Short name of this service.
-     */
-    public String getName()
-    {
-        return "Daemon";
-    } // getName
-
 
     /**
      * Get the next available token trimmed
@@ -637,7 +625,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                 response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
 
-            } // try
+            }
             catch (Exception e)
             {
                 fault = true;
@@ -654,6 +642,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 break;
             }
         }
+        context.fault = getFault();
         return stop;
     } // process
 

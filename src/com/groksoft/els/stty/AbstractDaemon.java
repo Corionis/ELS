@@ -27,6 +27,7 @@ public abstract class AbstractDaemon
     protected boolean authorized = false;
     protected Configuration cfg;
     protected boolean connected = false;
+    protected boolean fault = false;
     protected DataInputStream in = null;
     protected String myKey;
     protected Repository myRepo;
@@ -74,6 +75,16 @@ public abstract class AbstractDaemon
 			e.printStackTrace();
 		}
 		*/
+    }
+
+    /**
+     * Get the fault indicator
+     *
+     * @Return True if a fault occurred
+     */
+    public boolean getFault()
+    {
+        return fault;
     }
 
     /**

@@ -377,7 +377,7 @@ public class ClientStty
      * @return String of the response
      * @throws Exception
      */
-    public String roundTrip(String command) throws Exception
+    public synchronized String roundTrip(String command) throws Exception
     {
         send(command);
         String response = receive();
