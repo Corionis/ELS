@@ -23,32 +23,42 @@ features, downloads and documentation.
 
 ## Features
 
- **Note:** This is a work in progress. These are the planned features. Until this
+**Note:** This is a work in progress. These are the planned features. Until this
 notice is removed there is no guarantee what works or has been completed, or even
-what *will be completed*.
+what *will be completed*. Also "Done" means code complete. Bugs are entirely possible.
 
- * New ELS Navigator, a powerful cross-platform desktop application, new in 4.0.0.
-   * Navigator Browser tab shows publisher and subscriber collections and local storage.
-   * Works with local or remote subscriber.
-   * Optional automatic hint creation based on actions.
+ * ELS Navigator, a powerful cross-platform desktop application, new in 4.0.0.
+   * Done: Navigator Browser tab shows publisher and subscriber collections and local storage.
+     * Done: Drag and Drop, and Copy/Cut/Paste supported.
+     * Done: Automatic multiple-storage free space roll-over of a drop or paste on an ELS library.
+   * Done: Works with local or remote subscriber listener.
+   * Done: Optional automatic ELS Hint creation based on actions.
    * Various purpose-built tools for curating a media collection.
+     * Duplicate Finder
+     * Empty Directory Finder
+     * Junk Remover
+     * Renamer
    * Tools may be combined into jobs.
      * Creation of Linux or Windows scripts to execute jobs. Useful for Linux
        cron jobs or Windows Task Scheduler tasks.
-   * Navigator Backup tab is for creation of ELS back-up tools that may be combined into jobs.
-   * Navigator Libraries tab is used for editing of publisher, subscriber, 
-     and hint management JSON files.
    * External tools supported.
-   * Very secure, all communication is encrypted.
-   * Fully internationalized - translations requested.
+   * Navigator Backup tab is for creation of ELS back-up tools that may be combined into jobs.
+   * Navigator Libraries tab is for editing of publisher, subscriber, 
+     and hint management JSON files.
+   * Done: Secure remote operation. End-point cross authentication, all communication is encrypted.
+   * Fully internationalized - **translations requested**.
    * Embedded JRE.
    * Windows installer.
-   * Built-in update tool.
+   * Linux install packages.
+   * Built-in updater.
+   * Cool new modern web site.
+   * ELS will always be free. A donation button on the web site(s) will be added eventually.
+   * Please use the Discussions. Feedback, ideas and code contributors are encouraged.
+     * Be kind. There is one person working on this.
  
-
- * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
- * New ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
- * New ELS Hints to coordinate manual changes, new in 3.0.0.
+ * ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
+ * ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
+ * ELS Hints to coordinate manual changes, new in 3.0.0.
 
  * Supports movies, television shows with season subdirectories, 
    music with artists and albums, etc.
