@@ -41,10 +41,10 @@ public class NavTreeUserObject implements Comparable, Serializable
     }
 
     // logical entries: BOOKMARKS, COLLECTION, COMPUTER, SYSTEM
-    public NavTreeUserObject(NavTreeNode ntn, String aName, int type, boolean remote)
+    public NavTreeUserObject(NavTreeNode ntn, String name, int type, boolean remote)
     {
         this.node = ntn;
-        this.name = aName;
+        this.name = name;
         this.isDir = true;
         this.isRemote = remote;
         this.type = type;
@@ -152,22 +152,6 @@ public class NavTreeUserObject implements Comparable, Serializable
         return tuo;
     }
 
-    public void copyValues(NavTreeUserObject tuo)
-    {
-        this.file = tuo.file;
-        this.fileTime = tuo.fileTime;
-        this.isDir = tuo.isDir;
-        this.isHidden = tuo.isHidden;
-        this.mtime = tuo.mtime;
-        this.name = tuo.name;
-        this.node = (NavTreeNode) tuo.node.clone();
-        this.path = tuo.path;
-        this.isRemote = tuo.isRemote;
-        this.size = tuo.size;
-        this.sources = tuo.sources;
-        this.type = tuo.type;
-    }
-
     public String getPath()
     {
         switch (type)
@@ -229,13 +213,6 @@ public class NavTreeUserObject implements Comparable, Serializable
     public boolean isSubscriber()
     {
         if (node.getMyTree().getName().toLowerCase().endsWith("two"))
-            return true;
-        return false;
-    }
-
-    public boolean isSubscriberCollection()
-    {
-        if (node.getMyTree().getName().equalsIgnoreCase("treeCollectionTwo"))
             return true;
         return false;
     }

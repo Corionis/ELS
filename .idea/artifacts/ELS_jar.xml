@@ -4,7 +4,7 @@
     <properties id="ant-preprocessing">
       <options enabled="true">
         <file>file://$PROJECT_DIR$/els.xml</file>
-        <target>init</target>
+        <target>stamp</target>
       </options>
     </properties>
     <root id="archive" name="ELS.jar">

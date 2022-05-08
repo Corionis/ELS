@@ -114,7 +114,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     protected void done()
     {
         guiContext.progress.done();
-        guiContext.form.labelStatusMiddle.setText(MessageFormat.format(guiContext.cfg.gs("Transfer.of.complete"), filesToCopy));
+        guiContext.mainFrame.labelStatusMiddle.setText(MessageFormat.format(guiContext.cfg.gs("Transfer.of.complete"), filesToCopy));
 
         // reset the queue
         queue = new ArrayList<Batch>();
@@ -249,7 +249,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         NavTreeNode toNode = null;
 
         // setup a node
-        toNode = targetTuo.node.findChildTuoPath(path);
+        toNode = targetTuo.node.findChildTuoPath(path, false);
         if (toNode == null)
         {
             toNode = (NavTreeNode) sourceTuo.node.clone();
@@ -312,7 +312,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             if (!isCancelled())
             {
                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                JOptionPane.showConfirmDialog(guiContext.form, guiContext.cfg.gs("Browser.error") + e,
+                JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") + e,
                         guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
             }
             error = true;
@@ -417,7 +417,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
             if (!isCancelled())
             {
-                int reply = JOptionPane.showConfirmDialog(guiContext.form, guiContext.cfg.gs("Browser.error") +
+                int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") +
                                 guiContext.browser.navTransferHandler.getOperation(action, true) + ": " + e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                 if (reply == JOptionPane.NO_OPTION)

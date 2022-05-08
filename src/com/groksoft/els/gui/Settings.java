@@ -1,7 +1,6 @@
 package com.groksoft.els.gui;
 
 import java.awt.event.*;
-import java.util.*;
 
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
@@ -130,20 +129,20 @@ public class Settings extends JDialog
         try
         {
             if (guiContext.browser.trackingHints)
-                guiContext.form.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
+                guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
             else
-                guiContext.form.buttonHintTracking.setBackground(hintTrackingColor);
+                guiContext.mainFrame.buttonHintTracking.setBackground(hintTrackingColor);
 
             if (index == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
-                UIManager.setLookAndFeel(guiContext.form.getLookAndFeel(index));
+                UIManager.setLookAndFeel(guiContext.mainFrame.getLookAndFeel(index));
 
             for (Frame frame : Frame.getFrames())
             {
                 updateLAFRecursively(frame);
             }
-            guiContext.form.rotateBrowserTabs();
+            guiContext.mainFrame.rotateBrowserTabs();
             guiContext.browser.refreshAll();
         }
         catch (Exception e)
@@ -187,7 +186,7 @@ public class Settings extends JDialog
         }
         scaleCheckBox.setSelected(guiContext.preferences.isBinaryScale());
         dateFormatTextField.setText(guiContext.preferences.getDateFormat());
-        hintTrackingColor = guiContext.form.buttonHintTracking.getBackground();
+        hintTrackingColor = guiContext.mainFrame.buttonHintTracking.getBackground();
         textFieldHintButtonColor.setText(guiContext.preferences.getHintTrackingColor());
 
         // browser
@@ -211,10 +210,10 @@ public class Settings extends JDialog
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Settings.date.format.not.valid"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Settings.date.format.not.valid"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             settingsTabbedPane.setSelectedIndex(1);
             dateFormatTextField.requestFocus();
-            guiContext.form.labelStatusMiddle.setText(guiContext.cfg.gs("Settings.date.format.not.valid"));
+            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Settings.date.format.not.valid"));
             return false;
         }
 
@@ -239,7 +238,7 @@ public class Settings extends JDialog
         guiContext.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
         guiContext.preferences.setSortReverse(sortReverseCheckBox.isSelected());
 
-        guiContext.form.labelStatusMiddle.setText("");
+        guiContext.mainFrame.labelStatusMiddle.setText("");
         return true;
     }
 
@@ -264,11 +263,11 @@ public class Settings extends JDialog
 
     private void chooseColor(ActionEvent e) {
         Color color = new Color(Integer.parseInt(textFieldHintButtonColor.getText(), 16));
-        color = JColorChooser.showDialog(guiContext.form, "Select Hint Button Color", color);
+        color = JColorChooser.showDialog(guiContext.mainFrame, "Select Hint Button Color", color);
         if (color != null)
         {
             textFieldHintButtonColor.setText(Integer.toHexString(color.getRed()) + Integer.toHexString(color.getGreen()) + Integer.toHexString(color.getBlue()));
-            guiContext.form.buttonHintTracking.setBackground(color);
+            guiContext.mainFrame.buttonHintTracking.setBackground(color);
         }
     }
 

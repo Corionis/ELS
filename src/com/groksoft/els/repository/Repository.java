@@ -494,36 +494,39 @@ public class Repository
                     break;
             }
 
-            for (Library lib : libraryData.libraries.bibliography)
+            if (libraryData.libraries.bibliography != null)
             {
-                if (lib.sources != null)
+                for (Library lib : libraryData.libraries.bibliography)
                 {
-                    for (int i = 0; i < lib.sources.length; ++i)
+                    if (lib.sources != null)
                     {
-                        lib.sources[i] = normalizeSubst(lib.sources[i], from, to);
-                    }
-                }
-                if (lib.items != null)
-                {
-                    // setup the hash map for this library
-                    if (lib.itemMap == null)
-                        lib.itemMap = ArrayListMultimap.create();
-                    else
-                        lib.itemMap.clear();
-
-                    for (int i = 0; i < lib.items.size(); ++i)
-                    {
-                        Item item = lib.items.elementAt(i);
-                        item.setItemPath(normalizeSubst(item.getItemPath(), from, to));
-                        item.setFullPath(normalizeSubst(item.getFullPath(), from, to));
-
-                        // add itemPath & the item's index in the Vector to the hash map
-                        String key = item.getItemPath();
-                        if (!libraryData.libraries.case_sensitive)
+                        for (int i = 0; i < lib.sources.length; ++i)
                         {
-                            key = key.toLowerCase();
+                            lib.sources[i] = normalizeSubst(lib.sources[i], from, to);
                         }
-                        lib.itemMap.put(Utils.pipe(this, key), i);
+                    }
+                    if (lib.items != null)
+                    {
+                        // setup the hash map for this library
+                        if (lib.itemMap == null)
+                            lib.itemMap = ArrayListMultimap.create();
+                        else
+                            lib.itemMap.clear();
+
+                        for (int i = 0; i < lib.items.size(); ++i)
+                        {
+                            Item item = lib.items.elementAt(i);
+                            item.setItemPath(normalizeSubst(item.getItemPath(), from, to));
+                            item.setFullPath(normalizeSubst(item.getFullPath(), from, to));
+
+                            // add itemPath & the item's index in the Vector to the hash map
+                            String key = item.getItemPath();
+                            if (!libraryData.libraries.case_sensitive)
+                            {
+                                key = key.toLowerCase();
+                            }
+                            lib.itemMap.put(Utils.pipe(this, key), i);
+                        }
                     }
                 }
             }
@@ -899,63 +902,66 @@ public class Repository
             }
         }
 
-        if (lbs.bibliography == null)
+        if (libraryData.libraries.bibliography != null)
         {
-            throw new MungeException("libraries.bibliography must be defined");
-        }
+            //if (lbs.bibliography == null)
+            //{
+            //    throw new MungeException("libraries.bibliography must be defined");
+            //}
 
-        logger.info("Validating " + lbs.description + " Libraries in: " + getJsonFilename());
-        for (int i = 0; i < lbs.bibliography.length; i++)
-        {
-            Library lib = lbs.bibliography[i];
-            if (lib.name == null || lib.name.length() == 0)
+            logger.info("Validating " + lbs.description + " Libraries in: " + getJsonFilename());
+            for (int i = 0; i < lbs.bibliography.length; i++)
             {
-                throw new MungeException("bibliography.name " + i + " must be defined");
-            }
-            if (lib.sources == null || lib.sources.length == 0)
-            {
-                throw new MungeException("bibliography.sources " + i + " must be defined");
-            }
-            else
-            {
-                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                Library lib = lbs.bibliography[i];
+                if (lib.name == null || lib.name.length() == 0)
                 {
-                    logger.debug("  library: " + lib.name +
-                            ", " + lib.sources.length + " source" + ((lib.sources.length > 1) ? "s" : "")  +
-                            (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " item"  + (lib.items.size() > 0 ? "s" : "") : ""));
-                    // validate sources paths
-                    for (int j = 0; j < lib.sources.length; j++)
+                    throw new MungeException("bibliography.name " + i + " must be defined");
+                }
+                if (lib.sources == null || lib.sources.length == 0)
+                {
+                    throw new MungeException("bibliography.sources " + i + " must be defined");
+                }
+                else
+                {
+                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
+                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                     {
-                        if (lib.sources[j].length() == 0)
+                        logger.debug("  library: " + lib.name +
+                                ", " + lib.sources.length + " source" + ((lib.sources.length > 1) ? "s" : "") +
+                                (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " item" + (lib.items.size() > 0 ? "s" : "") : ""));
+                        // validate sources paths
+                        for (int j = 0; j < lib.sources.length; j++)
                         {
-                            throw new MungeException("bibliography[" + i + "].sources[" + j + "] must be defined");
-                        }
-                        if (Files.notExists(Paths.get(lib.sources[j])))
-                        {
-                            throw new MungeException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
-                        }
-                        logger.debug("    src: " + lib.sources[j]);
-
-                        // validate item path
-                        if (lib.items != null && lib.items.size() > 0)
-                        {
-                            for (Item item : lib.items)
+                            if (lib.sources[j].length() == 0)
                             {
-                                if (Files.notExists(Paths.get(item.getFullPath())))
+                                throw new MungeException("bibliography[" + i + "].sources[" + j + "] must be defined");
+                            }
+                            if (Files.notExists(Paths.get(lib.sources[j])))
+                            {
+                                throw new MungeException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
+                            }
+                            logger.debug("    src: " + lib.sources[j]);
+
+                            // validate item path
+                            if (lib.items != null && lib.items.size() > 0)
+                            {
+                                for (Item item : lib.items)
                                 {
-                                    logger.error("File does not exist: " + item.getFullPath());
-                                }
-                                else
-                                {
-                                    if (!item.isDirectory() && Files.size(Paths.get(item.getFullPath())) != item.getSize())
+                                    if (Files.notExists(Paths.get(item.getFullPath())))
                                     {
-                                        logger.error("File size does not match, file is " + Files.size(Paths.get(item.getFullPath())) + ", data has " + item.getSize() + ": " + item.getFullPath());
+                                        logger.error("File does not exist: " + item.getFullPath());
                                     }
-                                }
-                                if (!item.getLibrary().equals(lib.name))
-                                {
-                                    logger.error("File library does not match, file is in " + lib.name + ", data has " + item.getLibrary() + ": " + item.getFullPath());
+                                    else
+                                    {
+                                        if (!item.isDirectory() && Files.size(Paths.get(item.getFullPath())) != item.getSize())
+                                        {
+                                            logger.error("File size does not match, file is " + Files.size(Paths.get(item.getFullPath())) + ", data has " + item.getSize() + ": " + item.getFullPath());
+                                        }
+                                    }
+                                    if (!item.getLibrary().equals(lib.name))
+                                    {
+                                        logger.error("File library does not match, file is in " + lib.name + ", data has " + item.getLibrary() + ": " + item.getFullPath());
+                                    }
                                 }
                             }
                         }

@@ -1,6 +1,5 @@
 package com.groksoft.els.gui;
 
-import java.util.*;
 import com.groksoft.els.Utils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -57,8 +56,8 @@ public class Progress extends JFrame
         }
         else
         {
-            int x = guiContext.form.getX() + (guiContext.form.getWidth() / 2) - (getWidth() / 2);
-            int y = guiContext.form.getY() + (guiContext.form.getHeight() / 2) - (getHeight() / 2);
+            int x = guiContext.mainFrame.getX() + (guiContext.mainFrame.getWidth() / 2) - (getWidth() / 2);
+            int y = guiContext.mainFrame.getY() + (guiContext.mainFrame.getHeight() / 2) - (getHeight() / 2);
             setLocation(x, y);
         }
         setVisible(true);

@@ -16,7 +16,7 @@ public class GuiContext
     // Navigator-related
     public Navigator navigator;
     public Browser browser;
-    public MainFrame form;
+    public MainFrame mainFrame;
     public Preferences preferences;
     public Progress progress;
 }

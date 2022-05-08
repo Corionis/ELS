@@ -11,6 +11,7 @@ import com.groksoft.els.stty.hintServer.Datastore;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.sshd.common.util.io.IoUtils;
 
@@ -150,7 +151,7 @@ public class Main
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
             System.setProperty("debugLevel", cfg.getDebugLevel());
             System.setProperty("pattern", cfg.getPattern());
-            org.apache.logging.log4j.core.LoggerContext lctx = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+            LoggerContext lctx = (LoggerContext) LogManager.getContext(LogManager.class.getClassLoader(), false);
             lctx.reconfigure();
             org.apache.logging.log4j.core.config.Configuration ccfg = lctx.getConfiguration();
             LoggerConfig lcfg = ccfg.getLoggerConfig("Console");

@@ -70,8 +70,8 @@ It's all built-in with the -n | --navigator option.
     2. temp_location: path. Path used for temporary files. Default is the location of the
        matching library or collection file of the repository of the relevant system.
 
- 4. The listener daemons "logout" command behavior has changed. Now logout will leave the daemon
-    running instead of shutting down. Exit, bye and quit still perform a shutdown.
+ 4. The listener daemons "bye" command behavior has changed. Now bye will leave the daemon
+    running instead of shutting down. Quit, exit and logout still perform a shutdown.
     
 
 ### Command Line Changes
@@ -90,7 +90,7 @@ It's all built-in with the -n | --navigator option.
 
  1. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
     "bye" command has been changed to end the terminal session but leave the remote listener
-    running. Commands quit, exit and logout will shutdown the remote listener as they have.
+    running. Commands quit, exit and logout will shutdown the remote listener.
  
  2. Added JSON library elements:
     1. temp_dated "true/false" : If temporary files such as received collection files have

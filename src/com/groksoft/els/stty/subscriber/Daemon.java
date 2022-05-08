@@ -470,8 +470,18 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     else
                     {
                         theCommand = "quit";
-                        //// let the logic fall through to the 'quit' handler below
+                        // let the logic fall through to the 'quit' handler below
                     }
+                }
+
+                // -------------- quit, exit --------------------------------
+                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
+                {
+                    Utils.writeStream(out, myKey, "End-Execution");
+                    out.flush();
+                    Thread.sleep(1000);
+                    stop = true;
+                    break; // break the loop
                 }
 
                 // -------------- move ------------------------------
@@ -504,16 +514,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         response = (isTerminal ? "move command requires a 2 arguments, from and to\r\n" : "false");
                     }
                     continue;
-                }
-
-                // -------------- quit, exit --------------------------------
-                if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
-                {
-                    Utils.writeStream(out, myKey, "End-Execution");
-                    out.flush();
-                    Thread.sleep(1000);
-                    stop = true;
-                    break; // break the loop
                 }
 
                 // -------------- read -----------------------------------

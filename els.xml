@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="els" default="init">
+<project name="els" default="stamp">
 
-  <property file="els.properties"/>
-
-  <target name="init" description="Build initialization">
+  <target name="stamp" description="Build stamp and locales copy">
 
     <!-- Copy the IDE default bundle to the en_US bundle -->
     <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
 
+    <!-- Generate a build timestamp -->
     <tstamp>
-      <format property="RIGHTNOW" pattern="dd MMMM yyyy, HH:mm zzz" locale="en,US"/>
+      <format property="RIGHTNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
     </tstamp>
-
     <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
+
   </target>
 
 </project>
+

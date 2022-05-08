@@ -35,6 +35,16 @@ the testing sequence.
 For IntelliJ users several run/debug configurations have been added that match the scripts in
 the mock/scripts/linux/ directory organized in the same way and use the same mock/ data.
 
+## Building
+
+To build ELS from sources use Apache ant in the root of the project directory:
+
+ 1. ant -f els.xml
+    * Copies the default locale file and generates a new build timestamp.
+ 2. ant -f els-build.xml
+    * Builds the ELS.jar to the deploy/ directory.
+    * This script was generated from IntelliJ.
+
 ### Jump Start / Demo
 
 To run the ELS Navigator GUI with the built-in test environment, assuming

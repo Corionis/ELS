@@ -1,6 +1,5 @@
 package com.groksoft.els.gui;
 
-import java.util.*;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
@@ -219,7 +218,7 @@ public class MainFrame extends JFrame
     {
         if (guiContext.progress != null && guiContext.progress.isActive())
         {
-            int r = JOptionPane.showConfirmDialog(guiContext.form,
+            int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
                     guiContext.cfg.gs("MainFrame.transfers.are.active.are.you.sure"),
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
@@ -265,8 +264,8 @@ public class MainFrame extends JFrame
         menuItemProgress = new JMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
         menuBookmarks = new JMenu();
-        menuItemBookmarksManage = new JMenuItem();
         menuItemAddBookmark = new JMenuItem();
+        menuItemBookmarksManage = new JMenuItem();
         menuTools = new JMenu();
         menuItemDuplicates = new JMenuItem();
         menuItemEmptyFinder = new JMenuItem();
@@ -558,21 +557,19 @@ public class MainFrame extends JFrame
                 menuBookmarks.setText(guiContext.cfg.gs("Navigator.menu.Bookmarks.text"));
                 menuBookmarks.setMnemonic(guiContext.cfg.gs("Navigator.menu.Bookmarks.mnemonic").charAt(0));
 
-                //---- menuItemBookmarksManage ----
-                menuItemBookmarksManage.setText(guiContext.cfg.gs("Navigator.menu.BookmarksManage.text"));
-                menuItemBookmarksManage.setMnemonic(guiContext.cfg.gs("Navigator.menu.BookmarksManage.mnemonic").charAt(0));
-                menuItemBookmarksManage.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemBookmarksManage.setEnabled(false);
-                menuItemBookmarksManage.setHorizontalAlignment(SwingConstants.LEFT);
-                menuBookmarks.add(menuItemBookmarksManage);
-
                 //---- menuItemAddBookmark ----
                 menuItemAddBookmark.setText(guiContext.cfg.gs("Navigator.menu.AddBookmark.text"));
                 menuItemAddBookmark.setMnemonic(guiContext.cfg.gs("Navigator.menu.AddBookmark.mnemonic").charAt(0));
                 menuItemAddBookmark.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemAddBookmark.setEnabled(false);
                 menuItemAddBookmark.setHorizontalAlignment(SwingConstants.LEFT);
                 menuBookmarks.add(menuItemAddBookmark);
+
+                //---- menuItemBookmarksManage ----
+                menuItemBookmarksManage.setText(guiContext.cfg.gs("Navigator.menu.BookmarksManage.text"));
+                menuItemBookmarksManage.setMnemonic(guiContext.cfg.gs("Navigator.menu.BookmarksManage.mnemonic").charAt(0));
+                menuItemBookmarksManage.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemBookmarksManage.setHorizontalAlignment(SwingConstants.LEFT);
+                menuBookmarks.add(menuItemBookmarksManage);
                 menuBookmarks.addSeparator();
             }
             menuBarMain.add(menuBookmarks);
@@ -1330,8 +1327,8 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemProgress;
     public JCheckBoxMenuItem menuItemShowHidden;
     public JMenu menuBookmarks;
-    public JMenuItem menuItemBookmarksManage;
     public JMenuItem menuItemAddBookmark;
+    public JMenuItem menuItemBookmarksManage;
     public JMenu menuTools;
     public JMenuItem menuItemDuplicates;
     public JMenuItem menuItemEmptyFinder;

@@ -711,19 +711,17 @@ new FormModel {
 					"text": new FormMessage( null, "Navigator.menu.Bookmarks.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menu.Bookmarks.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemBookmarksManage"
-						"text": new FormMessage( null, "Navigator.menu.BookmarksManage.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.BookmarksManage.mnemonic" )
-						"horizontalTextPosition": 2
-						"enabled": false
-						"horizontalAlignment": 2
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAddBookmark"
 						"text": new FormMessage( null, "Navigator.menu.AddBookmark.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.AddBookmark.mnemonic" )
 						"horizontalTextPosition": 2
-						"enabled": false
+						"horizontalAlignment": 2
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemBookmarksManage"
+						"text": new FormMessage( null, "Navigator.menu.BookmarksManage.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.BookmarksManage.mnemonic" )
+						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {

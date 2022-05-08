@@ -464,6 +464,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                 {
                     Utils.writeStream(out, myKey, "End-Execution");
+                    out.flush();
+                    Thread.sleep(1000);
                     stop = true;
                     break; // break the loop
                 }

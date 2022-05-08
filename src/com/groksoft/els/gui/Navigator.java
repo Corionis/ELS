@@ -2,6 +2,7 @@ package com.groksoft.els.gui;
 
 import com.google.gson.Gson;
 import com.groksoft.els.*;
+import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.gui.browser.Browser;
 import com.groksoft.els.gui.browser.NavTransferHandler;
 import com.groksoft.els.gui.browser.NavTreeNode;
@@ -202,7 +203,7 @@ public class Navigator
         }
 
         // setup the GUI
-        guiContext.form = new MainFrame(guiContext);
+        guiContext.mainFrame = new MainFrame(guiContext);
         if (!guiContext.context.fault)
         {
             // setup the Main Menu and primary tabs
@@ -289,7 +290,7 @@ public class Navigator
 
                 jp.setLayout(layout);
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(guiContext.form.textFieldLocation.getBorder());
+                jp.setBorder(guiContext.mainFrame.textFieldLocation.getBorder());
 
                 JLabel lab = new JLabel(guiContext.cfg.gs("Navigator.menu.Open.publisher.system.type"));
 
@@ -323,7 +324,7 @@ public class Navigator
 
                 while (true)
                 {
-                    int selection = fc.showOpenDialog(guiContext.form);
+                    int selection = fc.showOpenDialog(guiContext.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
                         boolean isWorkstation = rbWorkstation.isSelected();
@@ -333,12 +334,12 @@ public class Navigator
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.open.error.file.not.found") + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.open.error.file.not.found") + file.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.open.error.select.a.file.only"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.open.error.select.a.file.only"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         try
@@ -355,12 +356,12 @@ public class Navigator
                                 guiContext.cfg.setPublisherLibrariesFileName("");
                             }
                             guiContext.context.publisherRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                            guiContext.browser.loadCollectionTree(guiContext.form.treeCollectionOne, guiContext.context.publisherRepo, false);
-                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemOne, false);
+                            guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
+                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, false);
                         }
                         catch (Exception e)
                         {
-                            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.menu.Open.publisher.error.opening.publisher.library") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Open.publisher.error.opening.publisher.library") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                     }
@@ -368,7 +369,7 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemOpenPublisher.addActionListener(openPublisherAction);
+        guiContext.mainFrame.menuItemOpenPublisher.addActionListener(openPublisherAction);
 
         //-
         // Open Subscriber
@@ -379,7 +380,7 @@ public class Navigator
             {
                 if (guiContext.context.publisherRepo == null)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.menu.Open.subscriber.please.open.a.publisher.library.first"), guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Open.subscriber.please.open.a.publisher.library.first"), guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
 
@@ -420,7 +421,7 @@ public class Navigator
                 GridBagLayout gb = new GridBagLayout();
                 jp.setLayout(gb);
                 jp.setBackground(UIManager.getColor("TextField.background"));
-                jp.setBorder(guiContext.form.textFieldLocation.getBorder());
+                jp.setBorder(guiContext.mainFrame.textFieldLocation.getBorder());
                 JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>" +
                         guiContext.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox") + "</body></html>");
                 cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -434,12 +435,12 @@ public class Navigator
 
                 while (true)
                 {
-                    int selection = fc.showOpenDialog(guiContext.form);
+                    int selection = fc.showOpenDialog(guiContext.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
                         if (guiContext.cfg.isRemoteSession())
                         {
-                            int r = JOptionPane.showConfirmDialog(guiContext.form,
+                            int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
@@ -461,14 +462,14 @@ public class Navigator
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form,
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form,
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.open.error.select.a.file.only"),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
@@ -479,12 +480,12 @@ public class Navigator
                             if (guiContext.preferences.isLastIsRemote())
                             {
                                 guiContext.cfg.setRemoteType("P"); // publisher to remote subscriber
-                                guiContext.form.menuItemQuitTerminate.setVisible(true);
+                                guiContext.mainFrame.menuItemQuitTerminate.setVisible(true);
                             }
                             else
                             {
                                 guiContext.cfg.setRemoteType("-"); // not remote
-                                guiContext.form.menuItemQuitTerminate.setVisible(false);
+                                guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
                             }
 
                             guiContext.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
@@ -500,7 +501,7 @@ public class Navigator
                                 guiContext.context.clientStty = new ClientStty(guiContext.cfg, false, true);
                                 if (!guiContext.context.clientStty.connect(guiContext.context.publisherRepo, guiContext.context.subscriberRepo))
                                 {
-                                    JOptionPane.showMessageDialog(guiContext.form,
+                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
                                             guiContext.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
                                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     guiContext.cfg.setRemoteType("-");
@@ -511,7 +512,7 @@ public class Navigator
                                 guiContext.context.clientSftp = new ClientSftp(guiContext.cfg, guiContext.context.publisherRepo, guiContext.context.subscriberRepo, true);
                                 if (!guiContext.context.clientSftp.startClient())
                                 {
-                                    JOptionPane.showMessageDialog(guiContext.form,
+                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
                                             guiContext.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
                                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     guiContext.cfg.setRemoteType("-");
@@ -520,12 +521,12 @@ public class Navigator
                             }
 
                             // load the subscriber library
-                            guiContext.browser.loadCollectionTree(guiContext.form.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
-                            guiContext.browser.loadSystemTree(guiContext.form.treeSystemTwo, guiContext.preferences.isLastIsRemote());
+                            guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
+                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.preferences.isLastIsRemote());
                         }
                         catch (Exception e)
                         {
-                            JOptionPane.showMessageDialog(guiContext.form,
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
@@ -535,7 +536,7 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
+        guiContext.mainFrame.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
         if (guiContext.context.subscriberRepo != null)
             guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
 
@@ -580,7 +581,7 @@ public class Navigator
 
                 while (true)
                 {
-                    int selection = fc.showOpenDialog(guiContext.form);
+                    int selection = fc.showOpenDialog(guiContext.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
                         File last = fc.getCurrentDirectory();
@@ -588,14 +589,14 @@ public class Navigator
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form,
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                         if (file.isDirectory())
                         {
-                            JOptionPane.showMessageDialog(guiContext.form,
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.open.error.select.a.file.only"),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
@@ -609,12 +610,12 @@ public class Navigator
                             if (!showHintTrackingButton)
                             {
                                 showHintTrackingButton = true;
-                                guiContext.form.buttonHintTracking.setVisible(true);
+                                guiContext.mainFrame.buttonHintTracking.setVisible(true);
                             }
                         }
                         catch (Exception e)
                         {
-                            JOptionPane.showMessageDialog(guiContext.form,
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.menu.Open.hint.keys.error.opening.hint.keys") + e.getMessage(),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
@@ -624,7 +625,7 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemOpenHintKeys.addActionListener(openHintKeysAction);
+        guiContext.mainFrame.menuItemOpenHintKeys.addActionListener(openHintKeysAction);
 
         // Save Layout
         AbstractAction saveLayoutAction = new AbstractAction()
@@ -639,22 +640,22 @@ public class Navigator
                 catch (Exception e)
                 {
                     guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                    JOptionPane.showMessageDialog(guiContext.form,
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
                             guiContext.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
-        guiContext.form.menuItemSaveLayout.addActionListener(saveLayoutAction);
+        guiContext.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         //-
         // Quit & Exit Remote
-        guiContext.form.menuItemQuitTerminate.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (guiContext.form.verifyClose())
+                if (guiContext.mainFrame.verifyClose())
                 {
                     quitRemote = true;
                     stop();
@@ -662,7 +663,7 @@ public class Navigator
             }
         });
         if (!guiContext.cfg.isRemoteSession())
-            guiContext.form.menuItemQuitTerminate.setVisible(false);
+            guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
 
         //-
         // Quit
@@ -705,10 +706,10 @@ public class Navigator
                 if (!tooMany)
                 {
                     // select source in library
-                    String path = guiContext.browser.select(tuo);
+                    String path = guiContext.browser.selectLibrarySource(tuo);
                     if (path == null || path.length() < 1)
                     {
-                        JOptionPane.showMessageDialog(guiContext.form,
+                        JOptionPane.showMessageDialog(guiContext.mainFrame,
                                 guiContext.cfg.gs("Navigator.menu.New.folder.cannot.create.new.folder.in.current.location"),
                                 guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                         return;
@@ -720,7 +721,7 @@ public class Navigator
                     String reply = "";
                     if (path.length() > 0)
                     {
-                        reply = JOptionPane.showInputDialog(guiContext.form,
+                        reply = JOptionPane.showInputDialog(guiContext.mainFrame,
                                 guiContext.cfg.gs("Navigator.menu.New.folder.for") + path + ": ",
                                 guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
                         if (reply != null && reply.length() > 0)
@@ -756,7 +757,7 @@ public class Navigator
                                 {
                                     error = true;
                                     guiContext.browser.printLog(guiContext.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"), true);
-                                    JOptionPane.showMessageDialog(guiContext.form,
+                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
                                             guiContext.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"),
                                             guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                                 }
@@ -764,7 +765,7 @@ public class Navigator
                             catch (Exception e)
                             {
                                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                                JOptionPane.showMessageDialog(guiContext.form,
+                                JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Navigator.menu.New.folder.error.creating") +
                                                 (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") + " " : "") +
                                                 guiContext.cfg.gs("Navigator.menu.New.folder.directory") + ": "  +
@@ -796,14 +797,14 @@ public class Navigator
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(guiContext.form,
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
                             guiContext.cfg.gs("Navigator.menu.New.folder.please.select.a.single.destination.for.a.new.folder"),
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
-        guiContext.form.menuItemNewFolder.addActionListener(newFolderAction);
-        guiContext.form.popupMenuItemNewFolder.addActionListener(newFolderAction);
+        guiContext.mainFrame.menuItemNewFolder.addActionListener(newFolderAction);
+        guiContext.mainFrame.popupMenuItemNewFolder.addActionListener(newFolderAction);
 
         //-
         // Rename
@@ -856,7 +857,7 @@ public class Navigator
                     }
                     else
                     {
-                        JOptionPane.showMessageDialog(guiContext.form,
+                        JOptionPane.showMessageDialog(guiContext.mainFrame,
                                 guiContext.cfg.gs("Navigator.menu.Rename.cannot.rename.current.location"),
                                 guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                         return;
@@ -866,7 +867,7 @@ public class Navigator
                     if (path.length() > 0)
                     {
 
-                        Object obj = JOptionPane.showInputDialog(guiContext.form,
+                        Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
                                 guiContext.cfg.gs("Navigator.menu.Rename") + name + " " +
                                         guiContext.cfg.gs("Navigator.menu.Rename.to"),
                                 guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
@@ -897,7 +898,7 @@ public class Navigator
                                 catch (Exception e)
                                 {
                                     logger.error(Utils.getStackTrace(e));
-                                    JOptionPane.showMessageDialog(guiContext.form,
+                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
                                             guiContext.cfg.gs("Navigator.error.writing.hint") + "  " +
                                                     e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 }
@@ -911,7 +912,7 @@ public class Navigator
                             catch (Exception e)
                             {
                                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                                JOptionPane.showMessageDialog(guiContext.form,
+                                JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Navigator.menu.Rename.error.renaming") +
                                                 (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") +
                                                         " " : "") + name + ": " + e.getMessage(),
@@ -922,14 +923,14 @@ public class Navigator
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(guiContext.form,
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
                             guiContext.cfg.gs("Navigator.menu.Rename.please.select.a.single.item.to.be.renamed"),
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         };
-        guiContext.form.menuItemRename.addActionListener(renameAction);
-        guiContext.form.popupMenuItemRename.addActionListener(renameAction);
+        guiContext.mainFrame.menuItemRename.addActionListener(renameAction);
+        guiContext.mainFrame.popupMenuItemRename.addActionListener(renameAction);
 
         //-
         // Touch Date/Time
@@ -951,8 +952,8 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemTouch.addActionListener(touchAction);
-        guiContext.form.popupMenuItemTouch.addActionListener(touchAction);
+        guiContext.mainFrame.menuItemTouch.addActionListener(touchAction);
+        guiContext.mainFrame.popupMenuItemTouch.addActionListener(touchAction);
 
         //-
         // Copy
@@ -969,8 +970,8 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemCopy.addActionListener(copyAction);
-        guiContext.form.popupMenuItemCopy.addActionListener(copyAction);
+        guiContext.mainFrame.menuItemCopy.addActionListener(copyAction);
+        guiContext.mainFrame.popupMenuItemCopy.addActionListener(copyAction);
 
         //-
         // Cut
@@ -987,8 +988,8 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemCut.addActionListener(cutAction);
-        guiContext.form.popupMenuItemCut.addActionListener(cutAction);
+        guiContext.mainFrame.menuItemCut.addActionListener(cutAction);
+        guiContext.mainFrame.popupMenuItemCut.addActionListener(cutAction);
 
         //-
         // Paste
@@ -1005,8 +1006,8 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemPaste.addActionListener(pasteAction);
-        guiContext.form.popupMenuItemPaste.addActionListener(pasteAction);
+        guiContext.mainFrame.menuItemPaste.addActionListener(pasteAction);
+        guiContext.mainFrame.popupMenuItemPaste.addActionListener(pasteAction);
 
         //-
         // Delete
@@ -1028,17 +1029,17 @@ public class Navigator
                 }
             }
         };
-        guiContext.form.menuItemDelete.addActionListener(deleteAction);
-        guiContext.form.popupMenuItemDelete.addActionListener(deleteAction);
+        guiContext.mainFrame.menuItemDelete.addActionListener(deleteAction);
+        guiContext.mainFrame.popupMenuItemDelete.addActionListener(deleteAction);
 
         //
         // Settings
-        guiContext.form.menuItemSettings.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemSettings.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                Settings dialog = new Settings(guiContext.form, guiContext);
+                Settings dialog = new Settings(guiContext.mainFrame, guiContext);
                 dialog.setVisible(true);
             }
         });
@@ -1047,7 +1048,7 @@ public class Navigator
         // -- View Menu
         //-
         // Refresh
-        guiContext.form.menuItemRefresh.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemRefresh.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1058,7 +1059,7 @@ public class Navigator
 
         //-
         // Progress
-        guiContext.form.menuItemProgress.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemProgress.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1070,52 +1071,177 @@ public class Navigator
 
         //-
         // Show Hidden
-        guiContext.form.menuItemShowHidden.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemShowHidden.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
                 if (guiContext.preferences.isHideHiddenFiles())
-                    guiContext.form.menuItemShowHidden.setSelected(false);
+                    guiContext.mainFrame.menuItemShowHidden.setSelected(false);
                 else
-                    guiContext.form.menuItemShowHidden.setSelected(true);
+                    guiContext.mainFrame.menuItemShowHidden.setSelected(true);
 
-                guiContext.browser.refreshTree(guiContext.form.treeCollectionOne);
-                guiContext.browser.refreshTree(guiContext.form.treeSystemOne);
-                guiContext.browser.refreshTree(guiContext.form.treeCollectionTwo);
-                guiContext.browser.refreshTree(guiContext.form.treeSystemTwo);
+                guiContext.browser.refreshTree(guiContext.mainFrame.treeCollectionOne);
+                guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemOne);
+                guiContext.browser.refreshTree(guiContext.mainFrame.treeCollectionTwo);
+                guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemTwo);
             }
         });
         // set initial state of checkbox
         if (guiContext.preferences.isHideHiddenFiles())
-            guiContext.form.menuItemShowHidden.setSelected(false);
+            guiContext.mainFrame.menuItemShowHidden.setSelected(false);
         else
-            guiContext.form.menuItemShowHidden.setSelected(true);
+            guiContext.mainFrame.menuItemShowHidden.setSelected(true);
 
-        //
         // -- Bookmarks Menu
-
         //
-        // -- Tools Menu
-        guiContext.form.menuItemJunk.addActionListener(new AbstractAction()
+        //-
+        // Bookmarks Manage
+        guiContext.mainFrame.menuItemBookmarksManage.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                JunkRemoverUI dialog = new JunkRemoverUI(guiContext.form, guiContext);
+                guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+
+                Bookmark bookmark = new Bookmark();
+                bookmark.name = "Bugs S02";
+                bookmark.panel = "tableCollectionOne";
+                bookmark.path = new String[] { "Media Publisher", "TV Shows", "A Bugs Show (2021)", "Season 2", "Bugs What A Repeated Interview - S02E01 .mp4" };
+
+                int panelNo = guiContext.browser.getPanelNumber(bookmark.panel);
+                guiContext.browser.selectPanelNumber(panelNo);
+
+                String bp = bookmark.panel.toLowerCase();
+
+                // determine which of the 4 trees
+                JTree tree;
+                if (bp.endsWith("one")) // publisher
+                {
+                    tree = bp.contains("collection") ? guiContext.mainFrame.treeCollectionOne : guiContext.mainFrame.treeSystemOne;
+                }
+                else // subscriber
+                {
+                    tree = bp.contains("collection") ? guiContext.mainFrame.treeCollectionTwo : guiContext.mainFrame.treeSystemTwo;
+                }
+
+                NavTreeNode[] nodes = new NavTreeNode[bookmark.path.length];
+                NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
+                if (node.getUserObject().name.equals(bookmark.path[0])) // root should be first path element
+                {
+                    int j = 0;
+                    nodes[j++] = node;
+
+                    TreePath tp;
+                    NavTreeNode next = null;
+                    for (int i = 1; i < bookmark.path.length; ++i)
+                    {
+                        next = node.findChildName(bookmark.path[i]);
+                        if (next != null)
+                        {
+                            nodes[j++] = next;
+                            node = next;
+                        }
+                        else
+                        {
+                            if (node.getUserObject().isDir)
+                            {
+                                node.deepScanChildren(false);
+                            }
+//                            NavTreeNode[] scanNodes = new NavTreeNode[j];
+//                            for (int k = 0; k < j; ++k)
+//                            {
+//                                scanNodes[k] = nodes[k];
+//                            }
+//                            tp = new TreePath(scanNodes);
+//                            tree.setSelectionPath(tp);
+                            next = node.findChildName(bookmark.path[i]);
+                            if (next != null)
+                            {
+                                nodes[j++] = next;
+                                node = next;
+                            }
+                            else
+                                break;
+                        }
+
+                    }
+                    tp = new TreePath(nodes);
+                    tree.setSelectionPath(tp);
+                    tree.expandPath(tp);
+                    tree.scrollPathToVisible(tp);
+                    if (next != null)
+                    {
+                        if (next.isVisible())
+                        {
+                            next.selectMe();
+                            next.loadTable();
+                        }
+                        else
+                        {
+                            ((NavTreeNode)next.getParent()).selectMe();
+                            ((NavTreeNode)next.getParent()).loadTable();
+                        }
+                    }
+                    if (bookmark.panel.startsWith("table"))
+                    {
+                        JTable table = (JTable) guiContext.browser.getTabComponent(panelNo);
+                        if (table != null)
+                        {
+                            table.requestFocus();
+                            int index = guiContext.browser.findRowIndex(table, bookmark.path[bookmark.path.length - 1]);
+                            if (index > -1)
+                            {
+                                table.setRowSelectionInterval(index, index);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        //-
+        // Add Bookmark
+        guiContext.mainFrame.menuItemAddBookmark.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                Object object = guiContext.browser.lastComponent;
+                if (object instanceof JTree)
+                {
+                    JTree sourceTree = (JTree) object;
+                    guiContext.browser.bookmarkSelected(sourceTree);
+                }
+                else if (object instanceof JTable)
+                {
+                    JTable sourceTable = (JTable) object;
+                    guiContext.browser.bookmarkSelected(sourceTable);
+                }
+            }
+        });
+
+        //
+        // -- Tools Menu
+        guiContext.mainFrame.menuItemJunk.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JunkRemoverUI dialog = new JunkRemoverUI(guiContext.mainFrame, guiContext);
                 dialog.setVisible(true);
             }
         });
 
         //
         // -- Jobs Menu
-        guiContext.form.menuItemJobsManage.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemJobsManage.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                JobsUI dialog = new JobsUI(guiContext.form, guiContext);
+                JobsUI dialog = new JobsUI(guiContext.mainFrame, guiContext);
                 dialog.setVisible(true);
             }
         });
@@ -1124,76 +1250,76 @@ public class Navigator
         // -- Window Menu
         //-
         // Maximize
-        guiContext.form.menuItemMaximize.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemMaximize.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.form.setExtendedState(guiContext.form.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+                guiContext.mainFrame.setExtendedState(guiContext.mainFrame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
             }
         });
 
         //-
         // Minimize
-        guiContext.form.menuItemMinimize.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemMinimize.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.form.setState(JFrame.ICONIFIED);
+                guiContext.mainFrame.setState(JFrame.ICONIFIED);
             }
         });
 
         //-
         // Restore
-        guiContext.form.menuItemRestore.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemRestore.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.form.setExtendedState(JFrame.NORMAL);
+                guiContext.mainFrame.setExtendedState(JFrame.NORMAL);
             }
         });
 
         //-
         // Split Horizontal
-        guiContext.form.menuItemSplitHorizontal.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemSplitHorizontal.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
-                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
-                int size = guiContext.form.splitPaneTwoBrowsers.getHeight();
-                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
+                guiContext.mainFrame.tabbedPaneBrowserOne.setVisible(true);
+                guiContext.mainFrame.tabbedPaneBrowserTwo.setVisible(true);
+                int size = guiContext.mainFrame.splitPaneTwoBrowsers.getHeight();
+                guiContext.mainFrame.splitPaneTwoBrowsers.setOrientation(JSplitPane.VERTICAL_SPLIT);
+                guiContext.mainFrame.splitPaneTwoBrowsers.setDividerLocation(size / 2);
             }
         });
 
         //-
         // Split Vertical
-        guiContext.form.menuItemSplitVertical.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemSplitVertical.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.form.tabbedPaneBrowserOne.setVisible(true);
-                guiContext.form.tabbedPaneBrowserTwo.setVisible(true);
-                int size = guiContext.form.splitPaneTwoBrowsers.getWidth();
-                guiContext.form.splitPaneTwoBrowsers.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-                guiContext.form.splitPaneTwoBrowsers.setDividerLocation(size / 2);
+                guiContext.mainFrame.tabbedPaneBrowserOne.setVisible(true);
+                guiContext.mainFrame.tabbedPaneBrowserTwo.setVisible(true);
+                int size = guiContext.mainFrame.splitPaneTwoBrowsers.getWidth();
+                guiContext.mainFrame.splitPaneTwoBrowsers.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+                guiContext.mainFrame.splitPaneTwoBrowsers.setDividerLocation(size / 2);
             }
         });
 
         // -- Help Menu
         //-
         // Controls
-        guiContext.form.menuItemControls.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemControls.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                NavHelp dialog = new NavHelp(guiContext.form, guiContext.form, guiContext, guiContext.cfg.gs("Settings.date.format.help.title"), "controls_" + guiContext.preferences.getLocale() + ".html");
+                NavHelp dialog = new NavHelp(guiContext.mainFrame, guiContext.mainFrame, guiContext, guiContext.cfg.gs("Settings.date.format.help.title"), "controls_" + guiContext.preferences.getLocale() + ".html");
                 dialog.setTitle(guiContext.cfg.gs("Navigator.controls.help.title"));
                 dialog.setVisible(true);
             }
@@ -1201,7 +1327,7 @@ public class Navigator
 
         //-
         // Documentation
-        guiContext.form.menuItemDocumentation.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemDocumentation.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1213,14 +1339,14 @@ public class Navigator
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.error.launching.browser"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.error.launching.browser"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         //-
         // GitHub Project
-        guiContext.form.menuItemGitHubProject.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemGitHubProject.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1232,19 +1358,19 @@ public class Navigator
                 }
                 catch (Exception e)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("Navigator.error.launching.browser"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.error.launching.browser"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         //-
         // About
-        guiContext.form.menuItemAbout.addActionListener(new AbstractAction()
+        guiContext.mainFrame.menuItemAbout.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                About about = new About(guiContext.form, guiContext);
+                About about = new About(guiContext.mainFrame, guiContext);
                 about.setVisible(true);
             }
         });
@@ -1252,23 +1378,23 @@ public class Navigator
         // popup menu log
         //-
         // Bottom
-        guiContext.form.popupMenuItemBottom.addActionListener(new AbstractAction()
+        guiContext.mainFrame.popupMenuItemBottom.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                JScrollBar vertical = guiContext.form.scrollPaneLog.getVerticalScrollBar();
+                JScrollBar vertical = guiContext.mainFrame.scrollPaneLog.getVerticalScrollBar();
                 vertical.setValue(vertical.getMaximum());
             }
         });
         //-
         // Clear
-        guiContext.form.popupMenuItemClear.addActionListener(new AbstractAction()
+        guiContext.mainFrame.popupMenuItemClear.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                guiContext.form.textAreaLog.setText("");
+                guiContext.mainFrame.textAreaLog.setText("");
             }
         });
 
@@ -1308,23 +1434,23 @@ public class Navigator
                     logger.info(guiContext.cfg.gs("Navigator.initialized"));
                     guiContext.preferences.fixApplication(guiContext);
 
-                    for (ActionListener listener : guiContext.form.buttonHintTracking.getActionListeners())
+                    for (ActionListener listener : guiContext.mainFrame.buttonHintTracking.getActionListeners())
                     {
-                        listener.actionPerformed(new ActionEvent(guiContext.form.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
+                        listener.actionPerformed(new ActionEvent(guiContext.mainFrame.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
                     }
 
                     String os = Utils.getOS();
                     logger.debug(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
-                    guiContext.form.labelStatusMiddle.setText(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
+                    guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
 
                     logger.info(guiContext.cfg.gs("Navigator.displaying"));
-                    guiContext.form.setVisible(true);
+                    guiContext.mainFrame.setVisible(true);
 
-                    guiContext.form.treeCollectionOne.requestFocus();
+                    guiContext.mainFrame.treeCollectionOne.requestFocus();
                 }
                 else
                 {
-                    guiContext.form = null; // failed
+                    guiContext.mainFrame = null; // failed
                     stop();
                 }
             }
@@ -1356,7 +1482,7 @@ public class Navigator
         }
 
         // report stats and shutdown
-        if (guiContext.form != null)
+        if (guiContext.mainFrame != null)
         {
             try // save the settings
             {
@@ -1365,8 +1491,8 @@ public class Navigator
             catch (Exception e)
             {
             }
-            guiContext.form.setVisible(false);
-            guiContext.form.dispose();
+            guiContext.mainFrame.setVisible(false);
+            guiContext.mainFrame.dispose();
         }
         Main.stopVerbiage();
 

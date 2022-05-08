@@ -49,7 +49,7 @@ public class NavTransferHandler extends TransferHandler
     public boolean canImport(TransferHandler.TransferSupport info)
     {
         guiContext.context.fault = false;
-        guiContext.form.labelStatusMiddle.setText("");
+        guiContext.mainFrame.labelStatusMiddle.setText("");
         if (info.getComponent() instanceof JTable)
         {
             JTable targetTable = (JTable) info.getComponent();
@@ -169,7 +169,7 @@ public class NavTransferHandler extends TransferHandler
             {
                 if (hintPath.toLowerCase().equals("false"))
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("NavTransferHandler.hint.could.not.be.created"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.hint.could.not.be.created"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
                 else
                 {
@@ -276,16 +276,16 @@ public class NavTransferHandler extends TransferHandler
         switch (tree.getName())
         {
             case "treeCollectionOne":
-                targetTable = guiContext.form.tableCollectionOne;
+                targetTable = guiContext.mainFrame.tableCollectionOne;
                 break;
             case "treeSystemOne":
-                targetTable = guiContext.form.tableSystemOne;
+                targetTable = guiContext.mainFrame.tableSystemOne;
                 break;
             case "treeCollectionTwo":
-                targetTable = guiContext.form.tableCollectionTwo;
+                targetTable = guiContext.mainFrame.tableCollectionTwo;
                 break;
             case "treeSystemTwo":
-                targetTable = guiContext.form.tableSystemTwo;
+                targetTable = guiContext.mainFrame.tableSystemTwo;
         }
         assert (targetTable != null);
         return targetTable;
@@ -297,16 +297,16 @@ public class NavTransferHandler extends TransferHandler
         switch (table.getName())
         {
             case "tableCollectionOne":
-                targetTree = guiContext.form.treeCollectionOne;
+                targetTree = guiContext.mainFrame.treeCollectionOne;
                 break;
             case "tableSystemOne":
-                targetTree = guiContext.form.treeSystemOne;
+                targetTree = guiContext.mainFrame.treeSystemOne;
                 break;
             case "tableCollectionTwo":
-                targetTree = guiContext.form.treeCollectionTwo;
+                targetTree = guiContext.mainFrame.treeCollectionTwo;
                 break;
             case "tableSystemTwo":
-                targetTree = guiContext.form.treeSystemTwo;
+                targetTree = guiContext.mainFrame.treeSystemTwo;
                 break;
         }
         assert (targetTree != null);
@@ -326,7 +326,7 @@ public class NavTransferHandler extends TransferHandler
         }
         if (action == TransferHandler.NONE)
         {
-            guiContext.form.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
+            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
             guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
             isDrop = false;
             return false;
@@ -349,7 +349,7 @@ public class NavTransferHandler extends TransferHandler
 
         if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
         {
-            JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("NavTransferHandler.cannot.transfer.to.currently.selected.location"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.cannot.transfer.to.currently.selected.location"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -369,8 +369,8 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeNode parent = (NavTreeNode) sourceNode.getParent();
                 if (parent == targetNode)
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("NavTransferHandler.source.target.are.the.same"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    guiContext.form.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.source.target.are.the.same"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
                     guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
                     action = TransferHandler.NONE;
                     return false;
@@ -381,7 +381,7 @@ public class NavTransferHandler extends TransferHandler
                 {
                     if (sourceTuo.isDir)
                     {
-                        sourceNode.deepScanChildren();
+                        sourceNode.deepScanChildren(true);
                         count = count + sourceNode.deepGetFileCount();
                         size = size + sourceNode.deepGetFileSize();
                     }
@@ -393,8 +393,8 @@ public class NavTransferHandler extends TransferHandler
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(guiContext.form, guiContext.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    guiContext.form.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
                     guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
                     action = TransferHandler.NONE;
                     return false;
@@ -409,7 +409,7 @@ public class NavTransferHandler extends TransferHandler
                         getOperation(action,true).toLowerCase(), Utils.formatLong(size, false),
                         Utils.formatInteger(count), count > 1 ? 0 : 1, targetTuo.name);
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
-                reply = JOptionPane.showConfirmDialog(guiContext.form, msg, guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg, guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
             // process the selections
@@ -455,7 +455,7 @@ public class NavTransferHandler extends TransferHandler
         catch (Exception e)
         {
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            int reply = JOptionPane.showConfirmDialog(guiContext.form, guiContext.cfg.gs("Browser.error") + e.toString(),
+            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") + e.toString(),
                     guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
         }
 
@@ -539,7 +539,7 @@ public class NavTransferHandler extends TransferHandler
         {
             //guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            int reply = JOptionPane.showConfirmDialog(guiContext.form, guiContext.cfg.gs("NavTransferHandler.delete.directory.error") +
+            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.delete.directory.error") +
                             e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
@@ -579,7 +579,7 @@ public class NavTransferHandler extends TransferHandler
             {
                 //guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                int reply = JOptionPane.showConfirmDialog(guiContext.form, guiContext.cfg.gs("NavTransferHandler.delete.file.error") +
+                int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.delete.file.error") +
                                 e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                 if (reply == JOptionPane.NO_OPTION)
