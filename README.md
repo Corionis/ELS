@@ -27,11 +27,11 @@ features, downloads and documentation.
 notice is removed there is no guarantee what works or has been completed, or even
 what *will be completed*. Also "Done" means code complete. Bugs are entirely possible.
 
- * ELS Navigator, a powerful cross-platform desktop application, new in 4.0.0.
+ * ELS Navigator, a powerful cross-platform desktop application, added in 4.0.0.
    * Done: Navigator Browser tab shows publisher and subscriber collections and local storage.
      * Done: Drag and Drop, and Copy/Cut/Paste supported.
      * Done: Automatic multiple-storage free space roll-over of a drop or paste on an ELS library.
-   * Done: Works with local or remote subscriber listener.
+   * Done: Works with local or remote subscriber.
    * Done: Optional automatic ELS Hint creation based on actions.
    * Various purpose-built tools for curating a media collection.
      * Duplicate Finder
@@ -46,6 +46,7 @@ what *will be completed*. Also "Done" means code complete. Bugs are entirely pos
    * Navigator Libraries tab is for editing of publisher, subscriber, 
      and hint management JSON files.
    * Done: Secure remote operation. End-point cross authentication, all communication is encrypted.
+   * Add an inetd option for listener configurations so they may be started dynamically on-demand.
    * Fully internationalized - **translations requested**.
    * Embedded JRE.
    * Windows installer.
@@ -54,7 +55,7 @@ what *will be completed*. Also "Done" means code complete. Bugs are entirely pos
    * Cool new modern web site.
    * ELS will always be free. A donation button on the web site(s) will be added eventually.
    * Please use the Discussions. Feedback, ideas and code contributors are encouraged.
-     * Be kind. There is one person working on this.
+     * Be kind. There is one person working on this part-time as available.
  
  * ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
  * ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.

@@ -47,9 +47,9 @@ To build ELS from sources use Apache ant in the root of the project directory:
 
 ## Disclaimer
 
-Code in a branch and not master is work in progress. It may not work or make sense while
-features are being implemented. Commits to branches in this repository are for back-up
-purposes. That said commits *usually* do not break the build.
+Code in the newest branch and not master is work in progress. It may not work or make
+sense while features are being implemented. Commits to branches in this repository are
+for back-up purposes. That said commits *usually* do not break the build.
 
 ### Jump Start / Demo
 
