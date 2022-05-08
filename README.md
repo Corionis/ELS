@@ -23,6 +23,29 @@ features, downloads and documentation.
 
 ## Features
 
+ **Note:** This is a work in progress. These are the planned features. Until this
+notice is removed there is no guarantee what works or has been completed, or even
+what *will be completed*.
+
+ * New ELS Navigator, a powerful cross-platform desktop application, new in 4.0.0.
+   * Navigator Browser tab shows publisher and subscriber collections and local storage.
+   * Works with local or remote subscriber.
+   * Optional automatic hint creation based on actions.
+   * Various purpose-built tools for curating a media collection.
+   * Tools may be combined into jobs.
+     * Creation of Linux or Windows scripts to execute jobs. Useful for Linux
+       cron jobs or Windows Task Scheduler tasks.
+   * Navigator Backup tab is for creation of ELS back-up tools that may be combined into jobs.
+   * Navigator Libraries tab is used for editing of publisher, subscriber, 
+     and hint management JSON files.
+   * External tools supported.
+   * Very secure, all communication is encrypted.
+   * Fully internationalized - translations requested.
+   * Embedded JRE.
+   * Windows installer.
+   * Built-in update tool.
+ 
+
  * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
  * New ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
  * New ELS Hints to coordinate manual changes, new in 3.0.0.
