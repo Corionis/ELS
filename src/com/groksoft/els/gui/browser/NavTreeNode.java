@@ -162,7 +162,10 @@ public class NavTreeNode extends DefaultMutableTreeNode
                             else
                             {
                                 if (recursive)
+                                {
                                     node.deepScanChildren(recursive);
+                                    node.setLoaded(true);
+                                }
                             }
                         }
                     }
@@ -195,7 +198,10 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     else
                     {
                         if (recursive)
+                        {
                             node.deepScanChildren(recursive);
+                            node.setLoaded(true);
+                        }
                     }
                 }
                 setChildren(nodeArray, false);
@@ -671,9 +677,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 add(ntn);
             }
         }
+        setLoaded(true);
         if (doLoadTable)
             loadTable();
-        setLoaded(true);
     }
 
     public void setLoaded(boolean loaded)

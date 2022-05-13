@@ -2,6 +2,7 @@ package com.groksoft.els.gui.browser;
 
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.*;
+import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import org.apache.commons.io.FilenameUtils;
@@ -14,7 +15,6 @@ import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
@@ -462,41 +462,155 @@ public class Browser
 
     }
 
-    public void bookmarkSelected(JTable sourceTable)
+    private void bookmarkCreate(NavTreeNode node, String name, String panelName)
     {
-        int row = sourceTable.getSelectedRow();
-        if (row > -1)
+        Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
+                guiContext.cfg.gs(("Browser.bookmark.name")),
+                guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
+                null, null, name);
+        name = (String) obj;
+        if (name != null && name.length() > 0)
         {
-            int[] rows = sourceTable.getSelectedRows();
-
-            int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowDeleteConfirmation())
+            Bookmark bm = new Bookmark();
+            bm.name = name;
+            bm.panel = panelName;
+            TreePath tp = node.getTreePath();
+            if (tp.getPathCount() > 0)
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Browser.bookmark.item"), rows.length) + ((rows.length > 1) ? "S?" : "?");
-                reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
-                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                bm.path = new String[tp.getPathCount()];
+                Object[] objs = tp.getPath();
+                for (int i = 0; i < tp.getPathCount(); ++i)
+                {
+                    node = (NavTreeNode) objs[i];
+                    bm.path[i] = node.getUserObject().name;
+                }
+                guiContext.navigator.bookmarks.add(bm);
+                try
+                {
+                    guiContext.navigator.bookmarks.write();
+                    guiContext.navigator.loadBookmarksMenu();
+                }
+                catch (Exception e)
+                {
+                    guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
+                            guiContext.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    /**
+     * Navigate to and select a bookmark
+     *
+     * @param bookmark
+     */
+    public void bookmarkGoto(Bookmark bookmark)
+    {
+        String panelName = bookmark.panel.toLowerCase();
+
+        // determine which of the 4 trees
+        JTree tree;
+        if (panelName.endsWith("one")) // publisher
+        {
+            tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionOne : guiContext.mainFrame.treeSystemOne;
+        }
+        else // subscriber
+        {
+            tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionTwo : guiContext.mainFrame.treeSystemTwo;
+        }
+
+        NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
+        // root should be first path element
+        if (node.getUserObject().name.equals(bookmark.path[0]))
+        {
+            int nodeIndex = 0;
+            NavTreeNode[] nodes = new NavTreeNode[bookmark.path.length];
+            nodes[nodeIndex++] = node;
+
+            // find or scan each path segment
+            NavTreeNode next;
+            for (int i = 1; i < bookmark.path.length; ++i)
+            {
+                next = node.findChildName(bookmark.path[i]);
+                if (next != null)
+                {
+                    nodes[nodeIndex++] = next;
+                    node = next;
+                }
+                else
+                {
+                    if (node.getUserObject().isDir)
+                    {
+                        node.deepScanChildren(false);
+                    }
+                    next = node.findChildName(bookmark.path[i]);
+                    if (next != null)
+                    {
+                        nodes[nodeIndex++] = next;
+                        node = next;
+                    }
+                    else
+                        break;
+                }
             }
 
-            boolean error = false;
-            if (reply == JOptionPane.YES_OPTION)
+            // remove last segment if needed
+            TreePath tp;
+            if (!nodes[nodeIndex - 1].getUserObject().isDir && guiContext.preferences.isHideFilesInTree())
             {
-                for (int i = 0; i < rows.length; ++i)
+                NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
+                for (int j = 0; j < nodeIndex - 1; ++j)
+                    navNodes[j] = nodes[j];
+                tp = new TreePath(navNodes);
+            }
+            else
+                tp = new TreePath(nodes);
+
+            // select one of the 8 panels
+            int panelNo = guiContext.browser.getPanelNumber(bookmark.panel);
+            guiContext.browser.selectPanelNumber(panelNo);
+
+            // expand, scroll to and select the node tree
+            tree.expandPath(tp);
+            tree.scrollPathToVisible(tp);
+            tree.setSelectionPath(tp);
+
+            // highlight item if it's a table
+            if (panelName.startsWith("table"))
+            {
+                JTable table = (JTable) guiContext.browser.getTabComponent(panelNo);
+                if (table != null)
                 {
-                    NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
-                    NavTreeNode node = tuo.node;
-                    TreeNode[] nodePath = node.getPath();
-                    if (tuo.type == NavTreeUserObject.REAL)
+                    table.requestFocus();
+                    int index = guiContext.browser.findRowIndex(table, bookmark.path[bookmark.path.length - 1]);
+                    if (index > -1)
                     {
-                        if (tuo.isDir)
-                        {
-                        }
-                        else
-                        {
-                        }
+                        table.setRowSelectionInterval(index, index);
                     }
                 }
             }
         }
+    }
+
+    public void bookmarkSelected(JTable sourceTable)
+    {
+        int[] rows = sourceTable.getSelectedRows();
+        if (rows != null && rows.length != 1)
+        {
+            JOptionPane.showMessageDialog(guiContext.mainFrame,
+                    guiContext.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
+                    guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int row = sourceTable.getSelectedRow();
+        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[row], 1);
+        NavTreeNode node = tuo.node;
+        String name = tuo.name;
+
+        bookmarkCreate(node, name, sourceTable.getName());
     }
 
     public void bookmarkSelected(JTree sourceTree)
@@ -511,16 +625,9 @@ public class Browser
         }
 
         NavTreeNode node = (NavTreeNode) sourceTree.getLastSelectedPathComponent();
-        String reply = node.getUserObject().name;
-        Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
-                guiContext.cfg.gs(("Browser.bookmark.name")),
-                guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
-                null, null, reply);
-        reply = (String) obj;
-        if (reply != null && reply.length() > 0)
-        {
-            boolean error = false;
-        }
+        String name = node.getUserObject().name;
+
+        bookmarkCreate(node, name, sourceTree.getName());
     }
 
     public void deleteSelected(JTable sourceTable)
@@ -1482,7 +1589,6 @@ public class Browser
     {
         logger.info(text);
         guiContext.mainFrame.textAreaLog.append(text + System.getProperty("line.separator"));
-//        guiContext.form.textAreaLog.update(guiContext.form.textAreaLog.getGraphics());
         guiContext.mainFrame.textAreaLog.repaint();
     }
 

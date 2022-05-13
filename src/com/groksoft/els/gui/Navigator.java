@@ -3,6 +3,7 @@ package com.groksoft.els.gui;
 import com.google.gson.Gson;
 import com.groksoft.els.*;
 import com.groksoft.els.gui.bookmarks.Bookmark;
+import com.groksoft.els.gui.bookmarks.Bookmarks;
 import com.groksoft.els.gui.browser.Browser;
 import com.groksoft.els.gui.browser.NavTransferHandler;
 import com.groksoft.els.gui.browser.NavTreeNode;
@@ -32,6 +33,7 @@ import java.time.LocalTime;
 
 public class Navigator
 {
+    public Bookmarks bookmarks;
     public static GuiContext guiContext;
     public boolean showHintTrackingButton = false;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -217,6 +219,11 @@ public class Navigator
             guiContext.cfg.setNoBackFill(true);
 
             guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTimes());
+
+            // add any defined bookmarks to the menu
+            bookmarks = new Bookmarks();
+            readBookmarks();
+            loadBookmarksMenu();
 
 /*
         Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
@@ -768,7 +775,7 @@ public class Navigator
                                 JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Navigator.menu.New.folder.error.creating") +
                                                 (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") + " " : "") +
-                                                guiContext.cfg.gs("Navigator.menu.New.folder.directory") + ": "  +
+                                                guiContext.cfg.gs("Navigator.menu.New.folder.directory") + ": " +
                                                 e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 error = true;
                             }
@@ -1097,112 +1104,7 @@ public class Navigator
         // -- Bookmarks Menu
         //
         //-
-        // Bookmarks Manage
-        guiContext.mainFrame.menuItemBookmarksManage.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-
-                Bookmark bookmark = new Bookmark();
-                bookmark.name = "Bugs S02";
-                bookmark.panel = "tableCollectionOne";
-                bookmark.path = new String[] { "Media Publisher", "TV Shows", "A Bugs Show (2021)", "Season 2", "Bugs What A Repeated Interview - S02E01 .mp4" };
-
-                int panelNo = guiContext.browser.getPanelNumber(bookmark.panel);
-                guiContext.browser.selectPanelNumber(panelNo);
-
-                String bp = bookmark.panel.toLowerCase();
-
-                // determine which of the 4 trees
-                JTree tree;
-                if (bp.endsWith("one")) // publisher
-                {
-                    tree = bp.contains("collection") ? guiContext.mainFrame.treeCollectionOne : guiContext.mainFrame.treeSystemOne;
-                }
-                else // subscriber
-                {
-                    tree = bp.contains("collection") ? guiContext.mainFrame.treeCollectionTwo : guiContext.mainFrame.treeSystemTwo;
-                }
-
-                NavTreeNode[] nodes = new NavTreeNode[bookmark.path.length];
-                NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
-                if (node.getUserObject().name.equals(bookmark.path[0])) // root should be first path element
-                {
-                    int j = 0;
-                    nodes[j++] = node;
-
-                    TreePath tp;
-                    NavTreeNode next = null;
-                    for (int i = 1; i < bookmark.path.length; ++i)
-                    {
-                        next = node.findChildName(bookmark.path[i]);
-                        if (next != null)
-                        {
-                            nodes[j++] = next;
-                            node = next;
-                        }
-                        else
-                        {
-                            if (node.getUserObject().isDir)
-                            {
-                                node.deepScanChildren(false);
-                            }
-//                            NavTreeNode[] scanNodes = new NavTreeNode[j];
-//                            for (int k = 0; k < j; ++k)
-//                            {
-//                                scanNodes[k] = nodes[k];
-//                            }
-//                            tp = new TreePath(scanNodes);
-//                            tree.setSelectionPath(tp);
-                            next = node.findChildName(bookmark.path[i]);
-                            if (next != null)
-                            {
-                                nodes[j++] = next;
-                                node = next;
-                            }
-                            else
-                                break;
-                        }
-
-                    }
-                    tp = new TreePath(nodes);
-                    tree.setSelectionPath(tp);
-                    tree.expandPath(tp);
-                    tree.scrollPathToVisible(tp);
-                    if (next != null)
-                    {
-                        if (next.isVisible())
-                        {
-                            next.selectMe();
-                            next.loadTable();
-                        }
-                        else
-                        {
-                            ((NavTreeNode)next.getParent()).selectMe();
-                            ((NavTreeNode)next.getParent()).loadTable();
-                        }
-                    }
-                    if (bookmark.panel.startsWith("table"))
-                    {
-                        JTable table = (JTable) guiContext.browser.getTabComponent(panelNo);
-                        if (table != null)
-                        {
-                            table.requestFocus();
-                            int index = guiContext.browser.findRowIndex(table, bookmark.path[bookmark.path.length - 1]);
-                            if (index > -1)
-                            {
-                                table.setRowSelectionInterval(index, index);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        //-
-        // Add Bookmark
+        // Add Current Location
         guiContext.mainFrame.menuItemAddBookmark.addActionListener(new AbstractAction()
         {
             @Override
@@ -1218,6 +1120,58 @@ public class Navigator
                 {
                     JTable sourceTable = (JTable) object;
                     guiContext.browser.bookmarkSelected(sourceTable);
+                }
+            }
+        });
+
+        //-
+        // Bookmarks Delete
+        guiContext.mainFrame.menuItemBookmarksDelete.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                String message = guiContext.cfg.gs("Navigator.select.one.or.more.bookmarks.to.delete");
+                JList<String> names = new JList<String>();
+                DefaultListModel<String> listModel = new DefaultListModel<String>();
+                names.setModel(listModel);
+                names.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+                bookmarks.sort();
+                for (int i = 0; i < bookmarks.size(); ++i)
+                {
+                    Bookmark bm = bookmarks.get(i);
+                    listModel.addElement(bm.name);
+                }
+
+                JScrollPane pane = new JScrollPane();
+                pane.setViewportView(names);
+                names.requestFocus();
+                Object[] params = {message, pane};
+
+                int opt = JOptionPane.showConfirmDialog(guiContext.mainFrame, params, guiContext.cfg.gs("Navigator.delete.bookmarks"), JOptionPane.OK_CANCEL_OPTION);
+                if (opt == JOptionPane.OK_OPTION)
+                {
+                    int[] selected = names.getSelectedIndices();
+                    if (selected != null && selected.length > 0)
+                    {
+                        for (int i = selected.length - 1; i > -1; --i)
+                        {
+                            bookmarks.delete(selected[i]);
+                        }
+
+                        try
+                        {
+                            bookmarks.write();
+                            loadBookmarksMenu();
+                        }
+                        catch (Exception e)
+                        {
+                            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
+                                    guiContext.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
                 }
             }
         });
@@ -1398,6 +1352,63 @@ public class Navigator
             }
         });
 
+    }
+
+    public void loadBookmarksMenu()
+    {
+        JMenu menu = guiContext.mainFrame.menuBookmarks;
+        int count = menu.getItemCount();
+        if (count > 3)
+        {
+            for (int i = count - 1; i > 2; --i)
+            {
+                menu.remove(i);
+            }
+        }
+
+        count = bookmarks.size();
+        if (count > 0)
+        {
+            bookmarks.sort();
+            for (int i = 0; i < count; ++i)
+            {
+                JMenuItem item = new JMenuItem(bookmarks.get(i).name);
+                item.setHorizontalTextPosition(SwingConstants.LEADING);
+                item.setHorizontalAlignment(SwingConstants.LEADING);
+                item.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        JMenuItem selected = (JMenuItem) actionEvent.getSource();
+                        String name = selected.getText();
+                        Bookmark bm = bookmarks.find(name);
+                        if (bm != null)
+                            guiContext.browser.bookmarkGoto(bm);
+                    }
+                });
+                menu.add(item);
+            }
+        }
+    }
+
+    public void readBookmarks()
+    {
+        try
+        {
+            Gson gson = new Gson();
+            String json = new String(Files.readAllBytes(Paths.get(bookmarks.getFullPath())));
+            bookmarks = gson.fromJson(json, bookmarks.getClass());
+
+            if (bookmarks != null)
+            {
+                // TODO Add bookmark to menu
+            }
+        }
+        catch (IOException e)
+        {
+            // file might not exist
+        }
     }
 
     public void readPreferences()

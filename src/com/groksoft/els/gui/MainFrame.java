@@ -265,7 +265,7 @@ public class MainFrame extends JFrame
         menuItemShowHidden = new JCheckBoxMenuItem();
         menuBookmarks = new JMenu();
         menuItemAddBookmark = new JMenuItem();
-        menuItemBookmarksManage = new JMenuItem();
+        menuItemBookmarksDelete = new JMenuItem();
         menuTools = new JMenu();
         menuItemDuplicates = new JMenuItem();
         menuItemEmptyFinder = new JMenuItem();
@@ -564,12 +564,12 @@ public class MainFrame extends JFrame
                 menuItemAddBookmark.setHorizontalAlignment(SwingConstants.LEFT);
                 menuBookmarks.add(menuItemAddBookmark);
 
-                //---- menuItemBookmarksManage ----
-                menuItemBookmarksManage.setText(guiContext.cfg.gs("Navigator.menu.BookmarksManage.text"));
-                menuItemBookmarksManage.setMnemonic(guiContext.cfg.gs("Navigator.menu.BookmarksManage.mnemonic").charAt(0));
-                menuItemBookmarksManage.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemBookmarksManage.setHorizontalAlignment(SwingConstants.LEFT);
-                menuBookmarks.add(menuItemBookmarksManage);
+                //---- menuItemBookmarksDelete ----
+                menuItemBookmarksDelete.setText(guiContext.cfg.gs("Navigator.menu.BookmarksManage.text"));
+                menuItemBookmarksDelete.setMnemonic(guiContext.cfg.gs("Navigator.menu.BookmarksManage.mnemonic").charAt(0));
+                menuItemBookmarksDelete.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemBookmarksDelete.setHorizontalAlignment(SwingConstants.LEFT);
+                menuBookmarks.add(menuItemBookmarksDelete);
                 menuBookmarks.addSeparator();
             }
             menuBarMain.add(menuBookmarks);
@@ -1328,7 +1328,7 @@ public class MainFrame extends JFrame
     public JCheckBoxMenuItem menuItemShowHidden;
     public JMenu menuBookmarks;
     public JMenuItem menuItemAddBookmark;
-    public JMenuItem menuItemBookmarksManage;
+    public JMenuItem menuItemBookmarksDelete;
     public JMenu menuTools;
     public JMenuItem menuItemDuplicates;
     public JMenuItem menuItemEmptyFinder;

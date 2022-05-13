@@ -45,7 +45,7 @@ To build ELS from sources use Apache ant in the root of the project directory:
     * Builds the ELS.jar to the deploy/ directory.
     * This script was generated from IntelliJ.
 
-## Disclaimer
+## Code Disclaimer
 
 Code in the newest branch and not master is work in progress. It may not work or make
 sense while features are being implemented. Commits to branches in this repository are

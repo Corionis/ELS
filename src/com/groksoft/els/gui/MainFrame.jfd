@@ -718,7 +718,7 @@ new FormModel {
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemBookmarksManage"
+						name: "menuItemBookmarksDelete"
 						"text": new FormMessage( null, "Navigator.menu.BookmarksManage.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.BookmarksManage.mnemonic" )
 						"horizontalTextPosition": 2
