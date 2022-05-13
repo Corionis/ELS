@@ -605,8 +605,8 @@ public class Browser
             return;
         }
 
-        int row = sourceTable.getSelectedRow();
-        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[row], 1);
+        //int row = sourceTable.getSelectedRow();
+        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[0], 1);
         NavTreeNode node = tuo.node;
         String name = tuo.name;
 
