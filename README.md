@@ -27,7 +27,9 @@ features, downloads and documentation.
 notice is removed there is no guarantee what works or has been completed, or even
 what *will be completed*. Also "Done" means code complete. Bugs are entirely possible.
 
- * ELS Navigator, a powerful cross-platform desktop application, added in 4.0.0.
+ * ELS Navigator, a powerful cross-platform desktop application, added in 4.0.0. It
+   is an ELS-smart, purpose-built, interactive tool designed to make building and curating
+   a media collection easier.
    * Done: Navigator Browser tab shows publisher and subscriber collections and local storage.
      * Done: Drag and Drop, and Copy/Cut/Paste supported.
      * Done: Automatic multiple-storage free space roll-over of a drop or paste on an ELS library.
