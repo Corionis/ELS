@@ -7,145 +7,116 @@ import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
-import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.tools.AbstractTool;
+import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Vector;
 
 public class JunkRemoverTool extends AbstractTool
 {
-    // @formatter:off
-
-    // data members
     private ArrayList<JunkItem> junkList;
-
-    // runtime data
-    transient static final String ALL = "#ALL_LIBRARIES#";
     transient boolean dataHasChanged = false;
-    transient private GuiContext guiContext = null;
-    transient ArrayList<String> selectedNames;
-
-//    transient private boolean onPublisher = false;
-//    transient private boolean onSubscriber = false;
-//    transient private NavTreeNode node;
-    transient private Repository repo;
-//    transient private NavTreeUserObject tuo;
-
-    // @formatter:on
+    transient ArrayList<String> operationPaths;
+     transient private GuiContext guiContext = null;
 
     public JunkRemoverTool(Configuration config, Context ctxt)
     {
         super(config, ctxt, "JunkRemover");
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
+        this.junkList = new ArrayList<JunkItem>();
+
     }
 
     public JunkRemoverTool(GuiContext guiContext)
     {
         super(guiContext.cfg, guiContext.context, "JunkRemover");
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
-
         this.guiContext = guiContext;
+        this.junkList = new ArrayList<JunkItem>();
     }
 
     public JunkItem addJunkItem()
     {
-        if (junkList == null)
-            createJunkList();
         JunkItem ji = new JunkItem();
         junkList.add(ji);
         setDataHasChanged(true);
         return ji;
     }
 
-    /**
-     * Parse defined arguments for this tool
-     * <p>
-     * -D | --dry-run
-     * <p>
-     * -l | --library [name] : Library to process
-     * <p>
-     * -L | --exclude [name] : Library to exclude
-     * <p>
-     * -p | --publisher : Run on publisher
-     * <p>
-     * -s | --subscriber : Run on subscriber
-     *
-     * @throws Exception
-     */
-/*
-    @Override
-    protected void argsParse() throws Exception
+    public int addTuoPaths(NavTreeUserObject tuo)
     {
-        int index;
-        // https://sourceforge.net/p/drjava/git_repo/ci/master/tree/drjava/src/edu/rice/cs/util/ArgumentTokenizer.java
-        List<String> args = ArgumentTokenizer.tokenize(getArguments());
+        int count = 0;
 
-        for (index = 0; index < args.size(); ++index)
+        if (operationPaths == null)
+            operationPaths = new ArrayList<String>();
+
+        if (tuo.type == NavTreeUserObject.COLLECTION)
         {
-            String arg = args.get(index);
-            switch (arg)
+            Repository repo = guiContext.context.transfer.getRepo(tuo);
+            if (repo != null)
             {
-                case "-D":                                              // dry run
-                    setDryRun(true);
-                    break;
-                case "-l":                                              // library
-                    if (index < args.size() - 1)
-                        guiContext.cfg.addPublisherLibraryName(args.get(++index));
-                    else
-                        throw new MungeException("-l | --library requires a library name");
-                    break;
-                case "-p":                                              // on publisher
-                    onPublisher = true;
-                    break;
-                case "-s":                                              // on subscriber
-                    onSubscriber = true;
-                    break;
-                default:
-                    throw new MungeException(getInternalName() + ": " + "Unknown argument " + arg);
+                Arrays.sort(repo.getLibraryData().libraries.bibliography);
+                for (Library lib : repo.getLibraryData().libraries.bibliography)
+                {
+                    for (String source : lib.sources)
+                    {
+                        operationPaths.add(source);
+                        ++count;
+                    }
+                }
             }
         }
-    }
-*/
+        else if (tuo.type == NavTreeUserObject.LIBRARY)
+        {
+            for (String source : tuo.sources)
+            {
+                operationPaths.add(source);
+                ++count;
+            }
+        }
+        else if (tuo.type == NavTreeUserObject.REAL)
+        {
+            operationPaths.add(tuo.getPath());
+            ++count;
+        }
 
-    /**
-     * Test values of arguments for sanity
-     */
-/*
-    @Override
-    protected void argsTest() throws Exception
-    {
-        if (onPublisher == false && onSubscriber == false)
-            throw new MungeException("Either -p or -s is required");
-        if (onPublisher == true && onSubscriber == true)
-            throw new MungeException("Both -p and -s cannot be used");
+        if (count > 0)
+        {
+            if (tuo.isSubscriber())
+                setIsSubscriber(true);
+            if (tuo.isRemote)
+                setIsRemote(true);
+        }
+        return count;
     }
-*/
 
     public JunkRemoverTool clone()
     {
         assert guiContext != null;
         JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
-//        jrt.setArguments(getArguments());
         jrt.setConfigName(getConfigName());
         jrt.setDataHasChanged(isDataChanged());
         jrt.setDisplayName(getDisplayName());
         jrt.setDryRun(isDryRun());
         jrt.setInternalName(getInternalName());
         jrt.setJunkList(getJunkList());
+//        jrt.operationPaths = operationPaths;
+//        jrt.isRemote = isRemote;
+//        jrt.isSubscriber = isSubscriber;
         return jrt;
-    }
-
-    public void createJunkList()
-    {
-        junkList = new ArrayList<JunkItem>();
     }
 
     public ArrayList<JunkItem> getJunkList()
@@ -183,23 +154,50 @@ public class JunkRemoverTool extends AbstractTool
         //  * Interactive refreshes the selected items when done
         //  * Command line rescans when done
 
-        if (selectedNames == null || selectedNames.size() == 0)
+        if (operationPaths == null || operationPaths.size() == 0)
             return false;
 
-        if (isSubscriber())
-            repo = guiContext.context.subscriberRepo;
-        else
-            repo = guiContext.context.publisherRepo;
+//        if (isSubscriber())
+//            repo = guiContext.context.subscriberRepo;
+//        else
+//            repo = guiContext.context.publisherRepo;
+//
+//        if (repo == null)
+//            throw new MungeException("Repository does not appear to be loaded");
 
-        if (repo == null)
-            throw new MungeException("Repository does not appear to be loaded");
+        for (String path : operationPaths)
+        {
+            if (isRemote())
+            {
+                if (guiContext != null)
+                {
+                    guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + path);
+                }
+                try
+                {
+                    Vector listing = guiContext.context.clientSftp.listDirectory(path);
+                    //logger.info(Utils.formatInteger(listing.size()) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + path);
+                    for (int i = 0; i < listing.size(); ++i)
+                    {
+                        ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
+                        if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
+                        {
+                            SftpATTRS a = entry.getAttrs();
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
 
+                }
 
+            }
+            else
+            {
 
-
-
-
-
+            }
+        }
 
         return false;
     }
@@ -212,16 +210,18 @@ public class JunkRemoverTool extends AbstractTool
     public void setGuiContext(GuiContext guicontext)
     {
         this.guiContext = guicontext;
-    }
-
-    public void setSelectedNames(ArrayList<String> names)
-    {
-        this.selectedNames = names;
+        this.cfg = guicontext.cfg;
+        this.context = guicontext.context;
     }
 
     public void setJunkList(ArrayList<JunkItem> junkList)
     {
         this.junkList = junkList;
+    }
+
+    public void setOperationPaths(ArrayList<String> names)
+    {
+        this.operationPaths = names;
     }
 
     public void write() throws Exception
@@ -249,8 +249,8 @@ public class JunkRemoverTool extends AbstractTool
 
     public class JunkItem implements Serializable
     {
-        String wildcard;
         boolean caseSensitive = false;
+        String wildcard;
     }
 
 }

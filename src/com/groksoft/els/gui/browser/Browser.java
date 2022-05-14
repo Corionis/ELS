@@ -456,7 +456,6 @@ public class Browser
             @Override
             public void keyPressed(KeyEvent keyEvent)
             {
-
             }
         });
 
@@ -464,9 +463,10 @@ public class Browser
 
     private void bookmarkCreate(NavTreeNode node, String name, String panelName)
     {
+        Repository repo = guiContext.context.transfer.getRepo(node.getUserObject());
         Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
-                guiContext.cfg.gs(("Browser.bookmark.name")),
-                guiContext.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
+                repo.getLibraryData().libraries.description + " " + guiContext.cfg.gs(("Browser.bookmark.name")),
+                guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.QUESTION_MESSAGE,
                 null, null, name);
         name = (String) obj;
         if (name != null && name.length() > 0)
@@ -556,9 +556,10 @@ public class Browser
                 }
             }
 
-            // remove last segment if needed
+            // remove last segment if it's a file but not being shown, or a directory in the table
             TreePath tp;
-            if (!nodes[nodeIndex - 1].getUserObject().isDir && guiContext.preferences.isHideFilesInTree())
+            if ((!nodes[nodeIndex - 1].getUserObject().isDir && guiContext.preferences.isHideFilesInTree()) ||
+                (nodes[nodeIndex - 1].getUserObject().isDir && panelName.startsWith("table")))
             {
                 NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
                 for (int j = 0; j < nodeIndex - 1; ++j)
@@ -568,7 +569,8 @@ public class Browser
             else
                 tp = new TreePath(nodes);
 
-            // select one of the 8 panels
+            // select the Browser tab and one of it's 8 panels
+            guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
             int panelNo = guiContext.browser.getPanelNumber(bookmark.panel);
             guiContext.browser.selectPanelNumber(panelNo);
 
@@ -601,7 +603,7 @@ public class Browser
         {
             JOptionPane.showMessageDialog(guiContext.mainFrame,
                     guiContext.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -620,7 +622,7 @@ public class Browser
         {
             JOptionPane.showMessageDialog(guiContext.mainFrame,
                     guiContext.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 

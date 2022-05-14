@@ -864,6 +864,7 @@ new FormModel {
 						"mnemonic": new FormMessage( null, "Navigator.menu.Documentation.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
+						"toolTipText": new FormMessage( null, "Navigator.menuItemDocumentation.toolTipText" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGitHubProject"
@@ -871,9 +872,18 @@ new FormModel {
 						"mnemonic": new FormMessage( null, "Navigator.menu.GitHubProject.mnemonic" )
 						"horizontalTextPosition": 2
 						"horizontalAlignment": 2
+						"toolTipText": new FormMessage( null, "Navigator.menuItemGitHubProject.toolTipText" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator1"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemUpdates"
+						"text": new FormMessage( null, "Navigator.menuItemUpdates.text" )
+						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
+						"mnemonic": new FormMessage( null, "Navigator.menuItemUpdates.mnemonic" )
+						"enabled": false
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAbout"

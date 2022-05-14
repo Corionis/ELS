@@ -286,6 +286,7 @@ public class MainFrame extends JFrame
         menuItemControls = new JMenuItem();
         menuItemDocumentation = new JMenuItem();
         menuItemGitHubProject = new JMenuItem();
+        menuItemUpdates = new JMenuItem();
         menuItemAbout = new JMenuItem();
         panelMain = new JPanel();
         tabbedPaneMain = new JTabbedPane();
@@ -710,6 +711,7 @@ public class MainFrame extends JFrame
                 menuItemDocumentation.setMnemonic(guiContext.cfg.gs("Navigator.menu.Documentation.mnemonic").charAt(0));
                 menuItemDocumentation.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemDocumentation.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemDocumentation.setToolTipText(guiContext.cfg.gs("Navigator.menuItemDocumentation.toolTipText"));
                 menuHelp.add(menuItemDocumentation);
 
                 //---- menuItemGitHubProject ----
@@ -717,8 +719,17 @@ public class MainFrame extends JFrame
                 menuItemGitHubProject.setMnemonic(guiContext.cfg.gs("Navigator.menu.GitHubProject.mnemonic").charAt(0));
                 menuItemGitHubProject.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemGitHubProject.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemGitHubProject.setToolTipText(guiContext.cfg.gs("Navigator.menuItemGitHubProject.toolTipText"));
                 menuHelp.add(menuItemGitHubProject);
                 menuHelp.addSeparator();
+
+                //---- menuItemUpdates ----
+                menuItemUpdates.setText(guiContext.cfg.gs("Navigator.menuItemUpdates.text"));
+                menuItemUpdates.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemUpdates.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemUpdates.setMnemonic(guiContext.cfg.gs("Navigator.menuItemUpdates.mnemonic").charAt(0));
+                menuItemUpdates.setEnabled(false);
+                menuHelp.add(menuItemUpdates);
 
                 //---- menuItemAbout ----
                 menuItemAbout.setText(guiContext.cfg.gs("Navigator.menu.About.text"));
@@ -1349,6 +1360,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemControls;
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemGitHubProject;
+    public JMenuItem menuItemUpdates;
     public JMenuItem menuItemAbout;
     public JPanel panelMain;
     public JTabbedPane tabbedPaneMain;

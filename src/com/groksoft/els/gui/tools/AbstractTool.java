@@ -10,21 +10,17 @@ import java.io.Serializable;
 
 public abstract class AbstractTool implements Serializable
 {
-    //@formatter:off
-
-    // data members
     private String internalName; // internal name
     private String configName; // user name for this instance
+    private boolean isRemote;
+    private boolean isSubscriber = false;
 
-    // runtime data
-//    transient private String arguments = "";
     transient protected static Logger logger = LogManager.getLogger("applog");
-    transient private Configuration cfg;
-    transient private Context context;
+    transient protected Configuration cfg;
+    transient protected Context context;
     transient private boolean dryRun = false;
     transient private String displayName; // GUI i18n display name
-    transient private boolean includeInToolsList = true; // set by tool at runtime
-    transient boolean isSubscriber = false;
+    transient protected boolean includeInToolsList = true; // set by tool at runtime
     transient private boolean stop = false;
 
     //@formatter:on
@@ -106,6 +102,11 @@ public abstract class AbstractTool implements Serializable
         return dryRun;
     }
 
+    public boolean isRemote()
+    {
+        return isRemote;
+    }
+
     public boolean isSubscriber()
     {
         return isSubscriber;
@@ -162,6 +163,11 @@ public abstract class AbstractTool implements Serializable
     public void setInternalName(String internalName)
     {
         this.internalName = internalName;
+    }
+
+    public void setIsRemote(boolean remote)
+    {
+        isRemote = remote;
     }
 
     public void setIsSubscriber(boolean flag)

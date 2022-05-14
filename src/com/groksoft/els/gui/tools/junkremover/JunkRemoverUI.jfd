@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.3.411" Java: "11.0.13" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.14.1" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -41,21 +41,21 @@ new FormModel {
 								"text": new FormMessage( null, "JunkRemover.button.New.text" )
 								"mnemonic": new FormMessage( null, "JunkRemover.button.New.mnemonic" )
 								"toolTipText": new FormMessage( null, "JunkRemover.button.New.toolTipText" )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "newClicked", true ) )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionNewClicked", true ) )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonCopy"
 								"text": new FormMessage( null, "JunkRemover.button.Copy.text" )
 								"mnemonic": new FormMessage( null, "JunkRemover.button.Copy.mnemonic" )
 								"toolTipText": new FormMessage( null, "JunkRemover.button.Copy.toolTipText" )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "copyClicked", true ) )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCopyClicked", true ) )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonDelete"
 								"text": new FormMessage( null, "JunkRemover.button.Delete.text" )
 								"mnemonic": new FormMessage( null, "JunkRemover.button.Delete.mnemonic" )
 								"toolTipText": new FormMessage( null, "JunkRemover.button.Delete.toolTipText" )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteClicked", true ) )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
 							} )
 							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 								name: "hSpacerBeforeRun"
@@ -67,7 +67,7 @@ new FormModel {
 								"text": new FormMessage( null, "JunkRemover.button.Run.text" )
 								"mnemonic": new FormMessage( null, "JunkRemover.button.Run.mnemonic" )
 								"toolTipText": new FormMessage( null, "JunkRemover.button.Run.toolTipText" )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "runClicked", true ) )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "West"
@@ -154,7 +154,7 @@ new FormModel {
 									"maximumSize": new java.awt.Dimension( 78, 24 )
 									"mnemonic": new FormMessage( null, "JunkRemover.button.AddRow.mnemonic" )
 									"toolTipText": new FormMessage( null, "JunkRemover.button.AddRow.toolTipText" )
-									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "addRowClicked", true ) )
+									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAddRowClicked", true ) )
 								} )
 								add( new FormComponent( "javax.swing.JButton" ) {
 									name: "buttonRemoveRow"
@@ -165,7 +165,7 @@ new FormModel {
 									"maximumSize": new java.awt.Dimension( 78, 24 )
 									"mnemonic": new FormMessage( null, "JunkRemover.button.RemoveRow.mnemonic" )
 									"toolTipText": new FormMessage( null, "JunkRemover.button.RemoveRow.toolTipText" )
-									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "removeRowClicked", true ) )
+									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRemoveRowClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "South"
@@ -191,7 +191,7 @@ new FormModel {
 						name: "okButton"
 						"text": new FormMessage( null, "JunkRemover.button.Ok.text" )
 						"mnemonic": new FormMessage( null, "JunkRemover.button.Ok.mnemonic" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "doneClicked", true ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDoneClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
 						"gridy": 0
@@ -199,7 +199,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "cancelButton"
 						"text": new FormMessage( null, "JunkRemover.button.Cancel.text" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelClicked", true ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2
 						"gridy": 0
