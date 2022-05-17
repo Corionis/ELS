@@ -129,7 +129,7 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
                     case NavTreeUserObject.LIBRARY:
-                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), true) + cfg.gs("NavTreeNode.items");
+                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), true); // + cfg.gs("NavTreeNode.items");
                     case NavTreeUserObject.DRIVE:
                         return null;
                     case NavTreeUserObject.REAL:

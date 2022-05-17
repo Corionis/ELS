@@ -237,9 +237,10 @@ public class TextIcon implements Icon, PropertyChangeListener
 
         component.revalidate();
     }
-//
-//  Implement the Icon Interface
-//
+
+    //
+    // Implement the Icon Interface
+    //
     /**
      *  Gets the width of this icon.
      *
@@ -312,13 +313,12 @@ public class TextIcon implements Icon, PropertyChangeListener
 
         g2.dispose();
     }
+
     //
-//  Implement the PropertyChangeListener interface
-//
+    // Implement the PropertyChangeListener interface
     public void propertyChange(PropertyChangeEvent e)
     {
         //  Handle font change when using the default font
-
         if (font == null)
             calculateIconDimensions();
     }

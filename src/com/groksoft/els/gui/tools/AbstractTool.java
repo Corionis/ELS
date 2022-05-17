@@ -10,20 +10,19 @@ import java.io.Serializable;
 
 public abstract class AbstractTool implements Serializable
 {
-    private String internalName; // internal name
     private String configName; // user name for this instance
-    private boolean isRemote;
-    private boolean isSubscriber = false;
+    private String internalName; // internal name
 
-    transient protected static Logger logger = LogManager.getLogger("applog");
+    transient private boolean isRemote;
+    transient private boolean isSubscriber = false;
+
+    transient protected Logger logger = LogManager.getLogger("applog");
     transient protected Configuration cfg;
     transient protected Context context;
-    transient private boolean dryRun = false;
     transient private String displayName; // GUI i18n display name
+    transient private boolean dryRun = false;
     transient protected boolean includeInToolsList = true; // set by tool at runtime
     transient private boolean stop = false;
-
-    //@formatter:on
 
     /**
      * Constructor
@@ -35,30 +34,14 @@ public abstract class AbstractTool implements Serializable
         this.internalName = internalId;
     }
 
-    /**
-     * Parse arguments for this tool
-     *
-     * @throws Exception
-     */
-//    protected abstract void argsParse() throws Exception;
-
-    /**
-     * Test values of arguments for sanity
-     *
-     * @throws Exception
-     */
-//    protected abstract void argsTest() throws Exception;
-
-/*
-    public String getArguments()
-    {
-        return arguments;
-    }
-*/
-
     public Configuration getCfg()
     {
         return cfg;
+    }
+
+    public String getConfigName()
+    {
+        return configName;
     }
 
     public Context getContext()
@@ -69,16 +52,6 @@ public abstract class AbstractTool implements Serializable
     public String getDisplayName()
     {
         return displayName;
-    }
-
-    public String getInternalName()
-    {
-        return internalName;
-    }
-
-    public String getConfigName()
-    {
-        return configName;
     }
 
     public String getDirectoryPath()
@@ -97,6 +70,11 @@ public abstract class AbstractTool implements Serializable
         return path;
     }
 
+    public String getInternalName()
+    {
+        return internalName;
+    }
+
     public boolean isDryRun()
     {
         return dryRun;
@@ -112,6 +90,11 @@ public abstract class AbstractTool implements Serializable
         return isSubscriber;
     }
 
+    public boolean isRequestStop()
+    {
+        return stop;
+    }
+
     public boolean isIncludeInToolsList()
     {
         return includeInToolsList;
@@ -122,7 +105,7 @@ public abstract class AbstractTool implements Serializable
      *
      * @throws Exception
      */
-    public abstract boolean process() throws Exception;
+    public abstract void processTool() throws Exception;
 
     /**
      * Request the tool to stop (optional)
@@ -130,15 +113,12 @@ public abstract class AbstractTool implements Serializable
     public void requestStop()
     {
         this.stop = true;
-        logger.debug("Requesting stop for: " + configName + ":" + internalName);
     }
 
-/*
-    public void setArguments(String arguments)
+    public void resetRequestStop()
     {
-        this.arguments = arguments;
+        this.stop = false;
     }
-*/
 
     public void setConfigName(String configName)
     {
@@ -180,27 +160,5 @@ public abstract class AbstractTool implements Serializable
     {
         return getConfigName();
     }
-
-    /**
-     * Validate the settings for this tool
-     *
-     * @return An error message or an empty string if the settings are valid
-     */
-/*
-    public String validate()
-    {
-        String result = "";
-        try
-        {
-            argsParse();
-            argsTest();
-        }
-        catch (Exception e)
-        {
-            result = e.getMessage();
-        }
-        return result;
-    }
-*/
 
 }

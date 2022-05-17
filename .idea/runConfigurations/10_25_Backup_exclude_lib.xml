@@ -6,6 +6,7 @@
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />
       <option name="Make" enabled="true" />
     </method>
   </configuration>

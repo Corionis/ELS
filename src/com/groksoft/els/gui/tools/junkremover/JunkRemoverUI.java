@@ -19,6 +19,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,13 +30,16 @@ import java.util.Arrays;
 
 public class JunkRemoverUI extends JDialog
 {
-    private transient Logger logger = LogManager.getLogger("applog");
     private ArrayList<JunkRemoverTool> deletedTools;
     private GuiContext guiContext;
+    private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
     private DefaultListModel<JunkRemoverTool> listModel;
     private boolean somethingChanged = false;
+    private SwingWorker<Void, Void>  worker;
+    private JunkRemoverTool workerJrt = null;
+    private boolean workerRunning = false;
 
     public JunkRemoverUI(Window owner, GuiContext guiContext)
     {
@@ -79,16 +84,29 @@ public class JunkRemoverUI extends JDialog
 
     private void actionCancelClicked(ActionEvent e)
     {
-        checkForChanges();
-        if (somethingChanged)
+        if (workerRunning && workerJrt != null)
         {
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.cancel.changes"),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.stop.running.junk.remover"),
+                    "Cancel Run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
-                setVisible(false);
+            {
+                workerJrt.requestStop();
+                guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.config.cancelled"), workerJrt.getConfigName()));
+            }
         }
         else
-            setVisible(false);
+        {
+            checkForChanges();
+            if (somethingChanged)
+            {
+                int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.cancel.changes"),
+                        "Cancel Changes", JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.YES_OPTION)
+                    setVisible(false);
+            }
+            else
+                setVisible(false);
+        }
     }
 
     private void actionCopyClicked(ActionEvent e)
@@ -134,7 +152,7 @@ public class JunkRemoverUI extends JDialog
         {
             JunkRemoverTool jrt = listModel.getElementAt(index);
             int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.are.you.sure.you.want.to.delete.configuration") + jrt.getConfigName(),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                    guiContext.cfg.gs("JunkRemover.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 deletedTools.add(jrt);
@@ -222,14 +240,15 @@ public class JunkRemoverUI extends JDialog
         int index = listItems.getSelectedIndex();
         if (index >= 0)
         {
-            JunkRemoverTool jrt = listModel.getElementAt(index);
-            processSelected(jrt);
+            workerJrt = listModel.getElementAt(index);
+            processSelected(workerJrt);
         }
     }
 
     public int addSelectedPaths(JunkRemoverTool jrt)
     {
         int count = 0;
+        jrt.resetOperationPaths();
         try
         {
             Object object = guiContext.browser.lastComponent;
@@ -246,7 +265,8 @@ public class JunkRemoverUI extends JDialog
                         NavTreeUserObject tuo = ntn.getUserObject();
                         if (!isValidOperation(tuo))
                         {
-                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
+                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
                             count = -1;
                             break;
                         }
@@ -266,7 +286,8 @@ public class JunkRemoverUI extends JDialog
                         NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                         if (!isValidOperation(tuo))
                         {
-                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
+                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
                             count = -1;
                             break;
                         }
@@ -322,7 +343,7 @@ public class JunkRemoverUI extends JDialog
 
         for (int i = 0; i < listModel.getSize(); ++i)
         {
-            if (((JunkRemoverTool) listModel.getElementAt(i)).dataHasChanged)
+            if (((JunkRemoverTool) listModel.getElementAt(i)).isDataChanged())
             {
                 somethingChanged = true;
                 break;
@@ -440,7 +461,8 @@ public class JunkRemoverUI extends JDialog
                     }
                     catch (JsonSyntaxException e)
                     {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.error.parsing.junk.remover.tool") + entry.getName(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.error.parsing.junk.remover.tool") + entry.getName(),
+                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -496,19 +518,40 @@ public class JunkRemoverUI extends JDialog
             {
                 // make dialog pieces
                 String which = (jrt.isSubscriber()) ? guiContext.cfg.gs("Navigator.subscriber") : guiContext.cfg.gs("Navigator.publisher");
-                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.run.on.N.items"), jrt.getConfigName(), count, which);
+                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
                 JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
                 Object[] params = {message, checkbox};
 
                 // confirm run of tool
-                int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.YES_NO_OPTION);
                 isDryRun = checkbox.isSelected();
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     try
                     {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        setComponentEnabled(false);
+                        cancelButton.setEnabled(true);
+                        cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        labelHelp.setEnabled(true);
+                        labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
                         jrt.setDryRun(isDryRun);
-                        jrt.process();
+                        worker = jrt.guiProcessTool();
+                        workerRunning = true;
+
+                        worker.addPropertyChangeListener(new PropertyChangeListener()
+                        {
+                            @Override
+                            public void propertyChange(PropertyChangeEvent e)
+                            {
+                                if (e.getPropertyName().equals("state"))
+                                {
+                                    if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                        processTerminated(jrt);
+                                }
+                            }
+                        });
                     }
                     catch (Exception e)
                     {
@@ -516,7 +559,20 @@ public class JunkRemoverUI extends JDialog
                     }
                 }
             }
+            else
+            {
+                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.nothing.selected.in.browser"),
+                        guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+            }
         }
+    }
+
+    private void processTerminated(JunkRemoverTool jrt)
+    {
+        setComponentEnabled(true);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        workerRunning = false;
+        workerJrt = null;
     }
 
     private void saveConfigurations()
@@ -549,7 +605,27 @@ public class JunkRemoverUI extends JDialog
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
             JOptionPane.showMessageDialog(this,
                     guiContext.cfg.gs("JunkRemover.error.saving.configuration") + name + e.getMessage(),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void setComponentEnabled(boolean enabled)
+    {
+        setComponentEnabled(enabled, getContentPane());
+    }
+
+    private void setComponentEnabled(boolean enabled, Component component) {
+        component.setEnabled(enabled);
+        if (component instanceof Container)
+        {
+            Component[] components = ((Container) component).getComponents();
+            if (components != null && components.length > 0)
+            {
+                for (Component comp : components)
+                {
+                    setComponentEnabled(enabled, comp);
+                }
+            }
         }
     }
 
@@ -575,7 +651,7 @@ public class JunkRemoverUI extends JDialog
                 {
                     JOptionPane.showMessageDialog(this,
                             guiContext.cfg.gs(("JunkRemover.that.configuration.already.exists")),
-                            guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                            guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
                     textFieldName.selectAll();
                     textFieldName.requestFocus();
                 }

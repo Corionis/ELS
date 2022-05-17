@@ -16,11 +16,13 @@ import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 
-import java.awt.*;
+import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
@@ -28,9 +30,12 @@ import java.util.Vector;
 public class JunkRemoverTool extends AbstractTool
 {
     private ArrayList<JunkItem> junkList;
-    transient boolean dataHasChanged = false;
-    transient ArrayList<String> operationPaths;
-     transient private GuiContext guiContext = null;
+
+    transient private boolean dataHasChanged = false;
+    transient int deleteCount = 0;
+    transient private ArrayList<String> operationPaths;
+    transient private GuiContext guiContext = null;
+    transient private Repository repo;
 
     public JunkRemoverTool(Configuration config, Context ctxt)
     {
@@ -60,12 +65,9 @@ public class JunkRemoverTool extends AbstractTool
     {
         int count = 0;
 
-        if (operationPaths == null)
-            operationPaths = new ArrayList<String>();
-
         if (tuo.type == NavTreeUserObject.COLLECTION)
         {
-            Repository repo = guiContext.context.transfer.getRepo(tuo);
+            Repository repo = getContext().transfer.getRepo(tuo);
             if (repo != null)
             {
                 Arrays.sort(repo.getLibraryData().libraries.bibliography);
@@ -108,14 +110,17 @@ public class JunkRemoverTool extends AbstractTool
         assert guiContext != null;
         JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
         jrt.setConfigName(getConfigName());
-        jrt.setDataHasChanged(isDataChanged());
-        jrt.setDisplayName(getDisplayName());
-        jrt.setDryRun(isDryRun());
         jrt.setInternalName(getInternalName());
+
+        jrt.setDataHasChanged(true);
+        jrt.setDisplayName(getDisplayName());
         jrt.setJunkList(getJunkList());
-//        jrt.operationPaths = operationPaths;
-//        jrt.isRemote = isRemote;
-//        jrt.isSubscriber = isSubscriber;
+
+        // runtime transient items
+        // jrt.operationPaths = operationPaths;
+        // jrt.setDryRun(isDryRun());
+        // jrt.isRemote = isRemote;
+        // jrt.isSubscriber = isSubscriber;
         return jrt;
     }
 
@@ -124,82 +129,231 @@ public class JunkRemoverTool extends AbstractTool
         return junkList;
     }
 
+    public Repository getRepo()
+    {
+        return repo;
+    }
+
+    public SwingWorker<Void, Void> guiProcessTool()
+    {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+        {
+            @Override
+            protected Void doInBackground() throws Exception
+            {
+                processTool();
+                return null;
+            }
+        };
+        worker.execute();
+        return worker;
+    }
+
     public boolean isDataChanged()
     {
         return dataHasChanged; // used by the GUI
     }
 
-    private boolean match(String filename, JunkItem junk)
+    private boolean match(String filename, String fullpath, JunkItem junk)
     {
         // https://commons.apache.org/proper/commons-io/
         // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html
         // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html#wildcardMatch(java.lang.String,%20java.lang.String)
-        return FilenameUtils.wildcardMatch(filename, junk.wildcard, (junk.caseSensitive ? IOCase.SENSITIVE : IOCase.INSENSITIVE));
+        boolean isMatch = FilenameUtils.wildcardMatch(filename, junk.wildcard, (junk.caseSensitive ? IOCase.SENSITIVE : IOCase.INSENSITIVE));
+        if (isMatch)
+        {
+            String msg = "  ";
+            if (isRemote())
+                msg += getCfg().gs("NavTreeNode.remote");
+            else
+                msg += getCfg().gs("NavTreeNode.local");
+            msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun() ? 0 : 1, fullpath);
+            if (guiContext != null)
+                guiContext.browser.printLog(msg);
+            else
+                logger.info(msg);
+        }
+        return isMatch;
     }
 
     /**
-     * Process the tool with the arguments provided
+     * Process the tool with the metadata provided
+     * <br/>
+     * Uses the junkList across the operationPaths added by addTuoPaths() and the dryRun setting.
      */
     @Override
-    public boolean process() throws Exception
+    public void processTool() throws Exception
     {
-        // TODO
-        //  * Iterate "thing" list HERE
-        //  * Either interactive or command line have to:
-        //     + Iterate an entire Collection
-        //     + Iterate the sources of a Library
-        //     + Process an individual path - detect if the String contains any path character
-        //     + Ultimately iterate a directory or individual file
-        //  * Use the Repository either way
-        //  * Interactive refreshes the selected items when done
-        //  * Command line rescans when done
+        deleteCount = 0;
+        resetRequestStop();
 
         if (operationPaths == null || operationPaths.size() == 0)
-            return false;
+            return;
 
-//        if (isSubscriber())
-//            repo = guiContext.context.subscriberRepo;
-//        else
-//            repo = guiContext.context.publisherRepo;
-//
-//        if (repo == null)
-//            throw new MungeException("Repository does not appear to be loaded");
+        if (isSubscriber())
+            repo = getContext().subscriberRepo;
+        else
+            repo = getContext().publisherRepo;
+
+        if (repo == null)
+            throw new MungeException(getCfg().gs("JunkRemover.repository.does.not.appear.to.be.loaded"));
 
         for (String path : operationPaths)
         {
-            if (isRemote())
+            if (isRequestStop())
+                break;
+            if (guiContext != null)
+                guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + path);
+            else
+                logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
+
+            scanForJunk(path);
+        }
+
+        if (guiContext != null)
+        {
+            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
+
+            // reset and reload relevant trees
+            if (!isDryRun() && deleteCount > 0)
             {
-                if (guiContext != null)
+                if (!isSubscriber())
                 {
-                    guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + path);
+                    guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
+                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, false);
                 }
-                try
+                else
                 {
-                    Vector listing = guiContext.context.clientSftp.listDirectory(path);
-                    //logger.info(Utils.formatInteger(listing.size()) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + path);
-                    for (int i = 0; i < listing.size(); ++i)
+                    guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, isRemote());
+                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, isRemote());
+                }
+            }
+        }
+        else
+        {
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
+
+            // TODO Work-out how to refresh command-line data
+        }
+    }
+
+    public void resetOperationPaths()
+    {
+        operationPaths = new ArrayList<String>();
+    }
+
+    private boolean scanForJunk(String path)
+    {
+        boolean hadError = false;
+
+        if (isRemote())
+        {
+            try
+            {
+                Vector listing = getContext().clientSftp.listDirectory(path);
+                for (int i = 0; i < listing.size(); ++i)
+                {
+                    if (isRequestStop())
+                        break;
+                    ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
+                    if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
                     {
-                        ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
-                        if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
+                        SftpATTRS attrs = entry.getAttrs();
+                        String filename = entry.getFilename();
+                        String fullpath = path + repo.getSeparator() + entry.getFilename();
+                        if (attrs.isDir())
                         {
-                            SftpATTRS a = entry.getAttrs();
+                            scanForJunk(fullpath);
+                        }
+                        else
+                        {
+                            for (JunkItem ji : junkList)
+                            {
+                                if (isRequestStop())
+                                    break;
+                                if (match(filename, fullpath, ji))
+                                {
+                                    if (!isDryRun())
+                                    {
+                                        getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
+                                        ++deleteCount;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
-                catch (Exception e)
-                {
-
-                }
-
             }
-            else
+            catch (Exception e)
             {
-
+                String msg = getCfg().gs("JunkRemover.exception") + Utils.getStackTrace(e);
+                if (guiContext != null)
+                    guiContext.browser.printLog(msg, true);
+                else
+                    logger.error(msg);
+            }
+        }
+        else // is local
+        {
+            try
+            {
+                File[] files;
+                File file = new File(path);
+                if (file.isDirectory())
+                {
+                    files = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), false);
+                }
+                else
+                {
+                    files = new File[1];
+                    files[0] = file;
+                }
+                for (File entry : files)
+                {
+                    if (isRequestStop())
+                        break;
+                    String filename = entry.getName();
+                    if (entry.isDirectory())
+                    {
+                        scanForJunk(entry.getAbsolutePath());
+                    }
+                    else
+                    {
+                        for (JunkItem ji : junkList)
+                        {
+                            if (isRequestStop())
+                                break;
+                            if (match(filename, entry.getAbsolutePath(), ji))
+                            {
+                                if (!isDryRun())
+                                {
+                                    getContext().transfer.remove(entry.getAbsolutePath(), entry.isDirectory(), isRemote());
+                                    ++deleteCount;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                String msg = getCfg().gs("JunkRemover.exception") + Utils.getStackTrace(e);
+                if (guiContext != null)
+                    guiContext.browser.printLog(msg, true);
+                else
+                    logger.error(msg);
             }
         }
 
-        return false;
+        return hadError;
+    }
+
+    public void setContext(Configuration config, Context context)
+    {
+        this.guiContext = null;
+        this.cfg = config;
+        this.context = context;
+        setDisplayName(getCfg().gs("JunkRemover.displayName"));
     }
 
     public void setDataHasChanged(boolean sense)
@@ -212,6 +366,7 @@ public class JunkRemoverTool extends AbstractTool
         this.guiContext = guicontext;
         this.cfg = guicontext.cfg;
         this.context = guicontext.context;
+        setDisplayName(getCfg().gs("JunkRemover.displayName"));
     }
 
     public void setJunkList(ArrayList<JunkItem> junkList)
@@ -241,7 +396,7 @@ public class JunkRemoverTool extends AbstractTool
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Error writing: " + getFullPath() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException(getCfg().gs("JunkRemover.error.writing") + getFullPath() + ": " + Utils.getStackTrace(fnf));
         }
     }
 
