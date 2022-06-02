@@ -305,7 +305,7 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../../../org/apache/logging/log4j/core/appender/rolling/action/AbstractPathAction.html#createFileVisitor(java.nio.file.Path,%20java.util.List)">createFileVisitor</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../../../org/apache/logging/log4j/core/appender/rolling/action/AbstractPathAction.html" title="class in org.apache.logging.log4j.core.appender.rolling.action">AbstractPathAction</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>visitorBaseDir</code> - base dir from where to start scanning for files to process</dd><dd><code>conditions</code> - filters that determine if a file should be processed</dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>visitorBaseDir</code> - base dir from where to origin scanning for files to process</dd><dd><code>conditions</code> - filters that determine if a file should be processed</dd>
 <dt><span class="strong">Returns:</span></dt><dd>a new <code>FileVisitor&lt;Path&gt;</code></dd></dl>
 </li>
 </ul>
@@ -333,7 +333,7 @@ public static&nbsp;<a href="../../../../../../../../org/apache/logging/log4j/cor
                                             <a href="../../../../../../../../org/apache/logging/log4j/core/config/plugins/PluginConfiguration.html" title="annotation in org.apache.logging.log4j.core.config.plugins">@PluginConfiguration</a>
                                             <a href="../../../../../../../../org/apache/logging/log4j/core/config/Configuration.html" title="interface in org.apache.logging.log4j.core.config">Configuration</a>&nbsp;config)</pre>
 <div class="block">Create a DeleteAction.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>basePath</code> - base path from where to start scanning for files to delete.</dd><dd><code>followLinks</code> - whether to follow symbolic links. Default is false.</dd><dd><code>maxDepth</code> - The maxDepth parameter is the maximum number of levels of directories to visit. A value of 0
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>basePath</code> - base path from where to origin scanning for files to delete.</dd><dd><code>followLinks</code> - whether to follow symbolic links. Default is false.</dd><dd><code>maxDepth</code> - The maxDepth parameter is the maximum number of levels of directories to visit. A value of 0
             means that only the starting file is visited, unless denied by the security manager. A value of
             MAX_VALUE may be used to indicate that all levels should be visited.</dd><dd><code>testMode</code> - if true, files are not deleted but instead a message is printed to the <a
             href="http://logging.apache.org/log4j/2.x/manual/configuration.html#StatusMessages">status logger</a>

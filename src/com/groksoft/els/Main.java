@@ -1,6 +1,7 @@
 package com.groksoft.els;
 
 import com.groksoft.els.gui.Navigator;
+import com.groksoft.els.jobs.Job;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
@@ -34,6 +35,7 @@ public class Main
     private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
+    private int returnValue;
 
     /**
      * Instantiates the Main application
@@ -64,7 +66,7 @@ public class Main
     {
         if (cfg.isUsingHintTracker())
         {
-            context.statusRepo = new Repository(cfg);
+            context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
             context.statusRepo.read(cfg.getStatusTrackerFilename());
 
             if (cfg.isRemoteSession())
@@ -120,9 +122,9 @@ public class Main
      * @param args the input arguments
      * @return Return status
      */
-    public int process(String[] args)
+    public void process(String[] args)
     {
-        int returnValue = 0;
+        returnValue = 0;
         ThreadGroup sessionThreads = null;
         cfg = new Configuration(context);
         Process proc;
@@ -198,6 +200,8 @@ public class Main
                         {
                             context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
+
+                        // TODO Incorporate Hint Server
 
                         context.navigator = new Navigator(this, cfg, context);
                         if (!context.fault)
@@ -450,7 +454,7 @@ public class Main
                         throw new MungeException("-H | --status-server does not use targets");
 
                     // Get the hint status server repo
-                    context.statusRepo = new Repository(cfg);
+                    context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
                     context.statusRepo.read(cfg.getHintsDaemonFilename());
 
                     // Get ELS hints keys
@@ -491,6 +495,29 @@ public class Main
                     // force the cfg setting & let this process end normally
                     // that will send the quit command to the hint status server
                     cfg.setQuitStatusServer(true);
+                    break;
+
+                case JOB_PROCESS:
+                    // handle -j | --job to execute a Job
+                    logger.info("ELS: Job begin, version " + cfg.getVersionStamp());
+                    cfg.dump();
+
+                    if (cfg.isNavigator())
+                        throw new MungeException("-j | --job and -n --navigator are not used together");
+
+                    if (cfg.getPublisherFilename().length() > 0)
+                    {
+                        context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                    }
+
+                    if (cfg.getSubscriberFilename().length() > 0)
+                    {
+                        context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    }
+
+                    // run the Job
+                    Job job = Job.load(cfg.getJobName());
+                    job.process(cfg, context);
                     break;
 
                 default:
@@ -553,27 +580,22 @@ public class Main
                     }
                 });
             }
-            else
-            {
-                //Main.stopVerbiage();
-            }
         }
-        return returnValue;
     } // process
 
     /**
      * Read either a publisher or subscriber repository
      *
      * @param cfg         Loaded configuration
-     * @param isPublisher Is this the publisher? true/false
+     * @param purpose     Is this the PUBLISHER, SUBSCRIBER or HINT_SERVER
      * @param validate    Validate repository against actual directories and files true/false
      * @return Repository object
      * @throws Exception
      */
-    public Repository readRepo(Configuration cfg, boolean isPublisher, boolean validate) throws Exception
+    public Repository readRepo(Configuration cfg, int purpose, boolean validate) throws Exception
     {
-        Repository repo = new Repository(cfg);
-        if (isPublisher)
+        Repository repo = new Repository(cfg, purpose);
+        if (purpose == Repository.PUBLISHER)
         {
             if (cfg.getPublisherLibrariesFileName().length() > 0 &&                     // both
                     cfg.getPublisherCollectionFilename().length() > 0)
@@ -683,9 +705,15 @@ public class Main
         main.logger.fatal("Runtime: " + Utils.getDuration(millis));
 
         if (!main.context.fault)
+        {
             main.logger.fatal("Process completed normally\n");
+            main.returnValue = 0;
+        }
         else
+        {
             main.logger.fatal("Process failed\n");
+            main.returnValue = 1;
+        }
     }
 
 }

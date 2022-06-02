@@ -216,7 +216,7 @@ public class MainFrame extends JFrame
 
     public boolean verifyClose()
     {
-        if (guiContext.progress != null && guiContext.progress.isActive())
+        if (guiContext.progress != null && guiContext.progress.isBeingUsed())
         {
             int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
                     guiContext.cfg.gs("MainFrame.transfers.are.active.are.you.sure"),

@@ -310,7 +310,7 @@ implements <a href="../../../../../../../org/apache/logging/log4j/core/util/date
               <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;centuryStart)</pre>
 <div class="block"><p>Constructs a new FastDateParser.</p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>pattern</code> - non-null <a href="http://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text"><code>SimpleDateFormat</code></a> compatible
-  pattern</dd><dd><code>timeZone</code> - non-null time zone to use</dd><dd><code>locale</code> - non-null locale</dd><dd><code>centuryStart</code> - The start of the century for 2 digit year parsing</dd><dt><span class="strong">Since:</span></dt>
+  pattern</dd><dd><code>timeZone</code> - non-null time zone to use</dd><dd><code>locale</code> - non-null locale</dd><dd><code>centuryStart</code> - The origin of the century for 2 digit year parsing</dd><dt><span class="strong">Since:</span></dt>
   <dd>3.5</dd></dl>
 </li>
 </ul>
@@ -514,7 +514,7 @@ implements <a href="../../../../../../../org/apache/logging/log4j/core/util/date
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../../org/apache/logging/log4j/core/util/datetime/DateParser.html#parse(java.lang.String,%20java.text.ParsePosition,%20java.util.Calendar)">parse</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../org/apache/logging/log4j/core/util/datetime/DateParser.html" title="interface in org.apache.logging.log4j.core.util.datetime">DateParser</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - The text to parse.</dd><dd><code>pos</code> - On input, the position in the source to start parsing, on output, updated position.</dd><dd><code>calendar</code> - The calendar into which to set parsed fields.</dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - The text to parse.</dd><dd><code>pos</code> - On input, the position in the source to origin parsing, on output, updated position.</dd><dd><code>calendar</code> - The calendar into which to set parsed fields.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true, if source has been parsed (pos parsePosition is updated); otherwise false (and pos errorIndex is updated)</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - when Calendar has been set to be not lenient, and a parsed field is

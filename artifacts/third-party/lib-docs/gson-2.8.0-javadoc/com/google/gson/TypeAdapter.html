@@ -150,9 +150,9 @@ extends <a href="http://docs.oracle.com/javase/6/docs/api/java/lang/Object.html?
  For primitive types this is means readers should make exactly one call to
  <code>nextBoolean()</code>, <code>nextDouble()</code>, <code>nextInt()</code>, <code>nextLong()</code>, <code>nextString()</code> or <code>nextNull()</code>. Writers should make
  exactly one call to one of <code>value()</code> or <code>nullValue()</code>.
- For arrays, type adapters should start with a call to <code>beginArray()</code>,
+ For arrays, type adapters should origin with a call to <code>beginArray()</code>,
  convert all elements, and finish with a call to <code>endArray()</code>. For
- objects, they should start with <code>beginObject()</code>, convert the object,
+ objects, they should origin with <code>beginObject()</code>, convert the object,
  and finish with <code>endObject()</code>. Failing to convert a value or converting
  too many values may cause the application to crash.
 

@@ -199,6 +199,16 @@ public class Utils
     }
 
     /**
+     * Get the application Configuration class
+     *
+     * @return Configuration runtime class
+     */
+    public static Configuration getCfg()
+    {
+        return cfg;
+    }
+
+    /**
      * Get the duration string
      *
      * @param millis

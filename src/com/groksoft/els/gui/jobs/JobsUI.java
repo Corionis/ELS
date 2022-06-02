@@ -1,16 +1,50 @@
 package com.groksoft.els.gui.jobs;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.groksoft.els.MungeException;
+import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.tools.junkremover.JunkRemoverTool;
+import com.groksoft.els.gui.util.RotatedIcon;
+import com.groksoft.els.gui.util.TextIcon;
+import com.groksoft.els.jobs.Job;
+import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.jobs.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class JobsUI extends JDialog
 {
+    private boolean active = false;
+    private ArrayList<Job> deletedJobs;
     private GuiContext guiContext;
+    private Logger logger = LogManager.getLogger("applog");
+    private NavHelp helpDialog;
+    private ArrayList<Job> jobs;
+    private boolean isDryRun;
+    private DefaultListModel<Job> listModel;
+    private boolean somethingChanged = false;
+    private SwingWorker<Void, Void>  worker;
+    private boolean workerRunning = false;
 
     public JobsUI(Window owner, GuiContext guiContext)
     {
@@ -18,41 +52,179 @@ public class JobsUI extends JDialog
         this.guiContext = guiContext;
 
         initComponents();
+
+        // scale the help icon
+        Icon icon = labelHelp.getIcon();
+        Image image = Utils.iconToImage(icon);
+        Image scaled = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
+        Icon replacement = new ImageIcon(scaled);
+        labelHelp.setIcon(replacement);
+
+        // Rotate up/down button labels
+        // http://www.camick.com/java/source/TextIcon.java
+        TextIcon t1 = new TextIcon(buttonToolUp, ">", TextIcon.Layout.HORIZONTAL);
+        buttonToolUp.setText("");
+        // http://www.camick.com/java/source/RotatedIcon.java
+        RotatedIcon r1 = new RotatedIcon(t1, RotatedIcon.Rotate.UP);
+        buttonToolUp.setIcon(r1);
+        //
+        t1 = new TextIcon(buttonToolDown, ">", TextIcon.Layout.HORIZONTAL);
+        buttonToolDown.setText("");
+        r1 = new RotatedIcon(t1, RotatedIcon.Rotate.DOWN);
+        buttonToolDown.setIcon(r1);
+
+        listModel = new DefaultListModel<Job>();
+        listItems.setModel(listModel);
+        loadConfigurations();
+
     }
 
-    private void cancelClicked(ActionEvent e)
+    private void actionCancelClicked(ActionEvent e)
     {
         setVisible(false);
     }
 
-    private void copyClicked(ActionEvent e)
+    private void actionCopyClicked(ActionEvent e)
     {
         // TODO add your code here
     }
 
-    private void deleteClicked(ActionEvent e)
+    private void actionDeleteClicked(ActionEvent e)
     {
         // TODO add your code here
     }
 
-    private void helpClicked(MouseEvent e)
+    private void actionHelpClicked(MouseEvent e)
     {
         // TODO add your code here
     }
 
-    private void newClicked(ActionEvent e)
+    private void actionNewClicked(ActionEvent evt)
     {
-        // TODO add your code here
+
+        // LEFTOFF
+        //  pub / sub :: based on tool dualRepositories
+        //    * if not dualRepositories add Current Publisher, Current Subscriber -divider- list of repo descriptions
+        //    * if dualRepositories add pub to top sub to bottom - divider- list of repo descriptions
+        //  lib include / exclude
+        //    * Origin Add button has dialog with exclude chechbox and list of libs from top combo-box repo
+        //  directories
+        //  files
+        //  remote
+
+        // IDEA
+        //  * Change Origin to 1 or 2 tabs if dualRepositories is enabled
+        //      + The Add button adds
+
+        // IDEA
+        //   * Panel with:
+        //      + Combo:
+        //          + ????????? Loaded now or whatever is loaded - how to describe???????
+        //      + origins
+        //    * If dualRepositories two combo boxes
+        //       + Items for Current Publisher, Current Subscriber, or Select ... with file open???????????????
+        //  * ...
+        //  * Erg, humnph. Working on this part.
+
+//        if (!listItemExists(null, guiContext.cfg.gs("Z.untitled")))
+        if (true)
+        {
+//            Job job = new Job(guiContext.cfg.gs("Z.untitled"));
+//            job.setDataHasChanged(true);
+//            textFieldJobName.setToolTipText(job.getConfigName());
+
+            // FIXME HACK *****************************************************************
+            Job job = new Job("Pre-Publish tasks"); //guiContext.cfg.gs("Z.untitled"));
+            job.setDataHasChanged(true);
+//            job.setSubscriber(comboBoxPubSub.getItemAt(comboBoxPubSub.getSelectedIndex()).equalsIgnoreCase("subscriber"));
+            textFieldJobName.setText(job.getConfigName());
+
+            JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
+            Task task = new Task(jrt.getInternalName(), "Plex junk");
+
+            ArrayList<Origin> origins = new ArrayList<Origin>();
+
+            Object object = guiContext.browser.lastComponent;
+            if (object instanceof JTable)
+            {
+                JTable sourceTable = (JTable) object;
+                int row = sourceTable.getSelectedRow();
+                if (row > -1)
+                {
+                    int[] rows = sourceTable.getSelectedRows();
+                    for (int i = 0; i < rows.length; ++i)
+                    {
+                        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                        Origin origin = new Origin(tuo);
+                        origins.add(origin);
+                    }
+                }
+                task.setPublisherKey(guiContext.context.publisherRepo.getLibraryData().libraries.key);
+                task.setOrigins(origins);
+
+                ArrayList<Task> tasks = new ArrayList<Task>();
+                tasks.add(task);
+                job.setTasks(tasks);
+
+                try
+                {
+                    write(job);
+                }
+                catch (Exception e)
+                {
+
+                }
+
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.please.rename.the.existing") +
+                    guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+            textFieldJobName.requestFocus();
+        }
     }
 
-    private void okClicked(ActionEvent e)
+    private void actionOkClicked(ActionEvent e)
     {
         setVisible(false);
     }
 
-    private void runClicked(ActionEvent e)
+    private void actionRunClicked(ActionEvent e)
     {
         // TODO add your code here
+    }
+
+    public String getDirectoryPath()
+    {
+        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
+                ".els" + System.getProperty("file.separator") +
+                "jobs";
+        return path;
+    }
+
+    public String getFullPath(Job job)
+    {
+        String path = getDirectoryPath() + System.getProperty("file.separator")+
+                Utils.scrubFilename(job.getConfigName()) + ".json";
+        return path;
+    }
+
+    private boolean listItemExists(Job job, String configName)
+    {
+        boolean exists = false;
+        for (int i = 0; i < listModel.getSize(); ++i)
+        {
+            if (listModel.getElementAt(i).getConfigName().equalsIgnoreCase(configName))
+            {
+                if (job == null || job != listModel.getElementAt(i))
+                {
+                    exists = true;
+                    break;
+                }
+            }
+        }
+        return exists;
     }
 
     private void listItemsMouseClicked(MouseEvent e)
@@ -63,6 +235,71 @@ public class JobsUI extends JDialog
     private void listItemsValueChanged(ListSelectionEvent e)
     {
         // TODO add your code here
+    }
+
+    private void loadConfigurations()
+    {
+        File jobsDir = new File(getDirectoryPath());
+        if (jobsDir.exists())
+        {
+            File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
+            Arrays.sort(files);
+            for (File entry : files)
+            {
+                if (!entry.isDirectory())
+                {
+                    try
+                    {
+                        Gson gson = new Gson();
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        if (json != null)
+                        {
+                            Job job = gson.fromJson(json, Job.class);
+                            if (job != null)
+                            {
+                                listModel.addElement(job);
+                            }
+                        }
+                    }
+                    catch (IOException e)
+                    {
+                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.reading") + entry.getName(),
+                                guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+                    catch (JsonSyntaxException e)
+                    {
+                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.parsing") + entry.getName(),
+                                guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        }
+        if (listModel.getSize() == 0)
+        {
+            buttonCopy.setEnabled(false);
+            buttonDelete.setEnabled(false);
+            buttonRun.setEnabled(false);
+            buttonToolUp.setEnabled(false);
+            buttonToolDown.setEnabled(false);
+            buttonAddTool.setEnabled(false);
+            buttonRemoveTool.setEnabled(false);
+            buttonAddOrigin.setEnabled(false);
+            buttonRemoveOrigin.setEnabled(false);
+            textFieldJobName.setEnabled(false);
+        }
+        else
+        {
+            //TODO loadTable(0);
+            listItems.requestFocus();
+            listItems.setSelectedIndex(0);
+        }
+    }
+
+    private void stopEditing()
+    {
+        if (!listItemExists(null, guiContext.cfg.gs("Z.untitled")))
+        {
+        }
     }
 
     private void textFieldNameChanged(ActionEvent e)
@@ -85,7 +322,32 @@ public class JobsUI extends JDialog
         // TODO add your code here
     }
 
+    public void write(Job job) throws Exception
+    {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(job);
+        try
+        {
+            File f = new File(getFullPath(job));
+            if (f != null)
+            {
+                f.getParentFile().mkdirs();
+            }
+            PrintWriter outputStream = new PrintWriter(getFullPath(job));
+            outputStream.println(json);
+            outputStream.close();
+        }
+        catch (FileNotFoundException fnf)
+        {
+            throw new MungeException(guiContext.cfg.gs("Z.error.writing") + getFullPath(job) + ": " + Utils.getStackTrace(fnf));
+        }
+    }
+
+    // ================================================================================================================
+
+    // <editor-fold desc="Generated code (Fold)">
     // @formatter:off
+
     private void initComponents()
     {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -98,29 +360,36 @@ public class JobsUI extends JDialog
         buttonDelete = new JButton();
         hSpacerBeforeRun = new JPanel(null);
         buttonRun = new JButton();
+        hSpacerBeforeGenerate = new JPanel(null);
+        buttonGenerate = new JButton();
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         splitPaneContent = new JSplitPane();
         scrollPaneList = new JScrollPane();
-        listItems = new JList<>();
-        panel1 = new JPanel();
-        panel3 = new JPanel();
-        textFieldName = new JTextField();
-        comboBox1 = new JComboBox<>();
-        splitPane1 = new JSplitPane();
-        scrollPane1 = new JScrollPane();
-        list1 = new JList<>();
-        panel2 = new JPanel();
-        panelOptionsButtons2 = new JPanel();
-        buttonAddRow2 = new JButton();
-        buttonRemoveRow2 = new JButton();
-        scrollPane2 = new JScrollPane();
-        list2 = new JList<>();
-        panelOptionsButtons = new JPanel();
-        button1 = new JButton();
-        button2 = new JButton();
-        buttonAddRow = new JButton();
-        buttonRemoveRow = new JButton();
+        listItems = new JList();
+        panelJob = new JPanel();
+        textFieldJobName = new JTextField();
+        splitPaneToolsOrigin = new JSplitPane();
+        panelTools = new JPanel();
+        labelTools = new JLabel();
+        scrollPaneTools = new JScrollPane();
+        listTools = new JList();
+        panelOrigin = new JPanel();
+        labelOrigin = new JLabel();
+        panelOriginInstance = new JPanel();
+        panelPubSub = new JPanel();
+        comboBoxPubSub1 = new JComboBox();
+        comboBoxPubSub2 = new JComboBox();
+        scrollPaneOrigins = new JScrollPane();
+        listOrigins = new JList();
+        panelOriginsButtons = new JPanel();
+        buttonAddOrigin = new JButton();
+        buttonRemoveOrigin = new JButton();
+        panelToolButtons = new JPanel();
+        buttonToolUp = new JButton();
+        buttonToolDown = new JButton();
+        buttonAddTool = new JButton();
+        buttonRemoveTool = new JButton();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
@@ -138,7 +407,7 @@ public class JobsUI extends JDialog
 
             //======== contentPanel ========
             {
-                contentPanel.setLayout(new BorderLayout(4, 4));
+                contentPanel.setLayout(new BorderLayout());
 
                 //======== panelTop ========
                 {
@@ -155,21 +424,21 @@ public class JobsUI extends JDialog
                         buttonNew.setText(guiContext.cfg.gs("JobsUI.buttonNew.text"));
                         buttonNew.setMnemonic(guiContext.cfg.gs("JobsUI.buttonNew.mnemonic").charAt(0));
                         buttonNew.setToolTipText(guiContext.cfg.gs("JobsUI.buttonNew.toolTipText"));
-                        buttonNew.addActionListener(e -> newClicked(e));
+                        buttonNew.addActionListener(e -> actionNewClicked(e));
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
                         buttonCopy.setText(guiContext.cfg.gs("JobsUI.buttonCopy.text"));
                         buttonCopy.setMnemonic(guiContext.cfg.gs("JobsUI.buttonCopy.mnemonic").charAt(0));
                         buttonCopy.setToolTipText(guiContext.cfg.gs("JobsUI.buttonCopy.toolTipText"));
-                        buttonCopy.addActionListener(e -> copyClicked(e));
+                        buttonCopy.addActionListener(e -> actionCopyClicked(e));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
                         buttonDelete.setText(guiContext.cfg.gs("JobsUI.buttonDelete.text"));
                         buttonDelete.setMnemonic(guiContext.cfg.gs("JobsUI.buttonDelete.mnemonic").charAt(0));
                         buttonDelete.setToolTipText(guiContext.cfg.gs("JobsUI.buttonDelete.toolTipText"));
-                        buttonDelete.addActionListener(e -> deleteClicked(e));
+                        buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
 
                         //---- hSpacerBeforeRun ----
@@ -181,8 +450,20 @@ public class JobsUI extends JDialog
                         buttonRun.setText(guiContext.cfg.gs("JobsUI.buttonRun.text"));
                         buttonRun.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRun.mnemonic").charAt(0));
                         buttonRun.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRun.toolTipText"));
-                        buttonRun.addActionListener(e -> runClicked(e));
+                        buttonRun.addActionListener(e -> actionRunClicked(e));
                         panelTopButtons.add(buttonRun);
+
+                        //---- hSpacerBeforeGenerate ----
+                        hSpacerBeforeGenerate.setMinimumSize(new Dimension(22, 6));
+                        hSpacerBeforeGenerate.setPreferredSize(new Dimension(22, 6));
+                        panelTopButtons.add(hSpacerBeforeGenerate);
+
+                        //---- buttonGenerate ----
+                        buttonGenerate.setText(guiContext.cfg.gs("JobsUI.buttonGenerate.text"));
+                        buttonGenerate.setMnemonic(guiContext.cfg.gs("JobsUI.buttonGenerate.mnemonic_2").charAt(0));
+                        buttonGenerate.setToolTipText(guiContext.cfg.gs("JobsUI.buttonGenerate.toolTipText"));
+                        buttonGenerate.addActionListener(e -> actionRunClicked(e));
+                        panelTopButtons.add(buttonGenerate);
                     }
                     panelTop.add(panelTopButtons, BorderLayout.WEST);
 
@@ -203,7 +484,7 @@ public class JobsUI extends JDialog
                         labelHelp.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
-                                helpClicked(e);
+                                actionHelpClicked(e);
                             }
                         });
                         panelHelp.add(labelHelp);
@@ -226,16 +507,6 @@ public class JobsUI extends JDialog
                         //---- listItems ----
                         listItems.setPreferredSize(new Dimension(128, 54));
                         listItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                        listItems.setModel(new AbstractListModel<String>() {
-                            String[] values = {
-                                "Job 1",
-                                "Job 2"
-                            };
-                            @Override
-                            public int getSize() { return values.length; }
-                            @Override
-                            public String getElementAt(int i) { return values[i]; }
-                        });
                         listItems.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
@@ -247,161 +518,185 @@ public class JobsUI extends JDialog
                     }
                     splitPaneContent.setLeftComponent(scrollPaneList);
 
-                    //======== panel1 ========
+                    //======== panelJob ========
                     {
-                        panel1.setLayout(new BorderLayout());
+                        panelJob.setLayout(new BorderLayout());
 
-                        //======== panel3 ========
-                        {
-                            panel3.setLayout(new BorderLayout());
-
-                            //---- textFieldName ----
-                            textFieldName.setPreferredSize(new Dimension(150, 30));
-                            textFieldName.setText("Job 1");
-                            textFieldName.addActionListener(e -> textFieldNameChanged(e));
-                            textFieldName.addFocusListener(new FocusAdapter() {
-                                @Override
-                                public void focusLost(FocusEvent e) {
-                                    textFieldNameFocusLost(e);
-                                }
-                            });
-                            panel3.add(textFieldName, BorderLayout.CENTER);
-
-                            //---- comboBox1 ----
-                            comboBox1.setPrototypeDisplayValue(guiContext.cfg.gs("JobsUI.comboBox1.prototypeDisplayValue"));
-                            comboBox1.setModel(new DefaultComboBoxModel<>(new String[] {
-                                "Publisher",
-                                "Subscriber"
-                            }));
-                            panel3.add(comboBox1, BorderLayout.EAST);
-                        }
-                        panel1.add(panel3, BorderLayout.NORTH);
-
-                        //======== splitPane1 ========
-                        {
-                            splitPane1.setDividerLocation(142);
-                            splitPane1.setLastDividerLocation(142);
-
-                            //======== scrollPane1 ========
-                            {
-
-                                //---- list1 ----
-                                list1.setModel(new AbstractListModel<String>() {
-                                    String[] values = {
-                                        "Basic web junk",
-                                        "Windows junk"
-                                    };
-                                    @Override
-                                    public int getSize() { return values.length; }
-                                    @Override
-                                    public String getElementAt(int i) { return values[i]; }
-                                });
-                                scrollPane1.setViewportView(list1);
+                        //---- textFieldJobName ----
+                        textFieldJobName.setPreferredSize(new Dimension(150, 30));
+                        textFieldJobName.addActionListener(e -> textFieldNameChanged(e));
+                        textFieldJobName.addFocusListener(new FocusAdapter() {
+                            @Override
+                            public void focusLost(FocusEvent e) {
+                                textFieldNameFocusLost(e);
                             }
-                            splitPane1.setLeftComponent(scrollPane1);
+                        });
+                        panelJob.add(textFieldJobName, BorderLayout.NORTH);
 
-                            //======== panel2 ========
-                            {
-                                panel2.setBorder(null);
-                                panel2.setLayout(new BorderLayout());
-
-                                //======== panelOptionsButtons2 ========
-                                {
-                                    panelOptionsButtons2.setBorder(null);
-                                    panelOptionsButtons2.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
-
-                                    //---- buttonAddRow2 ----
-                                    buttonAddRow2.setText(guiContext.cfg.gs("JobsUI.buttonAddRow2.text"));
-                                    buttonAddRow2.setFont(buttonAddRow2.getFont().deriveFont(buttonAddRow2.getFont().getSize() - 2f));
-                                    buttonAddRow2.setPreferredSize(new Dimension(78, 24));
-                                    buttonAddRow2.setMinimumSize(new Dimension(78, 24));
-                                    buttonAddRow2.setMaximumSize(new Dimension(78, 24));
-                                    buttonAddRow2.setMnemonic(guiContext.cfg.gs("JobsUI.buttonAddRow2.mnemonic").charAt(0));
-                                    buttonAddRow2.setToolTipText(guiContext.cfg.gs("JobsUI.buttonAddRow2.toolTipText"));
-                                    buttonAddRow2.addActionListener(e -> addRowClicked(e));
-                                    panelOptionsButtons2.add(buttonAddRow2);
-
-                                    //---- buttonRemoveRow2 ----
-                                    buttonRemoveRow2.setText(guiContext.cfg.gs("JobsUI.buttonRemoveRow2.text"));
-                                    buttonRemoveRow2.setFont(buttonRemoveRow2.getFont().deriveFont(buttonRemoveRow2.getFont().getSize() - 2f));
-                                    buttonRemoveRow2.setPreferredSize(new Dimension(78, 24));
-                                    buttonRemoveRow2.setMinimumSize(new Dimension(78, 24));
-                                    buttonRemoveRow2.setMaximumSize(new Dimension(78, 24));
-                                    buttonRemoveRow2.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRemoveRow2.mnemonic").charAt(0));
-                                    buttonRemoveRow2.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRemoveRow2.toolTipText"));
-                                    buttonRemoveRow2.addActionListener(e -> removeRowClicked(e));
-                                    panelOptionsButtons2.add(buttonRemoveRow2);
-                                }
-                                panel2.add(panelOptionsButtons2, BorderLayout.SOUTH);
-
-                                //======== scrollPane2 ========
-                                {
-
-                                    //---- list2 ----
-                                    list2.setModel(new AbstractListModel<String>() {
-                                        String[] values = {
-                                            "Movies",
-                                            "TV Shows",
-                                            "/home/plex/Plex/pre-publish"
-                                        };
-                                        @Override
-                                        public int getSize() { return values.length; }
-                                        @Override
-                                        public String getElementAt(int i) { return values[i]; }
-                                    });
-                                    scrollPane2.setViewportView(list2);
-                                }
-                                panel2.add(scrollPane2, BorderLayout.CENTER);
-                            }
-                            splitPane1.setRightComponent(panel2);
-                        }
-                        panel1.add(splitPane1, BorderLayout.CENTER);
-
-                        //======== panelOptionsButtons ========
+                        //======== splitPaneToolsOrigin ========
                         {
-                            panelOptionsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
+                            splitPaneToolsOrigin.setDividerLocation(142);
+                            splitPaneToolsOrigin.setLastDividerLocation(142);
 
-                            //---- button1 ----
-                            button1.setText(guiContext.cfg.gs("JobsUI.button1.text"));
-                            button1.setMaximumSize(new Dimension(24, 24));
-                            button1.setMinimumSize(new Dimension(24, 24));
-                            button1.setPreferredSize(new Dimension(24, 24));
-                            button1.setFont(button1.getFont().deriveFont(button1.getFont().getSize() - 2f));
-                            panelOptionsButtons.add(button1);
+                            //======== panelTools ========
+                            {
+                                panelTools.setLayout(new GridBagLayout());
+                                ((GridBagLayout)panelTools.getLayout()).columnWidths = new int[] {0, 0};
+                                ((GridBagLayout)panelTools.getLayout()).rowHeights = new int[] {0, 0, 0};
+                                ((GridBagLayout)panelTools.getLayout()).columnWeights = new double[] {1.0, 1.0E-4};
+                                ((GridBagLayout)panelTools.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
-                            //---- button2 ----
-                            button2.setText("v");
-                            button2.setFont(button2.getFont().deriveFont(button2.getFont().getSize() - 2f));
-                            button2.setMaximumSize(new Dimension(24, 24));
-                            button2.setMinimumSize(new Dimension(24, 24));
-                            button2.setPreferredSize(new Dimension(24, 24));
-                            panelOptionsButtons.add(button2);
+                                //---- labelTools ----
+                                labelTools.setText(guiContext.cfg.gs("JobsUI.labelTools.text"));
+                                labelTools.setHorizontalAlignment(SwingConstants.LEFT);
+                                labelTools.setHorizontalTextPosition(SwingConstants.LEFT);
+                                labelTools.setFont(labelTools.getFont().deriveFont(labelTools.getFont().getSize() + 1f));
+                                labelTools.setMaximumSize(new Dimension(37, 18));
+                                labelTools.setMinimumSize(new Dimension(37, 18));
+                                labelTools.setPreferredSize(new Dimension(37, 18));
+                                panelTools.add(labelTools, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                    new Insets(0, 4, 0, 0), 0, 0));
 
-                            //---- buttonAddRow ----
-                            buttonAddRow.setText(guiContext.cfg.gs("JobsUI.buttonAddRow.text"));
-                            buttonAddRow.setFont(buttonAddRow.getFont().deriveFont(buttonAddRow.getFont().getSize() - 2f));
-                            buttonAddRow.setPreferredSize(new Dimension(78, 24));
-                            buttonAddRow.setMinimumSize(new Dimension(78, 24));
-                            buttonAddRow.setMaximumSize(new Dimension(78, 24));
-                            buttonAddRow.setMnemonic(guiContext.cfg.gs("JobsUI.buttonAddRow.mnemonic").charAt(0));
-                            buttonAddRow.setToolTipText(guiContext.cfg.gs("JobsUI.buttonAddRow.toolTipText"));
-                            buttonAddRow.addActionListener(e -> addRowClicked(e));
-                            panelOptionsButtons.add(buttonAddRow);
+                                //======== scrollPaneTools ========
+                                {
+                                    scrollPaneTools.setViewportView(listTools);
+                                }
+                                panelTools.add(scrollPaneTools, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+                                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+                            }
+                            splitPaneToolsOrigin.setLeftComponent(panelTools);
 
-                            //---- buttonRemoveRow ----
-                            buttonRemoveRow.setText(guiContext.cfg.gs("JobsUI.buttonRemoveRow.text"));
-                            buttonRemoveRow.setFont(buttonRemoveRow.getFont().deriveFont(buttonRemoveRow.getFont().getSize() - 2f));
-                            buttonRemoveRow.setPreferredSize(new Dimension(78, 24));
-                            buttonRemoveRow.setMinimumSize(new Dimension(78, 24));
-                            buttonRemoveRow.setMaximumSize(new Dimension(78, 24));
-                            buttonRemoveRow.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRemoveRow.mnemonic").charAt(0));
-                            buttonRemoveRow.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRemoveRow.toolTipText"));
-                            buttonRemoveRow.addActionListener(e -> removeRowClicked(e));
-                            panelOptionsButtons.add(buttonRemoveRow);
+                            //======== panelOrigin ========
+                            {
+                                panelOrigin.setLayout(new GridBagLayout());
+                                ((GridBagLayout)panelOrigin.getLayout()).columnWidths = new int[] {0, 0};
+                                ((GridBagLayout)panelOrigin.getLayout()).rowHeights = new int[] {0, 0, 0};
+                                ((GridBagLayout)panelOrigin.getLayout()).columnWeights = new double[] {0.0, 1.0E-4};
+                                ((GridBagLayout)panelOrigin.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
+
+                                //---- labelOrigin ----
+                                labelOrigin.setText(guiContext.cfg.gs("JobsUI.labelOrigin.text"));
+                                labelOrigin.setFont(labelOrigin.getFont().deriveFont(labelOrigin.getFont().getSize() + 1f));
+                                labelOrigin.setHorizontalAlignment(SwingConstants.LEFT);
+                                labelOrigin.setHorizontalTextPosition(SwingConstants.LEFT);
+                                labelOrigin.setMaximumSize(new Dimension(57, 18));
+                                labelOrigin.setMinimumSize(new Dimension(57, 18));
+                                labelOrigin.setPreferredSize(new Dimension(57, 18));
+                                panelOrigin.add(labelOrigin, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                    new Insets(0, 4, 0, 0), 0, 0));
+
+                                //======== panelOriginInstance ========
+                                {
+                                    panelOriginInstance.setBorder(null);
+                                    panelOriginInstance.setLayout(new BorderLayout());
+
+                                    //======== panelPubSub ========
+                                    {
+                                        panelPubSub.setLayout(new BoxLayout(panelPubSub, BoxLayout.Y_AXIS));
+
+                                        //---- comboBoxPubSub1 ----
+                                        comboBoxPubSub1.setSelectedIndex(-1);
+                                        panelPubSub.add(comboBoxPubSub1);
+
+                                        //---- comboBoxPubSub2 ----
+                                        comboBoxPubSub2.setSelectedIndex(-1);
+                                        panelPubSub.add(comboBoxPubSub2);
+                                    }
+                                    panelOriginInstance.add(panelPubSub, BorderLayout.NORTH);
+
+                                    //======== scrollPaneOrigins ========
+                                    {
+                                        scrollPaneOrigins.setViewportView(listOrigins);
+                                    }
+                                    panelOriginInstance.add(scrollPaneOrigins, BorderLayout.CENTER);
+
+                                    //======== panelOriginsButtons ========
+                                    {
+                                        panelOriginsButtons.setBorder(null);
+                                        panelOriginsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
+
+                                        //---- buttonAddOrigin ----
+                                        buttonAddOrigin.setText(guiContext.cfg.gs("JobsUI.buttonAddOrigin.text"));
+                                        buttonAddOrigin.setFont(buttonAddOrigin.getFont().deriveFont(buttonAddOrigin.getFont().getSize() - 2f));
+                                        buttonAddOrigin.setPreferredSize(new Dimension(78, 24));
+                                        buttonAddOrigin.setMinimumSize(new Dimension(78, 24));
+                                        buttonAddOrigin.setMaximumSize(new Dimension(78, 24));
+                                        buttonAddOrigin.setMnemonic(guiContext.cfg.gs("JobsUI.buttonAddOrigin.mnemonic").charAt(0));
+                                        buttonAddOrigin.setToolTipText(guiContext.cfg.gs("JobsUI.buttonAddOrigin.toolTipText"));
+                                        buttonAddOrigin.addActionListener(e -> addRowClicked(e));
+                                        panelOriginsButtons.add(buttonAddOrigin);
+
+                                        //---- buttonRemoveOrigin ----
+                                        buttonRemoveOrigin.setText(guiContext.cfg.gs("JobsUI.buttonRemoveOrigin.text"));
+                                        buttonRemoveOrigin.setFont(buttonRemoveOrigin.getFont().deriveFont(buttonRemoveOrigin.getFont().getSize() - 2f));
+                                        buttonRemoveOrigin.setPreferredSize(new Dimension(78, 24));
+                                        buttonRemoveOrigin.setMinimumSize(new Dimension(78, 24));
+                                        buttonRemoveOrigin.setMaximumSize(new Dimension(78, 24));
+                                        buttonRemoveOrigin.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRemoveOrigin.mnemonic").charAt(0));
+                                        buttonRemoveOrigin.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRemoveOrigin.toolTipText"));
+                                        buttonRemoveOrigin.addActionListener(e -> removeRowClicked(e));
+                                        panelOriginsButtons.add(buttonRemoveOrigin);
+                                    }
+                                    panelOriginInstance.add(panelOriginsButtons, BorderLayout.SOUTH);
+                                }
+                                panelOrigin.add(panelOriginInstance, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+                                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                    new Insets(0, 0, 0, 0), 0, 0));
+                            }
+                            splitPaneToolsOrigin.setRightComponent(panelOrigin);
                         }
-                        panel1.add(panelOptionsButtons, BorderLayout.SOUTH);
+                        panelJob.add(splitPaneToolsOrigin, BorderLayout.CENTER);
+
+                        //======== panelToolButtons ========
+                        {
+                            panelToolButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
+
+                            //---- buttonToolUp ----
+                            buttonToolUp.setText("^");
+                            buttonToolUp.setMaximumSize(new Dimension(24, 24));
+                            buttonToolUp.setMinimumSize(new Dimension(24, 24));
+                            buttonToolUp.setPreferredSize(new Dimension(24, 24));
+                            buttonToolUp.setFont(buttonToolUp.getFont().deriveFont(buttonToolUp.getFont().getSize() - 2f));
+                            buttonToolUp.setToolTipText(guiContext.cfg.gs("JobsUI.buttonToolUp.toolTipText"));
+                            panelToolButtons.add(buttonToolUp);
+
+                            //---- buttonToolDown ----
+                            buttonToolDown.setText("v");
+                            buttonToolDown.setFont(buttonToolDown.getFont().deriveFont(buttonToolDown.getFont().getSize() - 2f));
+                            buttonToolDown.setMaximumSize(new Dimension(24, 24));
+                            buttonToolDown.setMinimumSize(new Dimension(24, 24));
+                            buttonToolDown.setPreferredSize(new Dimension(24, 24));
+                            buttonToolDown.setToolTipText(guiContext.cfg.gs("JobsUI.buttonToolDown.toolTipText"));
+                            panelToolButtons.add(buttonToolDown);
+
+                            //---- buttonAddTool ----
+                            buttonAddTool.setText(guiContext.cfg.gs("JobsUI.buttonAddTool.text"));
+                            buttonAddTool.setFont(buttonAddTool.getFont().deriveFont(buttonAddTool.getFont().getSize() - 2f));
+                            buttonAddTool.setPreferredSize(new Dimension(78, 24));
+                            buttonAddTool.setMinimumSize(new Dimension(78, 24));
+                            buttonAddTool.setMaximumSize(new Dimension(78, 24));
+                            buttonAddTool.setMnemonic(guiContext.cfg.gs("JobsUI.buttonAddTool.mnemonic").charAt(0));
+                            buttonAddTool.setToolTipText(guiContext.cfg.gs("JobsUI.buttonAddTool.toolTipText"));
+                            buttonAddTool.addActionListener(e -> addRowClicked(e));
+                            panelToolButtons.add(buttonAddTool);
+
+                            //---- buttonRemoveTool ----
+                            buttonRemoveTool.setText(guiContext.cfg.gs("JobsUI.buttonRemoveTool.text"));
+                            buttonRemoveTool.setFont(buttonRemoveTool.getFont().deriveFont(buttonRemoveTool.getFont().getSize() - 2f));
+                            buttonRemoveTool.setPreferredSize(new Dimension(78, 24));
+                            buttonRemoveTool.setMinimumSize(new Dimension(78, 24));
+                            buttonRemoveTool.setMaximumSize(new Dimension(78, 24));
+                            buttonRemoveTool.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRemoveTool.mnemonic").charAt(0));
+                            buttonRemoveTool.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRemoveTool.toolTipText"));
+                            buttonRemoveTool.addActionListener(e -> removeRowClicked(e));
+                            panelToolButtons.add(buttonRemoveTool);
+                        }
+                        panelJob.add(panelToolButtons, BorderLayout.SOUTH);
                     }
-                    splitPaneContent.setRightComponent(panel1);
+                    splitPaneContent.setRightComponent(panelJob);
                 }
                 contentPanel.add(splitPaneContent, BorderLayout.CENTER);
             }
@@ -416,14 +711,14 @@ public class JobsUI extends JDialog
 
                 //---- okButton ----
                 okButton.setText(guiContext.cfg.gs("JobsUI.okButton.text"));
-                okButton.addActionListener(e -> okClicked(e));
+                okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
                 //---- cancelButton ----
                 cancelButton.setText(guiContext.cfg.gs("JobsUI.cancelButton.text"));
-                cancelButton.addActionListener(e -> cancelClicked(e));
+                cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));
@@ -446,33 +741,43 @@ public class JobsUI extends JDialog
     private JButton buttonDelete;
     private JPanel hSpacerBeforeRun;
     private JButton buttonRun;
+    private JPanel hSpacerBeforeGenerate;
+    private JButton buttonGenerate;
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JSplitPane splitPaneContent;
     private JScrollPane scrollPaneList;
-    private JList<String> listItems;
-    private JPanel panel1;
-    private JPanel panel3;
-    private JTextField textFieldName;
-    private JComboBox<String> comboBox1;
-    private JSplitPane splitPane1;
-    private JScrollPane scrollPane1;
-    private JList<String> list1;
-    private JPanel panel2;
-    private JPanel panelOptionsButtons2;
-    private JButton buttonAddRow2;
-    private JButton buttonRemoveRow2;
-    private JScrollPane scrollPane2;
-    private JList<String> list2;
-    private JPanel panelOptionsButtons;
-    private JButton button1;
-    private JButton button2;
-    private JButton buttonAddRow;
-    private JButton buttonRemoveRow;
+    private JList listItems;
+    private JPanel panelJob;
+    private JTextField textFieldJobName;
+    private JSplitPane splitPaneToolsOrigin;
+    private JPanel panelTools;
+    private JLabel labelTools;
+    private JScrollPane scrollPaneTools;
+    private JList listTools;
+    private JPanel panelOrigin;
+    private JLabel labelOrigin;
+    private JPanel panelOriginInstance;
+    private JPanel panelPubSub;
+    private JComboBox comboBoxPubSub1;
+    private JComboBox comboBoxPubSub2;
+    private JScrollPane scrollPaneOrigins;
+    private JList listOrigins;
+    private JPanel panelOriginsButtons;
+    private JButton buttonAddOrigin;
+    private JButton buttonRemoveOrigin;
+    private JPanel panelToolButtons;
+    private JButton buttonToolUp;
+    private JButton buttonToolDown;
+    private JButton buttonAddTool;
+    private JButton buttonRemoveTool;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
+    //
     // @formatter:on
+    // </editor-fold>
+
 }

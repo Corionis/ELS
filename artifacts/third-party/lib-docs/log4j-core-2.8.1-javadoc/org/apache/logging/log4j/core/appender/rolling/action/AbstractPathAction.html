@@ -192,7 +192,7 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
 <tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/nio/file/Path.html?is-external=true" title="class or interface in java.nio.file">Path</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../../../org/apache/logging/log4j/core/appender/rolling/action/AbstractPathAction.html#getBasePath()">getBasePath</a></strong>()</code>
-<div class="block">Returns the base path from where to start scanning for files to delete.</div>
+<div class="block">Returns the base path from where to origin scanning for files to delete.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -274,7 +274,7 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
                   <a href="../../../../../../../../org/apache/logging/log4j/core/appender/rolling/action/PathCondition.html" title="interface in org.apache.logging.log4j.core.appender.rolling.action">PathCondition</a>[]&nbsp;pathFilters,
                   <a href="../../../../../../../../org/apache/logging/log4j/core/lookup/StrSubstitutor.html" title="class in org.apache.logging.log4j.core.lookup">StrSubstitutor</a>&nbsp;subst)</pre>
 <div class="block">Creates a new AbstractPathAction that starts scanning for files to process from the specified base path.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>basePath</code> - base path from where to start scanning for files to process.</dd><dd><code>followSymbolicLinks</code> - whether to follow symbolic links. Default is false.</dd><dd><code>maxDepth</code> - The maxDepth parameter is the maximum number of levels of directories to visit. A value of 0
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>basePath</code> - base path from where to origin scanning for files to process.</dd><dd><code>followSymbolicLinks</code> - whether to follow symbolic links. Default is false.</dd><dd><code>maxDepth</code> - The maxDepth parameter is the maximum number of levels of directories to visit. A value of 0
             means that only the starting file is visited, unless denied by the security manager. A value of
             MAX_VALUE may be used to indicate that all levels should be visited.</dd><dd><code>pathFilters</code> - an array of path filters (if more than one, they all need to accept a path before it is
             processed).</dd></dl>
@@ -332,7 +332,7 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
  method when the <a href="../../../../../../../../org/apache/logging/log4j/core/appender/rolling/action/AbstractPathAction.html#execute()"><code>execute()</code></a> method is invoked.
  <p>
  The visitor is responsible for processing the files it encounters that are accepted by all filters.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>visitorBaseDir</code> - base dir from where to start scanning for files to process</dd><dd><code>conditions</code> - filters that determine if a file should be processed</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>visitorBaseDir</code> - base dir from where to origin scanning for files to process</dd><dd><code>conditions</code> - filters that determine if a file should be processed</dd>
 <dt><span class="strong">Returns:</span></dt><dd>a new <code>FileVisitor&lt;Path&gt;</code></dd></dl>
 </li>
 </ul>
@@ -343,7 +343,7 @@ extends <a href="../../../../../../../../org/apache/logging/log4j/core/appender/
 <li class="blockList">
 <h4>getBasePath</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/nio/file/Path.html?is-external=true" title="class or interface in java.nio.file">Path</a>&nbsp;getBasePath()</pre>
-<div class="block">Returns the base path from where to start scanning for files to delete. Lookups are resolved, so if the
+<div class="block">Returns the base path from where to origin scanning for files to delete. Lookups are resolved, so if the
  configuration was <code>&lt;Delete basePath="${sys:user.home}/abc" /&gt;</code> then this method returns a path
  to the "abc" file or directory in the user's home directory.</div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the base path (all lookups resolved)</dd></dl>

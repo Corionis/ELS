@@ -463,39 +463,42 @@ public class Browser
 
     private void bookmarkCreate(NavTreeNode node, String name, String panelName)
     {
-        Repository repo = guiContext.context.transfer.getRepo(node.getUserObject());
-        Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
-                repo.getLibraryData().libraries.description + " " + guiContext.cfg.gs(("Browser.bookmark.name")),
-                guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.QUESTION_MESSAGE,
-                null, null, name);
-        name = (String) obj;
-        if (name != null && name.length() > 0)
+        Repository repo = node.getUserObject().getRepo();
+        if (repo != null)
         {
-            Bookmark bm = new Bookmark();
-            bm.name = name;
-            bm.panel = panelName;
-            TreePath tp = node.getTreePath();
-            if (tp.getPathCount() > 0)
+            Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
+                    repo.getLibraryData().libraries.description + " " + guiContext.cfg.gs(("Browser.bookmark.name")),
+                    guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.QUESTION_MESSAGE,
+                    null, null, name);
+            name = (String) obj;
+            if (name != null && name.length() > 0)
             {
-                bm.path = new String[tp.getPathCount()];
-                Object[] objs = tp.getPath();
-                for (int i = 0; i < tp.getPathCount(); ++i)
+                Bookmark bm = new Bookmark();
+                bm.name = name;
+                bm.panel = panelName;
+                TreePath tp = node.getTreePath();
+                if (tp.getPathCount() > 0)
                 {
-                    node = (NavTreeNode) objs[i];
-                    bm.path[i] = node.getUserObject().name;
-                }
-                guiContext.navigator.bookmarks.add(bm);
-                try
-                {
-                    guiContext.navigator.bookmarks.write();
-                    guiContext.navigator.loadBookmarksMenu();
-                }
-                catch (Exception e)
-                {
-                    guiContext.browser.printLog(Utils.getStackTrace(e), true);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                            guiContext.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
-                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    bm.path = new String[tp.getPathCount()];
+                    Object[] objs = tp.getPath();
+                    for (int i = 0; i < tp.getPathCount(); ++i)
+                    {
+                        node = (NavTreeNode) objs[i];
+                        bm.path[i] = node.getUserObject().name;
+                    }
+                    guiContext.navigator.bookmarks.add(bm);
+                    try
+                    {
+                        guiContext.navigator.bookmarks.write();
+                        guiContext.navigator.loadBookmarksMenu();
+                    }
+                    catch (Exception e)
+                    {
+                        guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                        JOptionPane.showMessageDialog(guiContext.mainFrame,
+                                guiContext.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
+                                guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         }

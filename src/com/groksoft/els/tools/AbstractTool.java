@@ -1,37 +1,31 @@
-package com.groksoft.els.gui.tools;
+package com.groksoft.els.tools;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.repository.Repository;
 
+import javax.swing.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public abstract class AbstractTool implements Serializable
 {
-    private String configName; // user name for this instance
-    private String internalName; // internal name
-
-    transient private boolean isRemote;
-    transient private boolean isSubscriber = false;
-
-    transient protected Logger logger = LogManager.getLogger("applog");
     transient protected Configuration cfg;
     transient protected Context context;
-    transient private String displayName; // GUI i18n display name
-    transient private boolean dryRun = false;
     transient protected boolean includeInToolsList = true; // set by tool at runtime
+    transient private boolean isRemote;
+    transient private String displayName; // GUI i18n display name
     transient private boolean stop = false;
 
     /**
      * Constructor
      */
-    public AbstractTool(Configuration config, Context ctxt, String internalId)
+    public AbstractTool(Configuration config, Context ctxt)
     {
         this.cfg = config;
         this.context = ctxt;
-        this.internalName = internalId;
     }
 
     public Configuration getCfg()
@@ -39,45 +33,40 @@ public abstract class AbstractTool implements Serializable
         return cfg;
     }
 
-    public String getConfigName()
-    {
-        return configName;
-    }
+    abstract public String getConfigName();
 
     public Context getContext()
     {
         return context;
     }
 
-    public String getDisplayName()
-    {
-        return displayName;
-    }
-
     public String getDirectoryPath()
     {
         String path = System.getProperty("user.home") + System.getProperty("file.separator") +
                 ".els" + System.getProperty("file.separator") +
-                "tools" + System.getProperty("file.separator") +
+                getSubsystem() + System.getProperty("file.separator") +
                 getInternalName();
         return path;
     }
 
+    abstract public String getDisplayName();
+
     public String getFullPath()
     {
-        String path = getDirectoryPath() + System.getProperty("file.separator")+
+        String path = getDirectoryPath() + System.getProperty("file.separator") +
                 Utils.scrubFilename(getConfigName()) + ".json";
         return path;
     }
 
-    public String getInternalName()
-    {
-        return internalName;
-    }
+    abstract public String getInternalName();
 
-    public boolean isDryRun()
+    abstract public String getSubsystem();
+
+    abstract public boolean isDualRepositories();
+
+    public boolean isIncludeInToolsList()
     {
-        return dryRun;
+        return includeInToolsList;
     }
 
     public boolean isRemote()
@@ -85,27 +74,32 @@ public abstract class AbstractTool implements Serializable
         return isRemote;
     }
 
-    public boolean isSubscriber()
-    {
-        return isSubscriber;
-    }
-
     public boolean isRequestStop()
     {
         return stop;
     }
 
-    public boolean isIncludeInToolsList()
-    {
-        return includeInToolsList;
-    }
-
     /**
-     * Process the tool with the arguments provided
+     * Process the tool
      *
+     * @param publisherRepo Repository of the publisher or null
+     * @param subscriberRepo Repository of the subscriber or null
+     * @param origins ArrayList<Origin> of starting locations
+     * @param dryRun Boolean dryrun
      * @throws Exception
      */
-    public abstract void processTool() throws Exception;
+    public abstract void processTool(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception;
+
+    /**
+     * Process the tool on a SwingWorker thread
+     *
+     * @param publisherRepo Repository of the publisher or null
+     * @param subscriberRepo Repository of the subscriber or null
+     * @param origins ArrayList<Origin> of starting locations
+     * @param dryRun Boolean dryrun
+     * @return SwingWorker<Void, Void> of thread
+     */
+    public abstract SwingWorker<Void, Void> processToolThread(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun);
 
     /**
      * Request the tool to stop (optional)
@@ -115,24 +109,16 @@ public abstract class AbstractTool implements Serializable
         this.stop = true;
     }
 
-    public void resetRequestStop()
+    public void resetStop()
     {
         this.stop = false;
     }
 
-    public void setConfigName(String configName)
-    {
-        this.configName = configName;
-    }
+    abstract public void setConfigName(String configName);
 
     public void setDisplayName(String displayName)
     {
         this.displayName = displayName;
-    }
-
-    public void setDryRun(boolean dryRun)
-    {
-        this.dryRun = dryRun;
     }
 
     public void setIncludeInToolsList(boolean includeInToolsList)
@@ -140,19 +126,9 @@ public abstract class AbstractTool implements Serializable
         this.includeInToolsList = includeInToolsList;
     }
 
-    public void setInternalName(String internalName)
-    {
-        this.internalName = internalName;
-    }
-
     public void setIsRemote(boolean remote)
     {
         isRemote = remote;
-    }
-
-    public void setIsSubscriber(boolean flag)
-    {
-        this.isSubscriber = flag;
     }
 
     @Override

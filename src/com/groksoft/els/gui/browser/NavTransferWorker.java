@@ -129,7 +129,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         filesSize += size;
 
         // create a fresh dialog here so it exists to be updated with new stats
-        if (guiContext.progress == null || !guiContext.progress.isActive())
+        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
         {
             guiContext.progress = null; // suggest clean-up
             guiContext.progress = new Progress(guiContext);
@@ -171,9 +171,9 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         String sourceSep;
         String targetSep;
 
-        sourceRepo = guiContext.context.transfer.getRepo(sourceTuo);
+        sourceRepo = sourceTuo.getRepo();
         sourceSep = sourceRepo.getSeparator();
-        targetRepo = guiContext.context.transfer.getRepo(targetTuo);
+        targetRepo = targetTuo.getRepo();
         targetSep = targetRepo.getSeparator();
 
         // get the directory

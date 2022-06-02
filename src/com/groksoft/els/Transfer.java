@@ -312,23 +312,6 @@ public class Transfer
         return removedFiles;
     }
 
-    public synchronized Repository getRepo(NavTreeUserObject tuo)
-    {
-        Repository repo = null;
-        switch (tuo.node.getMyTree().getName())
-        {
-            case "treeCollectionOne":
-            case "treeSystemOne":
-                repo = context.publisherRepo;
-                break;
-            case "treeCollectionTwo":
-            case "treeSystemTwo":
-                repo = context.subscriberRepo;
-                break;
-        }
-        return repo;
-    }
-
     /**
      * Get the count of items skipped because they are missing
      *
@@ -850,7 +833,7 @@ public class Transfer
         String path = null;
         if (tuo.node.getMyTree().getName().contains("Collection"))
         {
-            Repository repo = getRepo(tuo);
+            Repository repo = tuo.getRepo();
             if (repo != null)
             {
                 String tuoPath = (repo.getLibraryData().libraries.case_sensitive) ? tuo.path : tuo.path.toLowerCase();

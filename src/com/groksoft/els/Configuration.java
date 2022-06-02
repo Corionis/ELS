@@ -1,5 +1,6 @@
 package com.groksoft.els;
 
+import jdk.nashorn.internal.scripts.JO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -14,14 +15,11 @@ import java.util.*;
  */
 public class Configuration
 {
+    public static final int JOB_PROCESS = 8;
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
     public static final int PUBLISH_REMOTE = 1;
-    public static final int RENAME_BOTH = 3;
-    public static final int RENAME_DIRECTORIES = 2;
-    public static final int RENAME_FILES = 1;
-    public static final int RENAME_NONE = 0;
     public static final int STATUS_SERVER = 6;
     public static final int STATUS_SERVER_FORCE_QUIT = 7;
     public static final int SUBSCRIBER_LISTENER = 2;
@@ -29,8 +27,10 @@ public class Configuration
     private final String NAVIGATOR_NAME = "ELS Navigator";
     private final String PROGRAM_VERSION = "4.0.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
+
     // add new locales here
     public String[] availableLocales = {"en_US"}; // List of built-in locales; TODO: Update locales here
+
     private String authorizedPassword = "";
     private Context context;
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
@@ -48,6 +48,7 @@ public class Configuration
     private String hintKeysFile = "";
     private boolean hintSkipMainProcess = false;
     private String hintsDaemonFilename = "";
+    private String jobName = "";
     private String logFilename = "";
     private boolean logOverwrite = false;
     private double longScale = 1024L;
@@ -64,7 +65,6 @@ public class Configuration
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
     private boolean renaming = false;
-    private int renamingType = RENAME_NONE;
     private boolean requestCollection = false;
     private boolean requestTargets = false;
     private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
@@ -159,9 +159,9 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
         }
-        if (hintKeysFile != null && hintKeysFile.length() > 0)
+        if (remoteFlag == JOB_PROCESS && getJobName().length() > 0)
         {
-            logger.info(SHORT, "  cfg: " + (isHintSkipMainProcess() ? "-K" : "-k") + " Hint keys file: " + hintKeysFile + ((isHintSkipMainProcess()) ? ", Skip main process" : ""));
+            logger.info(SHORT, "  cfg: -j job: " + getJobName());
         }
         if (!getSelectedLibraryNames().isEmpty())
         {
@@ -315,6 +315,16 @@ public class Configuration
     }
 
     /**
+     * Gets the job name
+     *
+     * @return the job name
+     */
+    public String getJobName()
+    {
+        return jobName;
+    }
+
+    /**
      * Gets the configured scale for formatting long values, 1024 or 1000
      *
      * @return long Scale for formatting
@@ -415,14 +425,6 @@ public class Configuration
     public String getRemoteType()
     {
         return this.remoteType;
-    }
-
-    /**
-     * Set the type of renaming to perform
-     */
-    public int getRenamingType()
-    {
-        return this.renamingType;
     }
 
     /**
@@ -872,6 +874,8 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
+        // single letters remaining:  A B C E g G I j J M N O R U V X Y Z
+
         int index;
         originalArgs = args;
 
@@ -998,7 +1002,18 @@ public class Configuration
                     }
                     break;
                 case "-j":                                             // Job
-                    // TODO Implement execution of a defined Job in batch/background mode
+                case "--job":
+                    this.remoteFlag = JOB_PROCESS;
+                    if (index <= args.length - 2)
+                    {
+                        setJobName(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -j requires a job name");
+                    }
                     break;
                 case "-k":                                             // ELS keys file
                 case "--keys":
@@ -1373,6 +1388,16 @@ public class Configuration
     }
 
     /**
+     * Sets the job name
+     *
+     * @param name the configuation name of the job
+     */
+    public void setJobName(String name)
+    {
+        this.jobName = name;
+    }
+
+    /**
      * Sets if the log should be overwritten when the process starts
      *
      * @param logOverwrite
@@ -1501,27 +1526,6 @@ public class Configuration
     public void setRenaming(boolean renaming)
     {
         this.renaming = renaming;
-    }
-
-    /**
-     * Set the type of renaming to perform
-     */
-    public void setRenamingType(String type) throws MungeException
-    {
-        switch (type.toLowerCase())
-        {
-            case "d":
-                this.renamingType = RENAME_DIRECTORIES;
-                break;
-            case "f":
-                this.renamingType = RENAME_FILES;
-                break;
-            case "b":
-                this.renamingType = RENAME_BOTH;
-                break;
-            default:
-                throw new MungeException("unknown -n | --rename type of rename; requires F | D | B");
-        }
     }
 
     /**

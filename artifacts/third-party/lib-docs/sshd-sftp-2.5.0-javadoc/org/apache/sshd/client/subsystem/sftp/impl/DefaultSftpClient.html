@@ -244,7 +244,7 @@ extends <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/impl
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/impl/DefaultSftpClient.html#data-byte:A-int-int-">data</a></span>(byte[]&nbsp;buf,
-    int&nbsp;start,
+    int&nbsp;origin,
     int&nbsp;len)</code>
 <div class="block">Receive binary data</div>
 </td>
@@ -531,14 +531,14 @@ extends <a href="../../../../../../../org/apache/sshd/client/subsystem/sftp/impl
 <li class="blockList">
 <h4>data</h4>
 <pre>protected&nbsp;int&nbsp;data(byte[]&nbsp;buf,
-                   int&nbsp;start,
+                   int&nbsp;origin,
                    int&nbsp;len)
             throws <a href="https://docs.oracle.com/javase/8/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></pre>
 <div class="block">Receive binary data</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>buf</code> - The buffer for the incoming data</dd>
-<dd><code>start</code> - Offset in buffer to place the data</dd>
+<dd><code>origin</code> - Offset in buffer to place the data</dd>
 <dd><code>len</code> - Available space in buffer for the data</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Actual size of received data</dd>

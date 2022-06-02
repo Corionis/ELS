@@ -7,15 +7,20 @@ import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.jobs.Task;
+import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.naming.ldap.SortKey;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
@@ -27,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class JunkRemoverUI extends JDialog
 {
@@ -35,11 +41,17 @@ public class JunkRemoverUI extends JDialog
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
+    private boolean isSubscriber;
     private DefaultListModel<JunkRemoverTool> listModel;
     private boolean somethingChanged = false;
     private SwingWorker<Void, Void>  worker;
     private JunkRemoverTool workerJrt = null;
     private boolean workerRunning = false;
+
+    private JunkRemoverUI()
+    {
+        // hide default constructor
+    }
 
     public JunkRemoverUI(Window owner, GuiContext guiContext)
     {
@@ -68,17 +80,21 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
-        int row = tableJunk.getRowCount();
-        int col = 0;
         if (((JunkTableModel) tableJunk.getModel()).getTool() != null)
         {
             ((JunkTableModel) tableJunk.getModel()).getTool().addJunkItem();
             ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
             tableJunk.requestFocus();
-            tableJunk.changeSelection(row, col, false, false);
-            tableJunk.editCellAt(row, col);
-            if (tableJunk.getEditorComponent() != null)
-                tableJunk.getEditorComponent().requestFocus();
+            int col = 0;
+            int row =  ((JunkTableModel) tableJunk.getModel()).find("");
+            if (row >= 0)
+            {
+                row = tableJunk.convertRowIndexToView(row);
+                tableJunk.changeSelection(row, col, false, false);
+                tableJunk.editCellAt(row, col);
+                if (tableJunk.getEditorComponent() != null)
+                    tableJunk.getEditorComponent().requestFocus();
+            }
         }
     }
 
@@ -120,7 +136,7 @@ public class JunkRemoverUI extends JDialog
         {
             JunkRemoverTool origJrt = listModel.getElementAt(index);
             JunkRemoverTool jrt = origJrt.clone();
-            jrt.setConfigName(guiContext.cfg.gs("JunkRemover.untitled"));
+            jrt.setConfigName(guiContext.cfg.gs("Z.untitled"));
             jrt.setDataHasChanged(true);
             jrt.addJunkItem();
             textFieldName.setText(jrt.getConfigName());
@@ -174,10 +190,10 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
-        if (!listItemExists(null, guiContext.cfg.gs("JunkRemover.untitled")))
+        if (!listItemExists(null, guiContext.cfg.gs("Z.untitled")))
         {
             JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
-            jrt.setConfigName(guiContext.cfg.gs("JunkRemover.untitled"));
+            jrt.setConfigName(guiContext.cfg.gs("Z.untitled"));
             jrt.setDataHasChanged(true);
             jrt.addJunkItem();
             textFieldName.setText(jrt.getConfigName());
@@ -208,7 +224,7 @@ public class JunkRemoverUI extends JDialog
         else
         {
             JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.please.rename.the.existing") +
-                    guiContext.cfg.gs("JunkRemover.untitled"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
             textFieldName.requestFocus();
         }
     }
@@ -219,7 +235,16 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
+
+        // convert selected rows to model-based indices
         int rows[] = tableJunk.getSelectedRows();
+        for (int i = 0; i < rows.length; ++i)
+        {
+            int rm = tableJunk.convertRowIndexToModel(rows[i]);
+            rows[i] = rm;
+        }
+
+        // sort the indices ascending
         Arrays.sort(rows);
 
         // iterate in reverse so the order does not change as items are removed
@@ -240,69 +265,10 @@ public class JunkRemoverUI extends JDialog
         int index = listItems.getSelectedIndex();
         if (index >= 0)
         {
-            workerJrt = listModel.getElementAt(index);
+            JunkRemoverTool t = listModel.getElementAt(index);
+            workerJrt = t.clone();
             processSelected(workerJrt);
         }
-    }
-
-    public int addSelectedPaths(JunkRemoverTool jrt)
-    {
-        int count = 0;
-        jrt.resetOperationPaths();
-        try
-        {
-            Object object = guiContext.browser.lastComponent;
-            if (object instanceof JTree)
-            {
-                JTree sourceTree = (JTree) object;
-                int row = sourceTree.getLeadSelectionRow();
-                if (row > -1)
-                {
-                    TreePath[] paths = sourceTree.getSelectionPaths();
-                    for (TreePath tp : paths)
-                    {
-                        NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
-                        NavTreeUserObject tuo = ntn.getUserObject();
-                        if (!isValidOperation(tuo))
-                        {
-                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
-                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                            count = -1;
-                            break;
-                        }
-                        count += jrt.addTuoPaths(tuo);
-                    }
-                }
-            }
-            else if (object instanceof JTable)
-            {
-                JTable sourceTable = (JTable) object;
-                int row = sourceTable.getSelectedRow();
-                if (row > -1)
-                {
-                    int[] rows = sourceTable.getSelectedRows();
-                    for (int i = 0; i < rows.length; ++i)
-                    {
-                        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
-                        if (!isValidOperation(tuo))
-                        {
-                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
-                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                            count = -1;
-                            break;
-                        }
-                        count += jrt.addTuoPaths(tuo);
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-            count = -1;
-        }
-
-        return count;
     }
 
     private void adjustTable()
@@ -373,7 +339,7 @@ public class JunkRemoverUI extends JDialog
         }
     }
 
-    public boolean isValidOperation(NavTreeUserObject tuo)
+    public boolean isValidOrigin(NavTreeUserObject tuo)
     {
         if (tuo.type == NavTreeUserObject.COLLECTION ||
                 tuo.type == NavTreeUserObject.LIBRARY ||
@@ -433,7 +399,7 @@ public class JunkRemoverUI extends JDialog
     {
         JunkRemoverTool tmpTool = new JunkRemoverTool(guiContext.cfg, guiContext.context);
         File toolDir = new File(tmpTool.getDirectoryPath());
-        if (toolDir.exists())
+        if (toolDir.exists() && toolDir.isDirectory())
         {
             File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
             Arrays.sort(files);
@@ -450,6 +416,7 @@ public class JunkRemoverUI extends JDialog
                             JunkRemoverTool jrt = gson.fromJson(json, JunkRemoverTool.class);
                             if (jrt != null)
                             {
+                                jrt.setDisplayName(guiContext.cfg.gs("JunkRemover.displayName"));
                                 jrt.setGuiContext(guiContext);
                                 listModel.addElement(jrt);
                             }
@@ -507,17 +474,78 @@ public class JunkRemoverUI extends JDialog
         }
     }
 
+    private ArrayList<Origin> makeOriginsFromSelected()
+    {
+        ArrayList<Origin> origins = new ArrayList<Origin>();
+        try
+        {
+            Object object = guiContext.browser.lastComponent;
+            if (object instanceof JTree)
+            {
+                JTree sourceTree = (JTree) object;
+                int row = sourceTree.getLeadSelectionRow();
+                if (row > -1)
+                {
+                    TreePath[] paths = sourceTree.getSelectionPaths();
+                    for (TreePath tp : paths)
+                    {
+                        NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                        NavTreeUserObject tuo = ntn.getUserObject();
+                        if (!isValidOrigin(tuo))
+                        {
+                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
+                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                            origins = null;
+                            break;
+                        }
+                        isSubscriber = tuo.isSubscriber();
+                        origins.add(new Origin(tuo));
+                    }
+                }
+            }
+            else if (object instanceof JTable)
+            {
+                JTable sourceTable = (JTable) object;
+                int row = sourceTable.getSelectedRow();
+                if (row > -1)
+                {
+                    int[] rows = sourceTable.getSelectedRows();
+                    for (int i = 0; i < rows.length; ++i)
+                    {
+                        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                        if (!isValidOrigin(tuo))
+                        {
+                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
+                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                            origins = null;
+                            break;
+                        }
+                        isSubscriber = tuo.isSubscriber();
+                        origins.add(new Origin(tuo));
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+        }
+
+        return origins;
+    }
+
     public void processSelected(JunkRemoverTool jrt)
     {
         if (jrt != null)
         {
-            // get count of selected items and set other data
-            int count = addSelectedPaths(jrt);
+            ArrayList<Origin> origins = makeOriginsFromSelected();
 
-            if (count > 0)
+            if (origins != null && origins.size() > 0)
             {
+                int count = origins.size();
+
                 // make dialog pieces
-                String which = (jrt.isSubscriber()) ? guiContext.cfg.gs("Navigator.subscriber") : guiContext.cfg.gs("Navigator.publisher");
+                String which = (isSubscriber) ? guiContext.cfg.gs("Navigator.subscriber") : guiContext.cfg.gs("Navigator.publisher");
                 String message = java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
                 JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
                 Object[] params = {message, checkbox};
@@ -536,22 +564,31 @@ public class JunkRemoverUI extends JDialog
                         labelHelp.setEnabled(true);
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-                        jrt.setDryRun(isDryRun);
-                        worker = jrt.guiProcessTool();
-                        workerRunning = true;
+                        Task task = new Task(jrt.getInternalName(), jrt.getConfigName());
+                        task.setOrigins(origins);
 
-                        worker.addPropertyChangeListener(new PropertyChangeListener()
+                        if (isSubscriber)
+                            task.setSubscriberKey(Task.CURRENT_LOADED);
+                        else
+                            task.setPublisherKey(Task.CURRENT_LOADED);
+
+                        worker = task.process(guiContext, isDryRun, jrt);
+                        if (worker != null)
                         {
-                            @Override
-                            public void propertyChange(PropertyChangeEvent e)
+                            workerRunning = true;
+                            worker.addPropertyChangeListener(new PropertyChangeListener()
                             {
-                                if (e.getPropertyName().equals("state"))
+                                @Override
+                                public void propertyChange(PropertyChangeEvent e)
                                 {
-                                    if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                        processTerminated(jrt);
+                                    if (e.getPropertyName().equals("state"))
+                                    {
+                                        if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                            processTerminated(jrt);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
                     catch (Exception e)
                     {
@@ -660,6 +697,8 @@ public class JunkRemoverUI extends JDialog
                     jrt.setConfigName(textFieldName.getText());
                     jrt.setDataHasChanged(true);
                     listModel.setElementAt(jrt, index);
+
+                    // TODO Rename any existing file
 
                     tableJunk.requestFocus();
                     tableJunk.changeSelection(0, 0, false, false);

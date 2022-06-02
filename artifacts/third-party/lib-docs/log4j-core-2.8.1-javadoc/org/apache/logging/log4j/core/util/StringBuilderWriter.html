@@ -200,7 +200,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Serializabl
 <tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Writer.html?is-external=true" title="class or interface in java.io">Writer</a></code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/StringBuilderWriter.html#append(java.lang.CharSequence,%20int,%20int)">append</a></strong>(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</a>&nbsp;value,
-      int&nbsp;start,
+      int&nbsp;origin,
       int&nbsp;end)</code>
 <div class="block">Appends a portion of a character sequence to the <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/StringBuilder.html?is-external=true" title="class or interface in java.lang"><code>StringBuilder</code></a>.</div>
 </td>
@@ -355,7 +355,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Serializabl
 <li class="blockList">
 <h4>append</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/7/docs/api/java/io/Writer.html?is-external=true" title="class or interface in java.io">Writer</a>&nbsp;append(<a href="http://docs.oracle.com/javase/7/docs/api/java/lang/CharSequence.html?is-external=true" title="class or interface in java.lang">CharSequence</a>&nbsp;value,
-            int&nbsp;start,
+            int&nbsp;origin,
             int&nbsp;end)</pre>
 <div class="block">Appends a portion of a character sequence to the <a href="http://docs.oracle.com/javase/7/docs/api/java/lang/StringBuilder.html?is-external=true" title="class or interface in java.lang"><code>StringBuilder</code></a>.</div>
 <dl>
@@ -363,7 +363,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/io/Serializabl
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Appendable.html?is-external=true#append(java.lang.CharSequence,%20int,%20int)" title="class or interface in java.lang">append</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/Appendable.html?is-external=true" title="class or interface in java.lang">Appendable</a></code></dd>
 <dt><strong>Overrides:</strong></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Writer.html?is-external=true#append(java.lang.CharSequence,%20int,%20int)" title="class or interface in java.io">append</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/7/docs/api/java/io/Writer.html?is-external=true" title="class or interface in java.io">Writer</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - The character to append</dd><dd><code>start</code> - The index of the first character</dd><dd><code>end</code> - The index of the last character + 1</dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>value</code> - The character to append</dd><dd><code>origin</code> - The index of the first character</dd><dd><code>end</code> - The index of the last character + 1</dd>
 <dt><span class="strong">Returns:</span></dt><dd>This writer instance</dd></dl>
 </li>
 </ul>

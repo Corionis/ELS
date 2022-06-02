@@ -2,6 +2,7 @@ package com.groksoft.els.gui.browser;
 
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.Navigator;
+import com.groksoft.els.repository.Repository;
 
 import java.io.File;
 import java.io.Serializable;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * NavTreeUserObject for tree objects
  */
-public class NavTreeUserObject implements Comparable, Serializable
+public class NavTreeUserObject implements Comparable
 {
     public static final int BOOKMARKS = 0;
     public static final int COLLECTION = 1; // root of libraries
@@ -23,18 +24,19 @@ public class NavTreeUserObject implements Comparable, Serializable
     public static final int REAL = 6; // physical file or directory
     public static final int SYSTEM = 7; // hidden; holds System tab Computer, Bookmarks, etc.
 
+    public String name = "";
+    public String path = "";
+    public int type = REAL;
+    public boolean isDir = false;
+    public boolean isRemote = false;
+
     public File file;
     public FileTime fileTime;
     public boolean isHidden = false;
-    public boolean isDir = false;
     public int mtime;
-    public String name = "";
     public NavTreeNode node;
-    public String path = "";
-    public boolean isRemote = false;
     public long size = -1L;
     public String[] sources = null;
-    public int type = REAL;
 
     private NavTreeUserObject()
     {
@@ -177,6 +179,26 @@ public class NavTreeUserObject implements Comparable, Serializable
             default:
         }
         return node.guiContext.cfg.gs("NavTreeNode.unknown");
+    }
+
+    public synchronized Repository getRepo()
+    {
+        Repository repo = null;
+        if (node != null)
+        {
+            switch (node.getMyTree().getName())
+            {
+                case "treeCollectionOne":
+                case "treeSystemOne":
+                    repo = node.guiContext.context.publisherRepo;
+                    break;
+                case "treeCollectionTwo":
+                case "treeSystemTwo":
+                    repo = node.guiContext.context.subscriberRepo;
+                    break;
+            }
+        }
+        return repo;
     }
 
     public String getType()

@@ -1,4 +1,4 @@
-package com.groksoft.els.gui.tools.junkremover;
+package com.groksoft.els.tools.junkremover;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -8,13 +8,16 @@ import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
-import com.groksoft.els.gui.tools.AbstractTool;
+import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -24,30 +27,48 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Vector;
 
 public class JunkRemoverTool extends AbstractTool
 {
+    public static final String INTERNAL_NAME = "JunkRemover";
+    public static final String SUBSYSTEM = "tools";
+
+    private String configName; // user name for this instance
+    private String internalName = INTERNAL_NAME;
     private ArrayList<JunkItem> junkList;
 
-    transient private boolean dataHasChanged = false;
-    transient int deleteCount = 0;
-    transient private ArrayList<String> operationPaths;
+    transient private boolean dataHasChanged = false; // used by GUI, dynamic
+    transient private int deleteCount = 0;
+    transient private boolean dualRepositories = false; // used by GUI, always false for this tool
+    transient private boolean isDryRun = false;
+    transient private boolean isRemote;
+    transient private Logger logger = LogManager.getLogger("applog");
+    transient private ArrayList<String> toolPaths;
     transient private GuiContext guiContext = null;
-    transient private Repository repo;
+    transient private Repository repo; // this tool only uses one repo
 
+    /**
+     * Constructor when used from the command line
+     *
+     * @param config Configuration
+     * @param ctxt   Context
+     */
     public JunkRemoverTool(Configuration config, Context ctxt)
     {
-        super(config, ctxt, "JunkRemover");
+        super(config, ctxt);
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
         this.junkList = new ArrayList<JunkItem>();
-
     }
 
+    /**
+     * Constructor when used from the Navigator
+     *
+     * @param guiContext GuiContext
+     */
     public JunkRemoverTool(GuiContext guiContext)
     {
-        super(guiContext.cfg, guiContext.context, "JunkRemover");
+        super(guiContext.cfg, guiContext.context);
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
         this.guiContext = guiContext;
         this.junkList = new ArrayList<JunkItem>();
@@ -61,47 +82,54 @@ public class JunkRemoverTool extends AbstractTool
         return ji;
     }
 
-    public int addTuoPaths(NavTreeUserObject tuo)
+    private int expandOrigins(ArrayList<Origin> origins) throws MungeException // FIXME Wrong. Iterate origins via Task setting of origins; make private
     {
         int count = 0;
 
-        if (tuo.type == NavTreeUserObject.COLLECTION)
+        // this tool only uses one repository
+        if (repo == null)
+            return -1;
+
+        for (Origin origin : origins)
         {
-            Repository repo = getContext().transfer.getRepo(tuo);
-            if (repo != null)
+            if (origin.getType() == NavTreeUserObject.COLLECTION)
             {
-                Arrays.sort(repo.getLibraryData().libraries.bibliography);
+                if (origin.getName().length() > 0)
+                {
+                    if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getName()))
+                        throw new MungeException("Task definition and loaded repository do not match");
+                }
+                // process in the order defined in the JSON
                 for (Library lib : repo.getLibraryData().libraries.bibliography)
                 {
                     for (String source : lib.sources)
                     {
-                        operationPaths.add(source);
+                        toolPaths.add(source);
                         ++count;
                     }
                 }
             }
-        }
-        else if (tuo.type == NavTreeUserObject.LIBRARY)
-        {
-            for (String source : tuo.sources)
+            else if (origin.getType() == NavTreeUserObject.LIBRARY)
             {
-                operationPaths.add(source);
+                for (Library lib : repo.getLibraryData().libraries.bibliography)
+                {
+                    if (lib.name.equalsIgnoreCase(origin.getName()))
+                    {
+                        for (String source : lib.sources)
+                        {
+                            toolPaths.add(source);
+                            ++count;
+                        }
+                    }
+                }
+            }
+            else if (origin.getType() == NavTreeUserObject.REAL)
+            {
+                toolPaths.add(origin.getName());
                 ++count;
             }
         }
-        else if (tuo.type == NavTreeUserObject.REAL)
-        {
-            operationPaths.add(tuo.getPath());
-            ++count;
-        }
 
-        if (count > 0)
-        {
-            if (tuo.isSubscriber())
-                setIsSubscriber(true);
-            if (tuo.isRemote)
-                setIsRemote(true);
-        }
         return count;
     }
 
@@ -110,18 +138,28 @@ public class JunkRemoverTool extends AbstractTool
         assert guiContext != null;
         JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
         jrt.setConfigName(getConfigName());
-        jrt.setInternalName(getInternalName());
-
-        jrt.setDataHasChanged(true);
         jrt.setDisplayName(getDisplayName());
+        jrt.setDataHasChanged(true);
         jrt.setJunkList(getJunkList());
-
-        // runtime transient items
-        // jrt.operationPaths = operationPaths;
-        // jrt.setDryRun(isDryRun());
-        // jrt.isRemote = isRemote;
-        // jrt.isSubscriber = isSubscriber;
+        jrt.setIncludeInToolsList(isIncludeInToolsList());
         return jrt;
+    }
+
+    public String getConfigName()
+    {
+        return configName;
+    }
+
+    @Override
+    public String getDisplayName()
+    {
+        return Utils.getCfg().gs("JunkRemover.displayName");
+    }
+
+    @Override
+    public String getInternalName()
+    {
+        return internalName;
     }
 
     public ArrayList<JunkItem> getJunkList()
@@ -129,29 +167,21 @@ public class JunkRemoverTool extends AbstractTool
         return junkList;
     }
 
-    public Repository getRepo()
+    @Override
+    public String getSubsystem()
     {
-        return repo;
-    }
-
-    public SwingWorker<Void, Void> guiProcessTool()
-    {
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-        {
-            @Override
-            protected Void doInBackground() throws Exception
-            {
-                processTool();
-                return null;
-            }
-        };
-        worker.execute();
-        return worker;
+        return SUBSYSTEM;
     }
 
     public boolean isDataChanged()
     {
         return dataHasChanged; // used by the GUI
+    }
+
+    @Override
+    public boolean isDualRepositories()
+    {
+        return dualRepositories;
     }
 
     private boolean match(String filename, String fullpath, JunkItem junk)
@@ -167,7 +197,7 @@ public class JunkRemoverTool extends AbstractTool
                 msg += getCfg().gs("NavTreeNode.remote");
             else
                 msg += getCfg().gs("NavTreeNode.local");
-            msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun() ? 0 : 1, fullpath);
+            msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun ? 0 : 1, fullpath);
             if (guiContext != null)
                 guiContext.browser.printLog(msg);
             else
@@ -179,26 +209,39 @@ public class JunkRemoverTool extends AbstractTool
     /**
      * Process the tool with the metadata provided
      * <br/>
-     * Uses the junkList across the operationPaths added by addTuoPaths() and the dryRun setting.
+     * Uses the junkList across the toolPaths added by addToolPaths() and the dryRun setting.
+     * The addToolPaths() method must be called first.
      */
     @Override
-    public void processTool() throws Exception
+    public void processTool(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
     {
-        deleteCount = 0;
-        resetRequestStop();
+        reset();
 
-        if (operationPaths == null || operationPaths.size() == 0)
+        if (publisherRepo != null && subscriberRepo != null)
+            throw new MungeException(getInternalName() + " uses only one repository");
+
+        // this tool only uses one repository
+        repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
+        if (repo == null)
+            return;;
+
+        if (origins == null || origins.size() == 0)
+        {
+            Origin o = new Origin(repo.getLibraryData().libraries.description, NavTreeUserObject.COLLECTION);
+            origins = new ArrayList<Origin>();
+            origins.add(o);
+        }
+
+        // expand origins into physical toolPaths
+        int count = expandOrigins(origins);
+        if (toolPaths == null || toolPaths.size() == 0)
             return;
 
-        if (isSubscriber())
-            repo = getContext().subscriberRepo;
-        else
-            repo = getContext().publisherRepo;
+        // only subscribers can be remote
+        if (subscriberRepo != null && getCfg().isRemoteSession())
+            setIsRemote(true);
 
-        if (repo == null)
-            throw new MungeException(getCfg().gs("JunkRemover.repository.does.not.appear.to.be.loaded"));
-
-        for (String path : operationPaths)
+        for (String path : toolPaths)
         {
             if (isRequestStop())
                 break;
@@ -215,9 +258,9 @@ public class JunkRemoverTool extends AbstractTool
             guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
 
             // reset and reload relevant trees
-            if (!isDryRun() && deleteCount > 0)
+            if (!isDryRun && deleteCount > 0)
             {
-                if (!isSubscriber())
+                if (!repo.isSubscriber())
                 {
                     guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
                     guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, false);
@@ -237,9 +280,29 @@ public class JunkRemoverTool extends AbstractTool
         }
     }
 
-    public void resetOperationPaths()
+    @Override
+    public SwingWorker<Void, Void> processToolThread(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
-        operationPaths = new ArrayList<String>();
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+        {
+            @Override
+            protected Void doInBackground() throws Exception
+            {
+                processTool(publisherRepo, subscriberRepo, origins, dryRun);
+                return null;
+            }
+        };
+        worker.execute();
+        return worker;
+    }
+
+    public void reset()
+    {
+        deleteCount = 0;
+        resetStop();
+        toolPaths = new ArrayList<String>();
+        if (logger == null)
+            logger = LogManager.getLogger("applog");
     }
 
     private boolean scanForJunk(String path)
@@ -273,9 +336,9 @@ public class JunkRemoverTool extends AbstractTool
                                     break;
                                 if (match(filename, fullpath, ji))
                                 {
-                                    if (!isDryRun())
+                                    if (!isDryRun)
                                     {
-                                        getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
+                                        //getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
                                         ++deleteCount;
                                     }
                                 }
@@ -286,7 +349,7 @@ public class JunkRemoverTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = getCfg().gs("JunkRemover.exception") + Utils.getStackTrace(e);
+                String msg = getCfg().gs("Z.exception") + Utils.getStackTrace(e);
                 if (guiContext != null)
                     guiContext.browser.printLog(msg, true);
                 else
@@ -325,9 +388,9 @@ public class JunkRemoverTool extends AbstractTool
                                 break;
                             if (match(filename, entry.getAbsolutePath(), ji))
                             {
-                                if (!isDryRun())
+                                if (!isDryRun)
                                 {
-                                    getContext().transfer.remove(entry.getAbsolutePath(), entry.isDirectory(), isRemote());
+                                    //getContext().transfer.remove(entry.getAbsolutePath(), entry.isDirectory(), isRemote());
                                     ++deleteCount;
                                 }
                             }
@@ -337,7 +400,7 @@ public class JunkRemoverTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = getCfg().gs("JunkRemover.exception") + Utils.getStackTrace(e);
+                String msg = getCfg().gs("Z.exception") + Utils.getStackTrace(e);
                 if (guiContext != null)
                     guiContext.browser.printLog(msg, true);
                 else
@@ -346,6 +409,12 @@ public class JunkRemoverTool extends AbstractTool
         }
 
         return hadError;
+    }
+
+    @Override
+    public void setConfigName(String configName)
+    {
+        this.configName = configName;
     }
 
     public void setContext(Configuration config, Context context)
@@ -374,11 +443,6 @@ public class JunkRemoverTool extends AbstractTool
         this.junkList = junkList;
     }
 
-    public void setOperationPaths(ArrayList<String> names)
-    {
-        this.operationPaths = names;
-    }
-
     public void write() throws Exception
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -404,8 +468,8 @@ public class JunkRemoverTool extends AbstractTool
 
     public class JunkItem implements Serializable
     {
-        boolean caseSensitive = false;
-        String wildcard;
+        public boolean caseSensitive = false;
+        public String wildcard;
     }
 
 }

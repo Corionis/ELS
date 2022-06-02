@@ -1,6 +1,7 @@
 package com.groksoft.els.gui.tools.junkremover;
 
 import com.groksoft.els.Configuration;
+import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -14,6 +15,17 @@ public class JunkTableModel extends DefaultTableModel
     {
         super();
         cfg = config;
+    }
+
+    public int find(String pattern)
+    {
+        for (int i = 0; i < tool.getJunkList().size(); ++i)
+        {
+            String wc = tool.getJunkList().get(i).wildcard;
+            if ((wc == null && pattern.length() == 0) || wc.equals(pattern))
+                return i;
+        }
+        return -1;
     }
 
     @Override
@@ -73,15 +85,15 @@ public class JunkTableModel extends DefaultTableModel
         return null;
     }
 
+    public JunkRemoverTool getTool()
+    {
+        return tool;
+    }
+
     @Override
     public boolean isCellEditable(int row, int col)
     {
         return true;
-    }
-
-    public JunkRemoverTool getTool()
-    {
-        return tool;
     }
 
     @Override

@@ -240,7 +240,7 @@
  Upon success, the ParsePosition index is updated to indicate how much of the source text was consumed.
  Not all source text needs to be consumed.  Upon parse failure, ParsePosition error index is updated to
  the offset of the source text which does not match the supplied format.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - The text to parse.</dd><dd><code>pos</code> - On input, the position in the source to start parsing, on output, updated position.</dd><dd><code>calendar</code> - The calendar into which to set parsed fields.</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - The text to parse.</dd><dd><code>pos</code> - On input, the position in the source to origin parsing, on output, updated position.</dd><dd><code>calendar</code> - The calendar into which to set parsed fields.</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true, if source has been parsed (pos parsePosition is updated); otherwise false (and pos errorIndex is updated)</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - when Calendar has been set to be not lenient, and a parsed field is

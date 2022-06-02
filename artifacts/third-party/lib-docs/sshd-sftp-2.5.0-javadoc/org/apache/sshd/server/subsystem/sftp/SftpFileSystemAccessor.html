@@ -533,7 +533,7 @@ var activeTableTab = "activeTableTab";
 <dd><code>handle</code> - The assigned file handle through which the remote peer references this file</dd>
 <dd><code>channel</code> - The original <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/channels/Channel.html?is-external=true" title="class or interface in java.nio.channels"><code>Channel</code></a> that was returned by
                      <a href="../../../../../../org/apache/sshd/server/subsystem/sftp/SftpFileSystemAccessor.html#openFile-org.apache.sshd.server.session.ServerSession-org.apache.sshd.server.subsystem.sftp.SftpSubsystemProxy-org.apache.sshd.server.subsystem.sftp.FileHandle-java.nio.file.Path-java.lang.String-java.util.Set-java.nio.file.attribute.FileAttribute...-"><code>openFile(ServerSession, SftpSubsystemProxy, FileHandle, Path, String, Set, FileAttribute...)</code></a></dd>
-<dd><code>position</code> - The position at which the locked region is to start - must be non-negative</dd>
+<dd><code>position</code> - The position at which the locked region is to origin - must be non-negative</dd>
 <dd><code>size</code> - The size of the locked region; must be non-negative, and the sum
                      <tt>position</tt>&nbsp;+&nbsp;<tt>size</tt> must be non-negative</dd>
 <dd><code>shared</code> - <code>true</code> to request a shared lock, <code>false</code> to request an exclusive lock</dd>

@@ -1,7 +1,7 @@
 package com.groksoft.els.gui.tools;
 
 import com.groksoft.els.gui.GuiContext;
-import com.groksoft.els.gui.tools.junkremover.JunkRemoverTool;
+import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import java.awt.*;
 import java.awt.event.*;

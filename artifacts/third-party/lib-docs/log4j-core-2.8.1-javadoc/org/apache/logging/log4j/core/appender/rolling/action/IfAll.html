@@ -216,7 +216,7 @@ implements <a href="../../../../../../../../org/apache/logging/log4j/core/append
 <dl>
 <dt><strong>Specified by:</strong></dt>
 <dd><code><a href="../../../../../../../../org/apache/logging/log4j/core/appender/rolling/action/PathCondition.html#accept(java.nio.file.Path,%20java.nio.file.Path,%20java.nio.file.attribute.BasicFileAttributes)">accept</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../../../org/apache/logging/log4j/core/appender/rolling/action/PathCondition.html" title="interface in org.apache.logging.log4j.core.appender.rolling.action">PathCondition</a></code></dd>
-<dt><span class="strong">Parameters:</span></dt><dd><code>baseDir</code> - the directory from where to start scanning for deletion candidate files</dd><dd><code>relativePath</code> - the candidate for deletion. This path is relative to the baseDir.</dd><dd><code>attrs</code> - attributes of the candidate path</dd>
+<dt><span class="strong">Parameters:</span></dt><dd><code>baseDir</code> - the directory from where to origin scanning for deletion candidate files</dd><dd><code>relativePath</code> - the candidate for deletion. This path is relative to the baseDir.</dd><dd><code>attrs</code> - attributes of the candidate path</dd>
 <dt><span class="strong">Returns:</span></dt><dd>whether the candidate path should be deleted</dd></dl>
 </li>
 </ul>
@@ -231,7 +231,7 @@ implements <a href="../../../../../../../../org/apache/logging/log4j/core/append
              <a href="http://docs.oracle.com/javase/7/docs/api/java/nio/file/Path.html?is-external=true" title="class or interface in java.nio.file">Path</a>&nbsp;relativePath,
              <a href="http://docs.oracle.com/javase/7/docs/api/java/nio/file/attribute/BasicFileAttributes.html?is-external=true" title="class or interface in java.nio.file.attribute">BasicFileAttributes</a>&nbsp;attrs)</pre>
 <div class="block">Returns <code>true</code> if all the specified conditions accept the specified path, <code>false</code> otherwise.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>list</code> - the array of conditions to evaluate</dd><dd><code>baseDir</code> - the directory from where to start scanning for deletion candidate files</dd><dd><code>relativePath</code> - the candidate for deletion. This path is relative to the baseDir.</dd><dd><code>attrs</code> - attributes of the candidate path</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>list</code> - the array of conditions to evaluate</dd><dd><code>baseDir</code> - the directory from where to origin scanning for deletion candidate files</dd><dd><code>relativePath</code> - the candidate for deletion. This path is relative to the baseDir.</dd><dd><code>attrs</code> - attributes of the candidate path</dd>
 <dt><span class="strong">Returns:</span></dt><dd><code>true</code> if all the specified conditions accept the specified path, <code>false</code> otherwise</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if any of the parameters is <code>null</code></dd></dl>

@@ -22,8 +22,7 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -34,6 +33,8 @@ import java.time.LocalTime;
 public class Navigator
 {
     public Bookmarks bookmarks;
+    public JunkRemoverUI dialogJunkRemover = null;
+    public JobsUI dialogJobs = null;
     public static GuiContext guiContext;
     public boolean showHintTrackingButton = false;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -129,6 +130,17 @@ public class Navigator
     //          + Publisher or Subscriber
     //          + List of Libraries and/or locations
     //          + Dry run is a runtime parameter not stored
+    //
+    // IDEA
+    //  * Add optional command-line parameter to set the publisher & subscriber ports to override JSON
+    //
+    // IDEA
+    //  * Add launch by inetd
+    //      * --inetd mode for publishers
+    //          * Add longer connection time-outs & retries
+    //          *
+    //      * --inetd mode for listeners
+    //          *
     //
 
     public Navigator(Main main, Configuration config, Context ctx)
@@ -450,8 +462,10 @@ public class Navigator
                             int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                                 return;
+
                             try
                             {
                                 guiContext.context.clientStty.send("bye");
@@ -1071,7 +1085,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (guiContext.progress != null && guiContext.progress.isActive())
+                if (guiContext.progress != null && guiContext.progress.isBeingUsed())
                     guiContext.progress.display();
             }
         });
@@ -1183,8 +1197,11 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                JunkRemoverUI dialog = new JunkRemoverUI(guiContext.mainFrame, guiContext);
-                dialog.setVisible(true);
+                if (dialogJunkRemover == null || !dialogJunkRemover.isShowing())
+                {
+                    dialogJunkRemover = new JunkRemoverUI(guiContext.mainFrame, guiContext);
+                    dialogJunkRemover.setVisible(true);
+                }
             }
         });
 
@@ -1195,8 +1212,11 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                JobsUI dialog = new JobsUI(guiContext.mainFrame, guiContext);
-                dialog.setVisible(true);
+                if (dialogJobs == null || !dialogJobs.isShowing())
+                {
+                    dialogJobs = new JobsUI(guiContext.mainFrame, guiContext);
+                    dialogJobs.setVisible(true);
+                }
             }
         });
 
@@ -1399,11 +1419,6 @@ public class Navigator
             Gson gson = new Gson();
             String json = new String(Files.readAllBytes(Paths.get(bookmarks.getFullPath())));
             bookmarks = gson.fromJson(json, bookmarks.getClass());
-
-            if (bookmarks != null)
-            {
-                // TODO Add bookmark to menu
-            }
         }
         catch (IOException e)
         {

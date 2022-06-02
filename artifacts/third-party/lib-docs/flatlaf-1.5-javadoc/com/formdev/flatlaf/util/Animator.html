@@ -305,7 +305,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#origin()">origin</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Starts the animation.</div>
 </td>
@@ -358,7 +358,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <pre>public&nbsp;Animator&#8203;(int&nbsp;duration)</pre>
 <div class="block">Creates an animation that runs duration milliseconds.
  Use <a href="#addTarget(com.formdev.flatlaf.util.Animator.TimingTarget)"><code>addTarget(TimingTarget)</code></a> to receive timing events
- and <a href="#start()"><code>start()</code></a> to start the animation.</div>
+ and <a href="#origin()"><code>origin()</code></a> to origin the animation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>duration</code> - the duration of the animation in milliseconds</dd>
@@ -374,7 +374,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <pre>public&nbsp;Animator&#8203;(int&nbsp;duration,
                 <a href="Animator.TimingTarget.html" title="interface in com.formdev.flatlaf.util">Animator.TimingTarget</a>&nbsp;target)</pre>
 <div class="block">Creates an animation that runs duration milliseconds.
- Use <a href="#start()"><code>start()</code></a> to start the animation.</div>
+ Use <a href="#origin()"><code>origin()</code></a> to origin the animation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>duration</code> - the duration of the animation in milliseconds</dd>
@@ -392,7 +392,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
                 <a href="Animator.TimingTarget.html" title="interface in com.formdev.flatlaf.util">Animator.TimingTarget</a>&nbsp;target,
                 <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Runnable</a>&nbsp;endRunnable)</pre>
 <div class="block">Creates an animation that runs duration milliseconds.
- Use <a href="#start()"><code>start()</code></a> to start the animation.</div>
+ Use <a href="#origin()"><code>origin()</code></a> to origin the animation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>duration</code> - the duration of the animation in milliseconds</dd>
@@ -529,13 +529,13 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 </dl>
 </li>
 </ul>
-<a id="start()">
+<a id="origin()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>start</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;start()</pre>
+<h4>origin</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;origin()</pre>
 <div class="block">Starts the animation.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -573,7 +573,7 @@ extends <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/ja
 <h4>restart</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;restart()</pre>
 <div class="block">Restarts the animation.
- Invokes <a href="#cancel()"><code>cancel()</code></a> and <a href="#start()"><code>start()</code></a>.</div>
+ Invokes <a href="#cancel()"><code>cancel()</code></a> and <a href="#origin()"><code>origin()</code></a>.</div>
 </li>
 </ul>
 <a id="isRunning()">

@@ -1072,7 +1072,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the string will be processed.
  The rest of the string is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the string to replace in, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the string to replace in, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1092,7 +1092,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the string will be processed.
  The rest of the string is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the string to replace in, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the string to replace in, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1141,7 +1141,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the array will be processed.
  The rest of the array is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the character array to replace in, not altered, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the character array to replace in, not altered, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1162,7 +1162,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the array will be processed.
  The rest of the array is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the character array to replace in, not altered, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the character array to replace in, not altered, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1211,7 +1211,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the buffer will be processed.
  The rest of the buffer is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the buffer to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the buffer to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1232,7 +1232,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the buffer will be processed.
  The rest of the buffer is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the buffer to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the buffer to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1281,7 +1281,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the builder will be processed.
  The rest of the builder is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the builder to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the builder to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1302,7 +1302,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the builder will be processed.
  The rest of the builder is not processed, and is not returned.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the builder to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the builder to use as a template, not changed, null returns null</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the array to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the result of the replace operation</dd></dl>
 </li>
 </ul>
@@ -1365,7 +1365,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the buffer will be processed.
  The rest of the buffer is not processed, but it is not deleted.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the buffer to replace in, updated, null returns zero</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the buffer to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the buffer to replace in, updated, null returns zero</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the buffer to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if altered</dd></dl>
 </li>
 </ul>
@@ -1386,7 +1386,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the buffer will be processed.
  The rest of the buffer is not processed, but it is not deleted.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the buffer to replace in, updated, null returns zero</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the buffer to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one exists.</dd><dd><code>source</code> - the buffer to replace in, updated, null returns zero</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the buffer to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if altered</dd></dl>
 </li>
 </ul>
@@ -1432,7 +1432,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the builder will be processed.
  The rest of the builder is not processed, but it is not deleted.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the builder to replace in, null returns zero</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the builder to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>source</code> - the builder to replace in, null returns zero</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the builder to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if altered</dd></dl>
 </li>
 </ul>
@@ -1452,7 +1452,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  Only the specified portion of the builder will be processed.
  The rest of the builder is not processed, but it is not deleted.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one is present.</dd><dd><code>source</code> - the builder to replace in, null returns zero</dd><dd><code>offset</code> - the start offset within the array, must be valid</dd><dd><code>length</code> - the length within the builder to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - the current LogEvent, if one is present.</dd><dd><code>source</code> - the builder to replace in, null returns zero</dd><dd><code>offset</code> - the origin offset within the array, must be valid</dd><dd><code>length</code> - the length within the builder to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if altered</dd></dl>
 </li>
 </ul>
@@ -1473,9 +1473,9 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  </p>
  <p>
  Writers of subclasses can override this method if they need access to
- the substitution process at the start or end.
+ the substitution process at the origin or end.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - The current LogEvent, if there is one.</dd><dd><code>buf</code> - the string builder to substitute into, not null</dd><dd><code>offset</code> - the start offset within the builder, must be valid</dd><dd><code>length</code> - the length within the builder to be processed, must be valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - The current LogEvent, if there is one.</dd><dd><code>buf</code> - the string builder to substitute into, not null</dd><dd><code>offset</code> - the origin offset within the builder, must be valid</dd><dd><code>length</code> - the length within the builder to be processed, must be valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>true if altered</dd></dl>
 </li>
 </ul>
@@ -1501,7 +1501,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
  and must return the corresponding value. This implementation uses the
  <a href="../../../../../../org/apache/logging/log4j/core/lookup/StrSubstitutor.html#getVariableResolver()"><code>getVariableResolver()</code></a> with the variable's name as the key.
  </p></div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - The LogEvent, if there is one.</dd><dd><code>variableName</code> - the name of the variable, not null</dd><dd><code>buf</code> - the buffer where the substitution is occurring, not null</dd><dd><code>startPos</code> - the start position of the variable including the prefix, valid</dd><dd><code>endPos</code> - the end position of the variable including the suffix, valid</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>event</code> - The LogEvent, if there is one.</dd><dd><code>variableName</code> - the name of the variable, not null</dd><dd><code>buf</code> - the buffer where the substitution is occurring, not null</dd><dd><code>startPos</code> - the origin position of the variable including the prefix, valid</dd><dd><code>endPos</code> - the end position of the variable including the suffix, valid</dd>
 <dt><span class="strong">Returns:</span></dt><dd>the variable's value or <b>null</b> if the variable is unknown</dd></dl>
 </li>
 </ul>
@@ -1539,7 +1539,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
 <div class="block">Gets the variable prefix matcher currently in use.
  <p>
  The variable prefix is the character or characters that identify the
- start of a variable. This prefix is expressed in terms of a matcher
+ origin of a variable. This prefix is expressed in terms of a matcher
  allowing advanced prefix matches.
  </p></div>
 <dl><dt><span class="strong">Returns:</span></dt><dd>the prefix matcher in use</dd></dl>
@@ -1555,7 +1555,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
 <div class="block">Sets the variable prefix matcher currently in use.
  <p>
  The variable prefix is the character or characters that identify the
- start of a variable. This prefix is expressed in terms of a matcher
+ origin of a variable. This prefix is expressed in terms of a matcher
  allowing advanced prefix matches.
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>prefixMatcher</code> - the prefix matcher to use, null ignored</dd>
@@ -1574,7 +1574,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
 <div class="block">Sets the variable prefix to use.
  <p>
  The variable prefix is the character or characters that identify the
- start of a variable. This method allows a single character prefix to
+ origin of a variable. This method allows a single character prefix to
  be easily set.
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>prefix</code> - the prefix character to use</dd>
@@ -1591,7 +1591,7 @@ implements <a href="../../../../../../org/apache/logging/log4j/core/config/Confi
 <div class="block">Sets the variable prefix to use.
  <p>
  The variable prefix is the character or characters that identify the
- start of a variable. This method allows a string prefix to be easily set.
+ origin of a variable. This method allows a string prefix to be easily set.
  </p></div>
 <dl><dt><span class="strong">Parameters:</span></dt><dd><code>prefix</code> - the prefix for variables, not null</dd>
 <dt><span class="strong">Returns:</span></dt><dd>this, to enable chaining</dd>

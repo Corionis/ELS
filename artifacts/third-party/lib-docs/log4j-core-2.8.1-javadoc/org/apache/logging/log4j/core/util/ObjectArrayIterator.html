@@ -111,7 +111,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.
  structurally modified.
  <p>
  The iterator implements a <a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html#reset()"><code>reset()</code></a> method, allowing the reset of the iterator
- back to the start if required.</div>
+ back to the origin if required.</div>
 <dl><dt><span class="strong">Since:</span></dt>
   <dd>3.0</dd>
 <dt><span class="strong">Version:</span></dt>
@@ -141,14 +141,14 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html#ObjectArrayIterator(E[],%20int)">ObjectArrayIterator</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html" title="type parameter in ObjectArrayIterator">E</a>[]&nbsp;array,
-                   int&nbsp;start)</code>
+                   int&nbsp;origin)</code>
 <div class="block">Constructs an ObjectArrayIterator that will iterate over the values in the
- specified array from a specific start index.</div>
+ specified array from a specific origin index.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html#ObjectArrayIterator(E[],%20int,%20int)">ObjectArrayIterator</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html" title="type parameter in ObjectArrayIterator">E</a>[]&nbsp;array,
-                   int&nbsp;start,
+                   int&nbsp;origin,
                    int&nbsp;end)</code>
 <div class="block">Construct an ObjectArrayIterator that will iterate over a range of values
  in the specified array.</div>
@@ -184,7 +184,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html#getStartIndex()">getStartIndex</a></strong>()</code>
-<div class="block">Gets the start index to loop from.</div>
+<div class="block">Gets the origin index to loop from.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -208,7 +208,7 @@ implements <a href="http://docs.oracle.com/javase/7/docs/api/java/util/Iterator.
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html#reset()">reset</a></strong>()</code>
-<div class="block">Resets the iterator back to the start index.</div>
+<div class="block">Resets the iterator back to the origin index.</div>
 </td>
 </tr>
 </table>
@@ -259,13 +259,13 @@ public&nbsp;ObjectArrayIterator(<a href="../../../../../../org/apache/logging/lo
 <li class="blockList">
 <h4>ObjectArrayIterator</h4>
 <pre>public&nbsp;ObjectArrayIterator(<a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html" title="type parameter in ObjectArrayIterator">E</a>[]&nbsp;array,
-                   int&nbsp;start)</pre>
+                   int&nbsp;origin)</pre>
 <div class="block">Constructs an ObjectArrayIterator that will iterate over the values in the
- specified array from a specific start index.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>array</code> - the array to iterate over</dd><dd><code>start</code> - the index to start iterating at</dd>
+ specified array from a specific origin index.</div>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>array</code> - the array to iterate over</dd><dd><code>origin</code> - the index to origin iterating at</dd>
 <dt><span class="strong">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>array</code> is <code>null</code></dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the start index is out of bounds</dd></dl>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the origin index is out of bounds</dd></dl>
 </li>
 </ul>
 <a name="ObjectArrayIterator(java.lang.Object[],int,int)">
@@ -277,14 +277,14 @@ public&nbsp;ObjectArrayIterator(<a href="../../../../../../org/apache/logging/lo
 <li class="blockList">
 <h4>ObjectArrayIterator</h4>
 <pre>public&nbsp;ObjectArrayIterator(<a href="../../../../../../org/apache/logging/log4j/core/util/ObjectArrayIterator.html" title="type parameter in ObjectArrayIterator">E</a>[]&nbsp;array,
-                   int&nbsp;start,
+                   int&nbsp;origin,
                    int&nbsp;end)</pre>
 <div class="block">Construct an ObjectArrayIterator that will iterate over a range of values
  in the specified array.</div>
-<dl><dt><span class="strong">Parameters:</span></dt><dd><code>array</code> - the array to iterate over</dd><dd><code>start</code> - the index to start iterating at</dd><dd><code>end</code> - the index (exclusive) to finish iterating at</dd>
+<dl><dt><span class="strong">Parameters:</span></dt><dd><code>array</code> - the array to iterate over</dd><dd><code>origin</code> - the index to origin iterating at</dd><dd><code>end</code> - the index (exclusive) to finish iterating at</dd>
 <dt><span class="strong">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the start or end index is out of bounds</dd>
-<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if end index is before the start</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the origin or end index is out of bounds</dd>
+<dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if end index is before the origin</dd>
 <dd><code><a href="http://docs.oracle.com/javase/7/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <code>array</code> is <code>null</code></dd></dl>
 </li>
 </ul>
@@ -360,8 +360,8 @@ public&nbsp;ObjectArrayIterator(<a href="../../../../../../org/apache/logging/lo
 <li class="blockList">
 <h4>getStartIndex</h4>
 <pre>public&nbsp;int&nbsp;getStartIndex()</pre>
-<div class="block">Gets the start index to loop from.</div>
-<dl><dt><span class="strong">Returns:</span></dt><dd>the start index</dd></dl>
+<div class="block">Gets the origin index to loop from.</div>
+<dl><dt><span class="strong">Returns:</span></dt><dd>the origin index</dd></dl>
 </li>
 </ul>
 <a name="getEndIndex()">
@@ -382,7 +382,7 @@ public&nbsp;ObjectArrayIterator(<a href="../../../../../../org/apache/logging/lo
 <li class="blockList">
 <h4>reset</h4>
 <pre>public&nbsp;void&nbsp;reset()</pre>
-<div class="block">Resets the iterator back to the start index.</div>
+<div class="block">Resets the iterator back to the origin index.</div>
 </li>
 </ul>
 </li>

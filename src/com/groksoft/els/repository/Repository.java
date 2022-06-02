@@ -29,23 +29,37 @@ import java.util.regex.PatternSyntaxException;
 public class Repository
 {
     public static final boolean NO_VALIDATE = false;
-    public static final boolean PUBLISHER = true;
-    public static final boolean SUBSCRIBER = false;
+    public static final int PUBLISHER = 1;
+    public static final int SUBSCRIBER = 2;
+    public static final int HINT_SERVER = 3;
     public static final boolean VALIDATE = true;
+
     public final String SUB_EXCLUDE = "ELS-SUBSCRIBER-SKIP_";
     private transient Configuration cfg = null;
     private String jsonFilename = "";
     private LibraryData libraryData = null;
     private transient Logger logger = LogManager.getLogger("applog");
+    private int purpose = -1;
 
     /**
-     * Instantiates a new Collection.
+     * Instantiate a new empty Repository
      *
      * @param config Configuration
      */
-    public Repository(Configuration config)
+//    public Repository(Configuration config)
+//    {
+//        this.cfg = config;
+//    }
+
+    /**
+     * Instantiate a Repository with a purpose
+     * @param config Configuration
+     * @param purpose One of PUBLISHER, SUBSCRIBER, HINT_SERVER
+     */
+    public Repository(Configuration config, int purpose)
     {
-        cfg = config;
+        this.cfg = config;
+        this.purpose = purpose;
     }
 
     /**
@@ -58,20 +72,20 @@ public class Repository
      * @param numOfLibraries The number of empty libraries to create
      * @return Empty Repository object
      */
-    public static Repository createEmptyRepository(Configuration cfg, int numOfLibraries)
-    {
-        Repository repo = new Repository(cfg);
-        repo.libraryData = new LibraryData();
-        repo.libraryData.libraries = new Libraries();
-        repo.libraryData.libraries.description = "";
-        repo.libraryData.libraries.key = "";
-        repo.libraryData.libraries.bibliography = new Library[numOfLibraries];
-        for (int i = 0; i < numOfLibraries; ++i)
-        {
-            repo.libraryData.libraries.bibliography[i] = new Library();
-        }
-        return repo;
-    }
+//    public static Repository createEmptyRepository(Configuration cfg, int numOfLibraries)
+//    {
+//        Repository repo = new Repository(cfg);
+//        repo.libraryData = new LibraryData();
+//        repo.libraryData.libraries = new Libraries();
+//        repo.libraryData.libraries.description = "";
+//        repo.libraryData.libraries.key = "";
+//        repo.libraryData.libraries.bibliography = new Library[numOfLibraries];
+//        for (int i = 0; i < numOfLibraries; ++i)
+//        {
+//            repo.libraryData.libraries.bibliography[i] = new Library();
+//        }
+//        return repo;
+//    }
 
     /**
      * Export library items to JSON collection file.
@@ -226,6 +240,16 @@ public class Repository
             throw new MungeException("itemMap.get '" + itemPath + "' failed");
         }
         return collection;
+    }
+
+    /**
+     * Get the purpose of this repository
+     *
+     * @return 1 = publisher, 2 = subscriber, 3 = hint server
+     */
+    public int getPurpose()
+    {
+        return purpose;
     }
 
     /**
@@ -464,6 +488,16 @@ public class Repository
             return false;
     }
 
+    public boolean isPublisher()
+    {
+        return getPurpose() == PUBLISHER;
+    }
+
+    public boolean isSubscriber()
+    {
+        return getPurpose() == SUBSCRIBER;
+    }
+
     /**
      * Normalize all JSON paths based on "flavor"
      */
@@ -587,103 +621,6 @@ public class Repository
         {
             throw new MungeException("Exception while reading library " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
-    }
-
-    /**
-     * Perform renaming on entire repository
-     */
-    public boolean renameContent() throws Exception
-    {
-        boolean renameDone = false;
-
-        // rename files first
-        if (cfg.getRenamingType() == cfg.RENAME_FILES || cfg.getRenamingType() == cfg.RENAME_BOTH)
-        {
-            if (renameItems(false))
-                renameDone = true;
-        }
-
-        // then rename directories
-        if (cfg.getRenamingType() == cfg.RENAME_DIRECTORIES || cfg.getRenamingType() == cfg.RENAME_BOTH)
-        {
-            if (renameItems(true))
-                renameDone = true;
-        }
-        return renameDone;
-    }
-
-    /**
-     * Perform renaming on either files or directories
-     */
-    private boolean renameItems(boolean directories) throws Exception
-    {
-        String from = "";
-        String fromFixed = "";
-        String name = "";
-        String old = "";
-        boolean renameDone = false;
-
-        for (Library pubLib : getLibraryData().libraries.bibliography)
-        {
-            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(pubLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(pubLib.name)))
-            {
-                for (Item item : pubLib.items)
-                {
-                    if ((!directories && !item.isDirectory()) || (directories && item.isDirectory()))
-                    {
-                        old = getItemName(item);
-                        name = old;
-
-                        // run through all the substitution patterns
-                        for (Renaming subst : libraryData.libraries.renaming)
-                        {
-                            if (subst.from.length() > 0 && subst.compiledPattern != null)
-                            {
-                                from = subst.compiledPattern.toString(); // precompiled 'from' during validate()
-                                fromFixed = from; //.replace("?", ".?").replace("*", ".*?");
-                                name = name.replaceAll(fromFixed, subst.to);
-                            }
-                        }
-
-                        // did the name change?
-                        if (!old.equals(name))
-                        {
-                            if (cfg.isDryRun())
-                            {
-                                logger.info(" > Would rename " + (item.isDirectory() ? "directory" : "file") +
-                                        ": '" + old + "' to '" + name + "'");
-                            }
-                            else
-                            {
-                                // replace the name on the end of the item and fullpath
-                                String path = item.getItemPath();
-                                path = path.substring(0, path.length() - old.length());
-                                path = path + name;
-
-                                String full = item.getFullPath();
-                                full = full.substring(0, full.length() - old.length());
-                                full = full + name;
-
-                                // do rename
-                                File existing = new File(item.getFullPath());
-                                File newFile = new File(full);
-                                existing.renameTo(newFile);
-
-                                // update data
-                                item.setItemPath(path);
-                                item.setFullPath(full);
-
-                                logger.info("Renamed " + (item.isDirectory() ? "directory" : "file") +
-                                        ": '" + old + "' to '" + name + "'");
-                            }
-                            renameDone = true;
-                        }
-                    }
-                }
-            }
-        }
-        return renameDone;
     }
 
     /**
@@ -867,29 +804,6 @@ public class Repository
                     src = s;
                     patt = Pattern.compile(src);
                     lbs.compiledPatterns.add(patt);
-                }
-            }
-            catch (PatternSyntaxException pe)
-            {
-                throw new MungeException("Ignore pattern '" + src + "' has bad regular expression (regex) syntax");
-            }
-            catch (IllegalArgumentException iae)
-            {
-                throw new MungeException("Ignore pattern '" + src + "' has bad flags");
-            }
-        }
-
-        if (lbs.renaming != null && lbs.renaming.length > 0)
-        {
-            Pattern patt = null;
-            String src = null;
-            try
-            {
-                for (Renaming subst : lbs.renaming)
-                {
-                    src = subst.from;
-                    patt = Pattern.compile(src);
-                    subst.compiledPattern = patt;
                 }
             }
             catch (PatternSyntaxException pe)

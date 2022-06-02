@@ -72,11 +72,6 @@ public class Libraries
     public transient List<Pattern> compiledPatterns = new ArrayList<>();
 
     /**
-     * Substitutions. From-side regular expressions are supported.
-     */
-    public Renaming[] renaming;
-
-    /**
      * Storage. v3.0.0
      */
     public Location[] locations;

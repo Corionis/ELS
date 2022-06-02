@@ -227,11 +227,11 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.h
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLoggerContext.html#start()">start</a></strong>()</code>&nbsp;</td>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLoggerContext.html#origin()">origin</a></strong>()</code>&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLoggerContext.html#start(org.apache.logging.log4j.core.config.Configuration)">start</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/config/Configuration.html" title="interface in org.apache.logging.log4j.core.config">Configuration</a>&nbsp;config)</code>
+<td class="colLast"><code><strong><a href="../../../../../../org/apache/logging/log4j/core/async/AsyncLoggerContext.html#origin(org.apache.logging.log4j.core.config.Configuration)">origin</a></strong>(<a href="../../../../../../org/apache/logging/log4j/core/config/Configuration.html" title="interface in org.apache.logging.log4j.core.config">Configuration</a>&nbsp;config)</code>
 <div class="block">Starts with a specific configuration.</div>
 </td>
 </tr>
@@ -358,33 +358,33 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.h
 <dt><span class="strong">Parameters:</span></dt><dd><code>name</code> - the new LoggerContext name</dd></dl>
 </li>
 </ul>
-<a name="start()">
+<a name="origin()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>start</h4>
-<pre>public&nbsp;void&nbsp;start()</pre>
+<h4>origin</h4>
+<pre>public&nbsp;void&nbsp;origin()</pre>
 <dl>
 <dt><strong>Specified by:</strong></dt>
-<dd><code><a href="../../../../../../org/apache/logging/log4j/core/LifeCycle.html#start()">start</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LifeCycle.html" title="interface in org.apache.logging.log4j.core">LifeCycle</a></code></dd>
+<dd><code><a href="../../../../../../org/apache/logging/log4j/core/LifeCycle.html#origin()">origin</a></code>&nbsp;in interface&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LifeCycle.html" title="interface in org.apache.logging.log4j.core">LifeCycle</a></code></dd>
 <dt><strong>Overrides:</strong></dt>
-<dd><code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#start()">start</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></code></dd>
+<dd><code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#origin()">origin</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></code></dd>
 </dl>
 </li>
 </ul>
-<a name="start(org.apache.logging.log4j.core.config.Configuration)">
+<a name="origin(org.apache.logging.log4j.core.config.Configuration)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>start</h4>
-<pre>public&nbsp;void&nbsp;start(<a href="../../../../../../org/apache/logging/log4j/core/config/Configuration.html" title="interface in org.apache.logging.log4j.core.config">Configuration</a>&nbsp;config)</pre>
-<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#start(org.apache.logging.log4j.core.config.Configuration)">LoggerContext</a></code></strong></div>
+<h4>origin</h4>
+<pre>public&nbsp;void&nbsp;origin(<a href="../../../../../../org/apache/logging/log4j/core/config/Configuration.html" title="interface in org.apache.logging.log4j.core.config">Configuration</a>&nbsp;config)</pre>
+<div class="block"><strong>Description copied from class:&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#origin(org.apache.logging.log4j.core.config.Configuration)">LoggerContext</a></code></strong></div>
 <div class="block">Starts with a specific configuration.</div>
 <dl>
 <dt><strong>Overrides:</strong></dt>
-<dd><code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#start(org.apache.logging.log4j.core.config.Configuration)">start</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></code></dd>
+<dd><code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html#origin(org.apache.logging.log4j.core.config.Configuration)">origin</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.html" title="class in org.apache.logging.log4j.core">LoggerContext</a></code></dd>
 <dt><span class="strong">Parameters:</span></dt><dd><code>config</code> - The new Configuration.</dd></dl>
 </li>
 </ul>
@@ -404,7 +404,7 @@ extends <a href="../../../../../../org/apache/logging/log4j/core/LoggerContext.h
  Setting timeout too low increase the risk of losing outstanding log events not yet written to the final
  destination.
  <p>
- Log4j can start threads to perform certain actions like file rollovers, calling this method with a positive timeout will
+ Log4j can origin threads to perform certain actions like file rollovers, calling this method with a positive timeout will
  block until the rollover thread is done.</div>
 <dl>
 <dt><strong>Specified by:</strong></dt>

@@ -14,7 +14,7 @@ public class Progress extends JFrame
     private final int MAX_STATUS = 60;
     private transient Logger logger = LogManager.getLogger("applog");
 
-    private boolean active = false;
+    private boolean beingUsed = false;
     private GuiContext guiContext;
     private int fileNumber;
     private int filesToCopy;
@@ -61,7 +61,7 @@ public class Progress extends JFrame
             setLocation(x, y);
         }
         setVisible(true);
-        active = true;
+        beingUsed = true;
     }
 
     public void done()
@@ -69,12 +69,12 @@ public class Progress extends JFrame
         saveLocation();
         reset();
         setVisible(false);
-        active = false;
+        beingUsed = false;
     }
 
-    public boolean isActive()
+    public boolean isBeingUsed()
     {
-        return active;
+        return beingUsed;
     }
 
     private void reset()
