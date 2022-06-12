@@ -205,7 +205,7 @@ public class Browser
                                 {
                                     JOptionPane.showMessageDialog(guiContext.mainFrame,
                                             guiContext.cfg.gs("Browser.launch.of") +
-                                                    (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") : "") +
+                                                    (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") : "") +
                                                     guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
                                             guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                                 }
@@ -388,7 +388,7 @@ public class Browser
                             {
                                 JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Browser.launch.of") +
-                                                (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") : "") +
+                                                (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") : "") +
                                                 guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
                                         guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                             }
@@ -468,7 +468,7 @@ public class Browser
         {
             Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
                     repo.getLibraryData().libraries.description + " " + guiContext.cfg.gs(("Browser.bookmark.name")),
-                    guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.QUESTION_MESSAGE,
+                    guiContext.cfg.gs("Browser.add.bookmark"), JOptionPane.QUESTION_MESSAGE,
                     null, null, name);
             name = (String) obj;
             if (name != null && name.length() > 0)
@@ -606,7 +606,7 @@ public class Browser
         {
             JOptionPane.showMessageDialog(guiContext.mainFrame,
                     guiContext.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
-                    guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.WARNING_MESSAGE);
+                    guiContext.cfg.gs("Browser.add.bookmark"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -625,7 +625,7 @@ public class Browser
         {
             JOptionPane.showMessageDialog(guiContext.mainFrame,
                     guiContext.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
-                    guiContext.cfg.gs("Browsers.add.bookmark"), JOptionPane.WARNING_MESSAGE);
+                    guiContext.cfg.gs("Browser.add.bookmark"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 

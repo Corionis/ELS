@@ -102,7 +102,7 @@ public class JunkTableModel extends DefaultTableModel
         if (tool != null)
         {
             tool.getJunkList().remove(index);
-            tool.setDataHasChanged(true);
+            tool.setDataHasChanged();
         }
     }
 
@@ -120,13 +120,13 @@ public class JunkTableModel extends DefaultTableModel
             if (column == 0)
             {
                 ji.wildcard = ((JTextField) object).getText();
-                tool.setDataHasChanged(true);
+                tool.setDataHasChanged();
             }
 
             if (column == 1)
             {
                 ji.caseSensitive = ((Boolean) object).booleanValue();
-                tool.setDataHasChanged(true);
+                tool.setDataHasChanged();
             }
         }
     }

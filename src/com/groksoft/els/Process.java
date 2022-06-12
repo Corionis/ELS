@@ -67,7 +67,7 @@ public class Process
         totalItems = 0;
         for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
         {
-            logger.info("Analyzing library '" + pubLib.name + "' for duplicates" + (cfg.isRenaming() ? " and performing any substitution renames" : ""));
+            logger.info("Analyzing library '" + pubLib.name + "' for duplicates");
             for (Item item : pubLib.items)
             {
                 if (item.isDirectory())
@@ -359,7 +359,7 @@ public class Process
                     }
                     else
                     {
-                        throw new MungeException("Subscribed Publisher library " + subLib.name + " not found");
+                        logger.warn("Subscribed Publisher library " + subLib.name + " not found");
                     }
                 }
                 else
@@ -504,12 +504,6 @@ public class Process
                 hintsLocal();
             }
 
-            // process renames
-            if (cfg.isRenaming())
-            {
-                rename();
-            }
-
             // process -e export text, publisher only
             if (cfg.getExportTextFilename().length() > 0)
             {
@@ -607,19 +601,6 @@ public class Process
         }
         context.fault = fault;
     } // process
-
-    /**
-     * Search publisher collection for string substitutions for renaming items
-     */
-    private void rename() throws Exception
-    {
-        // scan the collection if library file specified
-        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
-        {
-            context.publisherRepo.scan();
-            justScannedPublisher = true;
-        }
-    }
 
     /**
      * Dump any duplicates found to the log

@@ -23,55 +23,33 @@ public class Job implements Serializable
     private ArrayList<Task> tasks;
 
     transient private boolean dataHasChanged = false;
-    private transient boolean initialized = false;
-    private transient Logger logger = LogManager.getLogger("applog");
+    transient private boolean initialized = false;
+    transient private Logger logger = LogManager.getLogger("applog");
+    transient private boolean stop = false;
+
+    private Job()
+    {
+        // hide default constructor
+    }
 
     public Job(String name)
     {
-        configName = name;
+        this.configName = name;
+        this.tasks = new ArrayList<Task>();
+        this.dataHasChanged = true;
     }
 
-    public int process(GuiContext guiContext) throws Exception
+    public Job clone()
     {
-        return process(guiContext.cfg, guiContext.context);
-    }
-
-    public int process(GuiContext guiContext, Job job) throws Exception
-    {
-        return process(guiContext.cfg, guiContext.context, this.configName);
-    }
-
-    public int process(Configuration cfg, Context context) throws Exception
-    {
-        return process(cfg, context, this);
-    }
-
-    public int process(Configuration cfg, Context context, String jobName) throws Exception
-    {
-        Job job;
-        if (!this.getConfigName().equals(jobName) || !this.initialized)
-            job = Job.load(jobName);
-        else
-            job = this;
-
-        return process(cfg, context, job);
-    }
-
-    public int process(Configuration cfg, Context context, Job job) throws Exception
-    {
-        int result = 0;
-        if (job.initialized)
+        Job job = new Job(this.getConfigName());
+        ArrayList<Task> tasks = new ArrayList<Task>();
+        for (Task task : this.getTasks())
         {
-            logger.info("Executing job: " + job.getConfigName());
-            for (Task task : job.getTasks())
-            {
-                task.process(cfg, context, cfg.isDryRun());
-            }
+            tasks.add(task.clone());
         }
-        else
-            throw new MungeException("Attempt to process uninitialized job");
-
-        return result;
+        job.setTasks(tasks);
+        job.initialized = true;
+        return job;
     }
 
     public String getConfigName()
@@ -102,6 +80,11 @@ public class Job implements Serializable
     public boolean isDataChanged()
     {
         return dataHasChanged; // used by the GUI
+    }
+
+    public boolean isRequestStop()
+    {
+        return stop;
     }
 
     public static Job load(String jobName) throws Exception
@@ -141,14 +124,64 @@ public class Job implements Serializable
         return job;
     }
 
+    public int process(GuiContext guiContext) throws Exception
+    {
+        return process(guiContext.cfg, guiContext.context);
+    }
+
+    public int process(GuiContext guiContext, Job job) throws Exception
+    {
+        return process(guiContext.cfg, guiContext.context, this.configName);
+    }
+
+    public int process(Configuration cfg, Context context) throws Exception
+    {
+        return process(cfg, context, this);
+    }
+
+    public int process(Configuration cfg, Context context, String jobName) throws Exception
+    {
+        Job job;
+        if (!this.getConfigName().equals(jobName) || !this.initialized)
+            job = Job.load(jobName);
+        else
+            job = this;
+
+        return process(cfg, context, job);
+    }
+
+    public int process(Configuration cfg, Context context, Job job) throws Exception
+    {
+        int result = 0;
+        if (job.initialized)
+        {
+            logger.info("Executing job: " + job.getConfigName());
+            for (Task task : job.getTasks())
+            {
+                if (isRequestStop())
+                    break;
+                task.process(cfg, context, cfg.isDryRun());
+            }
+        }
+        else
+            throw new MungeException("Attempt to process uninitialized job");
+
+        return result;
+    }
+
+    public void requestStop()
+    {
+        this.stop = true;
+    }
+
     public void setConfigName(String configName)
     {
         this.configName = configName;
     }
 
-    public void setDataHasChanged(boolean sense)
+    public void setDataHasChanged()
     {
-        dataHasChanged = sense;
+        dataHasChanged = true;
     }
 
     public void setTasks(ArrayList<Task> tasks)

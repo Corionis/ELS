@@ -64,7 +64,6 @@ public class Configuration
     private boolean quitStatusServer = false;
     private int remoteFlag = NOT_REMOTE;
     private String remoteType = "-";
-    private boolean renaming = false;
     private boolean requestCollection = false;
     private boolean requestTargets = false;
     private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
@@ -529,7 +528,16 @@ public class Configuration
      */
     public String gs(String key)
     {
-        return currentBundle.getString(key);
+        String value = "";
+        try
+        {
+            value = currentBundle.getString(key);
+        }
+        catch (MissingResourceException e)
+        {
+            // not found
+        }
+        return value;
     }
 
     /**
@@ -713,14 +721,6 @@ public class Configuration
     public boolean isRemoteSession()
     {
         return (this.remoteFlag != NOT_REMOTE);
-    }
-
-    /**
-     * Returns true if the -n | --rename options is specified
-     */
-    public boolean isRenaming()
-    {
-        return renaming;
     }
 
     /**
@@ -1516,16 +1516,6 @@ public class Configuration
             this.remoteFlag = SUBSCRIBER_TERMINAL;
         else if (!type.equals("-"))
             throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
-    }
-
-    /**
-     * Enable or disable performing renaming
-     *
-     * @param renaming true to enable
-     */
-    public void setRenaming(boolean renaming)
-    {
-        this.renaming = renaming;
     }
 
     /**

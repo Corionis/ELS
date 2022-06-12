@@ -98,6 +98,8 @@ It's all built-in with the -n | --navigator option.
     2. temp_location "path" : Where to place temporary files. An empty string "" is the
        location of the ELS Jar file.
 
+ 3. Removed JSON library element renaming and the related Java code.
+
 ### Bug Fixes
 
 

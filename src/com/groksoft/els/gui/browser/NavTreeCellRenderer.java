@@ -40,13 +40,13 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         break;
                     case NavTreeUserObject.COLLECTION:
                         setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
-                        setToolTipText((tuo.isRemote ? cfg.gs("NavTreeNode.remote") : cfg.gs("NavTreeNode.local")) +
+                        setToolTipText((tuo.isRemote ? cfg.gs("Z.remote.uppercase") : cfg.gs("NavTreeNode.local")) +
                                 (!tuo.isSubscriber() && guiContext.preferences.isLastIsWorkstation() ? cfg.gs("Navigator.workstation") : cfg.gs("NavTreeNode.collection")) +
                                 ", " + tuo.node.getChildCount() + cfg.gs("Navigator.libraries"));
                         break;
                     case NavTreeUserObject.COMPUTER:
                         setIcon(UIManager.getIcon("FileView.computerIcon"));
-                        setToolTipText((tuo.isRemote ? cfg.gs("NavTreeNode.remote") : cfg.gs("NavTreeNode.local")));
+                        setToolTipText((tuo.isRemote ? cfg.gs("Z.remote.uppercase") : cfg.gs("NavTreeNode.local")));
                         break;
                     case NavTreeUserObject.DRIVE:
                         setIcon(UIManager.getIcon("FileView.hardDriveIcon"));

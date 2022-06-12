@@ -20,7 +20,6 @@ public class Preferences implements Serializable
     private int browserBottomSize = 143; // tracked value
     private int centerDividerLocation = 512; // tracked value
     private int centerDividerOrientation = 1; // tracked value
-    private transient Configuration cfg;
     private int collectionOneDateWidth = 80; // tracked value
     private int collectionOneDividerLocation = 150; // tracked value
     private int collectionOneNameWidth = 128; // tracked value
@@ -34,6 +33,12 @@ public class Preferences implements Serializable
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
+    private int jobsHeight = 470; // tracked value
+    private int jobsOriginDividerLocation = 142; // tracked value
+    private int jobsTaskDividerLocation = 142; // tracked value
+    private int jobsWidth = 570; // tracked value
+    private int jobsXpos = -1; // tracked value
+    private int jobsYpos = -1; // tracked value
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
     private boolean lastIsRemote = true;
@@ -66,7 +71,12 @@ public class Preferences implements Serializable
     private int systemTwoDividerLocation = 152; // tracked value
     private int systemTwoNameWidth = 128; // tracked value
     private int systemTwoSizeWidth = 80; // tracked value
-
+    private int toolsJunkRemoverHeight = 470; // tracked value
+    private int toolsJunkRemoverDividerLocation = 142; // tracked value
+    private int toolsJunkRemoverWidth = 570; // tracked value
+    private int toolsJunkRemoverXpos = -1; // tracked value
+    private int toolsJunkRemoverYpos = -1; // tracked value
+    private transient Configuration cfg;
 
     /**
      * Constructor
@@ -282,7 +292,7 @@ public class Preferences implements Serializable
     public String getFullPath()
     {
         String path = System.getProperty("user.home") + System.getProperty("file.separator") +
-                ".els"  + System.getProperty("file.separator") +
+                ".els" + System.getProperty("file.separator") +
                 "preferences.json";
         return path;
     }
@@ -290,6 +300,36 @@ public class Preferences implements Serializable
     public String getHintTrackingColor()
     {
         return hintTrackingColor;
+    }
+
+    public int getJobsHeight()
+    {
+        return jobsHeight;
+    }
+
+    public int getJobsOriginDividerLocation()
+    {
+        return jobsOriginDividerLocation;
+    }
+
+    public int getJobsTaskDividerLocation()
+    {
+        return jobsTaskDividerLocation;
+    }
+
+    public int getJobsWidth()
+    {
+        return jobsWidth;
+    }
+
+    public int getJobsXpos()
+    {
+        return jobsXpos;
+    }
+
+    public int getJobsYpos()
+    {
+        return jobsYpos;
     }
 
     public String getLastHintKeysOpenFile()
@@ -382,6 +422,31 @@ public class Preferences implements Serializable
     public int getSystemTwoSizeWidth()
     {
         return systemTwoSizeWidth;
+    }
+
+    public int getToolsJunkRemoverHeight()
+    {
+        return toolsJunkRemoverHeight;
+    }
+
+    public int getToolsJunkRemoverDividerLocation()
+    {
+        return toolsJunkRemoverDividerLocation;
+    }
+
+    public int getToolsJunkRemoverWidth()
+    {
+        return toolsJunkRemoverWidth;
+    }
+
+    public int getToolsJunkRemoverXpos()
+    {
+        return toolsJunkRemoverXpos;
+    }
+
+    public int getToolsJunkRemoverYpos()
+    {
+        return toolsJunkRemoverYpos;
     }
 
     public boolean isBinaryScale()
@@ -549,6 +614,36 @@ public class Preferences implements Serializable
         this.hintTrackingColor = hintTrackingColor;
     }
 
+    public void setJobsHeight(int jobsHeight)
+    {
+        this.jobsHeight = jobsHeight;
+    }
+
+    public void setJobsOriginDividerLocation(int jobsOriginDividerLocation)
+    {
+        this.jobsOriginDividerLocation = jobsOriginDividerLocation;
+    }
+
+    public void setJobsTaskDividerLocation(int jobsTaskDividerLocation)
+    {
+        this.jobsTaskDividerLocation = jobsTaskDividerLocation;
+    }
+
+    public void setJobsWidth(int jobsWidth)
+    {
+        this.jobsWidth = jobsWidth;
+    }
+
+    public void setJobsXpos(int jobsXpos)
+    {
+        this.jobsXpos = jobsXpos;
+    }
+
+    public void setJobsYpos(int jobsYpos)
+    {
+        this.jobsYpos = jobsYpos;
+    }
+
     public void setLastHintKeysOpenFile(String lastHintKeysOpenFile)
     {
         this.lastHintKeysOpenFile = lastHintKeysOpenFile;
@@ -687,6 +782,31 @@ public class Preferences implements Serializable
     public void setSystemTwoSizeWidth(int systemTwoSizeWidth)
     {
         this.systemTwoSizeWidth = systemTwoSizeWidth;
+    }
+
+    public void setToolsJunkRemoverHeight(int toolsJunkRemoverHeight)
+    {
+        this.toolsJunkRemoverHeight = toolsJunkRemoverHeight;
+    }
+
+    public void setToolsJunkRemoverDividerLocation(int toolsJunkRemoverDividerLocation)
+    {
+        this.toolsJunkRemoverDividerLocation = toolsJunkRemoverDividerLocation;
+    }
+
+    public void setToolsJunkRemoverWidth(int toolsJunkRemoverWidth)
+    {
+        this.toolsJunkRemoverWidth = toolsJunkRemoverWidth;
+    }
+
+    public void setToolsJunkRemoverXpos(int toolsJunkRemoverXpos)
+    {
+        this.toolsJunkRemoverXpos = toolsJunkRemoverXpos;
+    }
+
+    public void setToolsJunkRemoverYpos(int toolsJunkRemoverYpos)
+    {
+        this.toolsJunkRemoverYpos = toolsJunkRemoverYpos;
     }
 
     public void write(GuiContext guiContext) throws Exception

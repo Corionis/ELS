@@ -522,7 +522,7 @@ public class NavTransferHandler extends TransferHandler
             {
                 String msg;
                 if (sourceTuo.isRemote)
-                    msg = guiContext.cfg.gs("NavTreeNode.remote");
+                    msg = guiContext.cfg.gs("Z.remote.uppercase");
                 else
                     msg = guiContext.cfg.gs("NavTreeNode.local");
                 msg += MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.delete.directory.message"), guiContext.cfg.isDryRun() ? 0 : 1, sourceTuo.path);
@@ -555,7 +555,7 @@ public class NavTransferHandler extends TransferHandler
         {
             String msg;
             if (sourceTuo.isRemote)
-                msg = guiContext.cfg.gs("NavTreeNode.remote");
+                msg = guiContext.cfg.gs("Z.remote.uppercase");
             else
                 msg = guiContext.cfg.gs("NavTreeNode.local");
             msg += MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.delete.file.message"), guiContext.cfg.isDryRun() ? 0 : 1,sourceTuo.path);

@@ -16,7 +16,12 @@ Entertainment Library Synchronizer is distributed as a single Java jar file, eit
 
 # Disclaimer
 
-Any software downloaded from this site is free and without warranty or guarantee of any kind expressed or implied. The software may not work or serve any intended or particular purpose. Use at your own risk. If you break it you own both parts.
+Any software downloaded from this site is free and without warranty or guarantee of any kind expressed or implied.
+The software may not work or serve any intended or particular purpose. Use at your own risk. If you break it you
+own both parts.
+
+The authors and contributors of this project are not liable for mistakes, errors or omissions of any kind including,
+but not limited to, program bugs or data loss. ELS is a tool with all the power to "shoot yourself in the foot".
 
 # Privacy
 

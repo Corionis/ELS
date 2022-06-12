@@ -13,20 +13,48 @@ import javax.swing.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Task implements Serializable
+public class Task implements Comparable, Serializable
 {
-    public static final String CURRENT_LOADED = "_CURRENT_LOADED_";
+    public static final String ANY_SERVER = "_ANY_SERVER_";
 
     private String configName; // name of tool configuration
     private String internalName; // internal name of tool
-    private String publisherKey;
-    private String subscriberKey;
+    private String publisherKey = "";
+    private String subscriberKey = "";
     private ArrayList<Origin> origins;
+
+    transient boolean dual = true;
 
     public Task(String internalName, String configName)
     {
         this.internalName = internalName;
         this.configName = configName;
+        this.origins = new ArrayList<Origin>();
+    }
+
+    public void addOrigins(ArrayList<Origin> origins)
+    {
+        this.origins.addAll(origins);
+    }
+
+    public Task clone()
+    {
+        Task task = new Task(this.getInternalName(), this.getConfigName());
+        task.setPublisherKey(this.getPublisherKey());
+        task.setSubscriberKey(this.getSubscriberKey());
+        ArrayList<Origin> origins = new ArrayList<Origin>();
+        for (Origin origin : this.getOrigins())
+        {
+            origins.add(origin.clone());
+        }
+        task.setOrigins(origins);
+        return task;
+    }
+
+    @Override
+    public int compareTo(Object o)
+    {
+        return this.getConfigName().compareTo(((Task) o).getConfigName());
     }
 
     public String getConfigName()
@@ -54,7 +82,7 @@ public class Task implements Serializable
         Repository repo = null;
         if (key != null && key.length() > 0)
         {
-            if (key.equals(CURRENT_LOADED))
+            if (key.equals(ANY_SERVER))
             {
                 if (forPublisher)
                     repo = context.publisherRepo;
@@ -88,11 +116,16 @@ public class Task implements Serializable
         return subscriberKey;
     }
 
+    public boolean isDual()
+    {
+        return dual;
+    }
+
     /**
      * Process the task
      *
      * @param config The Configuration
-     * @param ctxt The Context
+     * @param ctxt   The Context
      * @param dryRun Boolean for a dry-run
      * @throws Exception
      */
@@ -100,7 +133,7 @@ public class Task implements Serializable
     {
         // get tool
         Tools tools = new Tools();
-        AbstractTool tool = tools.getTool(config, ctxt, getConfigName(), getInternalName());
+        AbstractTool tool = tools.getTool(config, ctxt, getInternalName(), getConfigName());
 
         if (tool != null)
         {
@@ -118,7 +151,7 @@ public class Task implements Serializable
      * Process the task on a SwingWorker thread
      *
      * @param guiContext The GuiContext
-     * @param dryRun Boolean for a dry-run
+     * @param dryRun     Boolean for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
     public SwingWorker<Void, Void> process(GuiContext guiContext, boolean dryRun, AbstractTool tool) throws Exception
@@ -137,6 +170,11 @@ public class Task implements Serializable
     public void setConfigName(String configName)
     {
         this.configName = configName;
+    }
+
+    public void setDual(boolean dual)
+    {
+        this.dual = dual;
     }
 
     public void setInternalName(String internalName)

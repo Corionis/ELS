@@ -381,7 +381,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             else if (sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // send command to remote
-                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.remote") + msg);
+                guiContext.browser.printLog(guiContext.cfg.gs("Z.remote.uppercase") + msg);
                 if (!guiContext.cfg.isDryRun())
                 {
                     String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
@@ -403,7 +403,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                             guiContext.context.clientSftp.setDate(path, (int) sourceTuo.fileTime.to(TimeUnit.SECONDS));
                     }
                     else
-                        throw new MungeException(guiContext.cfg.gs("NavTreeNode.remote") + guiContext.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
+                        throw new MungeException(guiContext.cfg.gs("Z.remote.uppercase") + guiContext.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
                                 guiContext.cfg.gs("NavTransferHandler.progress.of") + sourceTuo.name + guiContext.cfg.gs("NavTransferHandler.failed"));
                 }
             }

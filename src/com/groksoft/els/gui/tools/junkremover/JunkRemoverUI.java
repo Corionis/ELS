@@ -5,23 +5,19 @@ import com.google.gson.JsonSyntaxException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
-import com.groksoft.els.gui.browser.NavTreeNode;
-import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.naming.ldap.SortKey;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
-import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -32,19 +28,17 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class JunkRemoverUI extends JDialog
 {
+    private JunkConfigModel configModel;
     private ArrayList<JunkRemoverTool> deletedTools;
     private GuiContext guiContext;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
     private boolean isSubscriber;
-    private DefaultListModel<JunkRemoverTool> listModel;
-    private boolean somethingChanged = false;
-    private SwingWorker<Void, Void>  worker;
+    private SwingWorker<Void, Void> worker;
     private JunkRemoverTool workerJrt = null;
     private boolean workerRunning = false;
 
@@ -67,8 +61,51 @@ public class JunkRemoverUI extends JDialog
         Icon replacement = new ImageIcon(scaled);
         labelHelp.setIcon(replacement);
 
-        listModel = new DefaultListModel<JunkRemoverTool>();
-        listItems.setModel(listModel);
+        // position, size & divider
+        if (guiContext.preferences.getToolsJunkRemoverYpos() > -1)
+            this.setLocation(guiContext.preferences.getToolsJunkRemoverXpos(), guiContext.preferences.getToolsJunkRemoverYpos());
+        //
+        if (guiContext.preferences.getToolsJunkRemoverHeight() > -1)
+        {
+            Dimension dim = new Dimension(guiContext.preferences.getToolsJunkRemoverWidth(), guiContext.preferences.getToolsJunkRemoverHeight());
+            this.setSize(dim);
+        }
+        //
+        if (guiContext.preferences.getToolsJunkRemoverDividerLocation() > -1)
+            this.splitPaneContent.setDividerLocation(guiContext.preferences.getToolsJunkRemoverDividerLocation());
+
+        // Escape key
+        ActionListener escListener = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                cancelButton.doClick();
+            }
+        };
+        getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        // setup the left-side list of configurations
+        configModel = new JunkConfigModel(guiContext, this);
+        configModel.setColumnCount(1);
+        configItems.setModel(configModel);
+        configItems.getTableHeader().setUI(null);
+        //
+        ListSelectionModel lsm = configItems.getSelectionModel();
+        lsm.addListSelectionListener(new ListSelectionListener()
+        {
+            @Override
+            public void valueChanged(ListSelectionEvent listSelectionEvent)
+            {
+                if (!listSelectionEvent.getValueIsAdjusting())
+                {
+                    ListSelectionModel sm = (ListSelectionModel) listSelectionEvent.getSource();
+                    int index = sm.getMinSelectionIndex();
+                    loadJunkTable(index);
+                }
+            }
+        });
+
         adjustTable();
         loadConfigurations();
         deletedTools = new ArrayList<JunkRemoverTool>();
@@ -103,7 +140,7 @@ public class JunkRemoverUI extends JDialog
         if (workerRunning && workerJrt != null)
         {
             int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.stop.running.junk.remover"),
-                    "Cancel Run", JOptionPane.YES_NO_OPTION);
+                    "Z.cancel.run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerJrt.requestStop();
@@ -112,11 +149,10 @@ public class JunkRemoverUI extends JDialog
         }
         else
         {
-            checkForChanges();
-            if (somethingChanged)
+            if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.cancel.changes"),
-                        "Cancel Changes", JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
+                        guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                     setVisible(false);
             }
@@ -131,29 +167,38 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
-        int index = listItems.getSelectedIndex();
+        int index = configItems.getSelectedRow();
         if (index >= 0)
         {
-            JunkRemoverTool origJrt = listModel.getElementAt(index);
-            JunkRemoverTool jrt = origJrt.clone();
-            jrt.setConfigName(guiContext.cfg.gs("Z.untitled"));
-            jrt.setDataHasChanged(true);
-            jrt.addJunkItem();
-            textFieldName.setText(jrt.getConfigName());
+            JunkRemoverTool origJrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
+            String rename = origJrt.getConfigName() + guiContext.cfg.gs("Z.copy");
+            if (configModel.find(rename, null) == null)
+            {
+                JunkRemoverTool jrt = origJrt.clone();
+                jrt.setConfigName(rename);
+                jrt.setDataHasChanged();
+                jrt.addJunkItem();
+                configModel.addRow(new Object[]{ jrt });
 
-            listModel.addElement(jrt);
-            listItems.setSelectedIndex(listModel.getSize() - 1);
+                // clear patterns table
+                ((JunkTableModel) tableJunk.getModel()).setTool(null);
+                tableJunk.removeAll();
+                ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
 
-            ((JunkTableModel) tableJunk.getModel()).setTool(null);
-            tableJunk.removeAll();
-            ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
+                // set patterns table
+                ((JunkTableModel) tableJunk.getModel()).setTool(jrt);
+                ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
 
-            ((JunkTableModel) tableJunk.getModel()).setTool(jrt);
-            ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
-
-            textFieldName.setEnabled(true);
-            textFieldName.selectAll();
-            textFieldName.requestFocus();
+                configItems.editCellAt(configModel.getRowCount() - 1, 0);
+                configItems.changeSelection(configModel.getRowCount() - 1, configModel.getRowCount() - 1, false, false);
+                configItems.getEditorComponent().requestFocus();
+                ((JTextField) configItems.getEditorComponent()).selectAll();
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
+                        rename, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+            }
         }
     }
 
@@ -163,24 +208,57 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
-        int index = listItems.getSelectedIndex();
+        int index = configItems.getSelectedRow();
         if (index >= 0)
         {
-            JunkRemoverTool jrt = listModel.getElementAt(index);
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.are.you.sure.you.want.to.delete.configuration") + jrt.getConfigName(),
-                    guiContext.cfg.gs("JunkRemover.delete.configuration"), JOptionPane.YES_NO_OPTION);
+            JunkRemoverTool jrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
+
+            // TODO check if Tool is used in any Jobs, prompt user accordingly
+
+            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + jrt.getConfigName(),
+                    guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 deletedTools.add(jrt);
-                listModel.removeElementAt(index);
-                loadTable(-1);
+                configModel.removeRow(index);
+                configModel.fireTableDataChanged();
+                if (index > configModel.getRowCount() - 1)
+                    index = configModel.getRowCount() - 1;
+                configItems.requestFocus();
+                if (index >= 0)
+                {
+                    configItems.changeSelection(index, 0, false, false);
+                    loadJunkTable(index);
+                }
             }
         }
     }
 
-    private void actionDoneClicked(ActionEvent e)
+    private void actionHelpClicked(MouseEvent e)
+    {
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(this, this, guiContext, guiContext.cfg.gs("JunkRemover.help"), "junkremover_" + guiContext.preferences.getLocale() + ".html");
+        }
+        if (!helpDialog.isVisible())
+        {
+            helpDialog.setVisible(true);
+            // offset the help dialog from the parent dialog
+            Point loc = this.getLocation();
+            loc.x = loc.x + 32;
+            loc.y = loc.y + 32;
+            helpDialog.setLocation(loc);
+        }
+        else
+        {
+            helpDialog.toFront();
+        }
+    }
+
+    private void actionOkClicked(ActionEvent e)
     {
         saveConfigurations();
+        savePreferences();
         setVisible(false);
     }
 
@@ -190,25 +268,25 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
-        if (!listItemExists(null, guiContext.cfg.gs("Z.untitled")))
+        if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
         {
             JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
             jrt.setConfigName(guiContext.cfg.gs("Z.untitled"));
-            jrt.setDataHasChanged(true);
+            jrt.setDataHasChanged();
             jrt.addJunkItem();
-            textFieldName.setText(jrt.getConfigName());
 
-            listModel.addElement(jrt);
-            listItems.setSelectedIndex(listModel.getSize() - 1);
+            configModel.addRow(new Object[]{ jrt });
 
+            // clear patterns table
             ((JunkTableModel) tableJunk.getModel()).setTool(null);
             tableJunk.removeAll();
             ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
 
+            // set patterns table
             ((JunkTableModel) tableJunk.getModel()).setTool(jrt);
             ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
 
-            if (listModel.getSize() > 0)
+            if (configModel.getRowCount() > 0)
             {
                 buttonCopy.setEnabled(true);
                 buttonDelete.setEnabled(true);
@@ -217,15 +295,15 @@ public class JunkRemoverUI extends JDialog
                 buttonRemoveRow.setEnabled(true);
             }
 
-            textFieldName.setEnabled(true);
-            textFieldName.selectAll();
-            textFieldName.requestFocus();
+            configItems.editCellAt(configModel.getRowCount() - 1, 0);
+            configItems.changeSelection(configModel.getRowCount() - 1, configModel.getRowCount() - 1, false, false);
+            configItems.getEditorComponent().requestFocus();
+            ((JTextField) configItems.getEditorComponent()).selectAll();
         }
         else
         {
-            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.please.rename.the.existing") +
+            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
                     guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-            textFieldName.requestFocus();
         }
     }
 
@@ -238,22 +316,35 @@ public class JunkRemoverUI extends JDialog
 
         // convert selected rows to model-based indices
         int rows[] = tableJunk.getSelectedRows();
-        for (int i = 0; i < rows.length; ++i)
+        if (rows.length > 0)
         {
-            int rm = tableJunk.convertRowIndexToModel(rows[i]);
-            rows[i] = rm;
-        }
+            for (int i = 0; i < rows.length; ++i)
+            {
+                int rm = tableJunk.convertRowIndexToModel(rows[i]);
+                rows[i] = rm;
+            }
 
-        // sort the indices ascending
-        Arrays.sort(rows);
+            // sort the indices ascending
+            Arrays.sort(rows);
 
-        // iterate in reverse so the order does not change as items are removed
-        for (int i = rows.length - 1; i >= 0; --i)
-        {
-            ((JunkTableModel) tableJunk.getModel()).removeRow(rows[i]);
+            // iterate in reverse so the order does not change as items are removed
+            for (int i = rows.length - 1; i >= 0; --i)
+            {
+                ((JunkTableModel) tableJunk.getModel()).removeRow(rows[i]);
+            }
+
+            int index = configItems.getSelectedRow();
+            if (index >= 0)
+            {
+                JunkRemoverTool jrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
+                jrt.setDataHasChanged();
+            }
+
+            ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
+            tableJunk.requestFocus();
+            if (tableJunk.getRowCount() > 0)
+                tableJunk.changeSelection(0, 0, false, false);
         }
-        ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
-        tableJunk.requestFocus();
     }
 
     private void actionRunClicked(ActionEvent e)
@@ -262,11 +353,11 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
-        int index = listItems.getSelectedIndex();
+        int index = configItems.getSelectedRow();
         if (index >= 0)
         {
-            JunkRemoverTool t = listModel.getElementAt(index);
-            workerJrt = t.clone();
+            JunkRemoverTool tool = (JunkRemoverTool) configModel.getValueAt(index, 0);
+            workerJrt = tool.clone();
             processSelected(workerJrt);
         }
     }
@@ -305,70 +396,21 @@ public class JunkRemoverUI extends JDialog
         }
 
         if (deletedTools.size() > 0)
-            somethingChanged = true;
-
-        for (int i = 0; i < listModel.getSize(); ++i)
-        {
-            if (((JunkRemoverTool) listModel.getElementAt(i)).isDataChanged())
-            {
-                somethingChanged = true;
-                break;
-            }
-        }
-        return somethingChanged;
-    }
-
-    private void helpClicked(MouseEvent e)
-    {
-        if (helpDialog == null)
-        {
-            helpDialog = new NavHelp(this, this, guiContext, guiContext.cfg.gs("JunkRemover.help"), "junkremover_" + guiContext.preferences.getLocale() + ".html");
-        }
-        if (!helpDialog.isVisible())
-        {
-            helpDialog.setVisible(true);
-            // offset the help dialog from the Settings dialog
-            Point loc = this.getLocation();
-            loc.x = loc.x + 32;
-            loc.y = loc.y + 32;
-            helpDialog.setLocation(loc);
-        }
-        else
-        {
-            helpDialog.toFront();
-        }
-    }
-
-    public boolean isValidOrigin(NavTreeUserObject tuo)
-    {
-        if (tuo.type == NavTreeUserObject.COLLECTION ||
-                tuo.type == NavTreeUserObject.LIBRARY ||
-                tuo.type == NavTreeUserObject.REAL)
             return true;
 
+        for (int i = 0; i < configModel.getRowCount(); ++i)
+        {
+            if (((JunkRemoverTool) configModel.getValueAt(i, 0)).isDataChanged())
+            {
+                return true;
+            }
+        }
         return false;
     }
 
-    private boolean listItemExists(JunkRemoverTool jrt, String configName)
+    private void configItemsMouseClicked(MouseEvent e)
     {
-        boolean exists = false;
-        for (int i = 0; i < listModel.getSize(); ++i)
-        {
-            if (listModel.getElementAt(i).getConfigName().equalsIgnoreCase(configName))
-            {
-                if (jrt == null || jrt != listModel.getElementAt(i))
-                {
-                    exists = true;
-                    break;
-                }
-            }
-        }
-        return exists;
-    }
-
-    private void listItemsMouseClicked(MouseEvent e)
-    {
-        JList src = (JList) e.getSource();
+        JTable src = (JTable) e.getSource();
         if (e.getClickCount() == 1)
         {
             if (tableJunk.isEditing())
@@ -376,23 +418,19 @@ public class JunkRemoverUI extends JDialog
                 tableJunk.getCellEditor().stopCellEditing();
             }
 
-            int index = src.locationToIndex(e.getPoint());
-            loadTable(index);
+            int index = src.getSelectedRow();
+            loadJunkTable(index);
         }
     }
 
-    private void listItemsValueChanged(ListSelectionEvent e)
+    public ArrayList<JunkRemoverTool> getDeletedTools()
     {
-        if (!e.getValueIsAdjusting())
-        {
-            if (tableJunk.isEditing())
-            {
-                tableJunk.getCellEditor().stopCellEditing();
-            }
+        return deletedTools;
+    }
 
-            int index = listItems.getSelectedIndex();
-            loadTable(index);
-        }
+    public JTable getConfigItems()
+    {
+        return configItems;
     }
 
     private void loadConfigurations()
@@ -418,48 +456,47 @@ public class JunkRemoverUI extends JDialog
                             {
                                 jrt.setDisplayName(guiContext.cfg.gs("JunkRemover.displayName"));
                                 jrt.setGuiContext(guiContext);
-                                listModel.addElement(jrt);
+                                configModel.addRow(new Object[]{ jrt });
                             }
                         }
                     }
                     catch (IOException e)
                     {
-                        // file might not exist
+                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.reading") + entry.getName(),
+                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     catch (JsonSyntaxException e)
                     {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.error.parsing.junk.remover.tool") + entry.getName(),
+                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.parsing") + entry.getName(),
                                 guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
         }
-        if (listModel.getSize() == 0)
+        if (configModel.getRowCount() == 0)
         {
             buttonCopy.setEnabled(false);
             buttonDelete.setEnabled(false);
             buttonRun.setEnabled(false);
             buttonAddRow.setEnabled(false);
             buttonRemoveRow.setEnabled(false);
-            textFieldName.setEnabled(false);
         }
         else
         {
-            loadTable(0);
-            listItems.requestFocus();
-            listItems.setSelectedIndex(0);
+            loadJunkTable(0);
+            configItems.requestFocus();
+            configItems.setRowSelectionInterval(0, 0);
         }
     }
 
-    private void loadTable(int index)
+    private void loadJunkTable(int index)
     {
-        if (index >= 0 && index < listModel.getSize())
+        if (index >= 0 && index < configModel.getRowCount())
         {
-            JunkRemoverTool jrt = (JunkRemoverTool) listModel.getElementAt(index);
+            JunkRemoverTool jrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
             JunkTableModel model = (JunkTableModel) tableJunk.getModel();
             model.setTool(jrt);
             model.fireTableDataChanged();
-            textFieldName.setText(jrt.getConfigName());
         }
         else
         {
@@ -470,136 +507,83 @@ public class JunkRemoverUI extends JDialog
             }
             model.setTool(null);
             model.fireTableDataChanged();
-            textFieldName.setText("");
         }
-    }
-
-    private ArrayList<Origin> makeOriginsFromSelected()
-    {
-        ArrayList<Origin> origins = new ArrayList<Origin>();
-        try
-        {
-            Object object = guiContext.browser.lastComponent;
-            if (object instanceof JTree)
-            {
-                JTree sourceTree = (JTree) object;
-                int row = sourceTree.getLeadSelectionRow();
-                if (row > -1)
-                {
-                    TreePath[] paths = sourceTree.getSelectionPaths();
-                    for (TreePath tp : paths)
-                    {
-                        NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
-                        NavTreeUserObject tuo = ntn.getUserObject();
-                        if (!isValidOrigin(tuo))
-                        {
-                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
-                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                            origins = null;
-                            break;
-                        }
-                        isSubscriber = tuo.isSubscriber();
-                        origins.add(new Origin(tuo));
-                    }
-                }
-            }
-            else if (object instanceof JTable)
-            {
-                JTable sourceTable = (JTable) object;
-                int row = sourceTable.getSelectedRow();
-                if (row > -1)
-                {
-                    int[] rows = sourceTable.getSelectedRows();
-                    for (int i = 0; i < rows.length; ++i)
-                    {
-                        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
-                        if (!isValidOrigin(tuo))
-                        {
-                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.cannot.run.on") + tuo.name,
-                                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                            origins = null;
-                            break;
-                        }
-                        isSubscriber = tuo.isSubscriber();
-                        origins.add(new Origin(tuo));
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-        }
-
-        return origins;
     }
 
     public void processSelected(JunkRemoverTool jrt)
     {
         if (jrt != null)
         {
-            ArrayList<Origin> origins = makeOriginsFromSelected();
-
-            if (origins != null && origins.size() > 0)
+            try
             {
-                int count = origins.size();
+                ArrayList<Origin> origins = new ArrayList<Origin>();
+                isSubscriber = Origin.makeOriginsFromSelected(this, origins);
 
-                // make dialog pieces
-                String which = (isSubscriber) ? guiContext.cfg.gs("Navigator.subscriber") : guiContext.cfg.gs("Navigator.publisher");
-                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
-                JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
-                Object[] params = {message, checkbox};
-
-                // confirm run of tool
-                int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.YES_NO_OPTION);
-                isDryRun = checkbox.isSelected();
-                if (reply == JOptionPane.YES_OPTION)
+                if (origins != null && origins.size() > 0)
                 {
-                    try
+                    int count = origins.size();
+
+                    // make dialog pieces
+                    String which = (isSubscriber) ? guiContext.cfg.gs("Z.subscriber") : guiContext.cfg.gs("Z.publisher");
+                    String message = java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
+                    JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
+                    Object[] params = {message, checkbox};
+
+                    // confirm run of tool
+                    int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.YES_NO_OPTION);
+                    isDryRun = checkbox.isSelected();
+                    if (reply == JOptionPane.YES_OPTION)
                     {
-                        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                        setComponentEnabled(false);
-                        cancelButton.setEnabled(true);
-                        cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                        labelHelp.setEnabled(true);
-                        labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                        Task task = new Task(jrt.getInternalName(), jrt.getConfigName());
-                        task.setOrigins(origins);
-
-                        if (isSubscriber)
-                            task.setSubscriberKey(Task.CURRENT_LOADED);
-                        else
-                            task.setPublisherKey(Task.CURRENT_LOADED);
-
-                        worker = task.process(guiContext, isDryRun, jrt);
-                        if (worker != null)
+                        try
                         {
-                            workerRunning = true;
-                            worker.addPropertyChangeListener(new PropertyChangeListener()
+                            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                            setComponentEnabled(false);
+                            cancelButton.setEnabled(true);
+                            cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            labelHelp.setEnabled(true);
+                            labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                            Task task = new Task(jrt.getInternalName(), jrt.getConfigName());
+                            task.setOrigins(origins);
+
+                            if (isSubscriber)
+                                task.setSubscriberKey(Task.ANY_SERVER);
+                            else
+                                task.setPublisherKey(Task.ANY_SERVER);
+
+                            worker = task.process(guiContext, isDryRun, jrt);
+                            if (worker != null)
                             {
-                                @Override
-                                public void propertyChange(PropertyChangeEvent e)
+                                workerRunning = true;
+                                worker.addPropertyChangeListener(new PropertyChangeListener()
                                 {
-                                    if (e.getPropertyName().equals("state"))
+                                    @Override
+                                    public void propertyChange(PropertyChangeEvent e)
                                     {
-                                        if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                            processTerminated(jrt);
+                                        if (e.getPropertyName().equals("state"))
+                                        {
+                                            if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                                processTerminated(jrt);
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            guiContext.browser.printLog(e.getMessage());
                         }
                     }
-                    catch (Exception e)
-                    {
-                        guiContext.browser.printLog(e.getMessage());
-                    }
+                }
+                else
+                {
+                    JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.nothing.selected.in.browser"),
+                            guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
                 }
             }
-            else
+            catch (Exception e)
             {
-                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.nothing.selected.in.browser"),
-                        guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                guiContext.browser.printLog(e.getMessage());
             }
         }
     }
@@ -618,9 +602,9 @@ public class JunkRemoverUI extends JDialog
         try
         {
             // write/update changed tool JSON configuration files
-            for (int i = 0; i < listModel.getSize(); ++i)
+            for (int i = 0; i < configModel.getRowCount(); ++i)
             {
-                jrt = listModel.getElementAt(i);
+                jrt = (JunkRemoverTool) configModel.getValueAt(i, 0);
                 if (jrt.isDataChanged())
                     jrt.write();
             }
@@ -641,9 +625,19 @@ public class JunkRemoverUI extends JDialog
             String name = (jrt != null) ? jrt.getConfigName() + " " : " ";
             guiContext.browser.printLog(Utils.getStackTrace(e), true);
             JOptionPane.showMessageDialog(this,
-                    guiContext.cfg.gs("JunkRemover.error.saving.configuration") + name + e.getMessage(),
+                    guiContext.cfg.gs("Z.error.writing") + name + e.getMessage(),
                     guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void savePreferences()
+    {
+        guiContext.preferences.setToolsJunkRemoverHeight(this.getHeight());
+        guiContext.preferences.setToolsJunkRemoverWidth(this.getWidth());
+        Point location = this.getLocation();
+        guiContext.preferences.setToolsJunkRemoverXpos(location.x);
+        guiContext.preferences.setToolsJunkRemoverYpos(location.y);
+        guiContext.preferences.setToolsJunkRemoverDividerLocation(splitPaneContent.getDividerLocation());
     }
 
     public void setComponentEnabled(boolean enabled)
@@ -666,46 +660,36 @@ public class JunkRemoverUI extends JDialog
         }
     }
 
-    private void textFieldNameChanged(ActionEvent e)
+    private void windowClosing(WindowEvent e)
     {
-        updateListName();
+        cancelButton.doClick();
     }
 
-    private void textFieldNameFocusLost(FocusEvent e)
-    {
-        updateListName();
-    }
+    // ================================================================================================================
 
-    private void updateListName()
+    private class NextCellAction extends AbstractAction
     {
-        int index = listItems.getSelectedIndex();
-        if (index >= 0)
+        @Override
+        public void actionPerformed(ActionEvent e)
         {
-            JunkRemoverTool jrt = (JunkRemoverTool) listModel.getElementAt(index);
-            if (jrt != null)
+            int row = tableJunk.getSelectedRow();
+            int col = tableJunk.getSelectedColumn();
+            int rowCount = tableJunk.getRowCount();
+            int colCount = tableJunk.getColumnCount();
+            ++col;
+            if (col >= colCount)
             {
-                if (listItemExists(jrt, textFieldName.getText()))
-                {
-                    JOptionPane.showMessageDialog(this,
-                            guiContext.cfg.gs(("JunkRemover.that.configuration.already.exists")),
-                            guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                    textFieldName.selectAll();
-                    textFieldName.requestFocus();
-                }
-                else
-                {
-                    jrt.setConfigName(textFieldName.getText());
-                    jrt.setDataHasChanged(true);
-                    listModel.setElementAt(jrt, index);
-
-                    // TODO Rename any existing file
-
-                    tableJunk.requestFocus();
-                    tableJunk.changeSelection(0, 0, false, false);
-                    tableJunk.editCellAt(0, 0);
-                    tableJunk.getEditorComponent().requestFocus();
-                }
+                col = 0;
+                ++row;
             }
+            if (row >= rowCount)
+            {
+                ((JunkTableModel) tableJunk.getModel()).getTool().addJunkItem();
+                ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
+            }
+            tableJunk.changeSelection(row, col, false, false);
+            tableJunk.editCellAt(row, col);
+            tableJunk.getEditorComponent().requestFocus();
         }
     }
 
@@ -729,10 +713,9 @@ public class JunkRemoverUI extends JDialog
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         splitPaneContent = new JSplitPane();
-        scrollPaneList = new JScrollPane();
-        listItems = new JList();
+        scrollPaneConfig = new JScrollPane();
+        configItems = new JTable();
         panelOptions = new JPanel();
-        textFieldName = new JTextField();
         scrollPaneOptions = new JScrollPane();
         tableJunk = new JTable();
         panelOptionsButtons = new JPanel();
@@ -746,6 +729,13 @@ public class JunkRemoverUI extends JDialog
         setTitle(guiContext.cfg.gs("JunkRemover.title"));
         setName("junkRemoverUI");
         setMinimumSize(new Dimension(150, 126));
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                JunkRemoverUI.this.windowClosing(e);
+            }
+        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
@@ -825,7 +815,7 @@ public class JunkRemoverUI extends JDialog
                         labelHelp.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
-                                helpClicked(e);
+                                actionHelpClicked(e);
                             }
                         });
                         panelHelp.add(labelHelp);
@@ -840,40 +830,30 @@ public class JunkRemoverUI extends JDialog
                     splitPaneContent.setLastDividerLocation(142);
                     splitPaneContent.setMinimumSize(new Dimension(140, 80));
 
-                    //======== scrollPaneList ========
+                    //======== scrollPaneConfig ========
                     {
-                        scrollPaneList.setMinimumSize(new Dimension(140, 16));
-                        scrollPaneList.setPreferredSize(new Dimension(142, 146));
+                        scrollPaneConfig.setMinimumSize(new Dimension(140, 16));
+                        scrollPaneConfig.setPreferredSize(new Dimension(142, 146));
 
-                        //---- listItems ----
-                        listItems.setPreferredSize(new Dimension(128, 54));
-                        listItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                        listItems.addMouseListener(new MouseAdapter() {
+                        //---- configItems ----
+                        configItems.setPreferredSize(new Dimension(128, 54));
+                        configItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        configItems.setShowVerticalLines(false);
+                        configItems.setFillsViewportHeight(true);
+                        configItems.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
-                                listItemsMouseClicked(e);
+                                configItemsMouseClicked(e);
                             }
                         });
-                        listItems.addListSelectionListener(e -> listItemsValueChanged(e));
-                        scrollPaneList.setViewportView(listItems);
+                        scrollPaneConfig.setViewportView(configItems);
                     }
-                    splitPaneContent.setLeftComponent(scrollPaneList);
+                    splitPaneContent.setLeftComponent(scrollPaneConfig);
 
                     //======== panelOptions ========
                     {
                         panelOptions.setMinimumSize(new Dimension(0, 78));
                         panelOptions.setLayout(new BorderLayout());
-
-                        //---- textFieldName ----
-                        textFieldName.setPreferredSize(new Dimension(150, 30));
-                        textFieldName.addActionListener(e -> textFieldNameChanged(e));
-                        textFieldName.addFocusListener(new FocusAdapter() {
-                            @Override
-                            public void focusLost(FocusEvent e) {
-                                textFieldNameFocusLost(e);
-                            }
-                        });
-                        panelOptions.add(textFieldName, BorderLayout.NORTH);
 
                         //======== scrollPaneOptions ========
                         {
@@ -931,7 +911,7 @@ public class JunkRemoverUI extends JDialog
                 //---- okButton ----
                 okButton.setText(guiContext.cfg.gs("JunkRemover.button.Ok.text"));
                 okButton.setMnemonic(guiContext.cfg.gs("JunkRemover.button.Ok.mnemonic").charAt(0));
-                okButton.addActionListener(e -> actionDoneClicked(e));
+                okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
@@ -964,10 +944,9 @@ public class JunkRemoverUI extends JDialog
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JSplitPane splitPaneContent;
-    private JScrollPane scrollPaneList;
-    private JList listItems;
+    private JScrollPane scrollPaneConfig;
+    private JTable configItems;
     private JPanel panelOptions;
-    private JTextField textFieldName;
     private JScrollPane scrollPaneOptions;
     private JTable tableJunk;
     private JPanel panelOptionsButtons;
@@ -980,33 +959,5 @@ public class JunkRemoverUI extends JDialog
     //
     // @formatter:on
     // </editor-fold>
-
-    // ================================================================================================================
-
-    private class NextCellAction extends AbstractAction
-    {
-        @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            int row = tableJunk.getSelectedRow();
-            int col = tableJunk.getSelectedColumn();
-            int rowCount = tableJunk.getRowCount();
-            int colCount = tableJunk.getColumnCount();
-            ++col;
-            if (col >= colCount)
-            {
-                col = 0;
-                ++row;
-            }
-            if (row >= rowCount)
-            {
-                ((JunkTableModel) tableJunk.getModel()).getTool().addJunkItem();
-                ((JunkTableModel) tableJunk.getModel()).fireTableDataChanged();
-            }
-            tableJunk.changeSelection(row, col, false, false);
-            tableJunk.editCellAt(row, col);
-            tableJunk.getEditorComponent().requestFocus();
-        }
-    }
 
 }

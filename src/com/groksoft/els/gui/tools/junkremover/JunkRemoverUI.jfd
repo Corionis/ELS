@@ -16,6 +16,8 @@ new FormModel {
 			"title": new FormMessage( null, "JunkRemover.title" )
 			"name": "junkRemoverUI"
 			"minimumSize": new java.awt.Dimension( 150, 126 )
+			"defaultCloseOperation": 0
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "windowClosing", true ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
@@ -89,7 +91,7 @@ new FormModel {
 								"toolTipText": new FormMessage( null, "JunkRemover.labelHelp.toolTipText" )
 								"cursor": new java.awt.Cursor( 12 )
 								"iconTextGap": 0
-								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "helpClicked", true ) )
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "East"
@@ -103,15 +105,16 @@ new FormModel {
 						"lastDividerLocation": 142
 						"minimumSize": new java.awt.Dimension( 140, 80 )
 						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-							name: "scrollPaneList"
+							name: "scrollPaneConfig"
 							"minimumSize": new java.awt.Dimension( 140, 16 )
 							"preferredSize": new java.awt.Dimension( 142, 146 )
-							add( new FormComponent( "javax.swing.JList" ) {
-								name: "listItems"
+							add( new FormComponent( "javax.swing.JTable" ) {
+								name: "configItems"
 								"preferredSize": new java.awt.Dimension( 128, 54 )
 								"selectionMode": 0
-								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "listItemsMouseClicked", true ) )
-								addEvent( new FormEvent( "javax.swing.event.ListSelectionListener", "valueChanged", "listItemsValueChanged", true ) )
+								"showVerticalLines": false
+								"fillsViewportHeight": true
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "configItemsMouseClicked", true ) )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "left"
@@ -119,14 +122,6 @@ new FormModel {
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 							name: "panelOptions"
 							"minimumSize": new java.awt.Dimension( 0, 78 )
-							add( new FormComponent( "javax.swing.JTextField" ) {
-								name: "textFieldName"
-								"preferredSize": new java.awt.Dimension( 150, 30 )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "textFieldNameChanged", true ) )
-								addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "textFieldNameFocusLost", true ) )
-							}, new FormLayoutConstraints( class java.lang.String ) {
-								"value": "North"
-							} )
 							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 								name: "scrollPaneOptions"
 								add( new FormComponent( "javax.swing.JTable" ) {
@@ -191,7 +186,7 @@ new FormModel {
 						name: "okButton"
 						"text": new FormMessage( null, "JunkRemover.button.Ok.text" )
 						"mnemonic": new FormMessage( null, "JunkRemover.button.Ok.mnemonic" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDoneClicked", true ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
 						"gridy": 0

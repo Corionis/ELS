@@ -5,7 +5,6 @@ import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.repository.Repository;
 
 import java.io.File;
-import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.util.concurrent.TimeUnit;
@@ -203,7 +202,7 @@ public class NavTreeUserObject implements Comparable
 
     public String getType()
     {
-        String label = (isRemote ? node.guiContext.cfg.gs("NavTreeNode.remote") : node.guiContext.cfg.gs("NavTreeNode.local"));
+        String label = (isRemote ? node.guiContext.cfg.gs("Z.remote.uppercase") : node.guiContext.cfg.gs("NavTreeNode.local"));
         switch (type)
         {
             case BOOKMARKS:

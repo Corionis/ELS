@@ -5,12 +5,19 @@ import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.repository.Repository;
+import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class AbstractTool implements Serializable
+/**
+ * AbstractTool class
+ * <br/>
+ * Match the inheritor class name and it's .displayName key in locales,
+ * e.g. JunkRemoverTool class and JunkRemoverTool.displayName locale key.
+ */
+public abstract class AbstractTool implements Comparable, Serializable
 {
     transient protected Configuration cfg;
     transient protected Context context;
@@ -26,6 +33,11 @@ public abstract class AbstractTool implements Serializable
     {
         this.cfg = config;
         this.context = ctxt;
+    }
+
+    public int compareTo(Object o)
+    {
+        return toString().compareTo(((JunkRemoverTool)o).toString());
     }
 
     public Configuration getCfg()
@@ -115,6 +127,12 @@ public abstract class AbstractTool implements Serializable
     }
 
     abstract public void setConfigName(String configName);
+
+    public void setContext(Configuration config, Context context)
+    {
+        this.cfg = config;
+        this.context = context;
+    }
 
     public void setDisplayName(String displayName)
     {

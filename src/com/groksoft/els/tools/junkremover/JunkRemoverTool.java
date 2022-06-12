@@ -59,6 +59,7 @@ public class JunkRemoverTool extends AbstractTool
         super(config, ctxt);
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
         this.junkList = new ArrayList<JunkItem>();
+        this.dataHasChanged = true;
     }
 
     /**
@@ -72,13 +73,14 @@ public class JunkRemoverTool extends AbstractTool
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
         this.guiContext = guiContext;
         this.junkList = new ArrayList<JunkItem>();
+        this.dataHasChanged = true;
     }
 
     public JunkItem addJunkItem()
     {
         JunkItem ji = new JunkItem();
         junkList.add(ji);
-        setDataHasChanged(true);
+        setDataHasChanged();
         return ji;
     }
 
@@ -139,7 +141,7 @@ public class JunkRemoverTool extends AbstractTool
         JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
         jrt.setConfigName(getConfigName());
         jrt.setDisplayName(getDisplayName());
-        jrt.setDataHasChanged(true);
+        jrt.setDataHasChanged();
         jrt.setJunkList(getJunkList());
         jrt.setIncludeInToolsList(isIncludeInToolsList());
         return jrt;
@@ -194,7 +196,7 @@ public class JunkRemoverTool extends AbstractTool
         {
             String msg = "  ";
             if (isRemote())
-                msg += getCfg().gs("NavTreeNode.remote");
+                msg += getCfg().gs("Z.remote.uppercase");
             else
                 msg += getCfg().gs("NavTreeNode.local");
             msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun ? 0 : 1, fullpath);
@@ -245,8 +247,9 @@ public class JunkRemoverTool extends AbstractTool
         {
             if (isRequestStop())
                 break;
+            String rem = isRemote ? cfg.gs("Z.remote.uppercase") : "";
             if (guiContext != null)
-                guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + path);
+                guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + rem + path);
             else
                 logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
 
@@ -417,6 +420,7 @@ public class JunkRemoverTool extends AbstractTool
         this.configName = configName;
     }
 
+/*
     public void setContext(Configuration config, Context context)
     {
         this.guiContext = null;
@@ -424,10 +428,11 @@ public class JunkRemoverTool extends AbstractTool
         this.context = context;
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
     }
+*/
 
-    public void setDataHasChanged(boolean sense)
+    public void setDataHasChanged()
     {
-        dataHasChanged = sense;
+        dataHasChanged = true;
     }
 
     public void setGuiContext(GuiContext guicontext)

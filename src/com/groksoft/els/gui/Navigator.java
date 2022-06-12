@@ -51,7 +51,6 @@ public class Navigator
     //
     // TODO:
     //  ! TEST Hints with spread-out files, e.g. TV Show in two locations.
-    //  ? Can Navigator be made to work without a Collection, i.e. secure SFTP tool, no "media" required?
     //  * Display Collection:
     //     * Whole tree - done
     //     * !-Z alphabetic
@@ -59,7 +58,6 @@ public class Navigator
     //
     // TODO:
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
-    //  * Remove -n | --rename options and JSON objects; Update documentation
     //
     // IDEA Add built-in SMTP mail sender; add as tool for emailing What's New files, logs, whatever.
     //
@@ -79,57 +77,14 @@ public class Navigator
     // IDEA:
     //  # Tools
     //      + Duplicate Finder
-    //          * Parameters
-    //              + Auto-delete duplicates
-    //                  - Newest, oldest
-    //          * Runtime
-    //              + Dry run
-    //              + Publisher or Subscriber
-    //              + List of Libraries and/or locations
     //      + Empty Directory Finder
-    //          * Parameters
-    //              + Auto-delete empty directories
-    //          * Runtime
-    //              + Dry run
-    //              + Publisher or Subscriber
-    //              + List of Libraries and/or locations
     //      + Junk Remover
-    //          * Parameters
-    //              + List of junk patterns
-    //              + Case sensitive flag each
-    //          * Runtime
-    //              + Dry run
-    //              + Publisher or Subscriber
-    //              + List of Libraries and/or locations
-    //      + Plex Generator - Make first included External Tool
-    //          * Parameters
-    //              + URL
-    //              + Port
-    //              + Output filename
-    //          * Runtime
-    //              + Plex security key
     //      + Renamer
-    //          * Parameters
-    //              + List of from/to patterns & other knobs TBD
-    //              + Case sensitive flag each
-    //          * Runtime
-    //              + Dry run
-    //              + Publisher or Subscriber
-    //              + List of Libraries and/or locations
+    //      + Plex Generator - Make first included External Tool
     //      + Backup Tab Configurations
-    //          * Because ELS is a backup tool this is one of the main tabs
-    //          * Uses Job structure so a Backup configs can be a step in a Job
     //  # Jobs
-    //      + List of Tools to execute in order
-    //          - Up/down buttons at bottom
-    //          - Built-in Tools:
-    //             + Prompt user with property name, prompt, command line string and parameter replacement
-    //             + Pause with seconds parameter
-    //             + Make it extendable
-    //      + Each tool
-    //          + Publisher or Subscriber
-    //          + List of Libraries and/or locations
-    //          + Dry run is a runtime parameter not stored
+    //      + Multi-task Jobs including Backups
+    //      + Add built-in Jobs tool for a process delay with milliseconds or seconds setting
     //
     // IDEA
     //  * Add optional command-line parameter to set the publisher & subscriber ports to override JSON
@@ -141,6 +96,13 @@ public class Navigator
     //          *
     //      * --inetd mode for listeners
     //          *
+    //
+    // IDEA
+    //  * Add a "shared" job construct with a Setting for location
+    //      * Add a check-box on the Jobs dialog for "shared"
+    //      * "Shared" jobs are synch'ed during backups
+    //  * Same idea for libraries
+    //      + Need an ELS option to match dates (now that dates can be synch'ed)
     //
 
     public Navigator(Main main, Configuration config, Context ctx)
@@ -752,7 +714,7 @@ public class Navigator
                             {
                                 path = path + Utils.getSeparatorFromPath(path) + reply;
                                 String msg = guiContext.cfg.gs("Navigator.menu.New.folder.creating") +
-                                        (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") + " " : "") +
+                                        (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") + " " : "") +
                                         guiContext.cfg.gs("Navigator.menu.New.folder.directory") + ": " + path;
                                 guiContext.browser.printLog(msg);
 
@@ -788,7 +750,7 @@ public class Navigator
                                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
                                 JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Navigator.menu.New.folder.error.creating") +
-                                                (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") + " " : "") +
+                                                (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") + " " : "") +
                                                 guiContext.cfg.gs("Navigator.menu.New.folder.directory") + ": " +
                                                 e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 error = true;
@@ -935,7 +897,7 @@ public class Navigator
                                 guiContext.browser.printLog(Utils.getStackTrace(e), true);
                                 JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Navigator.menu.Rename.error.renaming") +
-                                                (tuo.isRemote ? guiContext.cfg.gs("Navigator.remote.lowercase") +
+                                                (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") +
                                                         " " : "") + name + ": " + e.getMessage(),
                                         guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
@@ -1145,7 +1107,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                String message = guiContext.cfg.gs("Navigator.select.one.or.more.bookmarks.to.delete");
+                String message = guiContext.cfg.gs("Browser.select.one.or.more.bookmarks.to.delete");
                 JList<String> names = new JList<String>();
                 DefaultListModel<String> listModel = new DefaultListModel<String>();
                 names.setModel(listModel);

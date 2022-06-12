@@ -23,6 +23,16 @@ public class About extends JDialog
 
         labelVersion.setText("Version " + guiContext.cfg.getVersion());
         labelBuild.setText(guiContext.context.main.getBuildStamp());
+
+        ActionListener escListener = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                setVisible(false);
+            }
+        };
+        getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     private void thisWindowClosed(WindowEvent e)

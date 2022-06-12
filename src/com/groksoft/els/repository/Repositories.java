@@ -1,18 +1,10 @@
 package com.groksoft.els.repository;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.groksoft.els.Configuration;
-import com.groksoft.els.Utils;
 
-import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Repositories
 {

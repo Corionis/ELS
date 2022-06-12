@@ -75,15 +75,23 @@ public class Settings extends JDialog
             @Override
             public void keyTyped(KeyEvent keyEvent)
             {
-                if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER || keyEvent.getKeyChar() == KeyEvent.VK_ESCAPE)
+                if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER)
                 {
                     if (keyEvent.getSource() == okButton)
                         okButton.doClick();
-                    else if (keyEvent.getSource() == cancelButton)
-                        cancelButton.doClick();
                 }
             }
         });
+
+        ActionListener escListener = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                cancelButton.doClick();
+            }
+        };
+        getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         lookFeelComboBox.addActionListener(new AbstractAction()
         {
