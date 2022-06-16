@@ -9,6 +9,7 @@ import com.groksoft.els.gui.GuiContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +23,8 @@ public class Job implements Serializable
     private String configName; // user name for this instance
     private ArrayList<Task> tasks;
 
+    transient Task currentTask = null;
     transient private boolean dataHasChanged = false;
-    transient private boolean initialized = false;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private boolean stop = false;
 
@@ -48,7 +49,6 @@ public class Job implements Serializable
             tasks.add(task.clone());
         }
         job.setTasks(tasks);
-        job.initialized = true;
         return job;
     }
 
@@ -108,9 +108,7 @@ public class Job implements Serializable
                         Job tmpJob = gson.fromJson(json, Job.class);
                         if (tmpJob.getConfigName().equalsIgnoreCase(jobName))
                         {
-//                            logger.info("Read Job file: " + entry.getName());
                             job = tmpJob;
-                            job.initialized = true;
                             break;
                         }
                     }
@@ -124,54 +122,83 @@ public class Job implements Serializable
         return job;
     }
 
-    public int process(GuiContext guiContext) throws Exception
-    {
-        return process(guiContext.cfg, guiContext.context);
-    }
-
-    public int process(GuiContext guiContext, Job job) throws Exception
-    {
-        return process(guiContext.cfg, guiContext.context, this.configName);
-    }
-
+    /**
+     * Process this Job
+     * <br/>
+     * Used by Main() with the -j | --job command line option
+     *
+     * @param cfg
+     * @param context
+     * @return
+     * @throws Exception
+     */
     public int process(Configuration cfg, Context context) throws Exception
     {
-        return process(cfg, context, this);
+        return processJob(cfg, context, this, cfg.isDryRun());
     }
 
-    public int process(Configuration cfg, Context context, String jobName) throws Exception
+    /**
+     * Process the job on a SwingWorker thread
+     * <br/>
+     * Used by the Jobs GUI
+     *
+     * @param guiContext   The GuiContext
+     * @param job          The Job to run
+     * @param isDryRun     True for a dry-run
+     * @return SwingWorker<Void, Void> of thread
+     */
+    public SwingWorker<Void, Void> process(GuiContext guiContext, Job job, boolean isDryRun)
     {
-        Job job;
-        if (!this.getConfigName().equals(jobName) || !this.initialized)
-            job = Job.load(jobName);
-        else
-            job = this;
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+        {
+            @Override
+            protected Void doInBackground() throws Exception
+            {
+                try
+                {
+                    processJob(guiContext.cfg, guiContext.context, job, isDryRun);
+                }
+                catch (Exception e)
+                {
+                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                    guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
+                            guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
 
-        return process(cfg, context, job);
+                }
+                return null;
+            }
+        };
+        worker.execute();
+        return worker;
     }
 
-    public int process(Configuration cfg, Context context, Job job) throws Exception
+    private int processJob(Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception
     {
         int result = 0;
-        if (job.initialized)
+        stop = false;
+        if (job.getTasks() != null && job.getTasks().size() > 0)
         {
             logger.info("Executing job: " + job.getConfigName());
             for (Task task : job.getTasks())
             {
                 if (isRequestStop())
                     break;
-                task.process(cfg, context, cfg.isDryRun());
+                currentTask = task;
+                currentTask.process(cfg, context, isDryRun);
             }
         }
         else
-            throw new MungeException("Attempt to process uninitialized job");
+            throw new MungeException(cfg.gs("JobsUI.job.has.no.tasks") + ": " + job.getConfigName());
 
         return result;
     }
 
     public void requestStop()
     {
-        this.stop = true;
+        stop = true;
+        if (currentTask != null)
+            currentTask.requestStop();
     }
 
     public void setConfigName(String configName)

@@ -224,8 +224,6 @@ public class JunkRemoverTool extends AbstractTool
 
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
-        if (repo == null)
-            return;;
 
         if (origins == null || origins.size() == 0)
         {
@@ -291,7 +289,18 @@ public class JunkRemoverTool extends AbstractTool
             @Override
             protected Void doInBackground() throws Exception
             {
-                processTool(publisherRepo, subscriberRepo, origins, dryRun);
+                try
+                {
+                    processTool(publisherRepo, subscriberRepo, origins, dryRun);
+                }
+                catch (Exception e)
+                {
+                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                    guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
+                            guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+
+                }
                 return null;
             }
         };

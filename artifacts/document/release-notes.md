@@ -85,6 +85,9 @@ It's all built-in with the -n | --navigator option.
 
  4. Added option -z | --decimal-scale to format numeric (B, KB, MB, GB, TB) values with
     a 1000 decimal scale instead of a 1024 binary scale.
+ 
+ 5. Added option -j | --job to execute a previously-defined ELS Job. If the name contains
+    whitespace enclose it in quotations. In this mode the job controls ELS actions.
 
 ### Other Changes
 

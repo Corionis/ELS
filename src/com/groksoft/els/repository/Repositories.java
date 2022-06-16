@@ -59,7 +59,7 @@ public class Repositories
                     repo.read(entry.getPath());
 
                     Meta meta = new Meta();
-                    meta.name = repo.getLibraryData().libraries.description;
+                    meta.description = repo.getLibraryData().libraries.description;
                     meta.key = repo.getLibraryData().libraries.key;
                     meta.path = entry.getPath();
                     if (list == null)
@@ -73,8 +73,13 @@ public class Repositories
 
     public class Meta
     {
-        public String name;
+        public String description;
         public String key;
         public String path;
+
+        public String toString()
+        {
+            return description;
+        }
     }
 }

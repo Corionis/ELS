@@ -23,6 +23,7 @@ public class Task implements Comparable, Serializable
     private String subscriberKey = "";
     private ArrayList<Origin> origins;
 
+    transient AbstractTool currentTool = null;
     transient boolean dual = true;
 
     public Task(String internalName, String configName)
@@ -103,7 +104,7 @@ public class Task implements Comparable, Serializable
                         repo = new Repository(config, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
                         repo.read(meta.path);
                     }
-                    else
+                    else // QUESTION should this be handled in a non-fatal way?
                         throw new MungeException((forPublisher ? "Publisher" : "Subscriber") + " repository " + key + " not found");
                 }
             }
@@ -123,6 +124,8 @@ public class Task implements Comparable, Serializable
 
     /**
      * Process the task
+     * <br/>
+     * Used by a Job
      *
      * @param config The Configuration
      * @param ctxt   The Context
@@ -133,38 +136,54 @@ public class Task implements Comparable, Serializable
     {
         // get tool
         Tools tools = new Tools();
-        AbstractTool tool = tools.getTool(config, ctxt, getInternalName(), getConfigName());
+        currentTool = tools.getTool(config, ctxt, getInternalName(), getConfigName());
 
-        if (tool != null)
+        if (currentTool != null)
         {
             // get repos
             Repository pubRepo = getRepo(config, ctxt, getPublisherKey(), true);
             Repository subRepo = getRepo(config, ctxt, getSubscriberKey(), false);
+            if (pubRepo == null && subRepo == null)
+                throw new MungeException("No repository is loaded");
 
-            tool.processTool(pubRepo, subRepo, origins, dryRun);
+            currentTool.processTool(pubRepo, subRepo, origins, dryRun);
         }
         else
-            throw new MungeException("Tools not found " + getInternalName() + ":" + getConfigName());
+            throw new MungeException("Tool not found " + getInternalName() + ":" + getConfigName());
     }
 
     /**
      * Process the task on a SwingWorker thread
+     * <br/>
+     * Used by the Run button of the tool
      *
      * @param guiContext The GuiContext
      * @param dryRun     Boolean for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
-    public SwingWorker<Void, Void> process(GuiContext guiContext, boolean dryRun, AbstractTool tool) throws Exception
+    public SwingWorker<Void, Void> process(GuiContext guiContext, AbstractTool tool, boolean dryRun) throws Exception
     {
         if (tool != null)
         {
+            currentTool = tool;
+
             // get repos
             Repository pubRepo = getRepo(guiContext.cfg, guiContext.context, getPublisherKey(), true);
             Repository subRepo = getRepo(guiContext.cfg, guiContext.context, getSubscriberKey(), false);
+            if (pubRepo == null && subRepo == null)
+                throw new MungeException("No repository is loaded");
 
             return tool.processToolThread(pubRepo, subRepo, origins, dryRun);
         }
         return null;
+    }
+
+    public void requestStop()
+    {
+        if (currentTool != null)
+        {
+            currentTool.requestStop();
+        }
     }
 
     public void setConfigName(String configName)

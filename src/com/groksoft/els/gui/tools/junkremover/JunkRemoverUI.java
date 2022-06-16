@@ -551,7 +551,7 @@ public class JunkRemoverUI extends JDialog
                             else
                                 task.setPublisherKey(Task.ANY_SERVER);
 
-                            worker = task.process(guiContext, isDryRun, jrt);
+                            worker = task.process(guiContext, jrt, isDryRun);
                             if (worker != null)
                             {
                                 workerRunning = true;

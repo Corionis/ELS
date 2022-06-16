@@ -59,7 +59,9 @@ public class Tools
     {
         DefaultListModel<AbstractTool> toolListModel = new DefaultListModel<AbstractTool>();
 
-        // JunkRemover tool
+        // Use the ToolParserI interface to implement a parser for each embedded tool
+
+        // begin JunkRemover tool
         ToolParserI junkRemoverParser = new ToolParserI()
         {
             @Override
@@ -80,9 +82,10 @@ public class Tools
         JunkRemoverTool tmpJrt = new JunkRemoverTool(config, ctxt);
         File toolDir = new File(tmpJrt.getDirectoryPath());
         toolListModel = scanTools(config, ctxt, toolListModel, junkRemoverParser, toolDir);
+        // end JunkRemover tool
 
 
-        // TODO add other tools here
+        // TODO add other tool parsers here
 
 
         // sort the list

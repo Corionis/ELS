@@ -26,6 +26,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -34,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 public class JobsUI extends JDialog
 {
@@ -392,12 +395,42 @@ public class JobsUI extends JDialog
         }
     }
 
-    private void actionRunClicked(ActionEvent e)
+    private void actionRunClicked(ActionEvent evt)
     {
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
             Job job = (Job) configModel.getValueAt(index, 0);
+
+            if (job.getTasks() != null && job.getTasks().size() > 0)
+            {
+                for (Task task : job.getTasks())
+                {
+                    if (task.getOrigins() == null || task.getOrigins().size() == 0)
+                    {
+                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName(),
+                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                }
+                // make dialog pieces
+                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
+                JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
+                Object[] params = {message, checkbox};
+
+                // confirm run of job
+                int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                isDryRun = checkbox.isSelected();
+                if (reply == JOptionPane.YES_OPTION)
+                {
+                    process(job, isDryRun);
+                }
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.job.has.no.tasks"),
+                        guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+            }
 
         }
     }
@@ -410,13 +443,21 @@ public class JobsUI extends JDialog
 
             // make dialog pieces
             String message = "Select tool:";
-            JList<AbstractTool> toolJList = new JList<AbstractTool>();
+            JList<String> toolJList = new JList<String>();
+            DefaultListModel<AbstractTool> toolListModel = null;
 
             try
             {
                 Tools toolsHandler = new Tools();
-                DefaultListModel<AbstractTool> toolListModel = toolsHandler.getAllTools(guiContext.cfg, guiContext.context);
-                toolJList.setModel(toolListModel);
+                toolListModel = toolsHandler.getAllTools(guiContext.cfg, guiContext.context);
+                DefaultListModel<String> dialogList = new DefaultListModel<String>();
+                Enumeration e = toolListModel.elements();
+                while (e.hasMoreElements())
+                {
+                    AbstractTool t = (AbstractTool) e.nextElement();
+                    dialogList.addElement(t.getDisplayName() + ": " + t.getConfigName());
+                }
+                toolJList.setModel(dialogList);
                 toolJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 toolJList.setSelectedIndex(0);
             }
@@ -434,13 +475,22 @@ public class JobsUI extends JDialog
             if (opt == JOptionPane.YES_OPTION)
             {
                 int index = toolJList.getSelectedIndex();
-                AbstractTool tool = toolJList.getSelectedValue();
+                AbstractTool tool = toolListModel.elementAt(index);
                 currentTask = new Task(tool.getInternalName(), tool.getConfigName());
                 currentJob.getTasks().add(currentTask);
                 currentJob.setDataHasChanged();
                 loadTasks(-1);
                 listTasks.setSelectedIndex(currentJob.getTasks().size() - 1);
                 loadOrigins(currentTask);
+                // default to the first selection of "any"
+                // do after loadOrigins() so isDual() is set
+                if (currentTask.isDual())
+                {
+                    currentTask.setPublisherKey(Task.ANY_SERVER);
+                    currentTask.setSubscriberKey(Task.ANY_SERVER);
+                }
+                else
+                    currentTask.setPublisherKey(Task.ANY_SERVER);
                 comboBoxPubSub1.requestFocus();
             }
             else
@@ -772,6 +822,8 @@ public class JobsUI extends JDialog
         // TODO
         //  * if pub or sub is "current" match their key with what is currently loaded
         //  * if different prompt whether to load the correct lib file
+        //  .
+        //
 
         loadingCombo = true;
 
@@ -780,7 +832,8 @@ public class JobsUI extends JDialog
         {
             comboBoxPubSub1.removeAllItems();
             comboBoxPubSub1.addItem(new ComboItem(0, guiContext.cfg.gs("JobsUI.any.publisher")));
-            comboBoxPubSub1.addItem(new ComboItem(1, guiContext.cfg.gs("JobsUI.current.publisher")));
+            comboBoxPubSub1.addItem(new ComboItem(1, guiContext.cfg.gs("JobsUI.current.publisher") + ": " +
+                    guiContext.context.publisherRepo.getLibraryData().libraries.description));
             comboBoxPubSub1.setToolTipText(guiContext.cfg.gs("Z.publisher"));
 
             sel = !task.getPublisherKey().equals(task.ANY_SERVER) ? 1 : 0;
@@ -788,7 +841,8 @@ public class JobsUI extends JDialog
 
             comboBoxPubSub2.removeAllItems();
             comboBoxPubSub2.addItem(new ComboItem(2, guiContext.cfg.gs("JobsUI.any.subscriber")));
-            comboBoxPubSub2.addItem(new ComboItem(3, guiContext.cfg.gs("JobsUI.current.subscriber")));
+            comboBoxPubSub2.addItem(new ComboItem(3, guiContext.cfg.gs("JobsUI.current.subscriber") + ": +" +
+                    guiContext.context.subscriberRepo.getLibraryData().libraries.description));
             comboBoxPubSub2.setToolTipText(guiContext.cfg.gs("Z.subscriber"));
 
             sel = !task.getSubscriberKey().equals(task.ANY_SERVER) ? 1 : 0;
@@ -800,10 +854,12 @@ public class JobsUI extends JDialog
         {
             comboBoxPubSub1.removeAllItems();
             comboBoxPubSub1.addItem(new ComboItem(0, guiContext.cfg.gs("JobsUI.any.publisher")));
-            comboBoxPubSub1.addItem(new ComboItem(1, guiContext.cfg.gs("JobsUI.current.publisher")));
+            comboBoxPubSub1.addItem(new ComboItem(1, guiContext.cfg.gs("JobsUI.current.publisher") + ": " +
+                    guiContext.context.publisherRepo.getLibraryData().libraries.description));
 
             comboBoxPubSub1.addItem(new ComboItem(2, guiContext.cfg.gs("JobsUI.any.subscriber")));
-            comboBoxPubSub1.addItem(new ComboItem(3, guiContext.cfg.gs("JobsUI.current.subscriber")));
+            comboBoxPubSub1.addItem(new ComboItem(3, guiContext.cfg.gs("JobsUI.current.subscriber") + ": " +
+                    guiContext.context.subscriberRepo.getLibraryData().libraries.description));
             comboBoxPubSub1.setToolTipText(guiContext.cfg.gs("JobsUI.publisher.or.subscriber"));
 
             if (task.getPublisherKey().length() > 0)
@@ -819,6 +875,45 @@ public class JobsUI extends JDialog
         }
 
         loadingCombo = false;
+    }
+
+    private void process(Job job, boolean isDryRun)
+    {
+        ArrayList<Task> tasks = job.getTasks();
+        if (tasks.size() > 0)
+        {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            setComponentEnabled(false);
+            cancelButton.setEnabled(true);
+            cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            labelHelp.setEnabled(true);
+            labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            worker = job.process(guiContext, job, isDryRun);
+            if (worker != null)
+            {
+                workerRunning = true;
+                worker.addPropertyChangeListener(new PropertyChangeListener()
+                {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent e)
+                    {
+                        if (e.getPropertyName().equals("state"))
+                        {
+                            if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                processTerminated(job);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void processTerminated(Job job)
+    {
+        setComponentEnabled(true);
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        workerRunning = false;
     }
 
     private void saveConfigurations()
@@ -929,7 +1024,28 @@ public class JobsUI extends JDialog
         }
     }
 
-    private void thisWindowClosing(WindowEvent e)
+    public void setComponentEnabled(boolean enabled)
+    {
+        setComponentEnabled(enabled, getContentPane());
+    }
+
+    private void setComponentEnabled(boolean enabled, Component component)
+    {
+        component.setEnabled(enabled);
+        if (component instanceof Container)
+        {
+            Component[] components = ((Container) component).getComponents();
+            if (components != null && components.length > 0)
+            {
+                for (Component comp : components)
+                {
+                    setComponentEnabled(enabled, comp);
+                }
+            }
+        }
+    }
+
+    private void windowClosing(WindowEvent e)
     {
         cancelButton.doClick();
     }
@@ -1013,7 +1129,7 @@ public class JobsUI extends JDialog
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                thisWindowClosing(e);
+                JobsUI.this.windowClosing(e);
             }
         });
         Container contentPane = getContentPane();
