@@ -1,48 +1,76 @@
 package com.groksoft.els.tools;
 
-import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
+import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
-import javax.swing.*;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class Tools
 {
-    public AbstractTool getTool(Configuration config, Context ctxt, String internalName, String configName) throws Exception
+    /**
+     * Get tool from existing toolList from getAllTools()
+     *
+     * @param toolList Existing toolList
+     * @param internalName Internal name of desired tool
+     * @param configName Config name of desired tool
+     * @return The AbstractTool or null if not found
+     */
+    public AbstractTool getTool(ArrayList<AbstractTool> toolList, String internalName, String configName)
+    {
+        for (int i = 0; i < toolList.size(); ++i)
+        {
+            AbstractTool tool = toolList.get(i);
+            if (tool.getInternalName().equals(internalName) && tool.getConfigName().equals(configName))
+                return tool;
+        }
+        return null;
+    }
+
+    /**
+     * Load a specific tool from disk
+     *
+     * @param config The Configuration
+     * @param ctxt The Context
+     * @param internalName Internal name of desired tool
+     * @param configName Config name of desired tool
+     * @return The AbstractTool or null if not found
+     * @throws Exception File system and parse exceptions
+     */
+    public AbstractTool loadTool(GuiContext guiContext, Configuration config, Context ctxt, String internalName, String configName) throws Exception
     {
         AbstractTool tool = null;
+
+        // begin JunkRemover
         if (internalName.equals("JunkRemover"))
         {
-            JunkRemoverTool tmpTool = new JunkRemoverTool(config, ctxt);
+            JunkRemoverTool tmpTool = new JunkRemoverTool(null, config, ctxt);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
             {
+                JunkRemoverParser junkRemoverParser = new JunkRemoverParser();
                 File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
                 for (File entry : files)
                 {
                     if (!entry.isDirectory())
                     {
-                        Gson gson = new Gson();
                         String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                         if (json != null)
                         {
-                            JunkRemoverTool jrt = gson.fromJson(json, JunkRemoverTool.class);
+                            AbstractTool jrt = junkRemoverParser.parseTool(guiContext, config, ctxt, json);
                             if (jrt != null)
                             {
                                 if (jrt.getConfigName().equalsIgnoreCase(configName))
                                 {
-                                    jrt.setDisplayName(config.gs("JunkRemover.displayName"));
-                                    jrt.setContext(config, ctxt);
                                     tool = jrt;
                                     break;
                                 }
@@ -52,53 +80,59 @@ public class Tools
                 }
             }
         }
+        // end JunkRemover
+
+        // TODO Add other tool implementations here
+
         return tool;
     }
 
-    public DefaultListModel<AbstractTool> getAllTools(Configuration config, Context ctxt) throws Exception
+    /**
+     * Load all tools from disk
+     *
+     * @param config The Configuration
+     * @param ctxt The Context
+     * @param internalName Internal name of desired tool, or null/empty for all tools
+     * @return ArrayList of tools
+     * @throws Exception File system and parse exceptions
+     */
+    public ArrayList<AbstractTool> loadAllTools(GuiContext guiContext, Configuration config, Context ctxt, String internalName) throws Exception
     {
-        DefaultListModel<AbstractTool> toolListModel = new DefaultListModel<AbstractTool>();
+        ArrayList<AbstractTool> toolList = new ArrayList<AbstractTool>();
 
-        // Use the ToolParserI interface to implement a parser for each embedded tool
+        if (internalName != null && internalName.length() == 0)
+            internalName = null;
 
-        // begin JunkRemover tool
-        ToolParserI junkRemoverParser = new ToolParserI()
+        if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
-            @Override
-            public DefaultListModel<AbstractTool>  addTool(DefaultListModel<AbstractTool> toolListModel, String json)
-            {
-                Gson gson = new Gson();
-                JunkRemoverTool tool = gson.fromJson(json, JunkRemoverTool.class);
-                if (tool != null)
-                {
-                    tool.setDisplayName(config.gs("JunkRemover.displayName"));
-                    tool.setContext(config, ctxt);
-                    toolListModel.addElement(tool);
-                }
-                return toolListModel;
-            }
-        };
-        //
-        JunkRemoverTool tmpJrt = new JunkRemoverTool(config, ctxt);
-        File toolDir = new File(tmpJrt.getDirectoryPath());
-        toolListModel = scanTools(config, ctxt, toolListModel, junkRemoverParser, toolDir);
-        // end JunkRemover tool
-
+            // begin JunkRemover
+            JunkRemoverParser junkRemoverParser = new JunkRemoverParser();
+            JunkRemoverTool tmpJrt = new JunkRemoverTool(null, config, ctxt);
+            File toolDir = new File(tmpJrt.getDirectoryPath());
+            toolList = scanTools(guiContext, config, ctxt, toolList, junkRemoverParser, toolDir);
+            // end JunkRemover
+        }
 
         // TODO add other tool parsers here
 
-
         // sort the list
-        List<AbstractTool> toolsList = Collections.list(toolListModel.elements());
-        Collections.sort(toolsList);
-        toolListModel.removeAllElements();;
-        for (AbstractTool tool : toolsList)
-            toolListModel.addElement(tool);
+        Collections.sort(toolList);
 
-        return toolListModel;
+        return toolList;
     }
 
-    private DefaultListModel<AbstractTool> scanTools(Configuration config, Context ctxt, DefaultListModel<AbstractTool> toolListModel, ToolParserI parser, File toolDir) throws Exception
+    /**
+     * Scan the disk for a specific tool's configurations
+     *
+     * @param config The Configuration
+     * @param ctxt The Context
+     * @param toolList Existing toolList
+     * @param parser The ToolParserI implementation for this tool
+     * @param toolDir The full path to this tool's configurations
+     * @return ArrayList&lt;AbstractTool&gt; toolList
+     * @throws Exception File system exceptions
+     */
+    private ArrayList<AbstractTool> scanTools(GuiContext guiContext, Configuration config, Context ctxt, ArrayList<AbstractTool> toolList, ToolParserI parser, File toolDir) throws Exception
     {
         if (toolDir.exists() && toolDir.isDirectory())
         {
@@ -107,21 +141,61 @@ public class Tools
             {
                 if (!entry.isDirectory())
                 {
-                    Gson gson = new Gson();
                     String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                     if (json != null)
                     {
-                        toolListModel = parser.addTool(toolListModel, json);
+                        AbstractTool tool = parser.parseTool(guiContext, config, ctxt, json);
+                        if (tool != null)
+                            toolList.add(tool);
                     }
                 }
             }
         }
-        return toolListModel;
+        return toolList;
     }
 
+    //=================================================================================================================
+
+    /**
+     * Interface for Google GSON tool parsers
+     */
     private interface ToolParserI
     {
-        DefaultListModel<AbstractTool> addTool(DefaultListModel<AbstractTool> toolListModel, String json);
+        AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json);
+    }
+
+    //=================================================================================================================
+
+    /**
+     * ToolParserI implementation for the JunkRemoverTool
+     */
+    private class JunkRemoverParser implements ToolParserI
+    {
+        /**
+         * Parse a JunkRemoverTool
+         *
+         * @param config The Configuration
+         * @param ctxt The Context
+         * @param json String of JSON to parse
+         * @return AbstractTool instance
+         */
+        @Override
+        public AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new JunkRemoverTool(guiContext, config, ctxt);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(JunkRemoverTool.class, new objInstanceCreator());
+            JunkRemoverTool tool = builder.create().fromJson(json, JunkRemoverTool.class);
+            return tool;
+        }
     }
 
 }

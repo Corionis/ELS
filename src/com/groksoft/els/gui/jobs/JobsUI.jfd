@@ -210,15 +210,11 @@ new FormModel {
 											"axis": 1
 										} ) {
 											name: "panelPubSub"
-											add( new FormComponent( "javax.swing.JComboBox" ) {
-												name: "comboBoxPubSub1"
-												"selectedIndex": -1
-												addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "comboBoxPubSub1ItemStateChanged", true ) )
-											} )
-											add( new FormComponent( "javax.swing.JComboBox" ) {
-												name: "comboBoxPubSub2"
-												"selectedIndex": -1
-												addEvent( new FormEvent( "java.awt.event.ItemListener", "itemStateChanged", "comboBoxPubSub2ItemStateChanged", true ) )
+											add( new FormComponent( "javax.swing.JTable" ) {
+												name: "tablePubSub"
+												"cellSelectionEnabled": true
+												"selectionMode": 0
+												"showVerticalLines": false
 											} )
 										}, new FormLayoutConstraints( class java.lang.String ) {
 											"value": "North"

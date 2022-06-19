@@ -92,32 +92,25 @@ public class Job implements Serializable
         Job job = null;
         String path = getDirectoryPath();
 
-        try
+        File jobDir = new File(path);
+        if (jobDir.exists() && jobDir.isDirectory())
         {
-            File jobDir = new File(path);
-            if (jobDir.exists() && jobDir.isDirectory())
+            String json;
+            Gson gson = new Gson();
+            File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, false);
+            for (File entry : files)
             {
-                String json;
-                Gson gson = new Gson();
-                File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, false);
-                for (File entry : files)
+                if (!entry.isDirectory())
                 {
-                    if (!entry.isDirectory())
+                    json = new String(Files.readAllBytes(Paths.get(entry.getPath())));
+                    Job tmpJob = gson.fromJson(json, Job.class);
+                    if (tmpJob.getConfigName().equalsIgnoreCase(jobName))
                     {
-                        json = new String(Files.readAllBytes(Paths.get(entry.getPath())));
-                        Job tmpJob = gson.fromJson(json, Job.class);
-                        if (tmpJob.getConfigName().equalsIgnoreCase(jobName))
-                        {
-                            job = tmpJob;
-                            break;
-                        }
+                        job = tmpJob;
+                        break;
                     }
                 }
             }
-        }
-        catch (IOException ioe)
-        {
-            throw new MungeException("Exception while reading job " + path + " trace: " + Utils.getStackTrace(ioe));
         }
         return job;
     }
@@ -132,9 +125,9 @@ public class Job implements Serializable
      * @return
      * @throws Exception
      */
-    public int process(Configuration cfg, Context context) throws Exception
+    public int process(GuiContext guiContext, Configuration cfg, Context context) throws Exception
     {
-        return processJob(cfg, context, this, cfg.isDryRun());
+        return processJob(guiContext, cfg, context, this, cfg.isDryRun());
     }
 
     /**
@@ -142,9 +135,9 @@ public class Job implements Serializable
      * <br/>
      * Used by the Jobs GUI
      *
-     * @param guiContext   The GuiContext
-     * @param job          The Job to run
-     * @param isDryRun     True for a dry-run
+     * @param guiContext The GuiContext
+     * @param job        The Job to run
+     * @param isDryRun   True for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
     public SwingWorker<Void, Void> process(GuiContext guiContext, Job job, boolean isDryRun)
@@ -156,7 +149,7 @@ public class Job implements Serializable
             {
                 try
                 {
-                    processJob(guiContext.cfg, guiContext.context, job, isDryRun);
+                    processJob(guiContext, guiContext.cfg, guiContext.context, job, isDryRun);
                 }
                 catch (Exception e)
                 {
@@ -173,19 +166,19 @@ public class Job implements Serializable
         return worker;
     }
 
-    private int processJob(Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception
+    private int processJob(GuiContext guiContext, Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception
     {
         int result = 0;
         stop = false;
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
-            logger.info("Executing job: " + job.getConfigName());
+            logger.info(guiContext.cfg.gs("Jobs.executing.job") + job.getConfigName());
             for (Task task : job.getTasks())
             {
                 if (isRequestStop())
                     break;
                 currentTask = task;
-                currentTask.process(cfg, context, isDryRun);
+                currentTask.process(guiContext, cfg, context, isDryRun);
             }
         }
         else

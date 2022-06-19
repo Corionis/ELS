@@ -43,6 +43,7 @@ public class Task implements Comparable, Serializable
         Task task = new Task(this.getInternalName(), this.getConfigName());
         task.setPublisherKey(this.getPublisherKey());
         task.setSubscriberKey(this.getSubscriberKey());
+        task.setDual(this.isDual());
         ArrayList<Origin> origins = new ArrayList<Origin>();
         for (Origin origin : this.getOrigins())
         {
@@ -102,10 +103,10 @@ public class Task implements Comparable, Serializable
                     if (meta != null)
                     {
                         repo = new Repository(config, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
-                        repo.read(meta.path);
+                        repo.read(meta.path, true);
                     }
                     else // QUESTION should this be handled in a non-fatal way?
-                        throw new MungeException((forPublisher ? "Publisher" : "Subscriber") + " repository " + key + " not found");
+                        throw new MungeException(key + config.gs("Z.not.found"));
                 }
             }
         }
@@ -132,24 +133,23 @@ public class Task implements Comparable, Serializable
      * @param dryRun Boolean for a dry-run
      * @throws Exception
      */
-    public void process(Configuration config, Context ctxt, boolean dryRun) throws Exception
+    public void process(GuiContext guiContext, Configuration config, Context ctxt, boolean dryRun) throws Exception
     {
         // get tool
         Tools tools = new Tools();
-        currentTool = tools.getTool(config, ctxt, getInternalName(), getConfigName());
-
+        currentTool = tools.loadTool(guiContext, config, ctxt, getInternalName(), getConfigName());
         if (currentTool != null)
         {
             // get repos
             Repository pubRepo = getRepo(config, ctxt, getPublisherKey(), true);
             Repository subRepo = getRepo(config, ctxt, getSubscriberKey(), false);
             if (pubRepo == null && subRepo == null)
-                throw new MungeException("No repository is loaded");
+                throw new MungeException((config.gs("Task.no.repository.is.loaded")));
 
-            currentTool.processTool(pubRepo, subRepo, origins, dryRun);
+            currentTool.processTool(guiContext, pubRepo, subRepo, origins, dryRun);
         }
         else
-            throw new MungeException("Tool not found " + getInternalName() + ":" + getConfigName());
+            throw new MungeException(config.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
     }
 
     /**
@@ -171,9 +171,9 @@ public class Task implements Comparable, Serializable
             Repository pubRepo = getRepo(guiContext.cfg, guiContext.context, getPublisherKey(), true);
             Repository subRepo = getRepo(guiContext.cfg, guiContext.context, getSubscriberKey(), false);
             if (pubRepo == null && subRepo == null)
-                throw new MungeException("No repository is loaded");
+                throw new MungeException((guiContext.cfg.gs("Task.no.repository.is.loaded")));
 
-            return tool.processToolThread(pubRepo, subRepo, origins, dryRun);
+            return tool.processToolThread(guiContext, pubRepo, subRepo, origins, dryRun);
         }
         return null;
     }

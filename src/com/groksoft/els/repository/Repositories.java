@@ -5,6 +5,7 @@ import com.groksoft.els.Configuration;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Repositories
 {
@@ -45,6 +46,24 @@ public class Repositories
         return list;
     }
 
+    public int indexOf(String key)
+    {
+        int index = -1;
+        if (list != null)
+        {
+            for (int i = 0; i < list.size(); ++i)
+            {
+                Meta m = list.get(i);
+                if (m.key.equals(key))
+                {
+                    index = i;
+                    break;
+                }
+            }
+        }
+        return index;
+    }
+
     public ArrayList<Meta> loadList(Configuration cfg) throws Exception
     {
         File libDir = new File(getDirectoryPath());
@@ -56,7 +75,7 @@ public class Repositories
                 if (!entry.isDirectory())
                 {
                     Repository repo = new Repository(cfg, 0);
-                    repo.read(entry.getPath());
+                    repo.read(entry.getPath(), false);
 
                     Meta meta = new Meta();
                     meta.description = repo.getLibraryData().libraries.description;
@@ -67,16 +86,24 @@ public class Repositories
                     list.add(meta);
                 }
             }
+            Collections.sort(list);
         }
         return list;
     }
 
-    public class Meta
+    public class Meta implements Comparable
     {
         public String description;
         public String key;
         public String path;
 
+        @Override
+        public int compareTo(Object o)
+        {
+            return this.description.compareTo(((Meta)o).description);
+        }
+
+        @Override
         public String toString()
         {
             return description;

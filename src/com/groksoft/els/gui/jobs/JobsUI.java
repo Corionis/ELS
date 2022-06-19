@@ -2,15 +2,15 @@ package com.groksoft.els.gui.jobs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.repository.Repositories;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
-import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import com.groksoft.els.gui.util.RotatedIcon;
 import com.groksoft.els.gui.util.TextIcon;
 import com.groksoft.els.jobs.Job;
@@ -20,27 +20,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 
 public class JobsUI extends JDialog
 {
-    private JobsConfigModel configModel;
+    private ConfigModel configModel;
     private Job currentJob = null;
     private Task currentTask = null;
     private ArrayList<Job> deletedJobs;
@@ -56,7 +56,6 @@ public class JobsUI extends JDialog
     {
         super(owner);
         this.guiContext = guiContext;
-
         initComponents();
 
         // scale the help icon
@@ -117,7 +116,7 @@ public class JobsUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // setup the left-side list of configurations
-        configModel = new JobsConfigModel(guiContext, this);
+        configModel = new ConfigModel(guiContext, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -133,6 +132,29 @@ public class JobsUI extends JDialog
                     ListSelectionModel sm = (ListSelectionModel) listSelectionEvent.getSource();
                     int index = sm.getMinSelectionIndex();
                     loadTasks(index);
+                }
+            }
+        });
+
+        // setup the publisher/subscriber Task Origins table
+        Border border = guiContext.mainFrame.textFieldLocation.getBorder();
+        panelPubSub.setBorder(border);
+        tablePubSub.getTableHeader().setUI(null);
+        tablePubSub.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent)
+            {
+                //super.mouseClicked(mouseEvent);
+                int row = mouseEvent.getY() / tablePubSub.getRowHeight();
+                int col = tablePubSub.getColumnModel().getColumnIndexAtX(mouseEvent.getX());
+
+                if (row < tablePubSub.getRowCount() && row >= 0 &&
+                        col < tablePubSub.getColumnCount() && col >= 0)
+                {
+                    Object object = tablePubSub.getValueAt(row, col);
+                    if (object instanceof JButton)
+                        ((JButton) object).doClick();
                 }
             }
         });
@@ -222,9 +244,22 @@ public class JobsUI extends JDialog
         }
     }
 
-    private void actionGenerateClicked(ActionEvent e)
+    private void actionGenerateClicked(ActionEvent evt)
     {
-        // TODO add your code here
+        try
+        {
+            String jarPath = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+            String jar = jarPath;
+            String generated = "java -jar " + jar + " -c debug -d debug -j \"" + currentJob.getConfigName() + "\" -F \"" + currentJob.getConfigName() + ".log\"";
+
+            Object obj = JOptionPane.showInputDialog(this,
+                    guiContext.cfg.gs("JobsUI.generated") + currentJob.getConfigName(),
+                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE,
+                    null, null, generated);
+        }
+        catch (Exception e)
+        {
+        }
     }
 
     private void actionHelpClicked(MouseEvent e)
@@ -395,6 +430,185 @@ public class JobsUI extends JDialog
         }
     }
 
+    public void actionPubSubClicked(ActionEvent evt)
+    {
+        if (currentTask != null)
+        {
+            int which = -1;
+            if (!currentTask.isDual())
+                which = 99; // both
+            else
+            {
+                String command = evt.getActionCommand();
+                if (command.equals("0"))
+                    which = 0;
+                else if (command.equals("1"))
+                    which = 1;
+            }
+            if (which < 0)
+                return;
+
+            JComboBox combo = new JComboBox();
+            JList<String> list = new JList<>();
+            int id = 0;
+            DefaultListModel<String> listModel = new DefaultListModel<String>();
+            int selectedCombo = -1;
+            int selectedList = 0;
+            String text = null;
+            String title = null;
+            String tip = null;
+            Repositories repositories = getRepositories();
+
+            // make dialog pieces
+            title = which == 0 ? guiContext.cfg.gs("JobsUI.pubsub.select.publisher") : guiContext.cfg.gs("JobsUI.pubsub.select.subscriber");
+
+            if (which == 0 || which == 99)
+            {
+                title = guiContext.cfg.gs("JobsUI.pubsub.select.publisher");
+                tip = guiContext.cfg.gs("JobsUI.select.publisher.tooltip");
+
+                combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.publisher")));
+
+                text = guiContext.cfg.gs("JobsUI.specific.publisher");
+                if (currentTask.getPublisherKey().length() > 0)
+                {
+                    selectedCombo = id - 1;
+                    if (!currentTask.getPublisherKey().equals(Task.ANY_SERVER))
+                    {
+                        selectedCombo = id;
+                        Repositories.Meta meta = repositories.find(currentTask.getPublisherKey());
+                        if (meta != null)
+                        {
+                            text = guiContext.cfg.gs("JobsUI.specific.publisher");
+                            selectedList = repositories.indexOf(currentTask.getPublisherKey());
+                        }
+                        else
+                            text = currentTask.getPublisherKey() + " " + guiContext.cfg.gs("Z.not.found");
+                    }
+                }
+                combo.addItem(new ComboItem(id++, text));
+            }
+
+            if (which == 1 || which == 99)
+            {
+                title = guiContext.cfg.gs("JobsUI.pubsub.select.subscriber");
+                tip = guiContext.cfg.gs("JobsUI.select.subscriber.tooltip");
+
+                combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.subscriber")));
+
+                text = guiContext.cfg.gs("JobsUI.specific.subscriber");
+                if (currentTask.getSubscriberKey().length() > 0)
+                {
+                    selectedCombo = id - 1;
+                    if (!currentTask.getSubscriberKey().equals(Task.ANY_SERVER))
+                    {
+                        selectedCombo = id;
+                        Repositories.Meta meta = repositories.find(currentTask.getSubscriberKey());
+                        if (meta != null)
+                        {
+                            text = guiContext.cfg.gs("JobsUI.specific.subscriber");
+                            selectedList = repositories.indexOf(currentTask.getSubscriberKey());
+                        }
+                        else
+                            text = currentTask.getSubscriberKey() + " " + guiContext.cfg.gs("Z.not.found");
+                    }
+                }
+                combo.addItem(new ComboItem(id++, text));
+            }
+
+            if (which == 99)
+            {
+                title = guiContext.cfg.gs("JobsUI.pubsub.select.publisher.or.subscriber");
+                tip = guiContext.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
+            }
+
+            if (selectedCombo < 0)
+                selectedCombo = 0;
+
+            combo.setToolTipText(tip);
+
+            combo.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    String cmd = actionEvent.getActionCommand();
+                    if (cmd.equals("comboBoxChanged"))
+                    {
+                        int sel = combo.getSelectedIndex();
+                        if (sel == 0 || sel == 2)
+                            list.setEnabled(false);
+                        else
+                            list.setEnabled(true);
+                    }
+                }
+            });
+            combo.setSelectedIndex(selectedCombo);
+
+            for (int i = 0; i < repositories.getList().size(); ++i)
+            {
+                text = (repositories.getList().get(i)).description;
+                listModel.addElement(text);
+            }
+            list.setModel(listModel);
+            list.setSelectedIndex(selectedList);
+
+            JScrollPane pane = new JScrollPane();
+            pane.setViewportView(list);
+            list.requestFocus();
+            Object[] params = {combo, pane};
+
+            int opt = JOptionPane.showConfirmDialog(this, params, title, JOptionPane.OK_CANCEL_OPTION);
+            if (opt == JOptionPane.YES_OPTION)
+            {
+                int selected = combo.getSelectedIndex();
+                String key = Task.ANY_SERVER;
+                if (selected == 1 || selected == 3)
+                {
+                    int index = list.getSelectedIndex();
+                    key = (repositories.getList().get(index)).key;
+                }
+                if (which == 0)
+                {
+                    if (!currentTask.getPublisherKey().equals(key))
+                    {
+                        currentTask.setPublisherKey(key);
+                        currentJob.setDataHasChanged();
+                    }
+                }
+                else if (which == 1)
+                {
+                    if (!currentTask.getSubscriberKey().equals(key))
+                    {
+                        currentTask.setSubscriberKey(key);
+                        currentJob.setDataHasChanged();
+                    }
+                }
+                else // both
+                {
+                    if (selected <= 1) // a publisher selection
+                    {
+                        if (!currentTask.getPublisherKey().equals(key))
+                        {
+                            currentTask.setPublisherKey(key);
+                            currentTask.setSubscriberKey("");
+                            currentJob.setDataHasChanged();
+                        }
+                    }
+                    else // a subscriber selection
+                    {
+                        if (!currentTask.getSubscriberKey().equals(key))
+                        {
+                            currentTask.setSubscriberKey(key);
+                            currentTask.setPublisherKey("");
+                            currentJob.setDataHasChanged();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void actionRunClicked(ActionEvent evt)
     {
         int index = configItems.getSelectedRow();
@@ -409,6 +623,12 @@ public class JobsUI extends JDialog
                     if (task.getOrigins() == null || task.getOrigins().size() == 0)
                     {
                         JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName(),
+                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                    {
+                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName(),
                                 guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
                         return;
                     }
@@ -442,20 +662,18 @@ public class JobsUI extends JDialog
             listTasks.requestFocus();
 
             // make dialog pieces
-            String message = "Select tool:";
+            String message = guiContext.cfg.gs("JobsUI.select.tool");
             JList<String> toolJList = new JList<String>();
-            DefaultListModel<AbstractTool> toolListModel = null;
+            ArrayList<AbstractTool> toolList = null;
 
             try
             {
                 Tools toolsHandler = new Tools();
-                toolListModel = toolsHandler.getAllTools(guiContext.cfg, guiContext.context);
+                toolList = toolsHandler.loadAllTools(guiContext, guiContext.cfg, guiContext.context, null);
                 DefaultListModel<String> dialogList = new DefaultListModel<String>();
-                Enumeration e = toolListModel.elements();
-                while (e.hasMoreElements())
+                for (AbstractTool tool : toolList)
                 {
-                    AbstractTool t = (AbstractTool) e.nextElement();
-                    dialogList.addElement(t.getDisplayName() + ": " + t.getConfigName());
+                    dialogList.addElement(tool.getDisplayName() + ": " + tool.getConfigName());
                 }
                 toolJList.setModel(dialogList);
                 toolJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -463,7 +681,10 @@ public class JobsUI extends JDialog
             }
             catch (Exception e)
             {
-                guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                guiContext.browser.printLog(msg);
+                JOptionPane.showMessageDialog(this, msg,
+                        guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
 
             JScrollPane pane = new JScrollPane();
@@ -475,23 +696,17 @@ public class JobsUI extends JDialog
             if (opt == JOptionPane.YES_OPTION)
             {
                 int index = toolJList.getSelectedIndex();
-                AbstractTool tool = toolListModel.elementAt(index);
+                AbstractTool tool = toolList.get(index);
                 currentTask = new Task(tool.getInternalName(), tool.getConfigName());
+                currentTask.setDual(tool.isDualRepositories());
                 currentJob.getTasks().add(currentTask);
                 currentJob.setDataHasChanged();
                 loadTasks(-1);
                 listTasks.setSelectedIndex(currentJob.getTasks().size() - 1);
                 loadOrigins(currentTask);
-                // default to the first selection of "any"
-                // do after loadOrigins() so isDual() is set
-                if (currentTask.isDual())
-                {
-                    currentTask.setPublisherKey(Task.ANY_SERVER);
-                    currentTask.setSubscriberKey(Task.ANY_SERVER);
-                }
-                else
-                    currentTask.setPublisherKey(Task.ANY_SERVER);
-                comboBoxPubSub1.requestFocus();
+
+                // TODO Focus on whatever the new control is
+                // comboBoxPubSub1.requestFocus();
             }
             else
                 listTasks.requestFocus();
@@ -591,28 +806,6 @@ public class JobsUI extends JDialog
         return false;
     }
 
-    private void comboBoxPubSub1ItemStateChanged(ItemEvent evt)
-    {
-        if (evt.getStateChange() == ItemEvent.SELECTED)
-        {
-            if (!loadingCombo && currentTask != null)
-            {
-                translatePubSubComboItem(comboBoxPubSub1);
-            }
-        }
-    }
-
-    private void comboBoxPubSub2ItemStateChanged(ItemEvent evt)
-    {
-        if (evt.getStateChange() == ItemEvent.SELECTED)
-        {
-            if (!loadingCombo && currentTask != null)
-            {
-                translatePubSubComboItem(comboBoxPubSub2);
-            }
-        }
-    }
-
     private void configItemsMouseClicked(MouseEvent e)
     {
         JTable src = (JTable) e.getSource();
@@ -647,6 +840,24 @@ public class JobsUI extends JDialog
         String path = getDirectoryPath() + System.getProperty("file.separator") +
                 Utils.scrubFilename(job.getConfigName()) + ".json";
         return path;
+    }
+
+    public Repositories getRepositories()
+    {
+        Repositories repositories = null;
+        try
+        {
+            repositories = new Repositories();
+            repositories.loadList(guiContext.cfg);
+        }
+        catch (Exception e)
+        {
+            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            guiContext.browser.printLog(msg);
+            JOptionPane.showMessageDialog(this, msg,
+                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+        }
+        return repositories;
     }
 
     public String getOriginType(int type)
@@ -701,6 +912,20 @@ public class JobsUI extends JDialog
         File jobsDir = new File(getDirectoryPath());
         if (jobsDir.exists())
         {
+            Tools toolsHandler = new Tools();
+            ArrayList<AbstractTool> toolList = null;
+            try
+            {
+                toolList = toolsHandler.loadAllTools(guiContext, guiContext.cfg, guiContext.context, null);
+            }
+            catch (Exception e)
+            {
+                String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                guiContext.browser.printLog(msg);
+                JOptionPane.showMessageDialog(this, msg,
+                        guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+            }
+
             File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
             Arrays.sort(files);
             for (File entry : files)
@@ -716,18 +941,29 @@ public class JobsUI extends JDialog
                             Job job = gson.fromJson(json, Job.class);
                             if (job != null)
                             {
+                                if (toolList != null)
+                                {
+                                    ArrayList<Task> tasks = job.getTasks();
+                                    for (int i = 0; i < tasks.size(); ++i)
+                                    {
+                                        Task task = tasks.get(i);
+                                        AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
+                                        if (tool != null)
+                                        {
+                                            task.setDual(tool.isDualRepositories());
+                                            tasks.set(i, task);
+                                        }
+                                    }
+                                }
                                 configModel.addRow(new Object[]{job});
                             }
                         }
                     }
-                    catch (IOException e)
+                    catch (Exception e)
                     {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.reading") + entry.getName(),
-                                guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    catch (JsonSyntaxException e)
-                    {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.parsing") + entry.getName(),
+                        String msg = guiContext.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
+                        guiContext.browser.printLog(msg);
+                        JOptionPane.showMessageDialog(this, msg,
                                 guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -778,10 +1014,11 @@ public class JobsUI extends JDialog
             }
         }
 
-        if (currentJob.getTasks().size() == 0 || currentJob.getTasks().get(0).getOrigins().size() == 0)
+        if (currentJob.getTasks().size() == 0)
         {
             DefaultListModel<String> omodel = new DefaultListModel<String>();
             listOrigins.setModel(omodel);
+            loadPubSubs(null);
         }
 
         listTasks.setModel(model);
@@ -790,7 +1027,7 @@ public class JobsUI extends JDialog
     private void loadOrigins(Task task)
     {
         currentTask = task;
-        loadOriginCombos(currentTask);
+        loadPubSubs(currentTask);
 
         DefaultListModel<String> model = new DefaultListModel<String>();
         if (currentTask.getOrigins().size() > 0)
@@ -808,73 +1045,23 @@ public class JobsUI extends JDialog
         listOrigins.setModel(model);
     }
 
-    private void loadOriginCombos(Task task)
+    private void loadPubSubs(Task task)
     {
-        boolean dual = true;
-        if (task.getInternalName().equals("JunkRemover"))
-        {
-            JunkRemoverTool jrt = new JunkRemoverTool(guiContext.cfg, guiContext.context);
-            dual = jrt.isDualRepositories();
-        }
+        Repositories repositories = getRepositories();
 
-        task.setDual(dual);
+        PubSubCellRenderer cellRenderer = new PubSubCellRenderer();
+        PubSubModel pubSubModel = new PubSubModel(this, guiContext.cfg, repositories, task);
+        tablePubSub.setModel(pubSubModel);
 
-        // TODO
-        //  * if pub or sub is "current" match their key with what is currently loaded
-        //  * if different prompt whether to load the correct lib file
-        //  .
-        //
-
-        loadingCombo = true;
-
-        int sel;
-        if (dual) // type numbers are used in translatePubSubComboItem()
-        {
-            comboBoxPubSub1.removeAllItems();
-            comboBoxPubSub1.addItem(new ComboItem(0, guiContext.cfg.gs("JobsUI.any.publisher")));
-            comboBoxPubSub1.addItem(new ComboItem(1, guiContext.cfg.gs("JobsUI.current.publisher") + ": " +
-                    guiContext.context.publisherRepo.getLibraryData().libraries.description));
-            comboBoxPubSub1.setToolTipText(guiContext.cfg.gs("Z.publisher"));
-
-            sel = !task.getPublisherKey().equals(task.ANY_SERVER) ? 1 : 0;
-            comboBoxPubSub1.setSelectedIndex(sel);
-
-            comboBoxPubSub2.removeAllItems();
-            comboBoxPubSub2.addItem(new ComboItem(2, guiContext.cfg.gs("JobsUI.any.subscriber")));
-            comboBoxPubSub2.addItem(new ComboItem(3, guiContext.cfg.gs("JobsUI.current.subscriber") + ": +" +
-                    guiContext.context.subscriberRepo.getLibraryData().libraries.description));
-            comboBoxPubSub2.setToolTipText(guiContext.cfg.gs("Z.subscriber"));
-
-            sel = !task.getSubscriberKey().equals(task.ANY_SERVER) ? 1 : 0;
-            comboBoxPubSub2.setSelectedIndex(sel);
-
-            comboBoxPubSub2.setVisible(true);
-        }
-        else
-        {
-            comboBoxPubSub1.removeAllItems();
-            comboBoxPubSub1.addItem(new ComboItem(0, guiContext.cfg.gs("JobsUI.any.publisher")));
-            comboBoxPubSub1.addItem(new ComboItem(1, guiContext.cfg.gs("JobsUI.current.publisher") + ": " +
-                    guiContext.context.publisherRepo.getLibraryData().libraries.description));
-
-            comboBoxPubSub1.addItem(new ComboItem(2, guiContext.cfg.gs("JobsUI.any.subscriber")));
-            comboBoxPubSub1.addItem(new ComboItem(3, guiContext.cfg.gs("JobsUI.current.subscriber") + ": " +
-                    guiContext.context.subscriberRepo.getLibraryData().libraries.description));
-            comboBoxPubSub1.setToolTipText(guiContext.cfg.gs("JobsUI.publisher.or.subscriber"));
-
-            if (task.getPublisherKey().length() > 0)
-                sel = task.getPublisherKey().equals(task.ANY_SERVER) ? 0 : 1;
-            else if (task.getSubscriberKey().length() > 0)
-                sel = task.getSubscriberKey().equals(task.ANY_SERVER) ? 2 : 3;
-            else
-                sel = 0;
-            comboBoxPubSub1.setSelectedIndex(sel);
-
-            comboBoxPubSub2.removeAllItems(); // not used
-            comboBoxPubSub2.setVisible(false);
-        }
-
-        loadingCombo = false;
+        TableColumn column = tablePubSub.getColumnModel().getColumn(0);
+        column.setResizable(true);
+        column = tablePubSub.getColumnModel().getColumn(1);
+        column.setCellRenderer(cellRenderer);
+        column.setResizable(false);
+        column.setWidth(32);
+        column.setPreferredWidth(32);
+        column.setMaxWidth(32);
+        column.setMinWidth(32);
     }
 
     private void process(Job job, boolean isDryRun)
@@ -961,48 +1148,6 @@ public class JobsUI extends JDialog
         guiContext.preferences.setJobsOriginDividerLocation(splitPaneToolsOrigin.getDividerLocation());
     }
 
-    private void translatePubSubComboItem(JComboBox box)
-    {
-        ComboItem item = (ComboItem) box.getSelectedItem();
-        switch (item.type)
-        {
-            case 0:
-                currentTask.setPublisherKey(Task.ANY_SERVER);
-                break;
-            case 1:
-                if (guiContext.context.publisherRepo != null)
-                {
-                    currentTask.setPublisherKey(guiContext.context.publisherRepo.getLibraryData().libraries.key);
-                }
-                break;
-            case 2:
-                currentTask.setSubscriberKey(Task.ANY_SERVER);
-                break;
-            case 3:
-                if (guiContext.context.subscriberRepo != null)
-                {
-                    currentTask.setSubscriberKey(guiContext.context.subscriberRepo.getLibraryData().libraries.key);
-                }
-                break;
-        }
-
-        // if not dual clear the opposite key
-        if (!currentTask.isDual())
-        {
-            switch (item.type)
-            {
-                case 0:
-                case 1:
-                    currentTask.setSubscriberKey("");
-                    break;
-                case 2:
-                case 3:
-                    currentTask.setPublisherKey("");
-            }
-        }
-        currentJob.setDataHasChanged();
-    }
-
     public void write(Job job) throws Exception
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -1054,12 +1199,12 @@ public class JobsUI extends JDialog
 
     private class ComboItem
     {
-        int type;
-        String text;
+        public int id;
+        public String text;
 
-        public ComboItem(int type, String text)
+        public ComboItem(int id, String text)
         {
-            this.type = type;
+            this.id = id;
             this.text = text;
         }
 
@@ -1105,8 +1250,7 @@ public class JobsUI extends JDialog
         labelOrigins = new JLabel();
         panelOriginInstance = new JPanel();
         panelPubSub = new JPanel();
-        comboBoxPubSub1 = new JComboBox();
-        comboBoxPubSub2 = new JComboBox();
+        tablePubSub = new JTable();
         scrollPaneOrigins = new JScrollPane();
         listOrigins = new JList();
         panelOriginsButtons = new JPanel();
@@ -1344,15 +1488,11 @@ public class JobsUI extends JDialog
                                     {
                                         panelPubSub.setLayout(new BoxLayout(panelPubSub, BoxLayout.Y_AXIS));
 
-                                        //---- comboBoxPubSub1 ----
-                                        comboBoxPubSub1.setSelectedIndex(-1);
-                                        comboBoxPubSub1.addItemListener(e -> comboBoxPubSub1ItemStateChanged(e));
-                                        panelPubSub.add(comboBoxPubSub1);
-
-                                        //---- comboBoxPubSub2 ----
-                                        comboBoxPubSub2.setSelectedIndex(-1);
-                                        comboBoxPubSub2.addItemListener(e -> comboBoxPubSub2ItemStateChanged(e));
-                                        panelPubSub.add(comboBoxPubSub2);
+                                        //---- tablePubSub ----
+                                        tablePubSub.setCellSelectionEnabled(true);
+                                        tablePubSub.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                                        tablePubSub.setShowVerticalLines(false);
+                                        panelPubSub.add(tablePubSub);
                                     }
                                     panelOriginInstance.add(panelPubSub, BorderLayout.NORTH);
 
@@ -1530,8 +1670,7 @@ public class JobsUI extends JDialog
     private JLabel labelOrigins;
     private JPanel panelOriginInstance;
     private JPanel panelPubSub;
-    private JComboBox comboBoxPubSub1;
-    private JComboBox comboBoxPubSub2;
+    private JTable tablePubSub;
     private JScrollPane scrollPaneOrigins;
     private JList listOrigins;
     private JPanel panelOriginsButtons;

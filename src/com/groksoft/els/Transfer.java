@@ -1014,7 +1014,7 @@ public class Transfer
                 throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.collection.file"));
             cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
             cfg.setSubscriberCollectionFilename(location);
-            context.subscriberRepo.read(cfg.getSubscriberCollectionFilename());
+            context.subscriberRepo.read(cfg.getSubscriberCollectionFilename(), true);
         }
     }
 
@@ -1033,7 +1033,7 @@ public class Transfer
                 throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.library.file"));
             cfg.setSubscriberLibrariesFileName(location);
             cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
-            context.subscriberRepo.read(cfg.getSubscriberLibrariesFileName());
+            context.subscriberRepo.read(cfg.getSubscriberLibrariesFileName(), true);
         }
     }
 

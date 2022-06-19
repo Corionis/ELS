@@ -1,12 +1,12 @@
 package com.groksoft.els.gui.tools.junkremover;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
+import com.groksoft.els.tools.AbstractTool;
+import com.groksoft.els.tools.Tools;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -23,9 +22,6 @@ import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -270,7 +266,7 @@ public class JunkRemoverUI extends JDialog
         }
         if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
         {
-            JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
+            JunkRemoverTool jrt = new JunkRemoverTool(guiContext, guiContext.cfg, guiContext.context);
             jrt.setConfigName(guiContext.cfg.gs("Z.untitled"));
             jrt.setDataHasChanged();
             jrt.addJunkItem();
@@ -435,44 +431,22 @@ public class JunkRemoverUI extends JDialog
 
     private void loadConfigurations()
     {
-        JunkRemoverTool tmpTool = new JunkRemoverTool(guiContext.cfg, guiContext.context);
-        File toolDir = new File(tmpTool.getDirectoryPath());
-        if (toolDir.exists() && toolDir.isDirectory())
+        try
         {
-            File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
-            Arrays.sort(files);
-            for (File entry : files)
+            Tools tools = new Tools();
+            ArrayList<AbstractTool> toolList = tools.loadAllTools(guiContext, guiContext.cfg, guiContext.context, JunkRemoverTool.INTERNAL_NAME);
+            for (AbstractTool tool : toolList)
             {
-                if (!entry.isDirectory())
-                {
-                    try
-                    {
-                        Gson gson = new Gson();
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
-                        if (json != null)
-                        {
-                            JunkRemoverTool jrt = gson.fromJson(json, JunkRemoverTool.class);
-                            if (jrt != null)
-                            {
-                                jrt.setDisplayName(guiContext.cfg.gs("JunkRemover.displayName"));
-                                jrt.setGuiContext(guiContext);
-                                configModel.addRow(new Object[]{ jrt });
-                            }
-                        }
-                    }
-                    catch (IOException e)
-                    {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.reading") + entry.getName(),
-                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    catch (JsonSyntaxException e)
-                    {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.error.parsing") + entry.getName(),
-                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                }
+                JunkRemoverTool jrt = (JunkRemoverTool) tool;
+                configModel.addRow(new Object[]{ jrt });
             }
         }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.exception"),
+                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+        }
+
         if (configModel.getRowCount() == 0)
         {
             buttonCopy.setEnabled(false);

@@ -67,7 +67,7 @@ public class Main
         if (cfg.isUsingHintTracker())
         {
             context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
-            context.statusRepo.read(cfg.getStatusTrackerFilename());
+            context.statusRepo.read(cfg.getStatusTrackerFilename(), true);
 
             if (cfg.isRemoteSession())
             {
@@ -455,7 +455,7 @@ public class Main
 
                     // Get the hint status server repo
                     context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
-                    context.statusRepo.read(cfg.getHintsDaemonFilename());
+                    context.statusRepo.read(cfg.getHintsDaemonFilename(), true);
 
                     // Get ELS hints keys
                     context.hintKeys = new HintKeys(cfg, context);
@@ -517,7 +517,7 @@ public class Main
 
                     // run the Job
                     Job job = Job.load(cfg.getJobName());
-                    job.process(cfg, context);
+                    job.process(null, cfg, context);
                     break;
 
                 default:
@@ -616,7 +616,7 @@ public class Main
             }
 
             // get Publisher data
-            repo.read(cfg.getPublisherFilename());
+            repo.read(cfg.getPublisherFilename(), true);
         }
         else
         {
@@ -643,7 +643,7 @@ public class Main
             }
 
             // get Subscriber data
-            repo.read(cfg.getSubscriberFilename());
+            repo.read(cfg.getSubscriberFilename(), true);
         }
 
         // -v | --validate option

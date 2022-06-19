@@ -54,26 +54,13 @@ public class JunkRemoverTool extends AbstractTool
      * @param config Configuration
      * @param ctxt   Context
      */
-    public JunkRemoverTool(Configuration config, Context ctxt)
+    public JunkRemoverTool(GuiContext guiContext, Configuration config, Context ctxt)
     {
         super(config, ctxt);
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
-        this.junkList = new ArrayList<JunkItem>();
-        this.dataHasChanged = true;
-    }
-
-    /**
-     * Constructor when used from the Navigator
-     *
-     * @param guiContext GuiContext
-     */
-    public JunkRemoverTool(GuiContext guiContext)
-    {
-        super(guiContext.cfg, guiContext.context);
-        setDisplayName(getCfg().gs("JunkRemover.displayName"));
         this.guiContext = guiContext;
         this.junkList = new ArrayList<JunkItem>();
-        this.dataHasChanged = true;
+        this.dataHasChanged = false;
     }
 
     public JunkItem addJunkItem()
@@ -84,7 +71,7 @@ public class JunkRemoverTool extends AbstractTool
         return ji;
     }
 
-    private int expandOrigins(ArrayList<Origin> origins) throws MungeException // FIXME Wrong. Iterate origins via Task setting of origins; make private
+    private int expandOrigins(ArrayList<Origin> origins) throws MungeException
     {
         int count = 0;
 
@@ -99,7 +86,7 @@ public class JunkRemoverTool extends AbstractTool
                 if (origin.getName().length() > 0)
                 {
                     if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getName()))
-                        throw new MungeException("Task definition and loaded repository do not match");
+                        throw new MungeException((cfg.gs("JunkRemover.task.definition.and.loaded.repository.do.not.match")));
                 }
                 // process in the order defined in the JSON
                 for (Library lib : repo.getLibraryData().libraries.bibliography)
@@ -138,7 +125,7 @@ public class JunkRemoverTool extends AbstractTool
     public JunkRemoverTool clone()
     {
         assert guiContext != null;
-        JunkRemoverTool jrt = new JunkRemoverTool(guiContext);
+        JunkRemoverTool jrt = new JunkRemoverTool(guiContext, guiContext.cfg, guiContext.context);
         jrt.setConfigName(getConfigName());
         jrt.setDisplayName(getDisplayName());
         jrt.setDataHasChanged();
@@ -215,12 +202,12 @@ public class JunkRemoverTool extends AbstractTool
      * The addToolPaths() method must be called first.
      */
     @Override
-    public void processTool(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
+    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
     {
         reset();
 
         if (publisherRepo != null && subscriberRepo != null)
-            throw new MungeException(getInternalName() + " uses only one repository");
+            throw new MungeException(java.text.MessageFormat.format(cfg.gs("JunkRemover.uses.only.one.repository"), getInternalName()));
 
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
@@ -282,7 +269,7 @@ public class JunkRemoverTool extends AbstractTool
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
         {
@@ -291,7 +278,7 @@ public class JunkRemoverTool extends AbstractTool
             {
                 try
                 {
-                    processTool(publisherRepo, subscriberRepo, origins, dryRun);
+                    processTool(guiContext, publisherRepo, subscriberRepo, origins, dryRun);
                 }
                 catch (Exception e)
                 {
@@ -312,7 +299,7 @@ public class JunkRemoverTool extends AbstractTool
     {
         deleteCount = 0;
         resetStop();
-        toolPaths = new ArrayList<String>();
+        toolPaths = new ArrayList<>();
         if (logger == null)
             logger = LogManager.getLogger("applog");
     }
@@ -428,16 +415,6 @@ public class JunkRemoverTool extends AbstractTool
     {
         this.configName = configName;
     }
-
-/*
-    public void setContext(Configuration config, Context context)
-    {
-        this.guiContext = null;
-        this.cfg = config;
-        this.context = context;
-        setDisplayName(getCfg().gs("JunkRemover.displayName"));
-    }
-*/
 
     public void setDataHasChanged()
     {

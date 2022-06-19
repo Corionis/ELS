@@ -602,7 +602,7 @@ public class Repository
      * @param filename The JSON Libraries filename
      * @throws MungeException the els exception
      */
-    public void read(String filename) throws MungeException
+    public void read(String filename, boolean printLog) throws MungeException
     {
         try
         {
@@ -610,12 +610,14 @@ public class Repository
             if (libraryData != null)
                 libraryData = null;
             Gson gson = new Gson();
-            logger.info("Reading Library file " + filename);
+            if (printLog)
+                logger.info("Reading Library file " + filename);
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
             normalize();
-            logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
+            if (printLog)
+                logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
         }
         catch (IOException ioe)
         {

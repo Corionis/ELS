@@ -91,17 +91,24 @@ It's all built-in with the -n | --navigator option.
 
 ### Other Changes
 
- 1. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
+ 1. The ELS Navigator has necessitated the introduction of a formal user-based directory
+    structure to hold the various preference, bookmark, library, tool, job, etc. files. 
+    All these files are kept in each user's HOME/.els/ directory and subdirectories.
+ 
+    IMPORTANT: When upgrading from ELS versions earlier than 4.0.0 copy your existing library JSON
+    files to your HOME/.els/libraries/ directory. If that directory does not exist create it.
+ 
+ 2. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
     "bye" command has been changed to end the terminal session but leave the remote listener
     running. Commands quit, exit and logout will shutdown the remote listener.
  
- 2. Added JSON library elements:
+ 3. Added JSON library elements:
     1. temp_dated "true/false" : If temporary files such as received collection files have
        date and time embedded in the filename. If false the same file is overwritten.
     2. temp_location "path" : Where to place temporary files. An empty string "" is the
        location of the ELS Jar file.
 
- 3. Removed JSON library element renaming and the related Java code.
+ 4. Removed JSON library element renaming and the related Java code.
 
 ### Bug Fixes
 

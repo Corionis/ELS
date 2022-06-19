@@ -3,6 +3,7 @@ package com.groksoft.els.tools;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
+import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
@@ -100,7 +101,7 @@ public abstract class AbstractTool implements Comparable, Serializable
      * @param dryRun Boolean dryrun
      * @throws Exception
      */
-    public abstract void processTool(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception;
+    public abstract void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception;
 
     /**
      * Process the tool on a SwingWorker thread
@@ -111,7 +112,7 @@ public abstract class AbstractTool implements Comparable, Serializable
      * @param dryRun Boolean dryrun
      * @return SwingWorker<Void, Void> of thread
      */
-    public abstract SwingWorker<Void, Void> processToolThread(Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun);
+    public abstract SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun);
 
     /**
      * Request the tool to stop (optional)

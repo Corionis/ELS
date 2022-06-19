@@ -43,10 +43,10 @@ notes in the Version-4.0.0 branch for information on how to run the Navigator.
    * Various purpose-built tools for curating a media collection.
      * Duplicate Finder
      * Empty Directory Finder
-     * Junk Remover
+     * Done: Junk Remover
      * Renamer
-   * Tools may be combined into jobs.
-     * Creation of Linux or Windows scripts to execute jobs. Useful for Linux
+   * Done: Tools may be combined into jobs.
+     * Creation of command line to execute jobs. Useful for Linux
        cron jobs or Windows Task Scheduler tasks.
    * External tools supported.
    * Navigator Backup tab is for creation of ELS back-up tools that may be combined into jobs.
