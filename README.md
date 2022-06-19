@@ -30,6 +30,9 @@ what *will be completed*. Also "Done" means code complete. Bugs are entirely pos
 See the [Developer](https://github.com/GrokSoft/ELS/blob/Version-4.0.0/artifacts/document/developer.md)
 notes in the Version-4.0.0 branch for information on how to run the Navigator.
 
+See the [Release Notes](https://github.com/GrokSoft/ELS/blob/Version-4.0.0/artifacts/document/release-notes.md)
+in the Version-4.0.0 branch for on-going change information.
+
  * ELS Navigator, a powerful cross-platform desktop application, added in 4.0.0. It
    is an ELS-smart, purpose-built, interactive tool designed to make building and curating
    a media collection easier.
