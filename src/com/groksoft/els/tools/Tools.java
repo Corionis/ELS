@@ -8,6 +8,7 @@ import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.filechooser.FileSystemView;
+import javax.tools.Tool;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -39,6 +40,7 @@ public class Tools
     /**
      * Load a specific tool from disk
      *
+     * @param guiContext The guiContext, null is allowed
      * @param config The Configuration
      * @param ctxt The Context
      * @param internalName Internal name of desired tool
@@ -50,9 +52,9 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        // begin JunkRemover
         if (internalName.equals("JunkRemover"))
         {
+            // begin JunkRemover
             JunkRemoverTool tmpTool = new JunkRemoverTool(null, config, ctxt);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
@@ -79,17 +81,20 @@ public class Tools
                     }
                 }
             }
+            // end JunkRemover
         }
-        // end JunkRemover
-
-        // TODO Add other tool implementations here
+        else if (0 == 1)
+        {
+            // TODO Add other tool implementations here
+        }
 
         return tool;
     }
 
     /**
-     * Load all tools from disk
+     * Load all tools of a particular internalName from disk
      *
+     * @param guiContext The guiContext, null is allowed
      * @param config The Configuration
      * @param ctxt The Context
      * @param internalName Internal name of desired tool, or null/empty for all tools
@@ -103,17 +108,23 @@ public class Tools
         if (internalName != null && internalName.length() == 0)
             internalName = null;
 
+        File toolDir = null;
+        ToolParserI toolParser = null;
+
         if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
             // begin JunkRemover
-            JunkRemoverParser junkRemoverParser = new JunkRemoverParser();
+            toolParser = new JunkRemoverParser();
             JunkRemoverTool tmpJrt = new JunkRemoverTool(null, config, ctxt);
-            File toolDir = new File(tmpJrt.getDirectoryPath());
-            toolList = scanTools(guiContext, config, ctxt, toolList, junkRemoverParser, toolDir);
+            toolDir = new File(tmpJrt.getDirectoryPath());
             // end JunkRemover
         }
+        else if (0 == 1)
+        {
+            // TODO add other tool parsers here0
+        }
 
-        // TODO add other tool parsers here
+        toolList = scanTools(guiContext, config, ctxt, toolList, toolParser, toolDir);
 
         // sort the list
         Collections.sort(toolList);
@@ -124,6 +135,7 @@ public class Tools
     /**
      * Scan the disk for a specific tool's configurations
      *
+     * @param guiContext The guiContext, null is allowed
      * @param config The Configuration
      * @param ctxt The Context
      * @param toolList Existing toolList
@@ -174,6 +186,7 @@ public class Tools
         /**
          * Parse a JunkRemoverTool
          *
+         * @param guiContext The guiContext, null is allowed
          * @param config The Configuration
          * @param ctxt The Context
          * @param json String of JSON to parse

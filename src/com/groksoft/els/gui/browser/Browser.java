@@ -1390,6 +1390,7 @@ public class Browser
 
     private void initializeToolbar()
     {
+/*
         guiContext.mainFrame.buttonNewFolder.addActionListener(new AbstractAction()
         {
             @Override
@@ -1402,6 +1403,7 @@ public class Browser
                 }
             }
         });
+*/
 
         //if (guiContext.navigator.showHintTrackingButton)
         {

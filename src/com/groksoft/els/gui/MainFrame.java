@@ -293,23 +293,18 @@ public class MainFrame extends JFrame
         splitPaneBrowser = new JSplitPane();
         panelBrowserTop = new JPanel();
         panelLocationAndButtons = new JPanel();
-        panelBarBrowser = new JPanel();
-        buttonNewFolder = new JButton();
-        separatorNewJobs = new JToolBar.Separator();
-        comboBoxJobs = new JComboBox<>();
-        buttonRun = new JButton();
-        checkBoxDryRun = new JCheckBox();
-        panelHintTracking = new JPanel();
-        buttonHintTracking = new JButton();
-        hSpacerHintTracking = new JPanel(null);
+        vSpacer1 = new JPanel(null);
         panelLocation = new JPanel();
         panelLocationLeft = new JPanel();
         buttonBack = new JButton();
         buttonForward = new JButton();
         buttonUp = new JButton();
         textFieldLocation = new JTextField();
-        separatorLocationRight = new JSeparator();
-        separatorSections = new JSeparator();
+        hSpacer1 = new JPanel(null);
+        panelHintTracking = new JPanel();
+        buttonHintTracking = new JButton();
+        hSpacer2 = new JPanel(null);
+        vSpacer2 = new JPanel(null);
         splitPaneTwoBrowsers = new JSplitPane();
         tabbedPaneBrowserOne = new JTabbedPane();
         panelCollectionOne = new JPanel();
@@ -765,86 +760,34 @@ public class MainFrame extends JFrame
                         //======== panelLocationAndButtons ========
                         {
                             panelLocationAndButtons.setFocusable(false);
-                            panelLocationAndButtons.setPreferredSize(new Dimension(952, 64));
-                            panelLocationAndButtons.setMinimumSize(new Dimension(219, 64));
+                            panelLocationAndButtons.setPreferredSize(new Dimension(952, 36));
+                            panelLocationAndButtons.setMinimumSize(new Dimension(219, 36));
+                            panelLocationAndButtons.setMaximumSize(new Dimension(2147483647, 36));
                             panelLocationAndButtons.setLayout(new BorderLayout());
 
-                            //======== panelBarBrowser ========
-                            {
-                                panelBarBrowser.setFocusable(false);
-                                panelBarBrowser.setMinimumSize(new Dimension(86, 30));
-                                panelBarBrowser.setPreferredSize(new Dimension(86, 30));
-                                panelBarBrowser.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
-
-                                //---- buttonNewFolder ----
-                                buttonNewFolder.setText(guiContext.cfg.gs("Navigator.button.NewFolder.text"));
-                                buttonNewFolder.setToolTipText(guiContext.cfg.gs("Navigator.button.NewFolder.toolTipText"));
-                                buttonNewFolder.setMnemonic(guiContext.cfg.gs("Navigator.button.NewFolder.mnemonic").charAt(0));
-                                buttonNewFolder.setFocusable(false);
-                                panelBarBrowser.add(buttonNewFolder);
-                                panelBarBrowser.add(separatorNewJobs);
-
-                                //---- comboBoxJobs ----
-                                comboBoxJobs.setModel(new DefaultComboBoxModel<>(new String[] {
-                                    "Clean Junk",
-                                    "Clean junk & renumber episodes",
-                                    "Find and delete duplicates"
-                                }));
-                                comboBoxJobs.setEnabled(false);
-                                comboBoxJobs.setToolTipText("Select a job");
-                                panelBarBrowser.add(comboBoxJobs);
-
-                                //---- buttonRun ----
-                                buttonRun.setText(guiContext.cfg.gs("Navigator.button.Run.text"));
-                                buttonRun.setEnabled(false);
-                                buttonRun.setToolTipText(guiContext.cfg.gs("Navigator.button.Run.toolTipText"));
-                                buttonRun.setMnemonic(guiContext.cfg.gs("Navigator.button.Run.mnemonic").charAt(0));
-                                panelBarBrowser.add(buttonRun);
-
-                                //---- checkBoxDryRun ----
-                                checkBoxDryRun.setText(guiContext.cfg.gs("Navigator.dryrun"));
-                                checkBoxDryRun.setEnabled(false);
-                                checkBoxDryRun.setMnemonic(guiContext.cfg.gs("Navigator.checkBox.DryRun.mnemonic").charAt(0));
-                                panelBarBrowser.add(checkBoxDryRun);
-                            }
-                            panelLocationAndButtons.add(panelBarBrowser, BorderLayout.CENTER);
-
-                            //======== panelHintTracking ========
-                            {
-                                panelHintTracking.setLayout(new FlowLayout(FlowLayout.RIGHT, 2, 2));
-
-                                //---- buttonHintTracking ----
-                                buttonHintTracking.setText(guiContext.cfg.gs("Navigator.button.HintTracking.text"));
-                                buttonHintTracking.setMnemonic(guiContext.cfg.gs("Navigator.button.HintTracking.mnemonic").charAt(0));
-                                buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.toolTipText"));
-                                buttonHintTracking.setFocusable(false);
-                                panelHintTracking.add(buttonHintTracking);
-
-                                //---- hSpacerHintTracking ----
-                                hSpacerHintTracking.setPreferredSize(new Dimension(0, 30));
-                                hSpacerHintTracking.setMinimumSize(new Dimension(0, 30));
-                                hSpacerHintTracking.setMaximumSize(new Dimension(0, 30));
-                                hSpacerHintTracking.setBorder(null);
-                                panelHintTracking.add(hSpacerHintTracking);
-                            }
-                            panelLocationAndButtons.add(panelHintTracking, BorderLayout.EAST);
+                            //---- vSpacer1 ----
+                            vSpacer1.setPreferredSize(new Dimension(10, 4));
+                            vSpacer1.setMinimumSize(new Dimension(10, 4));
+                            vSpacer1.setMaximumSize(new Dimension(10, 4));
+                            panelLocationAndButtons.add(vSpacer1, BorderLayout.NORTH);
 
                             //======== panelLocation ========
                             {
                                 panelLocation.setFocusable(false);
-                                panelLocation.setPreferredSize(new Dimension(952, 34));
-                                panelLocation.setMinimumSize(new Dimension(191, 34));
+                                panelLocation.setPreferredSize(new Dimension(952, 30));
+                                panelLocation.setMinimumSize(new Dimension(191, 30));
+                                panelLocation.setMaximumSize(new Dimension(2147483647, 30));
                                 panelLocation.setLayout(new BorderLayout());
 
                                 //======== panelLocationLeft ========
                                 {
                                     panelLocationLeft.setPreferredSize(new Dimension(142, 30));
                                     panelLocationLeft.setMinimumSize(new Dimension(142, 30));
+                                    panelLocationLeft.setMaximumSize(new Dimension(2147483647, 30));
                                     panelLocationLeft.setLayout(new GridBagLayout());
                                     ((GridBagLayout)panelLocationLeft.getLayout()).columnWidths = new int[] {0, 0, 0, 0, 0};
-                                    ((GridBagLayout)panelLocationLeft.getLayout()).rowHeights = new int[] {0, 0, 0};
                                     ((GridBagLayout)panelLocationLeft.getLayout()).columnWeights = new double[] {1.0, 1.0, 1.0, 0.0, 1.0E-4};
-                                    ((GridBagLayout)panelLocationLeft.getLayout()).rowWeights = new double[] {1.0, 0.0, 1.0E-4};
+                                    ((GridBagLayout)panelLocationLeft.getLayout()).rowWeights = new double[] {1.0};
 
                                     //---- buttonBack ----
                                     buttonBack.setText("<html>&lt;</html>");
@@ -856,9 +799,9 @@ public class MainFrame extends JFrame
                                     buttonBack.setFocusable(false);
                                     buttonBack.setDefaultCapable(false);
                                     buttonBack.setHorizontalTextPosition(SwingConstants.CENTER);
-                                    panelLocationLeft.add(buttonBack, new GridBagConstraints(0, 0, 1, 2, 0.0, 0.0,
+                                    panelLocationLeft.add(buttonBack, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 4, 0, 2), 0, 0));
+                                        new Insets(0, 4, 0, 0), 0, 0));
 
                                     //---- buttonForward ----
                                     buttonForward.setText("<html>&gt;</html>");
@@ -870,9 +813,9 @@ public class MainFrame extends JFrame
                                     buttonForward.setFocusable(false);
                                     buttonForward.setDefaultCapable(false);
                                     buttonForward.setHorizontalTextPosition(SwingConstants.CENTER);
-                                    panelLocationLeft.add(buttonForward, new GridBagConstraints(1, 0, 1, 2, 0.0, 0.0,
+                                    panelLocationLeft.add(buttonForward, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 2, 0, 4), 0, 0));
+                                        new Insets(0, 4, 0, 0), 0, 0));
 
                                     //---- buttonUp ----
                                     buttonUp.setText("^");
@@ -884,9 +827,9 @@ public class MainFrame extends JFrame
                                     buttonUp.setFocusable(false);
                                     buttonUp.setDefaultCapable(false);
                                     buttonUp.setHorizontalTextPosition(SwingConstants.CENTER);
-                                    panelLocationLeft.add(buttonUp, new GridBagConstraints(2, 0, 1, 2, 0.0, 0.0,
+                                    panelLocationLeft.add(buttonUp, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                        new Insets(0, 4, 0, 2), 0, 0));
+                                        new Insets(0, 4, 0, 4), 0, 0));
                                 }
                                 panelLocation.add(panelLocationLeft, BorderLayout.WEST);
 
@@ -899,17 +842,41 @@ public class MainFrame extends JFrame
                                 textFieldLocation.setMaximumSize(new Dimension(2147483647, 30));
                                 panelLocation.add(textFieldLocation, BorderLayout.CENTER);
 
-                                //---- separatorLocationRight ----
-                                separatorLocationRight.setPreferredSize(new Dimension(4, 3));
-                                separatorLocationRight.setMinimumSize(new Dimension(4, 3));
-                                panelLocation.add(separatorLocationRight, BorderLayout.EAST);
-
-                                //---- separatorSections ----
-                                separatorSections.setPreferredSize(new Dimension(0, 3));
-                                separatorSections.setMinimumSize(new Dimension(0, 3));
-                                panelLocation.add(separatorSections, BorderLayout.SOUTH);
+                                //---- hSpacer1 ----
+                                hSpacer1.setPreferredSize(new Dimension(4, 30));
+                                hSpacer1.setMinimumSize(new Dimension(4, 30));
+                                hSpacer1.setMaximumSize(new Dimension(4, 30));
+                                panelLocation.add(hSpacer1, BorderLayout.EAST);
                             }
-                            panelLocationAndButtons.add(panelLocation, BorderLayout.SOUTH);
+                            panelLocationAndButtons.add(panelLocation, BorderLayout.CENTER);
+
+                            //======== panelHintTracking ========
+                            {
+                                panelHintTracking.setMaximumSize(new Dimension(144, 30));
+                                panelHintTracking.setMinimumSize(new Dimension(144, 30));
+                                panelHintTracking.setPreferredSize(new Dimension(144, 30));
+                                panelHintTracking.setLayout(new BorderLayout());
+
+                                //---- buttonHintTracking ----
+                                buttonHintTracking.setText(guiContext.cfg.gs("Navigator.button.HintTracking.text"));
+                                buttonHintTracking.setMnemonic(guiContext.cfg.gs("Navigator.button.HintTracking.mnemonic").charAt(0));
+                                buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.toolTipText"));
+                                buttonHintTracking.setFocusable(false);
+                                panelHintTracking.add(buttonHintTracking, BorderLayout.CENTER);
+
+                                //---- hSpacer2 ----
+                                hSpacer2.setPreferredSize(new Dimension(4, 30));
+                                hSpacer2.setMinimumSize(new Dimension(4, 30));
+                                hSpacer2.setMaximumSize(new Dimension(4, 30));
+                                panelHintTracking.add(hSpacer2, BorderLayout.EAST);
+                            }
+                            panelLocationAndButtons.add(panelHintTracking, BorderLayout.EAST);
+
+                            //---- vSpacer2 ----
+                            vSpacer2.setPreferredSize(new Dimension(10, 2));
+                            vSpacer2.setMinimumSize(new Dimension(10, 2));
+                            vSpacer2.setMaximumSize(new Dimension(10, 2));
+                            panelLocationAndButtons.add(vSpacer2, BorderLayout.SOUTH);
                         }
                         panelBrowserTop.add(panelLocationAndButtons, BorderLayout.PAGE_START);
 
@@ -1367,23 +1334,18 @@ public class MainFrame extends JFrame
     public JSplitPane splitPaneBrowser;
     public JPanel panelBrowserTop;
     public JPanel panelLocationAndButtons;
-    public JPanel panelBarBrowser;
-    public JButton buttonNewFolder;
-    public JToolBar.Separator separatorNewJobs;
-    public JComboBox<String> comboBoxJobs;
-    public JButton buttonRun;
-    public JCheckBox checkBoxDryRun;
-    public JPanel panelHintTracking;
-    public JButton buttonHintTracking;
-    public JPanel hSpacerHintTracking;
+    public JPanel vSpacer1;
     public JPanel panelLocation;
     public JPanel panelLocationLeft;
     public JButton buttonBack;
     public JButton buttonForward;
     public JButton buttonUp;
     public JTextField textFieldLocation;
-    public JSeparator separatorLocationRight;
-    public JSeparator separatorSections;
+    public JPanel hSpacer1;
+    public JPanel panelHintTracking;
+    public JButton buttonHintTracking;
+    public JPanel hSpacer2;
+    public JPanel vSpacer2;
     public JSplitPane splitPaneTwoBrowsers;
     public JTabbedPane tabbedPaneBrowserOne;
     public JPanel panelCollectionOne;

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.14.1" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.15" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -43,91 +43,32 @@ new FormModel {
 							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 								name: "panelLocationAndButtons"
 								"focusable": false
-								"preferredSize": new java.awt.Dimension( 952, 64 )
-								"minimumSize": new java.awt.Dimension( 219, 64 )
-								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
-									"vgap": 2
-									"hgap": 4
-									"alignment": 0
-								} ) {
-									name: "panelBarBrowser"
-									"focusable": false
-									"minimumSize": new java.awt.Dimension( 86, 30 )
-									"preferredSize": new java.awt.Dimension( 86, 30 )
-									add( new FormComponent( "javax.swing.JButton" ) {
-										name: "buttonNewFolder"
-										"text": new FormMessage( null, "Navigator.button.NewFolder.text" )
-										"toolTipText": new FormMessage( null, "Navigator.button.NewFolder.toolTipText" )
-										"mnemonic": new FormMessage( null, "Navigator.button.NewFolder.mnemonic" )
-										"focusable": false
-									} )
-									add( new FormComponent( "javax.swing.JToolBar$Separator" ) {
-										name: "separatorNewJobs"
-									} )
-									add( new FormComponent( "javax.swing.JComboBox" ) {
-										name: "comboBoxJobs"
-										"model": new javax.swing.DefaultComboBoxModel {
-											selectedItem: "Clean Junk"
-											addElement( "Clean Junk" )
-											addElement( "Clean junk & renumber episodes" )
-											addElement( "Find and delete duplicates" )
-										}
-										"enabled": false
-										"toolTipText": "Select a job"
-									} )
-									add( new FormComponent( "javax.swing.JButton" ) {
-										name: "buttonRun"
-										"text": new FormMessage( null, "Navigator.button.Run.text" )
-										"enabled": false
-										"toolTipText": new FormMessage( null, "Navigator.button.Run.toolTipText" )
-										"mnemonic": new FormMessage( null, "Navigator.button.Run.mnemonic" )
-									} )
-									add( new FormComponent( "javax.swing.JCheckBox" ) {
-										name: "checkBoxDryRun"
-										"text": new FormMessage( null, "Navigator.dryrun" )
-										"enabled": false
-										"mnemonic": new FormMessage( null, "Navigator.checkBox.DryRun.mnemonic" )
-									} )
+								"preferredSize": new java.awt.Dimension( 952, 36 )
+								"minimumSize": new java.awt.Dimension( 219, 36 )
+								"maximumSize": new java.awt.Dimension( 2147483647, 36 )
+								add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+									name: "vSpacer1"
+									"preferredSize": new java.awt.Dimension( 10, 4 )
+									"minimumSize": new java.awt.Dimension( 10, 4 )
+									"maximumSize": new java.awt.Dimension( 10, 4 )
 								}, new FormLayoutConstraints( class java.lang.String ) {
-									"value": "Center"
-								} )
-								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
-									"alignment": 2
-									"hgap": 2
-									"vgap": 2
-								} ) {
-									name: "panelHintTracking"
-									add( new FormComponent( "javax.swing.JButton" ) {
-										name: "buttonHintTracking"
-										"text": new FormMessage( null, "Navigator.button.HintTracking.text" )
-										"mnemonic": new FormMessage( null, "Navigator.button.HintTracking.mnemonic" )
-										"toolTipText": new FormMessage( null, "Navigator.button.HintTracking.toolTipText" )
-										"focusable": false
-									} )
-									add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
-										name: "hSpacerHintTracking"
-										"preferredSize": new java.awt.Dimension( 0, 30 )
-										"minimumSize": new java.awt.Dimension( 0, 30 )
-										"maximumSize": new java.awt.Dimension( 0, 30 )
-										"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
-									} )
-								}, new FormLayoutConstraints( class java.lang.String ) {
-									"value": "East"
+									"value": "North"
 								} )
 								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 									name: "panelLocation"
 									"focusable": false
-									"preferredSize": new java.awt.Dimension( 952, 34 )
-									"minimumSize": new java.awt.Dimension( 191, 34 )
+									"preferredSize": new java.awt.Dimension( 952, 30 )
+									"minimumSize": new java.awt.Dimension( 191, 30 )
+									"maximumSize": new java.awt.Dimension( 2147483647, 30 )
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 										"$columnSpecs": "0:1.0, 0:1.0, 0:1.0, 0"
-										"$rowSpecs": "0:1.0, 0"
-										"$alignTop": true
+										"$rowSpecs": "0:1.0"
 										"$alignLeft": true
 									} ) {
 										name: "panelLocationLeft"
 										"preferredSize": new java.awt.Dimension( 142, 30 )
 										"minimumSize": new java.awt.Dimension( 142, 30 )
+										"maximumSize": new java.awt.Dimension( 2147483647, 30 )
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonBack"
 											"text": "<html>&lt;</html>"
@@ -140,8 +81,7 @@ new FormModel {
 											"defaultCapable": false
 											"horizontalTextPosition": 0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"insets": new java.awt.Insets( 0, 4, 0, 2 )
-											"gridheight": 2
+											"insets": new java.awt.Insets( 0, 4, 0, 0 )
 										} )
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonForward"
@@ -156,8 +96,7 @@ new FormModel {
 											"horizontalTextPosition": 0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 											"gridx": 1
-											"insets": new java.awt.Insets( 0, 2, 0, 4 )
-											"gridheight": 2
+											"insets": new java.awt.Insets( 0, 4, 0, 0 )
 										} )
 										add( new FormComponent( "javax.swing.JButton" ) {
 											name: "buttonUp"
@@ -171,9 +110,8 @@ new FormModel {
 											"defaultCapable": false
 											"horizontalTextPosition": 0
 										}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-											"insets": new java.awt.Insets( 0, 4, 0, 2 )
+											"insets": new java.awt.Insets( 0, 4, 0, 4 )
 											"gridx": 2
-											"gridheight": 2
 										} )
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "West"
@@ -189,20 +127,47 @@ new FormModel {
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "Center"
 									} )
-									add( new FormComponent( "javax.swing.JSeparator" ) {
-										name: "separatorLocationRight"
-										"preferredSize": new java.awt.Dimension( 4, 3 )
-										"minimumSize": new java.awt.Dimension( 4, 3 )
+									add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+										name: "hSpacer1"
+										"preferredSize": new java.awt.Dimension( 4, 30 )
+										"minimumSize": new java.awt.Dimension( 4, 30 )
+										"maximumSize": new java.awt.Dimension( 4, 30 )
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "East"
 									} )
-									add( new FormComponent( "javax.swing.JSeparator" ) {
-										name: "separatorSections"
-										"preferredSize": new java.awt.Dimension( 0, 3 )
-										"minimumSize": new java.awt.Dimension( 0, 3 )
+								}, new FormLayoutConstraints( class java.lang.String ) {
+									"value": "Center"
+								} )
+								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+									name: "panelHintTracking"
+									"maximumSize": new java.awt.Dimension( 144, 30 )
+									"minimumSize": new java.awt.Dimension( 144, 30 )
+									"preferredSize": new java.awt.Dimension( 144, 30 )
+									add( new FormComponent( "javax.swing.JButton" ) {
+										name: "buttonHintTracking"
+										"text": new FormMessage( null, "Navigator.button.HintTracking.text" )
+										"mnemonic": new FormMessage( null, "Navigator.button.HintTracking.mnemonic" )
+										"toolTipText": new FormMessage( null, "Navigator.button.HintTracking.toolTipText" )
+										"focusable": false
 									}, new FormLayoutConstraints( class java.lang.String ) {
-										"value": "South"
+										"value": "Center"
 									} )
+									add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+										name: "hSpacer2"
+										"preferredSize": new java.awt.Dimension( 4, 30 )
+										"minimumSize": new java.awt.Dimension( 4, 30 )
+										"maximumSize": new java.awt.Dimension( 4, 30 )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "East"
+									} )
+								}, new FormLayoutConstraints( class java.lang.String ) {
+									"value": "East"
+								} )
+								add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+									name: "vSpacer2"
+									"preferredSize": new java.awt.Dimension( 10, 2 )
+									"minimumSize": new java.awt.Dimension( 10, 2 )
+									"maximumSize": new java.awt.Dimension( 10, 2 )
 								}, new FormLayoutConstraints( class java.lang.String ) {
 									"value": "South"
 								} )

@@ -26,6 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -37,6 +38,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class JobsUI extends JDialog
 {
@@ -135,6 +137,11 @@ public class JobsUI extends JDialog
                 }
             }
         });
+        TableRowSorter sorter = new TableRowSorter<ConfigModel>(configModel);
+        configItems.setRowSorter(sorter);
+        java.util.List<RowSorter.SortKey> sortkeys = new ArrayList<>(1);
+        sortkeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+        sorter.setSortKeys(sortkeys);
 
         // setup the publisher/subscriber Task Origins table
         Border border = guiContext.mainFrame.textFieldLocation.getBorder();
@@ -213,7 +220,7 @@ public class JobsUI extends JDialog
             else
             {
                 JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                        rename, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                        rename, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -248,6 +255,7 @@ public class JobsUI extends JDialog
     {
         try
         {
+            // TODO change when JRE is embedded in ELS distro
             String jarPath = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
             String jar = jarPath;
             String generated = "java -jar " + jar + " -c debug -d debug -j \"" + currentJob.getConfigName() + "\" -F \"" + currentJob.getConfigName() + ".log\"";
@@ -453,7 +461,7 @@ public class JobsUI extends JDialog
             int id = 0;
             DefaultListModel<String> listModel = new DefaultListModel<String>();
             int selectedCombo = -1;
-            int selectedList = 0;
+            int selectedList = -1;
             String text = null;
             String title = null;
             String tip = null;
@@ -551,7 +559,8 @@ public class JobsUI extends JDialog
                 listModel.addElement(text);
             }
             list.setModel(listModel);
-            list.setSelectedIndex(selectedList);
+            if (selectedList >= 0)
+                list.setSelectedIndex(selectedList);
 
             JScrollPane pane = new JScrollPane();
             pane.setViewportView(list);
@@ -615,24 +624,9 @@ public class JobsUI extends JDialog
         if (index >= 0)
         {
             Job job = (Job) configModel.getValueAt(index, 0);
-
-            if (job.getTasks() != null && job.getTasks().size() > 0)
+            String status = job.validate(guiContext.cfg);
+            if (status.length() == 0)
             {
-                for (Task task : job.getTasks())
-                {
-                    if (task.getOrigins() == null || task.getOrigins().size() == 0)
-                    {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName(),
-                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                    if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
-                    {
-                        JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName(),
-                                guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                }
                 // make dialog pieces
                 String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
                 JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
@@ -648,10 +642,9 @@ public class JobsUI extends JDialog
             }
             else
             {
-                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.job.has.no.tasks"),
-                        guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, status,
+                        guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
             }
-
         }
     }
 
@@ -827,17 +820,9 @@ public class JobsUI extends JDialog
         return deletedJobs;
     }
 
-    public String getDirectoryPath()
-    {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
-                ".els" + System.getProperty("file.separator") +
-                "jobs";
-        return path;
-    }
-
     public String getFullPath(Job job)
     {
-        String path = getDirectoryPath() + System.getProperty("file.separator") +
+        String path = Job.getDirectoryPath() + System.getProperty("file.separator") +
                 Utils.scrubFilename(job.getConfigName()) + ".json";
         return path;
     }
@@ -909,7 +894,7 @@ public class JobsUI extends JDialog
 
     private void loadConfigurations()
     {
-        File jobsDir = new File(getDirectoryPath());
+        File jobsDir = new File(Job.getDirectoryPath());
         if (jobsDir.exists())
         {
             Tools toolsHandler = new Tools();
@@ -927,7 +912,6 @@ public class JobsUI extends JDialog
             }
 
             File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
-            Arrays.sort(files);
             for (File entry : files)
             {
                 if (!entry.isDirectory())

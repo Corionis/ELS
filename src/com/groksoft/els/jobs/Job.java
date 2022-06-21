@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Job implements Serializable
+public class Job implements Comparable, Serializable
 {
     private String configName; // user name for this instance
     private ArrayList<Task> tasks;
@@ -50,6 +50,12 @@ public class Job implements Serializable
         }
         job.setTasks(tasks);
         return job;
+    }
+
+    @Override
+    public int compareTo(Object o)
+    {
+        return getConfigName().compareTo(((Job)o).getConfigName());
     }
 
     public String getConfigName()
@@ -213,6 +219,31 @@ public class Job implements Serializable
     public String toString()
     {
         return configName;
+    }
+
+    public String validate(Configuration cfg)
+    {
+        Job job = this;
+        String status = "";
+        if (job.getTasks() != null && job.getTasks().size() > 0)
+        {
+            for (Task task : job.getTasks())
+            {
+                if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                {
+                    status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
+                }
+                else if (task.getOrigins() == null || task.getOrigins().size() == 0)
+                {
+                    status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
+                }
+            }
+        }
+        else
+        {
+            status = cfg.gs("JobsUI.job.has.no.tasks");
+        }
+        return status;
     }
 
 }

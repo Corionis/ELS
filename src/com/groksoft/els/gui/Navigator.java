@@ -10,6 +10,8 @@ import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.jobs.JobsUI;
 import com.groksoft.els.gui.tools.junkremover.JunkRemoverUI;
+import com.groksoft.els.jobs.Job;
+import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
@@ -20,15 +22,20 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Navigator
 {
@@ -36,6 +43,7 @@ public class Navigator
     public JunkRemoverUI dialogJunkRemover = null;
     public JobsUI dialogJobs = null;
     public static GuiContext guiContext;
+    public Job[] jobs;
     public boolean showHintTrackingButton = false;
     private transient Logger logger = LogManager.getLogger("applog");
     private boolean quitRemote = false;
@@ -111,6 +119,20 @@ public class Navigator
         guiContext.cfg = config;
         guiContext.context = ctx;
         guiContext.navigator = this;
+    }
+
+    private int findMenuItemIndex(JMenu menu, JMenuItem item)
+    {
+        for (int i = 0; i < menu.getItemCount(); ++i)
+        {
+            Component comp = menu.getMenuComponent(i);
+            if (comp instanceof JMenuItem)
+            {
+                if (item == (JMenuItem) comp)
+                    return i;
+            }
+        }
+        return -1;
     }
 
     /**
@@ -198,6 +220,17 @@ public class Navigator
             bookmarks = new Bookmarks();
             readBookmarks();
             loadBookmarksMenu();
+
+            // add any defined jobs to the menu
+            loadJobsMenu();
+
+
+//            guiContext.mainFrame.panelLocationAndButtons.setPreferredSize();
+//            guiContext.mainFrame.panelLocationAndButtons.remove(guiContext.mainFrame.panelBarBrowser);
+//            guiContext.mainFrame.panelLocationAndButtons.remove(guiContext.mainFrame.panelHintTracking);
+//            guiContext.mainFrame.panelLocationAndButtons.revalidate();
+//            guiContext.mainFrame.panelBarBrowser.setVisible(false);
+//            guiContext.mainFrame.panelHintTracking.setVisible(false);
 
 /*
         Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
@@ -1340,6 +1373,8 @@ public class Navigator
     {
         JMenu menu = guiContext.mainFrame.menuBookmarks;
         int count = menu.getItemCount();
+
+        // A -3 offset for Add, Delete and separator
         if (count > 3)
         {
             for (int i = count - 1; i > 2; --i)
@@ -1355,7 +1390,7 @@ public class Navigator
             for (int i = 0; i < count; ++i)
             {
                 JMenuItem item = new JMenuItem(bookmarks.get(i).name);
-                item.setHorizontalTextPosition(SwingConstants.LEADING);
+                item.setHorizontalTextPosition(SwingConstants.RIGHT);
                 item.setHorizontalAlignment(SwingConstants.LEADING);
                 item.addActionListener(new AbstractAction()
                 {
@@ -1364,14 +1399,145 @@ public class Navigator
                     {
                         JMenuItem selected = (JMenuItem) actionEvent.getSource();
                         String name = selected.getText();
-                        Bookmark bm = bookmarks.find(name);
-                        if (bm != null)
-                            guiContext.browser.bookmarkGoto(bm);
+                        // A -3 offset for Add, Delete and separator
+                        int index = findMenuItemIndex(guiContext.mainFrame.menuBookmarks, selected) - 3;
+                        if (index > 0)
+                        {
+                            Bookmark bm = bookmarks.get(index - 3);
+                            if (bm != null)
+                                guiContext.browser.bookmarkGoto(bm);
+                        }
                     }
                 });
                 menu.add(item);
             }
         }
+    }
+
+    public void loadJobsMenu()
+    {
+        JMenu menu = guiContext.mainFrame.menuJobs;
+        int count = menu.getItemCount();
+
+        // A -2 offset for "Manage ..." and separator
+        if (count > 3)
+        {
+            for (int i = count - 1; i > 1; --i)
+            {
+                menu.remove(i);
+            }
+        }
+
+        File jobsDir = new File(Job.getDirectoryPath());
+        File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
+        if (files.length > 0)
+        {
+            int index = 0;
+            jobs = new Job[files.length];
+            for (File entry : files)
+            {
+                if (!entry.isDirectory())
+                {
+                    try
+                    {
+                        Gson gson = new Gson();
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        if (json != null)
+                        {
+                            Job job = gson.fromJson(json, Job.class);
+                            if (job != null)
+                            {
+                                jobs[index++] = job;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        String msg = guiContext.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
+                        guiContext.browser.printLog(msg);
+                        JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
+                                guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+
+            Arrays.sort(jobs);
+            for (int i = 0; i < jobs.length; ++i)
+            {
+                JMenuItem item = new JMenuItem(jobs[i].getConfigName());
+                item.setHorizontalTextPosition(SwingConstants.RIGHT);
+                item.setHorizontalAlignment(SwingConstants.LEADING);
+                item.addActionListener(new AbstractAction()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        JMenuItem selected = (JMenuItem) actionEvent.getSource();
+                        String name = selected.getText();
+                        // A -2 offset for "Manage ..." and separator
+                        int index = findMenuItemIndex(guiContext.mainFrame.menuJobs, selected) - 2;
+                        if (index >= 0)
+                        {
+                            Job job = jobs[index];
+                            processJob(job);
+                        }
+                    }
+                });
+                menu.add(item);
+            }
+        }
+    }
+
+    public void processJob(Job job)
+    {
+        // validate job tasks and origins
+        String status = job.validate(guiContext.cfg);
+        if (status.length() == 0)
+        {
+            // make dialog pieces
+            String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
+            JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
+            Object[] params = {message, checkbox};
+
+            // confirm run of job
+            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, params, guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            boolean isDryRun = checkbox.isSelected();
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                ArrayList<Task> tasks = job.getTasks();
+                if (tasks.size() > 0)
+                {
+                    setMenuItemsStats(guiContext.mainFrame.menuJobs, false);
+                    SwingWorker<Void, Void> worker;
+                    worker = job.process(guiContext, job, isDryRun);
+                    if (worker != null)
+                    {
+                        worker.addPropertyChangeListener(new PropertyChangeListener()
+                        {
+                            @Override
+                            public void propertyChange(PropertyChangeEvent e)
+                            {
+                                if (e.getPropertyName().equals("state"))
+                                {
+                                    if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                        processTerminated(job);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(guiContext.mainFrame, status,
+                    guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void processTerminated(Job job)
+    {
+        setMenuItemsStats(guiContext.mainFrame.menuJobs, true);
     }
 
     public void readBookmarks()
@@ -1488,6 +1654,18 @@ public class Navigator
         if (guiContext.context.fault)
         {
             System.exit(1);
+        }
+    }
+
+    private void setMenuItemsStats(JMenu menu, boolean state)
+    {
+        for (int i = 0; i < menu.getItemCount(); ++i)
+        {
+            Component comp = menu.getMenuComponent(i);
+            if (comp instanceof JMenuItem)
+            {
+                ((JMenuItem)comp).setEnabled(state);
+            }
         }
     }
 
