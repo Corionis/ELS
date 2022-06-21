@@ -630,6 +630,7 @@ public class JobsUI extends JDialog
                 // make dialog pieces
                 String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
                 JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
+                checkbox.setToolTipText(guiContext.cfg.gs("Navigator.dryrun.tooltip"));
                 Object[] params = {message, checkbox};
 
                 // confirm run of job
