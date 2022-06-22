@@ -48,7 +48,7 @@ in the Version-4.0.0 branch for on-going change information.
      * Empty Directory Finder
      * Done: Junk Remover
      * Renamer
-   * Done: Tools may be combined into jobs.
+   * Broken: Tools may be combined into jobs.
      * Creation of command line to execute jobs. Useful for Linux
        cron jobs or Windows Task Scheduler tasks.
    * External tools supported.
