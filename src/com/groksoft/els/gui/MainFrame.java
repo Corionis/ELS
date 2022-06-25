@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicLabelUI;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -56,7 +57,7 @@ public class MainFrame extends JFrame
 
             initComponents();
             setTitle(guiContext.cfg.getNavigatorName()); // + " " + guiContext.cfg.getProgramVersion());
-            rotateBrowserTabs();
+            setBrowserTabs(-1);
 
             // setup the right-side tables
             tableCollectionOne.setName("tableCollectionOne");
@@ -188,24 +189,58 @@ public class MainFrame extends JFrame
             guiContext.navigator.stop();
     }
 
-    public void rotateBrowserTabs()
+    public void setBrowserTabs(int tabPlacementIndex)
     {
-        // change browser tabs orientation to vertical
-        JLabel label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
-        label.setUI(new VerticalLabel(false));
-        tabbedPaneBrowserOne.setTabComponentAt(0, label);
-        //
-        label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemOne.tab.title"));
-        label.setUI(new VerticalLabel(false));
-        tabbedPaneBrowserOne.setTabComponentAt(1, label);
+        int tabPlacement;
+        if (tabPlacementIndex < 0)
+        {
+            tabPlacement = guiContext.preferences.getTabPlacement();
+            tabPlacementIndex = guiContext.preferences.getTabPlacementIndex();
+        }
+        else
+            tabPlacement = guiContext.preferences.getTabPlacement(tabPlacementIndex);
 
-        label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.title"));
-        label.setUI(new VerticalLabel(false));
-        tabbedPaneBrowserTwo.setTabComponentAt(0, label);
-        //
-        label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
-        label.setUI(new VerticalLabel(false));
-        tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+        tabbedPaneBrowserOne.setTabPlacement(tabPlacement);
+        tabbedPaneBrowserTwo.setTabPlacement(tabPlacement);
+
+        if (tabPlacementIndex > 1) // left or right, rotate
+        {
+            // change browser tabs orientation to vertical
+            JLabel label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
+            label.setUI(new VerticalLabel(tabPlacementIndex == 3));
+            tabbedPaneBrowserOne.setTabComponentAt(0, label);
+            //
+            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemOne.tab.title"));
+            label.setUI(new VerticalLabel(tabPlacementIndex == 3));
+            tabbedPaneBrowserOne.setTabComponentAt(1, label);
+
+            label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.title"));
+            label.setUI(new VerticalLabel(tabPlacementIndex == 3));
+            tabbedPaneBrowserTwo.setTabComponentAt(0, label);
+            //
+            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
+            label.setUI(new VerticalLabel(tabPlacementIndex == 3));
+            tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+        }
+        else // top or bottom
+        {
+            // change browser tabs orientation to vertical
+            JLabel label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
+            label.setUI(new BasicLabelUI());
+            tabbedPaneBrowserOne.setTabComponentAt(0, label);
+            //
+            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemOne.tab.title"));
+            label.setUI(new BasicLabelUI());
+            tabbedPaneBrowserOne.setTabComponentAt(1, label);
+
+            label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.title"));
+            label.setUI(new BasicLabelUI());
+            tabbedPaneBrowserTwo.setTabComponentAt(0, label);
+            //
+            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
+            label.setUI(new BasicLabelUI());
+            tabbedPaneBrowserTwo.setTabComponentAt(1, label);
+        }
     }
 
     private void thisWindowClosing(WindowEvent e)
@@ -852,22 +887,25 @@ public class MainFrame extends JFrame
 
                             //======== panelHintTracking ========
                             {
-                                panelHintTracking.setMaximumSize(new Dimension(144, 30));
-                                panelHintTracking.setMinimumSize(new Dimension(144, 30));
-                                panelHintTracking.setPreferredSize(new Dimension(144, 30));
+                                panelHintTracking.setMaximumSize(new Dimension(136, 30));
+                                panelHintTracking.setMinimumSize(new Dimension(136, 30));
+                                panelHintTracking.setPreferredSize(new Dimension(136, 30));
                                 panelHintTracking.setLayout(new BorderLayout());
 
                                 //---- buttonHintTracking ----
                                 buttonHintTracking.setText(guiContext.cfg.gs("Navigator.button.HintTracking.text"));
                                 buttonHintTracking.setMnemonic(guiContext.cfg.gs("Navigator.button.HintTracking.mnemonic").charAt(0));
-                                buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.toolTipText"));
                                 buttonHintTracking.setFocusable(false);
+                                buttonHintTracking.setPreferredSize(new Dimension(124, 30));
+                                buttonHintTracking.setMinimumSize(new Dimension(124, 30));
+                                buttonHintTracking.setMaximumSize(new Dimension(124, 30));
+                                buttonHintTracking.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
                                 panelHintTracking.add(buttonHintTracking, BorderLayout.CENTER);
 
                                 //---- hSpacer2 ----
-                                hSpacer2.setPreferredSize(new Dimension(4, 30));
-                                hSpacer2.setMinimumSize(new Dimension(4, 30));
-                                hSpacer2.setMaximumSize(new Dimension(4, 30));
+                                hSpacer2.setPreferredSize(new Dimension(6, 30));
+                                hSpacer2.setMinimumSize(new Dimension(6, 30));
+                                hSpacer2.setMaximumSize(new Dimension(6, 30));
                                 panelHintTracking.add(hSpacer2, BorderLayout.EAST);
                             }
                             panelLocationAndButtons.add(panelHintTracking, BorderLayout.EAST);

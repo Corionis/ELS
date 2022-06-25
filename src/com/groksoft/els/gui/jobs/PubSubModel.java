@@ -49,7 +49,7 @@ public class PubSubModel extends DefaultTableModel
         return 2;
     }
 
-    private String getDesc(boolean isPublisher, String key)
+    private String getDesc(boolean isPublisher, boolean isRemote, String key)
     {
         String desc = "";
         if (key.trim().length() == 0)
@@ -75,9 +75,18 @@ public class PubSubModel extends DefaultTableModel
         {
             Repositories.Meta meta = repositories.find(key);
             if (meta != null)
-                desc = meta.description;
+            {
+                if (isRemote)
+                    desc = cfg.gs("Z.remote.uppercase");
+                else
+                {
+                    if (!isPublisher)
+                        desc = cfg.gs("Z.local.uppercase");
+                }
+                desc += (isPublisher ? cfg.gs("Z.publisher") : cfg.gs("Z.subscriber")) + ": " + meta.description;
+            }
             else
-                desc = cfg.gs("NavTreeNode.library") + " " + key + cfg.gs("Z.not.found");
+                desc = cfg.gs("Z.cannot.find") + key;
         }
         return desc;
     }
@@ -100,8 +109,8 @@ public class PubSubModel extends DefaultTableModel
                 if (task.isDual())
                 {
                     if (row == 0)
-                        return getDesc(true, task.getPublisherKey());
-                    return getDesc(false, task.getSubscriberKey());
+                        return getDesc(true, false, task.getPublisherKey());
+                    return getDesc(false, task.isSubscriberRemote(), task.getSubscriberKey());
                 }
                 else
                 {
@@ -114,7 +123,7 @@ public class PubSubModel extends DefaultTableModel
                         isPublisher = false;
                         key = task.getSubscriberKey();
                     }
-                    return getDesc(isPublisher, key);
+                    return getDesc(isPublisher,(isPublisher ? false : task.isSubscriberRemote()), key);
                 }
             }
 

@@ -26,7 +26,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -137,11 +136,6 @@ public class JobsUI extends JDialog
                 }
             }
         });
-        TableRowSorter sorter = new TableRowSorter<ConfigModel>(configModel);
-        configItems.setRowSorter(sorter);
-        java.util.List<RowSorter.SortKey> sortkeys = new ArrayList<>(1);
-        sortkeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
-        sorter.setSortKeys(sortkeys);
 
         // setup the publisher/subscriber Task Origins table
         Border border = guiContext.mainFrame.textFieldLocation.getBorder();
@@ -442,6 +436,7 @@ public class JobsUI extends JDialog
     {
         if (currentTask != null)
         {
+            // determine whether it is publisher, subscriber, or both
             int which = -1;
             if (!currentTask.isDual())
                 which = 99; // both
@@ -449,12 +444,12 @@ public class JobsUI extends JDialog
             {
                 String command = evt.getActionCommand();
                 if (command.equals("0"))
-                    which = 0;
+                    which = 0; // publisher
                 else if (command.equals("1"))
-                    which = 1;
+                    which = 1; // subscriber
             }
             if (which < 0)
-                return;
+                return; // should never happen
 
             JComboBox combo = new JComboBox();
             JList<String> list = new JList<>();
@@ -470,14 +465,15 @@ public class JobsUI extends JDialog
             // make dialog pieces
             title = which == 0 ? guiContext.cfg.gs("JobsUI.pubsub.select.publisher") : guiContext.cfg.gs("JobsUI.pubsub.select.subscriber");
 
-            if (which == 0 || which == 99)
+            if (which == 0 || which == 99) // publisher or both
             {
                 title = guiContext.cfg.gs("JobsUI.pubsub.select.publisher");
                 tip = guiContext.cfg.gs("JobsUI.select.publisher.tooltip");
 
                 combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.publisher")));
+                selectedCombo = id - 1;
 
-                text = guiContext.cfg.gs("JobsUI.specific.publisher");
+                text = guiContext.cfg.gs("JobsUI.publisher.specific");
                 if (currentTask.getPublisherKey().length() > 0)
                 {
                     selectedCombo = id - 1;
@@ -485,43 +481,45 @@ public class JobsUI extends JDialog
                     {
                         selectedCombo = id;
                         Repositories.Meta meta = repositories.find(currentTask.getPublisherKey());
+                        //text = guiContext.cfg.gs("JobsUI.publisher.specific");
                         if (meta != null)
-                        {
-                            text = guiContext.cfg.gs("JobsUI.specific.publisher");
                             selectedList = repositories.indexOf(currentTask.getPublisherKey());
-                        }
-                        else
-                            text = currentTask.getPublisherKey() + " " + guiContext.cfg.gs("Z.not.found");
                     }
                 }
                 combo.addItem(new ComboItem(id++, text));
             }
 
-            if (which == 1 || which == 99)
+            if (which == 1 || which == 99) // subscriber or both
             {
                 title = guiContext.cfg.gs("JobsUI.pubsub.select.subscriber");
                 tip = guiContext.cfg.gs("JobsUI.select.subscriber.tooltip");
 
-                combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.subscriber")));
+                text = guiContext.cfg.gs("JobsUI.any.subscriber");
+                combo.addItem(new ComboItem(id++, text));
+                if (which == 1)
+                    selectedCombo = id - 1;
 
-                text = guiContext.cfg.gs("JobsUI.specific.subscriber");
+                text = guiContext.cfg.gs("JobsUI.subscriber.local");
+                combo.addItem(new ComboItem(id++, text));
+
+                text = guiContext.cfg.gs("JobsUI.subscriber.remote");
+                combo.addItem(new ComboItem(id++, text));
+
                 if (currentTask.getSubscriberKey().length() > 0)
                 {
-                    selectedCombo = id - 1;
+                    selectedCombo = id - 3;
                     if (!currentTask.getSubscriberKey().equals(Task.ANY_SERVER))
                     {
-                        selectedCombo = id;
+                        selectedCombo = id - 2;
                         Repositories.Meta meta = repositories.find(currentTask.getSubscriberKey());
                         if (meta != null)
                         {
-                            text = guiContext.cfg.gs("JobsUI.specific.subscriber");
+                            if (currentTask.isSubscriberRemote())
+                                selectedCombo = id -1;
                             selectedList = repositories.indexOf(currentTask.getSubscriberKey());
                         }
-                        else
-                            text = currentTask.getSubscriberKey() + " " + guiContext.cfg.gs("Z.not.found");
                     }
                 }
-                combo.addItem(new ComboItem(id++, text));
             }
 
             if (which == 99)
@@ -544,10 +542,15 @@ public class JobsUI extends JDialog
                     if (cmd.equals("comboBoxChanged"))
                     {
                         int sel = combo.getSelectedIndex();
-                        if (sel == 0 || sel == 2)
+                        if (sel == 0 || (combo.getModel().getSize() > 3 && sel == 2))
                             list.setEnabled(false);
                         else
+                        {
                             list.setEnabled(true);
+                            int s = list.getSelectedIndex();
+                            if (s < 0)
+                                list.setSelectedIndex(0);
+                        }
                     }
                 }
             });
@@ -571,12 +574,42 @@ public class JobsUI extends JDialog
             if (opt == JOptionPane.YES_OPTION)
             {
                 int selected = combo.getSelectedIndex();
-                String key = Task.ANY_SERVER;
-                if (selected == 1 || selected == 3)
+                String key;
+                if (selected == 0 || (which == 99 && selected == 2))
+                {
+                    key = Task.ANY_SERVER;
+                }
+                else
                 {
                     int index = list.getSelectedIndex();
+                    if (index < 0)
+                    {
+                        String msg = (which == 0 ? guiContext.cfg.gs("JobsUI.pubsub.select.publisher") :
+                                (which == 1 ? guiContext.cfg.gs("JobsUI.pubsub.select.subscriber") :
+                                        guiContext.cfg.gs("JobsUI.pubsub.select.publisher.or.subscriber")));
+                        JOptionPane.showMessageDialog(this, msg,
+                                guiContext.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
                     key = (repositories.getList().get(index)).key;
+                    if (selected == 2 || selected == 4) // remote subscriber
+                    {
+                        if (!currentTask.isSubscriberRemote())
+                        {
+                            currentTask.setSubscriberRemote(true);
+                            currentJob.setDataHasChanged();
+                        }
+                    }
+                    else // anything else is not remote
+                    {
+                        if (currentTask.isSubscriberRemote())
+                        {
+                            currentTask.setSubscriberRemote(false);
+                            currentJob.setDataHasChanged();
+                        }
+                    }
                 }
+
                 if (which == 0)
                 {
                     if (!currentTask.getPublisherKey().equals(key))
@@ -614,6 +647,7 @@ public class JobsUI extends JDialog
                         }
                     }
                 }
+                loadPubSubs(currentTask);
             }
         }
     }
@@ -698,9 +732,6 @@ public class JobsUI extends JDialog
                 loadTasks(-1);
                 listTasks.setSelectedIndex(currentJob.getTasks().size() - 1);
                 loadOrigins(currentTask);
-
-                // TODO Focus on whatever the new control is
-                // comboBoxPubSub1.requestFocus();
             }
             else
                 listTasks.requestFocus();
@@ -912,6 +943,7 @@ public class JobsUI extends JDialog
                         guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
 
+            ArrayList<Job> jobsArray = new ArrayList<>();
             File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
             for (File entry : files)
             {
@@ -940,7 +972,7 @@ public class JobsUI extends JDialog
                                         }
                                     }
                                 }
-                                configModel.addRow(new Object[]{job});
+                                jobsArray.add(job);
                             }
                         }
                     }
@@ -952,6 +984,11 @@ public class JobsUI extends JDialog
                                 guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
                     }
                 }
+            }
+            Collections.sort(jobsArray);
+            for (Job job : jobsArray)
+            {
+                configModel.addRow(new Object[]{job});
             }
         }
         if (configModel.getRowCount() == 0)
@@ -1061,7 +1098,7 @@ public class JobsUI extends JDialog
             labelHelp.setEnabled(true);
             labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            worker = job.process(guiContext, job, isDryRun);
+            worker = job.process(guiContext, this, this.getTitle(), job, isDryRun);
             if (worker != null)
             {
                 workerRunning = true;

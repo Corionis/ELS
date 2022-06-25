@@ -11,8 +11,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -55,7 +55,7 @@ public class Job implements Comparable, Serializable
     @Override
     public int compareTo(Object o)
     {
-        return getConfigName().compareTo(((Job)o).getConfigName());
+        return getConfigName().compareTo(((Job) o).getConfigName());
     }
 
     public String getConfigName()
@@ -81,6 +81,19 @@ public class Job implements Comparable, Serializable
     public ArrayList<Task> getTasks()
     {
         return tasks;
+    }
+
+    private boolean willDisconnect(Configuration cfg)
+    {
+        if (cfg.isRemoteSession())
+        {
+            for (Task task : getTasks())
+            {
+                if (task.isSubscriberRemote())
+                    return true;
+            }
+        }
+        return false;
     }
 
     public boolean isDataChanged()
@@ -142,34 +155,48 @@ public class Job implements Comparable, Serializable
      * Used by the Jobs GUI
      *
      * @param guiContext The GuiContext
+     * @param comp       The owning component
+     * @param title      The title for any dialogs
      * @param job        The Job to run
      * @param isDryRun   True for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
-    public SwingWorker<Void, Void> process(GuiContext guiContext, Job job, boolean isDryRun)
+    public SwingWorker<Void, Void> process(GuiContext guiContext, Component comp, String title, Job job, boolean isDryRun)
     {
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+        if (willDisconnect(guiContext.cfg))
         {
-            @Override
-            protected Void doInBackground() throws Exception
+            int reply = JOptionPane.showConfirmDialog(comp,
+                    guiContext.cfg.gs("This job contains remote subscribers. The existing remote subscriber connection will be unavailable while the job is running. Continue?"),
+                    title, JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
             {
-                try
-                {
-                    processJob(guiContext, guiContext.cfg, guiContext.context, job, isDryRun);
-                }
-                catch (Exception e)
-                {
-                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                    guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
-                            guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                guiContext.browser.closeSubscriberPane();
 
-                }
-                return null;
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+                {
+                    @Override
+                    protected Void doInBackground() throws Exception
+                    {
+                        try
+                        {
+                            processJob(guiContext, guiContext.cfg, guiContext.context, job, isDryRun);
+                        }
+                        catch (Exception e)
+                        {
+                            String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                            guiContext.browser.printLog(msg, true);
+                            JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
+                                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+
+                        }
+                        return null;
+                    }
+                };
+                worker.execute();
+                return worker;
             }
-        };
-        worker.execute();
-        return worker;
+        }
+        return null;
     }
 
     private int processJob(GuiContext guiContext, Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception

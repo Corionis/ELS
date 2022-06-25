@@ -33,6 +33,23 @@ public class Settings extends JDialog
         thisDialog = this;
         setDialog();
 
+        // disable buttonhintTracking background color
+        hintButtonColorLabel.setVisible(false);
+        textFieldHintButtonColor.setVisible(false);
+        buttonChooseColor.setVisible(false);
+
+        cancelButton.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                refreshLookAndFeel(guiContext.preferences.getLookAndFeel());
+                if (helpDialog != null && helpDialog.isVisible())
+                    helpDialog.setVisible(false);
+                setVisible(false);
+            }
+        });
+
         okButton.addActionListener(new AbstractAction()
         {
             @Override
@@ -45,18 +62,6 @@ public class Settings extends JDialog
                         helpDialog.setVisible(false);
                     setVisible(false);
                 }
-            }
-        });
-
-        cancelButton.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                refreshLookAndFeel(guiContext.preferences.getLookAndFeel());
-                if (helpDialog != null && helpDialog.isVisible())
-                    helpDialog.setVisible(false);
-                setVisible(false);
             }
         });
 
@@ -83,6 +88,8 @@ public class Settings extends JDialog
             }
         });
 
+        getRootPane().setDefaultButton(okButton);
+
         ActionListener escListener = new AbstractAction()
         {
             @Override
@@ -92,17 +99,6 @@ public class Settings extends JDialog
             }
         };
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-        lookFeelComboBox.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                JComboBox combobox = (JComboBox) actionEvent.getSource();
-                int index = combobox.getSelectedIndex();
-                refreshLookAndFeel(index);
-            }
-        });
 
         dateInfoButton.addActionListener(new AbstractAction()
         {
@@ -129,17 +125,50 @@ public class Settings extends JDialog
             }
         });
 
-        getRootPane().setDefaultButton(okButton);
+        lookFeelComboBox.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JComboBox combobox = (JComboBox) actionEvent.getSource();
+                int index = combobox.getSelectedIndex();
+                refreshLookAndFeel(index);
+            }
+        });
+
+        tabPlacementComboBox.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (actionEvent.getActionCommand().equals("comboBoxChanged"))
+                {
+                    guiContext.mainFrame.setBrowserTabs(tabPlacementComboBox.getSelectedIndex());
+                    guiContext.browser.refreshAll();
+                }
+            }
+        });
+
+    }
+
+    private void chooseColor(ActionEvent e) {
+        Color color = new Color(Integer.parseInt(textFieldHintButtonColor.getText(), 16));
+        color = JColorChooser.showDialog(guiContext.mainFrame, "Select Hint Button Color", color);
+        if (color != null)
+        {
+            textFieldHintButtonColor.setText(Integer.toHexString(color.getRed()) + Integer.toHexString(color.getGreen()) + Integer.toHexString(color.getBlue()));
+            guiContext.mainFrame.buttonHintTracking.setBackground(color);
+        }
     }
 
     private void refreshLookAndFeel(int index)
     {
         try
         {
-            if (guiContext.browser.trackingHints)
-                guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
-            else
-                guiContext.mainFrame.buttonHintTracking.setBackground(hintTrackingColor);
+            //if (guiContext.browser.trackingHints)
+            //    guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
+            //else
+            //    guiContext.mainFrame.buttonHintTracking.setBackground(hintTrackingColor);
 
             if (index == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -150,7 +179,8 @@ public class Settings extends JDialog
             {
                 updateLAFRecursively(frame);
             }
-            guiContext.mainFrame.rotateBrowserTabs();
+
+            guiContext.mainFrame.setBrowserTabs(-1);
             guiContext.browser.refreshAll();
         }
         catch (Exception e)
@@ -203,6 +233,13 @@ public class Settings extends JDialog
         sortCaseSensitiveCheckBox.setSelected(guiContext.preferences.isSortCaseInsensitive());
         sortFoldersBeforeFilesCheckBox.setSelected(guiContext.preferences.isSortFoldersBeforeFiles());
         sortReverseCheckBox.setSelected(guiContext.preferences.isSortReverse());
+        tabPlacementComboBox.removeAllItems();
+        model = tabPlacementComboBox.getModel();
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.top"));
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.bottom"));
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.left"));
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.right"));
+        tabPlacementComboBox.setSelectedIndex(guiContext.preferences.getTabPlacementIndex());
 
         // backup
 
@@ -245,18 +282,10 @@ public class Settings extends JDialog
         guiContext.preferences.setSortCaseInsensitive(sortCaseSensitiveCheckBox.isSelected());
         guiContext.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
         guiContext.preferences.setSortReverse(sortReverseCheckBox.isSelected());
+        guiContext.preferences.setTabPlacement(tabPlacementComboBox.getSelectedIndex());
 
         guiContext.mainFrame.labelStatusMiddle.setText("");
         return true;
-    }
-
-    public static void updateLAFRecursively(Window window)
-    {
-        for (Window childWindow : window.getOwnedWindows())
-        {
-            updateLAFRecursively(childWindow);
-        }
-        SwingUtilities.updateComponentTreeUI(window);
     }
 
     private void thisWindowClosed(WindowEvent e) {
@@ -269,14 +298,13 @@ public class Settings extends JDialog
             helpDialog.setVisible(false);
     }
 
-    private void chooseColor(ActionEvent e) {
-        Color color = new Color(Integer.parseInt(textFieldHintButtonColor.getText(), 16));
-        color = JColorChooser.showDialog(guiContext.mainFrame, "Select Hint Button Color", color);
-        if (color != null)
+    public static void updateLAFRecursively(Window window)
+    {
+        for (Window childWindow : window.getOwnedWindows())
         {
-            textFieldHintButtonColor.setText(Integer.toHexString(color.getRed()) + Integer.toHexString(color.getGreen()) + Integer.toHexString(color.getBlue()));
-            guiContext.mainFrame.buttonHintTracking.setBackground(color);
+            updateLAFRecursively(childWindow);
         }
+        SwingUtilities.updateComponentTreeUI(window);
     }
 
     private void initComponents()
@@ -323,6 +351,8 @@ public class Settings extends JDialog
         sortFoldersBeforeFilesCheckBox = new JCheckBox();
         sortReverseLabel = new JLabel();
         sortReverseCheckBox = new JCheckBox();
+        tabPlacementlabel = new JLabel();
+        tabPlacementComboBox = new JComboBox<>();
         backupPanel = new JPanel();
         librariesPanel = new JPanel();
         buttonBar = new JPanel();
@@ -432,7 +462,7 @@ public class Settings extends JDialog
                                     .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(195, Short.MAX_VALUE))
+                                    .addContainerGap(194, Short.MAX_VALUE))
                         );
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
@@ -503,7 +533,7 @@ public class Settings extends JDialog
                                                 .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                                 .addGroup(apperancePanelLayout.createSequentialGroup()
                                                     .addComponent(dateFormatLabel, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
                                                     .addComponent(dateInfoButton)))
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                             .addGroup(apperancePanelLayout.createParallelGroup()
@@ -538,12 +568,12 @@ public class Settings extends JDialog
                                             .addGap(0, 0, 0)
                                             .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                             .addGap(0, 0, 0)
-                                            .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
-                                            .addGap(0, 0, 0)
-                                            .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addGap(114, 114, 114)
-                                            .addComponent(dateInfoButton)))
+                                            .addGap(111, 111, 111)
+                                            .addGroup(apperancePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                                .addComponent(dateInfoButton)
+                                                .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))))
                                     .addGap(0, 0, 0)
                                     .addGroup(apperancePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
@@ -572,6 +602,18 @@ public class Settings extends JDialog
                         //---- sortReverseLabel ----
                         sortReverseLabel.setText(guiContext.cfg.gs("Settings.sortReverseLabel.text"));
 
+                        //---- tabPlacementlabel ----
+                        tabPlacementlabel.setText(guiContext.cfg.gs("Settings.tabPlacementlabel.text"));
+
+                        //---- tabPlacementComboBox ----
+                        tabPlacementComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
+                            "Top",
+                            "Bottom",
+                            "Left",
+                            "Right"
+                        }));
+                        tabPlacementComboBox.setPreferredSize(new Dimension(100, 30));
+
                         GroupLayout browserPanelLayout = new GroupLayout(browserPanel);
                         browserPanel.setLayout(browserPanelLayout);
                         browserPanelLayout.setHorizontalGroup(
@@ -583,15 +625,17 @@ public class Settings extends JDialog
                                         .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE))
-                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(tabPlacementlabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE))
+                                    .addGap(12, 12, 12)
                                     .addGroup(browserPanelLayout.createParallelGroup()
                                         .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(sortCaseSensitiveCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(sortFoldersBeforeFilesCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap())
+                                        .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(tabPlacementComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                    .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         );
                         browserPanelLayout.setVerticalGroup(
                             browserPanelLayout.createParallelGroup()
@@ -617,7 +661,11 @@ public class Settings extends JDialog
                                             .addComponent(sortFoldersBeforeFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                             .addGap(0, 0, 0)
                                             .addComponent(sortReverseCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)))
-                                    .addGap(187, 187, 187))
+                                    .addGap(0, 0, 0)
+                                    .addGroup(browserPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                        .addComponent(tabPlacementlabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(tabPlacementComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                    .addContainerGap())
                         );
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
@@ -710,6 +758,8 @@ public class Settings extends JDialog
     private JCheckBox sortFoldersBeforeFilesCheckBox;
     private JLabel sortReverseLabel;
     private JCheckBox sortReverseCheckBox;
+    private JLabel tabPlacementlabel;
+    private JComboBox<String> tabPlacementComboBox;
     private JPanel backupPanel;
     private JPanel librariesPanel;
     private JPanel buttonBar;

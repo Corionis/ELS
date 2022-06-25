@@ -45,6 +45,7 @@ public class Navigator
     public static GuiContext guiContext;
     public Job[] jobs;
     public boolean showHintTrackingButton = false;
+    private boolean remoteJobRunning = false;
     private transient Logger logger = LogManager.getLogger("applog");
     private boolean quitRemote = false;
 
@@ -218,7 +219,6 @@ public class Navigator
 
             // add any defined bookmarks to the menu
             bookmarks = new Bookmarks();
-            readBookmarks();
             loadBookmarksMenu();
 
             // add any defined jobs to the menu
@@ -444,6 +444,8 @@ public class Navigator
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(0, 0, 0, 8);
                 gb.setConstraints(cbIsRemote, gbc);
+                if (remoteJobRunning)
+                    cbIsRemote.setEnabled(false);
                 jp.add(cbIsRemote);
                 fc.setAccessory(jp);
 
@@ -452,7 +454,7 @@ public class Navigator
                     int selection = fc.showOpenDialog(guiContext.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (guiContext.cfg.isRemoteSession())
+                        if (guiContext.cfg.isRemoteSession()) // TODO add Quit (shutdown) remote option checkbox
                         {
                             int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
@@ -1383,6 +1385,7 @@ public class Navigator
             }
         }
 
+        readBookmarks();
         count = bookmarks.size();
         if (count > 0)
         {
@@ -1401,9 +1404,9 @@ public class Navigator
                         String name = selected.getText();
                         // A -3 offset for Add, Delete and separator
                         int index = findMenuItemIndex(guiContext.mainFrame.menuBookmarks, selected) - 3;
-                        if (index > 0)
+                        if (index >= 0 && index < bookmarks.size() - 1)
                         {
-                            Bookmark bm = bookmarks.get(index - 3);
+                            Bookmark bm = bookmarks.get(index);
                             if (bm != null)
                                 guiContext.browser.bookmarkGoto(bm);
                         }
@@ -1508,11 +1511,12 @@ public class Navigator
                 ArrayList<Task> tasks = job.getTasks();
                 if (tasks.size() > 0)
                 {
-                    setMenuItemsStats(guiContext.mainFrame.menuJobs, false);
+                    setMenuItemsState(guiContext.mainFrame.menuJobs, false);
                     SwingWorker<Void, Void> worker;
-                    worker = job.process(guiContext, job, isDryRun);
+                    worker = job.process(guiContext, guiContext.mainFrame, guiContext.cfg.getNavigatorName(), job, isDryRun);
                     if (worker != null)
                     {
+                        remoteJobRunning = true;
                         worker.addPropertyChangeListener(new PropertyChangeListener()
                         {
                             @Override
@@ -1538,7 +1542,21 @@ public class Navigator
 
     private void processTerminated(Job job)
     {
-        setMenuItemsStats(guiContext.mainFrame.menuJobs, true);
+        if (guiContext.cfg.isRemoteSession())
+        {
+            try
+            {
+                reconnectRemote(guiContext.cfg, guiContext.context, guiContext.context.publisherRepo, guiContext.context.subscriberRepo);
+                remoteJobRunning = false;
+                guiContext.browser.refreshTree(guiContext.mainFrame.treeCollectionTwo);
+                guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemTwo);
+            }
+            catch (Exception e)
+            {
+            }
+        }
+        guiContext.browser.printLog(job.getConfigName() + " " + guiContext.cfg.gs("Z.completed"));
+        setMenuItemsState(guiContext.mainFrame.menuJobs, true);
     }
 
     public void readBookmarks()
@@ -1571,6 +1589,65 @@ public class Navigator
         {
             // file might not exist
         }
+    }
+
+    private boolean reconnectRemote(Configuration config, Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
+    {
+        boolean didDisonnect = false;
+
+        if (config.isRemoteSession())
+        {
+            // connect to the hint status server if defined
+            context.main.connectHintServer(context.publisherRepo);  // TODO add Hint setup as part of Task??
+
+            // close any existing STTY connection
+            if (context.clientStty != null && context.clientStty.isConnected())
+                try
+                {
+                    didDisonnect = true;
+                    context.clientStty.send("bye");
+                    wait(500);
+                }
+                catch (Exception e)
+                {
+                }
+
+            // start the serveStty client for automation
+            context.clientStty = new ClientStty(guiContext.cfg, false, true);
+            if (!context.clientStty.connect(publisherRepo, subscriberRepo))
+            {
+                config.setRemoteType("-");
+                if (guiContext != null)
+                {
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
+                            guiContext.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                return false;
+            }
+
+            // close any existg SFTP connections
+            if (didDisonnect)
+            {
+                context.clientSftp.stopClient();
+                wait(500);
+            }
+
+            // start the serveSftp client
+            context.clientSftp = new ClientSftp(guiContext.cfg, publisherRepo, subscriberRepo, true);
+            if (!context.clientSftp.startClient())
+            {
+                guiContext.cfg.setRemoteType("-");
+                if (guiContext != null)
+                {
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
+                            guiContext.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     public int run() throws Exception
@@ -1658,14 +1735,14 @@ public class Navigator
         }
     }
 
-    private void setMenuItemsStats(JMenu menu, boolean state)
+    private void setMenuItemsState(JMenu menu, boolean state)
     {
         for (int i = 0; i < menu.getItemCount(); ++i)
         {
             Component comp = menu.getMenuComponent(i);
             if (comp instanceof JMenuItem)
             {
-                ((JMenuItem)comp).setEnabled(state);
+                ((JMenuItem) comp).setEnabled(state);
             }
         }
     }

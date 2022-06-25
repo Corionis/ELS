@@ -12,33 +12,33 @@ import java.io.*;
 
 public class Preferences implements Serializable
 {
-    private int appHeight = 640; // tracked value
-    private int appWidth = 1024; // tracked value
-    private int appXpos = -1; // tracked value
-    private int appYpos = -1; // tracked value
+    private int appHeight = 640; 
+    private int appWidth = 1024; 
+    private int appXpos = -1; 
+    private int appYpos = -1; 
     private boolean binaryScale = true; // true = 1024, false = 1000
-    private int browserBottomSize = 143; // tracked value
-    private int centerDividerLocation = 512; // tracked value
-    private int centerDividerOrientation = 1; // tracked value
-    private int collectionOneDateWidth = 80; // tracked value
-    private int collectionOneDividerLocation = 150; // tracked value
-    private int collectionOneNameWidth = 128; // tracked value
-    private int collectionOneSizeWidth = 80; // tracked value
-    private int collectionTwoDateWidth = 80; // tracked value
-    private int collectionTwoDividerLocation = 150; // tracked value
-    private int collectionTwoNameWidth = 128; // tracked value
-    private int collectionTwoSizeWidth = 80; // tracked value
+    private int browserBottomSize = 143; 
+    private int centerDividerLocation = 512; 
+    private int centerDividerOrientation = 1; 
+    private int collectionOneDateWidth = 80; 
+    private int collectionOneDividerLocation = 150; 
+    private int collectionOneNameWidth = 128; 
+    private int collectionOneSizeWidth = 80; 
+    private int collectionTwoDateWidth = 80; 
+    private int collectionTwoDividerLocation = 150; 
+    private int collectionTwoNameWidth = 128; 
+    private int collectionTwoSizeWidth = 80; 
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
-    private int jobsHeight = 470; // tracked value
-    private int jobsOriginDividerLocation = 142; // tracked value
-    private int jobsTaskDividerLocation = 142; // tracked value
-    private int jobsWidth = 570; // tracked value
-    private int jobsXpos = -1; // tracked value
-    private int jobsYpos = -1; // tracked value
+    private int jobsHeight = 470; 
+    private int jobsOriginDividerLocation = 142; 
+    private int jobsTaskDividerLocation = 142; 
+    private int jobsWidth = 570; 
+    private int jobsXpos = -1; 
+    private int jobsYpos = -1; 
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
     private boolean lastIsRemote = true;
@@ -63,19 +63,20 @@ public class Preferences implements Serializable
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
-    private int systemOneDateWidth = 80; // tracked value
-    private int systemOneDividerLocation = 152; // tracked value
-    private int systemOneNameWidth = 128; // tracked value
-    private int systemOneSizeWidth = 80; // tracked value
-    private int systemTwoDateWidth = 80; // tracked value
-    private int systemTwoDividerLocation = 152; // tracked value
-    private int systemTwoNameWidth = 128; // tracked value
-    private int systemTwoSizeWidth = 80; // tracked value
-    private int toolsJunkRemoverHeight = 470; // tracked value
-    private int toolsJunkRemoverDividerLocation = 142; // tracked value
-    private int toolsJunkRemoverWidth = 570; // tracked value
-    private int toolsJunkRemoverXpos = -1; // tracked value
-    private int toolsJunkRemoverYpos = -1; // tracked value
+    private int systemOneDateWidth = 80; 
+    private int systemOneDividerLocation = 152; 
+    private int systemOneNameWidth = 128; 
+    private int systemOneSizeWidth = 80; 
+    private int systemTwoDateWidth = 80; 
+    private int systemTwoDividerLocation = 152; 
+    private int systemTwoNameWidth = 128; 
+    private int systemTwoSizeWidth = 80; 
+    private int tabPlacement = JTabbedPane.LEFT;
+    private int toolsJunkRemoverHeight = 470; 
+    private int toolsJunkRemoverDividerLocation = 142; 
+    private int toolsJunkRemoverWidth = 570; 
+    private int toolsJunkRemoverXpos = -1; 
+    private int toolsJunkRemoverYpos = -1; 
     private transient Configuration cfg;
 
     /**
@@ -422,6 +423,38 @@ public class Preferences implements Serializable
     public int getSystemTwoSizeWidth()
     {
         return systemTwoSizeWidth;
+    }
+
+    public int getTabPlacement()
+    {
+        return getTabPlacement(tabPlacement);
+    }
+
+    public int getTabPlacement(int tabPlacementIndex)
+    {
+        int place;
+        switch (tabPlacementIndex)
+        {
+            case 0:
+                place = JTabbedPane.TOP;
+                break;
+            case 1:
+                place = JTabbedPane.BOTTOM;
+                break;
+            default:
+            case 2:
+                place = JTabbedPane.LEFT;
+                break;
+            case 3:
+                place = JTabbedPane.RIGHT;
+                break;
+        }
+        return place;
+    }
+
+    public int getTabPlacementIndex()
+    {
+        return tabPlacement;
     }
 
     public int getToolsJunkRemoverHeight()
@@ -782,6 +815,11 @@ public class Preferences implements Serializable
     public void setSystemTwoSizeWidth(int systemTwoSizeWidth)
     {
         this.systemTwoSizeWidth = systemTwoSizeWidth;
+    }
+
+    public void setTabPlacement(int tabPlacement)
+    {
+        this.tabPlacement = tabPlacement;
     }
 
     public void setToolsJunkRemoverHeight(int toolsJunkRemoverHeight)

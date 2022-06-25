@@ -433,32 +433,6 @@ public class Browser
         guiContext.mainFrame.tableCollectionTwo.addKeyListener(browserKeyListener);
         guiContext.mainFrame.treeSystemTwo.addKeyListener(browserKeyListener);
         guiContext.mainFrame.tableSystemTwo.addKeyListener(browserKeyListener);
-
-        // add location text field key listener
-        guiContext.mainFrame.textFieldLocation.addKeyListener(new KeyAdapter()
-        {
-            @Override
-            public void keyTyped(KeyEvent keyEvent)
-            {
-/*
-                super.keyTyped(keyEvent);
-                if (keyEvent.getKeyChar() == KeyEvent.VK_ENTER)
-                {
-                    JComponent component = getTabComponent(lastTab);
-                    // TODO Not sure if this can be done with the node-based lazy loading
-                    JOptionPane.showMessageDialog(guiContext.form,
-                            "change to types location",
-                            guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
-                }
-*/
-            }
-
-            @Override
-            public void keyPressed(KeyEvent keyEvent)
-            {
-            }
-        });
-
     }
 
     private void bookmarkCreate(NavTreeNode node, String name, String panelName)
@@ -633,6 +607,12 @@ public class Browser
         String name = node.getUserObject().name;
 
         bookmarkCreate(node, name, sourceTree.getName());
+    }
+
+    public void closeSubscriberPane()
+    {
+        setCollectionRoot(guiContext.mainFrame.treeCollectionTwo, guiContext.cfg.gs("Subscriber closed"), false);
+        setCollectionRoot(guiContext.mainFrame.treeSystemTwo, guiContext.cfg.gs("Browser.open.a.subscriber"), false);
     }
 
     public void deleteSelected(JTable sourceTable)
@@ -1418,10 +1398,11 @@ public class Browser
                         {
                             try
                             {
-                                guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
-                                URL url = Thread.currentThread().getContextClassLoader().getResource("hint-tracking.png");
+                                //guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
+                                URL url = Thread.currentThread().getContextClassLoader().getResource("hint-green.png");
                                 Image icon = ImageIO.read(url);
                                 guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
+                                guiContext.mainFrame.buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip"));
                                 trackingHints = true;
                             }
                             catch (Exception e)
@@ -1430,9 +1411,20 @@ public class Browser
                         }
                         else
                         {
-                            guiContext.mainFrame.buttonHintTracking.setBackground(hintTrackingColor);
-                            guiContext.mainFrame.buttonHintTracking.setIcon(null);
-                            trackingHints = false;
+                            //guiContext.mainFrame.buttonHintTracking.setBackground(hintTrackingColor);
+                            //guiContext.mainFrame.buttonHintTracking.setIcon(null);
+                            try
+                            {
+                                //guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
+                                URL url = Thread.currentThread().getContextClassLoader().getResource("hint-red.png");
+                                Image icon = ImageIO.read(url);
+                                guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
+                                guiContext.mainFrame.buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip"));
+                                trackingHints = false;
+                            }
+                            catch (Exception e)
+                            {
+                            }
                         }
                     }
                 }
