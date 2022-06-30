@@ -1617,8 +1617,10 @@ public class Navigator
                                 }
                             }
                         });
+                        worker.execute();
                     }
-                    worker.execute();
+                    else
+                        processTerminated(job);
                 }
             }
         }

@@ -1116,6 +1116,7 @@ public class JobsUI extends JDialog
                         }
                     }
                 });
+                worker.execute();
             }
             else
                 processTerminated();
