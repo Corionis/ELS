@@ -48,9 +48,10 @@ in the Version-4.0.0 branch for on-going change information.
      * Empty Directory Finder
      * Done: Junk Remover
      * Renamer
-   * Broken: Tools may be combined into jobs.
-     * Creation of command line to execute jobs. Useful for Linux
+   * Done: Tools may be combined into jobs.
+     * Done: Creation of command line to execute jobs. Useful for Linux
        cron jobs or Windows Task Scheduler tasks.
+   * Done: Jobs may be executed from the command line 
    * External tools supported.
    * Navigator Backup tab is for creation of ELS back-up tools that may be combined into jobs.
    * Navigator Libraries tab is for editing of publisher, subscriber, 
