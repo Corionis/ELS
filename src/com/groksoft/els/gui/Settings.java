@@ -228,6 +228,7 @@ public class Settings extends JDialog
         textFieldHintButtonColor.setText(guiContext.preferences.getHintTrackingColor());
 
         // browser
+        autoRefreshCheckBox.setSelected(guiContext.preferences.isAutoRefresh());
         hideFilesInTreeCheckBox.setSelected(guiContext.preferences.isHideFilesInTree());
         hideHiddenFilesCheckBox.setSelected(guiContext.preferences.isHideHiddenFiles());
         sortCaseSensitiveCheckBox.setSelected(guiContext.preferences.isSortCaseInsensitive());
@@ -277,6 +278,7 @@ public class Settings extends JDialog
         guiContext.preferences.setHintTrackingColor(textFieldHintButtonColor.getText());
 
         // browser
+        guiContext.preferences.setAutoRefresh(autoRefreshCheckBox.isSelected());
         guiContext.preferences.setHideFilesInTree(hideFilesInTreeCheckBox.isSelected());
         guiContext.preferences.setHideHiddenFiles(hideHiddenFilesCheckBox.isSelected());
         guiContext.preferences.setSortCaseInsensitive(sortCaseSensitiveCheckBox.isSelected());
@@ -341,6 +343,8 @@ public class Settings extends JDialog
         textFieldHintButtonColor = new JTextField();
         buttonChooseColor = new JButton();
         browserPanel = new JPanel();
+        autoRefreshLabel = new JLabel();
+        autoRefreshCheckBox = new JCheckBox();
         hideFilesInTreeLabel = new JLabel();
         hideFilesInTreeCheckBox = new JCheckBox();
         hideHiddenFilesLabel = new JLabel();
@@ -419,23 +423,23 @@ public class Settings extends JDialog
                                     .addGroup(generalPanelLayout.createParallelGroup()
                                         .addGroup(generalPanelLayout.createSequentialGroup()
                                             .addComponent(preserveFileTimestampsLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGap(12, 12, 12)
                                             .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
                                             .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGap(12, 12, 12)
                                             .addComponent(showDeleteConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
                                             .addComponent(showCcpConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGap(12, 12, 12)
                                             .addComponent(showCcpConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
                                             .addComponent(showDndConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGap(12, 12, 12)
                                             .addComponent(showDndConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
                                             .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                                            .addGap(12, 12, 12)
                                             .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
                                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         );
@@ -443,9 +447,9 @@ public class Settings extends JDialog
                             generalPanelLayout.createParallelGroup()
                                 .addGroup(generalPanelLayout.createSequentialGroup()
                                     .addGap(0, 0, 0)
-                                    .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(preserveFileTimestampsCheckBox, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE)
-                                        .addComponent(preserveFileTimestampsLabel, GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE))
+                                    .addGroup(generalPanelLayout.createParallelGroup()
+                                        .addComponent(preserveFileTimestampsLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
                                     .addGap(0, 0, 0)
                                     .addGroup(generalPanelLayout.createParallelGroup()
                                         .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
@@ -587,6 +591,9 @@ public class Settings extends JDialog
                     //======== browserPanel ========
                     {
 
+                        //---- autoRefreshLabel ----
+                        autoRefreshLabel.setText("Auto-refresh:");
+
                         //---- hideFilesInTreeLabel ----
                         hideFilesInTreeLabel.setText(guiContext.cfg.gs("Settings.hideFilesInTreeLabel.text"));
 
@@ -621,6 +628,7 @@ public class Settings extends JDialog
                                 .addGroup(browserPanelLayout.createSequentialGroup()
                                     .addContainerGap()
                                     .addGroup(browserPanelLayout.createParallelGroup()
+                                        .addComponent(autoRefreshLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
@@ -629,6 +637,7 @@ public class Settings extends JDialog
                                         .addComponent(tabPlacementlabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE))
                                     .addGap(12, 12, 12)
                                     .addGroup(browserPanelLayout.createParallelGroup()
+                                        .addComponent(autoRefreshCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(sortCaseSensitiveCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
@@ -642,6 +651,8 @@ public class Settings extends JDialog
                                 .addGroup(browserPanelLayout.createSequentialGroup()
                                     .addGroup(browserPanelLayout.createParallelGroup()
                                         .addGroup(browserPanelLayout.createSequentialGroup()
+                                            .addComponent(autoRefreshLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(0, 0, 0)
                                             .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                             .addGap(0, 0, 0)
                                             .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
@@ -652,6 +663,8 @@ public class Settings extends JDialog
                                             .addGap(0, 0, 0)
                                             .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(browserPanelLayout.createSequentialGroup()
+                                            .addComponent(autoRefreshCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(0, 0, 0)
                                             .addComponent(hideFilesInTreeCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                             .addGap(0, 0, 0)
                                             .addComponent(hideHiddenFilesCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
@@ -748,6 +761,8 @@ public class Settings extends JDialog
     private JTextField textFieldHintButtonColor;
     private JButton buttonChooseColor;
     private JPanel browserPanel;
+    private JLabel autoRefreshLabel;
+    private JCheckBox autoRefreshCheckBox;
     private JLabel hideFilesInTreeLabel;
     private JCheckBox hideFilesInTreeCheckBox;
     private JLabel hideHiddenFilesLabel;

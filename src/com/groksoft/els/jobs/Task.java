@@ -10,6 +10,8 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.io.Serializable;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 
 public class Task implements Comparable, Serializable
 {
+    private final transient Logger logger = LogManager.getLogger("applog");
     public static final String ANY_SERVER = "_ANY_SERVER_";
 
     private String configName; // name of tool configuration
@@ -48,6 +51,7 @@ public class Task implements Comparable, Serializable
         task.setPublisherKey(this.getPublisherKey());
         task.setSubscriberKey(this.getSubscriberKey());
         task.setDual(this.isDual());
+        task.setSubscriberRemote(this.subscriberRemote);
         ArrayList<Origin> origins = new ArrayList<Origin>();
         for (Origin origin : this.getOrigins())
         {
@@ -63,31 +67,16 @@ public class Task implements Comparable, Serializable
         return this.getConfigName().compareTo(((Task) o).getConfigName());
     }
 
-    private boolean connectRemote(Configuration config, Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
+    public boolean connectRemote(Configuration config, Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
-
-
-
-
-
-
-
-        // LEFTOFF Wrong!
-        //  * Must use and change Configuration
-        //  * Check Job for change to Pub or Sub from current
-        //  * Prompt, save current values and close as necessary
-        //  * Reopen current values when Job done
-        //  ! Implement in JobsUI Run button too
-
-
-
-
-
-
         boolean didDisconnect = false;
 
         // connect to the hint status server if defined
         context.main.connectHintServer(context.publisherRepo);  // TODO add Hint setup as part of Task??
+
+        // already connected
+        if (context.clientStty != null && context.clientStty.isConnected() && context.clientStty.getTheirKey().equals(subscriberKey))
+            return true;
 
         // close any existing STTY connection
         if (context.clientStty != null && context.clientStty.isConnected())
@@ -96,7 +85,9 @@ public class Task implements Comparable, Serializable
             {
                 didDisconnect = true;
                 context.clientStty.send("bye");
-                wait(500);
+                Thread.sleep(500);
+                context.clientStty.disconnect();
+                Thread.sleep(500);
             }
             catch (Exception e)
             {
@@ -104,31 +95,38 @@ public class Task implements Comparable, Serializable
         }
 
         // start the serveStty client for automation
-        context.clientStty = new ClientStty(guiContext.cfg, false, true);
+        context.clientStty = new ClientStty(config, false, true);
         if (!context.clientStty.connect(publisherRepo, subscriberRepo))
         {
             config.setRemoteType("-");
             if (guiContext != null)
             {
                 JOptionPane.showMessageDialog(guiContext.mainFrame,
-                        guiContext.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
+                        guiContext.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect") +
+                                subscriberRepo.getLibraryData().libraries.host,
                         guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
             return false;
+        }
+
+        // check for opening commands from Subscriber
+        // *** might change cfg options for subscriber and targets that are handled below ***
+        if (context.clientStty.checkBannerCommands())
+        {
+            logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? " RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
         }
 
         // close any existg SFTP connections
         if (didDisconnect)
         {
             context.clientSftp.stopClient();
-            wait(500);
         }
 
         // start the serveSftp client
-        context.clientSftp = new ClientSftp(guiContext.cfg, publisherRepo, subscriberRepo, true);
+        context.clientSftp = new ClientSftp(config, publisherRepo, subscriberRepo, true);
         if (!context.clientSftp.startClient())
         {
-            guiContext.cfg.setRemoteType("-");
+            config.setRemoteType("-");
             if (guiContext != null)
             {
                 JOptionPane.showMessageDialog(guiContext.mainFrame,
@@ -161,7 +159,7 @@ public class Task implements Comparable, Serializable
         return publisherKey;
     }
 
-    private Repository getRepo(Configuration config, Context context, String key, boolean forPublisher) throws Exception
+    private Repository getRepo(Configuration cfg, Context context, String key, boolean forPublisher) throws Exception
     {
         Repository repo = null;
 
@@ -186,7 +184,7 @@ public class Task implements Comparable, Serializable
                 {
                     // load it
                     Repositories repositories = new Repositories();
-                    repositories.loadList(config);
+                    repositories.loadList(cfg);
 
                     Repositories.Meta meta;
                     if (key.length() > 0)
@@ -194,15 +192,26 @@ public class Task implements Comparable, Serializable
                         meta = repositories.find(key);
                         if (meta != null)
                         {
-                            repo = new Repository(config, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
+                            repo = new Repository(cfg, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
                             repo.read(meta.path, true);
                         }
                         else // QUESTION should this be handled in a non-fatal way?
-                            throw new MungeException(key + config.gs("Z.not.found"));
+                            throw new MungeException(key + cfg.gs("Z.not.found"));
                     }
                 }
             }
         }
+
+        if (repo != null)
+        {
+            cfg.setPublisherCollectionFilename("");
+            cfg.setSubscriberCollectionFilename("");
+            if (forPublisher)
+                cfg.setPublisherLibrariesFileName(repo.getJsonFilename());
+            else
+                cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
+        }
+
         return repo;
     }
 
@@ -231,7 +240,7 @@ public class Task implements Comparable, Serializable
      * @param dryRun Boolean for a dry-run
      * @throws Exception
      */
-    public void process(GuiContext guiContext, Configuration config, Context ctxt, boolean dryRun) throws Exception
+    public boolean process(GuiContext guiContext, Configuration config, Context ctxt, boolean dryRun) throws Exception
     {
         this.guiContext = guiContext;
 
@@ -246,16 +255,24 @@ public class Task implements Comparable, Serializable
             if (pubRepo == null && subRepo == null)
                 throw new MungeException((config.gs("Task.no.repository.is.loaded")));
 
+            String type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
+            config.setRemoteType(type);
+            config.setPublishOperation(false);  // TODO Change when Backup tool added
+
             if (isSubscriberRemote())
             {
-                if (!connectRemote(config, ctxt, pubRepo, subRepo))
-                    return;
+                Repository me = pubRepo;
+                if (me == null)
+                    me = ctxt.publisherRepo;
+                if (!connectRemote(config, ctxt, me, subRepo))
+                    return false;
             }
 
             currentTool.processTool(guiContext, pubRepo, subRepo, origins, dryRun);
         }
         else
             throw new MungeException(config.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
+        return true;
     }
 
     /**

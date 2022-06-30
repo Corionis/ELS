@@ -1,51 +1,47 @@
 package com.groksoft.els.gui;
 
 import com.groksoft.els.Utils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
 import javax.swing.*;
 
 public class Progress extends JFrame
 {
-    private final int MAX_STATUS = 60;
     private transient Logger logger = LogManager.getLogger("applog");
 
     private boolean beingUsed = false;
+    private int currentWidth;
     private GuiContext guiContext;
-    private int fileNumber;
-    private int filesToCopy;
-    private long filesSize;
-    private long size;
-    private String name;
+    private int fixedHeight;
+    private boolean forcedState = false;
+    private String lastStatus = "";
+    private Component owner;
 
-    public Progress(GuiContext context)
+    public Progress(GuiContext context, Component owner)
     {
-        guiContext = context;
-
-/*
-        try
-        {
-            if (guiContext.preferences.getLookAndFeel() == 0)
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            else
-            {
-                LookAndFeel laf = guiContext.form.getLookAndFeel(guiContext.preferences.getLookAndFeel());
-                UIManager.setLookAndFeel(laf);
-            }
-        }
-        catch (Exception e)
-        {}
-*/
+        this.guiContext = context;
+        this.owner = owner;
 
         initComponents();
         setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
-        //setSize(400, 75);
+        try
+        {
+            URL url = getClass().getResource("/running.gif");
+            Icon icon = new ImageIcon(url);
+            this.labelForIcon.setIcon(icon);
+        }
+        catch (Exception e)
+        {
+            this.labelForIcon.setVisible(false);
+            this.hSpacer1.setVisible(false);
+        }
+        this.progressTextField.setBorder(null);
         setLocationByPlatform(false);
-        setLocationRelativeTo(getOwner());
+        setLocationRelativeTo(owner);
     }
 
     public void display()
@@ -60,14 +56,22 @@ public class Progress extends JFrame
             int y = guiContext.mainFrame.getY() + (guiContext.mainFrame.getHeight() / 2) - (getHeight() / 2);
             setLocation(x, y);
         }
+
+        if (guiContext.preferences.getProgressWidth() > 0)
+        {
+            setSize(guiContext.preferences.getProgressWidth(), guiContext.preferences.getProgressHeight());
+        }
+
         setVisible(true);
+
+        fixedHeight = this.getHeight();
+        currentWidth = this.getWidth();
         beingUsed = true;
     }
 
     public void done()
     {
-        saveLocation();
-        reset();
+        savePreferences();
         setVisible(false);
         beingUsed = false;
     }
@@ -77,19 +81,24 @@ public class Progress extends JFrame
         return beingUsed;
     }
 
-    private void reset()
+    private void savePreferences()
     {
-        fileNumber = 0;
-        filesToCopy = 0;
-        filesSize = 0L;
-        size = 0;
-        name = "";
-    }
-
-    private void saveLocation()
-    {
+        guiContext.preferences.setProgressWidth(getWidth());
+        guiContext.preferences.setProgressHeight(getHeight());
         guiContext.preferences.setProgressXpos(getX());
         guiContext.preferences.setProgressYpos(getY());
+    }
+
+    private void thisComponentResized(ComponentEvent e)
+    {
+        if (!forcedState)
+        {
+            currentWidth = getWidth();
+            update(lastStatus);
+        }
+        else
+            forcedState = false;
+        this.setSize(currentWidth, fixedHeight);
     }
 
     private void thisWindowActivated(WindowEvent e)
@@ -99,46 +108,37 @@ public class Progress extends JFrame
 
     private void thisWindowClosed(WindowEvent e)
     {
-        this.getOwner().requestFocus();
+        if (owner != null)
+            owner.requestFocus();
     }
 
     private void thisWindowClosing(WindowEvent e)
     {
-        saveLocation();
-        this.getOwner().requestFocus();
+        savePreferences();
+        if (owner != null)
+            owner.requestFocus();
     }
 
-    private synchronized void update()
+    private void thisWindowStateChanged(WindowEvent e)
     {
-        String status = fileNumber + guiContext.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
-                ", " + Utils.formatLong(size, false) + ", " + name;
-
-        if (status.length() > MAX_STATUS)
+        if (e.getNewState() != JFrame.NORMAL && e.getNewState() != JFrame.ICONIFIED)
         {
-            String ext = Utils.getFileExtension(status);
-            status = StringUtils.abbreviate(status, MAX_STATUS - 3 - ext.length());
-            status += ext;
+            forcedState = true;
+            setExtendedState(JFrame.NORMAL);
+            setSize(currentWidth, fixedHeight);
         }
+    }
 
-        progressTextField.setText(status);
-        progressTextField.update(progressTextField.getGraphics());
+    public synchronized void update(String status)
+    {
+        lastStatus = status;
+        String ellipse = Utils.ellipseFileString(progressTextField, status);
+        progressTextField.setText(ellipse);
+        Graphics gfx = progressTextField.getGraphics();
+        if (gfx != null)
+            progressTextField.update(gfx);
         progressTextField.repaint();
         repaint();
-    }
-
-    public void update(int filesToCopy, long filesSize)
-    {
-        this.filesToCopy = filesToCopy;
-        this.filesSize += filesSize;
-        update();
-    }
-
-    public void update(int fileNumber, long size, String name)
-    {
-        this.fileNumber = fileNumber;
-        this.size = size;
-        this.name = name;
-        update();
     }
 
     // <editor-fold desc="Generated code (Fold)">
@@ -146,15 +146,14 @@ public class Progress extends JFrame
     //
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+        panel1 = new JPanel();
         hSpacer1 = new JPanel(null);
-        vSpacer1 = new JPanel(null);
+        labelForIcon = new JLabel();
         progressTextField = new JTextField();
 
         //======== this ========
-        setMinimumSize(new Dimension(400, 75));
+        setMinimumSize(new Dimension(184, 75));
         setTitle(guiContext.cfg.gs("Progress.title"));
-        setResizable(false);
-        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         setName("ProgressBox");
         addWindowListener(new WindowAdapter() {
             @Override
@@ -170,31 +169,57 @@ public class Progress extends JFrame
                 thisWindowClosing(e);
             }
         });
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                thisComponentResized(e);
+            }
+        });
+        addWindowStateListener(e -> thisWindowStateChanged(e));
         Container contentPane = getContentPane();
-        contentPane.setLayout(new FlowLayout());
-        ((FlowLayout)contentPane.getLayout()).setAlignOnBaseline(true);
-        contentPane.add(hSpacer1);
-        contentPane.add(vSpacer1);
+        contentPane.setLayout(new BorderLayout(4, 0));
+
+        //======== panel1 ========
+        {
+            panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+
+            //---- hSpacer1 ----
+            hSpacer1.setMinimumSize(new Dimension(8, 32));
+            hSpacer1.setPreferredSize(new Dimension(8, 32));
+            panel1.add(hSpacer1);
+
+            //---- labelForIcon ----
+            labelForIcon.setPreferredSize(new Dimension(32, 32));
+            labelForIcon.setMinimumSize(new Dimension(32, 32));
+            labelForIcon.setMaximumSize(new Dimension(32, 32));
+            labelForIcon.setHorizontalTextPosition(SwingConstants.LEFT);
+            labelForIcon.setHorizontalAlignment(SwingConstants.LEFT);
+            panel1.add(labelForIcon);
+        }
+        contentPane.add(panel1, BorderLayout.WEST);
 
         //---- progressTextField ----
         progressTextField.setPreferredSize(new Dimension(378, 30));
-        progressTextField.setMinimumSize(new Dimension(378, 30));
-        progressTextField.setMaximumSize(new Dimension(378, 30));
-        progressTextField.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        progressTextField.setMinimumSize(new Dimension(140, 30));
+        progressTextField.setMaximumSize(new Dimension(5000, 30));
+        progressTextField.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         progressTextField.setEditable(false);
-        progressTextField.setHorizontalAlignment(SwingConstants.CENTER);
+        progressTextField.setHorizontalAlignment(SwingConstants.LEFT);
         progressTextField.setBorder(null);
-        contentPane.add(progressTextField);
+        progressTextField.setMargin(new Insets(2, 0, 2, 8));
+        contentPane.add(progressTextField, BorderLayout.CENTER);
         pack();
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    public JPanel panel1;
     public JPanel hSpacer1;
-    public JPanel vSpacer1;
+    public JLabel labelForIcon;
     public JTextField progressTextField;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //
     // @formatter:on
     // </editor-fold>
+
 }

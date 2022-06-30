@@ -665,6 +665,13 @@ new FormModel {
 						name: "separator3"
 					} )
 					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
+						name: "menuItemAutoRefresh"
+						"text": new FormMessage( null, "Navigator.menuItemAutoRefresh.text" )
+						"horizontalAlignment": 2
+						"horizontalTextPosition": 2
+						"mnemonic": new FormMessage( null, "Navigator.menuItemAutoRefresh.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JCheckBoxMenuItem" ) {
 						name: "menuItemShowHidden"
 						"text": new FormMessage( null, "Navigator.menu.ShowHidden.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.ShowHidden.mnemonic" )

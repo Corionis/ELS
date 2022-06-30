@@ -121,7 +121,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         filesToCopy = 0;
     }
 
-    public void add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
+    public boolean add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
     {
         Batch batch = new Batch(action, transferData, target, tuo, size);
         queue.add(batch);
@@ -132,12 +132,15 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
         {
             guiContext.progress = null; // suggest clean-up
-            guiContext.progress = new Progress(guiContext);
+            guiContext.progress = new Progress(guiContext, guiContext.mainFrame);
         }
+        else
+            return false;
 
         if (guiContext.progress.isVisible()) // can be minimized
             guiContext.progress.toFront();
-        guiContext.progress.update(filesToCopy, filesSize);
+
+        return true;
     }
 
     /**
@@ -222,8 +225,11 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
             parent.remove(sourceTuo.node);
 
-            guiContext.browser.refreshTree(sourceTree);
-            guiContext.browser.refreshTree(targetTree);
+            if (guiContext.preferences.isAutoRefresh())
+            {
+                guiContext.browser.refreshTree(sourceTree);
+                guiContext.browser.refreshTree(targetTree);
+            }
         }
         return error;
     }
@@ -325,13 +331,16 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         boolean error = false;
         String path = "";
         String msg = guiContext.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
-                (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "") +
+                (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "") +
                 guiContext.cfg.gs("NavTransferHandler.transfer.file.from") + sourceTuo.path;
 
         try
         {
             ++fileNumber;
-            guiContext.progress.update(fileNumber, sourceTuo.size, sourceTuo.name);
+            String status = " " + fileNumber + guiContext.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
+                    ", " + Utils.formatLong(sourceTuo.size, false) + ", " + sourceTuo.name + " ";
+            guiContext.progress.update(status);
+            //guiContext.progress.update(fileNumber, sourceTuo.size, sourceTuo.name);
 
             path = makeToPath(sourceTuo, targetTuo);
             msg += guiContext.cfg.gs("NavTransferHandler.transfer.file.to") + path;
@@ -408,9 +417,12 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 }
             }
 
-            // update trees with progress so far, do again in when done
-            guiContext.browser.refreshTree(sourceTree);
-            guiContext.browser.refreshTree(targetTree);
+            // update trees with progress so far, do again when done
+            if (guiContext.preferences.isAutoRefresh())
+            {
+                guiContext.browser.refreshTree(sourceTree);
+                guiContext.browser.refreshTree(targetTree);
+            }
         }
         catch (Exception e)
         {

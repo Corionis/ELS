@@ -1,6 +1,7 @@
 package com.groksoft.els;
 
 import com.groksoft.els.gui.Navigator;
+import com.groksoft.els.gui.SavedConfiguration;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
@@ -36,6 +37,7 @@ public class Main
     public Logger logger = null;
     public Date stamp = new Date();
     private int returnValue;
+    public SavedConfiguration savedConfiguration;
 
     /**
      * Instantiates the Main application
@@ -64,7 +66,7 @@ public class Main
      */
     public void connectHintServer(Repository repo) throws Exception
     {
-        if (cfg.isUsingHintTracker())
+        if (cfg.isUsingHintTracker() && repo != null)
         {
             context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
             context.statusRepo.read(cfg.getStatusTrackerFilename(), true);
@@ -185,7 +187,7 @@ public class Main
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
-                    // handle -n | --navigator to display the Navigator
+                    // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
                     {
                         logger.info("ELS: Navigator begin, version " + cfg.getVersionStamp());
@@ -298,9 +300,9 @@ public class Main
                     }
                     break;
 
-                // handle -r P execute the automated process to remote subscriber -r S
+                // handle -r P execute the backup process to remote subscriber -r S
                 case PUBLISH_REMOTE:
-                    // handle -n | --navigator to display the Navigator
+                    // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
                         logger.info("ELS: Navigator Remote begin, version " + cfg.getVersionStamp());
                     else
@@ -331,7 +333,7 @@ public class Main
                             throw new MungeException("Subscriber sftp failed to connect");
                         }
 
-                        // handle -n | --navigator to display the Navigator
+                        // handle -n|--navigator to display the Navigator
                         if (cfg.isNavigator())
                         {
                             context.navigator = new Navigator(this, cfg, context);
@@ -357,7 +359,7 @@ public class Main
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
-                        throw new MungeException("Targets -t | -T required");
+                        throw new MungeException("Targets -t|-T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
@@ -390,7 +392,7 @@ public class Main
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
-                        throw new MungeException("Targets -t | -T required");
+                        throw new MungeException("Targets -t|-T required");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
@@ -436,22 +438,22 @@ public class Main
                     }
                     break;
 
-                // handle -H | --hint-server stand-alone hints status server
+                // handle -H|--hint-server stand-alone hints status server
                 case STATUS_SERVER:
                     logger.info("ELS: Hint Status Server begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getHintKeysFile() == null || cfg.getHintKeysFile().length() == 0)
-                        throw new MungeException("-H | --status-server requires a -k | -K hint keys file");
+                        throw new MungeException("-H|--status-server requires a -k|-K hint keys file");
 
                     if (cfg.getPublisherFilename().length() > 0)
-                        throw new MungeException("-H | --status-server does not use -p | -P");
+                        throw new MungeException("-H|--status-server does not use -p|-P");
 
                     if (cfg.getSubscriberFilename().length() > 0)
-                        throw new MungeException("-H | --status-server does not use -s | -S");
+                        throw new MungeException("-H|--status-server does not use -s|-S");
 
                     if (cfg.isTargetsEnabled())
-                        throw new MungeException("-H | --status-server does not use targets");
+                        throw new MungeException("-H|--status-server does not use targets");
 
                     // Get the hint status server repo
                     context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
@@ -480,13 +482,13 @@ public class Main
                     }
                     break;
 
-                // handle -Q | --force-quit the hint status server remotely
+                // handle -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
                     logger.info("ELS: Quit Hint Status Server begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)
-                        throw new MungeException("-Q | --force-quit requires a -h | --hints hint server JSON file");
+                        throw new MungeException("-Q|--force-quit requires a -h|--hints hint server JSON file");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
 
@@ -498,12 +500,12 @@ public class Main
                     break;
 
                 case JOB_PROCESS:
-                    // handle -j | --job to execute a Job
+                    // handle -j|--job to execute a Job
                     logger.info("ELS: Job begin, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.isNavigator())
-                        throw new MungeException("-j | --job and -n --navigator are not used together");
+                        throw new MungeException("-j|--job and -n|--navigator are not used together");
 
                     if (cfg.getPublisherFilename().length() > 0)
                     {
@@ -515,15 +517,19 @@ public class Main
                         context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
 
+                    // setup the hint status server if defined
+                    connectHintServer(context.publisherRepo);
+
+                    savedConfiguration = new SavedConfiguration(null, cfg, context);
+
                     // run the Job
                     Job job = Job.load(cfg.getJobName());
-                    job.process(null, cfg, context);
+                    job.process(cfg, context);
                     break;
 
                 default:
                     throw new MungeException("Unknown type of execution");
             }
-
         }
         catch (Exception e)
         {
@@ -646,7 +652,7 @@ public class Main
             repo.read(cfg.getSubscriberFilename(), true);
         }
 
-        // -v | --validate option
+        // -v|--validate option
         if (validate && repo.isInitialized())
         {
             repo.validate();

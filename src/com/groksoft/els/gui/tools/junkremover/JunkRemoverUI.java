@@ -3,6 +3,7 @@ package com.groksoft.els.gui.tools.junkremover;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.gui.Progress;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
@@ -511,6 +512,22 @@ public class JunkRemoverUI extends JDialog
                     {
                         try
                         {
+                            // create a fresh dialog here
+                            if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+                            {
+                                guiContext.progress = new Progress(guiContext, this);
+                            }
+                            else
+                            {
+                                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                                return;
+                            }
+
+                            if (guiContext.progress.isVisible()) // can be minimized
+                                guiContext.progress.toFront();
+                            else
+                                guiContext.progress.display();
+
                             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             setComponentEnabled(false);
                             cancelButton.setEnabled(true);
@@ -565,6 +582,9 @@ public class JunkRemoverUI extends JDialog
 
     private void processTerminated(JunkRemoverTool jrt)
     {
+        if (guiContext.progress != null)
+            guiContext.progress.done();
+
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;

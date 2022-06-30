@@ -39,15 +39,17 @@ import java.util.Arrays;
 
 public class Navigator
 {
-    public Bookmarks bookmarks;
-    public JunkRemoverUI dialogJunkRemover = null;
-    public JobsUI dialogJobs = null;
     public static GuiContext guiContext;
+    public Bookmarks bookmarks;
+    public JobsUI dialogJobs = null;
+    public JunkRemoverUI dialogJunkRemover = null;
     public Job[] jobs;
     public boolean showHintTrackingButton = false;
+    private int bottomSize;
+    private boolean quitRemote = false;
     private boolean remoteJobRunning = false;
     private transient Logger logger = LogManager.getLogger("applog");
-    private boolean quitRemote = false;
+    public SwingWorker<Void, Void> worker;
 
     // QUESTION:
     //  1. How to organize editing JSON server and targets files with N-libraries with N-sources each?
@@ -122,6 +124,66 @@ public class Navigator
         guiContext.navigator = this;
     }
 
+    public void disableGui(boolean disable)
+    {
+        boolean enable = !disable;
+
+        if (enable == false)
+        {
+            bottomSize = guiContext.preferences.getBrowserBottomSize();
+        }
+        guiContext.mainFrame.panelBrowserTop.setVisible(enable);
+
+        guiContext.mainFrame.menuItemOpenPublisher.setEnabled(enable);
+        guiContext.mainFrame.menuItemOpenSubscriber.setEnabled(enable);
+        guiContext.mainFrame.menuItemOpenHintKeys.setEnabled(enable);
+        // TODO guiContext.mainFrame.menuItemOpenHintServer.setEnabled(disable);
+
+        // TODO guiContext.mainFrame.menuItemFind.setEnabled(disable);
+        guiContext.mainFrame.menuItemNewFolder.setEnabled(enable);
+        guiContext.mainFrame.menuItemRename.setEnabled(enable);
+        guiContext.mainFrame.menuItemTouch.setEnabled(enable);
+        guiContext.mainFrame.menuItemCopy.setEnabled(enable);
+        guiContext.mainFrame.menuItemCut.setEnabled(enable);
+        guiContext.mainFrame.menuItemPaste.setEnabled(enable);
+        guiContext.mainFrame.menuItemDelete.setEnabled(enable);
+
+        guiContext.mainFrame.menuItemRefresh.setEnabled(enable);
+        guiContext.mainFrame.menuItemAutoRefresh.setEnabled(enable);
+        guiContext.mainFrame.menuItemShowHidden.setEnabled(enable);
+
+        for (int i = 0; i < guiContext.mainFrame.menuBookmarks.getItemCount(); ++i)
+        {
+            if (guiContext.mainFrame.menuBookmarks.getItem(i) != null)
+                guiContext.mainFrame.menuBookmarks.getItem(i).setEnabled(enable);
+        }
+
+        for (int i = 0; i < guiContext.mainFrame.menuTools.getItemCount(); ++i)
+        {
+            if (guiContext.mainFrame.menuTools.getItem(i) != null)
+                guiContext.mainFrame.menuTools.getItem(i).setEnabled(enable);
+        }
+
+        for (int i = 0; i < guiContext.mainFrame.menuJobs.getItemCount(); ++i)
+        {
+            if (guiContext.mainFrame.menuJobs.getItem(i) != null)
+                guiContext.mainFrame.menuJobs.getItem(i).setEnabled(enable);
+        }
+
+        guiContext.mainFrame.menuItemSplitHorizontal.setEnabled(enable);
+        guiContext.mainFrame.menuItemSplitVertical.setEnabled(enable);
+
+        if (enable == true)
+        {
+            int whole = guiContext.mainFrame.splitPaneBrowser.getHeight();
+            int divider = guiContext.mainFrame.splitPaneBrowser.getDividerSize();
+            int pos = whole - divider - bottomSize;
+            guiContext.mainFrame.splitPaneBrowser.setDividerLocation(pos);
+        }
+
+        // TODO guiContext.mainFrame.menuItemUpdates.setEnabled(disable);
+    }
+
     private int findMenuItemIndex(JMenu menu, JMenuItem item)
     {
         for (int i = 0; i < menu.getItemCount(); ++i)
@@ -144,6 +206,9 @@ public class Navigator
     private boolean initialize()
     {
         guiContext.cfg.loadLocale(guiContext.preferences.getLocale());
+
+        guiContext.context.main.savedConfiguration = new SavedConfiguration(guiContext, guiContext.cfg, guiContext.context);
+        guiContext.context.main.savedConfiguration.save();
 
         if (guiContext.cfg.getPublisherCollectionFilename().length() > 0)
         {
@@ -444,8 +509,6 @@ public class Navigator
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(0, 0, 0, 8);
                 gb.setConstraints(cbIsRemote, gbc);
-                if (remoteJobRunning)
-                    cbIsRemote.setEnabled(false);
                 jp.add(cbIsRemote);
                 fc.setAccessory(jp);
 
@@ -628,7 +691,7 @@ public class Navigator
                             if (!showHintTrackingButton)
                             {
                                 showHintTrackingButton = true;
-                                guiContext.mainFrame.buttonHintTracking.setVisible(true);
+                                guiContext.mainFrame.panelHintTracking.setVisible(true);
                             }
                         }
                         catch (Exception e)
@@ -1088,6 +1151,26 @@ public class Navigator
         });
 
         //-
+        // Auto-Refresh
+        guiContext.mainFrame.menuItemAutoRefresh.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.preferences.setAutoRefresh(!guiContext.preferences.isAutoRefresh());
+                if (guiContext.preferences.isAutoRefresh())
+                    guiContext.mainFrame.menuItemAutoRefresh.setSelected(true);
+                else
+                    guiContext.mainFrame.menuItemAutoRefresh.setSelected(false);
+            }
+        });
+        // set initial state of Auto-Refresh checkbox
+        if (guiContext.preferences.isAutoRefresh())
+            guiContext.mainFrame.menuItemAutoRefresh.setSelected(true);
+        else
+            guiContext.mainFrame.menuItemAutoRefresh.setSelected(false);
+
+        //-
         // Show Hidden
         guiContext.mainFrame.menuItemShowHidden.addActionListener(new AbstractAction()
         {
@@ -1106,7 +1189,7 @@ public class Navigator
                 guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemTwo);
             }
         });
-        // set initial state of checkbox
+        // set initial state of Show Hidden checkbox
         if (guiContext.preferences.isHideHiddenFiles())
             guiContext.mainFrame.menuItemShowHidden.setSelected(false);
         else
@@ -1199,6 +1282,8 @@ public class Navigator
                     dialogJunkRemover = new JunkRemoverUI(guiContext.mainFrame, guiContext);
                     dialogJunkRemover.setVisible(true);
                 }
+                else
+                    dialogJunkRemover.requestFocus();
             }
         });
 
@@ -1214,6 +1299,8 @@ public class Navigator
                     dialogJobs = new JobsUI(guiContext.mainFrame, guiContext);
                     dialogJobs.setVisible(true);
                 }
+                else
+                    dialogJobs.requestFocus();
             }
         });
 
@@ -1511,12 +1598,11 @@ public class Navigator
                 ArrayList<Task> tasks = job.getTasks();
                 if (tasks.size() > 0)
                 {
-                    setMenuItemsState(guiContext.mainFrame.menuJobs, false);
-                    SwingWorker<Void, Void> worker;
                     worker = job.process(guiContext, guiContext.mainFrame, guiContext.cfg.getNavigatorName(), job, isDryRun);
                     if (worker != null)
                     {
                         remoteJobRunning = true;
+                        disableGui(true);
                         worker.addPropertyChangeListener(new PropertyChangeListener()
                         {
                             @Override
@@ -1525,11 +1611,14 @@ public class Navigator
                                 if (e.getPropertyName().equals("state"))
                                 {
                                     if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                    {
                                         processTerminated(job);
+                                    }
                                 }
                             }
                         });
                     }
+                    worker.execute();
                 }
             }
         }
@@ -1542,21 +1631,21 @@ public class Navigator
 
     private void processTerminated(Job job)
     {
-        if (guiContext.cfg.isRemoteSession())
+        try
         {
-            try
-            {
-                reconnectRemote(guiContext.cfg, guiContext.context, guiContext.context.publisherRepo, guiContext.context.subscriberRepo);
-                remoteJobRunning = false;
-                guiContext.browser.refreshTree(guiContext.mainFrame.treeCollectionTwo);
-                guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemTwo);
-            }
-            catch (Exception e)
-            {
-            }
+            if (guiContext.progress != null)
+                guiContext.progress.done();
+
+            reconnectRemote(guiContext.cfg, guiContext.context, guiContext.context.publisherRepo, guiContext.context.subscriberRepo);
+            remoteJobRunning = false;
+            guiContext.browser.refreshTree(guiContext.mainFrame.treeCollectionTwo);
+            guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemTwo);
         }
-        guiContext.browser.printLog(job.getConfigName() + " " + guiContext.cfg.gs("Z.completed"));
-        setMenuItemsState(guiContext.mainFrame.menuJobs, true);
+        catch (Exception e)
+        {
+        }
+        guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+        disableGui(false);
     }
 
     public void readBookmarks()
@@ -1593,24 +1682,30 @@ public class Navigator
 
     private boolean reconnectRemote(Configuration config, Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
-        boolean didDisonnect = false;
+        // is this necessary?
+        if (config.isRemoteSession() && subscriberRepo != null &&
+                context.clientStty != null && context.clientStty.getTheirKey().equals(subscriberRepo.getLibraryData().libraries.key) &&
+                context.clientStty.isConnected())
+            return true;
+
+        // close any existing connections
+        if (context.clientStty != null && context.clientStty.isConnected())
+        {
+            try
+            {
+                context.clientStty.send("bye");
+                context.clientSftp.stopClient();
+                Thread.sleep(500);
+            }
+            catch (Exception e)
+            {
+            }
+        }
 
         if (config.isRemoteSession())
         {
             // connect to the hint status server if defined
-            context.main.connectHintServer(context.publisherRepo);  // TODO add Hint setup as part of Task??
-
-            // close any existing STTY connection
-            if (context.clientStty != null && context.clientStty.isConnected())
-                try
-                {
-                    didDisonnect = true;
-                    context.clientStty.send("bye");
-                    wait(500);
-                }
-                catch (Exception e)
-                {
-                }
+            context.main.connectHintServer(context.publisherRepo);
 
             // start the serveStty client for automation
             context.clientStty = new ClientStty(guiContext.cfg, false, true);
@@ -1626,11 +1721,11 @@ public class Navigator
                 return false;
             }
 
-            // close any existg SFTP connections
-            if (didDisonnect)
+            // check for opening commands from Subscriber
+            // *** might change cfg options for subscriber and targets that are handled below ***
+            if (context.clientStty.checkBannerCommands())
             {
-                context.clientSftp.stopClient();
-                wait(500);
+                logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? " RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
             }
 
             // start the serveSftp client
@@ -1659,8 +1754,23 @@ public class Navigator
             {
                 guiContext.preferences = new Preferences(guiContext.cfg);
                 readPreferences();
-                guiContext.cfg.setLongScale(guiContext.preferences.isBinaryScale());
 
+                // TODO Add as needed: Set command line overrides on Navigator Preferences
+
+                // preserve file times
+                String o = guiContext.cfg.getOriginalCommandline();
+                if (guiContext.cfg.getOriginalCommandline().contains("-y"))
+                    guiContext.preferences.setPreserveFileTimes(guiContext.cfg.isPreserveDates());
+                else
+                    guiContext.preferences.setPreserveFileTimes(guiContext.preferences.isPreserveFileTimes());
+
+                // binary or decimal scale
+                if (guiContext.cfg.getOriginalCommandline().contains("-z"))
+                    guiContext.cfg.setLongScale(guiContext.cfg.isBinaryScale());
+                else
+                    guiContext.cfg.setLongScale(guiContext.preferences.isBinaryScale());
+
+                // execute the Navigator GUI
                 if (initialize())
                 {
                     logger.info(guiContext.cfg.gs("Navigator.initialized"));
@@ -1691,6 +1801,34 @@ public class Navigator
         return 0;
     }
 
+    public void setComponentEnabled(boolean enabled, Component component)
+    {
+        component.setEnabled(enabled);
+        if (component instanceof Container)
+        {
+            Component[] components = ((Container) component).getComponents();
+            if (components != null && components.length > 0)
+            {
+                for (Component comp : components)
+                {
+                    setComponentEnabled(enabled, comp);
+                }
+            }
+        }
+    }
+
+    private void setTableEnabled(boolean disable, JTable table)
+    {
+        for (int i = 0; i < table.getRowCount(); ++i)
+        {
+            for (int j = 0; j < table.getColumnCount(); ++j)
+            {
+                Component comp = table.getComponentAt(i, j);
+                comp.setEnabled(disable);
+            }
+        }
+    }
+
     public void stop()
     {
         if (guiContext.context.clientStty != null)
@@ -1698,13 +1836,16 @@ public class Navigator
             try
             {
                 guiContext.context.clientSftp.stopClient();
-                if (quitRemote)
+                if (guiContext.context.clientStty.isConnected())
                 {
-                    guiContext.context.clientStty.send("quit");
-                }
-                else
-                {
-                    guiContext.context.clientStty.send("bye");
+                    if (quitRemote)
+                    {
+                        guiContext.context.clientStty.send("quit");
+                    }
+                    else
+                    {
+                        guiContext.context.clientStty.send("bye");
+                    }
                 }
             }
             catch (Exception e)
@@ -1728,23 +1869,8 @@ public class Navigator
         }
         Main.stopVerbiage();
 
-        // stop the program if something blew-up
-        if (guiContext.context.fault)
-        {
-            System.exit(1);
-        }
-    }
-
-    private void setMenuItemsState(JMenu menu, boolean state)
-    {
-        for (int i = 0; i < menu.getItemCount(); ++i)
-        {
-            Component comp = menu.getMenuComponent(i);
-            if (comp instanceof JMenuItem)
-            {
-                ((JMenuItem) comp).setEnabled(state);
-            }
-        }
+        // end the Navigator Swing thread
+        System.exit(guiContext.context.fault ? 1 : 0);
     }
 
 }

@@ -12,33 +12,34 @@ import java.io.*;
 
 public class Preferences implements Serializable
 {
-    private int appHeight = 640; 
-    private int appWidth = 1024; 
-    private int appXpos = -1; 
-    private int appYpos = -1; 
+    private int appHeight = 640;
+    private int appWidth = 1024;
+    private int appXpos = -1;
+    private int appYpos = -1;
+    private boolean autoRefresh = true;
     private boolean binaryScale = true; // true = 1024, false = 1000
-    private int browserBottomSize = 143; 
-    private int centerDividerLocation = 512; 
-    private int centerDividerOrientation = 1; 
-    private int collectionOneDateWidth = 80; 
-    private int collectionOneDividerLocation = 150; 
-    private int collectionOneNameWidth = 128; 
-    private int collectionOneSizeWidth = 80; 
-    private int collectionTwoDateWidth = 80; 
-    private int collectionTwoDividerLocation = 150; 
-    private int collectionTwoNameWidth = 128; 
-    private int collectionTwoSizeWidth = 80; 
+    private int browserBottomSize = 143;
+    private int centerDividerLocation = 512;
+    private int centerDividerOrientation = 1;
+    private int collectionOneDateWidth = 80;
+    private int collectionOneDividerLocation = 150;
+    private int collectionOneNameWidth = 128;
+    private int collectionOneSizeWidth = 80;
+    private int collectionTwoDateWidth = 80;
+    private int collectionTwoDividerLocation = 150;
+    private int collectionTwoNameWidth = 128;
+    private int collectionTwoSizeWidth = 80;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
-    private int jobsHeight = 470; 
-    private int jobsOriginDividerLocation = 142; 
-    private int jobsTaskDividerLocation = 142; 
-    private int jobsWidth = 570; 
-    private int jobsXpos = -1; 
-    private int jobsYpos = -1; 
+    private int jobsHeight = 470;
+    private int jobsOriginDividerLocation = 142;
+    private int jobsTaskDividerLocation = 142;
+    private int jobsWidth = 570;
+    private int jobsXpos = -1;
+    private int jobsYpos = -1;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
     private boolean lastIsRemote = true;
@@ -54,6 +55,8 @@ public class Preferences implements Serializable
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
     private boolean preserveFileTimes = true;
+    private int progressHeight = -1;
+    private int progressWidth = -1;
     private int progressXpos = -1;
     private int progressYpos = -1;
     private boolean showCcpConfirmation = true;
@@ -63,20 +66,20 @@ public class Preferences implements Serializable
     private boolean sortCaseInsensitive = true;
     private boolean sortFoldersBeforeFiles = true;
     private boolean sortReverse = false;
-    private int systemOneDateWidth = 80; 
-    private int systemOneDividerLocation = 152; 
-    private int systemOneNameWidth = 128; 
-    private int systemOneSizeWidth = 80; 
-    private int systemTwoDateWidth = 80; 
-    private int systemTwoDividerLocation = 152; 
-    private int systemTwoNameWidth = 128; 
-    private int systemTwoSizeWidth = 80; 
+    private int systemOneDateWidth = 80;
+    private int systemOneDividerLocation = 152;
+    private int systemOneNameWidth = 128;
+    private int systemOneSizeWidth = 80;
+    private int systemTwoDateWidth = 80;
+    private int systemTwoDividerLocation = 152;
+    private int systemTwoNameWidth = 128;
+    private int systemTwoSizeWidth = 80;
     private int tabPlacement = JTabbedPane.LEFT;
-    private int toolsJunkRemoverHeight = 470; 
-    private int toolsJunkRemoverDividerLocation = 142; 
-    private int toolsJunkRemoverWidth = 570; 
-    private int toolsJunkRemoverXpos = -1; 
-    private int toolsJunkRemoverYpos = -1; 
+    private int toolsJunkRemoverDividerLocation = 142;
+    private int toolsJunkRemoverHeight = 470;
+    private int toolsJunkRemoverWidth = 570;
+    private int toolsJunkRemoverXpos = -1;
+    private int toolsJunkRemoverYpos = -1;
     private transient Configuration cfg;
 
     /**
@@ -375,6 +378,16 @@ public class Preferences implements Serializable
         return lookAndFeel;
     }
 
+    public int getProgressHeight()
+    {
+        return progressHeight;
+    }
+
+    public int getProgressWidth()
+    {
+        return progressWidth;
+    }
+
     public int getProgressXpos()
     {
         return progressXpos;
@@ -457,14 +470,14 @@ public class Preferences implements Serializable
         return tabPlacement;
     }
 
-    public int getToolsJunkRemoverHeight()
-    {
-        return toolsJunkRemoverHeight;
-    }
-
     public int getToolsJunkRemoverDividerLocation()
     {
         return toolsJunkRemoverDividerLocation;
+    }
+
+    public int getToolsJunkRemoverHeight()
+    {
+        return toolsJunkRemoverHeight;
     }
 
     public int getToolsJunkRemoverWidth()
@@ -480,6 +493,11 @@ public class Preferences implements Serializable
     public int getToolsJunkRemoverYpos()
     {
         return toolsJunkRemoverYpos;
+    }
+
+    public boolean isAutoRefresh()
+    {
+        return autoRefresh;
     }
 
     public boolean isBinaryScale()
@@ -565,6 +583,11 @@ public class Preferences implements Serializable
     public void setAppYpos(int appYpos)
     {
         this.appYpos = appYpos;
+    }
+
+    public void setAutoRefresh(boolean autoRefresh)
+    {
+        this.autoRefresh = autoRefresh;
     }
 
     public void setBinaryScale(boolean binaryScale)
@@ -732,6 +755,16 @@ public class Preferences implements Serializable
         this.preserveFileTimes = preserveFileTimes;
     }
 
+    public void setProgressHeight(int progressHeight)
+    {
+        this.progressHeight = progressHeight;
+    }
+
+    public void setProgressWidth(int progressWidth)
+    {
+        this.progressWidth = progressWidth;
+    }
+
     public void setProgressXpos(int progressXpos)
     {
         this.progressXpos = progressXpos;
@@ -822,14 +855,14 @@ public class Preferences implements Serializable
         this.tabPlacement = tabPlacement;
     }
 
-    public void setToolsJunkRemoverHeight(int toolsJunkRemoverHeight)
-    {
-        this.toolsJunkRemoverHeight = toolsJunkRemoverHeight;
-    }
-
     public void setToolsJunkRemoverDividerLocation(int toolsJunkRemoverDividerLocation)
     {
         this.toolsJunkRemoverDividerLocation = toolsJunkRemoverDividerLocation;
+    }
+
+    public void setToolsJunkRemoverHeight(int toolsJunkRemoverHeight)
+    {
+        this.toolsJunkRemoverHeight = toolsJunkRemoverHeight;
     }
 
     public void setToolsJunkRemoverWidth(int toolsJunkRemoverWidth)

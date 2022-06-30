@@ -1,6 +1,5 @@
 package com.groksoft.els;
 
-import jdk.nashorn.internal.scripts.JO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -354,6 +353,21 @@ public class Configuration
     }
 
     /**
+     * Gets the original command line as a String
+     *
+     * @return String command line
+     */
+    public String getOriginalCommandline()
+    {
+        String cmd = "";
+        for (int index = 0; index < originalArgs.length; ++index)
+        {
+            cmd += originalArgs[index] + " ";
+        }
+        return cmd;
+    }
+
+    /**
      * Gets PatternLayout for log4j2
      * <p>
      * Call this method AFTER setDebugLevel() has been called.
@@ -391,7 +405,7 @@ public class Configuration
      */
     public String getPublisherFilename()
     {
-        if (getPublisherCollectionFilename().length() > 0)
+        if (getPublisherCollectionFilename() != null && getPublisherCollectionFilename().length() > 0)
             return getPublisherCollectionFilename();
         return getPublisherLibrariesFileName();
     }
@@ -466,7 +480,7 @@ public class Configuration
      */
     public String getSubscriberFilename()
     {
-        if (getSubscriberCollectionFilename().length() > 0)
+        if (getSubscriberCollectionFilename() != null && getSubscriberCollectionFilename().length() > 0)
             return getSubscriberCollectionFilename();
         return getSubscriberLibrariesFileName();
     }
@@ -632,9 +646,24 @@ public class Configuration
         return logOverwrite;
     }
 
+    /**
+     * Is this session the Navigator?
+     *
+     * @return true if a Navigator session
+     */
     public boolean isNavigator()
     {
         return navigator;
+    }
+
+    /**
+     * Is the scaling factor binary?
+     *
+     * @return true == 1024, false == 1000
+     */
+    public boolean isBinaryScale()
+    {
+        return (getLongScale() == 1024.0 ? true : false);
     }
 
     /**
@@ -1536,6 +1565,16 @@ public class Configuration
     public void setRequestTargets(boolean requestTargets)
     {
         this.requestTargets = requestTargets;
+    }
+
+    /**
+     * Sets the list of included library names
+     *
+     * @param includedLibraries
+     */
+    public void setSelectedLibraryNames(ArrayList<String> includedLibraries)
+    {
+        selectedLibraryNames = includedLibraries;
     }
 
     /**

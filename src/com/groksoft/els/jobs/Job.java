@@ -6,6 +6,7 @@ import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.gui.Progress;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,13 +84,13 @@ public class Job implements Comparable, Serializable
         return tasks;
     }
 
-    private boolean willDisconnect(Configuration cfg)
+    private boolean willDisconnect(GuiContext guiContext)
     {
-        if (cfg.isRemoteSession())
+        if (guiContext.cfg.isRemoteSession())
         {
             for (Task task : getTasks())
             {
-                if (task.isSubscriberRemote())
+                if (task.isSubscriberRemote() && !guiContext.context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
                     return true;
             }
         }
@@ -125,7 +126,13 @@ public class Job implements Comparable, Serializable
                     Job tmpJob = gson.fromJson(json, Job.class);
                     if (tmpJob.getConfigName().equalsIgnoreCase(jobName))
                     {
-                        job = tmpJob;
+                        job = tmpJob.clone();
+                        ArrayList<Task> initTasks = job.getTasks();
+                        for (int i = 0; i < initTasks.size(); ++i)
+                        {
+                            Task t = initTasks.get(i);
+                            initTasks.set(i, t.clone());
+                        }
                         break;
                     }
                 }
@@ -144,15 +151,15 @@ public class Job implements Comparable, Serializable
      * @return
      * @throws Exception
      */
-    public int process(GuiContext guiContext, Configuration cfg, Context context) throws Exception
+    public int process(Configuration cfg, Context context) throws Exception
     {
-        return processJob(guiContext, cfg, context, this, cfg.isDryRun());
+        return processJob(null, cfg, context, this, cfg.isDryRun());
     }
 
     /**
      * Process the job on a SwingWorker thread
      * <br/>
-     * Used by the Jobs GUI
+     * Used by the Jobs GUI and Navigator Jobs menu run
      *
      * @param guiContext The GuiContext
      * @param comp       The owning component
@@ -163,56 +170,75 @@ public class Job implements Comparable, Serializable
      */
     public SwingWorker<Void, Void> process(GuiContext guiContext, Component comp, String title, Job job, boolean isDryRun)
     {
-        if (willDisconnect(guiContext.cfg))
+        // create a fresh dialog here
+        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+        {
+            guiContext.progress = new Progress(guiContext, comp);
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        if (guiContext.progress.isVisible()) // can be minimized
+            guiContext.progress.toFront();
+        else
+            guiContext.progress.display();
+
+        if (willDisconnect(guiContext))
         {
             int reply = JOptionPane.showConfirmDialog(comp,
-                    guiContext.cfg.gs("This job contains remote subscribers. The existing remote subscriber connection will be unavailable while the job is running. Continue?"),
-                    title, JOptionPane.YES_NO_OPTION);
-            if (reply == JOptionPane.YES_OPTION)
-            {
-                guiContext.browser.closeSubscriberPane();
-
-                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-                {
-                    @Override
-                    protected Void doInBackground() throws Exception
-                    {
-                        try
-                        {
-                            processJob(guiContext, guiContext.cfg, guiContext.context, job, isDryRun);
-                        }
-                        catch (Exception e)
-                        {
-                            String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                            guiContext.browser.printLog(msg, true);
-                            JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
-                                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-
-                        }
-                        return null;
-                    }
-                };
-                worker.execute();
-                return worker;
-            }
+                    guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), title, JOptionPane.YES_NO_OPTION);
+            if (reply != JOptionPane.YES_OPTION)
+                return null;
         }
-        return null;
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+        {
+            @Override
+            protected Void doInBackground() throws Exception
+            {
+                try
+                {
+                    processJob(guiContext, guiContext.cfg, guiContext.context, job, isDryRun);
+                }
+                catch (Exception e)
+                {
+                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                    guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
+                            guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+
+                }
+                return null;
+            }
+        };
+        return worker;
     }
 
     private int processJob(GuiContext guiContext, Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception
     {
         int result = 0;
         stop = false;
+
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
-            logger.info(guiContext.cfg.gs("Jobs.executing.job") + job.getConfigName());
+            if (guiContext != null)
+                guiContext.browser.printLog(cfg.gs("Jobs.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+            else
+                logger.info(cfg.gs("Jobs.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+
             for (Task task : job.getTasks())
             {
                 if (isRequestStop())
                     break;
                 currentTask = task;
-                currentTask.process(guiContext, cfg, context, isDryRun);
+                if (!currentTask.process(guiContext, cfg, context, isDryRun))
+                    requestStop();
             }
+
+            context.main.savedConfiguration.restore(currentTask);
         }
         else
             throw new MungeException(cfg.gs("JobsUI.job.has.no.tasks") + ": " + job.getConfigName());

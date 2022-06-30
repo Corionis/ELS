@@ -406,9 +406,9 @@ public class NavTransferHandler extends TransferHandler
             if (confirm)
             {
                 String msg = MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.are.you.sure.you.want.to"),
-                        getOperation(action,true).toLowerCase(), Utils.formatLong(size, false),
+                        getOperation(action,true), Utils.formatLong(size, false),
                         Utils.formatInteger(count), count > 1 ? 0 : 1, targetTuo.name);
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg, guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
@@ -484,7 +484,11 @@ public class NavTransferHandler extends TransferHandler
             transferWorker = new NavTransferWorker(guiContext);
         }
 
-        transferWorker.add(action, count, size, transferData, targetTree, targetTuo);
+        if (!transferWorker.add(action, count, size, transferData, targetTree, targetTuo))
+        {
+            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         transferWorker.execute();
     }
 

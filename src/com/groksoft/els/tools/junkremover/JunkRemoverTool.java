@@ -7,6 +7,7 @@ import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.tools.AbstractTool;
@@ -41,12 +42,12 @@ public class JunkRemoverTool extends AbstractTool
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int deleteCount = 0;
     transient private boolean dualRepositories = false; // used by GUI, always false for this tool
+    transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private boolean isRemote;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private ArrayList<String> toolPaths;
-    transient private GuiContext guiContext = null;
     transient private Repository repo; // this tool only uses one repo
+    transient private ArrayList<String> toolPaths;
 
     /**
      * Constructor when used from the command line
@@ -200,6 +201,8 @@ public class JunkRemoverTool extends AbstractTool
      * <br/>
      * Uses the junkList across the toolPaths added by addToolPaths() and the dryRun setting.
      * The addToolPaths() method must be called first.
+     * <br/>
+     * Used by a Job & the Run button of the tool
      */
     @Override
     public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
@@ -227,6 +230,19 @@ public class JunkRemoverTool extends AbstractTool
         // only subscribers can be remote
         if (subscriberRepo != null && getCfg().isRemoteSession())
             setIsRemote(true);
+
+        // create a fresh dialog here so it exists to be updated with new stats
+        if (guiContext != null)
+        {
+            if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+            {
+                guiContext.progress = null; // suggest clean-up
+                guiContext.progress = new Progress(guiContext, guiContext.mainFrame);
+            }
+
+            if (guiContext.progress.isVisible()) // can be minimized
+                guiContext.progress.toFront();
+        }
 
         for (String path : toolPaths)
         {
@@ -263,11 +279,21 @@ public class JunkRemoverTool extends AbstractTool
         else
         {
             logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
-
-            // TODO Work-out how to refresh command-line data
         }
     }
 
+    /**
+     * Process the task on a SwingWorker thread
+     * <br/>
+     * Used by the Run button of the tool
+     *
+     * @param guiContext The GuiContext
+     * @param publisherRepo Publisher repo, or null
+     * @param subscriberRepo Subscriber repo, or null
+     * @param origins List of origins to process
+     * @param dryRun Boolean for a dry-run
+     * @return SwingWorker<Void, Void> of thread
+     */
     @Override
     public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
@@ -323,6 +349,10 @@ public class JunkRemoverTool extends AbstractTool
                         SftpATTRS attrs = entry.getAttrs();
                         String filename = entry.getFilename();
                         String fullpath = path + repo.getSeparator() + entry.getFilename();
+                        if (guiContext != null && guiContext.progress != null)
+                        {
+                            guiContext.progress.update(fullpath);
+                        }
                         if (attrs.isDir())
                         {
                             scanForJunk(fullpath);
@@ -375,6 +405,10 @@ public class JunkRemoverTool extends AbstractTool
                     if (isRequestStop())
                         break;
                     String filename = entry.getName();
+                    if (guiContext != null && guiContext.progress != null)
+                    {
+                        guiContext.progress.update(filename);
+                    }
                     if (entry.isDirectory())
                     {
                         scanForJunk(entry.getAbsolutePath());

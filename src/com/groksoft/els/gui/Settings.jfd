@@ -30,8 +30,8 @@ new FormModel {
 						name: "settingsTabbedPane"
 						"tabPlacement": 2
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:200:p, space :::p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp showDeleteConfirmationLabel:::p:200:p, space :::p, comp showDeleteConfirmationCheckBox:::p:238:p}, seq l {comp showCcpConfirmationLabel:::p:200:p, space :::p, comp showCcpConfirmationCheckBox:::p:238:p}, seq l {comp showDndConfirmationLabel:::p:200:p, space :::p, comp showDndConfirmationCheckBox:::p:238:p}, seq l {comp showTouchConfirmationLabel:::p:200:p, space :::p, comp showTouchConfirmationCheckBox:::p:238:p}}, space :::x}}"
-							"$verticalGroup": "par l {seq {space :0:0:p, par l:::p {comp preserveFileTimestampsCheckBox::::36:x, comp preserveFileTimestampsLabel::::36:x}, space :0:0:p, par l {comp showDeleteConfirmationLabel:::p:36:p, comp showDeleteConfirmationCheckBox:::p:36:p}, space :0:0:p, par b {comp showCcpConfirmationLabel::b:p:36:p, comp showCcpConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showDndConfirmationLabel::b:p:36:p, comp showDndConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showTouchConfirmationLabel::b:p:36:p, comp showTouchConfirmationCheckBox::b:p:36:p}, space ::194:x}}"
+							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:200:p, space :p:12:p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp showDeleteConfirmationLabel:::p:200:p, space :p:12:p, comp showDeleteConfirmationCheckBox:::p:238:p}, seq l {comp showCcpConfirmationLabel:::p:200:p, space :p:12:p, comp showCcpConfirmationCheckBox:::p:238:p}, seq l {comp showDndConfirmationLabel:::p:200:p, space :p:12:p, comp showDndConfirmationCheckBox:::p:238:p}, seq l {comp showTouchConfirmationLabel:::p:200:p, space :p:12:p, comp showTouchConfirmationCheckBox:::p:238:p}}, space :::x}}"
+							"$verticalGroup": "par l {seq {space :0:0:p, par l {comp preserveFileTimestampsLabel:::p:36:p, comp preserveFileTimestampsCheckBox:::p:36:p}, space :0:0:p, par l {comp showDeleteConfirmationLabel:::p:36:p, comp showDeleteConfirmationCheckBox:::p:36:p}, space :0:0:p, par b {comp showCcpConfirmationLabel::b:p:36:p, comp showCcpConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showDndConfirmationLabel::b:p:36:p, comp showDndConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showTouchConfirmationLabel::b:p:36:p, comp showTouchConfirmationCheckBox::b:p:36:p}, space ::194:x}}"
 						} ) {
 							name: "generalPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
@@ -144,10 +144,17 @@ new FormModel {
 							"title": new FormMessage( null, "Settings.appearance.tab.title" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq l {space :::p, par l {comp hideFilesInTreeLabel::l:p:200:p, comp hideHiddenFilesLabel::l:p:200:p, comp sortCaseSensitiveLabel::l:p:200:p, comp sortFoldersBeforeFilesLabel::l:p:200:p, comp sortReverseLabel::l:p:200:p, comp tabPlacementlabel::l:p:200:p}, space :p:12:p, par l {comp hideFilesInTreeCheckBox::l:p:238:p, comp hideHiddenFilesCheckBox::l:p:238:p, comp sortCaseSensitiveCheckBox::l:p:238:p, comp sortFoldersBeforeFilesCheckBox::l:p:238:p, comp sortReverseCheckBox::l:p:238:p, comp tabPlacementComboBox::l:p::p}, space :::x}}"
-							"$verticalGroup": "par l {seq {par l {seq {comp hideFilesInTreeLabel:::p:36:p, space :0:0:p, comp hideHiddenFilesLabel:::p:36:p, space :0:0:p, comp sortCaseSensitiveLabel:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesLabel:::p:36:p, space :0:0:p, comp sortReverseLabel:::p:36:p}, seq {comp hideFilesInTreeCheckBox:::p:36:p, space :0:0:p, comp hideHiddenFilesCheckBox:::p:36:p, space :0:0:p, comp sortCaseSensitiveCheckBox:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesCheckBox:::p:36:p, space :0:0:p, comp sortReverseCheckBox:::p:36:p}}, space :0:0:p, par b {comp tabPlacementlabel::b:p:36:p, comp tabPlacementComboBox::b:p::p}, space :::p}}"
+							"$horizontalGroup": "par l {seq l {space :::p, par l {comp autoRefreshLabel::l:p:200:p, comp hideFilesInTreeLabel::l:p:200:p, comp hideHiddenFilesLabel::l:p:200:p, comp sortCaseSensitiveLabel::l:p:200:p, comp sortFoldersBeforeFilesLabel::l:p:200:p, comp sortReverseLabel::l:p:200:p, comp tabPlacementlabel::l:p:200:p}, space :p:12:p, par l {comp autoRefreshCheckBox::l:p:238:p, comp hideFilesInTreeCheckBox::l:p:238:p, comp hideHiddenFilesCheckBox::l:p:238:p, comp sortCaseSensitiveCheckBox::l:p:238:p, comp sortFoldersBeforeFilesCheckBox::l:p:238:p, comp sortReverseCheckBox::l:p:238:p, comp tabPlacementComboBox::l:p::p}, space :::x}}"
+							"$verticalGroup": "par l {seq {par l {seq {comp autoRefreshLabel:::p:36:p, space :0:0:p, comp hideFilesInTreeLabel:::p:36:p, space :0:0:p, comp hideHiddenFilesLabel:::p:36:p, space :0:0:p, comp sortCaseSensitiveLabel:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesLabel:::p:36:p, space :0:0:p, comp sortReverseLabel:::p:36:p}, seq {comp autoRefreshCheckBox:::p:36:p, space :0:0:p, comp hideFilesInTreeCheckBox:::p:36:p, space :0:0:p, comp hideHiddenFilesCheckBox:::p:36:p, space :0:0:p, comp sortCaseSensitiveCheckBox:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesCheckBox:::p:36:p, space :0:0:p, comp sortReverseCheckBox:::p:36:p}}, space :0:0:p, par b {comp tabPlacementlabel::b:p:36:p, comp tabPlacementComboBox::b:p::p}, space :::p}}"
 						} ) {
 							name: "browserPanel"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "autoRefreshLabel"
+								"text": "Auto-refresh:"
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "autoRefreshCheckBox"
+							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "hideFilesInTreeLabel"
 								"text": new FormMessage( null, "Settings.hideFilesInTreeLabel.text" )

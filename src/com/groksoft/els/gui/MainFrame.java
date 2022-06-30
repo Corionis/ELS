@@ -297,6 +297,7 @@ public class MainFrame extends JFrame
         menuView = new JMenu();
         menuItemRefresh = new JMenuItem();
         menuItemProgress = new JMenuItem();
+        menuItemAutoRefresh = new JCheckBoxMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
         menuBookmarks = new JMenu();
         menuItemAddBookmark = new JMenuItem();
@@ -571,6 +572,13 @@ public class MainFrame extends JFrame
                 menuItemProgress.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
                 menuView.add(menuItemProgress);
                 menuView.addSeparator();
+
+                //---- menuItemAutoRefresh ----
+                menuItemAutoRefresh.setText(guiContext.cfg.gs("Navigator.menuItemAutoRefresh.text"));
+                menuItemAutoRefresh.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemAutoRefresh.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemAutoRefresh.setMnemonic(guiContext.cfg.gs("Navigator.menuItemAutoRefresh.mnemonic").charAt(0));
+                menuView.add(menuItemAutoRefresh);
 
                 //---- menuItemShowHidden ----
                 menuItemShowHidden.setText(guiContext.cfg.gs("Navigator.menu.ShowHidden.text"));
@@ -1341,6 +1349,7 @@ public class MainFrame extends JFrame
     public JMenu menuView;
     public JMenuItem menuItemRefresh;
     public JMenuItem menuItemProgress;
+    public JCheckBoxMenuItem menuItemAutoRefresh;
     public JCheckBoxMenuItem menuItemShowHidden;
     public JMenu menuBookmarks;
     public JMenuItem menuItemAddBookmark;

@@ -28,13 +28,13 @@ public class ClientStty
     private Configuration cfg;
     private boolean isConnected = false;
     private boolean isTerminal = false;
-    private transient Logger logger = LogManager.getLogger("applog");
     private String myKey;
     private Repository myRepo;
     private boolean primaryServers;
     private Socket socket;
     private String theirKey;
     private Repository theirRepo;
+    private transient Logger logger = LogManager.getLogger("applog");
 
     /**
      * Instantiate a ClientStty.<br>
@@ -207,6 +207,26 @@ public class ClientStty
         catch (Exception e)
         {
         }
+    }
+
+    public String getMyKey()
+    {
+        return myKey;
+    }
+
+    public Repository getMyRepo()
+    {
+        return myRepo;
+    }
+
+    public String getTheirKey()
+    {
+        return theirKey;
+    }
+
+    public Repository getTheirRepo()
+    {
+        return theirRepo;
     }
 
     /**

@@ -609,12 +609,6 @@ public class Browser
         bookmarkCreate(node, name, sourceTree.getName());
     }
 
-    public void closeSubscriberPane()
-    {
-        setCollectionRoot(guiContext.mainFrame.treeCollectionTwo, guiContext.cfg.gs("Subscriber closed"), false);
-        setCollectionRoot(guiContext.mainFrame.treeSystemTwo, guiContext.cfg.gs("Browser.open.a.subscriber"), false);
-    }
-
     public void deleteSelected(JTable sourceTable)
     {
         int row = sourceTable.getSelectedRow();
@@ -657,7 +651,7 @@ public class Browser
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
@@ -767,7 +761,7 @@ public class Browser
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
@@ -1433,7 +1427,7 @@ public class Browser
         }
         if (!guiContext.navigator.showHintTrackingButton)
         {
-            guiContext.mainFrame.buttonHintTracking.setVisible(false);
+            guiContext.mainFrame.panelHintTracking.setVisible(false);
         }
     }
 
@@ -1955,7 +1949,7 @@ public class Browser
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
@@ -2038,7 +2032,7 @@ public class Browser
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
                         fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Browser.dry.run") : "");
+                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }

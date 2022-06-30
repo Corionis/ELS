@@ -8,7 +8,6 @@ import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.filechooser.FileSystemView;
-import javax.tools.Tool;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.nio.file.Files;

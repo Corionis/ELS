@@ -2,6 +2,7 @@ package com.groksoft.els;
 
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sshd.common.util.io.IoUtils;
@@ -144,6 +145,34 @@ public class Utils
     {
         return socket.getInetAddress().toString() + ":" + socket.getPort() +
                 ", local " + socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
+    }
+
+    /**
+     * Ellipse a String ending with a filename and extension
+     *
+     * @param component
+     * @param text
+     * @return Original or ellipsed string based on pixel length
+     */
+    public static String ellipseFileString(Component component, String text)
+    {
+        FontMetrics metrics = component.getFontMetrics(component.getFont());
+        int width = metrics.stringWidth(text);
+        int max = component.getWidth();
+        if (width > max)
+        {
+            String ext = Utils.getFileExtension(text);
+            int l = metrics.stringWidth(ext);
+            max = max - l - 6;
+            text = text.substring(0, text.length() - ext.length());
+            while (width > max)
+            {
+                text = StringUtils.abbreviate(text, text.length() - 1);
+                width = metrics.stringWidth(text);
+            }
+            text += ext;
+        }
+        return text;
     }
 
     /**

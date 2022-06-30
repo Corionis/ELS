@@ -331,6 +331,7 @@ public class JobsUI extends JDialog
         if (currentTask != null)
         {
             ArrayList<Origin> origins = new ArrayList<Origin>();
+            // TODO match pub/sub combo for source ;; OR show warning when selection does not match
             boolean isSubscriber = Origin.makeOriginsFromSelected(this, origins); // can return null
             if (origins != null && origins.size() > 0)
             {
@@ -1102,6 +1103,7 @@ public class JobsUI extends JDialog
             if (worker != null)
             {
                 workerRunning = true;
+                guiContext.navigator.disableGui(true);
                 worker.addPropertyChangeListener(new PropertyChangeListener()
                 {
                     @Override
@@ -1110,16 +1112,22 @@ public class JobsUI extends JDialog
                         if (e.getPropertyName().equals("state"))
                         {
                             if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                processTerminated(job);
+                                processTerminated();
                         }
                     }
                 });
             }
+            else
+                processTerminated();
         }
     }
 
-    private void processTerminated(Job job)
+    private void processTerminated()
     {
+        if (guiContext.progress != null)
+            guiContext.progress.done();
+
+        guiContext.navigator.disableGui(false);
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
@@ -1127,6 +1135,7 @@ public class JobsUI extends JDialog
 
     private void saveConfigurations()
     {
+        boolean changed = false;
         Job job = null;
         try
         {
@@ -1135,7 +1144,10 @@ public class JobsUI extends JDialog
             {
                 job = (Job) configModel.getValueAt(i, 0);
                 if (job.isDataChanged())
+                {
                     write(job);
+                    changed = true;
+                }
             }
 
             // remove any deleted jobs JSON configuration file
@@ -1146,8 +1158,12 @@ public class JobsUI extends JDialog
                 if (file.exists())
                 {
                     file.delete();
+                    changed = true;
                 }
             }
+
+            if (changed)
+                guiContext.navigator.loadJobsMenu();
         }
         catch (Exception e)
         {
@@ -1193,23 +1209,7 @@ public class JobsUI extends JDialog
 
     public void setComponentEnabled(boolean enabled)
     {
-        setComponentEnabled(enabled, getContentPane());
-    }
-
-    private void setComponentEnabled(boolean enabled, Component component)
-    {
-        component.setEnabled(enabled);
-        if (component instanceof Container)
-        {
-            Component[] components = ((Container) component).getComponents();
-            if (components != null && components.length > 0)
-            {
-                for (Component comp : components)
-                {
-                    setComponentEnabled(enabled, comp);
-                }
-            }
-        }
+        guiContext.navigator.setComponentEnabled(enabled, getContentPane());
     }
 
     private void windowClosing(WindowEvent e)
