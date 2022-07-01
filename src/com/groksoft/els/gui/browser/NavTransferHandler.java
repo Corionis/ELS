@@ -483,12 +483,7 @@ public class NavTransferHandler extends TransferHandler
             transferWorker = null; // suggest clean-up
             transferWorker = new NavTransferWorker(guiContext);
         }
-
-        if (!transferWorker.add(action, count, size, transferData, targetTree, targetTuo))
-        {
-            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        transferWorker.add(action, count, size, transferData, targetTree, targetTuo);
         transferWorker.execute();
     }
 

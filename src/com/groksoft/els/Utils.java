@@ -163,7 +163,7 @@ public class Utils
         {
             String ext = Utils.getFileExtension(text);
             int l = metrics.stringWidth(ext);
-            max = max - l - 6;
+            max = max - l - 4;
             text = text.substring(0, text.length() - ext.length());
             while (width > max)
             {

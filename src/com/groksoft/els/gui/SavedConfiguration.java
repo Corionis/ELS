@@ -16,6 +16,7 @@ public class SavedConfiguration
     Configuration cfg;
     Context context;
 
+    private boolean dryRun;
     private boolean publishOperation;
     private String publisherCollectionFilename;
     private String publisherLibrariesFilename;
@@ -35,17 +36,14 @@ public class SavedConfiguration
     {
         try
         {
-            boolean rtChanged = false;
             boolean pcfChanged = false;
             boolean plfChanged = false;
             boolean scfChanged = false;
             boolean slfChanged = false;
 
-            if (!cfg.getRemoteType().equals(remoteType))
-            {
-                cfg.setRemoteType(remoteType);
-                rtChanged = true;
-            }
+            cfg.setDryRun(dryRun);
+            cfg.setRemoteType(remoteType);
+
             cfg.setPublishOperation(publishOperation);
             if (!cfg.getPublisherCollectionFilename().equals(publisherCollectionFilename))
             {
@@ -125,6 +123,7 @@ public class SavedConfiguration
 
     public void save()
     {
+        dryRun = cfg.isDryRun();
         remoteType = cfg.getRemoteType();
         publishOperation = cfg.isPublishOperation();
         publisherCollectionFilename = cfg.getPublisherCollectionFilename();

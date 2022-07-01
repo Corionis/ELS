@@ -1699,7 +1699,8 @@ public class Browser
                     tree.expandPath(tp);
                 }
             }
-            tree.setSelectionPaths(paths);
+            if (paths != null && paths.length > 0)
+                tree.setSelectionPaths(paths);
             ((NavTreeNode) tree.getModel().getRoot()).sort();
             tree.setEnabled(true);
         }

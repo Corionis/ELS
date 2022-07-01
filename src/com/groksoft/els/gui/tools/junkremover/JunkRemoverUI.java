@@ -3,7 +3,6 @@ package com.groksoft.els.gui.tools.junkremover;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
-import com.groksoft.els.gui.Progress;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
@@ -512,22 +511,6 @@ public class JunkRemoverUI extends JDialog
                     {
                         try
                         {
-                            // create a fresh dialog here
-                            if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
-                            {
-                                guiContext.progress = new Progress(guiContext, this);
-                            }
-                            else
-                            {
-                                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-                                return;
-                            }
-
-                            if (guiContext.progress.isVisible()) // can be minimized
-                                guiContext.progress.toFront();
-                            else
-                                guiContext.progress.display();
-
                             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             setComponentEnabled(false);
                             cancelButton.setEnabled(true);
@@ -904,15 +887,14 @@ public class JunkRemoverUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("JunkRemover.button.Ok.text"));
-                okButton.setMnemonic(guiContext.cfg.gs("JunkRemover.button.Ok.mnemonic").charAt(0));
+                okButton.setText(guiContext.cfg.gs("Z.ok"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("JunkRemover.button.Cancel.text"));
+                cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

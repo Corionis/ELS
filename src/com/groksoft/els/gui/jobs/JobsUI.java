@@ -1364,7 +1364,7 @@ public class JobsUI extends JDialog
                         //---- buttonGenerate ----
                         buttonGenerate.setText(guiContext.cfg.gs("JobsUI.buttonGenerate.text"));
                         buttonGenerate.setMnemonic(guiContext.cfg.gs("JobsUI.buttonGenerate.mnemonic_2").charAt(0));
-                        buttonGenerate.setToolTipText(guiContext.cfg.gs("JobsUI.buttonGenerate.toolTipText"));
+                        buttonGenerate.setToolTipText(guiContext.cfg.gs("Z.cancel"));
                         buttonGenerate.addActionListener(e -> actionGenerateClicked(e));
                         panelTopButtons.add(buttonGenerate);
                     }
@@ -1644,14 +1644,14 @@ public class JobsUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("JobsUI.okButton.text"));
+                okButton.setText(guiContext.cfg.gs("Z.ok"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("JobsUI.cancelButton.text"));
+                cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

@@ -9,6 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -52,7 +54,34 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         depth = 0;
         boolean error = false;
 
-        guiContext.progress.display();
+        // create a fresh dialog here
+        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+        {
+            ActionListener cancel = new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    if (guiContext.browser.navTransferHandler.getTransferWorker() != null &&
+                            !guiContext.browser.navTransferHandler.getTransferWorker().isDone())
+                    {
+                        logger.warn(guiContext.cfg.gs("MainFrame.cancelling.transfers.at.user.request"));
+                        guiContext.browser.navTransferHandler.getTransferWorker().cancel(true);
+                    }
+                }
+            };
+            guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, guiContext.cfg.isDryRun());
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+
+        if (guiContext.progress.isVisible()) // can be minimized
+            guiContext.progress.toFront();
+        else
+            guiContext.progress.display();
 
         for (int i = 0; i < queue.size(); ++i)
         {
@@ -121,26 +150,12 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         filesToCopy = 0;
     }
 
-    public boolean add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
+    public void add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)
     {
         Batch batch = new Batch(action, transferData, target, tuo, size);
         queue.add(batch);
         filesToCopy += count;
         filesSize += size;
-
-        // create a fresh dialog here so it exists to be updated with new stats
-        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
-        {
-            guiContext.progress = null; // suggest clean-up
-            guiContext.progress = new Progress(guiContext, guiContext.mainFrame);
-        }
-        else
-            return false;
-
-        if (guiContext.progress.isVisible()) // can be minimized
-            guiContext.progress.toFront();
-
-        return true;
     }
 
     /**

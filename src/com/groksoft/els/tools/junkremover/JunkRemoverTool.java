@@ -22,6 +22,8 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -231,19 +233,6 @@ public class JunkRemoverTool extends AbstractTool
         if (subscriberRepo != null && getCfg().isRemoteSession())
             setIsRemote(true);
 
-        // create a fresh dialog here so it exists to be updated with new stats
-        if (guiContext != null)
-        {
-            if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
-            {
-                guiContext.progress = null; // suggest clean-up
-                guiContext.progress = new Progress(guiContext, guiContext.mainFrame);
-            }
-
-            if (guiContext.progress.isVisible()) // can be minimized
-                guiContext.progress.toFront();
-        }
-
         for (String path : toolPaths)
         {
             if (isRequestStop())
@@ -297,6 +286,33 @@ public class JunkRemoverTool extends AbstractTool
     @Override
     public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
+        // create a fresh dialog here so it exists to be updated with new stats
+        if (guiContext != null)
+        {
+            if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+            {
+                ActionListener cancel = new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        requestStop();
+                    }
+                };
+                guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, isDryRun);
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                return null;
+            }
+
+            if (guiContext.progress.isVisible()) // can be minimized
+                guiContext.progress.toFront();
+            else
+                guiContext.progress.display();
+        }
+
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
         {
             @Override
@@ -351,7 +367,7 @@ public class JunkRemoverTool extends AbstractTool
                         String fullpath = path + repo.getSeparator() + entry.getFilename();
                         if (guiContext != null && guiContext.progress != null)
                         {
-                            guiContext.progress.update(fullpath);
+                            guiContext.progress.update(" " + fullpath);
                         }
                         if (attrs.isDir())
                         {
@@ -407,7 +423,7 @@ public class JunkRemoverTool extends AbstractTool
                     String filename = entry.getName();
                     if (guiContext != null && guiContext.progress != null)
                     {
-                        guiContext.progress.update(filename);
+                        guiContext.progress.update(" " + filename);
                     }
                     if (entry.isDirectory())
                     {

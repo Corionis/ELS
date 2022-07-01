@@ -176,7 +176,7 @@ public class ToolUI_CopyMe extends JDialog {
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("ToolUI.button.cancel.text"));
+                cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
                 cancelButton.addActionListener(e -> cancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

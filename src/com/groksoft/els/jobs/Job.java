@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Files;
@@ -173,7 +175,15 @@ public class Job implements Comparable, Serializable
         // create a fresh dialog here
         if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
         {
-            guiContext.progress = new Progress(guiContext, comp);
+            ActionListener cancel = new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    requestStop();
+                }
+            };
+            guiContext.progress = new Progress(guiContext, comp, cancel, isDryRun);
         }
         else
         {
@@ -188,8 +198,7 @@ public class Job implements Comparable, Serializable
 
         if (willDisconnect(guiContext))
         {
-            int reply = JOptionPane.showConfirmDialog(comp,
-                    guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), title, JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(comp, guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), title, JOptionPane.YES_NO_OPTION);
             if (reply != JOptionPane.YES_OPTION)
                 return null;
         }

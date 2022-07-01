@@ -1,6 +1,7 @@
 package com.groksoft.els.gui;
 
 import com.groksoft.els.Utils;
+import jdk.nashorn.internal.scripts.JO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,16 +16,20 @@ public class Progress extends JFrame
 
     private boolean beingUsed = false;
     private int currentWidth;
+    private boolean dryRun;
     private GuiContext guiContext;
     private int fixedHeight;
     private boolean forcedState = false;
     private String lastStatus = "";
     private Component owner;
+    private ActionListener cancelAction;
 
-    public Progress(GuiContext context, Component owner)
+    public Progress(GuiContext context, Component owner, ActionListener cancelAction, boolean dryRun)
     {
         this.guiContext = context;
         this.owner = owner;
+        this.cancelAction = cancelAction;
+        this.dryRun = dryRun;
 
         initComponents();
         setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
@@ -44,6 +49,18 @@ public class Progress extends JFrame
         setLocationRelativeTo(owner);
     }
 
+    private void cancelClicked(ActionEvent e)
+    {
+        Object[] opts = { guiContext.cfg.gs("Z.yes"), guiContext.cfg.gs("Z.no")};
+        int r = JOptionPane.showOptionDialog(this,
+                guiContext.cfg.gs("Z.cancel.the.current.operation"),
+                getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+                null, opts, opts[1]);
+        if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+            return;
+        this.cancelAction.actionPerformed(e);
+    }
+
     public void display()
     {
         if (guiContext.preferences.getProgressXpos() > 0)
@@ -61,6 +78,11 @@ public class Progress extends JFrame
         {
             setSize(guiContext.preferences.getProgressWidth(), guiContext.preferences.getProgressHeight());
         }
+
+        if (!dryRun)
+            setTitle(guiContext.cfg.gs("Progress.title"));
+        else
+            setTitle(guiContext.cfg.gs("Progress.title.dryrun"));
 
         setVisible(true);
 
@@ -146,10 +168,15 @@ public class Progress extends JFrame
     //
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-        panel1 = new JPanel();
+        panelWidget = new JPanel();
         hSpacer1 = new JPanel(null);
         labelForIcon = new JLabel();
         progressTextField = new JTextField();
+        panel1 = new JPanel();
+        vSpacer1 = new JPanel(null);
+        buttonCancel = new JButton();
+        vSpacer2 = new JPanel(null);
+        hSpacer2 = new JPanel(null);
 
         //======== this ========
         setMinimumSize(new Dimension(184, 75));
@@ -179,14 +206,15 @@ public class Progress extends JFrame
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout(4, 0));
 
-        //======== panel1 ========
+        //======== panelWidget ========
         {
-            panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+            panelWidget.setMaximumSize(new Dimension(32799, 32));
+            panelWidget.setLayout(new BoxLayout(panelWidget, BoxLayout.X_AXIS));
 
             //---- hSpacer1 ----
             hSpacer1.setMinimumSize(new Dimension(8, 32));
             hSpacer1.setPreferredSize(new Dimension(8, 32));
-            panel1.add(hSpacer1);
+            panelWidget.add(hSpacer1);
 
             //---- labelForIcon ----
             labelForIcon.setPreferredSize(new Dimension(32, 32));
@@ -194,9 +222,9 @@ public class Progress extends JFrame
             labelForIcon.setMaximumSize(new Dimension(32, 32));
             labelForIcon.setHorizontalTextPosition(SwingConstants.LEFT);
             labelForIcon.setHorizontalAlignment(SwingConstants.LEFT);
-            panel1.add(labelForIcon);
+            panelWidget.add(labelForIcon);
         }
-        contentPane.add(panel1, BorderLayout.WEST);
+        contentPane.add(panelWidget, BorderLayout.WEST);
 
         //---- progressTextField ----
         progressTextField.setPreferredSize(new Dimension(378, 30));
@@ -208,15 +236,49 @@ public class Progress extends JFrame
         progressTextField.setBorder(null);
         progressTextField.setMargin(new Insets(2, 0, 2, 8));
         contentPane.add(progressTextField, BorderLayout.CENTER);
+
+        //======== panel1 ========
+        {
+            panel1.setLayout(new BorderLayout());
+
+            //---- vSpacer1 ----
+            vSpacer1.setPreferredSize(new Dimension(10, 6));
+            vSpacer1.setMinimumSize(new Dimension(10, 6));
+            vSpacer1.setMaximumSize(new Dimension(10, 6));
+            panel1.add(vSpacer1, BorderLayout.NORTH);
+
+            //---- buttonCancel ----
+            buttonCancel.setText(guiContext.cfg.gs("Progress.buttonCancel.text_2"));
+            buttonCancel.addActionListener(e -> cancelClicked(e));
+            panel1.add(buttonCancel, BorderLayout.CENTER);
+
+            //---- vSpacer2 ----
+            vSpacer2.setPreferredSize(new Dimension(10, 6));
+            vSpacer2.setMinimumSize(new Dimension(10, 6));
+            vSpacer2.setMaximumSize(new Dimension(10, 6));
+            panel1.add(vSpacer2, BorderLayout.SOUTH);
+
+            //---- hSpacer2 ----
+            hSpacer2.setPreferredSize(new Dimension(4, 10));
+            hSpacer2.setMinimumSize(new Dimension(4, 10));
+            hSpacer2.setMaximumSize(new Dimension(4, 10));
+            panel1.add(hSpacer2, BorderLayout.EAST);
+        }
+        contentPane.add(panel1, BorderLayout.EAST);
         pack();
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    public JPanel panel1;
+    public JPanel panelWidget;
     public JPanel hSpacer1;
     public JLabel labelForIcon;
     public JTextField progressTextField;
+    public JPanel panel1;
+    public JPanel vSpacer1;
+    public JButton buttonCancel;
+    public JPanel vSpacer2;
+    public JPanel hSpacer2;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //
     // @formatter:on

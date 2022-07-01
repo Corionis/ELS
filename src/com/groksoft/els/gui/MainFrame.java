@@ -112,6 +112,16 @@ public class MainFrame extends JFrame
             // add smart scroll to the log
             // https://tips4java.wordpress.com/2013/03/03/smart-scrolling/
             new SmartScroller(scrollPaneLog);
+
+            // Change default JOptionPanel button names based on the locale
+            // TODO add tool tip text & mnemonic
+            UIManager.put("OptionPane.cancelButtonText", guiContext.cfg.gs("Z.cancel"));
+            // TODO add all the FileChooser buttons
+            UIManager.put("FileChooser.directoryOpenButtonText", guiContext.cfg.gs("Z.open"));
+            UIManager.put("OptionPane.noButtonText", guiContext.cfg.gs("Z.no"));
+            UIManager.put("OptionPane.okButtonText", guiContext.cfg.gs("Z.ok"));
+            UIManager.put("OptionPane.yesButtonText", guiContext.cfg.gs("Z.yes"));
+
         }
         catch(Exception ex)
         {

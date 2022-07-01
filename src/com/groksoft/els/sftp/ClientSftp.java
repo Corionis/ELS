@@ -124,7 +124,9 @@ public class ClientSftp
             {
                 String msg = e.toString().trim().toLowerCase();
                 if (!msg.contains("alreadyexists")) // ignore "already exists" errors
-                    throw e;
+                {
+                    throw new SftpException(e.id, e.getMessage() + ": " + whole);
+                }
             }
         }
         return whole;
