@@ -572,6 +572,17 @@ public class JunkRemoverUI extends JDialog
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
         workerJrt = null;
+
+        if (jrt.isRequestStop())
+        {
+            guiContext.browser.printLog(jrt.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            guiContext.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+        }
+        else
+        {
+            guiContext.browser.printLog(jrt.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            guiContext.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + guiContext.cfg.gs("Z.completed"));
+        }
     }
 
     private void saveConfigurations()

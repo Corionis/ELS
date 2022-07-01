@@ -1646,7 +1646,16 @@ public class Navigator
         catch (Exception e)
         {
         }
-        guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+        if (job.isRequestStop())
+        {
+            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+        }
+        else
+        {
+            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+        }
         disableGui(false);
     }
 

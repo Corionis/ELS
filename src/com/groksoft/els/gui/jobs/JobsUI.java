@@ -1179,18 +1179,18 @@ public class JobsUI extends JDialog
                         if (e.getPropertyName().equals("state"))
                         {
                             if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                processTerminated();
+                                processTerminated(job);
                         }
                     }
                 });
                 worker.execute();
             }
             else
-                processTerminated();
+                processTerminated(job);
         }
     }
 
-    private void processTerminated()
+    private void processTerminated(Job job)
     {
         if (guiContext.progress != null)
             guiContext.progress.done();
@@ -1199,6 +1199,17 @@ public class JobsUI extends JDialog
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
+
+        if (job.isRequestStop())
+        {
+            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+        }
+        else
+        {
+            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+        }
     }
 
     private void saveConfigurations()

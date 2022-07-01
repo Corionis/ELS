@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
+import java.text.MessageFormat;
 import javax.swing.*;
 
 public class Progress extends JFrame
@@ -47,6 +48,8 @@ public class Progress extends JFrame
         this.progressTextField.setBorder(null);
         setLocationByPlatform(false);
         setLocationRelativeTo(owner);
+
+        guiContext.mainFrame.labelStatusMiddle.setText("");
     }
 
     private void cancelClicked(ActionEvent e)
