@@ -206,15 +206,65 @@ new FormModel {
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 										name: "panelOriginInstance"
 										"border": sfield com.jformdesigner.model.FormObject NULL_VALUE
-										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
-											"axis": 1
+										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+											"$columnSpecs": "0, 0"
+											"$rowSpecs": "0, 0"
+											"$hGap": 4
+											"$alignLeft": true
+											"$alignTop": true
 										} ) {
 											name: "panelPubSub"
-											add( new FormComponent( "javax.swing.JTable" ) {
-												name: "tablePubSub"
-												"cellSelectionEnabled": true
-												"selectionMode": 0
-												"showVerticalLines": false
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelPub"
+												"text": new FormMessage( null, "JobsUI.labelPub.text" )
+												"maximumSize": new java.awt.Dimension( 24, 18 )
+												"minimumSize": new java.awt.Dimension( 24, 18 )
+												"preferredSize": new java.awt.Dimension( 24, 18 )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"weightx": 1.0
+												"insets": new java.awt.Insets( 0, 4, 0, 4 )
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonPub"
+												"text": "..."
+												"maximumSize": new java.awt.Dimension( 32, 24 )
+												"minimumSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 24 )
+												"verticalTextPosition": 1
+												"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 0, false )
+												"horizontalTextPosition": 10
+												"iconTextGap": 0
+												"actionCommand": "0"
+												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionPubSubClicked", true ) )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 1
+											} )
+											add( new FormComponent( "javax.swing.JLabel" ) {
+												name: "labelSub"
+												"text": new FormMessage( null, "JobsUI.labelSub.text" )
+												"maximumSize": new java.awt.Dimension( 24, 18 )
+												"minimumSize": new java.awt.Dimension( 24, 18 )
+												"preferredSize": new java.awt.Dimension( 24, 18 )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridy": 1
+												"weightx": 1.0
+												"insets": new java.awt.Insets( 0, 4, 0, 4 )
+											} )
+											add( new FormComponent( "javax.swing.JButton" ) {
+												name: "buttonSub"
+												"text": "..."
+												"maximumSize": new java.awt.Dimension( 32, 24 )
+												"minimumSize": new java.awt.Dimension( 32, 24 )
+												"preferredSize": new java.awt.Dimension( 32, 24 )
+												"verticalTextPosition": 1
+												"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 0, false )
+												"horizontalTextPosition": 10
+												"iconTextGap": 0
+												"actionCommand": "1"
+												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionPubSubClicked", true ) )
+											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+												"gridx": 1
+												"gridy": 1
 											} )
 										}, new FormLayoutConstraints( class java.lang.String ) {
 											"value": "North"

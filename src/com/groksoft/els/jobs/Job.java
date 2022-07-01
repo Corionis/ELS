@@ -172,7 +172,7 @@ public class Job implements Comparable, Serializable
      */
     public SwingWorker<Void, Void> process(GuiContext guiContext, Component comp, String title, Job job, boolean isDryRun)
     {
-        // create a fresh dialog here
+        // create a fresh dialog
         if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()

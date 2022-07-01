@@ -25,7 +25,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -140,25 +139,6 @@ public class JobsUI extends JDialog
         // setup the publisher/subscriber Task Origins table
         Border border = guiContext.mainFrame.textFieldLocation.getBorder();
         panelPubSub.setBorder(border);
-        tablePubSub.getTableHeader().setUI(null);
-        tablePubSub.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseClicked(MouseEvent mouseEvent)
-            {
-                //super.mouseClicked(mouseEvent);
-                int row = mouseEvent.getY() / tablePubSub.getRowHeight();
-                int col = tablePubSub.getColumnModel().getColumnIndexAtX(mouseEvent.getX());
-
-                if (row < tablePubSub.getRowCount() && row >= 0 &&
-                        col < tablePubSub.getColumnCount() && col >= 0)
-                {
-                    Object object = tablePubSub.getValueAt(row, col);
-                    if (object instanceof JButton)
-                        ((JButton) object).doClick();
-                }
-            }
-        });
 
         loadConfigurations();
         deletedJobs = new ArrayList<Job>();
@@ -1072,19 +1052,106 @@ public class JobsUI extends JDialog
     {
         Repositories repositories = getRepositories();
 
-        PubSubCellRenderer cellRenderer = new PubSubCellRenderer();
-        PubSubModel pubSubModel = new PubSubModel(this, guiContext.cfg, repositories, task);
-        tablePubSub.setModel(pubSubModel);
+        labelPub.setText(getPubSubValue(task,0, 0, repositories));
+        buttonPub.setToolTipText(getPubSubValue(task,0, 1, repositories));
 
-        TableColumn column = tablePubSub.getColumnModel().getColumn(0);
-        column.setResizable(true);
-        column = tablePubSub.getColumnModel().getColumn(1);
-        column.setCellRenderer(cellRenderer);
-        column.setResizable(false);
-        column.setWidth(32);
-        column.setPreferredWidth(32);
-        column.setMaxWidth(32);
-        column.setMinWidth(32);
+        if (!task.isDual())
+        {
+            labelSub.setVisible(false);
+            buttonSub.setVisible(false);
+        }
+        else
+        {
+            labelSub.setText(getPubSubValue(task,1, 0, repositories));
+            buttonSub.setToolTipText(getPubSubValue(task,1, 1, repositories));
+        }
+    }
+
+    private String getPubSubDesc(Task task, boolean isPublisher, boolean isRemote, Repositories repositories, String key)
+    {
+        String desc = "";
+        if (key.trim().length() == 0)
+        {
+            if (task.isDual())
+            {
+                if (isPublisher)
+                    desc = guiContext.cfg.gs("JobsUI.select.publisher");
+                else
+                    desc = guiContext.cfg.gs("JobsUI.select.subscriber");
+            }
+            else
+                desc = guiContext.cfg.gs("JobsUI.select.publisher.or.subscriber");
+        }
+        else if (key.equals(Task.ANY_SERVER))
+        {
+            if (isPublisher)
+                desc = guiContext.cfg.gs("JobsUI.any.publisher");
+            else
+                desc = guiContext.cfg.gs("JobsUI.any.subscriber");
+        }
+        else
+        {
+            Repositories.Meta meta = repositories.find(key);
+            if (meta != null)
+            {
+                if (isRemote)
+                    desc = guiContext.cfg.gs("Z.remote.uppercase");
+                else
+                {
+                    if (!isPublisher)
+                        desc = guiContext.cfg.gs("Z.local.uppercase");
+                }
+                desc += (isPublisher ? guiContext.cfg.gs("Z.publisher") : guiContext.cfg.gs("Z.subscriber")) + ": " + meta.description;
+            }
+            else
+                desc = guiContext.cfg.gs("Z.cannot.find") + key;
+        }
+        return desc;
+    }
+
+    public String getPubSubValue(Task task, int row, int column, Repositories repositories)
+    {
+        if (task != null)
+        {
+            if (column == 0)
+            {
+                if (task.isDual())
+                {
+                    if (row == 0)
+                        return getPubSubDesc(task, true, false, repositories, task.getPublisherKey());
+                    return getPubSubDesc(task, false, task.isSubscriberRemote(), repositories, task.getSubscriberKey());
+                }
+                else
+                {
+                    String key = "";
+                    boolean isPublisher = true;
+                    if (task.getPublisherKey().length() > 0)
+                        key = task.getPublisherKey();
+                    else if (task.getSubscriberKey().length() > 0)
+                    {
+                        isPublisher = false;
+                        key = task.getSubscriberKey();
+                    }
+                    return getPubSubDesc(task, isPublisher,(isPublisher ? false : task.isSubscriberRemote()), repositories, key);
+                }
+            }
+
+            if (column == 1)
+            {
+                String toolTip = "";
+                if (!task.isDual())
+                    toolTip = guiContext.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
+                else
+                {
+                    if (row == 0)
+                        toolTip = guiContext.cfg.gs("JobsUI.select.publisher.tooltip");
+                    else
+                        toolTip = guiContext.cfg.gs("JobsUI.select.subscriber.tooltip");
+                }
+                return toolTip;
+            }
+        }
+        return null;
     }
 
     private void process(Job job, boolean isDryRun)
@@ -1273,7 +1340,10 @@ public class JobsUI extends JDialog
         labelOrigins = new JLabel();
         panelOriginInstance = new JPanel();
         panelPubSub = new JPanel();
-        tablePubSub = new JTable();
+        labelPub = new JLabel();
+        buttonPub = new JButton();
+        labelSub = new JLabel();
+        buttonSub = new JButton();
         scrollPaneOrigins = new JScrollPane();
         listOrigins = new JList();
         panelOriginsButtons = new JPanel();
@@ -1509,13 +1579,59 @@ public class JobsUI extends JDialog
 
                                     //======== panelPubSub ========
                                     {
-                                        panelPubSub.setLayout(new BoxLayout(panelPubSub, BoxLayout.Y_AXIS));
+                                        panelPubSub.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelPubSub.getLayout()).columnWidths = new int[] {0, 0, 0};
+                                        ((GridBagLayout)panelPubSub.getLayout()).rowHeights = new int[] {0, 0, 0};
+                                        ((GridBagLayout)panelPubSub.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                                        ((GridBagLayout)panelPubSub.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
-                                        //---- tablePubSub ----
-                                        tablePubSub.setCellSelectionEnabled(true);
-                                        tablePubSub.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                                        tablePubSub.setShowVerticalLines(false);
-                                        panelPubSub.add(tablePubSub);
+                                        //---- labelPub ----
+                                        labelPub.setText(guiContext.cfg.gs("JobsUI.labelPub.text"));
+                                        labelPub.setMaximumSize(new Dimension(24, 18));
+                                        labelPub.setMinimumSize(new Dimension(24, 18));
+                                        labelPub.setPreferredSize(new Dimension(24, 18));
+                                        panelPubSub.add(labelPub, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 4, 0, 8), 0, 0));
+
+                                        //---- buttonPub ----
+                                        buttonPub.setText("...");
+                                        buttonPub.setMaximumSize(new Dimension(32, 24));
+                                        buttonPub.setMinimumSize(new Dimension(32, 24));
+                                        buttonPub.setPreferredSize(new Dimension(32, 24));
+                                        buttonPub.setVerticalTextPosition(SwingConstants.TOP);
+                                        buttonPub.setFont(buttonPub.getFont().deriveFont(buttonPub.getFont().getStyle() | Font.BOLD));
+                                        buttonPub.setHorizontalTextPosition(SwingConstants.LEADING);
+                                        buttonPub.setIconTextGap(0);
+                                        buttonPub.setActionCommand("0");
+                                        buttonPub.addActionListener(e -> actionPubSubClicked(e));
+                                        panelPubSub.add(buttonPub, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 0, 0), 0, 0));
+
+                                        //---- labelSub ----
+                                        labelSub.setText(guiContext.cfg.gs("JobsUI.labelSub.text"));
+                                        labelSub.setMaximumSize(new Dimension(24, 18));
+                                        labelSub.setMinimumSize(new Dimension(24, 18));
+                                        labelSub.setPreferredSize(new Dimension(24, 18));
+                                        panelPubSub.add(labelSub, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 4, 0, 8), 0, 0));
+
+                                        //---- buttonSub ----
+                                        buttonSub.setText("...");
+                                        buttonSub.setMaximumSize(new Dimension(32, 24));
+                                        buttonSub.setMinimumSize(new Dimension(32, 24));
+                                        buttonSub.setPreferredSize(new Dimension(32, 24));
+                                        buttonSub.setVerticalTextPosition(SwingConstants.TOP);
+                                        buttonSub.setFont(buttonSub.getFont().deriveFont(buttonSub.getFont().getStyle() | Font.BOLD));
+                                        buttonSub.setHorizontalTextPosition(SwingConstants.LEADING);
+                                        buttonSub.setIconTextGap(0);
+                                        buttonSub.setActionCommand("1");
+                                        buttonSub.addActionListener(e -> actionPubSubClicked(e));
+                                        panelPubSub.add(buttonSub, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                            new Insets(0, 0, 0, 0), 0, 0));
                                     }
                                     panelOriginInstance.add(panelPubSub, BorderLayout.NORTH);
 
@@ -1693,7 +1809,10 @@ public class JobsUI extends JDialog
     private JLabel labelOrigins;
     private JPanel panelOriginInstance;
     private JPanel panelPubSub;
-    private JTable tablePubSub;
+    private JLabel labelPub;
+    private JButton buttonPub;
+    private JLabel labelSub;
+    private JButton buttonSub;
     private JScrollPane scrollPaneOrigins;
     private JList listOrigins;
     private JPanel panelOriginsButtons;

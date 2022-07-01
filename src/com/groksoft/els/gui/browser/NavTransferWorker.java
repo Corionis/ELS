@@ -54,7 +54,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         depth = 0;
         boolean error = false;
 
-        // create a fresh dialog here
+        // create a fresh dialog
         if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()

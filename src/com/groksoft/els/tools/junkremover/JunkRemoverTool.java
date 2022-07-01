@@ -286,7 +286,7 @@ public class JunkRemoverTool extends AbstractTool
     @Override
     public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
-        // create a fresh dialog here so it exists to be updated with new stats
+        // create a fresh dialog
         if (guiContext != null)
         {
             if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
