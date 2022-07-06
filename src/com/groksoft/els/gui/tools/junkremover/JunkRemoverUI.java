@@ -58,17 +58,13 @@ public class JunkRemoverUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (guiContext.preferences.getToolsJunkRemoverYpos() > -1)
-            this.setLocation(guiContext.preferences.getToolsJunkRemoverXpos(), guiContext.preferences.getToolsJunkRemoverYpos());
-        //
-        if (guiContext.preferences.getToolsJunkRemoverHeight() > -1)
+        if (guiContext.preferences.getToolsJunkRemoverHeight() > 0)
         {
+            this.setLocation(guiContext.preferences.getToolsJunkRemoverXpos(), guiContext.preferences.getToolsJunkRemoverYpos());
             Dimension dim = new Dimension(guiContext.preferences.getToolsJunkRemoverWidth(), guiContext.preferences.getToolsJunkRemoverHeight());
             this.setSize(dim);
-        }
-        //
-        if (guiContext.preferences.getToolsJunkRemoverDividerLocation() > -1)
             this.splitPaneContent.setDividerLocation(guiContext.preferences.getToolsJunkRemoverDividerLocation());
+        }
 
         // Escape key
         ActionListener escListener = new AbstractAction()
@@ -218,7 +214,7 @@ public class JunkRemoverUI extends JDialog
                 deletedTools.add(jrt);
                 configModel.removeRow(index);
                 configModel.fireTableDataChanged();
-                if (index > configModel.getRowCount() - 1)
+                if (index > 0)
                     index = configModel.getRowCount() - 1;
                 configItems.requestFocus();
                 if (index >= 0)
@@ -443,8 +439,14 @@ public class JunkRemoverUI extends JDialog
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.exception"),
-                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (guiContext != null)
+            {
+                guiContext.browser.printLog(msg, true);
+                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+            }
+            else
+                logger.error(msg);
         }
 
         if (configModel.getRowCount() == 0)
@@ -546,7 +548,14 @@ public class JunkRemoverUI extends JDialog
                         }
                         catch (Exception e)
                         {
-                            guiContext.browser.printLog(e.getMessage());
+                            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                            if (guiContext != null)
+                            {
+                                guiContext.browser.printLog(msg, true);
+                                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                            }
+                            else
+                                logger.error(msg);
                         }
                     }
                 }
@@ -558,7 +567,14 @@ public class JunkRemoverUI extends JDialog
             }
             catch (Exception e)
             {
-                guiContext.browser.printLog(e.getMessage());
+                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                if (guiContext != null)
+                {
+                    guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                }
+                else
+                    logger.error(msg);
             }
         }
     }
@@ -611,11 +627,14 @@ public class JunkRemoverUI extends JDialog
         }
         catch (Exception e)
         {
-            String name = (jrt != null) ? jrt.getConfigName() + " " : " ";
-            guiContext.browser.printLog(Utils.getStackTrace(e), true);
-            JOptionPane.showMessageDialog(this,
-                    guiContext.cfg.gs("Z.error.writing") + name + e.getMessage(),
-                    guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (guiContext != null)
+            {
+                guiContext.browser.printLog(msg, true);
+                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+            }
+            else
+                logger.error(msg);
         }
     }
 

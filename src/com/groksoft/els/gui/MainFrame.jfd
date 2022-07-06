@@ -735,7 +735,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Renamer.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Renamer.mnemonic" )
 						"horizontalAlignment": 2
-						"enabled": false
 						"horizontalTextPosition": 2
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {

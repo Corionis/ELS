@@ -38,7 +38,7 @@ public abstract class AbstractTool implements Comparable, Serializable
 
     public int compareTo(Object o)
     {
-        return toString().compareTo(((JunkRemoverTool)o).toString());
+        return toString().compareTo(o.toString());
     }
 
     public Configuration getCfg()
@@ -63,6 +63,11 @@ public abstract class AbstractTool implements Comparable, Serializable
     }
 
     abstract public String getDisplayName();
+
+    public String getListName()
+    {
+        return getDisplayName() + ": " + getConfigName();
+    }
 
     public String getFullPath()
     {

@@ -656,7 +656,6 @@ public class MainFrame extends JFrame
                 menuItemRenamer.setText(guiContext.cfg.gs("Navigator.menu.Renamer.text"));
                 menuItemRenamer.setMnemonic(guiContext.cfg.gs("Navigator.menu.Renamer.mnemonic").charAt(0));
                 menuItemRenamer.setHorizontalAlignment(SwingConstants.LEFT);
-                menuItemRenamer.setEnabled(false);
                 menuItemRenamer.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuTools.add(menuItemRenamer);
                 menuTools.addSeparator();

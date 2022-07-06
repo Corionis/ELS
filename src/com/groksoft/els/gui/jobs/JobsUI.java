@@ -89,20 +89,14 @@ public class JobsUI extends JDialog
         buttonOriginDown.setIcon(r1);
 
         // position, size & dividers
-        if (guiContext.preferences.getJobsYpos() > -1)
-            this.setLocation(guiContext.preferences.getJobsXpos(), guiContext.preferences.getJobsYpos());
-        //
-        if (guiContext.preferences.getJobsHeight() > -1)
+        if (guiContext.preferences.getJobsHeight() > 0)
         {
+            this.setLocation(guiContext.preferences.getJobsXpos(), guiContext.preferences.getJobsYpos());
             Dimension dim = new Dimension(guiContext.preferences.getJobsWidth(), guiContext.preferences.getJobsHeight());
             this.setSize(dim);
-        }
-        //
-        if (guiContext.preferences.getJobsTaskDividerLocation() > -1)
             this.splitPaneContent.setDividerLocation(guiContext.preferences.getJobsTaskDividerLocation());
-        //
-        if (guiContext.preferences.getJobsOriginDividerLocation() > -1)
             this.splitPaneToolsOrigin.setDividerLocation(guiContext.preferences.getJobsOriginDividerLocation());
+        }
 
         // Escape key
         ActionListener escListener = new AbstractAction()
@@ -679,10 +673,16 @@ public class JobsUI extends JDialog
             {
                 Tools toolsHandler = new Tools();
                 toolList = toolsHandler.loadAllTools(guiContext, guiContext.cfg, guiContext.context, null);
-                DefaultListModel<String> dialogList = new DefaultListModel<String>();
+                ArrayList<String> toolNames = new ArrayList<>();
                 for (AbstractTool tool : toolList)
                 {
-                    dialogList.addElement(tool.getDisplayName() + ": " + tool.getConfigName());
+                    toolNames.add(tool.getListName());
+                }
+                Collections.sort(toolNames);
+                DefaultListModel<String> dialogList = new DefaultListModel<String>();
+                for (String name : toolNames)
+                {
+                    dialogList.addElement(name);
                 }
                 toolJList.setModel(dialogList);
                 toolJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -1601,6 +1601,7 @@ public class JobsUI extends JDialog
                                         labelPub.setMaximumSize(new Dimension(24, 18));
                                         labelPub.setMinimumSize(new Dimension(24, 18));
                                         labelPub.setPreferredSize(new Dimension(24, 18));
+                                        labelPub.setFont(labelPub.getFont().deriveFont(labelPub.getFont().getSize() + 1f));
                                         panelPubSub.add(labelPub, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 4, 0, 8), 0, 0));
@@ -1625,6 +1626,7 @@ public class JobsUI extends JDialog
                                         labelSub.setMaximumSize(new Dimension(24, 18));
                                         labelSub.setMinimumSize(new Dimension(24, 18));
                                         labelSub.setPreferredSize(new Dimension(24, 18));
+                                        labelSub.setFont(labelSub.getFont().deriveFont(labelSub.getFont().getSize() + 1f));
                                         panelPubSub.add(labelSub, new GridBagConstraints(0, 1, 1, 1, 1.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 4, 0, 8), 0, 0));

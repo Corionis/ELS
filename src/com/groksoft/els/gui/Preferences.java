@@ -80,6 +80,11 @@ public class Preferences implements Serializable
     private int toolsJunkRemoverWidth = 570;
     private int toolsJunkRemoverXpos = -1;
     private int toolsJunkRemoverYpos = -1;
+    private int toolsRenamerDividerLocation = 142;
+    private int toolsRenamerHeight = 470;
+    private int toolsRenamerWidth = 570;
+    private int toolsRenamerXpos = -1;
+    private int toolsRenamerYpos = -1;
     private transient Configuration cfg;
 
     /**
@@ -495,6 +500,31 @@ public class Preferences implements Serializable
         return toolsJunkRemoverYpos;
     }
 
+    public int getToolsRenamerDividerLocation()
+    {
+        return toolsRenamerDividerLocation;
+    }
+
+    public int getToolsRenamerHeight()
+    {
+        return toolsRenamerHeight;
+    }
+
+    public int getToolsRenamerWidth()
+    {
+        return toolsRenamerWidth;
+    }
+
+    public int getToolsRenamerXpos()
+    {
+        return toolsRenamerXpos;
+    }
+
+    public int getToolsRenamerYpos()
+    {
+        return toolsRenamerYpos;
+    }
+
     public boolean isAutoRefresh()
     {
         return autoRefresh;
@@ -878,6 +908,31 @@ public class Preferences implements Serializable
     public void setToolsJunkRemoverYpos(int toolsJunkRemoverYpos)
     {
         this.toolsJunkRemoverYpos = toolsJunkRemoverYpos;
+    }
+
+    public void setToolsRenamerDividerLocation(int toolsRenamerDividerLocation)
+    {
+        this.toolsRenamerDividerLocation = toolsRenamerDividerLocation;
+    }
+
+    public void setToolsRenamerHeight(int toolsRenamerHeight)
+    {
+        this.toolsRenamerHeight = toolsRenamerHeight;
+    }
+
+    public void setToolsRenamerWidth(int toolsRenamerWidth)
+    {
+        this.toolsRenamerWidth = toolsRenamerWidth;
+    }
+
+    public void setToolsRenamerXpos(int toolsRenamerXpos)
+    {
+        this.toolsRenamerXpos = toolsRenamerXpos;
+    }
+
+    public void setToolsRenamerYpos(int toolsRenamerYpos)
+    {
+        this.toolsRenamerYpos = toolsRenamerYpos;
     }
 
     public void write(GuiContext guiContext) throws Exception

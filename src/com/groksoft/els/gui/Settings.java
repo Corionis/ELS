@@ -422,23 +422,23 @@ public class Settings extends JDialog
                                     .addContainerGap()
                                     .addGroup(generalPanelLayout.createParallelGroup()
                                         .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(preserveFileTimestampsLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(preserveFileTimestampsLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                             .addGap(12, 12, 12)
                                             .addComponent(preserveFileTimestampsCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(showDeleteConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                             .addGap(12, 12, 12)
                                             .addComponent(showDeleteConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showCcpConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(showCcpConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                             .addGap(12, 12, 12)
                                             .addComponent(showCcpConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showDndConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(showDndConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                             .addGap(12, 12, 12)
                                             .addComponent(showDndConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE))
                                         .addGroup(generalPanelLayout.createSequentialGroup()
-                                            .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                             .addGap(12, 12, 12)
                                             .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
                                     .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -479,7 +479,7 @@ public class Settings extends JDialog
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
-                            "System default, use for Windows",
+                            "System (Windows)",
                             "Metal",
                             "Nimbus",
                             "Flat light",
@@ -500,7 +500,7 @@ public class Settings extends JDialog
                         scaleLabel.setText(guiContext.cfg.gs("Settings.scaleLabel.text"));
 
                         //---- scaleCheckBox ----
-                        scaleCheckBox.setText(guiContext.cfg.gs("Settings.scaleCheckBox.text"));
+                        scaleCheckBox.setToolTipText(guiContext.cfg.gs("Settings.scaleCheckBox.toolTipText"));
 
                         //---- dateFormatLabel ----
                         dateFormatLabel.setText(guiContext.cfg.gs("Settings.dateFormatLabel.text"));
@@ -532,27 +532,26 @@ public class Settings extends JDialog
                                     .addGroup(apperancePanelLayout.createParallelGroup()
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
                                             .addGroup(apperancePanelLayout.createParallelGroup()
-                                                .addComponent(lookFeelLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(localeLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(lookFeelLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(localeLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(scaleLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                                 .addGroup(apperancePanelLayout.createSequentialGroup()
                                                     .addComponent(dateFormatLabel, GroupLayout.PREFERRED_SIZE, 96, GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                                                    .addGap(12, 12, 12)
                                                     .addComponent(dateInfoButton)))
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                             .addGroup(apperancePanelLayout.createParallelGroup()
-                                                .addComponent(lookFeelComboBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(lookFeelComboBox, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(localeComboBox, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
                                                 .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)))
+                                                .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(textFieldHintButtonColor, GroupLayout.PREFERRED_SIZE, 143, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(buttonChooseColor)
-                                            .addGap(0, 0, Short.MAX_VALUE)))
-                                    .addContainerGap())
+                                            .addComponent(textFieldHintButtonColor, GroupLayout.PREFERRED_SIZE, 104, GroupLayout.PREFERRED_SIZE)
+                                            .addGap(8, 8, 8)
+                                            .addComponent(buttonChooseColor)))
+                                    .addContainerGap(17, Short.MAX_VALUE))
                         );
                         apperancePanelLayout.setVerticalGroup(
                             apperancePanelLayout.createParallelGroup()
@@ -628,13 +627,13 @@ public class Settings extends JDialog
                                 .addGroup(browserPanelLayout.createSequentialGroup()
                                     .addContainerGap()
                                     .addGroup(browserPanelLayout.createParallelGroup()
-                                        .addComponent(autoRefreshLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(tabPlacementlabel, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(autoRefreshLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(hideFilesInTreeLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(hideHiddenFilesLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortCaseSensitiveLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortFoldersBeforeFilesLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(sortReverseLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(tabPlacementlabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE))
                                     .addGap(12, 12, 12)
                                     .addGroup(browserPanelLayout.createParallelGroup()
                                         .addComponent(autoRefreshCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)

@@ -6,6 +6,7 @@ import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
+import com.groksoft.els.tools.renamer.RenamerTool;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
@@ -82,6 +83,37 @@ public class Tools
             }
             // end JunkRemover
         }
+        else if (internalName.equals("Renamer"))
+        {
+            // begin Renamer
+            RenamerTool tmpTool = new RenamerTool(null, config, ctxt);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                RenamerParser RenamerParser = new RenamerParser();
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+                for (File entry : files)
+                {
+                    if (!entry.isDirectory())
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        if (json != null)
+                        {
+                            AbstractTool jrt = RenamerParser.parseTool(guiContext, config, ctxt, json);
+                            if (jrt != null)
+                            {
+                                if (jrt.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = jrt;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Renamer
+        }
         else if (0 == 1)
         {
             // TODO Add other tool implementations here
@@ -110,20 +142,27 @@ public class Tools
         File toolDir = null;
         ToolParserI toolParser = null;
 
+        // begin JunkRemover
         if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
-            // begin JunkRemover
             toolParser = new JunkRemoverParser();
             JunkRemoverTool tmpJrt = new JunkRemoverTool(null, config, ctxt);
             toolDir = new File(tmpJrt.getDirectoryPath());
-            // end JunkRemover
+            toolList = scanTools(guiContext, config, ctxt, toolList, toolParser, toolDir);
         }
-        else if (0 == 1)
-        {
-            // TODO add other tool parsers here
-        }
+        // end JunkRemover
 
-        toolList = scanTools(guiContext, config, ctxt, toolList, toolParser, toolDir);
+        // begin Renamer
+        if (internalName == null || internalName.equals(RenamerTool.INTERNAL_NAME))
+        {
+            toolParser = new RenamerParser();
+            RenamerTool tmpRenamer = new RenamerTool(null, config, ctxt);
+            toolDir = new File(tmpRenamer.getDirectoryPath());
+            toolList = scanTools(guiContext, config, ctxt, toolList, toolParser, toolDir);
+        }
+        // end Renamer
+
+        // TODO add other tool parsers here
 
         // sort the list
         Collections.sort(toolList);
@@ -206,6 +245,41 @@ public class Tools
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(JunkRemoverTool.class, new objInstanceCreator());
             JunkRemoverTool tool = builder.create().fromJson(json, JunkRemoverTool.class);
+            return tool;
+        }
+    }
+
+    //=================================================================================================================
+
+    /**
+     * ToolParserI implementation for the RenamerTool
+     */
+    private class RenamerParser implements ToolParserI
+    {
+        /**
+         * Parse a RenamerTool
+         *
+         * @param guiContext The guiContext, null is allowed
+         * @param config The Configuration
+         * @param ctxt The Context
+         * @param json String of JSON to parse
+         * @return AbstractTool instance
+         */
+        @Override
+        public AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new RenamerTool(guiContext, config, ctxt);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(RenamerTool.class, new objInstanceCreator());
+            RenamerTool tool = builder.create().fromJson(json, RenamerTool.class);
             return tool;
         }
     }

@@ -10,6 +10,7 @@ import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.jobs.JobsUI;
 import com.groksoft.els.gui.tools.junkremover.JunkRemoverUI;
+import com.groksoft.els.gui.tools.renamer.RenamerUI;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.HintKeys;
@@ -48,6 +49,7 @@ public class Navigator
     private int bottomSize;
     private boolean quitRemote = false;
     private boolean remoteJobRunning = false;
+    public RenamerUI dialogRenamer = null;
     private transient Logger logger = LogManager.getLogger("applog");
     public SwingWorker<Void, Void> worker;
 
@@ -1272,6 +1274,9 @@ public class Navigator
 
         //
         // -- Tools Menu
+        //
+        //-
+        // Junk Remover Tool
         guiContext.mainFrame.menuItemJunk.addActionListener(new AbstractAction()
         {
             @Override
@@ -1284,6 +1289,23 @@ public class Navigator
                 }
                 else
                     dialogJunkRemover.requestFocus();
+            }
+        });
+
+        //-
+        // Renamer Tool
+        guiContext.mainFrame.menuItemRenamer.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogRenamer == null || !dialogRenamer.isShowing())
+                {
+                    dialogRenamer = new RenamerUI(guiContext.mainFrame, guiContext);
+                    dialogRenamer.setVisible(true);
+                }
+                else
+                    dialogRenamer.requestFocus();
             }
         });
 

@@ -220,6 +220,7 @@ new FormModel {
 												"maximumSize": new java.awt.Dimension( 24, 18 )
 												"minimumSize": new java.awt.Dimension( 24, 18 )
 												"preferredSize": new java.awt.Dimension( 24, 18 )
+												"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"weightx": 1.0
 												"insets": new java.awt.Insets( 0, 4, 0, 4 )
@@ -245,6 +246,7 @@ new FormModel {
 												"maximumSize": new java.awt.Dimension( 24, 18 )
 												"minimumSize": new java.awt.Dimension( 24, 18 )
 												"preferredSize": new java.awt.Dimension( 24, 18 )
+												"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridy": 1
 												"weightx": 1.0

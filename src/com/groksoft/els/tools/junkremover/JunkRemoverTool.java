@@ -324,11 +324,14 @@ public class JunkRemoverTool extends AbstractTool
                 }
                 catch (Exception e)
                 {
-                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                    guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
-                            guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
-
+                    String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                    if (guiContext != null)
+                    {
+                        guiContext.browser.printLog(msg, true);
+                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+                    else
+                        logger.error(msg);
                 }
                 return null;
             }
@@ -394,9 +397,12 @@ public class JunkRemoverTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = getCfg().gs("Z.exception") + Utils.getStackTrace(e);
+                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
+                {
                     guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                }
                 else
                     logger.error(msg);
             }
@@ -449,9 +455,12 @@ public class JunkRemoverTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = getCfg().gs("Z.exception") + Utils.getStackTrace(e);
+                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
+                {
                     guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                }
                 else
                     logger.error(msg);
             }
