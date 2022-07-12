@@ -680,6 +680,11 @@ public class Preferences implements Serializable
         this.collectionTwoSizeWidth = collectionTwoSizeWidth;
     }
 
+    public void setCfg(Configuration cfg)
+    {
+        this.cfg = cfg;
+    }
+
     public void setDateFormat(String dateFormat)
     {
         this.dateFormat = dateFormat;

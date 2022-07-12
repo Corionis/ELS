@@ -2,12 +2,14 @@ package com.groksoft.els.gui.jobs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.jobs.Jobs;
 import com.groksoft.els.repository.Repositories;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
@@ -32,6 +34,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -228,9 +231,10 @@ public class JobsUI extends JDialog
             String jar = jarPath;
             String generated = "java -jar " + jar + " -c debug -d debug -j \"" + currentJob.getConfigName() + "\" -F \"" + currentJob.getConfigName() + ".log\"";
 
-            Object obj = JOptionPane.showInputDialog(this,
-                    guiContext.cfg.gs("JobsUI.generated") + currentJob.getConfigName(),
-                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE,
+            JOptionPane.showInputDialog(this,
+                    guiContext.cfg.gs("JobsUI.generated") + currentJob.getConfigName() +
+                            "                                                                                    ",
+                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.PLAIN_MESSAGE,
                     null, null, generated);
         }
         catch (Exception e)
@@ -263,7 +267,7 @@ public class JobsUI extends JDialog
     {
         if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
         {
-            Job job = new Job(guiContext.cfg.gs("Z.untitled"));
+            Job job = new Job(guiContext.cfg, guiContext.context, guiContext.cfg.gs("Z.untitled"));
             configModel.addRow(new Object[]{job});
             this.currentJob = job;
             loadTasks(-1);
@@ -666,19 +670,30 @@ public class JobsUI extends JDialog
 
             // make dialog pieces
             String message = guiContext.cfg.gs("JobsUI.select.tool");
+
             JList<String> toolJList = new JList<String>();
             ArrayList<AbstractTool> toolList = null;
 
             try
             {
-                Tools toolsHandler = new Tools();
-                toolList = toolsHandler.loadAllTools(guiContext, guiContext.cfg, guiContext.context, null);
                 ArrayList<String> toolNames = new ArrayList<>();
+
+                // load Job tools first
+                Jobs jobsHandler = new Jobs(guiContext);
+                toolList = jobsHandler.loadAllJobs(); // creates the ArrayList
+
+                // then load all the other tools
+                Tools toolsHandler = new Tools();
+                toolList = toolsHandler.loadAllTools(guiContext, null, toolList);
+
+                // make the String list for display
                 for (AbstractTool tool : toolList)
                 {
                     toolNames.add(tool.getListName());
                 }
                 Collections.sort(toolNames);
+
+                // add the Strings to the JList model
                 DefaultListModel<String> dialogList = new DefaultListModel<String>();
                 for (String name : toolNames)
                 {
@@ -704,7 +719,15 @@ public class JobsUI extends JDialog
             int opt = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JobsUI.title"), JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
-                int index = toolJList.getSelectedIndex();
+                String name = toolJList.getSelectedValue();
+                int index = 0;
+                for ( ; index < toolList.size(); ++index)
+                {
+                    if (name.equals(((AbstractTool) toolList.get(index)).getListName()))
+                    {
+                        break;
+                    }
+                }
                 AbstractTool tool = toolList.get(index);
                 currentTask = new Task(tool.getInternalName(), tool.getConfigName());
                 currentTask.setDual(tool.isDualRepositories());
@@ -819,7 +842,12 @@ public class JobsUI extends JDialog
         {
             int jobIndex = src.getSelectedRow();
             if (jobIndex >= 0)
+            {
                 loadTasks(jobIndex);
+                configItems.setRowSelectionInterval(jobIndex, jobIndex);
+                if (currentJob.getTasks().size() > 0)
+                    listTasks.setSelectedIndex(0);
+            }
         }
     }
 
@@ -835,7 +863,7 @@ public class JobsUI extends JDialog
 
     public String getFullPath(Job job)
     {
-        String path = Job.getDirectoryPath() + System.getProperty("file.separator") +
+        String path = job.getDirectoryPath() + System.getProperty("file.separator") +
                 Utils.scrubFilename(job.getConfigName()) + ".json";
         return path;
     }
@@ -907,14 +935,15 @@ public class JobsUI extends JDialog
 
     private void loadConfigurations()
     {
-        File jobsDir = new File(Job.getDirectoryPath());
+        Job tmpJob = new Job(guiContext.cfg, guiContext.context, "temp");
+        File jobsDir = new File(tmpJob.getDirectoryPath());
         if (jobsDir.exists())
         {
             Tools toolsHandler = new Tools();
             ArrayList<AbstractTool> toolList = null;
             try
             {
-                toolList = toolsHandler.loadAllTools(guiContext, guiContext.cfg, guiContext.context, null);
+                toolList = toolsHandler.loadAllTools(guiContext, null);
             }
             catch (Exception e)
             {
@@ -924,6 +953,17 @@ public class JobsUI extends JDialog
                         guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
 
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(java.lang.reflect.Type type)
+                {
+                    return new Job(guiContext.cfg, guiContext.context, "");
+                }
+            }
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Job.class, new objInstanceCreator());
+
             ArrayList<Job> jobsArray = new ArrayList<>();
             File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
             for (File entry : files)
@@ -932,11 +972,10 @@ public class JobsUI extends JDialog
                 {
                     try
                     {
-                        Gson gson = new Gson();
                         String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
-                        if (json != null)
+                        if (json != null && json.length() > 0)
                         {
-                            Job job = gson.fromJson(json, Job.class);
+                            Job job = builder.create().fromJson(json, Job.class);
                             if (job != null)
                             {
                                 if (toolList != null)
@@ -989,6 +1028,8 @@ public class JobsUI extends JDialog
             loadTasks(0);
             configItems.requestFocus();
             configItems.setRowSelectionInterval(0, 0);
+            if (currentJob.getTasks().size() > 0)
+                listTasks.setSelectedIndex(0);
         }
     }
 
@@ -1029,21 +1070,41 @@ public class JobsUI extends JDialog
 
     private void loadOrigins(Task task)
     {
-        currentTask = task;
-        loadPubSubs(currentTask);
-
         DefaultListModel<String> model = new DefaultListModel<String>();
-        if (currentTask.getOrigins().size() > 0)
+
+        currentTask = task;
+        if (currentTask.getInternalName().equals(Job.INTERNAL_NAME))
         {
-            for (int i = 0; i < currentTask.getOrigins().size(); ++i)
+            loadPubSubs(null);
+            labelOrigins.setEnabled(false);
+            buttonPub.setEnabled(false);
+            buttonAddOrigin.setEnabled(false);
+            buttonOriginUp.setEnabled(false);
+            buttonOriginDown.setEnabled(false);
+            buttonRemoveOrigin.setEnabled(false);
+        }
+        else
+        {
+            loadPubSubs(currentTask);
+            buttonPub.setEnabled(true);
+            labelOrigins.setEnabled(true);
+            buttonAddOrigin.setEnabled(true);
+            buttonOriginUp.setEnabled(true);
+            buttonOriginDown.setEnabled(true);
+            buttonRemoveOrigin.setEnabled(true);
+
+            if (currentTask.getOrigins().size() > 0)
             {
-                Origin origin = currentTask.getOrigins().get(i);
-                String ot = getOriginType(origin.getType());
-                String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + origin.getName();
-                model.addElement(id);
+                for (int i = 0; i < currentTask.getOrigins().size(); ++i)
+                {
+                    Origin origin = currentTask.getOrigins().get(i);
+                    String ot = getOriginType(origin.getType());
+                    String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + origin.getName();
+                    model.addElement(id);
+                }
+                if (listOrigins.getModel().getSize() > 0)
+                    listOrigins.setSelectedIndex(0);
             }
-            if (listOrigins.getModel().getSize() > 0)
-                listOrigins.setSelectedIndex(0);
         }
         listOrigins.setModel(model);
     }
@@ -1055,7 +1116,7 @@ public class JobsUI extends JDialog
         labelPub.setText(getPubSubValue(task,0, 0, repositories));
         buttonPub.setToolTipText(getPubSubValue(task,0, 1, repositories));
 
-        if (!task.isDual())
+        if (task == null || !task.isDual())
         {
             labelSub.setVisible(false);
             buttonSub.setVisible(false);
@@ -1445,7 +1506,7 @@ public class JobsUI extends JDialog
                         //---- buttonGenerate ----
                         buttonGenerate.setText(guiContext.cfg.gs("JobsUI.buttonGenerate.text"));
                         buttonGenerate.setMnemonic(guiContext.cfg.gs("JobsUI.buttonGenerate.mnemonic_2").charAt(0));
-                        buttonGenerate.setToolTipText(guiContext.cfg.gs("Z.cancel"));
+                        buttonGenerate.setToolTipText(guiContext.cfg.gs("JobsUI.buttonGenerate.toolTipText"));
                         buttonGenerate.addActionListener(e -> actionGenerateClicked(e));
                         panelTopButtons.add(buttonGenerate);
                     }

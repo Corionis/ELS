@@ -1,12 +1,16 @@
 package com.groksoft.els.jobs;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
+import com.groksoft.els.repository.Repository;
+import com.groksoft.els.tools.AbstractTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,27 +21,30 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Job implements Comparable, Serializable
+public class Job extends AbstractTool implements Comparable, Serializable
 {
+    public static String INTERNAL_NAME = "jobs";
+
     private String configName; // user name for this instance
     private ArrayList<Task> tasks;
 
+    transient Configuration cfg;
+    transient Context context;
     transient Task currentTask = null;
     transient private boolean dataHasChanged = false;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private boolean stop = false;
 
-    private Job()
+    public Job(Configuration cfg, Context context, String name)
     {
-        // hide default constructor
-    }
-
-    public Job(String name)
-    {
+        super(cfg, context);
+        this.cfg = cfg;
+        this.context = context;
         this.configName = name;
         this.tasks = new ArrayList<Task>();
         this.dataHasChanged = true;
@@ -45,7 +52,7 @@ public class Job implements Comparable, Serializable
 
     public Job clone()
     {
-        Job job = new Job(this.getConfigName());
+        Job job = new Job(this.cfg, context, this.getConfigName());
         ArrayList<Task> tasks = new ArrayList<Task>();
         for (Task task : this.getTasks())
         {
@@ -66,12 +73,9 @@ public class Job implements Comparable, Serializable
         return configName;
     }
 
-    public static String getDirectoryPath()
+    public String getDisplayName()
     {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
-                ".els" + System.getProperty("file.separator") +
-                "jobs";
-        return path;
+        return cfg.gs("Z.job");
     }
 
     public String getFullPath()
@@ -81,22 +85,32 @@ public class Job implements Comparable, Serializable
         return path;
     }
 
+    @Override
+    public String getInternalName()
+    {
+        return INTERNAL_NAME;
+    }
+
+    @Override
+    public String getSubsystem()
+    {
+        return "";
+    }
+
+    @Override
+    public boolean isDualRepositories()
+    {
+        return false;
+    }
+
+    public String getListName()
+    {
+        return getDisplayName() + ": " + getConfigName();
+    }
+
     public ArrayList<Task> getTasks()
     {
         return tasks;
-    }
-
-    private boolean willDisconnect(GuiContext guiContext)
-    {
-        if (guiContext.cfg.isRemoteSession())
-        {
-            for (Task task : getTasks())
-            {
-                if (task.isSubscriberRemote() && !guiContext.context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
-                    return true;
-            }
-        }
-        return false;
     }
 
     public boolean isDataChanged()
@@ -109,33 +123,56 @@ public class Job implements Comparable, Serializable
         return stop;
     }
 
-    public static Job load(String jobName) throws Exception
+    @Override
+    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+    }
+
+    @Override
+    public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    {
+        // to satisfy AbstractTool, not used
+        return null;
+    }
+
+    public Job load(String jobName) throws Exception
     {
         Job job = null;
         String path = getDirectoryPath();
 
+        if (jobName == null || jobName.length() == 0)
+            jobName = getConfigName();
+
         File jobDir = new File(path);
         if (jobDir.exists() && jobDir.isDirectory())
         {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new Job(cfg, context, "");
+                }
+            }
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(Job.class, new objInstanceCreator());
+
             String json;
-            Gson gson = new Gson();
             File[] files = FileSystemView.getFileSystemView().getFiles(jobDir, false);
             for (File entry : files)
             {
                 if (!entry.isDirectory())
                 {
                     json = new String(Files.readAllBytes(Paths.get(entry.getPath())));
-                    Job tmpJob = gson.fromJson(json, Job.class);
-                    if (tmpJob.getConfigName().equalsIgnoreCase(jobName))
+                    if (json != null && json.length() > 0)
                     {
-                        job = tmpJob.clone();
-                        ArrayList<Task> initTasks = job.getTasks();
-                        for (int i = 0; i < initTasks.size(); ++i)
+                        Job tmpJob = builder.create().fromJson(json, Job.class);
+                        if (tmpJob.getConfigName().equalsIgnoreCase(jobName))
                         {
-                            Task t = initTasks.get(i);
-                            initTasks.set(i, t.clone());
+                            job = tmpJob;
+                            break;
                         }
-                        break;
                     }
                 }
             }
@@ -153,9 +190,9 @@ public class Job implements Comparable, Serializable
      * @return
      * @throws Exception
      */
-    public int process(Configuration cfg, Context context) throws Exception
+    public void process(Configuration cfg, Context context) throws Exception
     {
-        return processJob(null, cfg, context, this, cfg.isDryRun());
+        processJob(null, cfg, context, this, cfg.isDryRun());
     }
 
     /**
@@ -226,7 +263,7 @@ public class Job implements Comparable, Serializable
         return worker;
     }
 
-    private int processJob(GuiContext guiContext, Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception
+    public void processJob(GuiContext guiContext, Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception
     {
         int result = 0;
         stop = false;
@@ -234,25 +271,38 @@ public class Job implements Comparable, Serializable
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
             if (guiContext != null)
-                guiContext.browser.printLog(cfg.gs("Jobs.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+                guiContext.browser.printLog(cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
             else
-                logger.info(cfg.gs("Jobs.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+                logger.info(cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
 
             for (Task task : job.getTasks())
             {
                 if (isRequestStop())
                     break;
+
                 currentTask = task;
-                if (!currentTask.process(guiContext, cfg, context, isDryRun))
-                    requestStop();
+                if (currentTask.getInternalName().equals(getInternalName()))
+                {
+                    Job subJob = load(currentTask.getConfigName());
+                    subJob.processJob(guiContext, cfg, context, subJob, isDryRun);
+
+                    if (guiContext != null)
+                        guiContext.browser.printLog(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+                    else
+                        logger.info(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+
+                }
+                else
+                {
+                    if (!currentTask.process(guiContext, cfg, context, isDryRun))
+                        requestStop();
+                }
             }
 
             context.main.savedConfiguration.restore(currentTask);
         }
         else
             throw new MungeException(cfg.gs("JobsUI.job.has.no.tasks") + ": " + job.getConfigName());
-
-        return result;
     }
 
     public void requestStop()
@@ -291,13 +341,18 @@ public class Job implements Comparable, Serializable
         {
             for (Task task : job.getTasks())
             {
-                if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                if (!task.getInternalName().equals(getInternalName())) // if not a Job
                 {
-                    status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
-                }
-                else if (task.getOrigins() == null || task.getOrigins().size() == 0)
-                {
-                    status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
+                    if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                    {
+                        status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
+                        break;
+                    }
+                    else if (task.getOrigins() == null || task.getOrigins().size() == 0)
+                    {
+                        status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
+                        break;
+                    }
                 }
             }
         }
@@ -306,6 +361,19 @@ public class Job implements Comparable, Serializable
             status = cfg.gs("JobsUI.job.has.no.tasks");
         }
         return status;
+    }
+
+    private boolean willDisconnect(GuiContext guiContext)
+    {
+        if (guiContext.cfg.isRemoteSession())
+        {
+            for (Task task : getTasks())
+            {
+                if (task.isSubscriberRemote() && !guiContext.context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
+                    return true;
+            }
+        }
+        return false;
     }
 
 }

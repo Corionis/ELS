@@ -124,18 +124,31 @@ public class Tools
 
     /**
      * Load all tools of a particular internalName from disk
+     * <br/>
+     * Creates an ArrayList of AbstractTool that is populated and returned
      *
      * @param guiContext The guiContext, null is allowed
-     * @param config The Configuration
-     * @param ctxt The Context
      * @param internalName Internal name of desired tool, or null/empty for all tools
      * @return ArrayList of tools
      * @throws Exception File system and parse exceptions
      */
-    public ArrayList<AbstractTool> loadAllTools(GuiContext guiContext, Configuration config, Context ctxt, String internalName) throws Exception
+    public ArrayList<AbstractTool> loadAllTools(GuiContext guiContext, String internalName) throws Exception
     {
         ArrayList<AbstractTool> toolList = new ArrayList<AbstractTool>();
+        return loadAllTools(guiContext, internalName, toolList);
+    }
 
+    /**
+     * Load all tools of a particular internalName from disk
+     *
+     * @param guiContext The guiContext, null is allowed
+     * @param internalName Internal name of desired tool, or null/empty for all tools
+     * @param  toolList ArrayList of AbstractTool to add new items to
+     * @return ArrayList of tools
+     * @throws Exception File system and parse exceptions
+     */
+    public ArrayList<AbstractTool> loadAllTools(GuiContext guiContext, String internalName, ArrayList<AbstractTool> toolList) throws Exception
+    {
         if (internalName != null && internalName.length() == 0)
             internalName = null;
 
@@ -146,9 +159,9 @@ public class Tools
         if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
             toolParser = new JunkRemoverParser();
-            JunkRemoverTool tmpJrt = new JunkRemoverTool(null, config, ctxt);
+            JunkRemoverTool tmpJrt = new JunkRemoverTool(null, guiContext.cfg, guiContext.context);
             toolDir = new File(tmpJrt.getDirectoryPath());
-            toolList = scanTools(guiContext, config, ctxt, toolList, toolParser, toolDir);
+            toolList = scanTools(guiContext, guiContext.cfg, guiContext.context, toolList, toolParser, toolDir);
         }
         // end JunkRemover
 
@@ -156,9 +169,9 @@ public class Tools
         if (internalName == null || internalName.equals(RenamerTool.INTERNAL_NAME))
         {
             toolParser = new RenamerParser();
-            RenamerTool tmpRenamer = new RenamerTool(null, config, ctxt);
+            RenamerTool tmpRenamer = new RenamerTool(null, guiContext.cfg, guiContext.context);
             toolDir = new File(tmpRenamer.getDirectoryPath());
-            toolList = scanTools(guiContext, config, ctxt, toolList, toolParser, toolDir);
+            toolList = scanTools(guiContext, guiContext.cfg, guiContext.context, toolList, toolParser, toolDir);
         }
         // end Renamer
 

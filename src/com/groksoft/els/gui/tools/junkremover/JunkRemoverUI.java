@@ -430,7 +430,7 @@ public class JunkRemoverUI extends JDialog
         try
         {
             Tools tools = new Tools();
-            ArrayList<AbstractTool> toolList = tools.loadAllTools(guiContext, guiContext.cfg, guiContext.context, JunkRemoverTool.INTERNAL_NAME);
+            ArrayList<AbstractTool> toolList = tools.loadAllTools(guiContext, JunkRemoverTool.INTERNAL_NAME);
             for (AbstractTool tool : toolList)
             {
                 JunkRemoverTool jrt = (JunkRemoverTool) tool;

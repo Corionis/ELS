@@ -33,18 +33,7 @@ public class Progress extends JFrame
         this.dryRun = dryRun;
 
         initComponents();
-        setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
-        try
-        {
-            URL url = getClass().getResource("/running.gif");
-            Icon icon = new ImageIcon(url);
-            this.labelForIcon.setIcon(icon);
-        }
-        catch (Exception e)
-        {
-            this.labelForIcon.setVisible(false);
-            this.hSpacer1.setVisible(false);
-        }
+        loadIcon();
         this.progressTextField.setBorder(null);
         setLocationByPlatform(false);
         setLocationRelativeTo(owner);
@@ -54,14 +43,18 @@ public class Progress extends JFrame
 
     private void cancelClicked(ActionEvent e)
     {
-        Object[] opts = { guiContext.cfg.gs("Z.yes"), guiContext.cfg.gs("Z.no")};
-        int r = JOptionPane.showOptionDialog(this,
-                guiContext.cfg.gs("Z.cancel.the.current.operation"),
-                getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
-                null, opts, opts[1]);
-        if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
-            return;
-        this.cancelAction.actionPerformed(e);
+        if (isBeingUsed())
+        {
+            Object[] opts = {guiContext.cfg.gs("Z.yes"), guiContext.cfg.gs("Z.no")};
+            int r = JOptionPane.showOptionDialog(this,
+                    guiContext.cfg.gs("Z.cancel.the.current.operation"),
+                    getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+                    null, opts, opts[1]);
+            if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                return;
+            this.cancelAction.actionPerformed(e);
+        }
+        setVisible(false);
     }
 
     public void display()
@@ -87,6 +80,8 @@ public class Progress extends JFrame
         else
             setTitle(guiContext.cfg.gs("Progress.title.dryrun"));
 
+
+        this.labelForIcon.setVisible(true);
         setVisible(true);
 
         fixedHeight = this.getHeight();
@@ -97,13 +92,31 @@ public class Progress extends JFrame
     public void done()
     {
         savePreferences();
+        this.labelForIcon.setVisible(false);
         setVisible(false);
+        progressTextField.setText("");
         beingUsed = false;
     }
 
     public boolean isBeingUsed()
     {
         return beingUsed;
+    }
+
+    private void loadIcon()
+    {
+        setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
+        try
+        {
+            URL url = getClass().getResource("/running.gif");
+            Icon icon = new ImageIcon(url);
+            this.labelForIcon.setIcon(icon);
+        }
+        catch (Exception e)
+        {
+            this.labelForIcon.setVisible(false);
+            this.hSpacer1.setVisible(false);
+        }
     }
 
     private void savePreferences()

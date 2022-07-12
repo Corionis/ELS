@@ -57,7 +57,7 @@ public abstract class AbstractTool implements Comparable, Serializable
     {
         String path = System.getProperty("user.home") + System.getProperty("file.separator") +
                 ".els" + System.getProperty("file.separator") +
-                getSubsystem() + System.getProperty("file.separator") +
+                (getSubsystem().length() > 0 ? getSubsystem() + System.getProperty("file.separator") : "") +
                 getInternalName();
         return path;
     }

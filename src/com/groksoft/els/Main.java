@@ -523,7 +523,8 @@ public class Main
                     savedConfiguration = new SavedConfiguration(null, cfg, context);
 
                     // run the Job
-                    Job job = Job.load(cfg.getJobName());
+                    Job tmpJob = new Job(cfg, context, "temp");
+                    Job job = tmpJob.load(cfg.getJobName());
                     job.process(cfg, context);
                     break;
 

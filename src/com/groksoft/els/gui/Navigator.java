@@ -1,6 +1,8 @@
 package com.groksoft.els.gui;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
 import com.groksoft.els.*;
 import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.gui.bookmarks.Bookmarks;
@@ -1147,8 +1149,8 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (guiContext.progress != null && guiContext.progress.isBeingUsed())
-                    guiContext.progress.display();
+                if (guiContext.progress != null)
+                    guiContext.progress.setVisible(true);  // .display();
             }
         });
 
@@ -1540,62 +1542,76 @@ public class Navigator
             }
         }
 
-        File jobsDir = new File(Job.getDirectoryPath());
-        File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
-        if (files.length > 0)
+        Job tmpJob = new Job(guiContext.cfg, guiContext.context, "temp");
+        File jobsDir = new File(tmpJob.getDirectoryPath());
+        if (jobsDir.exists())
         {
-            int index = 0;
-            jobs = new Job[files.length];
-            for (File entry : files)
+            File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
+            if (files.length > 0)
             {
-                if (!entry.isDirectory())
-                {
-                    try
-                    {
-                        Gson gson = new Gson();
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
-                        if (json != null)
-                        {
-                            Job job = gson.fromJson(json, Job.class);
-                            if (job != null)
-                            {
-                                jobs[index++] = job;
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        String msg = guiContext.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
-                        guiContext.browser.printLog(msg);
-                        JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
-                                guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            }
-
-            Arrays.sort(jobs);
-            for (int i = 0; i < jobs.length; ++i)
-            {
-                JMenuItem item = new JMenuItem(jobs[i].getConfigName());
-                item.setHorizontalTextPosition(SwingConstants.RIGHT);
-                item.setHorizontalAlignment(SwingConstants.LEADING);
-                item.addActionListener(new AbstractAction()
+                class objInstanceCreator implements InstanceCreator
                 {
                     @Override
-                    public void actionPerformed(ActionEvent actionEvent)
+                    public Object createInstance(java.lang.reflect.Type type)
                     {
-                        JMenuItem selected = (JMenuItem) actionEvent.getSource();
-                        String name = selected.getText();
-                        // A -2 offset for "Manage ..." and separator
-                        int index = findMenuItemIndex(guiContext.mainFrame.menuJobs, selected) - 2;
-                        if (index >= 0)
+                        return new Job(guiContext.cfg, guiContext.context, "");
+                    }
+                }
+                GsonBuilder builder = new GsonBuilder();
+                builder.registerTypeAdapter(Job.class, new objInstanceCreator());
+
+                int index = 0;
+                jobs = new Job[files.length];
+                for (File entry : files)
+                {
+                    if (!entry.isDirectory())
+                    {
+                        try
                         {
-                            Job job = jobs[index];
-                            processJob(job);
+                            String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                            if (json != null)
+                            {
+                                Job job = builder.create().fromJson(json, Job.class);
+                                if (job != null)
+                                {
+                                    jobs[index++] = job;
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            String msg = guiContext.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
+                            guiContext.browser.printLog(msg);
+                            JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                     }
-                });
-                menu.add(item);
+                }
+
+                Arrays.sort(jobs);
+                for (int i = 0; i < jobs.length; ++i)
+                {
+                    JMenuItem item = new JMenuItem(jobs[i].getConfigName());
+                    item.setHorizontalTextPosition(SwingConstants.RIGHT);
+                    item.setHorizontalAlignment(SwingConstants.LEADING);
+                    item.addActionListener(new AbstractAction()
+                    {
+                        @Override
+                        public void actionPerformed(ActionEvent actionEvent)
+                        {
+                            JMenuItem selected = (JMenuItem) actionEvent.getSource();
+
+                            // A -2 offset for "Manage ..." and separator
+                            int index = findMenuItemIndex(guiContext.mainFrame.menuJobs, selected) - 2;
+                            if (index >= 0)
+                            {
+                                Job job = jobs[index];
+                                processJob(job);
+                            }
+                        }
+                    });
+                    menu.add(item);
+                }
             }
         }
     }
@@ -1705,6 +1721,7 @@ public class Navigator
             if (prefs != null)
             {
                 guiContext.preferences = gson.fromJson(json, guiContext.preferences.getClass());
+                guiContext.preferences.setCfg(guiContext.cfg);
             }
         }
         catch (IOException e)

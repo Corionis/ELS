@@ -75,7 +75,7 @@ new FormModel {
 								name: "buttonGenerate"
 								"text": new FormMessage( null, "JobsUI.buttonGenerate.text" )
 								"mnemonic": new FormMessage( null, "JobsUI.buttonGenerate.mnemonic_2" )
-								"toolTipText": new FormMessage( null, "Z.cancel" )
+								"toolTipText": new FormMessage( null, "JobsUI.buttonGenerate.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionGenerateClicked", true ) )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
