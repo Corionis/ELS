@@ -1,6 +1,5 @@
 package com.groksoft.els.jobs;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.groksoft.els.Configuration;
@@ -47,7 +46,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
         this.context = context;
         this.configName = name;
         this.tasks = new ArrayList<Task>();
-        this.dataHasChanged = true;
+        this.dataHasChanged = false;
     }
 
     public Job clone()
@@ -59,6 +58,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
             tasks.add(task.clone());
         }
         job.setTasks(tasks);
+
         return job;
     }
 
@@ -75,7 +75,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
     public String getDisplayName()
     {
-        return cfg.gs("Z.job");
+        return cfg.gs("jobs.displayName");
     }
 
     public String getFullPath()
@@ -94,7 +94,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     @Override
     public String getSubsystem()
     {
-        return "";
+        return ""; // jobs are not a subsystem
     }
 
     @Override
@@ -228,10 +228,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
             return null;
         }
 
-        if (guiContext.progress.isVisible()) // can be minimized
-            guiContext.progress.toFront();
-        else
-            guiContext.progress.display();
+        guiContext.progress.display();
 
         if (willDisconnect(guiContext))
         {
@@ -320,6 +317,11 @@ public class Job extends AbstractTool implements Comparable, Serializable
     public void setDataHasChanged()
     {
         dataHasChanged = true;
+    }
+
+    public void setDataHasChanged(boolean state)
+    {
+        dataHasChanged = state;
     }
 
     public void setTasks(ArrayList<Task> tasks)

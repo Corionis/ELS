@@ -78,10 +78,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             return false;
         }
 
-        if (guiContext.progress.isVisible()) // can be minimized
-            guiContext.progress.toFront();
-        else
-            guiContext.progress.display();
+        guiContext.progress.display();
 
         for (int i = 0; i < queue.size(); ++i)
         {

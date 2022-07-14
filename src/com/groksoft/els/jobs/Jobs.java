@@ -2,12 +2,8 @@ package com.groksoft.els.jobs;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
-import com.groksoft.els.Configuration;
-import com.groksoft.els.Context;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.AbstractTool;
-import com.groksoft.els.tools.Tools;
-import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
@@ -15,7 +11,6 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 public class Jobs

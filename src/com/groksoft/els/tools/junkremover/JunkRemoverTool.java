@@ -307,10 +307,7 @@ public class JunkRemoverTool extends AbstractTool
                 return null;
             }
 
-            if (guiContext.progress.isVisible()) // can be minimized
-                guiContext.progress.toFront();
-            else
-                guiContext.progress.display();
+            guiContext.progress.display();
         }
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()

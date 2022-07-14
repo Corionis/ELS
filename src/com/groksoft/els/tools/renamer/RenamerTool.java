@@ -34,24 +34,30 @@ import java.util.Vector;
 
 public class RenamerTool extends AbstractTool
 {
+    // @formatter:off
     public static final String INTERNAL_NAME = "Renamer";
     public static final String SUBSYSTEM = "tools";
 
     private String configName; // user name for this instance
     private String internalName = INTERNAL_NAME;
-
     private int type = 0;
-    private int filenameSegment = 0;
+    private int segment = 0; // 0 = name only, 1 = extension only, 2 = whole filename
+    private String text1 = "";
+    private String text2 = "";
+    private String text3 = "";
+    private boolean option1 = false;
+    private boolean option2 = false;
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int deleteCount = 0;
-    transient private boolean dualRepositories = false; // used by GUI, always false for this tool
+    transient private boolean dualRepositories = true; // used by GUI, always false for this tool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private boolean isRemote;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> toolPaths;
+    // @formatter:on
 
     /**
      * Constructor when used from the command line
@@ -64,7 +70,6 @@ public class RenamerTool extends AbstractTool
         super(config, ctxt);
         setDisplayName(getCfg().gs("Renamer.displayName"));
         this.guiContext = guiContext;
-        this.dataHasChanged = false;
     }
 
     public RenamerTool clone()
@@ -141,21 +146,36 @@ public class RenamerTool extends AbstractTool
         return Utils.getCfg().gs("Renamer.displayName");
     }
 
-    public int getFilenameSegment()
-    {
-        return filenameSegment;
-    }
-
     @Override
     public String getInternalName()
     {
         return internalName;
     }
 
+    public int getSegment()
+    {
+        return segment;
+    }
+
     @Override
     public String getSubsystem()
     {
         return SUBSYSTEM;
+    }
+
+    public String getText1()
+    {
+        return text1;
+    }
+
+    public String getText2()
+    {
+        return text2;
+    }
+
+    public String getText3()
+    {
+        return text3;
     }
 
     public int getType()
@@ -172,6 +192,16 @@ public class RenamerTool extends AbstractTool
     public boolean isDualRepositories()
     {
         return dualRepositories;
+    }
+
+    public boolean isOption1()
+    {
+        return option1;
+    }
+
+    public boolean isOption2()
+    {
+        return option2;
     }
 
     /**
@@ -283,10 +313,7 @@ public class RenamerTool extends AbstractTool
                 return null;
             }
 
-            if (guiContext.progress.isVisible()) // can be minimized
-                guiContext.progress.toFront();
-            else
-                guiContext.progress.display();
+            guiContext.progress.display();
         }
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
@@ -316,30 +343,6 @@ public class RenamerTool extends AbstractTool
         return worker;
     }
 
-/*
-    private boolean match(String filename, String fullpath, JunkItem junk)
-    {
-        // https://commons.apache.org/proper/commons-io/
-        // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html
-        // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html#wildcardMatch(java.lang.String,%20java.lang.String)
-        boolean isMatch = FilenameUtils.wildcardMatch(filename, junk.wildcard, (junk.caseSensitive ? IOCase.SENSITIVE : IOCase.INSENSITIVE));
-        if (isMatch)
-        {
-            String msg = "  ";
-            if (isRemote())
-                msg += getCfg().gs("Z.remote.uppercase");
-            else
-                msg += getCfg().gs("NavTreeNode.local");
-            msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun ? 0 : 1, fullpath);
-            if (guiContext != null)
-                guiContext.browser.printLog(msg);
-            else
-                logger.info(msg);
-        }
-        return isMatch;
-    }
-*/
-
     public void reset()
     {
         deleteCount = 0;
@@ -347,6 +350,16 @@ public class RenamerTool extends AbstractTool
         toolPaths = new ArrayList<>();
         if (logger == null)
             logger = LogManager.getLogger("applog");
+    }
+
+    public void resetOptions()
+    {
+        text1 = "";
+        text2 = "";
+        text3 = "";
+        option1 = false;
+        option2 = false;
+
     }
 
     private boolean scanForJunk(String path)
@@ -484,17 +497,90 @@ public class RenamerTool extends AbstractTool
         dataHasChanged = true;
     }
 
-    public void setFilenameSegment(int filenameSegment)
-    {
-        this.filenameSegment = filenameSegment;
-    }
-
     public void setGuiContext(GuiContext guicontext)
     {
         this.guiContext = guicontext;
         this.cfg = guicontext.cfg;
         this.context = guicontext.context;
         setDisplayName(getCfg().gs("Renamer.displayName"));
+    }
+
+/*
+    private boolean match(String filename, String fullpath, JunkItem junk)
+    {
+        // https://commons.apache.org/proper/commons-io/
+        // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html
+        // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html#wildcardMatch(java.lang.String,%20java.lang.String)
+        boolean isMatch = FilenameUtils.wildcardMatch(filename, junk.wildcard, (junk.caseSensitive ? IOCase.SENSITIVE : IOCase.INSENSITIVE));
+        if (isMatch)
+        {
+            String msg = "  ";
+            if (isRemote())
+                msg += getCfg().gs("Z.remote.uppercase");
+            else
+                msg += getCfg().gs("NavTreeNode.local");
+            msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun ? 0 : 1, fullpath);
+            if (guiContext != null)
+                guiContext.browser.printLog(msg);
+            else
+                logger.info(msg);
+        }
+        return isMatch;
+    }
+*/
+
+    public void setOption1(boolean option1)
+    {
+        if (this.option1 != option1)
+        {
+            this.option1 = option1;
+            setDataHasChanged();
+        }
+    }
+
+    public void setOption2(boolean option2)
+    {
+        if (this.option2 != option2)
+        {
+            this.option2 = option2;
+            setDataHasChanged();
+        }
+    }
+
+    public void setSegment(int segment)
+    {
+        if (this.segment != segment)
+        {
+            this.segment = segment;
+            setDataHasChanged();
+        }
+    }
+
+    public void setText1(String text1)
+    {
+        if (!this.text1.equals(text1))
+        {
+            this.text1 = text1;
+            setDataHasChanged();
+        }
+    }
+
+    public void setText2(String text2)
+    {
+        if (!this.text2.equals(text2))
+        {
+            this.text2 = text2;
+            setDataHasChanged();
+        }
+    }
+
+    public void setText3(String text3)
+    {
+        if (!this.text3.equals(text3))
+        {
+            this.text3 = text3;
+            setDataHasChanged();
+        }
     }
 
     public void setType(int type)

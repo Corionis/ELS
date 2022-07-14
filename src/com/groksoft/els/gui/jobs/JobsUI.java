@@ -55,6 +55,11 @@ public class JobsUI extends JDialog
     private SwingWorker<Void, Void> worker;
     private boolean workerRunning = false;
 
+    private JobsUI()
+    {
+        // hide default constructor
+    }
+
     public JobsUI(Window owner, GuiContext guiContext)
     {
         super(owner);
@@ -134,7 +139,7 @@ public class JobsUI extends JDialog
         });
 
         // setup the publisher/subscriber Task Origins table
-        Border border = guiContext.mainFrame.textFieldLocation.getBorder();
+        Border border = buttonPub.getBorder(); // guiContext.mainFrame.textFieldLocation.getBorder();
         panelPubSub.setBorder(border);
 
         loadConfigurations();
@@ -676,17 +681,16 @@ public class JobsUI extends JDialog
 
             try
             {
-                ArrayList<String> toolNames = new ArrayList<>();
-
                 // load Job tools first
                 Jobs jobsHandler = new Jobs(guiContext);
                 toolList = jobsHandler.loadAllJobs(); // creates the ArrayList
 
-                // then load all the other tools
+                // then add all the other tools
                 Tools toolsHandler = new Tools();
                 toolList = toolsHandler.loadAllTools(guiContext, null, toolList);
 
                 // make the String list for display
+                ArrayList<String> toolNames = new ArrayList<>();
                 for (AbstractTool tool : toolList)
                 {
                     toolNames.add(tool.getListName());
@@ -725,7 +729,7 @@ public class JobsUI extends JDialog
                 {
                     if (name.equals(((AbstractTool) toolList.get(index)).getListName()))
                     {
-                        break;
+                        break; // it is not possible for index to be invalid
                     }
                 }
                 AbstractTool tool = toolList.get(index);
@@ -1123,6 +1127,8 @@ public class JobsUI extends JDialog
         }
         else
         {
+            labelSub.setVisible(true);
+            buttonSub.setVisible(true);
             labelSub.setText(getPubSubValue(task,1, 0, repositories));
             buttonSub.setToolTipText(getPubSubValue(task,1, 1, repositories));
         }

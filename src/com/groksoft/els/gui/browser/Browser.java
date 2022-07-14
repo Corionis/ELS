@@ -536,7 +536,7 @@ public class Browser
             // remove last segment if it's a file but not being shown, or a directory in the table
             TreePath tp;
             if ((!nodes[nodeIndex - 1].getUserObject().isDir && guiContext.preferences.isHideFilesInTree()) ||
-                (nodes[nodeIndex - 1].getUserObject().isDir && panelName.startsWith("table")))
+                    (nodes[nodeIndex - 1].getUserObject().isDir && panelName.startsWith("table")))
             {
                 NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
                 for (int j = 0; j < nodeIndex - 1; ++j)
@@ -1364,29 +1364,19 @@ public class Browser
 
     private void initializeToolbar()
     {
-/*
-        guiContext.mainFrame.buttonNewFolder.addActionListener(new AbstractAction()
+        if (!guiContext.navigator.showHintTrackingButton)
+        {
+            guiContext.mainFrame.panelHintTracking.setVisible(false);
+        }
+
+        guiContext.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                ActionListener[] listeners = guiContext.mainFrame.menuItemNewFolder.getActionListeners();
-                for (ActionListener listener : listeners)
+                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equals("hints"))
                 {
-                    listener.actionPerformed(actionEvent);
-                }
-            }
-        });
-*/
-
-        //if (guiContext.navigator.showHintTrackingButton)
-        {
-            guiContext.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
-            {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
-                {
-                    if (guiContext.mainFrame.buttonHintTracking.isVisible())
+                    if (guiContext.mainFrame.panelHintTracking.isVisible())
                     {
                         if (!trackingHints) // toggle hint tacking
                         {
@@ -1422,13 +1412,9 @@ public class Browser
                         }
                     }
                 }
-            });
-            hintTrackingColor = guiContext.mainFrame.buttonHintTracking.getBackground();
-        }
-        if (!guiContext.navigator.showHintTrackingButton)
-        {
-            guiContext.mainFrame.panelHintTracking.setVisible(false);
-        }
+            }
+        });
+        hintTrackingColor = guiContext.mainFrame.buttonHintTracking.getBackground();
     }
 
     public void loadCollectionTree(JTree tree, Repository repo, boolean remote)

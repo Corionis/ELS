@@ -211,6 +211,7 @@ new FormModel {
 													"text": new FormMessage( null, "Renamer.radioButtonFirstUpperCase.text" )
 													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
 													"horizontalAlignment": 0
+													"actionCommand": "firstupper"
 												} )
 												add( new FormComponent( "javax.swing.JRadioButton" ) {
 													name: "radioButtonLowerCase"
@@ -223,12 +224,14 @@ new FormModel {
 													"text": new FormMessage( null, "Renamer.radioButtonTitleCase.text" )
 													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
 													"horizontalAlignment": 0
+													"actionCommand": "titlecase"
 												} )
 												add( new FormComponent( "javax.swing.JRadioButton" ) {
 													name: "radioButtonUpperCase"
 													"text": new FormMessage( null, "Renamer.radioButtonUpperCase.text" )
 													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
 													"horizontalAlignment": 0
+													"actionCommand": "upper"
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "cardCaseChange"
@@ -554,7 +557,7 @@ new FormModel {
 							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
 								name: "scrollPaneExamples"
 								add( new FormComponent( "javax.swing.JTable" ) {
-									name: "tableExamples"
+									name: "tableChanges"
 									"selectionMode": 0
 									"rowSelectionAllowed": false
 									"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
@@ -580,6 +583,7 @@ new FormModel {
 										add( null )
 									} )
 									"fillsViewportHeight": true
+									"focusable": false
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "Center"
@@ -649,6 +653,9 @@ new FormModel {
 		} )
 		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
 			name: "buttonGroupChangeCase"
+			auxiliary() {
+				"JavaCodeGenerator.variableLocal": false
+			}
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 486 )
 		} )

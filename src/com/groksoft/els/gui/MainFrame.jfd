@@ -152,6 +152,7 @@ new FormModel {
 										"minimumSize": new java.awt.Dimension( 124, 30 )
 										"maximumSize": new java.awt.Dimension( 124, 30 )
 										"icon": new com.jformdesigner.model.SwingIcon( 0, "/hint-green.png" )
+										"actionCommand": " hints"
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "Center"
 									} )

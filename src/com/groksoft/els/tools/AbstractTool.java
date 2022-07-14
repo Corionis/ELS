@@ -6,7 +6,6 @@ import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.repository.Repository;
-import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.*;
 import java.io.Serializable;
@@ -26,6 +25,11 @@ public abstract class AbstractTool implements Comparable, Serializable
     transient private boolean isRemote;
     transient private String displayName; // GUI i18n display name
     transient private boolean stop = false;
+
+    private AbstractTool()
+    {
+        // hide default constructor
+    }
 
     /**
      * Constructor

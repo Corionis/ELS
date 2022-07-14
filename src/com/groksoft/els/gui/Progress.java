@@ -1,14 +1,12 @@
 package com.groksoft.els.gui;
 
 import com.groksoft.els.Utils;
-import jdk.nashorn.internal.scripts.JO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
-import java.text.MessageFormat;
 import javax.swing.*;
 
 public class Progress extends JFrame
@@ -16,14 +14,15 @@ public class Progress extends JFrame
     private transient Logger logger = LogManager.getLogger("applog");
 
     private boolean beingUsed = false;
+    private ActionListener cancelAction;
     private int currentWidth;
     private boolean dryRun;
-    private GuiContext guiContext;
     private int fixedHeight;
     private boolean forcedState = false;
+    private GuiContext guiContext;
     private String lastStatus = "";
+    private boolean noIcon = false;
     private Component owner;
-    private ActionListener cancelAction;
 
     public Progress(GuiContext context, Component owner, ActionListener cancelAction, boolean dryRun)
     {
@@ -36,7 +35,7 @@ public class Progress extends JFrame
         loadIcon();
         this.progressTextField.setBorder(null);
         setLocationByPlatform(false);
-        setLocationRelativeTo(owner);
+        setLocationRelativeTo(null);
 
         guiContext.mainFrame.labelStatusMiddle.setText("");
     }
@@ -54,11 +53,13 @@ public class Progress extends JFrame
                 return;
             this.cancelAction.actionPerformed(e);
         }
-        setVisible(false);
+        done();
     }
 
     public void display()
     {
+        beingUsed = true;
+
         if (guiContext.preferences.getProgressXpos() > 0)
         {
             setLocation(guiContext.preferences.getProgressXpos(), guiContext.preferences.getProgressYpos());
@@ -80,21 +81,27 @@ public class Progress extends JFrame
         else
             setTitle(guiContext.cfg.gs("Progress.title.dryrun"));
 
+        if (!noIcon)
+            this.labelForIcon.setVisible(true);
 
-        this.labelForIcon.setVisible(true);
         setVisible(true);
+        setState(JFrame.NORMAL);
+        guiContext.progress.toFront();
 
         fixedHeight = this.getHeight();
         currentWidth = this.getWidth();
-        beingUsed = true;
     }
 
     public void done()
     {
         savePreferences();
-        this.labelForIcon.setVisible(false);
-        setVisible(false);
+
+        // clear the progress content
+        labelForIcon.setVisible(false);
         progressTextField.setText("");
+        redraw();
+
+        setVisible(false);
         beingUsed = false;
     }
 
@@ -106,6 +113,7 @@ public class Progress extends JFrame
     private void loadIcon()
     {
         setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
+
         try
         {
             URL url = getClass().getResource("/running.gif");
@@ -114,9 +122,19 @@ public class Progress extends JFrame
         }
         catch (Exception e)
         {
+            noIcon = true;
             this.labelForIcon.setVisible(false);
             this.hSpacer1.setVisible(false);
         }
+    }
+
+    private void redraw()
+    {
+        Graphics gfx = progressTextField.getGraphics();
+        if (gfx != null)
+            progressTextField.update(gfx);
+        progressTextField.repaint();
+        repaint();
     }
 
     private void savePreferences()
@@ -162,6 +180,7 @@ public class Progress extends JFrame
         if (e.getNewState() != JFrame.NORMAL && e.getNewState() != JFrame.ICONIFIED)
         {
             forcedState = true;
+            setState(JFrame.NORMAL);
             setExtendedState(JFrame.NORMAL);
             setSize(currentWidth, fixedHeight);
         }
@@ -172,11 +191,18 @@ public class Progress extends JFrame
         lastStatus = status;
         String ellipse = Utils.ellipseFileString(progressTextField, status);
         progressTextField.setText(ellipse);
-        Graphics gfx = progressTextField.getGraphics();
-        if (gfx != null)
-            progressTextField.update(gfx);
-        progressTextField.repaint();
-        repaint();
+        redraw();
+    }
+
+    public void view()
+    {
+        boolean bu = beingUsed;
+        display();
+        if (!bu)
+        {
+            labelForIcon.setVisible(false);
+            beingUsed = false;
+        }
     }
 
     // <editor-fold desc="Generated code (Fold)">

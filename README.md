@@ -28,14 +28,15 @@ notice is removed there is no guarantee what works or has been completed, or eve
 what *will be completed*. Also "Done" means code complete. Bugs are entirely possible.
 
 See the [Developer](https://github.com/GrokSoft/ELS/blob/Version-4.0.0/artifacts/document/developer.md)
-notes in the Version-4.0.0 branch for information on how to run the Navigator.
+notes in the Version-4.0.0 branch for information on how to run the Navigator. Pre-built Jars are available.
 
 See the [Release Notes](https://github.com/GrokSoft/ELS/blob/Version-4.0.0/artifacts/document/release-notes.md)
 in the Version-4.0.0 branch for on-going change information.
 
- * ELS Navigator, a powerful cross-platform desktop application, added in 4.0.0. It
+ * ELS Navigator added in version 4.0 is a powerful cross-platform desktop GUI application. It
    is an ELS-smart, purpose-built, interactive tool designed to make building and curating
-   a media collection easier.
+   a media collection easier. 
+   * Another mode of operation (-n | --navigator) in addition to all prior ELS functionality.
    * Done: Navigator Browser tab shows publisher and subscriber collections and local
      storage on each, similar to Filezilla but also ELS-smart.
      * Done: Drag and Drop, and Copy/Cut/Paste supported.
@@ -51,6 +52,7 @@ in the Version-4.0.0 branch for on-going change information.
    * Done: Tools may be combined into jobs.
      * Done: Creation of command line to execute jobs. Useful for Linux
        cron jobs or Windows Task Scheduler tasks.
+     * Done: Jobs may include other Jobs.
    * Done: Jobs may be executed from the command line 
    * External tools supported.
    * Navigator Backup tab is for creation of ELS back-up tools that may be combined into jobs.

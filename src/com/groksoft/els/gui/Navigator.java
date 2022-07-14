@@ -293,14 +293,6 @@ public class Navigator
             // add any defined jobs to the menu
             loadJobsMenu();
 
-
-//            guiContext.mainFrame.panelLocationAndButtons.setPreferredSize();
-//            guiContext.mainFrame.panelLocationAndButtons.remove(guiContext.mainFrame.panelBarBrowser);
-//            guiContext.mainFrame.panelLocationAndButtons.remove(guiContext.mainFrame.panelHintTracking);
-//            guiContext.mainFrame.panelLocationAndButtons.revalidate();
-//            guiContext.mainFrame.panelBarBrowser.setVisible(false);
-//            guiContext.mainFrame.panelHintTracking.setVisible(false);
-
 /*
         Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
             logger.error("GOT IT: " + Utils.getStackTrace(throwable));
@@ -1149,8 +1141,19 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (guiContext.progress != null)
-                    guiContext.progress.setVisible(true);  // .display();
+                if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+                {
+                    ActionListener cancel = new ActionListener()
+                    {
+                        @Override
+                        public void actionPerformed(ActionEvent actionEvent)
+                        {
+                            // noop
+                        }
+                    };
+                    guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, false);
+                }
+                guiContext.progress.view();
             }
         });
 

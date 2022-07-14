@@ -1,9 +1,12 @@
 package com.groksoft.els.gui.tools.renamer;
 
 import javax.swing.table.*;
+
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.gui.browser.NavTreeNode;
+import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
@@ -16,17 +19,21 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 public class RenamerUI extends JDialog
 {
-    private String[] cardNames = {"cardCaseChange", "cardInsert", "cardNumbering", "cardRemove", "cardReplace" };
+    private String[] cardNames = {"cardCaseChange", "cardInsert", "cardNumbering", "cardRemove", "cardReplace"};
+    private ChangesTableModel changeModel;
     private RenamerConfigModel configModel;
+    private int currentConfigIndex = -1;
     private ArrayList<RenamerTool> deletedTools;
     private String[] displayNames;
     private GuiContext guiContext;
@@ -34,6 +41,7 @@ public class RenamerUI extends JDialog
     private NavHelp helpDialog;
     private boolean isDryRun;
     private boolean isSubscriber;
+    private String[][] changeStrings;
     private SwingWorker<Void, Void> worker;
     private RenamerTool workerRenamer = null;
     private boolean workerRunning = false;
@@ -93,7 +101,13 @@ public class RenamerUI extends JDialog
                 {
                     ListSelectionModel sm = (ListSelectionModel) listSelectionEvent.getSource();
                     int index = sm.getMinSelectionIndex();
-                    loadOptions(index);
+                    if (index != currentConfigIndex && currentConfigIndex >= 0)
+                    {
+                        if (currentConfigIndex < configItems.getRowCount())
+                            setRenamerOptions(currentConfigIndex);
+                        currentConfigIndex = index;
+                        loadOptions(currentConfigIndex);
+                    }
                 }
             }
         });
@@ -101,14 +115,16 @@ public class RenamerUI extends JDialog
         configItems.setTableHeader(null);
         panelControls.setBorder(scrollPaneExamples.getBorder());
 
+        // get display names once
         displayNames = new String[6];
         displayNames[0] = guiContext.cfg.gs("RenameUI.type.combobox.case.change"); // 0
         displayNames[1] = guiContext.cfg.gs("RenameUI.type.combobox.insert");
         displayNames[2] = guiContext.cfg.gs("RenameUI.type.combobox.numbering");
         displayNames[3] = guiContext.cfg.gs("RenameUI.type.combobox.remove");
-        displayNames[4] = guiContext.cfg.gs("RenameUI.type.combobox.replace"); // 5
+        displayNames[4] = guiContext.cfg.gs("RenameUI.type.combobox.replace"); // 4
 
         loadConfigurations();
+        loadTable();
         deletedTools = new ArrayList<RenamerTool>();
 
     }
@@ -127,6 +143,7 @@ public class RenamerUI extends JDialog
         }
         else
         {
+            setRenamerOptions(-1);
             if (checkForChanges())
             {
                 int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
@@ -151,15 +168,11 @@ public class RenamerUI extends JDialog
                 RenamerTool renamer = origRenamer.clone();
                 renamer.setConfigName(rename);
                 renamer.setDataHasChanged();
-                //jrt.addJunkItem();
                 configModel.addRow(new Object[]{renamer});
 
-                // clear patterns table
-
-                // set patterns table
-
-                configItems.editCellAt(configModel.getRowCount() - 1, 0);
-                configItems.changeSelection(configModel.getRowCount() - 1, configModel.getRowCount() - 1, false, false);
+                currentConfigIndex = configModel.getRowCount() - 1;
+                configItems.editCellAt(currentConfigIndex, 0);
+                configItems.changeSelection(currentConfigIndex, currentConfigIndex, false, false);
                 configItems.getEditorComponent().requestFocus();
                 ((JTextField) configItems.getEditorComponent()).selectAll();
             }
@@ -195,6 +208,7 @@ public class RenamerUI extends JDialog
                     configItems.changeSelection(index, 0, false, false);
                     loadOptions(index);
                 }
+                currentConfigIndex = index;
             }
         }
     }
@@ -222,6 +236,7 @@ public class RenamerUI extends JDialog
 
     private void actionOkClicked(ActionEvent e)
     {
+        setRenamerOptions(-1);
         saveConfigurations();
         savePreferences();
         setVisible(false);
@@ -232,18 +247,18 @@ public class RenamerUI extends JDialog
         if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
         {
             JComboBox comboBoxRenameType = new JComboBox<>();
-            comboBoxRenameType.setModel(new DefaultComboBoxModel<>(new String[] {
+            comboBoxRenameType.setModel(new DefaultComboBoxModel<>(new String[]{
                     "Rename Type"
             }));
 
             // set Rename Type combobox
             String message = guiContext.cfg.gs("RenameUI.type.combobox.select.type");
             comboBoxRenameType.removeAllItems();
-            comboBoxRenameType.addItem(guiContext.cfg.gs("RenameUI.type.combobox.case.change")); // 0
-            comboBoxRenameType.addItem(guiContext.cfg.gs("RenameUI.type.combobox.insert"));
-            comboBoxRenameType.addItem(guiContext.cfg.gs("RenameUI.type.combobox.numbering"));
-            comboBoxRenameType.addItem(guiContext.cfg.gs("RenameUI.type.combobox.replace"));
-            comboBoxRenameType.addItem(guiContext.cfg.gs("RenameUI.type.combobox.remove")); // 5
+            comboBoxRenameType.addItem(displayNames[0]);
+            comboBoxRenameType.addItem(displayNames[1]);
+            comboBoxRenameType.addItem(displayNames[2]);
+            comboBoxRenameType.addItem(displayNames[3]);
+            comboBoxRenameType.addItem(displayNames[4]);
 
             Object[] params = {message, comboBoxRenameType};
 
@@ -256,21 +271,19 @@ public class RenamerUI extends JDialog
                 renamer.setDataHasChanged();
 
                 renamer.setType(comboBoxRenameType.getSelectedIndex());
-                ((CardLayout)panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[renamer.getType()]);
+                ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[renamer.getType()]);
                 labelRenameType.setText(displayNames[renamer.getType()]);
 
                 configModel.addRow(new Object[]{renamer});
+                buttonCopy.setEnabled(true);
+                buttonDelete.setEnabled(true);
+                buttonRun.setEnabled(true);
+                buttonRefresh.setEnabled(true);
 
-                if (configModel.getRowCount() > 0)
-                {
-                    buttonCopy.setEnabled(true);
-                    buttonDelete.setEnabled(true);
-                    buttonRun.setEnabled(true);
-                    buttonRefresh.setEnabled(true);
-                }
-
-                configItems.editCellAt(configModel.getRowCount() - 1, 0);
-                configItems.changeSelection(configModel.getRowCount() - 1, configModel.getRowCount() - 1, false, false);
+                currentConfigIndex = configModel.getRowCount() - 1;
+                loadOptions(currentConfigIndex);
+                configItems.editCellAt(currentConfigIndex, 0);
+                configItems.changeSelection(currentConfigIndex, currentConfigIndex, false, false);
                 configItems.getEditorComponent().requestFocus();
                 ((JTextField) configItems.getEditorComponent()).selectAll();
             }
@@ -289,6 +302,7 @@ public class RenamerUI extends JDialog
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
+            currentConfigIndex = index;
             RenamerTool tool = (RenamerTool) configModel.getValueAt(index, 0);
             workerRenamer = tool.clone();
             processSelected(workerRenamer);
@@ -297,6 +311,7 @@ public class RenamerUI extends JDialog
 
     private void actionRefreshClicked(ActionEvent e)
     {
+        loadTable();
     }
 
     public boolean checkForChanges()
@@ -316,12 +331,19 @@ public class RenamerUI extends JDialog
 
     private void configItemsMouseClicked(MouseEvent e)
     {
+/*
         JTable src = (JTable) e.getSource();
         if (e.getClickCount() == 1)
         {
             int index = src.getSelectedRow();
-            loadOptions(index);
+            if (index != currentConfigIndex)
+            {
+                setRenamerOptions(currentConfigIndex);
+                currentConfigIndex = index;
+                loadOptions(currentConfigIndex);
+            }
         }
+*/
     }
 
     public ArrayList<RenamerTool> getDeletedTools()
@@ -371,6 +393,7 @@ public class RenamerUI extends JDialog
             configItems.requestFocus();
             configItems.setRowSelectionInterval(0, 0);
         }
+        currentConfigIndex = 0;
     }
 
     private void loadOptions(int index)
@@ -380,16 +403,133 @@ public class RenamerUI extends JDialog
         {
             renamer = (RenamerTool) configModel.getValueAt(index, 0);
         }
-        else
-        {
-            // TODO empty Renamer
-        }
 
         if ((index >= 0 && index < configModel.getRowCount()) && renamer != null)
         {
-            ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[renamer.getType()]);
             labelRenameType.setText(displayNames[renamer.getType()]);
+            comboBoxFilenameSegment.setSelectedIndex(renamer.getSegment());
+
+            ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[renamer.getType()]);
+
+            // populate card
+            switch (renamer.getType())
+            {
+                case 0: // Case change
+                    //buttonGroupChangeCase.setSelected(null, false);
+                    Enumeration<AbstractButton> elements = buttonGroupChangeCase.getElements();
+                    if (renamer.getText1().length() == 0)
+                    {
+                        AbstractButton button = elements.nextElement();
+                        button.setSelected(true);
+                    }
+                    else
+                    {
+                        while (elements.hasMoreElements())
+                        {
+                            AbstractButton button = elements.nextElement();
+                            if (button.getActionCommand().equals(renamer.getText1()))
+                                button.setSelected(true);
+                            else
+                                button.setSelected(false);
+                        }
+                    }
+                    break;
+                case 1: // Insert
+                    textFieldToInsert.setText(renamer.getText1());
+                    textFieldInsertPosition.setText(renamer.getText2());
+                    checkBoxInsertFromEnd.setSelected(renamer.isOption1());
+                    checkBoxInsertOverwrite.setSelected(renamer.isOption2());
+                    break;
+                case 2: // Numbering
+                    textFieldStart.setText(renamer.getText1());
+                    textFieldZeros.setText(renamer.getText2());
+                    textFieldNumberingPosition.setText(renamer.getText3());
+                    checkBoxNumberingFromEnd.setSelected(renamer.isOption1());
+                    checkBoxNumberingOverwrite.setSelected(renamer.isOption2());
+                    break;
+                case 3: // Remove
+                    textFieldFrom.setText(renamer.getText1());
+                    textFieldLength.setText(renamer.getText2());
+                    checkBoxRemoveFromEnd.setSelected(renamer.isOption1());
+                    break;
+                case 4: // Replace
+                    textFieldFind.setText(renamer.getText1());
+                    textFieldReplace.setText(renamer.getText2());
+                    checkBoxRegularExpr.setSelected(renamer.isOption1());
+                    checkBoxCase.setSelected(renamer.isOption2());
+                    break;
+            }
         }
+        else
+        {
+            ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[0]);
+            labelRenameType.setText(displayNames[0]);
+        }
+    }
+
+    private void loadTable()
+    {
+        changeModel = new ChangesTableModel(guiContext.cfg);
+        tableChanges.removeAll();
+
+        isSubscriber = makeChangeStringsFromSelected();
+        if (changeStrings != null && changeStrings.length > 0)
+        {
+            for (int index = 0; index < changeStrings.length; ++index)
+            {
+                changeModel.addRow(new Object[]{changeStrings[index][0], changeStrings[index][1]});
+            }
+        }
+
+        tableChanges.setModel(changeModel);
+        changeModel.fireTableDataChanged();
+    }
+
+    public boolean makeChangeStringsFromSelected()
+    {
+        int index = 0;
+        boolean isSubscriber = false;
+
+        Object object = guiContext.browser.lastComponent;
+        if (object instanceof JTree)
+        {
+            JTree sourceTree = (JTree) object;
+            int row = sourceTree.getLeadSelectionRow();
+            if (row > -1)
+            {
+                changeStrings = new String[sourceTree.getSelectionCount()][2];
+                TreePath[] paths = sourceTree.getSelectionPaths();
+                for (TreePath tp : paths)
+                {
+                    NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                    NavTreeUserObject tuo = ntn.getUserObject();
+                    isSubscriber = tuo.isSubscriber();
+                    changeStrings[index][0] = tuo.name;
+                    changeStrings[index][1] = tuo.name;
+                    ++index;
+                }
+            }
+        }
+        else if (object instanceof JTable)
+        {
+            JTable sourceTable = (JTable) object;
+            int row = sourceTable.getSelectedRow();
+            if (row > -1)
+            {
+                changeStrings = new String[sourceTable.getSelectedRowCount()][2];
+                int[] rows = sourceTable.getSelectedRows();
+                for (int i = 0; i < rows.length; ++i)
+                {
+                    NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                    isSubscriber = tuo.isSubscriber();
+                    changeStrings[index][0] = tuo.name;
+                    changeStrings[index][1] = tuo.name;
+                    ++index;
+                }
+            }
+        }
+
+        return isSubscriber;
     }
 
     public void processSelected(RenamerTool renamer)
@@ -575,6 +715,70 @@ public class RenamerUI extends JDialog
         }
     }
 
+    private void setRenamerOptions(int index)
+    {
+        if (index < 0)
+            index = currentConfigIndex;
+
+        RenamerTool renamer = (RenamerTool) configItems.getModel().getValueAt(index, 0);
+        setRenamerOptions(renamer);
+    }
+
+    private void setRenamerOptions(RenamerTool renamer)
+    {
+        if (renamer != null)
+        {
+            renamer.setSegment(comboBoxFilenameSegment.getSelectedIndex());
+            switch (renamer.getType())
+            {
+                case 0: // Case change
+                    Enumeration<AbstractButton> elements = buttonGroupChangeCase.getElements();
+                    while (elements.hasMoreElements())
+                    {
+                        AbstractButton button = elements.nextElement();
+                        if (button.isSelected())
+                        {
+                            String act = button.getActionCommand();
+                            renamer.setText1(act);
+                        }
+                    }
+                    renamer.setText2("");
+                    renamer.setText3("");
+                    renamer.setOption1(false);
+                    renamer.setOption2(false);
+                    break;
+                case 1: // Insert
+                    renamer.setText1(textFieldToInsert.getText());
+                    renamer.setText2(textFieldInsertPosition.getText());
+                    renamer.setText3("");
+                    renamer.setOption1(checkBoxInsertFromEnd.isSelected());
+                    renamer.setOption2(checkBoxInsertOverwrite.isSelected());
+                    break;
+                case 2: // Numbering
+                    renamer.setText1(textFieldStart.getText());
+                    renamer.setText2(textFieldZeros.getText());
+                    renamer.setText3(textFieldNumberingPosition.getText());
+                    renamer.setOption1(checkBoxNumberingFromEnd.isSelected());
+                    renamer.setOption2(checkBoxNumberingOverwrite.isSelected());
+                    break;
+                case 3: // Remove
+                    renamer.setText1(textFieldFrom.getText());
+                    renamer.setText2(textFieldLength.getText());
+                    renamer.setText3("");
+                    renamer.setOption1(checkBoxRemoveFromEnd.isSelected());
+                    renamer.setOption2(false);
+                    break;
+                case 4: // Replace
+                    renamer.setText1(textFieldFind.getText());
+                    renamer.setText2(textFieldReplace.getText());
+                    renamer.setText3("");
+                    renamer.setOption1(checkBoxRegularExpr.isSelected());
+                    renamer.setOption2(checkBoxCase.isSelected());
+                    break;
+            }
+        }
+    }
+
     private void windowClosing(WindowEvent e)
     {
         cancelButton.doClick();
@@ -665,12 +869,13 @@ public class RenamerUI extends JDialog
         checkBoxRegularExpr = new JCheckBox();
         checkBoxCase = new JCheckBox();
         scrollPaneExamples = new JScrollPane();
-        tableExamples = new JTable();
+        tableChanges = new JTable();
         panelOptionsButtons = new JPanel();
         buttonRefresh = new JButton();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
+        buttonGroupChangeCase = new ButtonGroup();
 
         //======== this ========
         setTitle(guiContext.cfg.gs("Renamer.title"));
@@ -887,6 +1092,7 @@ public class RenamerUI extends JDialog
                                             //---- radioButtonFirstUpperCase ----
                                             radioButtonFirstUpperCase.setText(guiContext.cfg.gs("Renamer.radioButtonFirstUpperCase.text"));
                                             radioButtonFirstUpperCase.setHorizontalAlignment(SwingConstants.CENTER);
+                                            radioButtonFirstUpperCase.setActionCommand("firstupper");
                                             panelCaseChangeCard.add(radioButtonFirstUpperCase);
 
                                             //---- radioButtonLowerCase ----
@@ -897,11 +1103,13 @@ public class RenamerUI extends JDialog
                                             //---- radioButtonTitleCase ----
                                             radioButtonTitleCase.setText(guiContext.cfg.gs("Renamer.radioButtonTitleCase.text"));
                                             radioButtonTitleCase.setHorizontalAlignment(SwingConstants.CENTER);
+                                            radioButtonTitleCase.setActionCommand("titlecase");
                                             panelCaseChangeCard.add(radioButtonTitleCase);
 
                                             //---- radioButtonUpperCase ----
                                             radioButtonUpperCase.setText(guiContext.cfg.gs("Renamer.radioButtonUpperCase.text"));
                                             radioButtonUpperCase.setHorizontalAlignment(SwingConstants.CENTER);
+                                            radioButtonUpperCase.setActionCommand("upper");
                                             panelCaseChangeCard.add(radioButtonUpperCase);
                                         }
                                         panelOptionsCards.add(panelCaseChangeCard, "cardCaseChange");
@@ -1225,10 +1433,10 @@ public class RenamerUI extends JDialog
                         //======== scrollPaneExamples ========
                         {
 
-                            //---- tableExamples ----
-                            tableExamples.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                            tableExamples.setRowSelectionAllowed(false);
-                            tableExamples.setModel(new DefaultTableModel(
+                            //---- tableChanges ----
+                            tableChanges.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                            tableChanges.setRowSelectionAllowed(false);
+                            tableChanges.setModel(new DefaultTableModel(
                                 new Object[][] {
                                     {null, null},
                                     {null, null},
@@ -1237,8 +1445,9 @@ public class RenamerUI extends JDialog
                                     "Browser Selections", "New Name"
                                 }
                             ));
-                            tableExamples.setFillsViewportHeight(true);
-                            scrollPaneExamples.setViewportView(tableExamples);
+                            tableChanges.setFillsViewportHeight(true);
+                            tableChanges.setFocusable(false);
+                            scrollPaneExamples.setViewportView(tableChanges);
                         }
                         panelOptions.add(scrollPaneExamples, BorderLayout.CENTER);
 
@@ -1293,7 +1502,6 @@ public class RenamerUI extends JDialog
         setLocationRelativeTo(getOwner());
 
         //---- buttonGroupChangeCase ----
-        ButtonGroup buttonGroupChangeCase = new ButtonGroup();
         buttonGroupChangeCase.add(radioButtonFirstUpperCase);
         buttonGroupChangeCase.add(radioButtonLowerCase);
         buttonGroupChangeCase.add(radioButtonTitleCase);
@@ -1379,12 +1587,13 @@ public class RenamerUI extends JDialog
     private JCheckBox checkBoxRegularExpr;
     private JCheckBox checkBoxCase;
     private JScrollPane scrollPaneExamples;
-    private JTable tableExamples;
+    private JTable tableChanges;
     private JPanel panelOptionsButtons;
     private JButton buttonRefresh;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;
+    private ButtonGroup buttonGroupChangeCase;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //
     // @formatter:on
