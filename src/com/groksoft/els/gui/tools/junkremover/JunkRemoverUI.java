@@ -4,6 +4,7 @@ import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.jobs.Origins;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
@@ -493,7 +494,7 @@ public class JunkRemoverUI extends JDialog
             try
             {
                 ArrayList<Origin> origins = new ArrayList<Origin>();
-                isSubscriber = Origin.makeOriginsFromSelected(this, origins);
+                isSubscriber = Origins.makeOriginsFromSelected(this, origins);
 
                 if (origins != null && origins.size() > 0)
                 {
@@ -583,6 +584,8 @@ public class JunkRemoverUI extends JDialog
     {
         if (guiContext.progress != null)
             guiContext.progress.done();
+
+        // TODO restore selection(s)
 
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

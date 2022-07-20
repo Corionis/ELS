@@ -16,7 +16,7 @@ import com.groksoft.els.repository.Repository;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOCase;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,8 +27,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.Serializable;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -49,8 +47,8 @@ public class RenamerTool extends AbstractTool
     private boolean option2 = false;
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
-    transient private int deleteCount = 0;
-    transient private boolean dualRepositories = true; // used by GUI, always false for this tool
+    transient private int renameCount = 0;
+    transient private boolean dualRepositories = false; // used by GUI, always false for this tool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private boolean isRemote;
@@ -76,12 +74,111 @@ public class RenamerTool extends AbstractTool
     {
         assert guiContext != null;
         RenamerTool renamer = new RenamerTool(guiContext, guiContext.cfg, guiContext.context);
-        renamer.setConfigName(getConfigName());
-        renamer.setDisplayName(getDisplayName());
+        renamer.setConfigName(this.getConfigName());
+        renamer.setDisplayName(this.getDisplayName());
         renamer.setDataHasChanged();
-        renamer.setIncludeInToolsList(isIncludeInToolsList());
-
+        renamer.setIncludeInToolsList(this.isIncludeInToolsList());
+        renamer.isDryRun = this.isDryRun;
+        renamer.isRemote = this.isRemote;
+        renamer.setType(this.getType());
+        renamer.setSegment(this.getSegment());
+        renamer.setText1(this.getText1());
+        renamer.setText2(this.getText2());
+        renamer.setText3(this.getText3());
+        renamer.setOption1(this.isOption1());
+        renamer.setOption2(this.option2);
         return renamer;
+    }
+
+    public String exec(String wholeName)
+    {
+        String change = "";
+        String value = "";
+
+        if (wholeName != null && wholeName.length() > 0)
+        {
+            String name = FilenameUtils.getBaseName(wholeName);
+            String ext = FilenameUtils.getExtension(wholeName);
+
+            switch (getSegment())
+            {
+                case 0: // Name only
+                    value = name;
+                    break;
+                case 1: // Extension only
+                    value = ext;
+                    break;
+                case 2: // Whole filename
+                    value = wholeName;
+                    break;
+            }
+
+            switch (getType())
+            {
+                case 0: // Case change
+                    change = execCaseChange(value);
+                    break;
+                case 1: // Insert
+                    break;
+                case 2: // Numbering
+                    break;
+                case 3: // Remove
+                    break;
+                case 4: // Replace
+                    break;
+            }
+
+            switch (getSegment())
+            {
+                case 0: // Name only
+                    value = change + (ext.length() > 0 ? "." + ext : "");
+                    break;
+                case 1: // Extension only
+                    value = name + "." + change;
+                    break;
+                case 2: // Whole filename
+                    value = change;
+                    break;
+            }
+        }
+        return value;
+    }
+
+    public String execCaseChange(String value)
+    {
+        switch (getText1())
+        {
+            case "firstupper" :
+                value = value.toLowerCase(cfg.bundle().getLocale());
+                String first = value.substring(0, 1);
+                first = first.toUpperCase(cfg.bundle().getLocale());
+                value = first + ((value.length() > 1) ? value.substring(1) : "");
+                break;
+            case "lower":
+                value = value.toLowerCase(cfg.bundle().getLocale());
+                break;
+            case "titlecase":
+                int sc = StringUtils.countMatches(value, " ");
+                int pc = StringUtils.countMatches(value, ".");
+                int m = (getSegment() == 2 ? 2 : 1);
+                String sep = (pc > m && pc > sc) ? "\\." : " ";
+                String[] split = value.split(sep);
+                value = "";
+                for (int i = 0; i < split.length; ++i)
+                {
+                    String word = split[i];
+                    word = word.toLowerCase(cfg.bundle().getLocale());
+                    String fc = word.substring(0, 1);
+                    fc = fc.toUpperCase(cfg.bundle().getLocale());
+                    word = fc + ((word.length() > 1) ? word.substring(1) : "");
+                    value = value + (value.length() > 0 ? (sep != " " ? "." : " ") : "") + word;
+                }
+                break;
+            case "upper":
+                value = value.toUpperCase(cfg.bundle().getLocale());
+                break;
+        }
+        return value;
     }
 
     private int expandOrigins(ArrayList<Origin> origins) throws MungeException
@@ -216,6 +313,7 @@ public class RenamerTool extends AbstractTool
     public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
     {
         reset();
+        isDryRun = dryRun;
 
         if (publisherRepo != null && subscriberRepo != null)
             throw new MungeException(java.text.MessageFormat.format(cfg.gs("Renamer.uses.only.one.repository"), getInternalName()));
@@ -223,12 +321,14 @@ public class RenamerTool extends AbstractTool
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
 
+/*
         if (origins == null || origins.size() == 0)
         {
             Origin o = new Origin(repo.getLibraryData().libraries.description, NavTreeUserObject.COLLECTION);
             origins = new ArrayList<Origin>();
             origins.add(o);
         }
+*/
 
         // expand origins into physical toolPaths
         int count = expandOrigins(origins);
@@ -249,15 +349,15 @@ public class RenamerTool extends AbstractTool
             else
                 logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
 
-            scanForJunk(path);
+            scan(path);
         }
 
         if (guiContext != null)
         {
-            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
+            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + renameCount);
 
             // reset and reload relevant trees
-            if (!isDryRun && deleteCount > 0)
+            if (!isDryRun && renameCount > 0)
             {
                 if (!repo.isSubscriber())
                 {
@@ -273,7 +373,7 @@ public class RenamerTool extends AbstractTool
         }
         else
         {
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount);
         }
     }
 
@@ -345,7 +445,7 @@ public class RenamerTool extends AbstractTool
 
     public void reset()
     {
-        deleteCount = 0;
+        renameCount = 0;
         resetStop();
         toolPaths = new ArrayList<>();
         if (logger == null)
@@ -362,7 +462,7 @@ public class RenamerTool extends AbstractTool
 
     }
 
-    private boolean scanForJunk(String path)
+    private boolean scan(String path)
     {
         boolean hadError = false;
 
@@ -387,25 +487,32 @@ public class RenamerTool extends AbstractTool
                         }
                         if (attrs.isDir())
                         {
-                            scanForJunk(fullpath);
+                            scan(fullpath);
                         }
                         else
                         {
-/*
-                            for (JunkItem ji : junkList)
+                            String change = exec(filename);
+                            if (!filename.equals(change))
                             {
-                                if (isRequestStop())
-                                    break;
-                                if (match(filename, fullpath, ji))
+                                String left = Utils.getLeftPath(fullpath, repo.getSeparator());
+                                String newPath = left + repo.getSeparator() + change;
+                                if (!isDryRun)
                                 {
-                                    if (!isDryRun)
-                                    {
-                                        //getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
-                                        ++deleteCount;
-                                    }
+                                    getContext().transfer.rename(fullpath, newPath, isRemote);
+                                    ++renameCount;
+                                    if (guiContext != null)
+                                        guiContext.browser.printLog(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+                                    else
+                                        logger.info(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+                                }
+                                else
+                                {
+                                    if (guiContext != null)
+                                        guiContext.browser.printLog(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
+                                    else
+                                        logger.info(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
                                 }
                             }
-*/
                         }
                     }
                 }
@@ -446,27 +553,35 @@ public class RenamerTool extends AbstractTool
                     {
                         guiContext.progress.update(" " + filename);
                     }
+                    String fullpath = entry.getAbsolutePath();
                     if (entry.isDirectory())
                     {
-                        scanForJunk(entry.getAbsolutePath());
+                        scan(fullpath);
                     }
                     else
                     {
-/*
-                        for (JunkItem ji : junkList)
+                        String change = exec(filename);
+                        if (!filename.equals(change))
                         {
-                            if (isRequestStop())
-                                break;
-                            if (match(filename, entry.getAbsolutePath(), ji))
+                            String left = Utils.getLeftPath(fullpath, repo.getSeparator());
+                            String newPath = left + repo.getSeparator() + change;
+                            if (!isDryRun)
                             {
-                                if (!isDryRun)
-                                {
-                                    //getContext().transfer.remove(entry.getAbsolutePath(), entry.isDirectory(), isRemote());
-                                    ++deleteCount;
-                                }
+                                getContext().transfer.rename(fullpath, newPath, isRemote);
+                                ++renameCount;
+                                if (guiContext != null)
+                                    guiContext.browser.printLog(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+                                else
+                                    logger.info(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+                            }
+                            else
+                            {
+                                if (guiContext != null)
+                                    guiContext.browser.printLog(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
+                                else
+                                    logger.info(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
                             }
                         }
-*/
                     }
                 }
             }
@@ -495,14 +610,6 @@ public class RenamerTool extends AbstractTool
     public void setDataHasChanged()
     {
         dataHasChanged = true;
-    }
-
-    public void setGuiContext(GuiContext guicontext)
-    {
-        this.guiContext = guicontext;
-        this.cfg = guicontext.cfg;
-        this.context = guicontext.context;
-        setDisplayName(getCfg().gs("Renamer.displayName"));
     }
 
 /*

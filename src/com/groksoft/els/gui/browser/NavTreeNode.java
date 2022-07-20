@@ -238,22 +238,40 @@ public class NavTreeNode extends DefaultMutableTreeNode
 
     public NavTreeNode findChildName(String name)
     {
-        NavTreeNode value = null;
+        return findChildName(name, 1);
+    }
+
+    public NavTreeNode findChildName(String name, int occurrence)
+    {
+        NavTreeNode ntn = null;
         if (children != null)
         {
+            int count = 0;
             Enumeration e = children.elements();
             while (e.hasMoreElements())
             {
                 NavTreeNode node = (NavTreeNode) e.nextElement();
                 NavTreeUserObject tuo = node.getUserObject();
+                //boolean match =
                 if (tuo.name.equals(name))
                 {
-                    value = node;
-                    break;
+                    ++count;
+                    if (count == occurrence)
+                    {
+                        ntn = node;
+                        break;
+                    }
+                }
+                else
+                {
+                    // if count > 0 one or more were found and
+                    // this is past any that might match - avoids an infinite loop
+                    if (count > 0)
+                        break;
                 }
             }
         }
-        return value;
+        return ntn;
     }
 
     public NavTreeNode findChildTuoPath(String path, boolean recursive)
@@ -613,7 +631,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         ((BrowserTableModel) btm).setNode(this);
 
         // initialize model when there are columns; done once per table
-        if (!((BrowserTableModel)btm).isInitialized() && btm.getColumnCount() > 0)
+        if (!((BrowserTableModel) btm).isInitialized() && btm.getColumnCount() > 0)
         {
             // restore saved column sizes
             guiContext.preferences.fixColumnSizes(guiContext, myTable);

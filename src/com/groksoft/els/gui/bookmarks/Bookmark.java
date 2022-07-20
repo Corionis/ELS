@@ -6,7 +6,7 @@ public class Bookmark implements Serializable
 {
     public String name;
     public String panel;
-    public String[] path;
+    public String[] pathElements;
 
     public String toString()
     {

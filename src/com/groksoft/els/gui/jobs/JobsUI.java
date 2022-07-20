@@ -9,15 +9,12 @@ import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
-import com.groksoft.els.jobs.Jobs;
+import com.groksoft.els.jobs.*;
 import com.groksoft.els.repository.Repositories;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.gui.util.RotatedIcon;
 import com.groksoft.els.gui.util.TextIcon;
-import com.groksoft.els.jobs.Job;
-import com.groksoft.els.jobs.Origin;
-import com.groksoft.els.jobs.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,7 +31,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -315,7 +311,7 @@ public class JobsUI extends JDialog
         {
             ArrayList<Origin> origins = new ArrayList<Origin>();
             // TODO match pub/sub combo for source ;; OR show warning when selection does not match
-            boolean isSubscriber = Origin.makeOriginsFromSelected(this, origins); // can return null
+            boolean isSubscriber = Origins.makeOriginsFromSelected(this, origins); // can return null
             if (origins != null && origins.size() > 0)
             {
                 listOrigins.requestFocus();
@@ -1261,6 +1257,8 @@ public class JobsUI extends JDialog
     {
         if (guiContext.progress != null)
             guiContext.progress.done();
+
+        // TODO restore selection(s)
 
         guiContext.navigator.disableGui(false);
         setComponentEnabled(true);

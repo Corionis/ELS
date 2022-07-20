@@ -210,6 +210,7 @@ public class JunkRemoverTool extends AbstractTool
     public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
     {
         reset();
+        isDryRun = dryRun;
 
         if (publisherRepo != null && subscriberRepo != null)
             throw new MungeException(java.text.MessageFormat.format(cfg.gs("JunkRemover.uses.only.one.repository"), getInternalName()));
@@ -217,12 +218,14 @@ public class JunkRemoverTool extends AbstractTool
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
 
+/*
         if (origins == null || origins.size() == 0)
         {
             Origin o = new Origin(repo.getLibraryData().libraries.description, NavTreeUserObject.COLLECTION);
             origins = new ArrayList<Origin>();
             origins.add(o);
         }
+*/
 
         // expand origins into physical toolPaths
         int count = expandOrigins(origins);
@@ -383,8 +386,19 @@ public class JunkRemoverTool extends AbstractTool
                                 {
                                     if (!isDryRun)
                                     {
-                                        //getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
+                                        getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
                                         ++deleteCount;
+                                        if (guiContext != null)
+                                            guiContext.browser.printLog(cfg.gs("Z.deleted") + fullpath);
+                                        else
+                                            logger.info(cfg.gs("Z.deleted") + fullpath);
+                                    }
+                                    else
+                                    {
+                                        if (guiContext != null)
+                                            guiContext.browser.printLog(cfg.gs("Z.would.delete") + fullpath);
+                                        else
+                                            logger.info(cfg.gs("Z.would.delete") + fullpath);
                                     }
                                 }
                             }
@@ -428,9 +442,10 @@ public class JunkRemoverTool extends AbstractTool
                     {
                         guiContext.progress.update(" " + filename);
                     }
+                    String fullpath = entry.getAbsolutePath();
                     if (entry.isDirectory())
                     {
-                        scanForJunk(entry.getAbsolutePath());
+                        scanForJunk(fullpath);
                     }
                     else
                     {
@@ -438,12 +453,23 @@ public class JunkRemoverTool extends AbstractTool
                         {
                             if (isRequestStop())
                                 break;
-                            if (match(filename, entry.getAbsolutePath(), ji))
+                            if (match(filename, fullpath, ji))
                             {
                                 if (!isDryRun)
                                 {
-                                    //getContext().transfer.remove(entry.getAbsolutePath(), entry.isDirectory(), isRemote());
+                                    getContext().transfer.remove(fullpath, entry.isDirectory(), isRemote());
                                     ++deleteCount;
+                                    if (guiContext != null)
+                                        guiContext.browser.printLog(cfg.gs("Z.deleted") + fullpath);
+                                    else
+                                        logger.info(cfg.gs("Z.deleted") + fullpath);
+                                }
+                                else
+                                {
+                                    if (guiContext != null)
+                                        guiContext.browser.printLog(cfg.gs("Z.would.delete") + fullpath);
+                                    else
+                                        logger.info(cfg.gs("Z.would.delete") + fullpath);
                                 }
                             }
                         }
@@ -475,14 +501,6 @@ public class JunkRemoverTool extends AbstractTool
     public void setDataHasChanged()
     {
         dataHasChanged = true;
-    }
-
-    public void setGuiContext(GuiContext guicontext)
-    {
-        this.guiContext = guicontext;
-        this.cfg = guicontext.cfg;
-        this.context = guicontext.context;
-        setDisplayName(getCfg().gs("JunkRemover.displayName"));
     }
 
     public void setJunkList(ArrayList<JunkItem> junkList)

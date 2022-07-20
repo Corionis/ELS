@@ -453,12 +453,12 @@ public class Browser
                 TreePath tp = node.getTreePath();
                 if (tp.getPathCount() > 0)
                 {
-                    bm.path = new String[tp.getPathCount()];
+                    bm.pathElements = new String[tp.getPathCount()];
                     Object[] objs = tp.getPath();
                     for (int i = 0; i < tp.getPathCount(); ++i)
                     {
                         node = (NavTreeNode) objs[i];
-                        bm.path[i] = node.getUserObject().name;
+                        bm.pathElements[i] = node.getUserObject().name;
                     }
                     guiContext.navigator.bookmarks.add(bm);
                     try
@@ -487,89 +487,29 @@ public class Browser
     {
         String panelName = bookmark.panel.toLowerCase();
 
-        // determine which of the 4 trees
+        // determine which
         JTree tree;
         if (panelName.endsWith("one")) // publisher
-        {
             tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionOne : guiContext.mainFrame.treeSystemOne;
-        }
         else // subscriber
-        {
             tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionTwo : guiContext.mainFrame.treeSystemTwo;
-        }
 
         NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
         // root should be first path element
-        if (node.getUserObject().name.equals(bookmark.path[0]))
+        if (node.getUserObject().name.equals(bookmark.pathElements[0]))
         {
-            int nodeIndex = 0;
-            NavTreeNode[] nodes = new NavTreeNode[bookmark.path.length];
-            nodes[nodeIndex++] = node;
-
-            // find or scan each path segment
-            NavTreeNode next;
-            for (int i = 1; i < bookmark.path.length; ++i)
-            {
-                next = node.findChildName(bookmark.path[i]);
-                if (next != null)
-                {
-                    nodes[nodeIndex++] = next;
-                    node = next;
-                }
-                else
-                {
-                    if (node.getUserObject().isDir)
-                    {
-                        node.deepScanChildren(false);
-                    }
-                    next = node.findChildName(bookmark.path[i]);
-                    if (next != null)
-                    {
-                        nodes[nodeIndex++] = next;
-                        node = next;
-                    }
-                    else
-                        break;
-                }
-            }
-
-            // remove last segment if it's a file but not being shown, or a directory in the table
-            TreePath tp;
-            if ((!nodes[nodeIndex - 1].getUserObject().isDir && guiContext.preferences.isHideFilesInTree()) ||
-                    (nodes[nodeIndex - 1].getUserObject().isDir && panelName.startsWith("table")))
-            {
-                NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
-                for (int j = 0; j < nodeIndex - 1; ++j)
-                    navNodes[j] = nodes[j];
-                tp = new TreePath(navNodes);
-            }
-            else
-                tp = new TreePath(nodes);
-
             // select the Browser tab and one of it's 8 panels
             guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
             int panelNo = guiContext.browser.getPanelNumber(bookmark.panel);
             guiContext.browser.selectPanelNumber(panelNo);
 
-            // expand, scroll to and select the node tree
-            tree.expandPath(tp);
-            tree.scrollPathToVisible(tp);
-            tree.setSelectionPath(tp);
-
-            // highlight item if it's a table
-            if (panelName.startsWith("table"))
-            {
-                JTable table = (JTable) guiContext.browser.getTabComponent(panelNo);
-                if (table != null)
-                {
-                    table.requestFocus();
-                    int index = guiContext.browser.findRowIndex(table, bookmark.path[bookmark.path.length - 1]);
-                    if (index > -1)
-                    {
-                        table.setRowSelectionInterval(index, index);
-                    }
-                }
-            }
+            scanSelectPath(panelName, bookmark.pathElements);
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(guiContext.mainFrame,
+                    java.text.MessageFormat.format(guiContext.cfg.gs("Browser.library.is.not.loaded"), bookmark.pathElements[0]),
+                    guiContext.cfg.gs("Navigator.menu.Bookmarks.text"), JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -888,30 +828,31 @@ public class Browser
         int panelNo = -1;
         if (name.length() > 0)
         {
+            name = name.toLowerCase();
             switch (name)
             {
-                case "treeCollectionOne":
+                case "treecollectionone":
                     panelNo = 0;
                     break;
-                case "tableCollectionOne":
+                case "tablecollectionone":
                     panelNo = 1;
                     break;
-                case "treeSystemOne":
+                case "treesystemone":
                     panelNo = 2;
                     break;
-                case "tableSystemOne":
+                case "tablesystemone":
                     panelNo = 3;
                     break;
-                case "treeCollectionTwo":
+                case "treecollectiontwo":
                     panelNo = 4;
                     break;
-                case "tableCollectionTwo":
+                case "tablecollectiontwo":
                     panelNo = 5;
                     break;
-                case "treeSystemTwo":
+                case "treesystemtwo":
                     panelNo = 6;
                     break;
-                case "tableSystemTwo":
+                case "tablesystemtwo":
                     panelNo = 7;
                     break;
             }
@@ -1716,6 +1657,128 @@ public class Browser
         }
     }
 
+    public void scanSelectPath(String panelName, String[] pathElements)
+    {
+        if (panelName != null && panelName.length() > 0 && pathElements != null && pathElements.length > 0)
+        {
+            // determine which
+            JTree tree;
+            JTable table;
+            if (panelName.endsWith("one")) // publisher
+            {
+                tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionOne : guiContext.mainFrame.treeSystemOne;
+                table = panelName.contains("collection") ? guiContext.mainFrame.tableCollectionOne : guiContext.mainFrame.tableSystemOne;
+            }
+            else // subscriber
+            {
+                tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionTwo : guiContext.mainFrame.treeSystemTwo;
+                table = panelName.contains("collection") ? guiContext.mainFrame.tableCollectionTwo : guiContext.mainFrame.tableSystemTwo;
+            }
+
+            int nodeIndex = 0;
+            NavTreeNode[] nodes = new NavTreeNode[pathElements.length];
+
+            NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
+            nodes[nodeIndex++] = node;
+
+            // find or scan each path segment
+            NavTreeNode next;
+            int occurrence = 1;
+            for (int i = 1; i < pathElements.length; ++i)
+            {
+                next = node.findChildName(pathElements[i], occurrence);
+                if (next != null)
+                {
+                    nodes[nodeIndex++] = next;
+                    node = next;
+                }
+                else
+                {
+                    // if a directory scan it
+                    if (node.getUserObject().isDir)
+                    {
+                        node.deepScanChildren(false);
+                    }
+                    // search again
+                    next = node.findChildName(pathElements[i]);
+                    if (next != null)
+                    {
+                        nodes[nodeIndex++] = next;
+                        node = next;
+                    }
+                    else // not found, see if there is another occurrence
+                    {
+                        ++occurrence;
+                        node = nodes[nodeIndex - 2];
+                        next = node.findChildName(pathElements[i - 1], occurrence);
+
+                        // if another occurrence step backward and search it
+                        if (next != null)
+                        {
+                            node = next;
+                            --i;
+                            --nodeIndex;
+                            nodes[nodeIndex++] = next;
+                            occurrence = 1;
+                        }
+                        else // not found, use what was found
+                            break;
+                    }
+                }
+            }
+
+            // resize & shuffle if element(s) missing
+            if (nodeIndex != pathElements.length)
+            {
+                NavTreeNode[] shorter = new NavTreeNode[nodeIndex]; // TODO: emit warning path was truncated
+                for (int k = 0; k < nodeIndex; ++k)
+                    shorter[k] = nodes[k];
+                nodes = new NavTreeNode[nodeIndex];
+                for (int k = 0; k < nodeIndex; ++k)
+                    nodes[k] = shorter[k];
+            }
+
+            // remove last segment if it's a file but not being shown, or a directory in the table
+            TreePath tp;
+            if ((!nodes[nodeIndex - 1].getUserObject().isDir && guiContext.preferences.isHideFilesInTree())
+                //    || (nodes[nodeIndex - 1].getUserObject().isDir && panelName.startsWith("table"))
+                )
+            {
+                NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
+                for (int j = 0; j < nodeIndex - 1; ++j)
+                    navNodes[j] = nodes[j];
+                tp = new TreePath(navNodes);
+            }
+            else
+                tp = new TreePath(nodes);
+
+            // expand, scroll to and select the node tree
+            tree.expandPath(tp);
+            tree.scrollPathToVisible(tp);
+            tree.setSelectionPath(tp);
+
+            // highlight item if it's a table
+            if (panelName.startsWith("table"))
+            {
+                int panelNo = guiContext.browser.getPanelNumber(panelName);
+                table = (JTable) guiContext.browser.getTabComponent(panelNo);
+                if (table != null)
+                {
+                    table.requestFocus();
+                    int index = guiContext.browser.findRowIndex(table, pathElements[pathElements.length - 1]);
+                    if (index > -1)
+                    {
+                        table.setRowSelectionInterval(index, index);
+                    }
+                }
+            }
+            else
+            {
+                table.clearSelection();
+            }
+        }
+    }
+
     public String selectLibrarySource(NavTreeUserObject tuo)
     {
         String path = "";
@@ -1800,7 +1863,7 @@ public class Browser
             }
         }
     }
-
+    
     private NavTreeNode setCollectionRoot(JTree tree, String title, boolean remote)
     {
         NavTreeNode root = new NavTreeNode(guiContext, tree);

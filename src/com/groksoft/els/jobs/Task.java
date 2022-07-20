@@ -249,6 +249,15 @@ public class Task implements Comparable, Serializable
         currentTool = tools.loadTool(guiContext, config, ctxt, getInternalName(), getConfigName());
         if (currentTool != null)
         {
+            if (origins == null || origins.size() == 0)
+            {
+                if (guiContext != null)
+                    guiContext.browser.printLog(guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                else
+                    logger.info(config.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                return false;
+            }
+
             // get repos
             Repository pubRepo = getRepo(config, ctxt, getPublisherKey(), true);
             Repository subRepo = getRepo(config, ctxt, getSubscriberKey(), false);
@@ -290,6 +299,15 @@ public class Task implements Comparable, Serializable
         {
             this.guiContext = guiContext;
             currentTool = tool;
+
+            if (origins == null || origins.size() == 0)
+            {
+                if (guiContext != null)
+                    guiContext.browser.printLog(guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                else
+                    logger.info(guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                return null;
+            }
 
             // get repos
             Repository pubRepo = getRepo(guiContext.cfg, guiContext.context, getPublisherKey(), true);

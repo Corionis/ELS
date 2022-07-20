@@ -1518,7 +1518,7 @@ public class Navigator
                         String name = selected.getText();
                         // A -3 offset for Add, Delete and separator
                         int index = findMenuItemIndex(guiContext.mainFrame.menuBookmarks, selected) - 3;
-                        if (index >= 0 && index < bookmarks.size() - 1)
+                        if (index >= 0 && index < bookmarks.size())
                         {
                             Bookmark bm = bookmarks.get(index);
                             if (bm != null)

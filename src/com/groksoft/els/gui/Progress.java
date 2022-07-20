@@ -85,8 +85,11 @@ public class Progress extends JFrame
             this.labelForIcon.setVisible(true);
 
         setVisible(true);
+
         setState(JFrame.NORMAL);
         guiContext.progress.toFront();
+
+        update(guiContext.cfg.gs("Progress.not.active"));
 
         fixedHeight = this.getHeight();
         currentWidth = this.getWidth();
@@ -98,7 +101,7 @@ public class Progress extends JFrame
 
         // clear the progress content
         labelForIcon.setVisible(false);
-        progressTextField.setText("");
+        progressTextField.setText(guiContext.cfg.gs("Progress.not.active"));
         redraw();
 
         setVisible(false);

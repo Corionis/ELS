@@ -166,6 +166,7 @@ new FormModel {
 												addElement( "Extension only" )
 												addElement( "Whole filename" )
 											}
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionFilenameSegmentClicked", true ) )
 										} )
 										add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 											name: "hSpacer2"
@@ -212,12 +213,14 @@ new FormModel {
 													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
 													"horizontalAlignment": 0
 													"actionCommand": "firstupper"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
 												} )
 												add( new FormComponent( "javax.swing.JRadioButton" ) {
 													name: "radioButtonLowerCase"
 													"text": new FormMessage( null, "Renamer.radioButtonLowerCase.text" )
 													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
 													"horizontalAlignment": 0
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
 												} )
 												add( new FormComponent( "javax.swing.JRadioButton" ) {
 													name: "radioButtonTitleCase"
@@ -225,6 +228,7 @@ new FormModel {
 													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
 													"horizontalAlignment": 0
 													"actionCommand": "titlecase"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
 												} )
 												add( new FormComponent( "javax.swing.JRadioButton" ) {
 													name: "radioButtonUpperCase"
@@ -232,6 +236,7 @@ new FormModel {
 													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
 													"horizontalAlignment": 0
 													"actionCommand": "upper"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "cardCaseChange"
