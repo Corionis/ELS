@@ -40,6 +40,7 @@ public class RenamerTool extends AbstractTool
     private String internalName = INTERNAL_NAME;
     private int type = 0;
     private int segment = 0; // 0 = name only, 1 = extension only, 2 = whole filename
+    private boolean recursive = false;
     private String text1 = "";
     private String text2 = "";
     private String text3 = "";
@@ -82,6 +83,7 @@ public class RenamerTool extends AbstractTool
         renamer.setIsRemote(this.isRemote());
         renamer.setType(this.getType());
         renamer.setSegment(this.getSegment());
+        renamer.setIsRecursive(this.isRecursive());
         renamer.setText1(this.getText1());
         renamer.setText2(this.getText2());
         renamer.setText3(this.getText3());
@@ -317,6 +319,11 @@ public class RenamerTool extends AbstractTool
         return realOnly;
     }
 
+    public boolean isRecursive()
+    {
+        return recursive;
+    }
+
     /**
      * Process the tool with the metadata provided
      * <br/>
@@ -510,9 +517,8 @@ public class RenamerTool extends AbstractTool
 
     }
 
-    private boolean scanForRenames(String path, boolean topLevel)
+    private void scanForRenames(String path, boolean topLevel)
     {
-        boolean hadError = false;
         boolean firstDir = false;
 
         if (isRemote())
@@ -532,6 +538,8 @@ public class RenamerTool extends AbstractTool
                     String change = rename(path, filename);
                     boolean changed = !path.equals(change);
                     path = change;
+                    if (!isRecursive())
+                        return;
                 }
                 else if (attrs.isDir())
                     pathIsDir = true;
@@ -555,7 +563,7 @@ public class RenamerTool extends AbstractTool
                         String change = rename(fullpath, filename); // change & rename
                         boolean changed = !fullpath.equals(change);
                         fullpath = change;
-                        if (attrs.isDir())
+                        if (attrs.isDir() && isRecursive())
                         {
                             scanForRenames(fullpath, false);
                         }
@@ -623,7 +631,7 @@ public class RenamerTool extends AbstractTool
                         String change = rename(fullpath, filename); // change & rename
                         boolean changed = !fullpath.equals(change);
                         fullpath = change;
-                        if (isDir && !firstDir)
+                        if (isDir && !firstDir && isRecursive())
                         {
                             scanForRenames(fullpath, false);
                         }
@@ -636,6 +644,8 @@ public class RenamerTool extends AbstractTool
                     }
                     if (rescan)
                     {
+                        if (!isRecursive())
+                            return;
                         firstDir = false;
                         File dir = new File(fullpath);
                         files = FileSystemView.getFileSystemView().getFiles(dir, false);
@@ -654,8 +664,6 @@ public class RenamerTool extends AbstractTool
                     logger.error(msg);
             }
         }
-
-        return hadError;
     }
 
     @Override
@@ -709,6 +717,11 @@ public class RenamerTool extends AbstractTool
             this.option2 = option2;
             setDataHasChanged();
         }
+    }
+
+    public void setIsRecursive(boolean recursive)
+    {
+        this.recursive = recursive;
     }
 
     public void setSegment(int segment)

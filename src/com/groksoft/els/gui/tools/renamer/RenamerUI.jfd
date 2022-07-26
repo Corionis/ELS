@@ -147,9 +147,21 @@ new FormModel {
 										add( new FormComponent( "javax.swing.JLabel" ) {
 											name: "labelRenameType"
 											"text": "Rename Type"
-											"maximumSize": new java.awt.Dimension( 200, 16 )
+											"maximumSize": new java.awt.Dimension( 110, 16 )
 											"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, 1, false )
+											"preferredSize": new java.awt.Dimension( 110, 16 )
+											"minimumSize": new java.awt.Dimension( 110, 16 )
 										} )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "West"
+									} )
+									add( new FormComponent( "javax.swing.JCheckBox" ) {
+										name: "checkBoxRecursive"
+										"text": new FormMessage( null, "Renamer.checkBoxRecursive.text" )
+										"horizontalAlignment": 0
+										"toolTipText": new FormMessage( null, "Renamer.checkBoxRecursive.toolTipText" )
+										"actionCommand": "recursiveChanged"
+										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRecursiveClicked", true ) )
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "Center"
 									} )

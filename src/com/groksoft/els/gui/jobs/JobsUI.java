@@ -1267,8 +1267,6 @@ public class JobsUI extends JDialog
         if (guiContext.progress != null)
             guiContext.progress.done();
 
-        // TODO restore selection(s)
-
         guiContext.navigator.disableGui(false);
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

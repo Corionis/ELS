@@ -159,6 +159,18 @@ public class RenamerUI extends JDialog
         }
     }
 
+    private void actionCaseChangeClicked(ActionEvent e)
+    {
+        if (e.getActionCommand() != null && currentRenamer != null && changeStrings != null)
+        {
+            if (caseChangeActions.contains(e.getActionCommand()))
+            {
+                setRenamerOptions(currentRenamer);
+                processTable();
+            }
+        }
+    }
+
     private void actionCopyClicked(ActionEvent e)
     {
         int index = configItems.getSelectedRow();
@@ -213,6 +225,21 @@ public class RenamerUI extends JDialog
                     loadOptions(index);
                 }
                 currentConfigIndex = index;
+            }
+        }
+    }
+
+    private void actionFilenameSegmentClicked(ActionEvent e)
+    {
+        if (e.getActionCommand() != null)
+        {
+            if (e.getActionCommand().equals("comboBoxChanged"))
+            {
+                if (currentRenamer != null)
+                {
+                    setRenamerOptions(currentRenamer);
+                    processTable();
+                }
             }
         }
     }
@@ -298,6 +325,21 @@ public class RenamerUI extends JDialog
         {
             JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
                     guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void actionRecursiveClicked(ActionEvent e)
+    {
+        if (e.getActionCommand() != null)
+        {
+            if (e.getActionCommand().equals("recursiveChanged"))
+            {
+                if (currentRenamer != null)
+                {
+                    setRenamerOptions(currentRenamer);
+                    processTable();
+                }
+            }
         }
     }
 
@@ -413,6 +455,7 @@ public class RenamerUI extends JDialog
         if ((index >= 0 && index < configModel.getRowCount()) && currentRenamer != null)
         {
             labelRenameType.setText(displayNames[currentRenamer.getType()]);
+            checkBoxRecursive.setSelected(currentRenamer.isRecursive());
             comboBoxFilenameSegment.setSelectedIndex(currentRenamer.getSegment());
 
             ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[currentRenamer.getType()]);
@@ -756,6 +799,7 @@ public class RenamerUI extends JDialog
     {
         if (renamer != null)
         {
+            renamer.setIsRecursive(checkBoxRecursive.isSelected());
             renamer.setSegment(comboBoxFilenameSegment.getSelectedIndex());
             switch (renamer.getType())
             {
@@ -812,33 +856,6 @@ public class RenamerUI extends JDialog
         cancelButton.doClick();
     }
 
-    private void actionCaseChangeClicked(ActionEvent e)
-    {
-        if (e.getActionCommand() != null && currentRenamer != null && changeStrings != null)
-        {
-            if (caseChangeActions.contains(e.getActionCommand()))
-            {
-                setRenamerOptions(currentRenamer);
-                processTable();
-            }
-        }
-    }
-
-    private void actionFilenameSegmentClicked(ActionEvent e)
-    {
-        if (e.getActionCommand() != null)
-        {
-            if (e.getActionCommand().equals("comboBoxChanged"))
-            {
-                if (currentRenamer != null)
-                {
-                    setRenamerOptions(currentRenamer);
-                    processTable();
-                }
-            }
-        }
-    }
-
     // ================================================================================================================
 
     // <editor-fold desc="Generated code (Fold)">
@@ -868,6 +885,7 @@ public class RenamerUI extends JDialog
         panelRenameType = new JPanel();
         hSpacer1 = new JPanel(null);
         labelRenameType = new JLabel();
+        checkBoxRecursive = new JCheckBox();
         panelFilenameSegment = new JPanel();
         comboBoxFilenameSegment = new JComboBox<>();
         hSpacer2 = new JPanel(null);
@@ -1088,11 +1106,21 @@ public class RenamerUI extends JDialog
 
                                     //---- labelRenameType ----
                                     labelRenameType.setText("Rename Type");
-                                    labelRenameType.setMaximumSize(new Dimension(200, 16));
+                                    labelRenameType.setMaximumSize(new Dimension(110, 16));
                                     labelRenameType.setFont(labelRenameType.getFont().deriveFont(labelRenameType.getFont().getSize() + 1f));
+                                    labelRenameType.setPreferredSize(new Dimension(110, 16));
+                                    labelRenameType.setMinimumSize(new Dimension(110, 16));
                                     panelRenameType.add(labelRenameType);
                                 }
-                                topOptions.add(panelRenameType, BorderLayout.CENTER);
+                                topOptions.add(panelRenameType, BorderLayout.WEST);
+
+                                //---- checkBoxRecursive ----
+                                checkBoxRecursive.setText(guiContext.cfg.gs("Renamer.checkBoxRecursive.text"));
+                                checkBoxRecursive.setHorizontalAlignment(SwingConstants.CENTER);
+                                checkBoxRecursive.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxRecursive.toolTipText"));
+                                checkBoxRecursive.setActionCommand("recursiveChanged");
+                                checkBoxRecursive.addActionListener(e -> actionRecursiveClicked(e));
+                                topOptions.add(checkBoxRecursive, BorderLayout.CENTER);
 
                                 //======== panelFilenameSegment ========
                                 {
@@ -1594,6 +1622,7 @@ public class RenamerUI extends JDialog
     private JPanel panelRenameType;
     private JPanel hSpacer1;
     private JLabel labelRenameType;
+    private JCheckBox checkBoxRecursive;
     private JPanel panelFilenameSegment;
     private JComboBox<String> comboBoxFilenameSegment;
     private JPanel hSpacer2;

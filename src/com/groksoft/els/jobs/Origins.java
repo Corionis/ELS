@@ -14,17 +14,35 @@ import static com.groksoft.els.gui.Navigator.guiContext;
 
 public class Origins
 {
+
+    /**
+     * Determine if NavTreeUserObject is a valid selection
+     * @param tuo NavTreeUserObject to check
+     * @param realOnly If the current AbstractTool accepts NavTreeUserObject.REAL items only
+     * @return true if valid, otherwise false
+     */
     private static boolean isValidOrigin(NavTreeUserObject tuo, boolean realOnly)
     {
         if (realOnly && tuo.type == NavTreeUserObject.REAL)
             return true;
-        else if (!realOnly && (tuo.type == NavTreeUserObject.COLLECTION ||
+
+        if (!realOnly && (tuo.type == NavTreeUserObject.COLLECTION ||
                 tuo.type == NavTreeUserObject.LIBRARY ||
                 tuo.type == NavTreeUserObject.REAL))
             return true;
+
         return false;
     }
 
+    /**
+     * Create an ArrayList of Origins from items selected in the Browser
+     *
+     * @param component The component calling this method, for message dialogs
+     * @param origins The ArrayList of Origins to be added to
+     * @param realOnly If the current AbstractTool accepts NavTreeUserObject.REAL items only
+     * @return ArrayList of Origins, or null if any selection is not valid
+     * @throws MungeException with message "HANDLED_INTERNALLY" if a selection is not valid
+     */
     public static boolean makeOriginsFromSelected(Component component, ArrayList<Origin> origins, boolean realOnly) throws MungeException
     {
         boolean isSubscriber = false;
@@ -38,19 +56,23 @@ public class Origins
                 TreePath[] paths = sourceTree.getSelectionPaths();
                 for (TreePath tp : paths)
                 {
-                    NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                    // do not add items that are children of other items
+                    NavTreeNode ctn = (NavTreeNode) tp.getLastPathComponent();
                     boolean child = false;
-                    for (TreePath cp : paths)
+                    for (TreePath sp : paths)
                     {
-                        NavTreeNode ctn = (NavTreeNode) cp.getLastPathComponent();
-                        if (ctn != ntn && ctn.isNodeChild(ntn))
+                        NavTreeNode ntn = (NavTreeNode) sp.getLastPathComponent();
+                        if (ntn != ctn && ntn.isNodeChild(ctn))
                         {
+                            guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("Z.skipping.child"),
+                                ctn.getUserObject().name, ntn.getUserObject().name));
                             child = true;
                         }
                     }
                     if (child)
                         continue;
-                    NavTreeUserObject tuo = ntn.getUserObject();
+
+                    NavTreeUserObject tuo = ctn.getUserObject();
                     if (!isValidOrigin(tuo, realOnly))
                     {
                         JOptionPane.showMessageDialog(component, guiContext.cfg.gs("Z.invalid.selection") + tuo.name,
@@ -87,13 +109,18 @@ public class Origins
                 }
             }
         }
-
         return isSubscriber;
     }
 
-    public static boolean setSelectedFromOrigins(GuiContext guiContext, Component component, ArrayList<Origin> origins)
+    /**
+     * Restore previous selected items based on an ArrayList of Origins
+     *
+     * @param guiContext The GUI operating context
+     * @param component The component calling this method, for message dialogs
+     * @param origins An existing ArrayList of Origins created by makeOriginsFromSelected()
+     */
+    public static void setSelectedFromOrigins(GuiContext guiContext, Component component, ArrayList<Origin> origins)
     {
-        boolean state = true;
         if (origins != null && origins.size() > 0)
         {
             JTree tree;
@@ -149,16 +176,17 @@ public class Origins
                 // select matching items in table
                 JTable table = origin.sourceTable;
                 ListSelectionModel model = table.getSelectionModel();
+                int row = 0;
                 for (int i = 0; i < origins.size(); ++i)
                 {
                     // select all matching table rows
-                    model.addSelectionInterval(origins.get(i).tableRow, origins.get(i).tableRow);
+                    row = origins.get(i).tableRow;
+                    model.addSelectionInterval(row, row);
                 }
                 table.requestFocus();
+                table.scrollRectToVisible(new Rectangle(table.getCellRect(row, row, true)));
             }
         }
-
-        return state;
     }
 
 }
