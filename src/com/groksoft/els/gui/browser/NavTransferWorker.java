@@ -195,8 +195,16 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
             directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, batchSize, targetRepo, targetTuo.isRemote, sourceTuo.path);
-            File physical = new File(directory);
-            directory = physical.getAbsolutePath();
+            if (directory != null && directory.length() > 0)
+            {
+                File physical = new File(directory);
+                directory = physical.getAbsolutePath();
+            }
+            else
+            {
+                throw new MungeException(MessageFormat.format(guiContext.cfg.gs("Transfer.no.space.on.any.target.location"),
+                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(targetTuo.size, false)));
+            }
         }
         else if (targetTuo.type == NavTreeUserObject.DRIVE || targetTuo.type == NavTreeUserObject.HOME)
         {

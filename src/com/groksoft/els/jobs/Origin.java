@@ -31,22 +31,15 @@ public class Origin
         this.type = tuo.type;
     }
 
-    public Origin(JTable sourceTable, int tableRow, NavTreeUserObject tuo)
+    public Origin(JTable sourceTable, TreePath treePath, int tableRow, NavTreeUserObject tuo)
     {
         this.sourceTable = sourceTable;
+        this.treePath = treePath;
         this.tableRow = tableRow;
         this.tuo = tuo;
         this.name = tuo.getPath();
         this.type = tuo.type;
     }
-
-/*
-    public Origin(String name, int type)
-    {
-        this.name = name;
-        this.type = type;
-    }
-*/
 
     public Origin clone()
     {

@@ -46,8 +46,8 @@ public class JunkRemoverTool extends AbstractTool
     transient private boolean dualRepositories = false; // used by GUI, always false for this tool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
-    transient private boolean isRemote;
     transient private Logger logger = LogManager.getLogger("applog");
+    transient private final boolean realOnly = true;
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> toolPaths;
 
@@ -132,6 +132,9 @@ public class JunkRemoverTool extends AbstractTool
         jrt.setConfigName(getConfigName());
         jrt.setDisplayName(getDisplayName());
         jrt.setDataHasChanged();
+        jrt.setIncludeInToolsList(this.isIncludeInToolsList());
+        jrt.isDryRun = this.isDryRun;
+        jrt.setIsRemote(this.isRemote());
         jrt.setJunkList(getJunkList());
         jrt.setIncludeInToolsList(isIncludeInToolsList());
         return jrt;
@@ -176,6 +179,12 @@ public class JunkRemoverTool extends AbstractTool
         return dualRepositories;
     }
 
+    @Override
+    public boolean isRealOnly()
+    {
+        return realOnly;
+    }
+
     private boolean match(String filename, String fullpath, JunkItem junk)
     {
         // https://commons.apache.org/proper/commons-io/
@@ -218,15 +227,6 @@ public class JunkRemoverTool extends AbstractTool
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
 
-/*
-        if (origins == null || origins.size() == 0)
-        {
-            Origin o = new Origin(repo.getLibraryData().libraries.description, NavTreeUserObject.COLLECTION);
-            origins = new ArrayList<Origin>();
-            origins.add(o);
-        }
-*/
-
         // expand origins into physical toolPaths
         int count = expandOrigins(origins);
         if (toolPaths == null || toolPaths.size() == 0)
@@ -240,7 +240,7 @@ public class JunkRemoverTool extends AbstractTool
         {
             if (isRequestStop())
                 break;
-            String rem = isRemote ? cfg.gs("Z.remote.uppercase") : "";
+            String rem = isRemote() ? cfg.gs("Z.remote.uppercase") : "";
             if (guiContext != null)
                 guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + rem + path);
             else
@@ -259,12 +259,12 @@ public class JunkRemoverTool extends AbstractTool
                 if (!repo.isSubscriber())
                 {
                     guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
-                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, false);
+                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, guiContext.context.publisherRepo, false);
                 }
                 else
                 {
                     guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, isRemote());
-                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, isRemote());
+                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, isRemote());
                 }
             }
         }

@@ -178,12 +178,7 @@ public class Navigator
         guiContext.mainFrame.menuItemSplitVertical.setEnabled(enable);
 
         if (enable == true)
-        {
-            int whole = guiContext.mainFrame.splitPaneBrowser.getHeight();
-            int divider = guiContext.mainFrame.splitPaneBrowser.getDividerSize();
-            int pos = whole - divider - bottomSize;
-            guiContext.mainFrame.splitPaneBrowser.setDividerLocation(pos);
-        }
+            guiContext.preferences.fixBrowserDivider(guiContext, bottomSize);
 
         // TODO guiContext.mainFrame.menuItemUpdates.setEnabled(disable);
     }
@@ -278,7 +273,8 @@ public class Navigator
             initializeMainMenu();
             guiContext.browser = new Browser(guiContext);
 
-            // TODO Add Backup, and other tab content creation here
+
+            // TODO Add Backup and Library tab content creation here
 
 
             // disable back-fill because we never know what combination of items might be selected
@@ -432,7 +428,7 @@ public class Navigator
                             }
                             guiContext.context.publisherRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.PUBLISHER, Repository.VALIDATE);
                             guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
-                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, false);
+                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, guiContext.context.publisherRepo,false);
                         }
                         catch (Exception e)
                         {
@@ -599,7 +595,7 @@ public class Navigator
 
                             // load the subscriber library
                             guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
-                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.preferences.isLastIsRemote());
+                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
                         }
                         catch (Exception e)
                         {
@@ -815,7 +811,7 @@ public class Navigator
                                 if (guiContext.context.transfer.makeDirs((tuo.isRemote ? path + Utils.getSeparatorFromPath(path) + "dummyfile.els" : path), true, tuo.isRemote))
                                 {
                                     // make tuo and add node
-                                    NavTreeNode createdNode = new NavTreeNode(guiContext, tree);
+                                    NavTreeNode createdNode = new NavTreeNode(guiContext, tuo.node.getMyRepo(), tree);
                                     if (tuo.isRemote)
                                     {
                                         createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null),
@@ -965,7 +961,7 @@ public class Navigator
                                 tuo.name = reply;
                                 if (tuo.file != null)
                                 {
-                                    tuo.file = new File(path);
+                                    tuo.file = new File(to);
                                 }
 
                                 try
@@ -1841,6 +1837,7 @@ public class Navigator
                     logger.info(guiContext.cfg.gs("Navigator.displaying"));
                     guiContext.mainFrame.setVisible(true);
 
+                    guiContext.preferences.fixBrowserDivider(guiContext, -1);
                     guiContext.mainFrame.treeCollectionOne.requestFocus();
                 }
                 else

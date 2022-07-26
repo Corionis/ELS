@@ -26,7 +26,7 @@ public class ChangesTableModel extends DefaultTableModel
         switch (column)
         {
             case 0:
-                return cfg.gs("Renamer.browser.selections");
+                return cfg.gs("Renamer.old.name");
             case 1:
                 return cfg.gs("Renamer.new.name");
         }

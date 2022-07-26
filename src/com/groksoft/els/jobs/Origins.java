@@ -1,5 +1,6 @@
 package com.groksoft.els.jobs;
 
+import com.groksoft.els.MungeException;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
@@ -13,16 +14,18 @@ import static com.groksoft.els.gui.Navigator.guiContext;
 
 public class Origins
 {
-    public static boolean isValidOrigin(NavTreeUserObject tuo)
+    private static boolean isValidOrigin(NavTreeUserObject tuo, boolean realOnly)
     {
-        if (tuo.type == NavTreeUserObject.COLLECTION ||
+        if (realOnly && tuo.type == NavTreeUserObject.REAL)
+            return true;
+        else if (!realOnly && (tuo.type == NavTreeUserObject.COLLECTION ||
                 tuo.type == NavTreeUserObject.LIBRARY ||
-                tuo.type == NavTreeUserObject.REAL)
+                tuo.type == NavTreeUserObject.REAL))
             return true;
         return false;
     }
 
-    public static boolean makeOriginsFromSelected(Component component, ArrayList<Origin> origins)
+    public static boolean makeOriginsFromSelected(Component component, ArrayList<Origin> origins, boolean realOnly) throws MungeException
     {
         boolean isSubscriber = false;
         Object object = guiContext.browser.lastComponent;
@@ -36,13 +39,24 @@ public class Origins
                 for (TreePath tp : paths)
                 {
                     NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                    boolean child = false;
+                    for (TreePath cp : paths)
+                    {
+                        NavTreeNode ctn = (NavTreeNode) cp.getLastPathComponent();
+                        if (ctn != ntn && ctn.isNodeChild(ntn))
+                        {
+                            child = true;
+                        }
+                    }
+                    if (child)
+                        continue;
                     NavTreeUserObject tuo = ntn.getUserObject();
-                    if (!isValidOrigin(tuo))
+                    if (!isValidOrigin(tuo, realOnly))
                     {
                         JOptionPane.showMessageDialog(component, guiContext.cfg.gs("Z.invalid.selection") + tuo.name,
                                 guiContext.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
                         origins = null;
-                        break;
+                        throw new MungeException("HANDLED_INTERNALLY");
                     }
                     isSubscriber = tuo.isSubscriber();
                     origins.add(new Origin(sourceTree, tp, tuo));
@@ -59,15 +73,17 @@ public class Origins
                 for (int i = 0; i < rows.length; ++i)
                 {
                     NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
-                    if (!isValidOrigin(tuo))
+                    if (!isValidOrigin(tuo, realOnly))
                     {
                         JOptionPane.showMessageDialog(component, guiContext.cfg.gs("Z.invalid.selection") + tuo.name,
                                 guiContext.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
                         origins = null;
-                        break;
+                        throw new MungeException("HANDLED_INTERNALLY");
                     }
                     isSubscriber = tuo.isSubscriber();
-                    origins.add(new Origin(sourceTable, i, tuo));
+                    NavTreeNode ntn = (NavTreeNode) tuo.node.getMyTree().getLastSelectedPathComponent();
+                    TreePath tp = ntn.getTreePath();
+                    origins.add(new Origin(sourceTable, tp, rows[i], tuo));
                 }
             }
         }
@@ -75,14 +91,14 @@ public class Origins
         return isSubscriber;
     }
 
-    public static boolean setSelectionsFromOrigins(GuiContext guiContext, Component component, ArrayList<Origin> origins)
+    public static boolean setSelectedFromOrigins(GuiContext guiContext, Component component, ArrayList<Origin> origins)
     {
         boolean state = true;
         if (origins != null && origins.size() > 0)
         {
             JTree tree;
             // tree
-            if (origins.get(0).treePath != null)
+            if (origins.get(0).sourceTree != null)
             {
                 tree = origins.get(0).sourceTree;
                 TreePath[] paths = new TreePath[origins.size()];
@@ -101,20 +117,23 @@ public class Origins
                     }
                     String panel = origin.sourceTree.getName().toLowerCase();
                     if (panel.length() > 0)
-                        guiContext.browser.scanSelectPath(panel, pathElements); // scan & select
+                    {
+                        paths[i] = guiContext.browser.scanSelectPath(panel, pathElements, false); // scan
+                    }
                 }
                 // select all tree path(s)
                 tree.setSelectionPaths(paths);
                 tree.scrollPathToVisible(origins.get(origins.size() - 1).treePath);
+                guiContext.browser.refreshTree(tree);
             }
-            else if (origins.get(0).sourceTable != null)
+            else if (origins.get(0).sourceTable != null) // table
             {
                 // for a table there is only one tree selection
                 Origin origin = origins.get(0);
                 tree = origin.tuo.node.getMyTree();
 
                 // assemble single tree path, then scan to it & select tree node
-                TreePath tp = origin.tuo.node.getTreePath();
+                TreePath tp = origin.treePath;
                 Object[] objs = tp.getPath();
                 String[] pathElements = new String[tp.getPathCount()];
                 for (int j = 0; j < tp.getPathCount(); ++j)
@@ -124,17 +143,18 @@ public class Origins
                 }
                 String panel = origin.sourceTable.getName().toLowerCase();
                 if (panel.length() > 0)
-                    guiContext.browser.scanSelectPath(panel, pathElements); // scan & select
+                    guiContext.browser.scanSelectPath(panel, pathElements, false); // scan
+                guiContext.browser.refreshTree(tree);
 
                 // select matching items in table
                 JTable table = origin.sourceTable;
                 ListSelectionModel model = table.getSelectionModel();
-                model.clearSelection();
                 for (int i = 0; i < origins.size(); ++i)
                 {
                     // select all matching table rows
                     model.addSelectionInterval(origins.get(i).tableRow, origins.get(i).tableRow);
                 }
+                table.requestFocus();
             }
         }
 

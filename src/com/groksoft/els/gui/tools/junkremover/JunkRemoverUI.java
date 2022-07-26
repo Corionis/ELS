@@ -494,7 +494,7 @@ public class JunkRemoverUI extends JDialog
             try
             {
                 ArrayList<Origin> origins = new ArrayList<Origin>();
-                isSubscriber = Origins.makeOriginsFromSelected(this, origins);
+                isSubscriber = Origins.makeOriginsFromSelected(this, origins, jrt.isRealOnly());
 
                 if (origins != null && origins.size() > 0)
                 {
@@ -541,7 +541,7 @@ public class JunkRemoverUI extends JDialog
                                         if (e.getPropertyName().equals("state"))
                                         {
                                             if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                                processTerminated(jrt);
+                                                processTerminated(task, jrt);
                                         }
                                     }
                                 });
@@ -568,24 +568,27 @@ public class JunkRemoverUI extends JDialog
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                if (guiContext != null)
+                if (!e.getMessage().equals("HANDLED_INTERNALLY"))
                 {
-                    guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                    if (guiContext != null)
+                    {
+                        guiContext.browser.printLog(msg, true);
+                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+                    else
+                        logger.error(msg);
                 }
-                else
-                    logger.error(msg);
             }
         }
     }
 
-    private void processTerminated(JunkRemoverTool jrt)
+    private void processTerminated(Task task, JunkRemoverTool jrt)
     {
         if (guiContext.progress != null)
             guiContext.progress.done();
 
-        // TODO restore selection(s)
+        Origins.setSelectedFromOrigins(guiContext, this, task.getOrigins());
 
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -921,6 +924,7 @@ public class JunkRemoverUI extends JDialog
 
                 //---- okButton ----
                 okButton.setText(guiContext.cfg.gs("Z.ok"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -928,6 +932,7 @@ public class JunkRemoverUI extends JDialog
 
                 //---- cancelButton ----
                 cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

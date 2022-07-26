@@ -15,8 +15,8 @@ import java.util.Vector;
  * ClientSftp -to- ServerSftp
  * <br/>
  * This implementation uses the Jsch client library:
- *      http://www.jcraft.com/jsch/
- *      https://epaul.github.io/jsch-documentation/
+ * http://www.jcraft.com/jsch/
+ * https://epaul.github.io/jsch-documentation/
  */
 public class ClientSftp
 {
@@ -199,6 +199,17 @@ public class ClientSftp
             return false;
         }
         return true;
+    }
+
+    /**
+     * Stat a remote entry
+     */
+    public synchronized SftpATTRS stat(String path) throws Exception
+    {
+        ChannelSftp jSftp = connect();
+        SftpATTRS attrs = jSftp.stat(path);
+        jSftp.disconnect();
+        return attrs;
     }
 
     /**

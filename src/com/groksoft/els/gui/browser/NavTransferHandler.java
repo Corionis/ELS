@@ -175,7 +175,7 @@ public class NavTransferHandler extends TransferHandler
                 {
                     // make tuo and add node
                     NavTreeUserObject createdTuo = null;
-                    NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyTree());
+                    NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyRepo(), sourceTuo.node.getMyTree());
                     if (sourceTuo.isRemote)
                     {
                         createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),

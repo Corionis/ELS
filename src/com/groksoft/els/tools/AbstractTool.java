@@ -91,6 +91,8 @@ public abstract class AbstractTool implements Comparable, Serializable
         return includeInToolsList;
     }
 
+    abstract public boolean isRealOnly();
+
     public boolean isRemote()
     {
         return isRemote;

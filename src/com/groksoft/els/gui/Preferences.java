@@ -218,6 +218,23 @@ public class Preferences implements Serializable
         }
     }
 
+    /**
+     * Fix (set) the position of the Browser bottom divider
+     *
+     * @param guiContext
+     * @param bottomSize If < 0 use the bottomSize from Preferences
+     */
+    public void fixBrowserDivider(GuiContext guiContext, int bottomSize)
+    {
+        if (bottomSize < 0)
+            bottomSize = guiContext.preferences.getBrowserBottomSize();
+
+        int whole = guiContext.mainFrame.splitPaneBrowser.getHeight();
+        int divider = guiContext.mainFrame.splitPaneBrowser.getDividerSize();
+        int pos = whole - divider - bottomSize;
+        guiContext.mainFrame.splitPaneBrowser.setDividerLocation(pos);
+    }
+
     public int getAppHeight()
     {
         return appHeight;

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.15" encoding: "UTF-8"
+JFDML JFormDesigner: "7.0.7.0.1134" Java: "11.0.15" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -575,7 +575,7 @@ new FormModel {
 											add( null )
 										} )
 									}, new java.util.Vector {
-										add( "Browser Selections" )
+										add( "Old Name" )
 										add( "New Name" )
 									}, new java.util.Vector {
 										add( null )
@@ -589,6 +589,7 @@ new FormModel {
 									} )
 									"fillsViewportHeight": true
 									"focusable": false
+									"toolTipText": new FormMessage( null, "Renamer.tableChanges.toolTipText" )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "Center"
@@ -633,6 +634,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "okButton"
 						"text": new FormMessage( null, "Z.ok" )
+						"toolTipText": new FormMessage( null, "Z.save.changes.toolTipText" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
@@ -641,6 +643,7 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "cancelButton"
 						"text": new FormMessage( null, "Z.cancel" )
+						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 2

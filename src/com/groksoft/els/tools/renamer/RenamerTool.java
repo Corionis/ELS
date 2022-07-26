@@ -48,11 +48,11 @@ public class RenamerTool extends AbstractTool
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int renameCount = 0;
-    transient private boolean dualRepositories = false; // used by GUI, always false for this tool
+    transient private final boolean dualRepositories = false; // used by GUI, always false for this tool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
-    transient private boolean isRemote;
     transient private Logger logger = LogManager.getLogger("applog");
+    transient private final boolean realOnly = true;
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> toolPaths;
     // @formatter:on
@@ -79,7 +79,7 @@ public class RenamerTool extends AbstractTool
         renamer.setDataHasChanged();
         renamer.setIncludeInToolsList(this.isIncludeInToolsList());
         renamer.isDryRun = this.isDryRun;
-        renamer.isRemote = this.isRemote;
+        renamer.setIsRemote(this.isRemote());
         renamer.setType(this.getType());
         renamer.setSegment(this.getSegment());
         renamer.setText1(this.getText1());
@@ -113,19 +113,22 @@ public class RenamerTool extends AbstractTool
                     break;
             }
 
-            switch (getType())
+            if (value.length() > 0)
             {
-                case 0: // Case change
-                    change = execCaseChange(value);
-                    break;
-                case 1: // Insert
-                    break;
-                case 2: // Numbering
-                    break;
-                case 3: // Remove
-                    break;
-                case 4: // Replace
-                    break;
+                switch (getType())
+                {
+                    case 0: // Case change
+                        change = execCaseChange(value);
+                        break;
+                    case 1: // Insert
+                        break;
+                    case 2: // Numbering
+                        break;
+                    case 3: // Remove
+                        break;
+                    case 4: // Replace
+                        break;
+                }
             }
 
             switch (getSegment())
@@ -148,7 +151,7 @@ public class RenamerTool extends AbstractTool
     {
         switch (getText1())
         {
-            case "firstupper" :
+            case "firstupper":
                 value = value.toLowerCase(cfg.bundle().getLocale());
                 String first = value.substring(0, 1);
                 first = first.toUpperCase(cfg.bundle().getLocale());
@@ -158,17 +161,24 @@ public class RenamerTool extends AbstractTool
                 value = value.toLowerCase(cfg.bundle().getLocale());
                 break;
             case "titlecase":
+                // use space or period as split separator?
                 int sc = StringUtils.countMatches(value, " ");
                 int pc = StringUtils.countMatches(value, ".");
+                //  Which has more?
                 int m = (getSegment() == 2 ? 2 : 1);
                 String sep = (pc > m && pc > sc) ? "\\." : " ";
+
                 String[] split = value.split(sep);
                 value = "";
                 for (int i = 0; i < split.length; ++i)
                 {
                     String word = split[i];
                     word = word.toLowerCase(cfg.bundle().getLocale());
-                    String fc = word.substring(0, 1);
+                    String fc;
+                    if (word.length() == 1)
+                        fc = word;
+                    else
+                        fc = word.substring(0, 1);
                     fc = fc.toUpperCase(cfg.bundle().getLocale());
                     word = fc + ((word.length() > 1) ? word.substring(1) : "");
                     value = value + (value.length() > 0 ? (sep != " " ? "." : " ") : "") + word;
@@ -301,6 +311,12 @@ public class RenamerTool extends AbstractTool
         return option2;
     }
 
+    @Override
+    public boolean isRealOnly()
+    {
+        return realOnly;
+    }
+
     /**
      * Process the tool with the metadata provided
      * <br/>
@@ -321,15 +337,6 @@ public class RenamerTool extends AbstractTool
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
 
-/*
-        if (origins == null || origins.size() == 0)
-        {
-            Origin o = new Origin(repo.getLibraryData().libraries.description, NavTreeUserObject.COLLECTION);
-            origins = new ArrayList<Origin>();
-            origins.add(o);
-        }
-*/
-
         // expand origins into physical toolPaths
         int count = expandOrigins(origins);
         if (toolPaths == null || toolPaths.size() == 0)
@@ -343,13 +350,13 @@ public class RenamerTool extends AbstractTool
         {
             if (isRequestStop())
                 break;
-            String rem = isRemote ? cfg.gs("Z.remote.uppercase") : "";
+            String rem = isRemote() ? cfg.gs("Z.remote.uppercase") : "";
             if (guiContext != null)
                 guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + rem + path);
             else
                 logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
 
-            scan(path);
+            scanForRenames(path, true);
         }
 
         if (guiContext != null)
@@ -361,13 +368,13 @@ public class RenamerTool extends AbstractTool
             {
                 if (!repo.isSubscriber())
                 {
-                    guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
-                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, false);
+                    guiContext.browser.deepScanCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false, false);
+                    guiContext.browser.deepScanSystemTree(guiContext.mainFrame.treeSystemOne, guiContext.context.publisherRepo, false, false);
                 }
                 else
                 {
-                    guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, isRemote());
-                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, isRemote());
+                    guiContext.browser.deepScanCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, isRemote(), false);
+                    guiContext.browser.deepScanSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, isRemote(), false);
                 }
             }
         }
@@ -443,6 +450,47 @@ public class RenamerTool extends AbstractTool
         return worker;
     }
 
+    private String rename(String fullpath, String filename) throws Exception
+    {
+        boolean hidden = false;
+        if (filename.startsWith(".") && filename.length() > 1)
+        {
+            filename = filename.substring(1);
+            hidden = true;
+        }
+        String change = exec(filename); // execute the renamer sub-tool
+        if (hidden)
+        {
+            change = "." + change;
+            filename = "." + filename;
+        }
+
+        String newPath = "";
+        if (!filename.equals(change))
+        {
+            String left = Utils.getLeftPath(fullpath, repo.getSeparator());
+            newPath = left + repo.getSeparator() + change;
+            if (!isDryRun)
+            {
+                getContext().transfer.rename(fullpath, newPath, isRemote());
+                ++renameCount;
+                fullpath = newPath;
+                if (guiContext != null)
+                    guiContext.browser.printLog(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+                else
+                    logger.info(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+            }
+            else
+            {
+                if (guiContext != null)
+                    guiContext.browser.printLog(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
+                else
+                    logger.info(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
+            }
+        }
+        return fullpath;
+    }
+
     public void reset()
     {
         renameCount = 0;
@@ -462,14 +510,32 @@ public class RenamerTool extends AbstractTool
 
     }
 
-    private boolean scan(String path)
+    private boolean scanForRenames(String path, boolean topLevel)
     {
         boolean hadError = false;
+        boolean firstDir = false;
 
         if (isRemote())
         {
             try
             {
+                boolean pathIsDir = false;
+                SftpATTRS attrs = getContext().clientSftp.stat(path);
+                if (attrs.isDir() && topLevel)
+                {
+                    pathIsDir = true;
+                    String filename = FilenameUtils.getName(path);
+                    if (guiContext != null && guiContext.progress != null)
+                    {
+                        guiContext.progress.update(" " + filename);
+                    }
+                    String change = rename(path, filename);
+                    boolean changed = !path.equals(change);
+                    path = change;
+                }
+                else if (attrs.isDir())
+                    pathIsDir = true;
+
                 Vector listing = getContext().clientSftp.listDirectory(path);
                 for (int i = 0; i < listing.size(); ++i)
                 {
@@ -478,41 +544,20 @@ public class RenamerTool extends AbstractTool
                     ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
                     if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
                     {
-                        SftpATTRS attrs = entry.getAttrs();
+                        attrs = entry.getAttrs();
                         String filename = entry.getFilename();
-                        String fullpath = path + repo.getSeparator() + entry.getFilename();
+                        String fullpath = path + (pathIsDir ? repo.getSeparator() + entry.getFilename() : "");
                         if (guiContext != null && guiContext.progress != null)
                         {
                             guiContext.progress.update(" " + fullpath);
                         }
+
+                        String change = rename(fullpath, filename); // change & rename
+                        boolean changed = !fullpath.equals(change);
+                        fullpath = change;
                         if (attrs.isDir())
                         {
-                            scan(fullpath);
-                        }
-                        else
-                        {
-                            String change = exec(filename);
-                            if (!filename.equals(change))
-                            {
-                                String left = Utils.getLeftPath(fullpath, repo.getSeparator());
-                                String newPath = left + repo.getSeparator() + change;
-                                if (!isDryRun)
-                                {
-                                    getContext().transfer.rename(fullpath, newPath, isRemote);
-                                    ++renameCount;
-                                    if (guiContext != null)
-                                        guiContext.browser.printLog(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
-                                    else
-                                        logger.info(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
-                                }
-                                else
-                                {
-                                    if (guiContext != null)
-                                        guiContext.browser.printLog(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
-                                    else
-                                        logger.info(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
-                                }
-                            }
+                            scanForRenames(fullpath, false);
                         }
                     }
                 }
@@ -535,7 +580,18 @@ public class RenamerTool extends AbstractTool
             {
                 File[] files;
                 File file = new File(path);
-                if (file.isDirectory())
+                if (file.isDirectory() && topLevel)
+                {
+                    firstDir = true;
+                    File[] more = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), false);
+                    files = new File[more.length + 1];
+                    files[0] = file;
+                    for (int i = 0; i < more.length; ++i)
+                    {
+                        files[i + 1] = more[i];
+                    }
+                }
+                else if (file.isDirectory())
                 {
                     files = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), false);
                 }
@@ -544,44 +600,45 @@ public class RenamerTool extends AbstractTool
                     files = new File[1];
                     files[0] = file;
                 }
-                for (File entry : files)
+
+                String fullpath = "";
+                boolean rescan = true;
+                while (rescan)
                 {
-                    if (isRequestStop())
-                        break;
-                    String filename = entry.getName();
-                    if (guiContext != null && guiContext.progress != null)
+                    for (int i = 0; i < files.length; ++i)
                     {
-                        guiContext.progress.update(" " + filename);
-                    }
-                    String fullpath = entry.getAbsolutePath();
-                    if (entry.isDirectory())
-                    {
-                        scan(fullpath);
-                    }
-                    else
-                    {
-                        String change = exec(filename);
-                        if (!filename.equals(change))
+                        rescan = false;
+                        if (isRequestStop())
+                            break;
+
+                        File entry = files[i];
+                        String filename = entry.getName();
+                        boolean isDir = entry.isDirectory();
+                        if (guiContext != null && guiContext.progress != null)
                         {
-                            String left = Utils.getLeftPath(fullpath, repo.getSeparator());
-                            String newPath = left + repo.getSeparator() + change;
-                            if (!isDryRun)
-                            {
-                                getContext().transfer.rename(fullpath, newPath, isRemote);
-                                ++renameCount;
-                                if (guiContext != null)
-                                    guiContext.browser.printLog(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
-                                else
-                                    logger.info(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
-                            }
-                            else
-                            {
-                                if (guiContext != null)
-                                    guiContext.browser.printLog(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
-                                else
-                                    logger.info(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
-                            }
+                            guiContext.progress.update(" " + filename);
                         }
+                        fullpath = entry.getAbsolutePath();
+
+                        String change = rename(fullpath, filename); // change & rename
+                        boolean changed = !fullpath.equals(change);
+                        fullpath = change;
+                        if (isDir && !firstDir)
+                        {
+                            scanForRenames(fullpath, false);
+                        }
+                        else if (isDir && firstDir && changed)
+                        {
+                            rescan = true;
+                            break;
+                        }
+                        firstDir = false;
+                    }
+                    if (rescan)
+                    {
+                        firstDir = false;
+                        File dir = new File(fullpath);
+                        files = FileSystemView.getFileSystemView().getFiles(dir, false);
                     }
                 }
             }

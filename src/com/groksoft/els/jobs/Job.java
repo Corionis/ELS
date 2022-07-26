@@ -37,6 +37,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     transient Task currentTask = null;
     transient private boolean dataHasChanged = false;
     transient private Logger logger = LogManager.getLogger("applog");
+    transient private final boolean realOnly = false;
     transient private boolean stop = false;
 
     public Job(Configuration cfg, Context context, String name)
@@ -134,6 +135,12 @@ public class Job extends AbstractTool implements Comparable, Serializable
     {
         // to satisfy AbstractTool, not used
         return null;
+    }
+
+    @Override
+    public boolean isRealOnly()
+    {
+        return realOnly;
     }
 
     public Job load(String jobName) throws Exception

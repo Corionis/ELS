@@ -2,6 +2,7 @@ package com.groksoft.els.gui.browser;
 
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.repository.Repository;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.logging.log4j.LogManager;
@@ -13,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -30,6 +30,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
     public GuiContext guiContext;
     private boolean loaded = false;
     private transient Logger logger = LogManager.getLogger("applog");
+    private Repository myRepo;
     private JLabel myStatus;
     private JTable myTable;
     private JTree myTree;
@@ -41,10 +42,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
         // hide default constructor
     }
 
-    public NavTreeNode(GuiContext guiContext, JTree tree)
+    public NavTreeNode(GuiContext guiContext, Repository repo, JTree tree)
     {
         super();
         this.guiContext = guiContext;
+        this.myRepo = repo;
         this.myTree = tree;
         this.allowsChildren = true;
         this.shown = true;
@@ -77,7 +79,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
     @Override
     public Object clone()
     {
-        NavTreeNode object = new NavTreeNode(guiContext, myTree);
+        NavTreeNode object = new NavTreeNode(guiContext, myRepo, myTree);
         object.loaded = this.loaded;
         object.refresh = this.refresh;
         object.shown = this.shown;
@@ -125,88 +127,89 @@ public class NavTreeNode extends DefaultMutableTreeNode
     }
 
     /**
-     * Brute force directory tree scan, not lazy-loaded
+     * Brute force directory tree scan, not lazy-loaded, table is not loaded
      *
      * @param recursive True to recurse subdirectories, false to scan one level only
      */
     public void deepScanChildren(boolean recursive)
     {
-        NavTreeUserObject myTuo = getUserObject();
-        assert (myTuo.type == NavTreeUserObject.REAL);
-        List<NavTreeNode> nodeArray = new ArrayList<NavTreeNode>();
+        NavTreeUserObject myTuo;
+        List<NavTreeNode> nodeArray;
 
-        if (myTuo.isDir)
+        nodeArray = new ArrayList<NavTreeNode>();
+        myTuo = (NavTreeUserObject) getUserObject();
+        switch (myTuo.type)
         {
-            if (myTuo.isRemote)
-            {
-                guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.remote.directory") + myTuo.path);
-                try
+            case NavTreeUserObject.BOOKMARKS:
+                //logger.debug("bookmarks");
+                break;
+            case NavTreeUserObject.SYSTEM: // for completeness, hidden
+                //logger.debug("system");
+                break;
+            case NavTreeUserObject.COLLECTION:
+                //logger.debug("collection"); // root of collection
+                break;
+            case NavTreeUserObject.COMPUTER: // virtual node, not processed
+                //logger.debug("computer");
+                break;
+            case NavTreeUserObject.DRIVE:
+                if (myTuo.isDir)
                 {
-                    Vector listing = guiContext.context.clientSftp.listDirectory(myTuo.path);
-                    logger.info(Utils.formatInteger(listing.size()) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + myTuo.path);
-                    for (int i = 0; i < listing.size(); ++i)
+                    if (myTuo.isRemote)
                     {
-                        ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
-                        if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
-                        {
-                            SftpATTRS a = entry.getAttrs();
-                            NavTreeNode node = new NavTreeNode(guiContext, myTree);
-                            NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
-                                    myTuo.path + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
-                                    a.getSize(), a.getATime(), a.isDir());
-                            node.setNavTreeUserObject(tuo);
-                            nodeArray.add(node);
-                            if (!a.isDir())
-                                node.setVisible(false);
-                            else
-                            {
-                                if (recursive)
-                                {
-                                    node.deepScanChildren(recursive);
-                                    node.setLoaded(true);
-                                }
-                            }
-                        }
+                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..remote.drive") + myTuo.path);
+                        scanRemote(myTuo.path, nodeArray, recursive);
                     }
-                    setChildren(nodeArray, false);
-                }
-                catch (Exception e)
-                {
-                    guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") + guiContext.context.subscriberRepo.getLibraryData().libraries.description + "  ",
-                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    logger.error(Utils.getStackTrace(e));
-                    guiContext.context.fault = true;
-                    guiContext.navigator.stop();
-                }
-                guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-            else
-            {
-                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.local.directory") + myTuo.file.getAbsolutePath());
-                File[] files = FileSystemView.getFileSystemView().getFiles(myTuo.file.getAbsoluteFile(), false);
-                logger.info(Utils.formatInteger(files.length) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + myTuo.file.getAbsoluteFile());
-                for (File entry : files)
-                {
-                    NavTreeNode node = new NavTreeNode(guiContext, myTree);
-                    NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), entry);
-                    node.setNavTreeUserObject(tuo);
-                    nodeArray.add(node);
-                    if (!entry.isDirectory())
-                        node.setVisible(false);
                     else
                     {
-                        if (recursive)
+                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..local.drive") + myTuo.path);
+                        scan(new File(myTuo.path).getAbsoluteFile(), nodeArray, recursive);
+                    }
+                }
+                break;
+            case NavTreeUserObject.HOME:
+                File file = new File(myTuo.path);
+                if (file.isDirectory())
+                {
+                    guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..home.directory") + myTuo.path);
+                    scan(file.getAbsoluteFile(), nodeArray, recursive);
+                }
+                break;
+            case NavTreeUserObject.LIBRARY:
+                if (myTuo.sources != null && myTuo.sources.length > 0)
+                {
+                    for (String path : myTuo.sources)
+                    {
+                        if (myTuo.isRemote)
                         {
-                            node.deepScanChildren(recursive);
-                            node.setLoaded(true);
+                            guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..remote.library") + path);
+                            scanRemote(path, nodeArray, recursive);
+                        }
+                        else
+                        {
+                            guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..local.library") + path);
+                            scan(new File(path).getAbsoluteFile(), nodeArray, recursive);
                         }
                     }
                 }
-                setChildren(nodeArray, false);
-            }
+                break;
+            case NavTreeUserObject.REAL:
+                if (myTuo.isDir)
+                {
+                    if (myTuo.isRemote)
+                    {
+                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.remote.directory") + myTuo.path);
+                        scanRemote(myTuo.path, nodeArray, recursive);
+                    }
+                    else
+                    {
+                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.local.directory") + myTuo.file.getAbsolutePath());
+                        scan(myTuo.file.getAbsoluteFile(), nodeArray, recursive);
+                    }
+                }
+                break;
         }
+        setChildren(nodeArray, false);
     }
 
     public int findChildIndex(NavTreeNode find, boolean hideFilesInTreeFilterActive, boolean hideHiddenFilterActive)
@@ -252,8 +255,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
             {
                 NavTreeNode node = (NavTreeNode) e.nextElement();
                 NavTreeUserObject tuo = node.getUserObject();
-                //boolean match =
-                if (tuo.name.equals(name))
+                boolean sensitive = node.getMyRepo().getLibraryData().libraries.case_sensitive;
+                boolean match = (sensitive ? tuo.name.equals(name) : tuo.name.equalsIgnoreCase(name));
+                if (match)
                 {
                     ++count;
                     if (count == occurrence)
@@ -264,8 +268,8 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 }
                 else
                 {
-                    // if count > 0 one or more were found and
-                    // this is past any that might match - avoids an infinite loop
+                    // if count > 0 then one or more were found and
+                    // this is past any that might match - avoid an infinite loop
                     if (count > 0)
                         break;
                 }
@@ -354,6 +358,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
             }
         }
         return count;
+    }
+
+    public Repository getMyRepo()
+    {
+        return myRepo;
     }
 
     public JLabel getMyStatus()
@@ -470,12 +479,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                             if (myTuo.isRemote)
                             {
                                 guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
-                                scanRemote(myTuo.path);
+                                scanRemote(myTuo.path, nodeArray, false);
                             }
                             else
                             {
                                 guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
-                                scan(new File(myTuo.path).getAbsoluteFile());
+                                scan(new File(myTuo.path).getAbsoluteFile(), nodeArray, false);
                             }
                         }
                         break;
@@ -484,7 +493,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         if (file.isDirectory())
                         {
                             guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
-                            scan(file.getAbsoluteFile());
+                            scan(file.getAbsoluteFile(), nodeArray, false);
                         }
                         break;
                     case NavTreeUserObject.LIBRARY:
@@ -495,12 +504,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                                 if (myTuo.isRemote)
                                 {
                                     guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.library") + path);
-                                    scanRemote(path);
+                                    scanRemote(path, nodeArray, false);
                                 }
                                 else
                                 {
                                     guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.library") + path);
-                                    scan(new File(path).getAbsoluteFile());
+                                    scan(new File(path).getAbsoluteFile(), nodeArray, false);
                                 }
                             }
                         }
@@ -511,12 +520,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                             if (myTuo.isRemote)
                             {
                                 guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
-                                scanRemote(myTuo.path);
+                                scanRemote(myTuo.path, nodeArray, false);
                             }
                             else
                             {
                                 guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
-                                scan(myTuo.file.getAbsoluteFile());
+                                scan(myTuo.file.getAbsoluteFile(), nodeArray, false);
                             }
                         }
                         break;
@@ -554,54 +563,6 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 super.done();
             }
 
-            protected void scan(File file)
-            {
-                if (file.isDirectory())
-                {
-                    File[] files = FileSystemView.getFileSystemView().getFiles(file, false);
-                    logger.info(Utils.formatInteger(files.length) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + file.getAbsolutePath());
-                    for (File entry : files)
-                    {
-                        NavTreeNode node = new NavTreeNode(guiContext, myTree);
-                        NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), entry);
-                        node.setNavTreeUserObject(tuo);
-                        if (!entry.isDirectory())
-                            node.setVisible(false);
-                        nodeArray.add(node);
-                    }
-                }
-            }
-
-            protected void scanRemote(String target)
-            {
-                try
-                {
-                    Vector listing = guiContext.context.clientSftp.listDirectory(target);
-                    logger.info(Utils.formatInteger(listing.size()) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + target);
-                    for (int i = 0; i < listing.size(); ++i)
-                    {
-                        ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
-                        if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
-                        {
-                            SftpATTRS a = entry.getAttrs();
-                            NavTreeNode node = new NavTreeNode(guiContext, myTree);
-                            NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
-                                    target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
-                                    a.getSize(), a.getMTime(), a.isDir());
-                            node.setNavTreeUserObject(tuo);
-                            if (!a.isDir())
-                                node.setVisible(false);
-                            nodeArray.add(node);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    String msg = guiContext.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") + guiContext.context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
-                    guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
-            }
         };
         worker.execute();
     }
@@ -649,6 +610,72 @@ public class NavTreeNode extends DefaultMutableTreeNode
         btm.fireTableDataChanged();
 
         loadStatus(); // set the left or right status message & properties
+    }
+
+    protected void scan(File file, List<NavTreeNode> nodeArray, boolean recursive)
+    {
+        if (file.isDirectory())
+        {
+            File[] files = FileSystemView.getFileSystemView().getFiles(file, false);
+            logger.info(Utils.formatInteger(files.length) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + file.getAbsolutePath());
+            for (File entry : files)
+            {
+                NavTreeNode node = new NavTreeNode(guiContext, myRepo, myTree);
+                NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getName(), entry);
+                node.setNavTreeUserObject(tuo);
+                if (!entry.isDirectory())
+                    node.setVisible(false);
+                else
+                {
+                    if (recursive)
+                    {
+                        node.deepScanChildren(recursive);
+                        node.setLoaded(true);
+                    }
+                }
+                nodeArray.add(node);
+            }
+        }
+    }
+
+    protected void scanRemote(String target, List<NavTreeNode> nodeArray, boolean recursive)
+    {
+        try
+        {
+            Vector listing = guiContext.context.clientSftp.listDirectory(target);
+            logger.info(Utils.formatInteger(listing.size()) + guiContext.cfg.gs("NavTreeNode.received.entries.from") + target);
+            for (int i = 0; i < listing.size(); ++i)
+            {
+                ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
+                if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
+                {
+                    SftpATTRS a = entry.getAttrs();
+                    NavTreeNode node = new NavTreeNode(guiContext, myRepo, myTree);
+                    NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
+                            target + guiContext.context.subscriberRepo.getSeparator() + entry.getFilename(),
+                            a.getSize(), a.getMTime(), a.isDir());
+                    node.setNavTreeUserObject(tuo);
+                    if (!a.isDir())
+                        node.setVisible(false);
+                    else
+                    {
+                        if (recursive)
+                        {
+                            node.deepScanChildren(recursive);
+                            node.setLoaded(true);
+                        }
+                    }
+                    nodeArray.add(node);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            String msg = guiContext.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
+                    guiContext.context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
+            guiContext.browser.printLog(msg, true);
+            JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     public void selectMe()

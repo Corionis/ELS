@@ -707,12 +707,14 @@ public class Settings extends JDialog
 
                 //---- okButton ----
                 okButton.setText(guiContext.cfg.gs("Z.ok"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
                 cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

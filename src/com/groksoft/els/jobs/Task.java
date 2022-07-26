@@ -32,6 +32,7 @@ public class Task implements Comparable, Serializable
     transient AbstractTool currentTool = null;
     transient boolean dual = true;
     transient GuiContext guiContext = null;
+    transient boolean realOnly = false;
 
     public Task(String internalName, String configName)
     {
@@ -51,6 +52,7 @@ public class Task implements Comparable, Serializable
         task.setPublisherKey(this.getPublisherKey());
         task.setSubscriberKey(this.getSubscriberKey());
         task.setDual(this.isDual());
+        task.setRealOnly(this.isRealOnly());
         task.setSubscriberRemote(this.subscriberRemote);
         ArrayList<Origin> origins = new ArrayList<Origin>();
         for (Origin origin : this.getOrigins())
@@ -116,7 +118,7 @@ public class Task implements Comparable, Serializable
             logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? " RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
         }
 
-        // close any existg SFTP connections
+        // close any existing SFTP connections
         if (didDisconnect)
         {
             context.clientSftp.stopClient();
@@ -228,6 +230,11 @@ public class Task implements Comparable, Serializable
     public boolean isSubscriberRemote()
     {
         return subscriberRemote;
+    }
+
+    public boolean isRealOnly()
+    {
+        return realOnly;
     }
 
     /**
@@ -354,6 +361,11 @@ public class Task implements Comparable, Serializable
     public void setPublisherKey(String publisherKey)
     {
         this.publisherKey = publisherKey;
+    }
+
+    public void setRealOnly(boolean realOnly)
+    {
+        this.realOnly = realOnly;
     }
 
     public void setSubscriberKey(String subscriberKey)

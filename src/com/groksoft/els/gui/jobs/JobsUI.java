@@ -311,24 +311,31 @@ public class JobsUI extends JDialog
         {
             ArrayList<Origin> origins = new ArrayList<Origin>();
             // TODO match pub/sub combo for source ;; OR show warning when selection does not match
-            boolean isSubscriber = Origins.makeOriginsFromSelected(this, origins); // can return null
-            if (origins != null && origins.size() > 0)
+            try
             {
-                listOrigins.requestFocus();
-                int count = origins.size();
-
-                // make dialog pieces
-                String which = (isSubscriber) ? guiContext.cfg.gs("Z.subscriber") : guiContext.cfg.gs("Z.publisher");
-                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.add.N.origins"), count, which);
-
-                // confirm adds
-                int reply = JOptionPane.showConfirmDialog(this, message, guiContext.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
-                if (reply == JOptionPane.YES_OPTION)
+                boolean isSubscriber = Origins.makeOriginsFromSelected(this, origins, currentTask.isRealOnly()); // can return null
+                if (origins != null && origins.size() > 0)
                 {
-                    currentTask.addOrigins(origins);
-                    currentJob.setDataHasChanged();
-                    loadOrigins(currentTask);
+                    listOrigins.requestFocus();
+                    int count = origins.size();
+
+                    // make dialog pieces
+                    String which = (isSubscriber) ? guiContext.cfg.gs("Z.subscriber") : guiContext.cfg.gs("Z.publisher");
+                    String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.add.N.origins"), count, which);
+
+                    // confirm adds
+                    int reply = JOptionPane.showConfirmDialog(this, message, guiContext.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION)
+                    {
+                        currentTask.addOrigins(origins);
+                        currentJob.setDataHasChanged();
+                        loadOrigins(currentTask);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                // there will be no exceptions thrown
             }
         }
     }
@@ -495,7 +502,7 @@ public class JobsUI extends JDialog
                         if (meta != null)
                         {
                             if (currentTask.isSubscriberRemote())
-                                selectedCombo = id -1;
+                                selectedCombo = id - 1;
                             selectedList = repositories.indexOf(currentTask.getSubscriberKey());
                         }
                     }
@@ -721,7 +728,7 @@ public class JobsUI extends JDialog
             {
                 String name = toolJList.getSelectedValue();
                 int index = 0;
-                for ( ; index < toolList.size(); ++index)
+                for (; index < toolList.size(); ++index)
                 {
                     if (name.equals(((AbstractTool) toolList.get(index)).getListName()))
                     {
@@ -731,6 +738,7 @@ public class JobsUI extends JDialog
                 AbstractTool tool = toolList.get(index);
                 currentTask = new Task(tool.getInternalName(), tool.getConfigName());
                 currentTask.setDual(tool.isDualRepositories());
+                currentTask.setRealOnly(tool.isRealOnly());
                 currentJob.getTasks().add(currentTask);
                 currentJob.setDataHasChanged();
                 loadTasks(-1);
@@ -988,6 +996,7 @@ public class JobsUI extends JDialog
                                         if (tool != null)
                                         {
                                             task.setDual(tool.isDualRepositories());
+                                            task.setRealOnly(tool.isRealOnly());
                                             tasks.set(i, task);
                                         }
                                     }
@@ -1113,8 +1122,8 @@ public class JobsUI extends JDialog
     {
         Repositories repositories = getRepositories();
 
-        labelPub.setText(getPubSubValue(task,0, 0, repositories));
-        buttonPub.setToolTipText(getPubSubValue(task,0, 1, repositories));
+        labelPub.setText(getPubSubValue(task, 0, 0, repositories));
+        buttonPub.setToolTipText(getPubSubValue(task, 0, 1, repositories));
 
         if (task == null || !task.isDual())
         {
@@ -1125,8 +1134,8 @@ public class JobsUI extends JDialog
         {
             labelSub.setVisible(true);
             buttonSub.setVisible(true);
-            labelSub.setText(getPubSubValue(task,1, 0, repositories));
-            buttonSub.setToolTipText(getPubSubValue(task,1, 1, repositories));
+            labelSub.setText(getPubSubValue(task, 1, 0, repositories));
+            buttonSub.setToolTipText(getPubSubValue(task, 1, 1, repositories));
         }
     }
 
@@ -1195,7 +1204,7 @@ public class JobsUI extends JDialog
                         isPublisher = false;
                         key = task.getSubscriberKey();
                     }
-                    return getPubSubDesc(task, isPublisher,(isPublisher ? false : task.isSubscriberRemote()), repositories, key);
+                    return getPubSubDesc(task, isPublisher, (isPublisher ? false : task.isSubscriberRemote()), repositories, key);
                 }
             }
 
@@ -1839,6 +1848,7 @@ public class JobsUI extends JDialog
 
                 //---- okButton ----
                 okButton.setText(guiContext.cfg.gs("Z.ok"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1846,6 +1856,7 @@ public class JobsUI extends JDialog
 
                 //---- cancelButton ----
                 cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

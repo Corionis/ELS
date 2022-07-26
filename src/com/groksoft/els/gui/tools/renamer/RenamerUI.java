@@ -13,7 +13,6 @@ import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.tools.renamer.RenamerTool;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -317,6 +316,7 @@ public class RenamerUI extends JDialog
     private void actionRefreshClicked(ActionEvent e)
     {
         loadTable();
+        processTable();
     }
 
     public boolean checkForChanges()
@@ -533,7 +533,7 @@ public class RenamerUI extends JDialog
             try
             {
                 ArrayList<Origin> origins = new ArrayList<Origin>();
-                isSubscriber = Origins.makeOriginsFromSelected(this, origins);
+                isSubscriber = Origins.makeOriginsFromSelected(this, origins, renamer.isRealOnly());
 
                 if (origins != null && origins.size() > 0)
                 {
@@ -607,14 +607,17 @@ public class RenamerUI extends JDialog
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                if (guiContext != null)
+                if (!e.getMessage().equals("HANDLED_INTERNALLY"))
                 {
-                    guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                    if (guiContext != null)
+                    {
+                        guiContext.browser.printLog(msg, true);
+                        JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    }
+                    else
+                        logger.error(msg);
                 }
-                else
-                    logger.error(msg);
             }
         }
     }
@@ -624,7 +627,7 @@ public class RenamerUI extends JDialog
         if (guiContext.progress != null)
             guiContext.progress.done();
 
-        Origins.setSelectionsFromOrigins(guiContext, this, task.getOrigins());
+        Origins.setSelectedFromOrigins(guiContext, this, task.getOrigins());
 
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1499,11 +1502,12 @@ public class RenamerUI extends JDialog
                                     {null, null},
                                 },
                                 new String[] {
-                                    "Browser Selections", "New Name"
+                                    "Old Name", "New Name"
                                 }
                             ));
                             tableChanges.setFillsViewportHeight(true);
                             tableChanges.setFocusable(false);
+                            tableChanges.setToolTipText(guiContext.cfg.gs("Renamer.tableChanges.toolTipText"));
                             scrollPaneExamples.setViewportView(tableChanges);
                         }
                         panelOptions.add(scrollPaneExamples, BorderLayout.CENTER);
@@ -1540,6 +1544,7 @@ public class RenamerUI extends JDialog
 
                 //---- okButton ----
                 okButton.setText(guiContext.cfg.gs("Z.ok"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1547,6 +1552,7 @@ public class RenamerUI extends JDialog
 
                 //---- cancelButton ----
                 cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
