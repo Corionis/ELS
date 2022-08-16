@@ -623,7 +623,7 @@ public class Transfer
     /**
      * Perform collection move on either a file or directory
      * <p>
-     * This is a local-only method, v3.0.0
+     * This is a local-only method
      */
     public boolean move(Repository repo, String fromLibName, String fromName, String toLibName, String toName) throws Exception
     {
@@ -749,7 +749,7 @@ public class Transfer
     /**
      * Move an individual collection item, directory or file
      * <p>
-     * This is a local-only method, v3.0.0
+     * This is a local-only method
      */
     private boolean moveItem(Repository repo, Library fromLib, Item fromItem, Library toLib, String toName) throws Exception
     {
@@ -896,7 +896,7 @@ public class Transfer
      * <p>
      * If a directory ALL contents are deleted recursively.
      * <p>
-     * This is a local-only method, v3.0.0
+     * This is a local-only method
      */
     public boolean remove(Repository repo, String fromLibName, String fromName) throws Exception
     {
@@ -1040,7 +1040,7 @@ public class Transfer
     /**
      * Setup a To Item either new or a copy of an existing Item
      * <p>
-     * This is a local-only method, v3.0.0
+     * This is a local-only method
      */
     private Item setupToItem(Repository repo, Library fromLib, Item fromItem, Library toLib, String toName) throws Exception
     {

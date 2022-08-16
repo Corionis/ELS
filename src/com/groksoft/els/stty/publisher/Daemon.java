@@ -5,6 +5,7 @@ import com.groksoft.els.repository.*;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,7 +61,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     } // dumpStatistics
 
     /**
-     * Perform a point-to-point handshake
+     * Perform a handshake
+     * <br/>
+     * If a Hint Keys file is specified (-k|-K) those keys are used for authentication.
+     * Otherwise the previous point-to-point authentication is used.
      *
      * @return String name of back-up system
      */
@@ -85,13 +89,25 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 Utils.writeStream(out, myKey, myKey);
 
                 input = Utils.readStream(in, myKey);
-                if (input.equals(theirKey))
+                // validate with Hint Keys if specified
+                if (context.hintKeys != null)
+                {
+                    HintKeys.HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
+                    if (connectedKey != null)
+                    {
+                        // send my flavor
+                        Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
+
+                        system = connectedKey.name;
+                        logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                    }
+                } else if (input.equals(theirKey)) // otherwise validate point-to-point
                 {
                     // send my flavor
                     Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
 
                     system = theirRepo.getLibraryData().libraries.description;
-                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                    logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
                 }
             }
         }
@@ -253,6 +269,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             stamp = "-" + dtf.format(now);
                         }
 
+                        String location;
                         String path = "";
                         if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
                         {
@@ -260,9 +277,12 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             String sep = myRepo.getSeparator();
                             if (!path.endsWith(sep))
                                 path += sep;
+                            String fn = FilenameUtils.getBaseName(myRepo.getJsonFilename());
+                            location = path + fn;
                         }
-
-                        String location = path + myRepo.getJsonFilename() + "_collection-generated" + stamp + ".json";
+                        else
+                            location = myRepo.getJsonFilename();
+                        location += "_collection-generated" + stamp + ".json";
                         cfg.setExportCollectionFilename(location);
 
                         for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
@@ -521,7 +541,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         }
                         else
                         {
-                            response = ""; // let it default to sources as target locations v3.0.0
+                            response = ""; // let it default to sources as target locations
                         }
                     }
                     catch (Exception e)

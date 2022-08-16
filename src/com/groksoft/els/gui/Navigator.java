@@ -92,6 +92,7 @@ public class Navigator
     // IDEA:
     //  # Tools
     //      + Duplicate Finder
+    //          - Option to ignore .srt files
     //      + Empty Directory Finder
     //      + Junk Remover
     //      + Renamer
@@ -113,11 +114,10 @@ public class Navigator
     //          *
     //
     // IDEA
-    //  * Add a "shared" job construct with a Setting for location
-    //      * Add a check-box on the Jobs dialog for "shared"
-    //      * "Shared" jobs are synch'ed during backups
-    //  * Same idea for libraries
-    //      + Need an ELS option to match dates (now that dates can be synch'ed)
+    //  + Need an ELS option to match dates (now that dates can be synch'ed)
+    //
+    // IDEA
+    //  * A dry-run analyzer comparison tool - an extended duplicate finder?
     //
 
     public Navigator(Main main, Configuration config, Context ctx)

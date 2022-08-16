@@ -2,30 +2,45 @@
 
 # ELS : Entertainment Library Synchronizer
 
-Entertainment Library Synchronizer (ELS) is a backup tool for home
-media systems. ELS views media spanning multiple hard drives the same
-way modern media systems do - on a logical library basis such as movies
-or TV shows. ELS combines the content of each library to determine what
-needs to be backed-up. The exact location of files in each library do not
-have to match on the back-up allowing a media library to grow "organically".
+Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built tool
+for preparing, managing and backing-up media for creators of all kinds
+and applications such as home media systems.
 
-Movies, TV shows with seasons, music and more are handled by ELS. When
-new content is added, for example another episode of a TV show, a check
-is made whether it will fit in the original location as other episodes.
-If it will not fit it is copied to a matching target location for new
-content for that library.
+If you create for YouTube, TikTok, Instagram, Mom 'n Dad managing your work
+and backing it up is important. ELS is a library- and title-oriented tool with
+both graphical and command line interfaces and a variety of powerful capabilities.
 
-The pre-built executable and a Zip including examples are available
-on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** page.
+* Started in 2015 as a command line back-up tool Version 4.0 adds a
+  full-featured desktop application [screenshots].
 
-See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for
-features, downloads and documentation.
+* Views a collection spanning multiple storage devices the same way modern
+  media systems do - on a logical library basis such as movies or TV shows.
+
+* Has several modes of operation including the Navigator desktop
+  application, new in version 4, and several command-line modes to 
+  provide a wide variety of capabilities.
+
+* Is not specific to any system. Any modern home media system using the standard
+  directory structure is supported. Runs on Windows, Linux and Mac.
+
+The Navigator presents a workstation/collection and a back-up collection
+in split-pane file browsers. Tools for creating and maintaining collection
+content, tool automation in jobs, and back-up tool and collection
+meta-data file editing are included.
+
+The back-up tool may be run from the command line or scheduled using
+standard operating system tools.
+
+One or more local or LAN/Internet-connected back-ups are supported. All
+communication is encrypted.
+
+It's all built-in and it's free.
 
 ## Features
 
-**Note:** This is a work in progress. These are the planned features. Until this
+**Note:** Versioin 4.0 is a work in progress. These are the planned features. Until this
 notice is removed there is no guarantee what works or has been completed, or even
-what *will be completed*. Also "Done" means code complete. Bugs are entirely possible.
+what *will be completed*. Also "Done" means code complete. Bugs are *entirely possible*.
 
 See the [Developer](https://github.com/GrokSoft/ELS/blob/Version-4.0.0/artifacts/document/developer.md)
 notes in the Version-4.0.0 branch for information on how to run the Navigator. Pre-built Jars are available.
@@ -69,7 +84,7 @@ in the Version-4.0.0 branch for on-going change information.
    * ELS will always be free. A donation button on the web site(s) will be added eventually.
    * Please use the Discussions. Feedback, ideas and code contributors are encouraged.
      * Be kind. There is one person working on this part-time as available.
- 
+ ---
  * ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
  * ELS Hint Status Server to corrdinate remote hint status, new in 3.1.0.
  * ELS Hints to coordinate manual changes, new in 3.0.0.

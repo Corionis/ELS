@@ -29,7 +29,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
-    private HintKeys.HintKey connectedKey;
     private Context context;
     private boolean fault = false;
     private Hints hints = null;
@@ -77,14 +76,13 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     }
 
     /**
-     * Special handshake using hints keys file instead of point-to-point
+     * Handshake using hints keys file (only) instead of point-to-point
      *
      * @return String name of back-up system
      */
     public String handshake()
     {
         String system = "";
-        boolean valid = false;
         try
         {
             Utils.writeStream(out, myKey, "HELO");
@@ -101,7 +99,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 Utils.writeStream(out, myKey, myKey);
 
                 input = Utils.readStream(in, myKey);
-                connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
+                HintKeys.HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
                 if (connectedKey != null)
                 {
                     // send my flavor
@@ -109,7 +107,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                     system = connectedKey.name;
                     logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
-                    valid = true;
                 }
             }
         }

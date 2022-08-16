@@ -46,6 +46,7 @@ public class RenamerTool extends AbstractTool
     private String text3 = "";
     private boolean option1 = false;
     private boolean option2 = false;
+    private boolean option3 = false;
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int renameCount = 0;
@@ -88,7 +89,8 @@ public class RenamerTool extends AbstractTool
         renamer.setText2(this.getText2());
         renamer.setText3(this.getText3());
         renamer.setOption1(this.isOption1());
-        renamer.setOption2(this.option2);
+        renamer.setOption2(this.isOption2());
+        renamer.setOption3(this.isOption3());
         return renamer;
     }
 
@@ -123,12 +125,16 @@ public class RenamerTool extends AbstractTool
                         change = execCaseChange(value);
                         break;
                     case 1: // Insert
+                        change = execInsert(value);
                         break;
                     case 2: // Numbering
+                        change = execNumbering(value);
                         break;
                     case 3: // Remove
+                        change = execRemove(value);
                         break;
                     case 4: // Replace
+                        change = execReplace(value);
                         break;
                 }
             }
@@ -149,7 +155,7 @@ public class RenamerTool extends AbstractTool
         return value;
     }
 
-    public String execCaseChange(String value)
+    private String execCaseChange(String value)
     {
         switch (getText1())
         {
@@ -190,6 +196,70 @@ public class RenamerTool extends AbstractTool
                 value = value.toUpperCase(cfg.bundle().getLocale());
                 break;
         }
+        return value;
+    }
+
+    private String execInsert(String value)
+    {
+        if (getText1().length() > 0)
+        {
+            if (isOption3())
+                value = value + getText1();
+            else
+            {
+                int pos = -1;
+                try
+                {
+                    pos = Integer.parseInt(getText2());
+                }
+                catch (NumberFormatException e)
+                {
+                    pos = -1;
+                }
+                String left = value;
+                String right = "";
+                if (pos >= 0 && pos < value.length() - 1)
+                {
+                    // LEFTOFF debug change for At End and From End
+                    if (isOption1())
+                    {
+                        left = value.substring(0, value.length() - pos - 1);
+                        if (isOption2())
+                            right = value.substring(value.length() - pos - 1 + getText1().length());
+                        else
+                            right = value.substring(value.length() - pos - 1);
+                    }
+                    else
+                    {
+                        left = value.substring(0, pos - 1);
+                        if (isOption2())
+                            right = value.substring(pos - 1 + getText1().length());
+                        else
+                            right = value.substring(pos - 1);
+                    }
+                    value = left + getText1() + right;
+
+                }
+            }
+        }
+        return value;
+    }
+
+    private String execNumbering(String value)
+    {
+
+        return value;
+    }
+
+    private String execRemove(String value)
+    {
+
+        return value;
+    }
+
+    private String execReplace(String value)
+    {
+
         return value;
     }
 
@@ -311,6 +381,11 @@ public class RenamerTool extends AbstractTool
     public boolean isOption2()
     {
         return option2;
+    }
+
+    public boolean isOption3()
+    {
+        return option3;
     }
 
     @Override
@@ -514,7 +589,7 @@ public class RenamerTool extends AbstractTool
         text3 = "";
         option1 = false;
         option2 = false;
-
+        option3 = false;
     }
 
     private void scanForRenames(String path, boolean topLevel)
@@ -715,6 +790,15 @@ public class RenamerTool extends AbstractTool
         if (this.option2 != option2)
         {
             this.option2 = option2;
+            setDataHasChanged();
+        }
+    }
+
+    public void setOption3(boolean option3)
+    {
+        if (this.option3 != option3)
+        {
+            this.option3 = option3;
             setDataHasChanged();
         }
     }

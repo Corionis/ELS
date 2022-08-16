@@ -161,6 +161,10 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -j job: " + getJobName());
         }
+        if (getHintKeysFile().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -" + (isHintSkipMainProcess() ? "K" : "k") + " Hint Keys filename = " + getHintKeysFile());
+        }
         if (!getSelectedLibraryNames().isEmpty())
         {
             logger.info(SHORT, "  cfg: -l Publisher library name(s):");
@@ -903,7 +907,7 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // single letters remaining:  A B C E g G I j J M N O R U V X Y Z
+        // single letters remaining, case-sensitive:  A B C E I j J M N O R U V X Y Z
 
         int index;
         originalArgs = args;
@@ -990,7 +994,13 @@ public class Configuration
                         throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
-                case "-h":                                              // hint status tracker, v3.1.0
+                case "-g":                                              // listener to keep going instead of quit when done
+                case "--go-listener":
+                    break; // LEFTOFF add for better v4.0 scripts
+                case "-G":                                              // tell listener to quit right now
+                case "--stop-listener":
+                    break;
+                case "-h":                                              // hint status tracker
                 case "--hints":
                     if (index <= args.length - 2)
                     {
@@ -1003,7 +1013,7 @@ public class Configuration
                         throw new MungeException("Error: -h requires a hint status server repository filename");
                     }
                     break;
-                case "-H":                                              // hint status server, v3.1.0
+                case "-H":                                              // hint status server
                 case "--hint-server":
                     this.remoteFlag = STATUS_SERVER;
                     if (index <= args.length - 2)
@@ -1139,11 +1149,11 @@ public class Configuration
                         throw new MungeException("Error: -P requires a publisher collection filename");
                     }
                     break;
-                case "-q":                                             // tell status server to quit
+                case "-q":                                             // tell status server to quit when done
                 case "--quit-status":
                     setQuitStatusServer(true);
                     break;
-                case "-Q":
+                case "-Q":                                             // tell status server to quit right now
                 case "--force-quit":
                     setQuitStatusServer(true);
                     this.remoteFlag = STATUS_SERVER_FORCE_QUIT;

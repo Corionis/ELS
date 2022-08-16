@@ -72,12 +72,12 @@ public class Libraries
     public transient List<Pattern> compiledPatterns = new ArrayList<>();
 
     /**
-     * Storage. v3.0.0
+     * Storage
      */
     public Location[] locations;
 
     /**
-     * The list of libraries.
+     * The list of libraries
      */
     public Library[] bibliography;
 

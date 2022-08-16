@@ -41,8 +41,9 @@ For publisher and subscriber library JSON files:
         "temp_dated": "false",                          // if temp filenames have dates embedded
         "temp_location": "",                            // where to place temp files, e.g. received collection files
         "ignore_patterns": [                            // one or more filenames to ignore/skip,
-            "desktop.ini",                              //   separated by commas
-            "Thumbs.db"
+            "(?i)desktop\\.ini",                        //   separated by commas
+            ".*\\/Plex Versions.*",                     //   regular expressions supported
+            "Thumbs\\.db"
         ],
         "locations": [
             {
@@ -59,7 +60,7 @@ For publisher and subscriber library JSON files:
                 "name": "Movies",                       // library name
                 "sources": [                            // required literal
                     "C:/media/MyMovies",                // absolute or relative path,
-                    "D:/media/MoreMovies",              //   paths are relative to location of ELS.jar
+                    "D:/media/MoreMovies",              //   paths are relative to the location of ELS.jar
                     "E:/MoreNewMovies"
                 ]
             },
@@ -87,6 +88,8 @@ For publisher and subscriber library JSON files:
  7. The case_sensitive element controls the type of comparison that is done between publisher and subscriber content.
  8. ignore_patterns section is optional.
     1. ignore_patterns support regular expressions, see [Regular Expressions](Regular-Expressions).
+    2. If the pattern contains the path separator literal for that repository the full path is matched.
+    3. If the pattern does not contain the path separator literal only the right-end directory or file name is matched.
  9. locations are matched against library sources to get the desired minimum disk free space. However if a -t | -T targets
     file is specified it overrides values in locations, new in version 3.0.0.
  10. Any number of libraries may be added to the bibliography.

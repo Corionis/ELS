@@ -2,6 +2,7 @@ package com.groksoft.els.sftp;
 
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
+import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -151,12 +152,26 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 {
                     boolean authenticated = false;
 
-                    if (s.equals(user) && s1.equals(password))
+                    if (context.hintKeys != null)
+                    {
+                        HintKeys.HintKey connectedKey = context.hintKeys.findKey(password);  // look for matching key in hints keys file
+                        if (connectedKey != null)
+                        {
+                            authenticated = true;
+                            loginAttempts = 1;
+                            loginAttemptAddress = "";
+                            String them = "";
+                            HintKeys.HintKey theirKey = context.hintKeys.findKey(s);
+                            if (theirKey != null)
+                                them = theirKey.name + " at ";
+                            logger.info("Sftp server authenticated: " + them + serverSession.getClientAddress().toString());
+                        }
+                    } else if (s.equals(user) && s1.equals(password))
                     {
                         authenticated = true;
                         loginAttempts = 1;
                         loginAttemptAddress = "";
-                        logger.info("Sftp server connected to: " + serverSession.getClientAddress().toString());
+                        logger.info("Sftp server authenticated: " + serverSession.getClientAddress().toString());
                     }
                     else
                     {

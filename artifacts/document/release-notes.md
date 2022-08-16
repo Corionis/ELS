@@ -106,9 +106,30 @@ It's all built-in with the -n | --navigator option.
     1. temp_dated "true/false" : If temporary files such as received collection files have
        date and time embedded in the filename. If false the same file is overwritten.
     2. temp_location "path" : Where to place temporary files. An empty string "" is the
-       location of the ELS Jar file.
+       location of the ELS Jar file. If the path begins with "~/" the user's home directory
+       is substituted for the "~".
 
  4. Removed JSON library element renaming and the related Java code.
+
+ 5. Changed the JSON library ignore_patterns behavior:
+    1. If the pattern contains the path separator literal for that repository the full path is matched.
+       1. For example pattern: ".*\\/Plex Versions.*" will exclude the directory "/Plex Versions" and any
+          subdirectories and files.
+    2. If the pattern does not contain the path separator literal only the right-end directory or file name is matched.
+
+ 6. Changed the authentication technique for subscriber and publisher listeners.
+    1. Normally the publisher and subscriber are specific.
+       1. If a connection is made to a listener and it is not the specific system expected
+          the listener will fail and exit.
+    2. However if the listener is running with the -k|-K Hint Keys file option authentication
+       matches against the Hint Keys file. So a single subscriber listener
+       can connect to one or more remote ELS systems or Navigators concurrently.
+       1. The current limit is 10 concurrent connections. 
+       2. This is the same technique used by the Hint Status Server.
+    3. In either case if a connection is made and authentication fails the listener will fail and exit.
+       1. This is to prevent hack attempts on listeners.
+       2. May change in the future.
+
 
 ### Bug Fixes
 

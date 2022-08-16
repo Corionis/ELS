@@ -273,6 +273,9 @@ new FormModel {
 													"preferredSize": &Dimension6 new java.awt.Dimension( 320, 30 )
 													"minimumSize": &Dimension7 new java.awt.Dimension( 50, 30 )
 													"toolTipText": new FormMessage( null, "Renamer.textFieldToInsert.toolTipText" )
+													"name": "text1"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
 												} )
@@ -293,6 +296,9 @@ new FormModel {
 														"preferredSize": &Dimension9 new java.awt.Dimension( 96, 30 )
 														"maximumSize": &Dimension10 new java.awt.Dimension( 96, 30 )
 														"toolTipText": new FormMessage( null, "Renamer.textFieldInsertPosition.toolTipText" )
+														"name": "text2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 														name: "hSpacer3"
@@ -303,6 +309,22 @@ new FormModel {
 														name: "checkBoxInsertFromEnd"
 														"text": new FormMessage( null, "Renamer.checkBoxInsertFromEnd.text" )
 														"toolTipText": new FormMessage( null, "Renamer.checkBoxInsertFromEnd.toolTipText" )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer7"
+														"minimumSize": #Dimension11
+														"maximumSize": #Dimension12
+													} )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxInsertAtEnd"
+														"text": new FormMessage( null, "Renamer.checkBoxInsertAtEnd.text" )
+														"toolTipText": new FormMessage( null, "Renamer.checkBoxInsertAtEnd.toolTipText" )
+														"name": "option3"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -318,6 +340,9 @@ new FormModel {
 														name: "checkBoxInsertOverwrite"
 														"text": new FormMessage( null, "Renamer.checkBoxInsertOverwrite.text" )
 														"margin": new java.awt.Insets( 2, 6, 2, 2 )
+														"name": "option2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -352,6 +377,9 @@ new FormModel {
 														"maximumSize": &Dimension20 new java.awt.Dimension( 96, 30 )
 														"text": "1"
 														"toolTipText": new FormMessage( null, "Renamer.textFieldStart.toolTipText" )
+														"name": "text1"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 														name: "hSpacer5"
@@ -370,6 +398,9 @@ new FormModel {
 														"maximumSize": new java.awt.Dimension( 96, 30 )
 														"text": "1"
 														"toolTipText": new FormMessage( null, "Renamer.textFieldZeros.toolTipText" )
+														"name": "text2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -390,6 +421,9 @@ new FormModel {
 														"minimumSize": #Dimension8
 														"preferredSize": #Dimension9
 														"maximumSize": #Dimension10
+														"name": "text3"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 														name: "hSpacer4"
@@ -399,6 +433,22 @@ new FormModel {
 													add( new FormComponent( "javax.swing.JCheckBox" ) {
 														name: "checkBoxNumberingFromEnd"
 														"text": new FormMessage( null, "Renamer.checkBoxNumberingFromEnd.text_2" )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer8"
+														"minimumSize": #Dimension11
+														"maximumSize": #Dimension12
+													} )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxNumberingAtEnd"
+														"text": new FormMessage( null, "Renamer.checkBoxNumberingAtEnd.text" )
+														"toolTipText": new FormMessage( null, "Renamer.checkBoxNumberingAtEnd.toolTipText" )
+														"name": "option3"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -414,6 +464,9 @@ new FormModel {
 														name: "checkBoxNumberingOverwrite"
 														"text": new FormMessage( null, "Renamer.checkBoxNumberingOverwrite.text_2" )
 														"margin": &Insets0 new java.awt.Insets( 2, 6, 2, 2 )
+														"name": "option2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -447,6 +500,9 @@ new FormModel {
 														"minimumSize": #Dimension19
 														"maximumSize": #Dimension20
 														"text": "1"
+														"name": "text1"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 													} )
 													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 														name: "hSpacer6"
@@ -474,6 +530,9 @@ new FormModel {
 														"minimumSize": #Dimension8
 														"preferredSize": #Dimension9
 														"maximumSize": #Dimension10
+														"name": "text2"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -481,6 +540,7 @@ new FormModel {
 												} )
 												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
 													"hgap": 8
+													"columns": 2
 												} ) {
 													name: "panelRemoveOther"
 													"preferredSize": new java.awt.Dimension( 98, 30 )
@@ -492,6 +552,9 @@ new FormModel {
 														"preferredSize": new java.awt.Dimension( 98, 21 )
 														"minimumSize": new java.awt.Dimension( 98, 21 )
 														"maximumSize": new java.awt.Dimension( 98, 21 )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -520,6 +583,9 @@ new FormModel {
 													name: "textFieldFind"
 													"preferredSize": #Dimension6
 													"minimumSize": #Dimension7
+													"name": "text1"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
 												} )
@@ -534,6 +600,9 @@ new FormModel {
 													name: "textFieldReplace"
 													"preferredSize": #Dimension6
 													"minimumSize": #Dimension7
+													"name": "text2"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 1
 													"gridx": 1
@@ -548,11 +617,17 @@ new FormModel {
 														name: "checkBoxRegularExpr"
 														"text": new FormMessage( null, "Renamer.checkBoxRegularExpr.text" )
 														"margin": new java.awt.Insets( 2, 6, 2, 6 )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 													} )
 													add( new FormComponent( "javax.swing.JCheckBox" ) {
 														name: "checkBoxCase"
 														"text": new FormMessage( null, "Renamer.checkBoxCase.text" )
 														"margin": #Insets0
+														"name": "option2"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1

@@ -22,6 +22,11 @@ sensitive commands authorization is required. The interactive command:
 ```auth [password]``` is used where the password is the one specified by the 
 listener with the -a | --authorize parameter.
 
+Authentication is publisher/subscriber specific unless a subscriber listener
+is running with the -k|-K Hint Keys file option. With -k|-K authentication
+matches against the Hint Keys file. So a single subscriber listener
+can connect to one or more remote ELS systems or Navigators concurrently.
+
 ### Remote Modes
 
 ```

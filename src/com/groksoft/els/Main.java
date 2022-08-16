@@ -36,7 +36,7 @@ public class Main
     private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
-    private int returnValue;
+    private int returnValue = 0;
     public SavedConfiguration savedConfiguration;
 
     /**
@@ -126,7 +126,6 @@ public class Main
      */
     public void process(String[] args)
     {
-        returnValue = 0;
         ThreadGroup sessionThreads = null;
         cfg = new Configuration(context);
         Process proc;
@@ -183,10 +182,17 @@ public class Main
             // an execution of this program can only be configured as one of these
             //
             logger.info("+------------------------------------------");
+            boolean defaultNavigator = false;
             switch (cfg.getRemoteFlag())
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
+                    if (cfg.getPublisherFilename().length() == 0 && cfg.getSubscriberFilename().length() == 0)
+                    {
+                        cfg.setNavigator(true);
+                        defaultNavigator = true;
+                    }
+
                     // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
                     {
@@ -203,6 +209,9 @@ public class Main
                             context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
 
+                        if (defaultNavigator)
+                            logger.warn("Publisher and subscriber not defined. Defaulting to the Navigator");
+
                         // TODO Incorporate Hint Server
 
                         context.navigator = new Navigator(this, cfg, context);
@@ -215,9 +224,7 @@ public class Main
                         cfg.dump();
 
                         context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                        if (!cfg.isValidation() &&
-                                (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                        cfg.getSubscriberCollectionFilename().length() > 0))
+                        if (!cfg.isValidation() && (cfg.getSubscriberFilename().length() > 0))
                         {
                             context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
@@ -588,6 +595,8 @@ public class Main
                 });
             }
         }
+        if (returnValue > 0)
+            System.exit(returnValue);
     } // process
 
     /**

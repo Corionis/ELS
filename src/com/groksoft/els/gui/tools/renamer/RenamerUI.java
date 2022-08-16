@@ -28,6 +28,8 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 public class RenamerUI extends JDialog
 {
@@ -45,6 +47,7 @@ public class RenamerUI extends JDialog
     private NavHelp helpDialog;
     private boolean isDryRun;
     private boolean isSubscriber;
+    private boolean loading = false;
     private SwingWorker<Void, Void> worker;
     private RenamerTool workerRenamer = null;
     private boolean workerRunning = false;
@@ -106,8 +109,8 @@ public class RenamerUI extends JDialog
                     int index = sm.getMinSelectionIndex();
                     if (index != currentConfigIndex && currentConfigIndex >= 0)
                     {
-                        if (currentConfigIndex < configItems.getRowCount())
-                            setRenamerOptions(currentConfigIndex);
+//                        if (currentConfigIndex < configItems.getRowCount())
+//                            setRenamerOptions(currentConfigIndex);
                         currentConfigIndex = index;
                         loadOptions(currentConfigIndex);
                     }
@@ -125,6 +128,8 @@ public class RenamerUI extends JDialog
         displayNames[2] = guiContext.cfg.gs("RenameUI.type.combobox.numbering");
         displayNames[3] = guiContext.cfg.gs("RenameUI.type.combobox.remove");
         displayNames[4] = guiContext.cfg.gs("RenameUI.type.combobox.replace"); // 4
+
+        addHandlers();
 
         loadTable();
         loadConfigurations();
@@ -146,7 +151,7 @@ public class RenamerUI extends JDialog
         }
         else
         {
-            setRenamerOptions(-1);
+//            setRenamerOptions(-1);
             if (checkForChanges())
             {
                 int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
@@ -237,8 +242,11 @@ public class RenamerUI extends JDialog
             {
                 if (currentRenamer != null)
                 {
-                    setRenamerOptions(currentRenamer);
-                    processTable();
+                    if (currentRenamer.getSegment() != comboBoxFilenameSegment.getSelectedIndex())
+                    {
+                        setRenamerOptions(currentRenamer);
+                        processTable();
+                    }
                 }
             }
         }
@@ -267,7 +275,7 @@ public class RenamerUI extends JDialog
 
     private void actionOkClicked(ActionEvent e)
     {
-        setRenamerOptions(-1);
+//        setRenamerOptions(-1);
         saveConfigurations();
         savePreferences();
         setVisible(false);
@@ -336,8 +344,11 @@ public class RenamerUI extends JDialog
             {
                 if (currentRenamer != null)
                 {
-                    setRenamerOptions(currentRenamer);
-                    processTable();
+                    if (currentRenamer.isRecursive() != checkBoxRecursive.isSelected())
+                    {
+                        setRenamerOptions(currentRenamer);
+                        processTable();
+                    }
                 }
             }
         }
@@ -359,6 +370,53 @@ public class RenamerUI extends JDialog
     {
         loadTable();
         processTable();
+    }
+
+    private void genericAction(ActionEvent e)
+    {
+        if (e.getActionCommand() != null)
+        {
+            updateOnChange(e.getSource());
+        }
+    }
+
+    private void addHandlers()
+    {
+        Action actTabKey = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                setRenamerOptions(currentRenamer);
+                processTable();
+            }
+        };
+
+        // insert card components
+        addTabHandler(textFieldToInsert, actTabKey);
+        addTabHandler(textFieldInsertPosition, actTabKey);
+        addTabHandler(checkBoxInsertFromEnd, actTabKey);
+        addTabHandler(checkBoxInsertOverwrite, actTabKey);
+    }
+
+    private void addTabHandler(JCheckBox box, Action action)
+    {
+        Set forwardKeys = box.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
+        Set newForwardKeys = new HashSet(forwardKeys);
+        newForwardKeys.remove(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));
+        box.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
+        box.getInputMap().put(KeyStroke.getKeyStroke("VK_TAB"), "doTab");
+        box.getActionMap().put("doTab", action);
+    }
+
+    private void addTabHandler(JTextField field, Action action)
+    {
+        Set forwardKeys = field.getFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS);
+        Set newForwardKeys = new HashSet(forwardKeys);
+        newForwardKeys.remove(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0));
+        field.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, newForwardKeys);
+        field.getInputMap().put(KeyStroke.getKeyStroke("VK_TAB"), "doTab");
+        field.getActionMap().put("doTab", action);
     }
 
     public boolean checkForChanges()
@@ -454,6 +512,8 @@ public class RenamerUI extends JDialog
 
         if ((index >= 0 && index < configModel.getRowCount()) && currentRenamer != null)
         {
+            loading = true;
+
             labelRenameType.setText(displayNames[currentRenamer.getType()]);
             checkBoxRecursive.setSelected(currentRenamer.isRecursive());
             comboBoxFilenameSegment.setSelectedIndex(currentRenamer.getSegment());
@@ -508,6 +568,8 @@ public class RenamerUI extends JDialog
                     checkBoxCase.setSelected(currentRenamer.isOption2());
                     break;
             }
+
+            loading = false;
         }
         else
         {
@@ -691,7 +753,7 @@ public class RenamerUI extends JDialog
 
     private void processTable()
     {
-        if (changeStrings != null && changeStrings.length > 0)
+        if (currentRenamer != null && changeStrings != null && changeStrings.length > 0)
         {
             for (int i = 0; i < changeStrings.length; ++i)
             {
@@ -797,8 +859,9 @@ public class RenamerUI extends JDialog
 
     private void setRenamerOptions(RenamerTool renamer)
     {
-        if (renamer != null)
+        if (renamer != null && !loading)
         {
+            renamer.setDataHasChanged();
             renamer.setIsRecursive(checkBoxRecursive.isSelected());
             renamer.setSegment(comboBoxFilenameSegment.getSelectedIndex());
             switch (renamer.getType())
@@ -818,6 +881,7 @@ public class RenamerUI extends JDialog
                     renamer.setText3("");
                     renamer.setOption1(false);
                     renamer.setOption2(false);
+                    renamer.setOption2(false);
                     break;
                 case 1: // Insert
                     renamer.setText1(textFieldToInsert.getText());
@@ -825,6 +889,7 @@ public class RenamerUI extends JDialog
                     renamer.setText3("");
                     renamer.setOption1(checkBoxInsertFromEnd.isSelected());
                     renamer.setOption2(checkBoxInsertOverwrite.isSelected());
+                    renamer.setOption3(checkBoxInsertAtEnd.isSelected());
                     break;
                 case 2: // Numbering
                     renamer.setText1(textFieldStart.getText());
@@ -832,6 +897,7 @@ public class RenamerUI extends JDialog
                     renamer.setText3(textFieldNumberingPosition.getText());
                     renamer.setOption1(checkBoxNumberingFromEnd.isSelected());
                     renamer.setOption2(checkBoxNumberingOverwrite.isSelected());
+                    renamer.setOption3(checkBoxNumberingAtEnd.isSelected());
                     break;
                 case 3: // Remove
                     renamer.setText1(textFieldFrom.getText());
@@ -839,6 +905,7 @@ public class RenamerUI extends JDialog
                     renamer.setText3("");
                     renamer.setOption1(checkBoxRemoveFromEnd.isSelected());
                     renamer.setOption2(false);
+                    renamer.setOption3(false);
                     break;
                 case 4: // Replace
                     renamer.setText1(textFieldFind.getText());
@@ -846,6 +913,7 @@ public class RenamerUI extends JDialog
                     renamer.setText3("");
                     renamer.setOption1(checkBoxRegularExpr.isSelected());
                     renamer.setOption2(checkBoxCase.isSelected());
+                    renamer.setOption3(false);
                     break;
             }
         }
@@ -854,6 +922,62 @@ public class RenamerUI extends JDialog
     private void windowClosing(WindowEvent e)
     {
         cancelButton.doClick();
+    }
+
+    private void tabKeyPressed(KeyEvent e)
+    {
+        if (e.getKeyCode() == KeyEvent.VK_TAB)
+        {
+            updateOnChange(e.getSource());
+        }
+    }
+
+    private void updateOnChange(Object source)
+    {
+        if (source instanceof JTextField)
+        {
+            String current = null;
+            JTextField tf = (JTextField) source;
+            switch (tf.getName())
+            {
+                case "text1":
+                    current = currentRenamer.getText1();
+                    break;
+                case "text2":
+                    current = currentRenamer.getText2();
+                    break;
+                case "text3":
+                    current = currentRenamer.getText3();
+                    break;
+            }
+            if (!current.equals(tf.getText()))
+            {
+                setRenamerOptions(currentRenamer);
+                processTable();
+            }
+        }
+        else if (source instanceof JCheckBox)
+        {
+            boolean state = false;
+            JCheckBox cb = (JCheckBox) source;
+            switch (cb.getName())
+            {
+                case "option1":
+                    state = currentRenamer.isOption1();
+                    break;
+                case "option2":
+                    state = currentRenamer.isOption2();
+                    break;
+                case "option3":
+                    state = currentRenamer.isOption3();
+                    break;
+            }
+            if (state != cb.isSelected())
+            {
+                setRenamerOptions(currentRenamer);
+                processTable();
+            }
+        }
     }
 
     // ================================================================================================================
@@ -907,6 +1031,8 @@ public class RenamerUI extends JDialog
         textFieldInsertPosition = new JTextField();
         hSpacer3 = new JPanel(null);
         checkBoxInsertFromEnd = new JCheckBox();
+        hSpacer7 = new JPanel(null);
+        checkBoxInsertAtEnd = new JCheckBox();
         panelInsertOther = new JPanel();
         checkBoxInsertOverwrite = new JCheckBox();
         panelNumberingCard = new JPanel();
@@ -921,6 +1047,8 @@ public class RenamerUI extends JDialog
         textFieldNumberingPosition = new JTextField();
         hSpacer4 = new JPanel(null);
         checkBoxNumberingFromEnd = new JCheckBox();
+        hSpacer8 = new JPanel(null);
+        checkBoxNumberingAtEnd = new JCheckBox();
         panelNumberingOther = new JPanel();
         checkBoxNumberingOverwrite = new JCheckBox();
         panelRemoveCard = new JPanel();
@@ -1222,6 +1350,14 @@ public class RenamerUI extends JDialog
                                             textFieldToInsert.setPreferredSize(new Dimension(320, 30));
                                             textFieldToInsert.setMinimumSize(new Dimension(50, 30));
                                             textFieldToInsert.setToolTipText(guiContext.cfg.gs("Renamer.textFieldToInsert.toolTipText"));
+                                            textFieldToInsert.setName("text1");
+                                            textFieldToInsert.addActionListener(e -> genericAction(e));
+                                            textFieldToInsert.addKeyListener(new KeyAdapter() {
+                                                @Override
+                                                public void keyPressed(KeyEvent e) {
+                                                    tabKeyPressed(e);
+                                                }
+                                            });
                                             panelInsertCard.add(textFieldToInsert, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 0, 0), 0, 0));
@@ -1242,6 +1378,14 @@ public class RenamerUI extends JDialog
                                                 textFieldInsertPosition.setPreferredSize(new Dimension(96, 30));
                                                 textFieldInsertPosition.setMaximumSize(new Dimension(96, 30));
                                                 textFieldInsertPosition.setToolTipText(guiContext.cfg.gs("Renamer.textFieldInsertPosition.toolTipText"));
+                                                textFieldInsertPosition.setName("text2");
+                                                textFieldInsertPosition.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                textFieldInsertPosition.addActionListener(e -> genericAction(e));
                                                 panelInsertPostion.add(textFieldInsertPosition);
 
                                                 //---- hSpacer3 ----
@@ -1252,7 +1396,33 @@ public class RenamerUI extends JDialog
                                                 //---- checkBoxInsertFromEnd ----
                                                 checkBoxInsertFromEnd.setText(guiContext.cfg.gs("Renamer.checkBoxInsertFromEnd.text"));
                                                 checkBoxInsertFromEnd.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxInsertFromEnd.toolTipText"));
+                                                checkBoxInsertFromEnd.setName("option1");
+                                                checkBoxInsertFromEnd.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                checkBoxInsertFromEnd.addActionListener(e -> genericAction(e));
                                                 panelInsertPostion.add(checkBoxInsertFromEnd);
+
+                                                //---- hSpacer7 ----
+                                                hSpacer7.setMinimumSize(new Dimension(10, 10));
+                                                hSpacer7.setMaximumSize(new Dimension(10, 10));
+                                                panelInsertPostion.add(hSpacer7);
+
+                                                //---- checkBoxInsertAtEnd ----
+                                                checkBoxInsertAtEnd.setText(guiContext.cfg.gs("Renamer.checkBoxInsertAtEnd.text"));
+                                                checkBoxInsertAtEnd.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxInsertAtEnd.toolTipText"));
+                                                checkBoxInsertAtEnd.setName("option3");
+                                                checkBoxInsertAtEnd.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                checkBoxInsertAtEnd.addActionListener(e -> genericAction(e));
+                                                panelInsertPostion.add(checkBoxInsertAtEnd);
                                             }
                                             panelInsertCard.add(panelInsertPostion, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1267,6 +1437,14 @@ public class RenamerUI extends JDialog
                                                 //---- checkBoxInsertOverwrite ----
                                                 checkBoxInsertOverwrite.setText(guiContext.cfg.gs("Renamer.checkBoxInsertOverwrite.text"));
                                                 checkBoxInsertOverwrite.setMargin(new Insets(2, 6, 2, 2));
+                                                checkBoxInsertOverwrite.setName("option2");
+                                                checkBoxInsertOverwrite.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                checkBoxInsertOverwrite.addActionListener(e -> genericAction(e));
                                                 panelInsertOther.add(checkBoxInsertOverwrite);
                                             }
                                             panelInsertCard.add(panelInsertOther, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
@@ -1301,6 +1479,14 @@ public class RenamerUI extends JDialog
                                                 textFieldStart.setMaximumSize(new Dimension(96, 30));
                                                 textFieldStart.setText("1");
                                                 textFieldStart.setToolTipText(guiContext.cfg.gs("Renamer.textFieldStart.toolTipText"));
+                                                textFieldStart.setName("text1");
+                                                textFieldStart.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                textFieldStart.addActionListener(e -> genericAction(e));
                                                 panelNums.add(textFieldStart);
 
                                                 //---- hSpacer5 ----
@@ -1319,6 +1505,14 @@ public class RenamerUI extends JDialog
                                                 textFieldZeros.setMaximumSize(new Dimension(96, 30));
                                                 textFieldZeros.setText("1");
                                                 textFieldZeros.setToolTipText(guiContext.cfg.gs("Renamer.textFieldZeros.toolTipText"));
+                                                textFieldZeros.setName("text2");
+                                                textFieldZeros.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                textFieldZeros.addActionListener(e -> genericAction(e));
                                                 panelNums.add(textFieldZeros);
                                             }
                                             panelNumberingCard.add(panelNums, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
@@ -1340,6 +1534,14 @@ public class RenamerUI extends JDialog
                                                 textFieldNumberingPosition.setMinimumSize(new Dimension(96, 30));
                                                 textFieldNumberingPosition.setPreferredSize(new Dimension(96, 30));
                                                 textFieldNumberingPosition.setMaximumSize(new Dimension(96, 30));
+                                                textFieldNumberingPosition.setName("text3");
+                                                textFieldNumberingPosition.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                textFieldNumberingPosition.addActionListener(e -> genericAction(e));
                                                 panelNumberingPostion.add(textFieldNumberingPosition);
 
                                                 //---- hSpacer4 ----
@@ -1349,7 +1551,33 @@ public class RenamerUI extends JDialog
 
                                                 //---- checkBoxNumberingFromEnd ----
                                                 checkBoxNumberingFromEnd.setText(guiContext.cfg.gs("Renamer.checkBoxNumberingFromEnd.text_2"));
+                                                checkBoxNumberingFromEnd.setName("option1");
+                                                checkBoxNumberingFromEnd.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                checkBoxNumberingFromEnd.addActionListener(e -> genericAction(e));
                                                 panelNumberingPostion.add(checkBoxNumberingFromEnd);
+
+                                                //---- hSpacer8 ----
+                                                hSpacer8.setMinimumSize(new Dimension(10, 10));
+                                                hSpacer8.setMaximumSize(new Dimension(10, 10));
+                                                panelNumberingPostion.add(hSpacer8);
+
+                                                //---- checkBoxNumberingAtEnd ----
+                                                checkBoxNumberingAtEnd.setText(guiContext.cfg.gs("Renamer.checkBoxNumberingAtEnd.text"));
+                                                checkBoxNumberingAtEnd.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxNumberingAtEnd.toolTipText"));
+                                                checkBoxNumberingAtEnd.setName("option3");
+                                                checkBoxNumberingAtEnd.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                checkBoxNumberingAtEnd.addActionListener(e -> genericAction(e));
+                                                panelNumberingPostion.add(checkBoxNumberingAtEnd);
                                             }
                                             panelNumberingCard.add(panelNumberingPostion, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1364,6 +1592,14 @@ public class RenamerUI extends JDialog
                                                 //---- checkBoxNumberingOverwrite ----
                                                 checkBoxNumberingOverwrite.setText(guiContext.cfg.gs("Renamer.checkBoxNumberingOverwrite.text_2"));
                                                 checkBoxNumberingOverwrite.setMargin(new Insets(2, 6, 2, 2));
+                                                checkBoxNumberingOverwrite.setName("option2");
+                                                checkBoxNumberingOverwrite.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
+                                                checkBoxNumberingOverwrite.addActionListener(e -> genericAction(e));
                                                 panelNumberingOther.add(checkBoxNumberingOverwrite);
                                             }
                                             panelNumberingCard.add(panelNumberingOther, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
@@ -1397,6 +1633,14 @@ public class RenamerUI extends JDialog
                                                 textFieldFrom.setMinimumSize(new Dimension(96, 30));
                                                 textFieldFrom.setMaximumSize(new Dimension(96, 30));
                                                 textFieldFrom.setText("1");
+                                                textFieldFrom.setName("text1");
+                                                textFieldFrom.addActionListener(e -> genericAction(e));
+                                                textFieldFrom.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
                                                 panelFrom.add(textFieldFrom);
 
                                                 //---- hSpacer6 ----
@@ -1425,6 +1669,14 @@ public class RenamerUI extends JDialog
                                                 textFieldLength.setMinimumSize(new Dimension(96, 30));
                                                 textFieldLength.setPreferredSize(new Dimension(96, 30));
                                                 textFieldLength.setMaximumSize(new Dimension(96, 30));
+                                                textFieldLength.setName("text2");
+                                                textFieldLength.addActionListener(e -> genericAction(e));
+                                                textFieldLength.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
                                                 panelLength.add(textFieldLength);
                                             }
                                             panelRemoveCard.add(panelLength, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
@@ -1435,7 +1687,7 @@ public class RenamerUI extends JDialog
                                             {
                                                 panelRemoveOther.setPreferredSize(new Dimension(98, 30));
                                                 panelRemoveOther.setMinimumSize(new Dimension(98, 30));
-                                                panelRemoveOther.setLayout(new GridLayout(1, 0, 8, 0));
+                                                panelRemoveOther.setLayout(new GridLayout(1, 2, 8, 0));
 
                                                 //---- checkBoxRemoveFromEnd ----
                                                 checkBoxRemoveFromEnd.setText(guiContext.cfg.gs("Renamer.checkBoxRemoveFromEnd.text"));
@@ -1443,6 +1695,14 @@ public class RenamerUI extends JDialog
                                                 checkBoxRemoveFromEnd.setPreferredSize(new Dimension(98, 21));
                                                 checkBoxRemoveFromEnd.setMinimumSize(new Dimension(98, 21));
                                                 checkBoxRemoveFromEnd.setMaximumSize(new Dimension(98, 21));
+                                                checkBoxRemoveFromEnd.setName("option1");
+                                                checkBoxRemoveFromEnd.addActionListener(e -> genericAction(e));
+                                                checkBoxRemoveFromEnd.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
                                                 panelRemoveOther.add(checkBoxRemoveFromEnd);
                                             }
                                             panelRemoveCard.add(panelRemoveOther, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
@@ -1470,6 +1730,14 @@ public class RenamerUI extends JDialog
                                             //---- textFieldFind ----
                                             textFieldFind.setPreferredSize(new Dimension(320, 30));
                                             textFieldFind.setMinimumSize(new Dimension(50, 30));
+                                            textFieldFind.setName("text1");
+                                            textFieldFind.addActionListener(e -> genericAction(e));
+                                            textFieldFind.addKeyListener(new KeyAdapter() {
+                                                @Override
+                                                public void keyPressed(KeyEvent e) {
+                                                    tabKeyPressed(e);
+                                                }
+                                            });
                                             panelReplaceCard.add(textFieldFind, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 0, 0), 0, 0));
@@ -1484,6 +1752,14 @@ public class RenamerUI extends JDialog
                                             //---- textFieldReplace ----
                                             textFieldReplace.setPreferredSize(new Dimension(320, 30));
                                             textFieldReplace.setMinimumSize(new Dimension(50, 30));
+                                            textFieldReplace.setName("text2");
+                                            textFieldReplace.addActionListener(e -> genericAction(e));
+                                            textFieldReplace.addKeyListener(new KeyAdapter() {
+                                                @Override
+                                                public void keyPressed(KeyEvent e) {
+                                                    tabKeyPressed(e);
+                                                }
+                                            });
                                             panelReplaceCard.add(textFieldReplace, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 0, 0), 0, 0));
@@ -1497,11 +1773,27 @@ public class RenamerUI extends JDialog
                                                 //---- checkBoxRegularExpr ----
                                                 checkBoxRegularExpr.setText(guiContext.cfg.gs("Renamer.checkBoxRegularExpr.text"));
                                                 checkBoxRegularExpr.setMargin(new Insets(2, 6, 2, 6));
+                                                checkBoxRegularExpr.setName("option1");
+                                                checkBoxRegularExpr.addActionListener(e -> genericAction(e));
+                                                checkBoxRegularExpr.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
                                                 panelReplaceOther.add(checkBoxRegularExpr);
 
                                                 //---- checkBoxCase ----
                                                 checkBoxCase.setText(guiContext.cfg.gs("Renamer.checkBoxCase.text"));
                                                 checkBoxCase.setMargin(new Insets(2, 6, 2, 2));
+                                                checkBoxCase.setName("option2");
+                                                checkBoxCase.addActionListener(e -> genericAction(e));
+                                                checkBoxCase.addKeyListener(new KeyAdapter() {
+                                                    @Override
+                                                    public void keyPressed(KeyEvent e) {
+                                                        tabKeyPressed(e);
+                                                    }
+                                                });
                                                 panelReplaceOther.add(checkBoxCase);
                                             }
                                             panelReplaceCard.add(panelReplaceOther, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
@@ -1644,6 +1936,8 @@ public class RenamerUI extends JDialog
     private JTextField textFieldInsertPosition;
     private JPanel hSpacer3;
     private JCheckBox checkBoxInsertFromEnd;
+    private JPanel hSpacer7;
+    private JCheckBox checkBoxInsertAtEnd;
     private JPanel panelInsertOther;
     private JCheckBox checkBoxInsertOverwrite;
     private JPanel panelNumberingCard;
@@ -1658,6 +1952,8 @@ public class RenamerUI extends JDialog
     private JTextField textFieldNumberingPosition;
     private JPanel hSpacer4;
     private JCheckBox checkBoxNumberingFromEnd;
+    private JPanel hSpacer8;
+    private JCheckBox checkBoxNumberingAtEnd;
     private JPanel panelNumberingOther;
     private JCheckBox checkBoxNumberingOverwrite;
     private JPanel panelRemoveCard;

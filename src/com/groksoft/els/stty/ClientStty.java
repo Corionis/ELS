@@ -6,6 +6,7 @@ import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.stty.gui.TerminalGui;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -373,9 +374,12 @@ public class ClientStty
                 String sep = myRepo.getSeparator();
                 if (!path.endsWith(sep))
                     path += sep;
+                String fn = FilenameUtils.getBaseName(theirRepo.getJsonFilename());
+                location = path + fn;
             }
-
-            location = path + filename + "_" + command + "-received" + stamp + ".json";
+            else
+                location = theirRepo.getJsonFilename();
+            location += "_" + command + "-received" + stamp + ".json";
             try
             {
                 PrintWriter outputStream = new PrintWriter(location);

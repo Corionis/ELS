@@ -445,27 +445,44 @@ public class Repository
 
     /**
      * Determine if item should be ignored
-     *
+     *<br/>
+     * Examples:
+     * <ul>
+     *   <li>Ignore any case of "desktop.ini" = "(?i)desktop\\.ini"</li>
+     *   <li>Ignore "*.srt" files = ".*\\.srt"</li>
+     *   <li>Ignore directory "/Plex Versions" = ".*\\/Plex Versions.*"</li>
+     *   <li>Ignore directory "Plex Versions/" = ".*Plex Versions\\/.*"</li>
+     * </ul>
      * @param item The item to check
      * @return true/false
      */
     public boolean ignore(Item item) throws MungeException
     {
         String str = "";
-        String str1 = "";
+        String strPatt = "";
         boolean ret = false;
         String name = getItemName(item);
 
-        if (name.toLowerCase().endsWith(".els")) // automatically exclude .els files v3.0.0
+        if (name.toLowerCase().endsWith(".els")) // automatically exclude .els files
         {
             ret = true;
         }
         else
         {
+            int i = 0;
             for (Pattern patt : getLibraryData().libraries.compiledPatterns)
             {
-                str = patt.toString();
-                if (name.matches(str))
+                str = getLibraryData().libraries.ignore_patterns[i++];
+                strPatt = patt.toString();
+                if (str.startsWith(".*\\" + getSeparator()) || str.endsWith("\\" + getSeparator() + ".*"))
+                {
+                    if (item.getFullPath().matches(strPatt))
+                    {
+                        ret = true;
+                        break;
+                    }
+                }
+                else if (name.matches(strPatt))
                 {
                     ret = true;
                     break;
@@ -526,6 +543,16 @@ public class Repository
                     from = "/";
                     to = "\\\\";
                     break;
+            }
+
+            if (libraryData.libraries.temp_location != null)
+            {
+                String path = libraryData.libraries.temp_location;
+                if (path.startsWith("~"))
+                {
+                    path = System. getProperty("user.home") + path.substring(1);
+                    libraryData.libraries.temp_location = path;
+                }
             }
 
             if (libraryData.libraries.bibliography != null)
