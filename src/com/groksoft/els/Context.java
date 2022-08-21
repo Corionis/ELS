@@ -15,6 +15,7 @@ import com.groksoft.els.stty.hintServer.Datastore;
 public class Context
 {
     // some of these will be null at runtime depending on configuration
+    public HintKeys authKeys;
     public ClientSftp clientSftp;
     public ClientStty clientStty;
     public Datastore datastore;

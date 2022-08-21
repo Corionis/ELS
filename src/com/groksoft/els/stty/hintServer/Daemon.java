@@ -99,6 +99,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 Utils.writeStream(out, myKey, myKey);
 
                 input = Utils.readStream(in, myKey);
+                // validate with Hint Keys
                 HintKeys.HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
                 if (connectedKey != null)
                 {
@@ -301,6 +302,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 }
             }
         }
+        context.fault = fault;
         return stop;
     } // process
 

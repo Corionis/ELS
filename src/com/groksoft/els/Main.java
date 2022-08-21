@@ -36,7 +36,6 @@ public class Main
     private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
-    private int returnValue = 0;
     public SavedConfiguration savedConfiguration;
 
     /**
@@ -553,13 +552,27 @@ public class Main
             if (cfg.isNavigator())
                 JOptionPane.showMessageDialog(null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             isListening = false; // force stop
-            returnValue = 1;
         }
         finally
         {
             // stop stuff
             if (!isListening && !cfg.isNavigator()) // clients
             {
+                // if a fault occurred tell any listener
+                if (main.context.fault && main.context.clientStty != null && main.context.clientStty.isConnected())
+                {
+                    String resp;
+                    try
+                    {
+                        logger.warn("Sending remote fault command (1)");
+                        resp = main.context.clientStty.roundTrip("fault");
+                    }
+                    catch (Exception e)
+                    {
+                        resp = null;
+                    }
+                }
+
                 // optionally command status server to quit
                 if (context.statusStty != null)
                     context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
@@ -579,6 +592,9 @@ public class Main
                     {
                         try
                         {
+                            if (main.context.fault)
+                                logger.error("Halting with error code");
+
                             // optionally command status server to quit
                             if (main.context.statusStty != null)
                                 main.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
@@ -586,6 +602,10 @@ public class Main
                             Main.stopVerbiage();
                             main.stopServices();
                             Thread.sleep(4000L);
+
+                            // this is the only way to exit with a non-zero code and not hang in this thread
+                            if (main.context.fault)
+                                Runtime.getRuntime().halt(1);
                         }
                         catch (Exception e)
                         {
@@ -595,8 +615,11 @@ public class Main
                 });
             }
         }
-        if (returnValue > 0)
-            System.exit(returnValue);
+        if (main.context.fault)
+        {
+            logger.error("Exiting with error code");
+            System.exit(1);
+        }
     } // process
 
     /**
@@ -721,15 +744,9 @@ public class Main
         main.logger.fatal("Runtime: " + Utils.getDuration(millis));
 
         if (!main.context.fault)
-        {
-            main.logger.fatal("Process completed normally\n");
-            main.returnValue = 0;
-        }
+            main.logger.fatal("Process completed normally");
         else
-        {
-            main.logger.fatal("Process failed\n");
-            main.returnValue = 1;
-        }
+            main.logger.fatal("Process failed");
     }
 
 }

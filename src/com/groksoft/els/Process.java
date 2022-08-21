@@ -579,10 +579,17 @@ public class Process
                 // tell remote end to exit
                 if (context.clientStty != null)
                 {
-                    String resp;
+                    String resp = "";
                     try
                     {
-                        resp = context.clientStty.roundTrip("quit");
+                        // if a fault occurred tell any listener
+                        if (fault && context.clientStty.isConnected())
+                        {
+                            logger.warn("Sending remote fault command (2)");
+                            resp = context.clientStty.roundTrip("fault");
+                        }
+                        else
+                            resp = context.clientStty.roundTrip("quit");
                     }
                     catch (Exception e)
                     {

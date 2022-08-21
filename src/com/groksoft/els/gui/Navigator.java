@@ -119,6 +119,9 @@ public class Navigator
     // IDEA
     //  * A dry-run analyzer comparison tool - an extended duplicate finder?
     //
+    // IDEA
+    //  * Add an authorization mechanism to restrict read/write/delete access interactively
+    //
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -684,6 +687,7 @@ public class Navigator
                             {
                                 showHintTrackingButton = true;
                                 guiContext.mainFrame.panelHintTracking.setVisible(true);
+                                guiContext.mainFrame.buttonHintTracking.doClick();
                             }
                         }
                         catch (Exception e)
@@ -1861,6 +1865,7 @@ public class Navigator
                 else
                 {
                     guiContext.mainFrame = null; // failed
+                    guiContext.context.fault = true;
                     stop();
                 }
             }
@@ -1906,23 +1911,31 @@ public class Navigator
                 guiContext.context.clientSftp.stopClient();
                 if (guiContext.context.clientStty.isConnected())
                 {
-                    if (quitRemote)
+                    if (guiContext.context.fault)
                     {
+                        String resp;
+                        try
+                        {
+                            resp = guiContext.context.clientStty.roundTrip("fault");
+                        }
+                        catch (Exception e)
+                        {
+                            resp = null;
+                        }
+                    }
+                    else if (quitRemote)
                         guiContext.context.clientStty.send("quit");
-                    }
                     else
-                    {
                         guiContext.context.clientStty.send("bye");
-                    }
                 }
             }
             catch (Exception e)
             {
+                guiContext.context.fault = true;
                 logger.error(Utils.getStackTrace(e));
             }
         }
 
-        // report stats and shutdown
         if (guiContext.mainFrame != null)
         {
             try // save the settings
@@ -1935,6 +1948,7 @@ public class Navigator
             guiContext.mainFrame.setVisible(false);
             guiContext.mainFrame.dispose();
         }
+
         Main.stopVerbiage();
 
         // end the Navigator Swing thread

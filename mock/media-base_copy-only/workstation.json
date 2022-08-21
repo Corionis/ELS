@@ -1,0 +1,34 @@
+{
+	"libraries": {
+        "description": "Media Workstation",
+        "host": "localhost:50271",
+        "listen": "localhost:50271",
+        "flavor": "linux",
+        "case_sensitive": "false",
+        "temp_dated": "false",
+        "temp_location": "",
+        "terminal_allowed": "true",
+        "key": "10387386-76a4-488e-abcc-16cab6072b48",
+        "ignore_patterns": [
+            "(?i)desktop\\.ini",
+            ".*\\.fuse.*",
+            ".*\\.srt",
+            "Thumbs\\.db"
+		],
+        "locations": [
+            {
+                "location": "test/",
+                "minimum": "42GB"
+            }
+        ],
+		"bibliography": [
+			{
+				"name": "Mock Test",
+				"sources": [
+					"test"
+				]
+			}
+		]
+	}
+}
+

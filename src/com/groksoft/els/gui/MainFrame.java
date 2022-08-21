@@ -918,7 +918,7 @@ public class MainFrame extends JFrame
                                 buttonHintTracking.setMinimumSize(new Dimension(124, 30));
                                 buttonHintTracking.setMaximumSize(new Dimension(124, 30));
                                 buttonHintTracking.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
-                                buttonHintTracking.setActionCommand(" hints");
+                                buttonHintTracking.setActionCommand("hints");
                                 panelHintTracking.add(buttonHintTracking, BorderLayout.CENTER);
 
                                 //---- hSpacer2 ----

@@ -368,17 +368,17 @@ public class ClientStty
             }
 
             String path = "";
+            String fn = Utils.scrubFilename(theirRepo.getLibraryData().libraries.description).replaceAll(" ", "");
             if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
             {
                 path = myRepo.getLibraryData().libraries.temp_location;
                 String sep = myRepo.getSeparator();
                 if (!path.endsWith(sep))
                     path += sep;
-                String fn = FilenameUtils.getBaseName(theirRepo.getJsonFilename());
                 location = path + fn;
             }
             else
-                location = theirRepo.getJsonFilename();
+                location = fn;
             location += "_" + command + "-received" + stamp + ".json";
             try
             {

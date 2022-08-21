@@ -1,12 +1,12 @@
 ## Version 4.0.0
 
 This major release 4.0.0 of ELS adds the ELS Navigator GUI and a variety related
-enhancements and bug fixes. 
+enhancements and changes. 
 
 The Navigator is purpose-built to make building and the on-going maintenance of a home
 media collection easier. Using the built-in capabilities of ELS the Navigator provides a
-visual tool for adding media and curating a collection either locally or remotely to a
-media server. Tools and jobs are provided to make performing repetitive tasks easier.
+visual tool for adding media and curating a collection either locally or remotely.
+Tools and jobs are provided to make performing repetitive tasks easier.
 
 Features:
  * Modes (where the Navigator is running)
@@ -35,10 +35,11 @@ Features:
    * Numerous display options
    * Multiple Look 'n Feel options
 
-Like the rest of ELS the new Navigator is a general tool for any media system compatible
-with ELS. And similarly it works on Windows, Linux and Mac.
+Like the rest of ELS the new Navigator is a general tool for anyone manipulating
+media and is aksi compatible with modern media system such a Plex Media Server.
+Works on Windows, Linux and Mac.
 
-It's all built-in with the -n | --navigator option.
+_It's all built-in_ with the new -n|--navigator option.
 
 ### Enhancements
 
@@ -89,11 +90,16 @@ It's all built-in with the -n | --navigator option.
  5. Added option -j | --job to execute a previously-defined ELS Job. If the name contains
     whitespace enclose it in quotations. In this mode the job controls ELS actions.
 
+ 6. Added option -A | --auth-keys for subscriber and publisher listeners. This is the same
+    format as Hint Keys. The difference is authorization keys are used to authenticate both
+    workstations and publishes, whereas hint keys are only for collections, publishers and
+    subscribers, where Hints are processed. Hints are not used on workstations.
+
 ### Other Changes
 
  1. The ELS Navigator has necessitated the introduction of a formal user-based directory
     structure to hold the various preference, bookmark, library, tool, job, etc. files. 
-    All these files are kept in each user's HOME/.els/ directory and subdirectories.
+    All these items are kept in each user's HOME/.els/ directory.
  
     IMPORTANT: When upgrading from ELS versions earlier than 4.0.0 copy your existing library JSON
     files to your HOME/.els/libraries/ directory. If that directory does not exist create it.
@@ -117,21 +123,22 @@ It's all built-in with the -n | --navigator option.
           subdirectories and files.
     2. If the pattern does not contain the path separator literal only the right-end directory or file name is matched.
 
- 6. Changed the authentication technique for subscriber and publisher listeners.
+ 6. Added a new authentication technique for subscriber and publisher listeners.
     1. Normally the publisher and subscriber are specific.
        1. If a connection is made to a listener and it is not the specific system expected
           the listener will fail and exit.
-    2. However if the listener is running with the -k|-K Hint Keys file option authentication
-       matches against the Hint Keys file. So a single subscriber listener
-       can connect to one or more remote ELS systems or Navigators concurrently.
+    2. However if the listener is running with the -A|--auth-keys Authorization Keys file option
+       authentication matches against all the keys. So a single subscriber listener can connect to 
+       one or more remote ELS publishers or ELS Navigators concurrently.
        1. The current limit is 10 concurrent connections. 
        2. This is the same technique used by the Hint Status Server.
     3. In either case if a connection is made and authentication fails the listener will fail and exit.
        1. This is to prevent hack attempts on listeners.
        2. May change in the future.
 
-
-### Bug Fixes
+ 7. Modified the code for methodical exit code status values. Exit code 0 is normal, 1 indicates a
+    fault occurred. Exit code 130 is returned if Ctrl-C is hit on the command line. Useful for error
+    handling in multi-step automation batch files or scripts.
 
 
 ### Developer Notes

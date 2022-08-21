@@ -1357,14 +1357,17 @@ public class Browser
         if (!guiContext.navigator.showHintTrackingButton)
         {
             guiContext.mainFrame.panelHintTracking.setVisible(false);
+            trackingHints = false;
         }
+        else
+            trackingHints = true;
 
         guiContext.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equals("hints"))
+                if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
                 {
                     if (guiContext.mainFrame.panelHintTracking.isVisible())
                     {
@@ -1372,7 +1375,6 @@ public class Browser
                         {
                             try
                             {
-                                //guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-green.png");
                                 Image icon = ImageIO.read(url);
                                 guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
@@ -1385,11 +1387,8 @@ public class Browser
                         }
                         else
                         {
-                            //guiContext.mainFrame.buttonHintTracking.setBackground(hintTrackingColor);
-                            //guiContext.mainFrame.buttonHintTracking.setIcon(null);
                             try
                             {
-                                //guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-red.png");
                                 Image icon = ImageIO.read(url);
                                 guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));

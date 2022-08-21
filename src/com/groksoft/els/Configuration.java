@@ -1,5 +1,6 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.bookmarks.Bookmark;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -30,6 +31,7 @@ public class Configuration
     // add new locales here
     public String[] availableLocales = {"en_US"}; // List of built-in locales; TODO: Update locales here
 
+    private String authKeysFile = "";
     private String authorizedPassword = "";
     private Context context;
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
@@ -132,6 +134,10 @@ public class Configuration
         }
         logger.info(SHORT, msg);
 
+        if (getAuthKeysFile().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -A Authorization Keys filename = " + getAuthKeysFile());
+        }
         if (getAuthorizedPassword().length() > 0)
         {
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
@@ -144,14 +150,14 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
-        logger.info(SHORT, "  cfg: -f Log filename = " + getLogFilename());
+        logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFilename());
         if (statusTrackerFilename != null && statusTrackerFilename.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -h Hint status server: " + getStatusTrackerFilename());
+            logger.info(SHORT, "  cfg: -h Hint status tracker: " + getStatusTrackerFilename());
         }
         if (hintsDaemonFilename != null && hintsDaemonFilename.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -H Hints status server daemon: " + getHintsDaemonFilename());
+            logger.info(SHORT, "  cfg: -H Hints status server: " + getHintsDaemonFilename());
         }
         if (getExportCollectionFilename().length() > 0)
         {
@@ -197,7 +203,10 @@ public class Configuration
         }
         if (isQuitStatusServer())
         {
-            logger.info(SHORT, "  cfg: -q Status server QUIT");
+            if (remoteFlag == STATUS_SERVER_FORCE_QUIT)
+                logger.info(SHORT, "  cfg: -Q Status server FORCE QUIT now");
+            else
+                logger.info(SHORT, "  cfg: -q Status server QUIT");
         }
         logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
         if (getSubscriberLibrariesFileName().length() > 0)
@@ -219,6 +228,18 @@ public class Configuration
             logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
         }
         logger.info(SHORT, "  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
+        logger.info(SHORT, "  cfg: -y Preserve dates = " + Boolean.toString(isPreserveDates()));
+        logger.info(SHORT, "  cfg: -z Decimal scale = " + Boolean.toString(!isBinaryScale()));
+    }
+
+    /**
+     * Gets Authorization Keys filename
+     *
+     * @return String filename
+     */
+    public String getAuthKeysFile()
+    {
+        return authKeysFile;
     }
 
     /**
@@ -907,7 +928,7 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // single letters remaining, case-sensitive:  A B C E I j J M N O R U V X Y Z
+        // single letters remaining, case-sensitive:  B C E I j J M N O R U V X Y Z
 
         int index;
         originalArgs = args;
@@ -916,6 +937,18 @@ public class Configuration
         {
             switch (args[index])
             {
+                case "-A":                                              // authorization keys for publisher/subscriber listeners
+                case "--auth-keys":
+                    if (index <= args.length - 2)
+                    {
+                        setAuthKeysFile(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -A requires an ELS authorization keys filename");
+                    }
+                    break;
                 case "-a":                                             // authorize mode password
                 case "--authorize":
                     if (index <= args.length - 2)
@@ -944,10 +977,6 @@ public class Configuration
                         throw new MungeException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
                     break;
-                case "-D":                                             // Dry run
-                case "--dry-run":
-                    setDryRun(true);
-                    break;
                 case "-d":                                             // debug level
                 case "--debug-level":
                     if (index <= args.length - 2)
@@ -959,6 +988,10 @@ public class Configuration
                     {
                         throw new MungeException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
                     }
+                    break;
+                case "-D":                                             // Dry run
+                case "--dry-run":
+                    setDryRun(true);
                     break;
                 case "--dump-system":
                     setDumpSystem(true);
@@ -995,10 +1028,10 @@ public class Configuration
                     }
                     break;
                 case "-g":                                              // listener to keep going instead of quit when done
-                case "--go-listener":
+                case "--listener-go":
                     break; // LEFTOFF add for better v4.0 scripts
                 case "-G":                                              // tell listener to quit right now
-                case "--stop-listener":
+                case "--listener-quit":
                     break;
                 case "-h":                                              // hint status tracker
                 case "--hints":
@@ -1063,7 +1096,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -k requires an ELS keys filename");
+                        throw new MungeException("Error: -k requires an ELS hint keys filename");
                     }
                     break;
                 case "-K":                                             // ELS keys file and skip main process munge
@@ -1076,7 +1109,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -K requires an ELS keys filename");
+                        throw new MungeException("Error: -K requires an ELS hint keys filename");
                     }
                     break;
                 case "-l":                                             // publisher library to process
@@ -1287,6 +1320,16 @@ public class Configuration
     }
 
     /**
+     * Set the Authorization Keys filename
+     *
+     * @param authKeysFile
+     */
+    public void setAuthKeysFile(String authKeysFile)
+    {
+        this.authKeysFile = authKeysFile;
+    }
+
+    /**
      * Sets Authorized password
      *
      * @param password the password required to access Authorized mode with a ClientStty
@@ -1391,6 +1434,11 @@ public class Configuration
         this.forceTargets = forceTargets;
     }
 
+    /**
+     * Set the Hint Keys filename
+     *
+     * @param hintKeysFile
+     */
     public void setHintKeysFile(String hintKeysFile)
     {
         this.hintKeysFile = hintKeysFile;
