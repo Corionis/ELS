@@ -19,6 +19,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.net.SocketException;
 import java.net.URL;
 import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
@@ -48,8 +49,8 @@ public class Browser
     private String keyBuffer = "";
     private long keyTime = 0L;
     private transient Logger logger = LogManager.getLogger("applog");
-    private Stack<NavTreeNode> navStack = new Stack<>();
-    private int navStackIndex = -1;
+    private Stack<NavItem>[] navStack = new Stack[4];
+    private int[] navStackIndex = { -1, -1, -1, -1 };
     private String os;
     private int tabStop = 0;
     private int[] tabStops = {0, 1, 4, 5};
@@ -848,6 +849,26 @@ public class Browser
         return -1;
     }
 
+    private int getActiveNavStack(Component comp)
+    {
+        int active = -1;
+        if (comp == null)
+            comp = lastComponent;
+        if (comp != null)
+        {
+            if (comp.getName().endsWith("CollectionOne"))
+                active = 0;
+            else if (comp.getName().endsWith("SystemOne"))
+                active = 1;
+            else if (comp.getName().endsWith("CollectionTwo"))
+                active = 2;
+            else if (comp.getName().endsWith("SystemTwo"))
+                active = 3;
+        }
+        assert(active > -1);
+        return active;
+    }
+
     public long getFreespace(NavTreeUserObject tuo) throws Exception
     {
         return getFreespace(tuo.path, tuo.isRemote);
@@ -855,13 +876,25 @@ public class Browser
 
     public long getFreespace(String path, boolean isRemote) throws Exception
     {
-        long space;
+        long space = 0L;
         if (isRemote && guiContext.cfg.isRemoteSession())
         {
-            // remote subscriber
-            space = guiContext.context.clientStty.availableSpace(path);
-            // TODO Handle java.net.SocketException: Broken pipe if listener stops
-            //  * Add to all stty (and sftp?) I/O calls
+            try
+            {
+                // remote subscriber
+                space = guiContext.context.clientStty.availableSpace(path);
+            }
+            catch (Exception e)
+            {
+                if (e instanceof SocketException && e.toString().contains("broken pipe"))
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
+                            guiContext.cfg.gs("Browser.connection.lost"),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                else
+                    JOptionPane.showMessageDialog(guiContext.mainFrame,
+                            guiContext.cfg.gs("Z.exception"),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
         }
         else
         {
@@ -979,6 +1012,9 @@ public class Browser
     {
         navTransferHandler = new NavTransferHandler(guiContext);  // single instance
 
+        for (int i = 0; i < navStack.length; ++i) // four individual NavStacks for the four browser tabs
+            navStack[i] = new Stack<NavItem>();
+
         printLog(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());
         initializeToolbar();
         initializeNavigation();
@@ -990,20 +1026,23 @@ public class Browser
         if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled() && MouseInfo.getNumberOfButtons() > 3)
         {
             Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
-                if (event instanceof MouseEvent && MouseInfo.getNumberOfButtons() > 3)
+                if (guiContext.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    MouseEvent mouseEvent = (MouseEvent) event;
-                    // if there are more than 5 buttons forward & back are shifted by 2
-                    int base = MouseInfo.getNumberOfButtons() > 5 ? 6 : 4;
-                    if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED)
+                    if (event instanceof MouseEvent && MouseInfo.getNumberOfButtons() > 3)
                     {
-                        if (mouseEvent.getButton() == base)
+                        MouseEvent mouseEvent = (MouseEvent) event;
+                        // if there are more than 5 buttons forward & back are shifted by 2
+                        int base = MouseInfo.getNumberOfButtons() > 5 ? 6 : 4;
+                        if (mouseEvent.getID() == MouseEvent.MOUSE_RELEASED)
                         {
-                            navBack();
-                        }
-                        else if (mouseEvent.getButton() == base + 1)
-                        {
-                            navForward();
+                            if (mouseEvent.getButton() == base)
+                            {
+                                navBack();
+                            }
+                            else if (mouseEvent.getButton() == base + 1)
+                            {
+                                navForward();
+                            }
                         }
                     }
                 }
@@ -1049,18 +1088,20 @@ public class Browser
             public void stateChanged(ChangeEvent changeEvent)
             {
                 JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
-                NavTreeModel model = null;
+                TreeModel model = null;
                 NavTreeNode node = null;
                 switch (pane.getSelectedIndex())
                 {
                     case 0:
-                        model = (NavTreeModel) guiContext.mainFrame.treeCollectionOne.getModel();
+                        lastComponent = guiContext.mainFrame.treeCollectionOne;
+                        model = guiContext.mainFrame.treeCollectionOne.getModel();
                         node = (NavTreeNode) guiContext.mainFrame.treeCollectionOne.getLastSelectedPathComponent();
                         tabStops[0] = 0;
                         tabStops[1] = 1;
                         break;
                     case 1:
-                        model = (NavTreeModel) guiContext.mainFrame.treeSystemOne.getModel();
+                        lastComponent = guiContext.mainFrame.treeSystemOne;
+                        model = guiContext.mainFrame.treeSystemOne.getModel();
                         node = (NavTreeNode) guiContext.mainFrame.treeSystemOne.getLastSelectedPathComponent();
                         tabStops[0] = 2;
                         tabStops[1] = 3;
@@ -1192,12 +1233,14 @@ public class Browser
                 switch (pane.getSelectedIndex())
                 {
                     case 0:
+                        lastComponent = guiContext.mainFrame.treeCollectionTwo;
                         model = guiContext.mainFrame.treeCollectionTwo.getModel();
                         node = (NavTreeNode) guiContext.mainFrame.treeCollectionTwo.getLastSelectedPathComponent();
                         tabStops[2] = 4;
                         tabStops[3] = 5;
                         break;
                     case 1:
+                        lastComponent = guiContext.mainFrame.treeSystemTwo;
                         model = guiContext.mainFrame.treeSystemTwo.getModel();
                         node = (NavTreeNode) guiContext.mainFrame.treeSystemTwo.getLastSelectedPathComponent();
                         tabStops[2] = 6;
@@ -1462,61 +1505,55 @@ public class Browser
 
     private void navBack()
     {
-        NavTreeNode node = navStackPop();
-        if (node != null)
+        NavItem ni = navStackPop();
+        if (ni.node != null)
         {
-            node.selectMyTab();
-            node.selectMe();
+            ni.node.selectMyTab();
+            ni.node.selectMe(); // loads table
+            ni.component.requestFocus();
         }
     }
 
     private void navForward()
     {
-        if (navStackIndex + 1 <= navStack.lastIndexOf(navStack.lastElement()))
+        int ans = getActiveNavStack(null);
+        if (navStackIndex[ans] + 1 <= navStack[ans].lastIndexOf(navStack[ans].lastElement()))
         {
-            ++navStackIndex;
+            ++navStackIndex[ans];
         }
-        NavTreeNode node = navStack.get(navStackIndex);
-        if (node != null)
+        NavItem ni = navStack[ans].get(navStackIndex[ans]);
+        if (ni.node != null)
         {
-            node.selectMyTab();
-            node.selectMe();
-        }
-    }
-
-    private void navUp()
-    {
-        NavTreeNode node = navStack.get(navStackIndex);
-        node = (NavTreeNode) node.getParent();
-        if (node != null)
-        {
-            node.selectMyTab();
-            node.selectMe();
-            navStackPush(node);
+            ni.node.selectMyTab();
+            ni.node.selectMe(); // loads table
+            ni.component.requestFocus();
         }
     }
 
-    private NavTreeNode navStackPop()
+    private NavItem navStackPop()
     {
-        NavTreeNode node;
-        if (navStackIndex > 1)
+        int ans = getActiveNavStack(null);
+        NavItem ni;
+        if (navStackIndex[ans] > 0)
         {
-            --navStackIndex;
-            node = navStack.get(navStackIndex);
+            --navStackIndex[ans];
+            ni = navStack[ans].get(navStackIndex[ans]);
         }
         else
-            node = (navStackIndex > -1) ? navStack.get(1) : null;
-        return node;
+            ni = (navStackIndex[ans] > -1) ? navStack[ans].get(0) : null;
+        return ni;
     }
 
     private void navStackPush(NavTreeNode node)
     {
-        if (navStackIndex < 0 || navStack.get(navStackIndex) != node)
+        int ans = getActiveNavStack(node.getMyTree());
+        if (navStackIndex[ans] < 0 || navStack[ans].get(navStackIndex[ans]).node != node)
         {
-            if (navStackIndex > -1)
-                navStack.setSize(navStackIndex + 1); // truncate anything beyond this index
-            navStack.push(node);
-            ++navStackIndex;
+            if (navStackIndex[ans] > -1)
+                navStack[ans].setSize(navStackIndex[ans] + 1); // truncate anything beyond this index
+            NavItem ni = new NavItem(node, lastComponent);
+            navStack[ans].push(ni);
+            ++navStackIndex[ans];
         }
     }
 
@@ -1540,6 +1577,21 @@ public class Browser
         next = tabStops[tabStop];
         nextComponent = getTabComponent(next);
         nextComponent.requestFocus();
+    }
+
+    private void navUp()
+    {
+        int ans = getActiveNavStack(null);
+        NavItem ni = navStack[ans].get(navStackIndex[ans]);
+        NavTreeNode node = (NavTreeNode) ni.node.getParent();
+        if (node != null)
+        {
+            node.selectMyTab();
+            node.selectMe();
+            lastComponent = lastComponent;
+            lastComponent.requestFocus();
+            navStackPush(node);
+        }
     }
 
     public synchronized void printLog(String text, boolean isError)
@@ -2183,6 +2235,23 @@ public class Browser
                     }
                 }
             }
+        }
+    }
+
+    // ================================================================================================================
+
+    public class NavItem
+    {
+        Component component; // focused component
+        NavTreeNode node; // tree node (data)
+
+        public NavItem(NavTreeNode node, Component component)
+        {
+            this.node = node;
+            if (component != null)
+                this.component = component;
+            else
+                this.component = node.getMyTree();
         }
     }
 

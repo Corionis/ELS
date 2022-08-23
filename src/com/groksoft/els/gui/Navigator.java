@@ -55,23 +55,19 @@ public class Navigator
     private transient Logger logger = LogManager.getLogger("applog");
     public SwingWorker<Void, Void> worker;
 
-    // QUESTION:
-    //  1. How to organize editing JSON server and targets files with N-libraries with N-sources each?
-    //      a. A tree control of JSON nodes and values with add/delete?
-    //
-    // QUESTION:
+    // QUESTION
     //  * Can a Library be added for updating JSON files?
     //     * Or should skeleton files be used with pull options always enabled?
     //     * Or both?
     //
-    // TODO:
+    // TODO
     //  ! TEST Hints with spread-out files, e.g. TV Show in two locations.
     //  * Display Collection:
     //     * Whole tree - done
     //     * !-Z alphabetic
     //  * Overwrite true/false option?
     //
-    // TODO:
+    // TODO
     //  * Try using skeleton JSON file with forced pull of collection from subscriber
     //
     // IDEA Add built-in SMTP mail sender; add as tool for emailing What's New files, logs, whatever.
@@ -89,13 +85,11 @@ public class Navigator
     //      * Linux, Debian - Unpack .gz
     //      * Linux, RedHat - Unpack .gz
     //
-    // IDEA:
+    // IDEA
     //  # Tools
     //      + Duplicate Finder
     //          - Option to ignore .srt files
     //      + Empty Directory Finder
-    //      + Junk Remover
-    //      + Renamer
     //      + Plex Generator - Make first included External Tool
     //      + Backup Tab Configurations
     //  # Jobs
@@ -121,6 +115,12 @@ public class Navigator
     //
     // IDEA
     //  * Add an authorization mechanism to restrict read/write/delete access interactively
+    //
+    // IDEA
+    //  * Before starting direct copy/move, where the analyzer is not used, check free space
+    //
+    // IDEA
+    //  * When selecting Source location for new directory show free space of each
     //
 
     public Navigator(Main main, Configuration config, Context ctx)

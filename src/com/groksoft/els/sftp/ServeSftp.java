@@ -129,7 +129,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                     @Override
                     public boolean authenticate(String s, PublicKey publicKey, ServerSession serverSession) throws AsyncAuthException
                     {
-                        // IDEA Public key verification could be added if higher security is needed
+                        // Public key verification could be added if higher security is needed
                         return true;
                     }
                 });
@@ -207,7 +207,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 @Override
                 public boolean handleTimeoutDisconnectReason(Session session, TimeoutIndicator timeoutStatus) throws IOException
                 {
-                    logger.fatal("ELS session timeout, ending session");
+                    logger.fatal("ELS sftp session timeout, ending session");
                     context.serveStty.requestStop();
                     return true;
                     //return SessionDisconnectHandler.super.handleTimeoutDisconnectReason(session, timeoutStatus);

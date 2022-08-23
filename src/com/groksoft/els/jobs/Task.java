@@ -74,7 +74,7 @@ public class Task implements Comparable, Serializable
         boolean didDisconnect = false;
 
         // connect to the hint status server if defined
-        context.main.connectHintServer(context.publisherRepo);  // TODO add Hint setup as part of Task??
+        context.main.connectHintServer(context.publisherRepo);
 
         // already connected
         if (context.clientStty != null && context.clientStty.isConnected() && context.clientStty.getTheirKey().equals(subscriberKey))
@@ -197,7 +197,7 @@ public class Task implements Comparable, Serializable
                             repo = new Repository(cfg, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
                             repo.read(meta.path, true);
                         }
-                        else // QUESTION should this be handled in a non-fatal way?
+                        else
                             throw new MungeException(key + cfg.gs("Z.not.found"));
                     }
                 }

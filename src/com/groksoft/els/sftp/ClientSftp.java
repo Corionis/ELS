@@ -184,14 +184,14 @@ public class ClientSftp
             jSession = jsch.getSession(user, hostname, hostport);
             jSession.setConfig("StrictHostKeyChecking", "no");
             jSession.setPassword(password);
-            // IDEA Could implement strict key checking if more security is needed
+            // Could implement strict key checking if more security is needed
             //jsch.setKnownHosts("known_hosts");
             //jsch.addIdentity("id_rsa");
             jSession.connect(30000);
 
             // If this is a remote Navigator session then "keep alive" the connection
             if (cfg.isRemoteSession() && cfg.isNavigator())
-                jSession.setServerAliveInterval(500000);  // Apache Mina sftp server time-out is 600,000 millis
+                jSession.setServerAliveInterval(500000);  // Apache Mina sftp server time-out is 10 minutes
         }
         catch (Exception e)
         {

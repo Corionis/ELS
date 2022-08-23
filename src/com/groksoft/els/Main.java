@@ -211,7 +211,8 @@ public class Main
                         if (defaultNavigator)
                             logger.warn("Publisher and subscriber not defined. Defaulting to the Navigator");
 
-                        // TODO Incorporate Hint Server
+                        // setup the hint status server if defined
+                        connectHintServer(context.publisherRepo);
 
                         context.navigator = new Navigator(this, cfg, context);
                         if (!context.fault)

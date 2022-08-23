@@ -311,7 +311,6 @@
       <zipfileset src="${basedir}/lib/sshd-sftp-2.5.1.jar"/>
       <zipfileset src="${basedir}/lib/jsch-0.1.55.jar"/>
       <zipfileset src="${basedir}/lib/commons-lang3-3.12.0.jar"/>
-      <zipfileset src="${basedir}/lib/flatlaf-1.5.jar"/>
       <zipfileset src="${basedir}/lib/log4j-api-2.16.0.jar"/>
       <zipfileset src="${basedir}/lib/log4j-core-2.16.0.jar"/>
       <zipfileset src="${basedir}/lib/log4j-slf4j18-impl-2.16.0.jar"/>
@@ -319,6 +318,7 @@
       <zipfileset src="${basedir}/lib/slf4j-simple-1.7.9.jar"/>
       <zipfileset src="${basedir}/lib/commons-io-2.11.0.jar"/>
       <zipfileset src="${basedir}/lib/javax.activation-1.2.0.jar"/>
+      <zipfileset src="${basedir}/lib/flatlaf-2.4.jar"/>
     </jar>
     <copy file="${temp.jar.path.ELS.jar}" tofile="${artifact.temp.output.els:jar}/ELS.jar"/>
   </target>
