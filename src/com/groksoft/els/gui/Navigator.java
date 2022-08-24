@@ -1184,34 +1184,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                Object object = guiContext.browser.lastComponent;
-
-                guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
-                if (guiContext.preferences.isHideHiddenFiles())
-                    guiContext.mainFrame.menuItemShowHidden.setSelected(false);
-                else
-                    guiContext.mainFrame.menuItemShowHidden.setSelected(true);
-
-                guiContext.browser.refreshTree(guiContext.mainFrame.treeCollectionOne);
-                guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemOne);
-                guiContext.browser.refreshTree(guiContext.mainFrame.treeCollectionTwo);
-                guiContext.browser.refreshTree(guiContext.mainFrame.treeSystemTwo);
-
-                JTree tree = null;
-                if (object instanceof JTree)
-                {
-                    tree = (JTree) object;
-                }
-                else if (object instanceof JTable)
-                {
-                    tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
-                }
-                if (tree != null)
-                {
-                    NavTreeNode node = (NavTreeNode) tree.getLastSelectedPathComponent();
-                    if (node != null)
-                        node.loadTable();
-                }
+                guiContext.browser.toggleShowHiddenFiles();
             }
         });
         // set initial state of Show Hidden checkbox

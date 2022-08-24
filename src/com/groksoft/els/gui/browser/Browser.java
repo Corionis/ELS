@@ -294,16 +294,7 @@ public class Browser
                 // handle Ctrl-H to toggle Show Hidden
                 if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
-                    guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
-                    if (guiContext.preferences.isHideHiddenFiles())
-                        guiContext.mainFrame.menuItemShowHidden.setSelected(false);
-                    else
-                        guiContext.mainFrame.menuItemShowHidden.setSelected(true);
-
-                    refreshTree(guiContext.mainFrame.treeCollectionOne);
-                    refreshTree(guiContext.mainFrame.treeSystemOne);
-                    refreshTree(guiContext.mainFrame.treeCollectionTwo);
-                    refreshTree(guiContext.mainFrame.treeSystemTwo);
+                    toggleShowHiddenFiles();
                 }
 
                 // handle Ctrl-R to Refresh current selection
@@ -1716,6 +1707,7 @@ public class Browser
             TreePath rootPath = ((NavTreeNode) tree.getModel().getRoot()).getTreePath();
             Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(rootPath);
             TreePath[] paths = tree.getSelectionPaths();
+            ((NavTreeModel)tree.getModel()).reload();
             tree.setExpandsSelectedPaths(true);
             if (expandedDescendants != null)
             {
@@ -2070,6 +2062,34 @@ public class Browser
 
         root.setLoaded(true);
         return root;
+    }
+
+    public void toggleShowHiddenFiles()
+    {
+        Object object = lastComponent;
+
+        guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
+        if (guiContext.preferences.isHideHiddenFiles())
+            guiContext.mainFrame.menuItemShowHidden.setSelected(false);
+        else
+            guiContext.mainFrame.menuItemShowHidden.setSelected(true);
+
+        refreshAll();
+        JTree tree = null;
+        if (object instanceof JTree)
+        {
+            tree = (JTree) object;
+        }
+        else if (object instanceof JTable)
+        {
+            tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+        }
+        if (tree != null)
+        {
+            NavTreeNode node = (NavTreeNode) tree.getLastSelectedPathComponent();
+            if (node != null)
+                node.loadTable();
+        }
     }
 
     public void touchSelected(JTable sourceTable)
