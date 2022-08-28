@@ -140,12 +140,6 @@ public abstract class AbstractTool implements Comparable, Serializable
 
     abstract public void setConfigName(String configName);
 
-    public void setContext(Configuration config, Context context)
-    {
-        this.cfg = config;
-        this.context = context;
-    }
-
     public void setDisplayName(String displayName)
     {
         this.displayName = displayName;

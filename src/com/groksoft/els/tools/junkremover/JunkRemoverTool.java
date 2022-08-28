@@ -47,7 +47,7 @@ public class JunkRemoverTool extends AbstractTool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private final boolean realOnly = true;
+    transient private final boolean realOnly = false;
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> toolPaths;
 
@@ -185,25 +185,26 @@ public class JunkRemoverTool extends AbstractTool
         return realOnly;
     }
 
+    private void logDeletion(String fullpath)
+    {
+        String msg = "";
+        if (!isDryRun)
+            msg = "  - " + cfg.gs("Z.deleted") + fullpath;
+        else
+            msg = "  > " + cfg.gs("Z.would.delete") + fullpath;
+
+        if (guiContext != null)
+            guiContext.browser.printLog(msg);
+        else
+            logger.info(msg);
+    }
+
     private boolean match(String filename, String fullpath, JunkItem junk)
     {
         // https://commons.apache.org/proper/commons-io/
         // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html
         // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html#wildcardMatch(java.lang.String,%20java.lang.String)
         boolean isMatch = FilenameUtils.wildcardMatch(filename, junk.wildcard, (junk.caseSensitive ? IOCase.SENSITIVE : IOCase.INSENSITIVE));
-        if (isMatch)
-        {
-            String msg = "  ";
-            if (isRemote())
-                msg += getCfg().gs("Z.remote.uppercase");
-            else
-                msg += getCfg().gs("NavTreeNode.local");
-            msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun ? 0 : 1, fullpath);
-            if (guiContext != null)
-                guiContext.browser.printLog(msg);
-            else
-                logger.info(msg);
-        }
         return isMatch;
     }
 
@@ -251,7 +252,7 @@ public class JunkRemoverTool extends AbstractTool
 
         if (guiContext != null)
         {
-            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
+            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + deleteCount + (isDryRun ? " (dry-run)" : ""));
 
             // reset and reload relevant trees
             if (!isDryRun && deleteCount > 0)
@@ -270,7 +271,7 @@ public class JunkRemoverTool extends AbstractTool
         }
         else
         {
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount);
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount + (isDryRun ? " (dry-run)" : ""));
         }
     }
 
@@ -279,11 +280,11 @@ public class JunkRemoverTool extends AbstractTool
      * <br/>
      * Used by the Run button of the tool
      *
-     * @param guiContext The GuiContext
-     * @param publisherRepo Publisher repo, or null
+     * @param guiContext     The GuiContext
+     * @param publisherRepo  Publisher repo, or null
      * @param subscriberRepo Subscriber repo, or null
-     * @param origins List of origins to process
-     * @param dryRun Boolean for a dry-run
+     * @param origins        List of origins to process
+     * @param dryRun         Boolean for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
     @Override
@@ -328,7 +329,7 @@ public class JunkRemoverTool extends AbstractTool
                     if (guiContext != null)
                     {
                         guiContext.browser.printLog(msg, true);
-                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
                         logger.error(msg);
@@ -384,22 +385,15 @@ public class JunkRemoverTool extends AbstractTool
                                     break;
                                 if (match(filename, fullpath, ji))
                                 {
+                                    ++deleteCount;
+                                    if (guiContext != null)
+                                    {
+                                        guiContext.mainFrame.labelStatusMiddle.setText(cfg.gs("Z.count") + deleteCount);
+                                        guiContext.mainFrame.labelStatusMiddle.updateUI();
+                                    }
                                     if (!isDryRun)
-                                    {
                                         getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
-                                        ++deleteCount;
-                                        if (guiContext != null)
-                                            guiContext.browser.printLog(cfg.gs("Z.deleted") + fullpath);
-                                        else
-                                            logger.info(cfg.gs("Z.deleted") + fullpath);
-                                    }
-                                    else
-                                    {
-                                        if (guiContext != null)
-                                            guiContext.browser.printLog(cfg.gs("Z.would.delete") + fullpath);
-                                        else
-                                            logger.info(cfg.gs("Z.would.delete") + fullpath);
-                                    }
+                                    logDeletion(fullpath);
                                 }
                             }
                         }
@@ -412,7 +406,10 @@ public class JunkRemoverTool extends AbstractTool
                 if (guiContext != null)
                 {
                     guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    int reply = JOptionPane.showConfirmDialog(guiContext.navigator.dialogJunkRemover, guiContext.cfg.gs("JunkRemover.title"),
+                            "Z.cancel.run", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION)
+                        requestStop();
                 }
                 else
                     logger.error(msg);
@@ -455,22 +452,12 @@ public class JunkRemoverTool extends AbstractTool
                                 break;
                             if (match(filename, fullpath, ji))
                             {
+                                ++deleteCount;
+                                if (guiContext != null)
+                                    guiContext.mainFrame.labelStatusMiddle.setText(cfg.gs("Z.count") + deleteCount);
                                 if (!isDryRun)
-                                {
                                     getContext().transfer.remove(fullpath, entry.isDirectory(), isRemote());
-                                    ++deleteCount;
-                                    if (guiContext != null)
-                                        guiContext.browser.printLog(cfg.gs("Z.deleted") + fullpath);
-                                    else
-                                        logger.info(cfg.gs("Z.deleted") + fullpath);
-                                }
-                                else
-                                {
-                                    if (guiContext != null)
-                                        guiContext.browser.printLog(cfg.gs("Z.would.delete") + fullpath);
-                                    else
-                                        logger.info(cfg.gs("Z.would.delete") + fullpath);
-                                }
+                                logDeletion(fullpath);
                             }
                         }
                     }
@@ -482,7 +469,10 @@ public class JunkRemoverTool extends AbstractTool
                 if (guiContext != null)
                 {
                     guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    int reply = JOptionPane.showConfirmDialog(guiContext.navigator.dialogJunkRemover, guiContext.cfg.gs("JunkRemover.title"),
+                            "Z.cancel.run", JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION)
+                        requestStop();
                 }
                 else
                     logger.error(msg);

@@ -589,7 +589,15 @@ public class Process
                             resp = context.clientStty.roundTrip("fault");
                         }
                         else
-                            resp = context.clientStty.roundTrip("quit");
+                        {
+                            if (!cfg.isKeepGoing())
+                                resp = context.clientStty.roundTrip("quit");
+                            else
+                            {
+                                context.clientStty.send("bye");
+                                resp = "End-Execution";
+                            }
+                        }
                     }
                     catch (Exception e)
                     {

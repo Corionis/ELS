@@ -136,8 +136,9 @@ Manual terminal commands:
  3. space [location] : Get the free space of location on remote
  4. targets : Get targets file from remote
  5. help
- 6. logout : Exit current authorized level
- 7. bye, exit, quit : Disconnect and inform the subscriber listener to exit
+ 6. bye : Disconnection session, leave listener running
+ 7. logout : Exit current authorized level
+ 8. exit, quit : Disconnect and inform the subscriber listener to exit
 
 Manual terminal to subscriber (-r S and -r M) "authorized" commands:
  1. status = server and console status information

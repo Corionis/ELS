@@ -108,7 +108,7 @@ public class Navigator
     //          *
     //
     // IDEA
-    //  + Need an ELS option to match dates (now that dates can be synch'ed)
+    //  + Need an ELS option to match against dates (now that dates can be synch'ed)
     //
     // IDEA
     //  * A dry-run analyzer comparison tool - an extended duplicate finder?

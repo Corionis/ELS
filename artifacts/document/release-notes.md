@@ -95,6 +95,14 @@ _It's all built-in_ with the new -n|--navigator option.
     workstations and publishes, whereas hint keys are only for collections, publishers and
     subscribers, where Hints are processed. Hints are not used on workstations.
 
+ 7. Added option -g | --listener-keep-going. For a Publisher the "keep going" flag skips
+    sending the quit command to the subscriber when the backup operation is complete. For a
+    subscriber it skips ending with a fault on an unexpected disconnect (EOL).
+
+ 8. Added option -G | --listener-quit that only sends the quit command to a remote
+    subscriber, then exits. Similar to the -Q | --force-quit option.
+
+
 ### Other Changes
 
  1. The ELS Navigator has necessitated the introduction of a formal user-based directory

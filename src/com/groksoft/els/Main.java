@@ -182,7 +182,7 @@ public class Main
             //
             logger.info("+------------------------------------------");
             boolean defaultNavigator = false;
-            switch (cfg.getRemoteFlag())
+            switch (cfg.getOperation())
             {
                 // handle standard local execution, no -r option
                 case NOT_REMOTE:
@@ -506,6 +506,39 @@ public class Main
                     cfg.setQuitStatusServer(true);
                     break;
 
+                // handle -G|--listener-quit the remote subscriber
+                case SUBSCRIBER_SERVER_FORCE_QUIT:
+                    logger.info("ELS: Subscriber Listener Quit begin, version " + cfg.getVersionStamp());
+                    cfg.dump();
+
+                    if (cfg.getSubscriberFilename() == null || cfg.getSubscriberFilename().length() == 0)
+                        throw new MungeException("-G|--listener-quit requires a -s|-S subscriber JSON file");
+
+                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+
+                    // start client
+                    if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
+                    {
+                        // start the serveStty client
+                        context.clientStty = new ClientStty(cfg, false, true);
+                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                        {
+                            throw new MungeException("Remote subscriber failed to connect");
+                        }
+                        try
+                        {
+                            logger.warn("Sending remote quit command");
+                            main.context.clientStty.roundTrip("quit");
+                            Thread.sleep(1000);
+                        }
+                        catch (Exception e)
+                        {
+                            // ignore any exception
+                        }
+                    }
+                    break;
+
                 case JOB_PROCESS:
                     // handle -j|--job to execute a Job
                     logger.info("ELS: Job begin, version " + cfg.getVersionStamp());
@@ -562,15 +595,14 @@ public class Main
                 // if a fault occurred tell any listener
                 if (main.context.fault && main.context.clientStty != null && main.context.clientStty.isConnected())
                 {
-                    String resp;
                     try
                     {
                         logger.warn("Sending remote fault command (1)");
-                        resp = main.context.clientStty.roundTrip("fault");
+                        main.context.clientStty.roundTrip("fault");
                     }
                     catch (Exception e)
                     {
-                        resp = null;
+                        // ignore any exception
                     }
                 }
 

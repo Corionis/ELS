@@ -54,7 +54,7 @@ public class RenamerTool extends AbstractTool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private final boolean realOnly = true;
+    transient private final boolean realOnly = false;
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> toolPaths;
     // @formatter:on
@@ -443,7 +443,7 @@ public class RenamerTool extends AbstractTool
 
         if (guiContext != null)
         {
-            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + renameCount);
+            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? cfg.gs("Z.dry.run") : ""));
 
             // reset and reload relevant trees
             if (!isDryRun && renameCount > 0)
@@ -462,7 +462,7 @@ public class RenamerTool extends AbstractTool
         }
         else
         {
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount);
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? cfg.gs("Z.dry.run") : ""));
         }
     }
 
@@ -552,10 +552,12 @@ public class RenamerTool extends AbstractTool
         {
             String left = Utils.getLeftPath(fullpath, repo.getSeparator());
             newPath = left + repo.getSeparator() + change;
+            ++renameCount;
+            if (guiContext != null)
+                guiContext.mainFrame.labelStatusMiddle.setText(cfg.gs("Z.count") + renameCount);
             if (!isDryRun)
             {
                 getContext().transfer.rename(fullpath, newPath, isRemote());
-                ++renameCount;
                 fullpath = newPath;
                 if (guiContext != null)
                     guiContext.browser.printLog(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);

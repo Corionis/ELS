@@ -444,7 +444,7 @@ public class JunkRemoverUI extends JDialog
             if (guiContext != null)
             {
                 guiContext.browser.printLog(msg, true);
-                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -505,6 +505,7 @@ public class JunkRemoverUI extends JDialog
                     String message = java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
                     JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
                     checkbox.setToolTipText(guiContext.cfg.gs("Navigator.dryrun.tooltip"));
+                    checkbox.setSelected(true);
                     Object[] params = {message, checkbox};
 
                     // confirm run of tool
@@ -553,7 +554,7 @@ public class JunkRemoverUI extends JDialog
                             if (guiContext != null)
                             {
                                 guiContext.browser.printLog(msg, true);
-                                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                             }
                             else
                                 logger.error(msg);
@@ -574,7 +575,7 @@ public class JunkRemoverUI extends JDialog
                     if (guiContext != null)
                     {
                         guiContext.browser.printLog(msg, true);
-                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
                         logger.error(msg);
@@ -637,7 +638,7 @@ public class JunkRemoverUI extends JDialog
             if (guiContext != null)
             {
                 guiContext.browser.printLog(msg, true);
-                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);

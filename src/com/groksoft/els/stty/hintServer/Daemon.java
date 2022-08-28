@@ -187,8 +187,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     line = readStream(in, myKey);  // special readStream() variant for continuous server
                     if (line == null)
                     {
-                        // break read loop and let the connection be closed
-                        break;
+                        break; // break read loop and let the connection be closed
                     }
 
                     if (line.trim().length() < 1)
@@ -253,7 +252,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     // -------------- quit, exit --------------------------------
                     if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                     {
-                        //Utils.writeStream(out, myKey, "End-Execution");
+                        //Utils.writeStream(out, myKey, "End-Execution"); // not a round-trip
                         out.flush();
                         Thread.sleep(1000);
                         stop = true;

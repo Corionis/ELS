@@ -649,6 +649,7 @@ public class RenamerUI extends JDialog
                     String message = java.text.MessageFormat.format(guiContext.cfg.gs("Renamer.run.on.N.locations"), renamer.getConfigName(), count, which);
                     JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
                     checkbox.setToolTipText(guiContext.cfg.gs("Navigator.dryrun.tooltip"));
+                    checkbox.setSelected(true);
                     Object[] params = {message, checkbox};
 
                     // confirm run of tool

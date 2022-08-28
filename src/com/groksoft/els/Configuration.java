@@ -1,6 +1,5 @@
 package com.groksoft.els;
 
-import com.groksoft.els.gui.bookmarks.Bookmark;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -22,6 +21,7 @@ public class Configuration
     public static final int PUBLISH_REMOTE = 1;
     public static final int STATUS_SERVER = 6;
     public static final int STATUS_SERVER_FORCE_QUIT = 7;
+    public static final int SUBSCRIBER_SERVER_FORCE_QUIT = 9;
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_TERMINAL = 5;
     private final String NAVIGATOR_NAME = "ELS Navigator";
@@ -29,55 +29,59 @@ public class Configuration
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
 
     // add new locales here
-    public String[] availableLocales = {"en_US"}; // List of built-in locales; TODO: Update locales here
+    public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO: Update locales here
 
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private Context context;
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
-    private boolean crossCheck = false;
+    private boolean consoleSet = false;
+    private int crossCheck = -1;
     private ResourceBundle currentBundle = null;
     private String currentFilePart = "";
     private String debugLevel = "debug";
-    private boolean dryRun = false;
-    private boolean dumpSystem = false;
-    private boolean duplicateCheck = false;
+    private boolean debugSet = false;
+    private int dryRun = -1;
+    private int dumpSystem = -1;
+    private int duplicateCheck = -1;
     private String exportCollectionFilename = "";
     private String exportTextFilename = "";
-    private boolean forceCollection = false;
-    private boolean forceTargets = false;
+    private int forceCollection = -1;
+    private int forceTargets = -1;
     private String hintKeysFile = "";
-    private boolean hintSkipMainProcess = false;
+    private int hintSkipMainProcess = -1;
     private String hintsDaemonFilename = "";
     private String jobName = "";
+    private int keepGoing = -1;
     private String logFilename = "";
-    private boolean logOverwrite = false;
+    private int logOverwrite = -1;
     private double longScale = 1024L;
     private String mismatchFilename = "";
-    private boolean navigator = false;
-    private boolean noBackFill = false;
+    private int navigator = -1;
+    private int noBackFill = -1;
     private String[] originalArgs;
-    private boolean overwrite = false;
-    private boolean preserveDates = false;
-    private boolean publishOperation = true;
+    private int overwrite = -1;
+    private int preserveDates = -1;
+    private int publishOperation = -1;
     private String publisherCollectionFilename = "";
     private String publisherLibrariesFileName = "";
-    private boolean quitStatusServer = false;
-    private int remoteFlag = NOT_REMOTE;
+    private int quitStatusServer = -1;
+    private int quitSubscriberListener = -1;
+    private int operation = NOT_REMOTE;
     private String remoteType = "-";
-    private boolean requestCollection = false;
-    private boolean requestTargets = false;
+    private int requestCollection = -1;
+    private int requestTargets = -1;
     private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
     private ArrayList<String> selectedLibraryNames = new ArrayList<>();
-    private boolean specificExclude = false;
-    private boolean specificLibrary = false;
+    private int specificExclude = -1;
+    private int specificLibrary = -1;
     private String statusTrackerFilename = "";
     private String subscriberCollectionFilename = "";
     private String subscriberLibrariesFileName = "";
-    private boolean targetsEnabled = false;
+    private int targetsEnabled = -1;
     private String targetsFilename = "";
-    private boolean validation = false;
-    private boolean whatsNewAll = false;
+    private int validation = -1;
+    private int whatsNewAll = -1;
     private String whatsNewFilename = "";
 
 
@@ -119,6 +123,15 @@ public class Configuration
         return currentBundle;
     }
 
+    private void log(Logger logger, Marker SHORT, String message, int indicator)
+    {
+       if (indicator >= 0)
+        {
+            String value = indicator == 0 ? "false" : "true";
+            logger.info(SHORT, message + value);
+        }
+    }
+
     /**
      * Dump the configuration
      */
@@ -142,15 +155,24 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
         }
-        logger.info(SHORT, "  cfg: -b No back fill = " + Boolean.toString(isNoBackFill()));
-        logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
-        logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
-        logger.info(SHORT, "  cfg: -D Dry run = " + Boolean.toString(isDryRun()));
+        log(logger, SHORT,"  cfg: -b No back fill = ", noBackFill);
+        if (consoleSet)
+        {
+            logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
+        }
+        if (debugSet)
+        {
+            logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
+        }
+        log(logger, SHORT, "  cfg: -D Dry run = ", dryRun);
         if (getExportTextFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
         logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFilename());
+        log(logger, SHORT, "  cfg: -g Listener keep going = ", keepGoing);
+        if (isQuitSubscriberListener())
+            logger.info(SHORT, "  cfg: -G Subscriber listener FORCE QUIT now");
         if (statusTrackerFilename != null && statusTrackerFilename.length() > 0)
         {
             logger.info(SHORT, "  cfg: -h Hint status tracker: " + getStatusTrackerFilename());
@@ -163,7 +185,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
         }
-        if (remoteFlag == JOB_PROCESS && getJobName().length() > 0)
+        if (operation == JOB_PROCESS && getJobName().length() > 0)
         {
             logger.info(SHORT, "  cfg: -j job: " + getJobName());
         }
@@ -191,8 +213,8 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
         }
-        logger.info(SHORT, "  cfg: -n Navigator session = " + Boolean.toString(isNavigator()));
-        logger.info(SHORT, "  cfg: -o Overwrite = " + Boolean.toString(isOverwrite()));
+        log(logger, SHORT, "  cfg: -n Navigator session = ", navigator);
+        log(logger, SHORT, "  cfg: -o Overwrite = ", overwrite);
         if (getPublisherLibrariesFileName().length() > 0)
         {
             logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
@@ -203,12 +225,15 @@ public class Configuration
         }
         if (isQuitStatusServer())
         {
-            if (remoteFlag == STATUS_SERVER_FORCE_QUIT)
+            if (operation == STATUS_SERVER_FORCE_QUIT)
                 logger.info(SHORT, "  cfg: -Q Status server FORCE QUIT now");
             else
                 logger.info(SHORT, "  cfg: -q Status server QUIT");
         }
-        logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
+        if (!getRemoteType().equalsIgnoreCase("-"))
+        {
+            logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
+        }
         if (getSubscriberLibrariesFileName().length() > 0)
         {
             logger.info(SHORT, "  cfg: -s Subscriber Library filename = " + getSubscriberLibrariesFileName());
@@ -221,15 +246,15 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
         }
-        logger.info(SHORT, "  cfg: -u Duplicates = " + Boolean.toString(isDuplicateCheck()));
-        logger.info(SHORT, "  cfg: -v Validate = " + Boolean.toString(isValidation()));
+        log(logger, SHORT, "  cfg: -u Duplicates = ", duplicateCheck);
+        log(logger, SHORT, "  cfg: -v Validate = ", validation);
         if (getWhatsNewFilename().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -" + (whatsNewAll ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (whatsNewAll ? ", show all items" : ""));
+            logger.info(SHORT, "  cfg: -" + (isWhatsNewAll() ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (isWhatsNewAll() ? ", show all items" : ""));
         }
-        logger.info(SHORT, "  cfg: -x Cross-check = " + Boolean.toString(isCrossCheck()));
-        logger.info(SHORT, "  cfg: -y Preserve dates = " + Boolean.toString(isPreserveDates()));
-        logger.info(SHORT, "  cfg: -z Decimal scale = " + Boolean.toString(!isBinaryScale()));
+        log(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
+        log(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
+        log(logger, SHORT, "  cfg: -z Numeric scale = ", getLongScale() == 1024 ? -1 : 1);
     }
 
     /**
@@ -450,9 +475,9 @@ public class Configuration
      *
      * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server, 7 = force quit status server
      */
-    public int getRemoteFlag()
+    public int getOperation()
     {
-        return this.remoteFlag;
+        return this.operation;
     }
 
     /**
@@ -586,7 +611,7 @@ public class Configuration
      */
     public boolean isCrossCheck()
     {
-        return crossCheck;
+        return crossCheck == 1 ? true : false;
     }
 
     /**
@@ -596,12 +621,12 @@ public class Configuration
      */
     public boolean isDryRun()
     {
-        return dryRun;
+        return dryRun == 1 ? true : false;
     }
 
     public boolean isDumpSystem()
     {
-        return dumpSystem;
+        return dumpSystem == 1 ? true : false;
     }
 
     /**
@@ -611,7 +636,7 @@ public class Configuration
      */
     public boolean isDuplicateCheck()
     {
-        return duplicateCheck;
+        return duplicateCheck == 1 ? true : false;
     }
 
     /**
@@ -638,7 +663,7 @@ public class Configuration
      */
     public boolean isForceCollection()
     {
-        return forceCollection;
+        return forceCollection == 1 ? true : false;
     }
 
     /**
@@ -648,7 +673,7 @@ public class Configuration
      */
     public boolean isForceTargets()
     {
-        return forceTargets;
+        return forceTargets == 1 ? true : false;
     }
 
     /**
@@ -658,7 +683,20 @@ public class Configuration
      */
     public boolean isHintSkipMainProcess()
     {
-        return hintSkipMainProcess;
+        return hintSkipMainProcess == 1 ? true : false;
+    }
+
+    /**
+     * For a Publisher a true "keep going" flag skips sending
+     * the quit command to the subscriber when the operation is
+     * complete. For a subscriber it skips ending with a fault
+     * on an unexpected disconnect (EOL).
+     *
+     * @return true to keep going
+     */
+    public boolean isKeepGoing()
+    {
+        return keepGoing == 1 ? true : false;
     }
 
     /**
@@ -668,7 +706,7 @@ public class Configuration
      */
     public boolean isLogOverwrite()
     {
-        return logOverwrite;
+        return logOverwrite == 1 ? true : false;
     }
 
     /**
@@ -678,7 +716,7 @@ public class Configuration
      */
     public boolean isNavigator()
     {
-        return navigator;
+        return navigator == 1 ? true : false;
     }
 
     /**
@@ -699,7 +737,7 @@ public class Configuration
      */
     public boolean isNoBackFill()
     {
-        return noBackFill;
+        return noBackFill == 1 ? true : false;
     }
 
     /**
@@ -709,12 +747,12 @@ public class Configuration
      */
     public boolean isOverwrite()
     {
-        return overwrite == true;
+        return overwrite == 1 ? true : false;
     }
 
     public boolean isPreserveDates()
     {
-        return preserveDates;
+        return preserveDates == 1 ? true : false;
     }
 
     /**
@@ -724,7 +762,7 @@ public class Configuration
      */
     public boolean isPublishOperation()
     {
-        return publishOperation;
+        return publishOperation == 1 ? true : false;
     }
 
     /**
@@ -734,7 +772,7 @@ public class Configuration
      */
     public boolean isPublisherListener()
     {
-        return (getRemoteFlag() == PUBLISHER_LISTENER);
+        return (getOperation() == PUBLISHER_LISTENER);
     }
 
     /**
@@ -744,7 +782,7 @@ public class Configuration
      */
     public boolean isPublisherTerminal()
     {
-        return (getRemoteFlag() == PUBLISHER_MANUAL);
+        return (getOperation() == PUBLISHER_MANUAL);
     }
 
     /**
@@ -754,7 +792,17 @@ public class Configuration
      */
     public boolean isQuitStatusServer()
     {
-        return quitStatusServer;
+        return quitStatusServer == 1 ? true : false;
+    }
+
+    /**
+     * Force the (remote) subscriber to quit, then end.
+     *
+     * @return true if this is to send Quit to subscriber, then end
+     */
+    public boolean isQuitSubscriberListener()
+    {
+        return quitSubscriberListener == 1 ? true : false;
     }
 
     /**
@@ -764,7 +812,7 @@ public class Configuration
      */
     public boolean isRemotePublish()
     {
-        return (getRemoteFlag() == PUBLISH_REMOTE);
+        return (getOperation() == PUBLISH_REMOTE);
     }
 
     /**
@@ -774,7 +822,7 @@ public class Configuration
      */
     public boolean isRemoteSession()
     {
-        return (this.remoteFlag != NOT_REMOTE);
+        return (this.operation != NOT_REMOTE);
     }
 
     /**
@@ -784,7 +832,7 @@ public class Configuration
      */
     public boolean isRequestCollection()
     {
-        return requestCollection;
+        return requestCollection == 1 ? true : false;
     }
 
     /**
@@ -794,7 +842,7 @@ public class Configuration
      */
     public boolean isRequestTargets()
     {
-        return requestTargets;
+        return requestTargets == 1 ? true : false;
     }
 
     /**
@@ -819,7 +867,7 @@ public class Configuration
      */
     public boolean isSpecificExclude()
     {
-        return this.specificExclude; 
+        return this.specificExclude == 1 ? true : false;
     }
 
     /**
@@ -829,7 +877,7 @@ public class Configuration
      */
     public boolean isSpecificLibrary()
     {
-        return specificLibrary;
+        return specificLibrary == 1 ? true : false;
     }
 
     /**
@@ -839,7 +887,7 @@ public class Configuration
      */
     public boolean isStatusServer()
     {
-        return (getRemoteFlag() == STATUS_SERVER);
+        return (getOperation() == STATUS_SERVER);
     }
 
     /**
@@ -847,7 +895,7 @@ public class Configuration
      */
     public boolean isSubscriberListener()
     {
-        return (getRemoteFlag() == SUBSCRIBER_LISTENER);
+        return (getOperation() == SUBSCRIBER_LISTENER);
     }
 
     /**
@@ -855,7 +903,7 @@ public class Configuration
      */
     public boolean isSubscriberTerminal()
     {
-        return (getRemoteFlag() == SUBSCRIBER_TERMINAL);
+        return (getOperation() == SUBSCRIBER_TERMINAL);
     }
 
     /**
@@ -863,7 +911,7 @@ public class Configuration
      */
     public boolean isTargetsEnabled()
     {
-        return targetsEnabled;
+        return targetsEnabled == 1 ? true : false;
     }
 
     /**
@@ -883,7 +931,7 @@ public class Configuration
      */
     public boolean isValidation()
     {
-        return validation;
+        return validation == 1 ? true : false;
     }
 
     /**
@@ -893,7 +941,7 @@ public class Configuration
      */
     public boolean isWhatsNewAll()
     {
-        return this.whatsNewAll;
+        return this.whatsNewAll == 1 ? true : false;
     }
 
     /**
@@ -1027,11 +1075,14 @@ public class Configuration
                         throw new MungeException("Error: -f requires a log filename");
                     }
                     break;
-                case "-g":                                              // listener to keep going instead of quit when done
-                case "--listener-go":
-                    break; // LEFTOFF add for better v4.0 scripts
-                case "-G":                                              // tell listener to quit right now
+                case "-g":                                              // publisher and subscriber keep subscriber going
+                case "--listener-keep-going":
+                    setKeepGoing(true);
+                    break;
+                case "-G":                                              // tell listener to quit right now, then end
                 case "--listener-quit":
+                    setQuitSubscriberListener(true);
+                    operation = SUBSCRIBER_SERVER_FORCE_QUIT;
                     break;
                 case "-h":                                              // hint status tracker
                 case "--hints":
@@ -1048,7 +1099,7 @@ public class Configuration
                     break;
                 case "-H":                                              // hint status server
                 case "--hint-server":
-                    this.remoteFlag = STATUS_SERVER;
+                    this.operation = STATUS_SERVER;
                     if (index <= args.length - 2)
                     {
                         setHintsDaemonFilename(args[index + 1]);
@@ -1075,7 +1126,7 @@ public class Configuration
                     break;
                 case "-j":                                             // Job
                 case "--job":
-                    this.remoteFlag = JOB_PROCESS;
+                    this.operation = JOB_PROCESS;
                     if (index <= args.length - 2)
                     {
                         setJobName(args[index + 1]);
@@ -1186,10 +1237,10 @@ public class Configuration
                 case "--quit-status":
                     setQuitStatusServer(true);
                     break;
-                case "-Q":                                             // tell status server to quit right now
+                case "-Q":                                             // tell status server to quit right now, then end
                 case "--force-quit":
                     setQuitStatusServer(true);
-                    this.remoteFlag = STATUS_SERVER_FORCE_QUIT;
+                    this.operation = STATUS_SERVER_FORCE_QUIT;
                     break;
                 case "-r":                                             // remote session
                 case "--remote":
@@ -1347,6 +1398,7 @@ public class Configuration
     public void setConsoleLevel(String consoleLevel)
     {
         this.consoleLevel = consoleLevel;
+        consoleSet = true;
     }
 
     /**
@@ -1356,7 +1408,7 @@ public class Configuration
      */
     public void setCrossCheck(boolean crossCheck)
     {
-        this.crossCheck = crossCheck;
+        this.crossCheck = crossCheck == true ? 1 : 0;
     }
 
     /**
@@ -1367,6 +1419,7 @@ public class Configuration
     public void setDebugLevel(String debugLevel)
     {
         this.debugLevel = debugLevel;
+        debugSet = true;
     }
 
     /**
@@ -1376,12 +1429,12 @@ public class Configuration
      */
     public void setDryRun(boolean dryRun)
     {
-        this.dryRun = dryRun;
+        this.dryRun = dryRun == true ? 1 : 0;
     }
 
     public void setDumpSystem(boolean dumpSystem)
     {
-        this.dumpSystem = dumpSystem;
+        this.dumpSystem = dumpSystem == true ? 1 : 0;
     }
 
     /**
@@ -1391,7 +1444,7 @@ public class Configuration
      */
     public void setDuplicateCheck(boolean duplicateCheck)
     {
-        this.duplicateCheck = duplicateCheck;
+        this.duplicateCheck = duplicateCheck == true ? 1 : 0;
     }
 
     /**
@@ -1421,7 +1474,7 @@ public class Configuration
      */
     public void setForceCollection(boolean forceCollection)
     {
-        this.forceCollection = forceCollection;
+        this.forceCollection = forceCollection == true ? 1 : 0;
     }
 
     /**
@@ -1431,7 +1484,7 @@ public class Configuration
      */
     public void setForceTargets(boolean forceTargets)
     {
-        this.forceTargets = forceTargets;
+        this.forceTargets = forceTargets == true ? 1 : 0;
     }
 
     /**
@@ -1451,7 +1504,7 @@ public class Configuration
      */
     public void setHintSkipMainProcess(boolean hintSkipMainProcess)
     {
-        this.hintSkipMainProcess = hintSkipMainProcess;
+        this.hintSkipMainProcess = hintSkipMainProcess == true ? 1 : 0;
     }
 
     /**
@@ -1462,6 +1515,19 @@ public class Configuration
     public void setHintsDaemonFilename(String hintsDaemonFilename)
     {
         this.hintsDaemonFilename = hintsDaemonFilename;
+    }
+
+    /**
+     * For a Publisher the "keep going" flag skips sending
+     * the quit command to the subscriber when the operation is
+     * complete. For a subscriber it skips ending with a fault
+     * on an unexpected disconnect (EOL).
+     *
+     * @param keepGoing
+     */
+    public void setKeepGoing(boolean keepGoing)
+    {
+        this.keepGoing = keepGoing == true ? 1 : 0;
     }
 
     /**
@@ -1491,7 +1557,7 @@ public class Configuration
      */
     public void setLogOverwrite(boolean logOverwrite)
     {
-        this.logOverwrite = logOverwrite;
+        this.logOverwrite = logOverwrite == true ? 1 : 0;
     }
 
     /**
@@ -1516,7 +1582,7 @@ public class Configuration
 
     public void setNavigator(boolean navigator)
     {
-        this.navigator = navigator;
+        this.navigator = navigator == true ? 1 : 0;
     }
 
     /**
@@ -1526,7 +1592,7 @@ public class Configuration
      */
     public void setNoBackFill(boolean noBackFill)
     {
-        this.noBackFill = noBackFill;
+        this.noBackFill = noBackFill == true ? 1 : 0;
     }
 
     /**
@@ -1534,12 +1600,12 @@ public class Configuration
      */
     public void setOverwrite(boolean sense)
     {
-        overwrite = sense;
+        overwrite = sense == true ? 1 : 0;
     }
 
     public void setPreserveDates(boolean preserveDates)
     {
-        this.preserveDates = preserveDates;
+        this.preserveDates = preserveDates == true ? 1 : 0;
     }
 
     /**
@@ -1549,7 +1615,7 @@ public class Configuration
      */
     public void setPublishOperation(boolean publishOperation)
     {
-        this.publishOperation = publishOperation;
+        this.publishOperation = publishOperation == true ? 1 : 0;
     }
 
     /**
@@ -1579,7 +1645,17 @@ public class Configuration
      */
     public void setQuitStatusServer(boolean quitStatusServer)
     {
-        this.quitStatusServer = quitStatusServer;
+        this.quitStatusServer = quitStatusServer == true ? 1 : 0;
+    }
+
+    /**
+     * Sets the flag for the operation to force the subscriber to quit, then end
+     *
+     * @param quitSubscriberListener
+     */
+    public void setQuitSubscriberListener(boolean quitSubscriberListener)
+    {
+        this.quitSubscriberListener = quitSubscriberListener == true ? 1 : 0;
     }
 
     /**
@@ -1590,17 +1666,17 @@ public class Configuration
     public void setRemoteType(String type) throws MungeException
     {
         this.remoteType = type;
-        this.remoteFlag = NOT_REMOTE;
+        this.operation = NOT_REMOTE;
         if (type.equalsIgnoreCase("P"))
-            this.remoteFlag = PUBLISH_REMOTE;
+            this.operation = PUBLISH_REMOTE;
         else if (type.equalsIgnoreCase("S"))
-            this.remoteFlag = SUBSCRIBER_LISTENER;
+            this.operation = SUBSCRIBER_LISTENER;
         else if (type.equalsIgnoreCase("M"))
-            this.remoteFlag = PUBLISHER_MANUAL;
+            this.operation = PUBLISHER_MANUAL;
         else if (type.equalsIgnoreCase("L"))
-            this.remoteFlag = PUBLISHER_LISTENER;
+            this.operation = PUBLISHER_LISTENER;
         else if (type.equalsIgnoreCase("T"))
-            this.remoteFlag = SUBSCRIBER_TERMINAL;
+            this.operation = SUBSCRIBER_TERMINAL;
         else if (!type.equals("-"))
             throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
     }
@@ -1612,7 +1688,7 @@ public class Configuration
      */
     public void setRequestCollection(boolean requestCollection)
     {
-        this.requestCollection = requestCollection;
+        this.requestCollection = requestCollection == true ? 1 : 0;
     }
 
     /**
@@ -1622,7 +1698,7 @@ public class Configuration
      */
     public void setRequestTargets(boolean requestTargets)
     {
-        this.requestTargets = requestTargets;
+        this.requestTargets = requestTargets == true ? 1 : 0;
     }
 
     /**
@@ -1642,7 +1718,7 @@ public class Configuration
      */
     public void setSpecificExclude(boolean sense)
     {
-        this.specificExclude = sense; 
+        this.specificExclude = sense == true ? 1 : 0;
     }
 
     /**
@@ -1652,7 +1728,7 @@ public class Configuration
      */
     public void setSpecificLibrary(boolean sense)
     {
-        this.specificLibrary = sense;
+        this.specificLibrary = sense == true ? 1 : 0;
     }
 
     /**
@@ -1690,7 +1766,7 @@ public class Configuration
      */
     public void setTargetsEnabled(boolean sense)
     {
-        targetsEnabled = sense;
+        targetsEnabled = sense == true ? 1 : 0;
     }
 
     /**
@@ -1710,7 +1786,7 @@ public class Configuration
      */
     public void setValidation(boolean validation)
     {
-        this.validation = validation;
+        this.validation = validation == true ? 1 : 0;
     }
 
     /**
@@ -1720,7 +1796,7 @@ public class Configuration
      */
     public void setWhatsNewAll(boolean isWhatsNewAll)
     {
-        this.whatsNewAll = isWhatsNewAll;
+        this.whatsNewAll = isWhatsNewAll == true ? 1 : 0;
     }
 
     /**

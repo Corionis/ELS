@@ -136,18 +136,6 @@ public class Utils
     }
 
     /**
-     * Format remote & local IP addresses and ports
-     *
-     * @param socket
-     * @return String of formatting information
-     */
-    public static String formatAddresses(Socket socket)
-    {
-        return socket.getInetAddress().toString() + ":" + socket.getPort() +
-                ", local " + socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
-    }
-
-    /**
      * Ellipse a String ending with a filename and extension
      *
      * @param component
@@ -159,13 +147,13 @@ public class Utils
         FontMetrics metrics = component.getFontMetrics(component.getFont());
         int width = metrics.stringWidth(text);
         int max = component.getWidth();
-        if (width > max)
+        if (width > max && text.length() > 4)
         {
             String ext = Utils.getFileExtension(text);
             int l = metrics.stringWidth(ext);
             max = max - l - 4;
             text = text.substring(0, text.length() - ext.length());
-            while (width > max)
+            while (width > max && text.length() > 4)
             {
                 text = StringUtils.abbreviate(text, text.length() - 1);
                 width = metrics.stringWidth(text);
@@ -173,6 +161,18 @@ public class Utils
             text += ext;
         }
         return text;
+    }
+
+    /**
+     * Format remote & local IP addresses and ports
+     *
+     * @param socket
+     * @return String of formatting information
+     */
+    public static String formatAddresses(Socket socket)
+    {
+        return socket.getInetAddress().toString() + ":" + socket.getPort() +
+                ", local " + socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
     }
 
     /**

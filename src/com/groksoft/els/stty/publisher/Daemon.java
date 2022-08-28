@@ -202,10 +202,15 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     line = Utils.readStream(in, myKey);
                     if (line == null)
                     {
-                        logger.info("EOF line. Process ended prematurely.");
-                        fault = true;
-                        stop = true;
-                        break; // exit on EOF
+                        if (!cfg.isKeepGoing())
+                        {
+                            fault = true; // exit on EOF
+                            stop = true;
+                            logger.info("EOF line. Process ended prematurely.");
+                        }
+                        else
+                            logger.info("EOF line. -g|--listener-keep-going in affect.");
+                        break; // break read loop and let the connection be closed
                     }
 
                     if (line.trim().length() < 1)
@@ -242,7 +247,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             logger.warn("Auth password attempt failed using: " + pw);
                             if (attempts >= 3) // disconnect on too many attempts
                             {
-                                logger.error("Too many failures, disconnecting");
+                                logger.error("Too many authentication failures, disconnecting");
                                 break;
                             }
                         }
