@@ -52,6 +52,7 @@ public class Configuration
     private String hintKeysFile = "";
     private int hintSkipMainProcess = -1;
     private String hintsDaemonFilename = "";
+    private String iplist = "";
     private String jobName = "";
     private int keepGoing = -1;
     private String logFilename = "";
@@ -159,7 +160,7 @@ public class Configuration
         log(logger, SHORT,"  cfg: -b No back fill = ", noBackFill);
         if (blacklist.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -B Blacklist file = " + blacklist);
+            logger.info(SHORT, "  cfg: -B Blacklist filename = " + blacklist);
         }
         if (consoleSet)
         {
@@ -189,6 +190,10 @@ public class Configuration
         if (getExportCollectionFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -i Export collection JSON filename = " + getExportCollectionFilename());
+        }
+        if (getIpWhitelist().length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -I IP whitelist filename = " + getExportCollectionFilename());
         }
         if (operation == JOB_PROCESS && getJobName().length() > 0)
         {
@@ -365,6 +370,16 @@ public class Configuration
     public String getHintsDaemonFilename()
     {
         return hintsDaemonFilename;
+    }
+
+    /**
+     * Get IP address whitelist filename
+     *
+     * @return Filename or empty string
+     */
+    public String getIpWhitelist()
+    {
+        return iplist;
     }
 
     /**
@@ -991,8 +1006,8 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // single letters remaining, case-sensitive:  C E I j J M N O R U V X Y Z
-
+        // single letters remaining, case-sensitive:  C E I J M N O R U V X Y Z
+// LEFTOFF add -I --ip-list [file] option for verified IP addresses, the opposite of --blacklist
         int index;
         originalArgs = args;
 
@@ -1149,6 +1164,18 @@ public class Configuration
                     else
                     {
                         throw new MungeException("Error: -i requires a collection output filename");
+                    }
+                    break;
+                case "-I":                                             // whitelist
+                case "--ip-whitelist":
+                    if (index <= args.length - 2)
+                    {
+                        setIplist(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -I requires an IP whitelist filename");
                     }
                     break;
                 case "-j":                                             // Job
@@ -1552,6 +1579,16 @@ public class Configuration
     public void setHintsDaemonFilename(String hintsDaemonFilename)
     {
         this.hintsDaemonFilename = hintsDaemonFilename;
+    }
+
+    /**
+     * Set the IP address whitelist filename
+     *
+     * @param iplist Full or relative path to file
+     */
+    public void setIplist(String iplist)
+    {
+        this.iplist = iplist;
     }
 
     /**

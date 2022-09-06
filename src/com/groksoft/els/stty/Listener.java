@@ -67,19 +67,21 @@ public class Listener extends Thread
         return addr.getHostAddress();
     }
 
-    private boolean isBlackListed(Socket aSocket)
+    private boolean isListed(Socket aSocket, boolean whiteListed)
     {
-        boolean sense = false;
-        if (cfg.getBlacklist().length() > 0)
+        boolean sense = whiteListed;
+        String filename = (whiteListed ? cfg.getIpWhitelist() : cfg.getBlacklist());
+        if (filename.length() > 0)
         {
             String inet = aSocket.getInetAddress().toString();
             if (inet != null)
             {
+                sense = false;
                 inet = inet.replaceAll("/", "");
                 inet = inet.replaceAll("\\\\", "");
                 try
                 {
-                    BufferedReader br = new BufferedReader(new FileReader(cfg.getBlacklist()));
+                    BufferedReader br = new BufferedReader(new FileReader(filename));
                     String line;
                     while ((line = br.readLine()) != null)
                     {
@@ -89,6 +91,7 @@ public class Listener extends Thread
                             if (inet.equals(line))
                             {
                                 sense = true;
+                                break;
                             }
                         }
                     }
@@ -96,8 +99,8 @@ public class Listener extends Thread
                 }
                 catch (Exception e)
                 {
-                    // QUESTION should a blacklist exception be a fatal error?
-                    logger.warn("Could not process blacklist: " + e.getMessage());
+                    // QUESTION should an exception be a fatal error?
+                    logger.warn("Could not process list: " + filename + ", " + e.getMessage());
                 }
             }
         }
@@ -129,16 +132,19 @@ public class Listener extends Thread
             {
                 socket = (Socket) listenSocket.accept();
                 socket.setTcpNoDelay(true);
-                if (isBlackListed(socket))
+                if (isListed(socket, true)) // if it is whitelisted or there is no whitelist
                 {
-                    socket.close();
-                    logger.warn("Blacklisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
-                }
-                else
-                {
-                    //theSocket.setSoLinger(false, -1);
-                    socket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
-                    ServeStty.getInstance().addConnection(socket);
+                    if (isListed(socket, false)) // if it is blacklisted disconnect
+                    {
+                        socket.close();
+                        logger.warn("Blacklisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
+                    }
+                    else
+                    {
+                        //theSocket.setSoLinger(false, -1);
+                        socket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
+                        ServeStty.getInstance().addConnection(socket);
+                    }
                 }
             }
             catch (SocketTimeoutException e)
