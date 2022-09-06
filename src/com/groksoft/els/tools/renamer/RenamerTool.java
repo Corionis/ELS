@@ -27,6 +27,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -48,6 +49,7 @@ public class RenamerTool extends AbstractTool
     private boolean option2 = false;
     private boolean option3 = false;
 
+    transient private int counter;
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int renameCount = 0;
     transient private final boolean dualRepositories = false; // used by GUI, always false for this tool
@@ -157,6 +159,7 @@ public class RenamerTool extends AbstractTool
 
     private String execCaseChange(String value)
     {
+        // Type of case change = text1
         switch (getText1())
         {
             case "firstupper":
@@ -201,53 +204,34 @@ public class RenamerTool extends AbstractTool
 
     private String execInsert(String value)
     {
-        if (getText1().length() > 0)
-        {
-            if (isOption3())
-                value = value + getText1();
-            else
-            {
-                int pos = -1;
-                try
-                {
-                    pos = Integer.parseInt(getText2());
-                }
-                catch (NumberFormatException e)
-                {
-                    pos = -1;
-                }
-                String left = value;
-                String right = "";
-                if (pos >= 0 && pos < value.length() - 1)
-                {
-                    // LEFTOFF debug change for At End and From End
-                    if (isOption1())
-                    {
-                        left = value.substring(0, value.length() - pos - 1);
-                        if (isOption2())
-                            right = value.substring(value.length() - pos - 1 + getText1().length());
-                        else
-                            right = value.substring(value.length() - pos - 1);
-                    }
-                    else
-                    {
-                        left = value.substring(0, pos - 1);
-                        if (isOption2())
-                            right = value.substring(pos - 1 + getText1().length());
-                        else
-                            right = value.substring(pos - 1);
-                    }
-                    value = left + getText1() + right;
-
-                }
-            }
-        }
+        // Text to insert = text1
+        // Insert position = text2
+        // From end = option1
+        // At end = option2
+        // Overwrite = option3
+        int pos = Integer.parseInt(getText2());
+        value = insertString(value, getText1(), pos, isOption1(), isOption2(), isOption3());
         return value;
     }
 
     private String execNumbering(String value)
     {
+        // Start = text1
+        // Number of zeros = text2
+        // Insert position = text2
+        // From end = option1
+        // At end = option2
+        // Overwrite = option3
+        int start = Integer.parseInt(getText1());
+        counter = (counter < 0 || counter < start) ? start : ++counter;
 
+        int zeros = Integer.parseInt(getText2());
+        String format = StringUtils.repeat('0', zeros);
+        DecimalFormat formatter = new DecimalFormat(format);
+        String numString = formatter.format(counter);
+
+        int pos = Integer.parseInt(getText3());
+        value = insertString(value, numString, pos, isOption1(), isOption2(), isOption3());
         return value;
     }
 
@@ -360,6 +344,47 @@ public class RenamerTool extends AbstractTool
     public int getType()
     {
         return type;
+    }
+
+    private String insertString(String value, String insert, int pos, boolean fromEnd, boolean atEnd, boolean overwrite)
+    {
+        if (insert.length() > 0)
+        {
+            if (atEnd) // at end
+                value = value + insert;
+            else
+            {
+                String left = value;
+                String right = "";
+                if (pos < 0)
+                    pos = 0;
+                if (pos > value.length())
+                    pos = value.length();
+                if (fromEnd) // from end
+                {
+                    left = value.substring(0, value.length() - pos);
+                    if (overwrite) // overwrite
+                    {
+                        int x = value.length() - pos + insert.length();
+                        if (x < value.length()) // otherwise empty
+                            right = value.substring(x);
+                    }
+                    else
+                        right = value.substring(value.length() - pos);
+                }
+                else // inline
+                {
+                    left = value.substring(0, pos);
+                    if (overwrite) // overwrite
+                        right = value.substring(pos + insert.length());
+                    else
+                        right = value.substring(pos);
+                }
+
+                value = left + insert + right;
+            }
+        }
+        return value;
     }
 
     public boolean isDataChanged()
@@ -577,6 +602,7 @@ public class RenamerTool extends AbstractTool
 
     public void reset()
     {
+        counter = -1;
         renameCount = 0;
         resetStop();
         toolPaths = new ArrayList<>();

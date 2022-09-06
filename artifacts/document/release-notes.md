@@ -102,6 +102,10 @@ _It's all built-in_ with the new -n|--navigator option.
  8. Added option -G | --listener-quit that only sends the quit command to a remote
     subscriber, then exits. Similar to the -Q | --force-quit option.
 
+ 9. Added option -B | --blacklist that uses a text file of one-line IP addresses to filter
+    incoming connections. The blacklist supports # style comments and blank lines. Each
+    IP address is an IPv4 dotted address, e.g. 127.0.0.1
+
 
 ### Other Changes
 

@@ -33,6 +33,7 @@ public class Configuration
 
     private String authKeysFile = "";
     private String authorizedPassword = "";
+    private String blacklist = "";
     private Context context;
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean consoleSet = false;
@@ -156,6 +157,10 @@ public class Configuration
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
         }
         log(logger, SHORT,"  cfg: -b No back fill = ", noBackFill);
+        if (blacklist.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -B Blacklist file = " + blacklist);
+        }
         if (consoleSet)
         {
             logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
@@ -275,6 +280,16 @@ public class Configuration
     public String getAuthorizedPassword()
     {
         return authorizedPassword;
+    }
+
+    /**
+     * Get the blacklist filename, if defined
+     *
+     * @return Filename or empty string
+     */
+    public String getBlacklist()
+    {
+        return blacklist;
     }
 
     /**
@@ -976,7 +991,7 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // single letters remaining, case-sensitive:  B C E I j J M N O R U V X Y Z
+        // single letters remaining, case-sensitive:  C E I j J M N O R U V X Y Z
 
         int index;
         originalArgs = args;
@@ -1012,6 +1027,18 @@ public class Configuration
                 case "-b":                                             // disable back-filling
                 case "--no-back-fill":
                     setNoBackFill(true);
+                    break;
+                case "-B":                                             // blacklist
+                case "--blacklist":
+                    if (index <= args.length - 2)
+                    {
+                        setBlacklist(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -B requires a blacklist filename");
+                    }
                     break;
                 case "-c":                                             // console level
                 case "--console-level":
@@ -1388,6 +1415,16 @@ public class Configuration
     public void setAuthorizedPassword(String password)
     {
         this.authorizedPassword = password;
+    }
+
+    /**
+     * Sets the blacklist path & filename
+     *
+     * @param blacklist Full or relative path to blacklist file
+     */
+    public void setBlacklist(String blacklist)
+    {
+        this.blacklist = blacklist;
     }
 
     /**

@@ -5,8 +5,7 @@ import com.groksoft.els.MungeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
+import java.io.*;
 import java.net.*;
 
 /**
@@ -68,6 +67,43 @@ public class Listener extends Thread
         return addr.getHostAddress();
     }
 
+    private boolean isBlackListed(Socket aSocket)
+    {
+        boolean sense = false;
+        if (cfg.getBlacklist().length() > 0)
+        {
+            String inet = aSocket.getInetAddress().toString();
+            if (inet != null)
+            {
+                inet = inet.replaceAll("/", "");
+                inet = inet.replaceAll("\\\\", "");
+                try
+                {
+                    BufferedReader br = new BufferedReader(new FileReader(cfg.getBlacklist()));
+                    String line;
+                    while ((line = br.readLine()) != null)
+                    {
+                        line = line.trim();
+                        if (line.length() > 0 && !line.startsWith("#"))
+                        {
+                            if (inet.equals(line))
+                            {
+                                sense = true;
+                            }
+                        }
+                    }
+                    br.close();
+                }
+                catch (Exception e)
+                {
+                    // QUESTION should a blacklist exception be a fatal error?
+                    logger.warn("Could not process blacklist: " + e.getMessage());
+                }
+            }
+        }
+        return sense;
+    }
+
     /**
      * Politely request the listener to stop.
      */
@@ -93,10 +129,17 @@ public class Listener extends Thread
             {
                 socket = (Socket) listenSocket.accept();
                 socket.setTcpNoDelay(true);
-                //theSocket.setSoLinger(false, -1);
-                socket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
-
-                ServeStty.getInstance().addConnection(socket);
+                if (isBlackListed(socket))
+                {
+                    socket.close();
+                    logger.warn("Blacklisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
+                }
+                else
+                {
+                    //theSocket.setSoLinger(false, -1);
+                    socket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
+                    ServeStty.getInstance().addConnection(socket);
+                }
             }
             catch (SocketTimeoutException e)
             {

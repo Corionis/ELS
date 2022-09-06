@@ -171,7 +171,7 @@ public class Utils
      */
     public static String formatAddresses(Socket socket)
     {
-        return socket.getInetAddress().toString() + ":" + socket.getPort() +
+        return socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + ":" + socket.getPort() +
                 ", local " + socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
     }
 

@@ -122,6 +122,9 @@ public class Navigator
     // IDEA
     //  * When selecting Source location for new directory show free space of each
     //
+    // TEST
+    //  * A write permissions failure increments error count without stopping process
+    //
 
     public Navigator(Main main, Configuration config, Context ctx)
     {

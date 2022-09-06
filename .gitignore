@@ -13,3 +13,4 @@ hs_err_pid*
 /mock/test/
 /mock/*.json
 /mock/scripts/linux/89-23-Navigator-rockplex.sh
+/deploy/ELS-nav.jar

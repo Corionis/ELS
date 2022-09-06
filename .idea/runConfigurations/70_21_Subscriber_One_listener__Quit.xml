@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="70-21 Subscriber One listener, Quit" type="Application" factoryName="Application" folderName="70-00 Remote Status Server">
+  <configuration default="false" name="70-21 Subscriber One listener, Quit" type="Application" factoryName="Application" folderName="70-00 Remote Hint Server">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="--quit-status --hints test/hints/hint-server.json -k test/test-hints.keys -c debug -d debug --remote S --authorize sharkbait -p test/publisher/publisher.json -S test/subscriber-one/subscriber-one.json -T -F output/70-21_Subscriber-One-listener.log" />

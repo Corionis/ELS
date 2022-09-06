@@ -273,7 +273,10 @@ public class ClientSftp
 
         int mode = jSftp.OVERWRITE;
         if (writeOffset > 0)
+        {
             mode = jSftp.RESUME;
+            logger.info("Resuming transfer at " + writeOffset);
+        }
 
         // copy the .els-part file
         jSftp.put(src, copyDest, mode);

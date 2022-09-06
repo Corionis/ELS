@@ -219,6 +219,7 @@ new FormModel {
 												"preferredSize": new java.awt.Dimension( 328, 92 )
 												"minimumSize": new java.awt.Dimension( 328, 92 )
 												"maximumSize": new java.awt.Dimension( 32767, 92 )
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
 												add( new FormComponent( "javax.swing.JRadioButton" ) {
 													name: "radioButtonFirstUpperCase"
 													"text": new FormMessage( null, "Renamer.radioButtonFirstUpperCase.text" )
@@ -263,6 +264,7 @@ new FormModel {
 												"maximumSize": &Dimension3 new java.awt.Dimension( 32767, 92 )
 												"minimumSize": &Dimension4 new java.awt.Dimension( 328, 92 )
 												"preferredSize": &Dimension5 new java.awt.Dimension( 328, 92 )
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelTextToInsert"
 													"text": new FormMessage( null, "Renamer.labelTextToInsert.text" )
@@ -276,6 +278,7 @@ new FormModel {
 													"name": "text1"
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
 												} )
@@ -299,6 +302,7 @@ new FormModel {
 														"name": "text2"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 													} )
 													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 														name: "hSpacer3"
@@ -322,7 +326,7 @@ new FormModel {
 														name: "checkBoxInsertAtEnd"
 														"text": new FormMessage( null, "Renamer.checkBoxInsertAtEnd.text" )
 														"toolTipText": new FormMessage( null, "Renamer.checkBoxInsertAtEnd.toolTipText" )
-														"name": "option3"
+														"name": "option2"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
@@ -340,7 +344,7 @@ new FormModel {
 														name: "checkBoxInsertOverwrite"
 														"text": new FormMessage( null, "Renamer.checkBoxInsertOverwrite.text" )
 														"margin": new java.awt.Insets( 2, 6, 2, 2 )
-														"name": "option2"
+														"name": "option3"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
@@ -361,6 +365,7 @@ new FormModel {
 												"maximumSize": &Dimension15 new java.awt.Dimension( 32767, 92 )
 												"minimumSize": &Dimension16 new java.awt.Dimension( 328, 92 )
 												"preferredSize": &Dimension17 new java.awt.Dimension( 328, 92 )
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelStart"
 													"text": new FormMessage( null, "Renamer.labelStart.text" )
@@ -371,15 +376,16 @@ new FormModel {
 												} ) {
 													name: "panelNums"
 													add( new FormComponent( "javax.swing.JTextField" ) {
-														name: "textFieldStart"
+														name: "textFieldNumberingStart"
 														"preferredSize": &Dimension18 new java.awt.Dimension( 96, 30 )
 														"minimumSize": &Dimension19 new java.awt.Dimension( 96, 30 )
 														"maximumSize": &Dimension20 new java.awt.Dimension( 96, 30 )
 														"text": "1"
-														"toolTipText": new FormMessage( null, "Renamer.textFieldStart.toolTipText" )
+														"toolTipText": new FormMessage( null, "Renamer.textFieldNumberingStart.toolTipText" )
 														"name": "text1"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 													} )
 													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 														name: "hSpacer5"
@@ -392,15 +398,16 @@ new FormModel {
 														"text": new FormMessage( null, "Renamer.labelZeros.text" )
 													} )
 													add( new FormComponent( "javax.swing.JTextField" ) {
-														name: "textFieldZeros"
+														name: "textFieldNumberingZeros"
 														"preferredSize": new java.awt.Dimension( 96, 30 )
 														"minimumSize": new java.awt.Dimension( 96, 30 )
 														"maximumSize": new java.awt.Dimension( 96, 30 )
 														"text": "1"
-														"toolTipText": new FormMessage( null, "Renamer.textFieldZeros.toolTipText" )
+														"toolTipText": new FormMessage( null, "Renamer.textFieldNumberingZeros.toolTipText" )
 														"name": "text2"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 													} )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -424,6 +431,7 @@ new FormModel {
 														"name": "text3"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 													} )
 													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 														name: "hSpacer4"
@@ -446,7 +454,7 @@ new FormModel {
 														name: "checkBoxNumberingAtEnd"
 														"text": new FormMessage( null, "Renamer.checkBoxNumberingAtEnd.text" )
 														"toolTipText": new FormMessage( null, "Renamer.checkBoxNumberingAtEnd.toolTipText" )
-														"name": "option3"
+														"name": "option2"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
@@ -464,7 +472,7 @@ new FormModel {
 														name: "checkBoxNumberingOverwrite"
 														"text": new FormMessage( null, "Renamer.checkBoxNumberingOverwrite.text_2" )
 														"margin": &Insets0 new java.awt.Insets( 2, 6, 2, 2 )
-														"name": "option2"
+														"name": "option3"
 														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
 														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													} )
@@ -485,6 +493,7 @@ new FormModel {
 												"maximumSize": #Dimension15
 												"minimumSize": #Dimension16
 												"preferredSize": #Dimension17
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelFrom"
 													"text": new FormMessage( null, "Renamer.labelFrom.text" )
@@ -574,6 +583,7 @@ new FormModel {
 												"maximumSize": #Dimension3
 												"minimumSize": #Dimension4
 												"preferredSize": #Dimension5
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelFind"
 													"text": new FormMessage( null, "Renamer.labelFind.text" )
