@@ -633,8 +633,10 @@ public class Main
                                 main.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
                             Main.stopVerbiage();
-                            main.stopServices();
                             Thread.sleep(4000L);
+
+                            // stop any remaining services, must be last
+                            main.stopServices();
 
                             // this is the only way to exit with a non-zero code and not hang in this thread
                             if (main.context.fault)

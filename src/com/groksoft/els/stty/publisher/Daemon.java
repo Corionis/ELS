@@ -5,7 +5,6 @@ import com.groksoft.els.repository.*;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -326,7 +325,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         stop = true;
                         Utils.writeStream(out, myKey, "End-Execution");
                         out.flush();
-                        Thread.sleep(1000);
+                        Thread.sleep(3000);
                     }
 
                     // -------------- find --------------------------------------
