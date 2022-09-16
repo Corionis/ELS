@@ -319,6 +319,9 @@ public class ClientStty
                 {
                     logger.info("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
                     context.statusStty.send("quit");
+                    Thread.sleep(1000);
+                    context.statusStty.disconnect();
+                    context.statusStty = null;
                 }
                 else
                     logger.warn("Could not send quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);

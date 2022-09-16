@@ -629,7 +629,7 @@ public class Configuration
         }
         catch (MissingResourceException e)
         {
-            // not found
+            value = key;
         }
         return value;
     }
@@ -986,13 +986,18 @@ public class Configuration
     {
         if (!currentFilePart.equals(filePart))
         {
+System.out.println("Attempting to load filePart " + filePart);
             // load the language file if available
             if (!Arrays.asList(availableLocales).contains(filePart))
             {
                 filePart = "en_US"; // default locale
+System.out.println("Overriding to filePart " + filePart);
             }
             currentFilePart = filePart;
             currentBundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + currentFilePart);
+if (currentBundle == null)
+  System.out.println("locale load is NULL");
+
         }
     }
 
@@ -1007,7 +1012,7 @@ public class Configuration
     public void parseCommandLine(String[] args) throws MungeException
     {
         // single letters remaining, case-sensitive:  C E I J M N O R U V X Y Z
-// LEFTOFF add -I --ip-list [file] option for verified IP addresses, the opposite of --blacklist
+
         int index;
         originalArgs = args;
 
@@ -1422,6 +1427,7 @@ public class Configuration
         String country = locale.getCountry();
         String filePart = lang + "_" + country;
         loadLocale(filePart);
+//        loadLocale("-");
     }
 
     /**

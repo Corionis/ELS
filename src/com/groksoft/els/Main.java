@@ -610,9 +610,10 @@ public class Main
                 if (context.statusStty != null)
                     context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
-                // stop any remaining services
-                stopServices();
-                Main.stopVerbiage();
+                main.stopVerbiage();
+
+                // stop any remaining services, must be last
+                main.stopServices();
             }
             else if (isListening) // daemons
             {
@@ -625,31 +626,30 @@ public class Main
                     {
                         try
                         {
-                            if (main.context.fault)
-                                logger.error("Halting with error code");
-
                             // optionally command status server to quit
                             if (main.context.statusStty != null)
                                 main.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
-                            Main.stopVerbiage();
+                            main.stopVerbiage();
+                            if (main.context.fault)
+                                logger.error("Exiting with error code");
                             Thread.sleep(4000L);
 
                             // stop any remaining services, must be last
                             main.stopServices();
 
-                            // this is the only way to exit with a non-zero code and not hang in this thread
-                            if (main.context.fault)
-                                Runtime.getRuntime().halt(1);
+                            Runtime.getRuntime().halt(main.context.fault ? 1 : 0);
                         }
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
+                            Runtime.getRuntime().halt(1);
                         }
                     }
                 });
             }
         }
+
         if (main.context.fault)
         {
             logger.error("Exiting with error code");
@@ -741,35 +741,41 @@ public class Main
             {
                 try
                 {
+                    logger.debug("Sending bye command to Hint Server");
                     context.statusStty.send("bye");
+                    Thread.sleep(1000);
                 }
                 catch (Exception e)
                 {
                     logger.error(Utils.getStackTrace(e));
                 }
             }
-
             context.statusStty.disconnect();
-        }
-        if (context.clientStty != null)
-        {
-            context.clientStty.disconnect();
-        }
-        if (context.serveStty != null)
-        {
-            context.serveStty.stopServer();
+            context.statusStty = null;
         }
         if (context.clientSftp != null)
         {
             context.clientSftp.stopClient();
+            context.clientSftp = null;
         }
         if (context.serveSftp != null)
         {
             context.serveSftp.stopServer();
+            context.serveSftp = null;
+        }
+        if (context.clientStty != null)
+        {
+            context.clientStty.disconnect();
+            context.clientStty = null;
+        }
+        if (context.serveStty != null)
+        {
+            context.serveStty.stopServer();
+            context.serveStty = null;
         }
     }
 
-    public static void stopVerbiage()
+    public void stopVerbiage()
     {
         if (!main.cfg.getConsoleLevel().equalsIgnoreCase(main.cfg.getDebugLevel()))
             main.logger.info("Log file has more details: " + main.cfg.getLogFilename());

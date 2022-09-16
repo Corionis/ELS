@@ -282,12 +282,6 @@ public class ServeStty extends Thread
 
         // when this server ends disconnect and stop other services
         // otherwise the threads will never stop
-        if (context.statusStty != null)
-        {
-            context.statusStty.quitStatusServer(context);
-            context.statusStty.disconnect();
-            context.statusStty = null;
-        }
         if (context.serveSftp != null)
         {
             context.serveSftp.stopServer();

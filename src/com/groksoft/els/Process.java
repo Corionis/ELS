@@ -585,8 +585,9 @@ public class Process
                         // if a fault occurred tell any listener
                         if (fault && context.clientStty.isConnected())
                         {
-                            logger.warn("Sending remote fault command (2)");
-                            resp = context.clientStty.roundTrip("fault");
+                            //logger.warn("Sending remote fault command (2)");
+                            //resp = context.clientStty.roundTrip("fault");
+                            // ... this is done in Main.process finally clause
                         }
                         else
                         {

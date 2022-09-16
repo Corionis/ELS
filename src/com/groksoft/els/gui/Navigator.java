@@ -125,6 +125,14 @@ public class Navigator
     // TEST
     //  * A write permissions failure increments error count without stopping process
     //
+    // ISSUE
+    //  * RequestCollection & RequestTargets do not log what they're doing
+    //  * "Received subscriber commands: RequestCollection & RequestTargets" not shown in cron runs, but is for publisher-dryrun??
+    //  * Should/can subscriber send a fault to publisher on exception?
+    //  * Add fault handling to failed loading of auth or hint keys
+    //  * A run where publisher has not processed Hints yet hangs
+    //  * Transfer.itFits() uses total of copy group for all checks; reduce total as copies are completed
+
 
     public Navigator(Main main, Configuration config, Context ctx)
     {
@@ -1925,7 +1933,7 @@ public class Navigator
             guiContext.mainFrame.dispose();
         }
 
-        Main.stopVerbiage();
+        guiContext.context.main.stopVerbiage();
 
         // end the Navigator Swing thread
         System.exit(guiContext.context.fault ? 1 : 0);
