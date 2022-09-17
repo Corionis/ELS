@@ -76,7 +76,7 @@ public class Connection extends Thread
         }
         catch (Exception e)
         {
-            logger.info(e);
+            logger.error(Utils.getStackTrace(e));
             stop = true;
         }
         finally

@@ -129,7 +129,6 @@ public class Navigator
     //  * RequestCollection & RequestTargets do not log what they're doing
     //  * "Received subscriber commands: RequestCollection & RequestTargets" not shown in cron runs, but is for publisher-dryrun??
     //  * Should/can subscriber send a fault to publisher on exception?
-    //  * Add fault handling to failed loading of auth or hint keys
     //  * A run where publisher has not processed Hints yet hangs
     //  * Transfer.itFits() uses total of copy group for all checks; reduce total as copies are completed
 
@@ -225,14 +224,14 @@ public class Navigator
 
         if (guiContext.cfg.getPublisherCollectionFilename().length() > 0)
         {
-            guiContext.preferences.setLastIsWorkstation(true);
+            guiContext.preferences.setLastIsWorkstation(false);
             guiContext.preferences.setLastPublisherOpenFile(guiContext.cfg.getPublisherCollectionFilename());
             guiContext.preferences.setLastPublisherOpenPath(Utils.getLeftPath(guiContext.cfg.getPublisherCollectionFilename(),
                     Utils.getSeparatorFromPath(guiContext.cfg.getPublisherCollectionFilename())));
         }
         else if (guiContext.cfg.getPublisherLibrariesFileName().length() > 0)
         {
-            guiContext.preferences.setLastIsWorkstation(false);
+            guiContext.preferences.setLastIsWorkstation(true);
             guiContext.preferences.setLastPublisherOpenPath(guiContext.cfg.getPublisherLibrariesFileName());
             guiContext.preferences.setLastPublisherOpenPath(Utils.getLeftPath(guiContext.cfg.getPublisherLibrariesFileName(),
                     Utils.getSeparatorFromPath(guiContext.cfg.getPublisherLibrariesFileName())));

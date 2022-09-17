@@ -152,19 +152,26 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         boolean tout = false;
 
         // Get ELS Authorization Keys if specified
-        if (cfg.getAuthKeysFile().length() > 0)
+        try
         {
-            context.authKeys = new HintKeys(cfg, context);
-            context.authKeys.read(cfg.getAuthKeysFile());
-            hints = new Hints(cfg, context, context.hintKeys);
-        }
+            if (cfg.getAuthKeysFile().length() > 0)
+            {
+                context.authKeys = new HintKeys(cfg, context);
+                context.authKeys.read(cfg.getAuthKeysFile());
+            }
 
-        // Get ELS Hints Keys if specified
-        if (cfg.getHintKeysFile().length() > 0)
+            // Get ELS Hints Keys if specified
+            if (cfg.getHintKeysFile().length() > 0)
+            {
+                context.hintKeys = new HintKeys(cfg, context);
+                context.hintKeys.read(cfg.getHintKeysFile());
+                hints = new Hints(cfg, context, context.hintKeys);
+            }
+        }
+        catch (Exception e)
         {
-            context.hintKeys = new HintKeys(cfg, context);
-            context.hintKeys.read(cfg.getHintKeysFile());
-            hints = new Hints(cfg, context, context.hintKeys);
+            context.fault = true;
+            throw e;
         }
 
         // setup i/o
