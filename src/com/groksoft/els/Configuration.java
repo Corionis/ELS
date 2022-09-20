@@ -39,7 +39,7 @@ public class Configuration
     private boolean consoleSet = false;
     private int crossCheck = -1;
     private ResourceBundle currentBundle = null;
-    private String currentFilePart = "";
+    private String currentFilePart = "-";
     private String debugLevel = "debug";
     private boolean debugSet = false;
     private int dryRun = -1;
@@ -986,18 +986,13 @@ public class Configuration
     {
         if (!currentFilePart.equals(filePart))
         {
-System.out.println("Attempting to load filePart " + filePart);
             // load the language file if available
             if (!Arrays.asList(availableLocales).contains(filePart))
             {
                 filePart = "en_US"; // default locale
-System.out.println("Overriding to filePart " + filePart);
             }
             currentFilePart = filePart;
             currentBundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + currentFilePart);
-if (currentBundle == null)
-  System.out.println("locale load is NULL");
-
         }
     }
 
@@ -1427,7 +1422,6 @@ if (currentBundle == null)
         String country = locale.getCountry();
         String filePart = lang + "_" + country;
         loadLocale(filePart);
-//        loadLocale("-");
     }
 
     /**

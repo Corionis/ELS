@@ -131,6 +131,7 @@ public class Navigator
     //  * Should/can subscriber send a fault to publisher on exception?
     //  * A run where publisher has not processed Hints yet hangs
     //  * Transfer.itFits() uses total of copy group for all checks; reduce total as copies are completed
+    //  * Initial placement of dialogs if no Preferences
 
 
     public Navigator(Main main, Configuration config, Context ctx)
@@ -1779,7 +1780,7 @@ public class Navigator
             // *** might change cfg options for subscriber and targets that are handled below ***
             if (context.clientStty.checkBannerCommands())
             {
-                logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? " RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
+                logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? "RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
             }
 
             // start the serveSftp client

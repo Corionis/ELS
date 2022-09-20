@@ -115,7 +115,7 @@ public class Task implements Comparable, Serializable
         // *** might change cfg options for subscriber and targets that are handled below ***
         if (context.clientStty.checkBannerCommands())
         {
-            logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? " RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
+            logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? "RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
         }
 
         // close any existing SFTP connections

@@ -501,7 +501,7 @@ public class Transfer
                 // *** might change cfg options for subscriber and targets that are handled below ***
                 if (context.clientStty.checkBannerCommands())
                 {
-                    logger.info(cfg.gs("Transfer.received.subscriber.commands") + (cfg.isRequestCollection() ? " RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
+                    logger.info(cfg.gs("Transfer.received.subscriber.commands") + (cfg.isRequestCollection() ? "RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
                 }
             }
 
