@@ -205,10 +205,10 @@ public class Settings extends JDialog
         // locale - add new locales to Preferences.availableLocales
         ComboBoxModel<String> model = localeComboBox.getModel();
         localeComboBox.setAutoscrolls(true);
-        if (guiContext.cfg.availableLocales.length > 0)
+        if (guiContext.context.main.availableLocales.length > 0)
         {
             localeComboBox.removeAllItems();
-            for (String loc : guiContext.cfg.availableLocales)
+            for (String loc : guiContext.context.main.availableLocales)
             {
                 localeComboBox.addItem(loc);
             }

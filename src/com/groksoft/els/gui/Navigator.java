@@ -102,7 +102,7 @@ public class Navigator
     // IDEA
     //  * Add launch by inetd
     //      * --inetd mode for publishers
-    //          * Add longer connection time-outs & retries
+    //          * Add longer connection timeouts & retries
     //          *
     //      * --inetd mode for listeners
     //          *
@@ -218,7 +218,7 @@ public class Navigator
      */
     private boolean initialize()
     {
-        guiContext.cfg.loadLocale(guiContext.preferences.getLocale());
+        guiContext.context.main.loadLocale(guiContext.preferences.getLocale());
 
         guiContext.context.main.savedConfiguration = new SavedConfiguration(guiContext, guiContext.cfg, guiContext.context);
         guiContext.context.main.savedConfiguration.save();
@@ -1807,7 +1807,7 @@ public class Navigator
             @Override
             public void run()
             {
-                guiContext.preferences = new Preferences(guiContext.cfg);
+                guiContext.preferences = new Preferences(guiContext.cfg, guiContext.context);
                 readPreferences();
 
                 // TODO Add as needed: Set command line overrides on Navigator Preferences

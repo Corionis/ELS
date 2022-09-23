@@ -140,7 +140,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         context.transfer = new Transfer(cfg, context);
 
         // setup i/o
-        aSocket.setSoTimeout(120000); // time-out so this thread does not hang server
+        aSocket.setSoTimeout(120000); // timeout so this thread does not hang server
 
         in = new DataInputStream(aSocket.getInputStream());
         out = new DataOutputStream(aSocket.getOutputStream());

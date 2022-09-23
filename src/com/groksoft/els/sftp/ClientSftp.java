@@ -187,11 +187,11 @@ public class ClientSftp
             // Could implement strict key checking if more security is needed
             //jsch.setKnownHosts("known_hosts");
             //jsch.addIdentity("id_rsa");
-            jSession.connect(30000);
+            jSession.connect(60000); // sftp session connection timeout
 
             // If this is a remote Navigator session then "keep alive" the connection
             if (cfg.isRemoteSession() && cfg.isNavigator())
-                jSession.setServerAliveInterval(500000);  // Apache Mina sftp server time-out is 10 minutes
+                jSession.setServerAliveInterval(500000); // Navigator keep alive timeout
         }
         catch (Exception e)
         {

@@ -28,9 +28,6 @@ public class Configuration
     private final String PROGRAM_VERSION = "4.0.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
 
-    // add new locales here
-    public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO: Update locales here
-
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private String blacklist = "";
@@ -39,7 +36,6 @@ public class Configuration
     private boolean consoleSet = false;
     private int crossCheck = -1;
     private ResourceBundle currentBundle = null;
-    private String currentFilePart = "-";
     private String debugLevel = "debug";
     private boolean debugSet = false;
     private int dryRun = -1;
@@ -305,11 +301,6 @@ public class Configuration
     public String getConsoleLevel()
     {
         return consoleLevel;
-    }
-
-    public String getCurrentFilePart()
-    {
-        return currentFilePart;
     }
 
     /**
@@ -975,28 +966,6 @@ public class Configuration
     }
 
     /**
-     * Load a locale and set current locale bundle
-     * <br/>
-     * Requires the abbreviated language_country part of the locale filename, e.g. en_US.
-     * It must be one of the built-in locale files. If not available en_US is used.
-     *
-     * @param filePart Locale file end
-     */
-    public void loadLocale(String filePart)
-    {
-        if (!currentFilePart.equals(filePart))
-        {
-            // load the language file if available
-            if (!Arrays.asList(availableLocales).contains(filePart))
-            {
-                filePart = "en_US"; // default locale
-            }
-            currentFilePart = filePart;
-            currentBundle = ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + currentFilePart);
-        }
-    }
-
-    /**
      * Parse command line
      * <p>
      * This populates the rest.
@@ -1415,13 +1384,6 @@ public class Configuration
                     throw new MungeException("Error: unknown option: " + args[index]);
             }
         }
-
-        // attempt to load the language Java started with, default en_US
-        Locale locale = Locale.getDefault();
-        String lang = locale.getLanguage();
-        String country = locale.getCountry();
-        String filePart = lang + "_" + country;
-        loadLocale(filePart);
     }
 
     /**
@@ -1473,6 +1435,11 @@ public class Configuration
     public void setCrossCheck(boolean crossCheck)
     {
         this.crossCheck = crossCheck == true ? 1 : 0;
+    }
+
+    public void setCurrentBundle(ResourceBundle bundle)
+    {
+        currentBundle = bundle;
     }
 
     /**

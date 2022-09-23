@@ -214,7 +214,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 }
             };
             sshd.setSessionDisconnectHandler(disconnector);
-            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, 15 * 60 * 1000L);
+            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, 15 * 60 * 1000L); // idle timeout
 
             sshd.start();
 

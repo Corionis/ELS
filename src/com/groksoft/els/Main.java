@@ -20,8 +20,7 @@ import org.apache.sshd.common.util.io.IoUtils;
 import javax.swing.*;
 import java.io.File;
 import java.net.URL;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.groksoft.els.Configuration.*;
 
@@ -33,10 +32,14 @@ public class Main
     public static Main main;
     public final Context context = new Context();
     public Configuration cfg;
+    public String currentFilePart;
     private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
     public SavedConfiguration savedConfiguration;
+
+    // add new locales here
+    public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO: Update locales here
 
     /**
      * Instantiates the Main application
@@ -118,6 +121,24 @@ public class Main
     }
 
     /**
+     * Load a locale and set current locale bundle
+     * <br/>
+     * Requires the abbreviated language_country part of the locale filename, e.g. en_US.
+     * It must be one of the built-in locale files. If not available en_US is used.
+     *
+     * @param filePart Locale file end
+     */
+    public void loadLocale(String filePart)
+    {
+        // load the language file if available
+        if (!Arrays.asList(availableLocales).contains(filePart))
+        {
+            filePart = "en_US"; // default locale
+        }
+        cfg.setCurrentBundle(ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + filePart));
+    }
+
+    /**
      * Execute the process
      *
      * @param args the input arguments
@@ -175,6 +196,22 @@ public class Main
                 System.getProperties().list(System.out);
                 System.exit(1);
             }
+
+            // attempt to load the language Java started with, default en_US
+            Locale locale = Locale.getDefault();
+            String lang = locale.getLanguage();
+            String country = locale.getCountry();
+            String filePart = lang + "_" + country;
+            loadLocale(filePart);
+            if (cfg.gs("Transfer.received.subscriber.commands").length() == 0)
+            {
+                logger.debug("Local locale not supported, loading default");
+                loadLocale("-");
+            }
+            else
+                logger.debug("Loaded locale: " + filePart);
+            currentFilePart = filePart;
+
             Utils.setConfiguration(cfg);
 
             //

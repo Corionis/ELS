@@ -3,6 +3,7 @@ package com.groksoft.els.gui;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 
@@ -86,13 +87,15 @@ public class Preferences implements Serializable
     private int toolsRenamerXpos = -1;
     private int toolsRenamerYpos = -1;
     private transient Configuration cfg;
+    private transient Context context;
 
     /**
      * Constructor
      */
-    public Preferences(Configuration config)
+    public Preferences(Configuration config, Context ctx)
     {
         cfg = config;
+        context = ctx;
     }
 
     public void extractColumnSizes(GuiContext guiContext, JTable table)
@@ -391,7 +394,7 @@ public class Preferences implements Serializable
     public String getLocale()
     {
         if (locale.length() == 0)
-            locale = cfg.getCurrentFilePart();
+            locale = context.main.currentFilePart;
         return locale;
     }
 
