@@ -10,18 +10,18 @@ If you create for YouTube, TikTok, Instagram, Mom 'n Dad managing your work
 and backing it up is important. ELS is a library- and title-oriented tool with
 both graphical and command line interfaces and a variety of powerful capabilities.
 
-* Started in 2015 as a command line back-up tool Version 4.0 adds a
-  full-featured desktop application [screenshots].
+* Started in 2015 as a command line back-up tool for home media systems version 4.0
+  adds a full-featured desktop application [screenshots].
 
-* Views a collection spanning multiple storage devices the same way modern
-  media systems do - on a logical library basis such as movies or TV shows.
+* Views a collection of libraries spanning multiple storage devices the same way modern
+  media systems do - on a logical library basis such as movies, TV shows, video segments,
+  pictures, and audio.
 
-* Has several modes of operation including the Navigator desktop
-  application, new in version 4, and several command-line modes to 
-  provide a wide variety of capabilities.
+* Has several modes of operation including the Navigator desktop application, new in
+  version 4, and several command-line automation modes to provide a wide variety of capabilities.
 
-* Is not specific to any system. Any modern home media system using the standard
-  directory structure is supported. Runs on Windows, Linux and Mac.
+* Is not specific to any system. Runs on Windows, Linux and Mac. Any modern 
+  media system using the standard directory structure is supported.
 
 The Navigator presents a workstation/collection and a back-up collection
 in split-pane file browsers. Tools for creating and maintaining collection
@@ -34,7 +34,7 @@ standard operating system tools.
 One or more local or LAN/Internet-connected back-ups are supported. All
 communication is encrypted.
 
-It's all built-in and it's free.
+It's all built-in and free.
 
 ## Features
 

@@ -205,11 +205,11 @@ public class Main
             loadLocale(filePart);
             if (cfg.gs("Transfer.received.subscriber.commands").length() == 0)
             {
-                logger.debug("Local locale not supported, loading default");
+                //logger.debug("Local locale not supported, loading default");
                 loadLocale("-");
             }
             else
-                logger.debug("Loaded locale: " + filePart);
+                //logger.debug("Loaded locale: " + filePart);
             currentFilePart = filePart;
 
             Utils.setConfiguration(cfg);
@@ -232,7 +232,7 @@ public class Main
                     // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
                     {
-                        logger.info("ELS: Navigator begin, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Navigator, version " + cfg.getVersionStamp());
                         cfg.dump();
 
                         if (cfg.getPublisherFilename().length() > 0)
@@ -257,7 +257,7 @@ public class Main
                     }
                     else
                     {
-                        logger.info("ELS: Local Process begin, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Local Process, version " + cfg.getVersionStamp());
                         cfg.dump();
 
                         context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -281,7 +281,7 @@ public class Main
 
                 // handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS: Publisher Listener begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Publisher Listener, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -311,7 +311,7 @@ public class Main
 
                 // handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS: Publisher Manual Terminal begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Publisher Manual Terminal, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -348,9 +348,9 @@ public class Main
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
-                        logger.info("ELS: Navigator Remote begin, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Navigator Remote, version " + cfg.getVersionStamp());
                     else
-                        logger.info("ELS: Publish Process to Remote Subscriber begin, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Publish Process to Remote Subscriber, version " + cfg.getVersionStamp());
 
                     cfg.dump();
 
@@ -399,7 +399,7 @@ public class Main
 
                 // handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS: Subscriber Listener begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Subscriber Listener, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -432,7 +432,7 @@ public class Main
 
                 // handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS: Subscriber Manual Terminal begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Subscriber Manual Terminal, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -484,7 +484,7 @@ public class Main
 
                 // handle -H|--hint-server stand-alone hints status server
                 case STATUS_SERVER:
-                    logger.info("ELS: Hint Status Server begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Hint Status Server, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getHintKeysFile() == null || cfg.getHintKeysFile().length() == 0)
@@ -528,7 +528,7 @@ public class Main
 
                 // handle -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Quit Hint Status Server begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Quit Hint Status Server, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)
@@ -545,7 +545,7 @@ public class Main
 
                 // handle -G|--listener-quit the remote subscriber
                 case SUBSCRIBER_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Subscriber Listener Quit begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Subscriber Listener Quit, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getSubscriberFilename() == null || cfg.getSubscriberFilename().length() == 0)
@@ -578,7 +578,7 @@ public class Main
 
                 case JOB_PROCESS:
                     // handle -j|--job to execute a Job
-                    logger.info("ELS: Job begin, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Job, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.isNavigator())

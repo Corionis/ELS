@@ -236,10 +236,10 @@ public class Settings extends JDialog
         sortReverseCheckBox.setSelected(guiContext.preferences.isSortReverse());
         tabPlacementComboBox.removeAllItems();
         model = tabPlacementComboBox.getModel();
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.top"));
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.bottom"));
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.left"));
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabplacement.right"));
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.top"));
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.bottom"));
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.left"));
+        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.right"));
         tabPlacementComboBox.setSelectedIndex(guiContext.preferences.getTabPlacementIndex());
 
         // backup
@@ -609,7 +609,7 @@ public class Settings extends JDialog
                         sortReverseLabel.setText(guiContext.cfg.gs("Settings.sortReverseLabel.text"));
 
                         //---- tabPlacementlabel ----
-                        tabPlacementlabel.setText(guiContext.cfg.gs("Settings.tabPlacementlabel.text"));
+                        tabPlacementlabel.setText(guiContext.cfg.gs("Settings.tabPlacementLabel.text"));
 
                         //---- tabPlacementComboBox ----
                         tabPlacementComboBox.setModel(new DefaultComboBoxModel<>(new String[] {

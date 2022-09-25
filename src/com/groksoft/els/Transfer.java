@@ -138,6 +138,7 @@ public class Transfer
                     {
                         // copy item(s) to targetPath
                         ++copyCount;
+                        totalSize = totalSize - groupItem.getSize();
 
                         String to = targetPath + context.subscriberRepo.getWriteSeparator();
                         to += context.publisherRepo.normalizePath(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
@@ -520,6 +521,7 @@ public class Transfer
                 {
                     if (cfg.isRemoteSession() && cfg.isRequestCollection())
                     {
+                        logger.info(cfg.gs("Transfer.requesting.subscriber.collection"));
                         requestCollection();
                     }
                 }
@@ -527,6 +529,7 @@ public class Transfer
                 // get -t|T Targets
                 if (cfg.isTargetsEnabled())
                 {
+                    logger.info(cfg.gs("Transfer.requesting.subscriber.targets"));
                     getStorageTargets();
                 }
                 else

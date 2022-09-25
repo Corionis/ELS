@@ -3,7 +3,7 @@
         "description": "Media Publisher",
         "host": "localhost:50271",
         "listen": "localhost:50271",
-        "flavor": "windows",
+        "flavor": "linux",
         "case_sensitive": "false",
         "temp_dated": "false",
         "temp_location": "",
