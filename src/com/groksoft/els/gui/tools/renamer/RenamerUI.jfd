@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.7.0.1134" Java: "11.0.15" encoding: "UTF-8"
+JFDML JFormDesigner: "8.0.0.0.194" Java: "11.0.15" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -596,6 +596,7 @@ new FormModel {
 													"name": "text1"
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
 												} )
@@ -613,6 +614,7 @@ new FormModel {
 													"name": "text2"
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
 													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 1
 													"gridx": 1

@@ -115,8 +115,6 @@ public class RenamerUI extends JDialog
                     int index = sm.getMinSelectionIndex();
                     if (index != currentConfigIndex && currentConfigIndex >= 0)
                     {
-//                        if (currentConfigIndex < configItems.getRowCount())
-//                            setRenamerOptions(currentConfigIndex);
                         currentConfigIndex = index;
                         loadOptions(currentConfigIndex);
                     }
@@ -158,7 +156,6 @@ public class RenamerUI extends JDialog
         }
         else
         {
-//            setRenamerOptions(-1);
             if (checkForChanges())
             {
                 int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
@@ -282,7 +279,6 @@ public class RenamerUI extends JDialog
 
     private void actionOkClicked(ActionEvent e)
     {
-//        setRenamerOptions(-1);
         saveConfigurations();
         savePreferences();
         setVisible(false);
@@ -327,8 +323,6 @@ public class RenamerUI extends JDialog
                 configModel.addRow(new Object[]{renamer});
                 currentConfigIndex = configModel.getRowCount() - 1;
                 loadOptions(currentConfigIndex);
-
-                //((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[renamer.getType()]);
 
                 configItems.editCellAt(currentConfigIndex, 0);
                 configItems.changeSelection(currentConfigIndex, currentConfigIndex, false, false);
@@ -489,16 +483,16 @@ public class RenamerUI extends JDialog
         comboBoxFilenameSegment.setSelectedIndex(0);
         switch (type)
         {
-            case 0: // case change
+            case 0: // Case change
                 break;
-            case 1: // insert
+            case 1: // Insert
                 currentRenamer.setText1("");
                 currentRenamer.setText2("0");
                 currentRenamer.setOption1(false);
                 currentRenamer.setOption2(false);
                 currentRenamer.setOption3(false);
                 break;
-            case 2: // numbering
+            case 2: // Numbering
                 currentRenamer.setText1("0");
                 currentRenamer.setText2("0");
                 currentRenamer.setText3("0");
@@ -506,11 +500,16 @@ public class RenamerUI extends JDialog
                 currentRenamer.setOption2(false);
                 currentRenamer.setOption3(false);
                 break;
-            case 3: // replace
+            case 3: // Remove
                 currentRenamer.setText1("0");
                 currentRenamer.setText2("0");
+                currentRenamer.setOption1(false);
                 break;
-            case 4: // remove
+            case 4: // Replace
+                currentRenamer.setText1("");
+                currentRenamer.setText2("");
+                currentRenamer.setOption1(false);
+                currentRenamer.setOption2(false);
                 break;
         }
     }
@@ -801,6 +800,9 @@ public class RenamerUI extends JDialog
         workerRunning = false;
         workerRenamer = null;
 
+        loadTable();
+        processTable();
+
         if (renamer.isRequestStop())
         {
             guiContext.browser.printLog(renamer.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
@@ -909,6 +911,12 @@ public class RenamerUI extends JDialog
                 }
             }
         }
+    }
+
+    private void setNumberFilter(JTextField field)
+    {
+        PlainDocument pd = (PlainDocument) field.getDocument();
+        pd.setDocumentFilter(numberFilter);
     }
 
     private void setRenamerOptions(int index)
@@ -1071,14 +1079,11 @@ public class RenamerUI extends JDialog
             }
             else
             {
-                PlainDocument pd = (PlainDocument) textFieldToInsert.getDocument();
-                pd.setDocumentFilter(pathFilter);
                 textFieldInsertPosition.setEnabled(true);
-                pd = (PlainDocument) textFieldInsertPosition.getDocument();
-                pd.setDocumentFilter(numberFilter);
                 checkBoxInsertFromEnd.setEnabled(true);
                 checkBoxInsertOverwrite.setEnabled(true);
             }
+            setNumberFilter(textFieldInsertPosition);
         }
         else if (currentCard == panelNumberingCard)
         {
@@ -1098,25 +1103,40 @@ public class RenamerUI extends JDialog
             }
             else
             {
-                PlainDocument pd = (PlainDocument) textFieldNumberingStart.getDocument();
-                pd.setDocumentFilter(numberFilter);
-                pd = (PlainDocument) textFieldNumberingZeros.getDocument();
-                pd.setDocumentFilter(numberFilter);
                 textFieldNumberingPosition.setEnabled(true);
-                pd = (PlainDocument) textFieldNumberingPosition.getDocument();
-                pd.setDocumentFilter(numberFilter);
                 checkBoxNumberingFromEnd.setEnabled(true);
                 checkBoxNumberingOverwrite.setEnabled(true);
             }
-
+            setNumberFilter(textFieldNumberingStart);
+            setNumberFilter(textFieldNumberingZeros);
+            setNumberFilter(textFieldNumberingPosition);
         }
         else if (currentCard == panelRemoveCard)
         {
-
+            if (currentRenamer.isOption1())
+                textFieldFrom.setEnabled(false);
+            else
+                textFieldFrom.setEnabled(true);
+            setNumberFilter(textFieldFrom);
+            setNumberFilter(textFieldLength);
         }
         else if (currentCard == panelReplaceCard)
         {
-
+            if (currentRenamer.isOption1())
+            {
+                checkBoxRegularExpr.setEnabled(true);
+                checkBoxCase.setEnabled(false);
+            }
+            else if (currentRenamer.isOption2())
+            {
+                checkBoxRegularExpr.setEnabled(false);
+                checkBoxCase.setEnabled(true);
+            }
+            else
+            {
+                checkBoxRegularExpr.setEnabled(true);
+                checkBoxCase.setEnabled(true);
+            }
         }
     }
 
@@ -1943,6 +1963,12 @@ public class RenamerUI extends JDialog
                                                     tabKeyPressed(e);
                                                 }
                                             });
+                                            textFieldFind.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    genericTextFieldFocusLost(e);
+                                                }
+                                            });
                                             panelReplaceCard.add(textFieldFind, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 0, 0), 0, 0));
@@ -1963,6 +1989,12 @@ public class RenamerUI extends JDialog
                                                 @Override
                                                 public void keyPressed(KeyEvent e) {
                                                     tabKeyPressed(e);
+                                                }
+                                            });
+                                            textFieldReplace.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    genericTextFieldFocusLost(e);
                                                 }
                                             });
                                             panelReplaceCard.add(textFieldReplace, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,

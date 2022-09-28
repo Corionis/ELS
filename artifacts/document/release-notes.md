@@ -36,10 +36,10 @@ Features:
    * Multiple Look 'n Feel options
 
 Like the rest of ELS the new Navigator is a general tool for anyone manipulating
-media and is aksi compatible with modern media system such a Plex Media Server.
+media and is compatible with modern media system such a Plex Media Server.
 Works on Windows, Linux and Mac.
 
-_It's all built-in_ with the new -n|--navigator option.
+_It's all built-in_ with the new -n | --navigator option.
 
 ### Enhancements
 
@@ -154,6 +154,9 @@ _It's all built-in_ with the new -n|--navigator option.
  7. Modified the code for methodical exit code status values. Exit code 0 is normal, 1 indicates a
     fault occurred. Exit code 130 is returned if Ctrl-C is hit on the command line. Useful for error
     handling in multi-step automation batch files or scripts.
+
+ 8. Changed free space checking when backing-up a group of files so the value checked is reduced as
+    each item is copied. GitHub Issue #55.
 
 
 ### Developer Notes

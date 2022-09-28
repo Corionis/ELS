@@ -30,6 +30,7 @@ import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 public class RenamerTool extends AbstractTool
 {
@@ -237,13 +238,43 @@ public class RenamerTool extends AbstractTool
 
     private String execRemove(String value)
     {
-
+        // From = text1
+        // Length = text2
+        // From end = option1
+        int from = Integer.parseInt(getText1());
+        int length = Integer.parseInt(getText2());
+        if (isOption1())
+        {
+            if (value.length() - length >= 0)
+                value = value.substring(0,value.length() - length);
+            else
+                value = "";
+        }
+        else
+        {
+            value = value.substring(0, from) + value.substring(from + length);
+        }
         return value;
     }
 
     private String execReplace(String value)
     {
-
+        // Find = text1
+        // Replace = text2
+        // Regular expression = option1
+        // Case sensitive = option2
+        if (isOption1())
+        {
+            Pattern patt = Pattern.compile(getText1());
+            value = value.replaceAll(patt.toString(), getText2());
+        }
+        else
+        {
+            if (isOption2())
+                value = StringUtils.replaceIgnoreCase(value, getText1(), getText2());
+            else
+                value = value.replace(getText1(), getText2());
+        }
         return value;
     }
 
@@ -779,30 +810,6 @@ public class RenamerTool extends AbstractTool
     {
         dataHasChanged = true;
     }
-
-/*
-    private boolean match(String filename, String fullpath, JunkItem junk)
-    {
-        // https://commons.apache.org/proper/commons-io/
-        // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html
-        // https://commons.apache.org/proper/commons-io/javadocs/api-2.5/org/apache/commons/io/FilenameUtils.html#wildcardMatch(java.lang.String,%20java.lang.String)
-        boolean isMatch = FilenameUtils.wildcardMatch(filename, junk.wildcard, (junk.caseSensitive ? IOCase.SENSITIVE : IOCase.INSENSITIVE));
-        if (isMatch)
-        {
-            String msg = "  ";
-            if (isRemote())
-                msg += getCfg().gs("Z.remote.uppercase");
-            else
-                msg += getCfg().gs("NavTreeNode.local");
-            msg += MessageFormat.format(getCfg().gs("NavTransferHandler.delete.file.message"), isDryRun ? 0 : 1, fullpath);
-            if (guiContext != null)
-                guiContext.browser.printLog(msg);
-            else
-                logger.info(msg);
-        }
-        return isMatch;
-    }
-*/
 
     public void setOption1(boolean option1)
     {

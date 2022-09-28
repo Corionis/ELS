@@ -25,7 +25,7 @@ To make that case-insensitive:
 
 ## Documentation
 
-From the JAVA API Documentation for [java.util.regex.Pattern](https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html):
+From the JAVA API Documentation for [java.util.regex.Pattern](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html):
 
 ```
 Summary of regular-expression constructs
@@ -98,7 +98,8 @@ java.lang.Character classes (simple java character type):
 \p{javaWhitespace}	Equivalent to java.lang.Character.isWhitespace()
 \p{javaMirrored}	Equivalent to java.lang.Character.isMirrored()
  
-Classes for Unicode scripts, blocks, categories and binary properties
+Classes for Unicode scripts, blocks, categories and binary properties:
+
 \p{IsLatin}	A Latin script character (script)
 \p{InGreek}	A character in the Greek block (block)
 \p{Lu}	An uppercase letter (category)
@@ -167,6 +168,18 @@ Quotation:
 \Q	Nothing, but quotes all characters until \E
 \E	Nothing, but ends quoting started by \Q
  
+Special constructs (named-capturing and non-capturing):
+
+(?<name>X)	X, as a named-capturing group
+(?:X)	X, as a non-capturing group
+(?idmsuxU-idmsuxU) 	Nothing, but turns match flags i d m s u x U on - off
+(?idmsux-idmsux:X)  	X, as a non-capturing group with the given flags i d m s u x on - off
+(?=X)	X, via zero-width positive lookahead
+(?!X)	X, via zero-width negative lookahead
+(?<=X)	X, via zero-width positive lookbehind
+(?<!X)	X, via zero-width negative lookbehind
+(?>X)	X, as an independent, non-capturing group
+
 Backslashes, escapes, and quoting:
 
 The backslash character ('\') serves to introduce escaped constructs, as defined in the 

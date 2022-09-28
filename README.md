@@ -57,7 +57,7 @@ in the Version-4.0.0 branch for on-going change information.
      * Done: Drag and Drop, and Copy/Cut/Paste supported.
      * Done: Automatic multiple-storage free space roll-over of a drop or paste on an ELS library.
    * Done: Works with local or remote subscriber.
-     * When in listener mode ELS may also be accessed with a standard SFTP tool such as Filezilla.
+     * Done: When in listener mode ELS may also be accessed with a standard SFTP tool such as Filezilla.
    * Done: Optional automatic ELS Hint creation based on actions.
    * Various purpose-built tools for curating a media collection.
      * Duplicate Finder
