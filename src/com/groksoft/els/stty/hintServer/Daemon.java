@@ -133,7 +133,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
-        boolean tout = false;
 
         // Get ELS hints keys
         hints = new Hints(cfg, context, context.hintKeys);
@@ -169,19 +168,15 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 try
                 {
                     // prompt the user for a command
-                    if (!tout)
+                    try
                     {
-                        try
-                        {
-                            Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
-                        }
-                        catch (Exception e)
-                        {
-                            logger.info("Client appears to have disconnected");
-                            break;
-                        }
+                        Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
                     }
-                    tout = false;
+                    catch (Exception e)
+                    {
+                        logger.info("Client appears to have disconnected");
+                        break;
+                    }
                     response = "";
 
                     line = readStream(in, myKey);  // special readStream() variant for continuous server

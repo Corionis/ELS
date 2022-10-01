@@ -149,7 +149,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
-        boolean tout = false;
 
         // Get ELS Authorization Keys if specified
         try
@@ -217,12 +216,15 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             {
                 try
                 {
-                    // prompt the user for a command
-                    if (!tout)
+                    if (context.fault)
                     {
-                        Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
+                        fault = true;
+                        stop = true;
+                        logger.warn("Process fault, ending stty");
+                        break;
                     }
-                    tout = false;
+                    // prompt the user for a command
+                    Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
                     response = "";
 
                     line = Utils.readStream(in, myKey);
@@ -232,10 +234,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         {
                             fault = true; // exit on EOF
                             stop = true;
-                            logger.info("EOF line. Process ended prematurely.");
+                            logger.warn("EOF line. Process ended prematurely.");
                         }
                         else
-                            logger.info("EOF line. -g|--listener-keep-going in affect.");
+                            logger.info("EOF line. --listener-keep-going in affect.");
                         break; // break read loop and let the connection be closed
                     }
 
@@ -695,7 +697,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 }
             }
         }
-        context.fault = fault;
+        if (fault)
+            context.fault = true;
         return stop;
     } // process
 

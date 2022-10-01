@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "7.0.7.0.1134" Java: "11.0.15" encoding: "UTF-8"
+JFDML JFormDesigner: "8.0.0.0.194" Java: "11.0.15" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -543,10 +543,10 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemQuitTerminate"
 						"text": new FormMessage( null, "Navigator.menu.QuitTerminate.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.QuitTerminate.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemQuitTerminate.mnemonic" )
 						"horizontalAlignment": 2
 						"horizontalTextPosition": 2
-						"displayedMnemonicIndex": 8
+						"displayedMnemonicIndex": 12
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemFileQuit"

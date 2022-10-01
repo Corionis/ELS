@@ -465,10 +465,10 @@ public class MainFrame extends JFrame
 
                 //---- menuItemQuitTerminate ----
                 menuItemQuitTerminate.setText(guiContext.cfg.gs("Navigator.menu.QuitTerminate.text"));
-                menuItemQuitTerminate.setMnemonic(guiContext.cfg.gs("Navigator.menu.QuitTerminate.mnemonic").charAt(0));
+                menuItemQuitTerminate.setMnemonic(guiContext.cfg.gs("Navigator.menuItemQuitTerminate.mnemonic").charAt(0));
                 menuItemQuitTerminate.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemQuitTerminate.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemQuitTerminate.setDisplayedMnemonicIndex(8);
+                menuItemQuitTerminate.setDisplayedMnemonicIndex(12);
                 menuFile.add(menuItemQuitTerminate);
 
                 //---- menuItemFileQuit ----

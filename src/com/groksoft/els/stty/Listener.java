@@ -19,20 +19,23 @@ import java.net.*;
 public class Listener extends Thread
 {
     /**
-     * The default timeout for socket connections, in milliseconds
+     * The default time-out for socket connections, in milliseconds
      */
     protected static final int socketTimeout = 2000;
     protected static Logger logger = LogManager.getLogger("applog");//
     private InetAddress addr;
     private Configuration cfg;
+
     /**
      * The socket to listen on for the associated service
      */
     private ServerSocket listenSocket;
+
     /**
      * The port to listen on for the associated service
      */
     private int port;
+
     /**
      * Flag used to determine when to stop listening
      */
@@ -41,7 +44,7 @@ public class Listener extends Thread
     /**
      * Setup a new Listener on a specified port.
      * <p>
-     * The socket is set with a timeout to allow accept() to be interrupted, and
+     * The socket is set with a time-out to allow accept() to be interrupted, and
      * the service to be removed from the server.
      *
      * @param group The thread group used for the listener.
@@ -58,7 +61,7 @@ public class Listener extends Thread
 
         listenSocket = new ServerSocket(this.port, 5, addr);
 
-        // set a non-zero timeout on the socket so accept() may be interrupted
+        // set a non-zero time-out on the socket so accept() may be interrupted
         listenSocket.setSoTimeout(socketTimeout);
     } // constructor
 
@@ -149,7 +152,6 @@ public class Listener extends Thread
             }
             catch (SocketTimeoutException e)
             {
-                //logger.info("Listen accept timeout on port " + port + ", stop=" + ((stop)?"true, stopping":"false, continuing"));
                 continue;
             }
             catch (InterruptedIOException e)

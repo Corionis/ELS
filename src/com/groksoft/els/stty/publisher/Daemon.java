@@ -145,12 +145,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             context.hintKeys = new HintKeys(cfg, context);
             context.hintKeys.read(cfg.getHintKeysFile());
             hints = new Hints(cfg, context, context.hintKeys);
-            context.transfer = new Transfer(cfg, context);
         }
 
         // setup i/o
-        aSocket.setSoTimeout(120000); // timeout
-        // out so this thread does not hang server
+        context.transfer = new Transfer(cfg, context);
+        aSocket.setSoTimeout(120000); // timeout so this thread does not hang server
 
         in = new DataInputStream(aSocket.getInputStream());
         out = new DataOutputStream(aSocket.getOutputStream());

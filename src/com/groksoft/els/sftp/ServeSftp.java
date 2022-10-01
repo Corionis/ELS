@@ -43,6 +43,7 @@ import java.util.Set;
 
 public class ServeSftp implements SftpErrorStatusDataHandler
 {
+    private final int ConnectionTimeout = 15; // connection timeout in minutes
     private Context context;
     private String hostname;
     private int listenport;
@@ -209,12 +210,13 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 {
                     logger.fatal("ELS sftp session timeout, ending session");
                     context.serveStty.requestStop();
-                    return true;
+                    context.fault = true;
                     //return SessionDisconnectHandler.super.handleTimeoutDisconnectReason(session, timeoutStatus);
+                    return true;
                 }
             };
             sshd.setSessionDisconnectHandler(disconnector);
-            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, 15 * 60 * 1000L); // idle timeout
+            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, ConnectionTimeout * 60 * 1000L); // idle timeout
 
             sshd.start();
 
@@ -224,6 +226,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         }
         catch (IOException e)
         {
+            context.fault = true;
             e.printStackTrace();
             logger.warn("Sftp server cannot start secure channel");
         }

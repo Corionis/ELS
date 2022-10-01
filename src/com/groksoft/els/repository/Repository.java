@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * The type Repository.
+ * The type Repository
  */
 public class Repository
 {
@@ -532,17 +532,15 @@ public class Repository
             String flavor = libraryData.libraries.flavor.toLowerCase();
             String from = "";
             String to = "";
-            switch (flavor)
+            if (flavor.equalsIgnoreCase(Libraries.LINUX) || flavor.equalsIgnoreCase(Libraries.MAC))
             {
-                case Libraries.LINUX:
-                    from = "\\\\";
-                    to = "/";
-                    break;
-
-                case Libraries.WINDOWS:
+                from = "\\\\";
+                to = "/";
+            }
+            if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
+            {
                     from = "/";
                     to = "\\\\";
-                    break;
             }
 
             if (libraryData.libraries.temp_location != null)
@@ -563,7 +561,10 @@ public class Repository
                     {
                         for (int i = 0; i < lib.sources.length; ++i)
                         {
-                            lib.sources[i] = normalizeSubst(lib.sources[i], from, to);
+                            if (lib.sources[i] != null && lib.sources[i].length() > 0)
+                                lib.sources[i] = normalizeSubst(lib.sources[i], from, to);
+                            else
+                                throw new MungeException("Malformed JSON");
                         }
                     }
                     if (lib.items != null)

@@ -160,6 +160,7 @@ public class ClientStty
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
                 logger.info("Successfully connected stty to: " + Utils.formatAddresses(this.socket));
+                this.socket.setSoTimeout(120000); // set timeout
             }
             catch (Exception e)
             {

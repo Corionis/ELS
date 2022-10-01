@@ -188,10 +188,6 @@ public class ClientSftp
             //jsch.setKnownHosts("known_hosts");
             //jsch.addIdentity("id_rsa");
 
-            // this timeout is related to remote sessions and the time required
-            // to scan storage locations when requesting a subscriber's collection.
-            // If set to short the connection will timeout before the scan is complete.
-            // TODO should this timeout be a parameter? Possibly in the JSON file.
             jSession.connect(60000); // sftp session connection timeout
 
             // If this is a remote Navigator session then "keep alive" the connection

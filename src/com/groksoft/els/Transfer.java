@@ -149,6 +149,9 @@ public class Transfer
                         response += (msg + "\r\n");
 
                         copyFile(groupItem.getFullPath(), groupItem.getModifiedDate(), to, cfg.isRemoteSession(), overwrite);
+
+                        grandTotalItems = grandTotalItems + 1;
+                        grandTotalSize = grandTotalSize + groupItem.getSize();
                     }
                     else
                     {
@@ -159,8 +162,8 @@ public class Transfer
             }
         }
 
-        grandTotalItems = grandTotalItems + group.size();
-        grandTotalSize = grandTotalSize + totalSize;
+//        grandTotalItems = grandTotalItems + group.size();
+//        grandTotalSize = grandTotalSize + totalSize;
         lastGroupName = currentGroupName;
         group.clear();
 
