@@ -88,17 +88,15 @@ public class Storage
         {
             String from = "";
             String to = "";
-            switch (flavor)
+            if (flavor.equalsIgnoreCase(Libraries.LINUX) || flavor.equalsIgnoreCase(Libraries.MAC))
             {
-                case Libraries.WINDOWS:
-                    from = "/";
-                    to = "\\\\";
-                    break;
-
-                case Libraries.LINUX:
-                    from = "\\\\";
-                    to = "/";
-                    break;
+                from = "\\\\";
+                to = "/";
+            }
+            else if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
+            {
+                from = "/";
+                to = "\\\\";
             }
 
             for (Target tar : targetData.targets.storage)

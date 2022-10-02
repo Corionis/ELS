@@ -537,7 +537,7 @@ public class Repository
                 from = "\\\\";
                 to = "/";
             }
-            if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
+            else if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
             {
                     from = "/";
                     to = "\\\\";

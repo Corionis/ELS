@@ -309,7 +309,7 @@ public class Utils
         }
         else if (flavor.equalsIgnoreCase(Libraries.MAC))
         {
-            separator = ":";
+            separator = "\\\\";
         }
         return separator;
     }

@@ -84,7 +84,11 @@ public class ClientSftp
         {
             pathname = pathname.replaceAll("\\\\", "\\\\\\\\");
         }
-        if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.LINUX))
+        else if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.LINUX))
+        {
+            pathname = pathname.replaceAll("//", "/");
+        }
+        else if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.MAC))
         {
             pathname = pathname.replaceAll("//", "/");
         }
