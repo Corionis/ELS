@@ -59,12 +59,21 @@ public class JunkRemoverUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (guiContext.preferences.getToolsJunkRemoverHeight() > 0)
+        if (guiContext.preferences.getToolsJunkRemoverXpos() > 0)
         {
             this.setLocation(guiContext.preferences.getToolsJunkRemoverXpos(), guiContext.preferences.getToolsJunkRemoverYpos());
             Dimension dim = new Dimension(guiContext.preferences.getToolsJunkRemoverWidth(), guiContext.preferences.getToolsJunkRemoverHeight());
             this.setSize(dim);
             this.splitPaneContent.setDividerLocation(guiContext.preferences.getToolsJunkRemoverDividerLocation());
+        }
+        else
+        {
+            Point parentPos = this.getParent().getLocation();
+            Dimension parentSize = this.getParent().getSize();
+            Dimension mySize = this.getSize();
+            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
+                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
+            this.setLocation(myPos);
         }
 
         // Escape key

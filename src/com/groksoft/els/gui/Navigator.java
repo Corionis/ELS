@@ -659,7 +659,7 @@ public class Navigator
         guiContext.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         //-
-        // Quit & Exit Remote
+        // Quit & Stop Remote
         guiContext.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
         {
             @Override
@@ -667,7 +667,13 @@ public class Navigator
             {
                 if (guiContext.mainFrame.verifyClose())
                 {
-                    quitRemote = true;
+                    int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
+                            guiContext.cfg.gs("Navigator.menu.QuitTerminate.stop.remote"),
+                            guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                    if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                        quitRemote = false;
+                    else
+                        quitRemote = true;
                     stop();
                 }
             }

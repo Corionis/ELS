@@ -93,13 +93,22 @@ public class JobsUI extends JDialog
         buttonOriginDown.setIcon(r1);
 
         // position, size & dividers
-        if (guiContext.preferences.getJobsHeight() > 0)
+        if (guiContext.preferences.getJobsXpos() > 0)
         {
             this.setLocation(guiContext.preferences.getJobsXpos(), guiContext.preferences.getJobsYpos());
             Dimension dim = new Dimension(guiContext.preferences.getJobsWidth(), guiContext.preferences.getJobsHeight());
             this.setSize(dim);
             this.splitPaneContent.setDividerLocation(guiContext.preferences.getJobsTaskDividerLocation());
             this.splitPaneToolsOrigin.setDividerLocation(guiContext.preferences.getJobsOriginDividerLocation());
+        }
+        else
+        {
+            Point parentPos = this.getParent().getLocation();
+            Dimension parentSize = this.getParent().getSize();
+            Dimension mySize = this.getSize();
+            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
+                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
+            this.setLocation(myPos);
         }
 
         // Escape key

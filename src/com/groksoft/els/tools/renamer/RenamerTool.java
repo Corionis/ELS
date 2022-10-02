@@ -57,9 +57,9 @@ public class RenamerTool extends AbstractTool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private final boolean realOnly = false;
+    transient private final boolean realOnly = false; // are only real origins allowed?
     transient private Repository repo; // this tool only uses one repo
-    transient private ArrayList<String> toolPaths;
+    transient private ArrayList<String> physicalPaths;
     // @formatter:on
 
     /**
@@ -300,7 +300,7 @@ public class RenamerTool extends AbstractTool
                 {
                     for (String source : lib.sources)
                     {
-                        toolPaths.add(source);
+                        physicalPaths.add(source);
                         ++count;
                     }
                 }
@@ -313,7 +313,7 @@ public class RenamerTool extends AbstractTool
                     {
                         for (String source : lib.sources)
                         {
-                            toolPaths.add(source);
+                            physicalPaths.add(source);
                             ++count;
                         }
                     }
@@ -321,7 +321,7 @@ public class RenamerTool extends AbstractTool
             }
             else if (origin.getType() == NavTreeUserObject.REAL)
             {
-                toolPaths.add(origin.getName());
+                physicalPaths.add(origin.getName());
                 ++count;
             }
         }
@@ -475,16 +475,16 @@ public class RenamerTool extends AbstractTool
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
 
-        // expand origins into physical toolPaths
+        // expand origins into physical physical paths
         int count = expandOrigins(origins);
-        if (toolPaths == null || toolPaths.size() == 0)
+        if (physicalPaths == null || physicalPaths.size() == 0)
             return;
 
         // only subscribers can be remote
         if (subscriberRepo != null && getCfg().isRemoteSession())
             setIsRemote(true);
 
-        for (String path : toolPaths)
+        for (String path : physicalPaths)
         {
             if (isRequestStop())
                 break;
@@ -636,7 +636,7 @@ public class RenamerTool extends AbstractTool
         counter = -1;
         renameCount = 0;
         resetStop();
-        toolPaths = new ArrayList<>();
+        physicalPaths = new ArrayList<>();
         if (logger == null)
             logger = LogManager.getLogger("applog");
     }

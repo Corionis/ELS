@@ -78,12 +78,21 @@ public class RenamerUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (guiContext.preferences.getToolsRenamerHeight() > 0)
+        if (guiContext.preferences.getToolsRenamerXpos() > 0)
         {
             this.setLocation(guiContext.preferences.getToolsRenamerXpos(), guiContext.preferences.getToolsRenamerYpos());
             Dimension dim = new Dimension(guiContext.preferences.getToolsRenamerWidth(), guiContext.preferences.getToolsRenamerHeight());
             this.setSize(dim);
             this.splitPaneContent.setDividerLocation(guiContext.preferences.getToolsRenamerDividerLocation());
+        }
+        else
+        {
+            Point parentPos = this.getParent().getLocation();
+            Dimension parentSize = this.getParent().getSize();
+            Dimension mySize = this.getSize();
+            Point myPos = new Point(parentPos.x + (parentSize.width / 2 - mySize.width / 2),
+                    parentPos.y + (parentSize.height / 2 - mySize.height / 2));
+            this.setLocation(myPos);
         }
 
         // Escape key
