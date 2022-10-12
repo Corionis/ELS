@@ -250,7 +250,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         //Utils.writeStream(out, myKey, "End-Execution"); // not a round-trip
                         out.flush();
                         Thread.sleep(1000);
-                        stop = true;
+                        if (!cfg.isKeepGoing())
+                            stop = true;
                         break; // break the loop
                     }
 
