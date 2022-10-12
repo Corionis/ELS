@@ -41,6 +41,7 @@ public class Configuration
     private int dryRun = -1;
     private int dumpSystem = -1;
     private int duplicateCheck = -1;
+    private int emptyDirectoryCheck = -1;
     private String exportCollectionFilename = "";
     private String exportTextFilename = "";
     private int forceCollection = -1;
@@ -171,6 +172,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
+        log(logger, SHORT, "  cfg: -E Empty directories = ", emptyDirectoryCheck);
         logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFilename());
         log(logger, SHORT, "  cfg: -g Listener keep going = ", keepGoing);
         if (isQuitSubscriberListener())
@@ -661,6 +663,16 @@ public class Configuration
     }
 
     /**
+     * Are empty directories being checked?
+     *
+     * @return true if empty directory checking is enabled, else false
+     */
+    public boolean isEmptyDirectoryCheck()
+    {
+        return emptyDirectoryCheck == 1 ? true : false;
+    }
+
+    /**
      * Is the current library one that has been excluded on the command line?
      *
      * @return isSelected true/false
@@ -975,7 +987,7 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // single letters remaining, case-sensitive:  C E I J M N O R U V X Y Z
+        // single option letters remaining, case-sensitive:  C I J M N O R U V X Y Z
 
         int index;
         originalArgs = args;
@@ -1067,6 +1079,10 @@ public class Configuration
                     {
                         throw new MungeException("Error: -e requires an export path output filename");
                     }
+                    break;
+                case "-E":                                             // publisher empty directory check
+                case "--empty-directories":
+                    setEmptyDirectoryCheck(true);
                     break;
                 case "-f":                                             // log filename
                 case "-F":
@@ -1476,6 +1492,16 @@ public class Configuration
     public void setDuplicateCheck(boolean duplicateCheck)
     {
         this.duplicateCheck = duplicateCheck == true ? 1 : 0;
+    }
+
+    /**
+     * Sets empty directory checking
+     *
+     * @param emptyDirectoryCheck
+     */
+    public void setEmptyDirectoryCheck(boolean emptyDirectoryCheck)
+    {
+        this.emptyDirectoryCheck = emptyDirectoryCheck == true ? 1 : 0;
     }
 
     /**

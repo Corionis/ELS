@@ -106,8 +106,15 @@ _It's all built-in_ with the new -n | --navigator option.
     and block incoming connections. The blacklist supports # style comments and blank lines.
     Each IP address is an IPv4 dotted address, e.g. 127.0.0.1, on separate lines.
 
- 10. Added option -I | --ip-whitelist to filter and allow incoming connections. Similar to
-     the -B | --blacklist file.
+10. Added option -I | --ip-whitelist to filter and allow incoming connections. Similar to
+    the -B | --blacklist file.
+
+11. Changed the behavior of -u | --duplicates where duplicates are now only logged when
+    this option is enabled.  Otherwise only a total number is reported in the statistics.
+    Previously duplicates were always reported in a back-up or dry-run. 
+
+12. Added option -E | --empty-directories where empty directories are logged when this
+    option is enabled. Otherwise only a total number is reported in the statistics.
 
 
 ### Other Changes

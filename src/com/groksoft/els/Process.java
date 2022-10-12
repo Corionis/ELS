@@ -635,11 +635,15 @@ public class Process
             {
                 if (duplicates == 0)
                 {
-                    logger.debug(SIMPLE, "+------------------------------------------");
-                    logger.debug(SIMPLE, type + " duplicate filenames found:");
+                    if (cfg.isDuplicateCheck())
+                    {
+                        logger.debug(SIMPLE, "+------------------------------------------");
+                        logger.debug(SIMPLE, type + " duplicate filenames found:");
+                    }
                 }
                 ++duplicates;
-                logger.debug(SIMPLE, "  " + dupe.getFullPath());
+                if (cfg.isDuplicateCheck())
+                    logger.debug(SIMPLE, "  " + dupe.getFullPath());
                 dupe.setReported(true);
             }
         }
@@ -659,11 +663,15 @@ public class Process
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
         if (empties == 0)
         {
-            logger.debug(SIMPLE, "+------------------------------------------");
-            logger.debug(SIMPLE, type + " empty directories found:");
+            if (cfg.isEmptyDirectoryCheck())
+            {
+                logger.debug(SIMPLE, "+------------------------------------------");
+                logger.debug(SIMPLE, type + " empty directories found:");
+            }
         }
         ++empties;
-        logger.debug(SIMPLE, "  " + item.getFullPath());
+        if (cfg.isEmptyDirectoryCheck())
+            logger.debug(SIMPLE, "  " + item.getFullPath());
         return empties;
     }
 

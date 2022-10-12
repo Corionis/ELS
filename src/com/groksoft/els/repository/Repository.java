@@ -772,7 +772,7 @@ public class Repository
         lib.items = null;
         for (String src : lib.sources)
         {
-            logger.debug("  " + src);
+            logger.info("  " + src);
             scanDirectory(lib, src, src);
         }
     }
@@ -848,7 +848,7 @@ public class Repository
 
         if (libraryData.libraries.bibliography != null)
         {
-            //if (lbs.bibliography == null)
+            //if (lbs.bibliography == null)  // TODO does this work?
             //{
             //    throw new MungeException("libraries.bibliography must be defined");
             //}
@@ -870,7 +870,7 @@ public class Repository
                     if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
                             (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
                     {
-                        logger.debug("  library: " + lib.name +
+                        logger.info("  library: " + lib.name +
                                 ", " + lib.sources.length + " source" + ((lib.sources.length > 1) ? "s" : "") +
                                 (lib.items != null && lib.items.size() > 0 ? ", " + lib.items.size() + " item" + (lib.items.size() > 0 ? "s" : "") : ""));
                         // validate sources paths
@@ -884,7 +884,7 @@ public class Repository
                             {
                                 throw new MungeException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
                             }
-                            logger.debug("    src: " + lib.sources[j]);
+                            logger.info("    src: " + lib.sources[j]);
 
                             // validate item path
                             if (lib.items != null && lib.items.size() > 0)
