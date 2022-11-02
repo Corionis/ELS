@@ -37,12 +37,13 @@ public class Main
     public Logger logger = null;
     public Date stamp = new Date();
     public SavedConfiguration savedConfiguration;
+    public boolean trace;
 
     // add new locales here
     public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO: Update locales here
 
     /**
-     * Instantiates the Main application
+     * Main application
      */
     public Main()
     {
@@ -76,12 +77,12 @@ public class Main
             if (cfg.isRemoteSession())
             {
                 // start the serveStty client to the hints status server
-                context.statusStty = new ClientStty(cfg, false, true);
+                context.statusStty = new ClientStty(cfg, context, false, true);
                 if (!context.statusStty.connect(repo, context.statusRepo))
                 {
                     throw new MungeException("Hint Status Server failed to connect");
                 }
-                String response = context.statusStty.receive(); // check the initial prompt
+                String response = context.statusStty.receive("", 1000); // check the initial prompt
                 if (!response.startsWith("CMD"))
                     throw new MungeException("Bad initial response from status server: " + context.statusRepo.getLibraryData().libraries.description);
             }
@@ -101,6 +102,11 @@ public class Main
             }
     }
 
+    /**
+     * Read the built-in build stamp
+     *
+     * @return Build stamp string
+     */
     public String getBuildStamp()
     {
         String text = "";
@@ -147,8 +153,10 @@ public class Main
     public void process(String[] args)
     {
         ThreadGroup sessionThreads = null;
-        cfg = new Configuration(context);
         Process proc;
+
+        cfg = new Configuration(context);
+        context.cfg = cfg;
 
         try
         {
@@ -189,12 +197,14 @@ public class Main
             if (cfgException != null) // re-throw any configuration exception
                 throw cfgException;
 
+            trace = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
+
             // Hack for viewing all system properties
             if (cfg.isDumpSystem())
             {
                 System.out.println("\nDumping System Properties");
                 System.getProperties().list(System.out);
-                System.exit(1);
+                System.exit(1); // exit on dump of system properties
             }
 
             // attempt to load the language Java started with, default en_US
@@ -212,7 +222,7 @@ public class Main
                 //logger.debug("Loaded locale: " + filePart);
             currentFilePart = filePart;
 
-            Utils.setConfiguration(cfg);
+            Utils.setContext(context);
 
             //
             // an execution of this program can only be configured as one of these
@@ -221,7 +231,7 @@ public class Main
             boolean defaultNavigator = false;
             switch (cfg.getOperation())
             {
-                // handle standard local execution, no -r option
+                // --- handle standard local execution, no -r option
                 case NOT_REMOTE:
                     if (cfg.getPublisherFilename().length() == 0 && cfg.getSubscriberFilename().length() == 0)
                     {
@@ -279,7 +289,7 @@ public class Main
                     }
                     break;
 
-                // handle -r L publisher listener for remote subscriber -r T connections
+                // --- handle -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
                     logger.info("ELS: Publisher Listener, version " + cfg.getVersionStamp());
                     cfg.dump();
@@ -309,7 +319,7 @@ public class Main
                     }
                     break;
 
-                // handle -r M publisher manual terminal to remote subscriber -r S
+                // --- handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
                     logger.info("ELS: Publisher Manual Terminal, version " + cfg.getVersionStamp());
                     cfg.dump();
@@ -324,7 +334,7 @@ public class Main
                         connectHintServer(context.publisherRepo);
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(cfg, true, true);
+                        context.clientStty = new ClientStty(cfg, context, true, true);
                         if (context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             context.clientStty.guiSession();
@@ -344,7 +354,7 @@ public class Main
                     }
                     break;
 
-                // handle -r P execute the backup process to remote subscriber -r S
+                // --- handle -r P execute the backup process to remote subscriber -r S
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
@@ -364,7 +374,7 @@ public class Main
                         connectHintServer(context.publisherRepo);
 
                         // start the serveStty client for automation
-                        context.clientStty = new ClientStty(cfg, false, true);
+                        context.clientStty = new ClientStty(cfg, context, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             throw new MungeException("Remote subscriber failed to connect");
@@ -397,7 +407,7 @@ public class Main
                     }
                     break;
 
-                // handle -r S subscriber listener for publisher -r P|M connections
+                // --- handle -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
                     logger.info("ELS: Subscriber Listener, version " + cfg.getVersionStamp());
                     cfg.dump();
@@ -430,7 +440,7 @@ public class Main
                     }
                     break;
 
-                // handle -r T subscriber manual terminal to publisher -r L
+                // --- handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
                     logger.info("ELS: Subscriber Manual Terminal, version " + cfg.getVersionStamp());
                     cfg.dump();
@@ -448,7 +458,7 @@ public class Main
                         connectHintServer(context.subscriberRepo);
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(cfg, true, true);
+                        context.clientStty = new ClientStty(cfg, context, true, true);
                         if (context.clientStty.connect(context.subscriberRepo, context.publisherRepo))
                         {
                             context.clientStty.guiSession();
@@ -482,7 +492,7 @@ public class Main
                     }
                     break;
 
-                // handle -H|--hint-server stand-alone hints status server
+                // --- handle -H|--hint-server stand-alone hints status server
                 case STATUS_SERVER:
                     logger.info("ELS: Hint Status Server, version " + cfg.getVersionStamp());
                     cfg.dump();
@@ -526,7 +536,7 @@ public class Main
                     }
                     break;
 
-                // handle -Q|--force-quit the hint status server remotely
+                // --- handle -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
                     logger.info("ELS: Quit Hint Status Server, version " + cfg.getVersionStamp());
                     cfg.dump();
@@ -534,7 +544,7 @@ public class Main
                     if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)
                         throw new MungeException("-Q|--force-quit requires a -h|--hints hint server JSON file");
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
                     connectHintServer(context.publisherRepo);
 
@@ -543,7 +553,7 @@ public class Main
                     cfg.setQuitStatusServer(true);
                     break;
 
-                // handle -G|--listener-quit the remote subscriber
+                // --- handle -G|--listener-quit the remote subscriber
                 case SUBSCRIBER_SERVER_FORCE_QUIT:
                     logger.info("ELS: Subscriber Listener Quit, version " + cfg.getVersionStamp());
                     cfg.dump();
@@ -551,22 +561,21 @@ public class Main
                     if (cfg.getSubscriberFilename() == null || cfg.getSubscriberFilename().length() == 0)
                         throw new MungeException("-G|--listener-quit requires a -s|-S subscriber JSON file");
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
                     context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
                     // start client
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start the serveStty client
-                        context.clientStty = new ClientStty(cfg, false, true);
+                        context.clientStty = new ClientStty(cfg, context, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             throw new MungeException("Remote subscriber failed to connect");
                         }
                         try
                         {
-                            logger.warn("Sending remote quit command");
-                            main.context.clientStty.roundTrip("quit");
+                            main.context.clientStty.roundTrip("quit", "Sending remote quit command", 1000);
                             Thread.sleep(1000);
                         }
                         catch (Exception e)
@@ -576,8 +585,8 @@ public class Main
                     }
                     break;
 
+                // --- handle -j|--job to execute a Job
                 case JOB_PROCESS:
-                    // handle -j|--job to execute a Job
                     logger.info("ELS: Job, version " + cfg.getVersionStamp());
                     cfg.dump();
 
@@ -632,14 +641,16 @@ public class Main
                 // if a fault occurred tell any listener
                 if (main.context.fault && main.context.clientStty != null && main.context.clientStty.isConnected())
                 {
-                    try
+                    if (!main.context.timeout)
                     {
-                        logger.warn("Sending remote fault command (1)");
-                        main.context.clientStty.roundTrip("fault");
-                    }
-                    catch (Exception e)
-                    {
-                        // ignore any exception
+                        try
+                        {
+                            main.context.clientStty.roundTrip("fault", "Sending remote fault command (1)", 1000);
+                        }
+                        catch (Exception e)
+                        {
+                            // ignore any exception
+                        }
                     }
                 }
 
@@ -655,26 +666,28 @@ public class Main
             else if (isListening) // daemons
             {
                 // this shutdown hook is triggered when all connections and
-                // threads used by the daemon have been closed and stopped
-                // See ServeStty.run()
+                // threads used by the daemon have been closed and stopped,
+                // see ServeStty.run(). Also System.exit(0) triggers it and
+                // is preferred over trying to determine which threads are
+                // still alive and won't block
                 Runtime.getRuntime().addShutdownHook(new Thread()
                 {
                     public void run()
                     {
                         try
                         {
+                            logger.trace("shutdown hook");
+
                             // optionally command status server to quit
                             if (main.context.statusStty != null)
                                 main.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
                             main.stopVerbiage();
-                            if (main.context.fault)
-                                logger.error("Exiting with error code");
-                            Thread.sleep(4000L);
-
-                            // stop any remaining services, must be last
                             main.stopServices();
 
+                            // halt kills the remaining threads
+                            if (main.context.fault)
+                                logger.error("Exiting with error code");
                             Runtime.getRuntime().halt(main.context.fault ? 1 : 0);
                         }
                         catch (Exception e)
@@ -771,47 +784,56 @@ public class Main
      */
     public void stopServices()
     {
+        logger.trace("stopServices()");
+
         // logout from any hint status server if not shutting it down
-        if (context.statusStty != null)
+        try
         {
-            if (!cfg.isQuitStatusServer() && context.statusStty.isConnected())
+            if (context.statusStty != null)
             {
-                try
+                if (!cfg.isQuitStatusServer() && context.statusStty.isConnected())
                 {
-                    logger.debug("Sending bye command to Hint Server");
-                    context.statusStty.send("bye");
+                    context.statusStty.send("bye", "Sending bye command to Hint Server");
                     Thread.sleep(1000);
                 }
-                catch (Exception e)
-                {
-                    logger.error(Utils.getStackTrace(e));
-                }
+                context.statusStty.disconnect();
+                context.statusStty = null;
             }
-            context.statusStty.disconnect();
-            context.statusStty = null;
+            if (context.clientSftp != null)
+            {
+                logger.trace("  sftp client");
+                context.clientSftp.stopClient();
+                context.clientSftp = null;
+                Thread.sleep(2000L);
+            }
+            if (context.serveSftp != null)
+            {
+                logger.trace("  sftp server");
+                context.serveSftp.stopServer();
+                context.serveSftp = null;
+            }
+            if (context.clientStty != null)
+            {
+                logger.trace("  stty client");
+                context.clientStty.disconnect();
+                context.clientStty = null;
+            }
+            if (context.serveStty != null)
+            {
+                logger.trace("  stty server");
+                context.serveStty.stopServer();
+                context.serveStty = null;
+            }
         }
-        if (context.clientSftp != null)
+        catch (Exception e)
         {
-            context.clientSftp.stopClient();
-            context.clientSftp = null;
-        }
-        if (context.serveSftp != null)
-        {
-            context.serveSftp.stopServer();
-            context.serveSftp = null;
-        }
-        if (context.clientStty != null)
-        {
-            context.clientStty.disconnect();
-            context.clientStty = null;
-        }
-        if (context.serveStty != null)
-        {
-            context.serveStty.stopServer();
-            context.serveStty = null;
+            logger.error(Utils.getStackTrace(e));
         }
     }
 
+    /**
+     * Log completion statistics
+     */
     public void stopVerbiage()
     {
         if (!main.cfg.getConsoleLevel().equalsIgnoreCase(main.cfg.getDebugLevel()))

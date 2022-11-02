@@ -9,7 +9,6 @@ import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,16 +41,6 @@ public class Repository
     private int purpose = -1;
 
     /**
-     * Instantiate a new empty Repository
-     *
-     * @param config Configuration
-     */
-//    public Repository(Configuration config)
-//    {
-//        this.cfg = config;
-//    }
-
-    /**
      * Instantiate a Repository with a purpose
      * @param config Configuration
      * @param purpose One of PUBLISHER, SUBSCRIBER, HINT_SERVER
@@ -61,31 +50,6 @@ public class Repository
         this.cfg = config;
         this.purpose = purpose;
     }
-
-    /**
-     * Create an empty repository object.
-     * <p>
-     * Description and key are empty strings.<br>
-     * Libraries are created but are empty/null.
-     *
-     * @param cfg Configuration
-     * @param numOfLibraries The number of empty libraries to create
-     * @return Empty Repository object
-     */
-//    public static Repository createEmptyRepository(Configuration cfg, int numOfLibraries)
-//    {
-//        Repository repo = new Repository(cfg);
-//        repo.libraryData = new LibraryData();
-//        repo.libraryData.libraries = new Libraries();
-//        repo.libraryData.libraries.description = "";
-//        repo.libraryData.libraries.key = "";
-//        repo.libraryData.libraries.bibliography = new Library[numOfLibraries];
-//        for (int i = 0; i < numOfLibraries; ++i)
-//        {
-//            repo.libraryData.libraries.bibliography[i] = new Library();
-//        }
-//        return repo;
-//    }
 
     /**
      * Export library items to JSON collection file.
@@ -98,7 +62,7 @@ public class Repository
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + cfg.getExportCollectionFilename());
-        json = gson.toJson(libraryData);
+        json = gson.toJson(getLibraryData());
         try
         {
             PrintWriter outputStream = new PrintWriter(cfg.getExportCollectionFilename());
@@ -123,7 +87,7 @@ public class Repository
         try
         {
             PrintWriter outputStream = new PrintWriter(cfg.getExportTextFilename());
-            for (Library lib : libraryData.libraries.bibliography)
+            for (Library lib : getLibraryData().libraries.bibliography)
             {
                 if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
                         (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
@@ -195,7 +159,7 @@ public class Repository
     {
         boolean has = false;
         Library retLib = null;
-        for (Library lib : libraryData.libraries.bibliography)
+        for (Library lib : getLibraryData().libraries.bibliography)
         {
             if (lib.name.equalsIgnoreCase(libraryName))
             {
@@ -229,7 +193,7 @@ public class Repository
         try
         {
             String key = itemPath;
-            if (!libraryData.libraries.case_sensitive)
+            if (!getLibraryData().libraries.case_sensitive)
             {
                 key = key.toLowerCase();
             }
@@ -274,7 +238,7 @@ public class Repository
      */
     public String getWriteSeparator()
     {
-        return Utils.getFileSeparator(libraryData.libraries.flavor);
+        return Utils.getFileSeparator(getLibraryData().libraries.flavor);
     }
 
     /**
@@ -302,7 +266,7 @@ public class Repository
         }
         match = path;
         path = null;
-        for (Library lib : libraryData.libraries.bibliography)
+        for (Library lib : getLibraryData().libraries.bibliography)
         {
             if (lib.name.equalsIgnoreCase(libraryName))
             {
@@ -312,7 +276,7 @@ public class Repository
                     // has to be a linear search because directories are not placed in the itemMap hash map
                     for (Item item : lib.items)
                     {
-                        if (libraryData.libraries.case_sensitive)
+                        if (getLibraryData().libraries.case_sensitive)
                         {
                             if (Utils.pipe(this, item.getItemPath()).equals(match))
                             {
@@ -360,7 +324,7 @@ public class Repository
 
         if (pubItem == null || !pubItem.isDirectory())
         {
-            for (Library lib : libraryData.libraries.bibliography)
+            for (Library lib : getLibraryData().libraries.bibliography)
             {
                 if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(libName))
                 {
@@ -412,7 +376,7 @@ public class Repository
     public void hasPublisherDuplicate(Item pubItem, String itemPath) throws MungeException
     {
         String key;
-        for (Library lib : libraryData.libraries.bibliography)
+        for (Library lib : getLibraryData().libraries.bibliography)
         {
             if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
             {
@@ -499,7 +463,7 @@ public class Repository
      */
     public boolean isInitialized()
     {
-        if (this.libraryData != null && (this.jsonFilename != null && this.jsonFilename.length() > 0))
+        if (getLibraryData() != null && (this.jsonFilename != null && this.jsonFilename.length() > 0))
             return true;
         else
             return false;
@@ -520,16 +484,20 @@ public class Repository
      */
     public void normalize() throws MungeException
     {
-        if (libraryData != null)
+        if (getLibraryData() != null)
         {
             // if listen is empty use host
-            if (libraryData.libraries.listen == null ||
-                    libraryData.libraries.listen.length() < 1)
+            if (getLibraryData().libraries.listen == null ||
+                    getLibraryData().libraries.listen.length() < 1)
             {
-                libraryData.libraries.listen = libraryData.libraries.host;
+                getLibraryData().libraries.listen = getLibraryData().libraries.host;
             }
 
-            String flavor = libraryData.libraries.flavor.toLowerCase();
+            // set default timeout
+            if (getLibraryData().libraries.timeout < 0)
+                getLibraryData().libraries.timeout = 15; // default connection time-out if not defined
+
+            String flavor = getLibraryData().libraries.flavor.toLowerCase();
             String from = "";
             String to = "";
             if (flavor.equalsIgnoreCase(Libraries.LINUX) || flavor.equalsIgnoreCase(Libraries.MAC))
@@ -543,19 +511,19 @@ public class Repository
                     to = "\\\\";
             }
 
-            if (libraryData.libraries.temp_location != null)
+            if (getLibraryData().libraries.temp_location != null)
             {
-                String path = libraryData.libraries.temp_location;
+                String path = getLibraryData().libraries.temp_location;
                 if (path.startsWith("~"))
                 {
                     path = System. getProperty("user.home") + path.substring(1);
-                    libraryData.libraries.temp_location = path;
+                    getLibraryData().libraries.temp_location = path;
                 }
             }
 
-            if (libraryData.libraries.bibliography != null)
+            if (getLibraryData().libraries.bibliography != null)
             {
-                for (Library lib : libraryData.libraries.bibliography)
+                for (Library lib : getLibraryData().libraries.bibliography)
                 {
                     if (lib.sources != null)
                     {
@@ -583,7 +551,7 @@ public class Repository
 
                             // add itemPath & the item's index in the Vector to the hash map
                             String key = item.getItemPath();
-                            if (!libraryData.libraries.case_sensitive)
+                            if (!getLibraryData().libraries.case_sensitive)
                             {
                                 key = key.toLowerCase();
                             }
@@ -607,7 +575,7 @@ public class Repository
     public String normalizePath(String toFlavor, String path) throws MungeException
     {
         String to = Utils.getFileSeparator(toFlavor);
-        path = normalizeSubst(path, Utils.getFileSeparator(libraryData.libraries.flavor), to);
+        path = normalizeSubst(path, Utils.getFileSeparator(getLibraryData().libraries.flavor), to);
         return path;
     }
 
@@ -635,7 +603,7 @@ public class Repository
         try
         {
             String json;
-            if (libraryData != null)
+            if (getLibraryData() != null)
                 libraryData = null;
             Gson gson = new Gson();
             if (printLog)
@@ -679,7 +647,7 @@ public class Repository
      */
     public void scan(String libraryName) throws MungeException
     {
-        for (Library lib : libraryData.libraries.bibliography)
+        for (Library lib : getLibraryData().libraries.bibliography)
         {
             if (libraryName.length() > 0 && libraryName.equalsIgnoreCase(lib.name))
             {
@@ -790,7 +758,7 @@ public class Repository
      */
     public void sortAll()
     {
-        for (Library lib : libraryData.libraries.bibliography)
+        for (Library lib : getLibraryData().libraries.bibliography)
         {
             sort(lib);
         }
@@ -803,12 +771,12 @@ public class Repository
      */
     public void validate() throws Exception
     {
-        if (libraryData == null)
+        if (getLibraryData() == null)
         {
             throw new MungeException("Libraries are null");
         }
 
-        Libraries lbs = libraryData.libraries;
+        Libraries lbs = getLibraryData().libraries;
         if (lbs == null)
         {
             throw new MungeException("libraries must be defined");
@@ -846,9 +814,9 @@ public class Repository
             }
         }
 
-        if (libraryData.libraries.bibliography != null)
+        if (getLibraryData().libraries.bibliography != null)
         {
-            //if (lbs.bibliography == null)  // TODO does this work?
+            //if (lbs.bibliography == null)  // QUESTION does this work?
             //{
             //    throw new MungeException("libraries.bibliography must be defined");
             //}

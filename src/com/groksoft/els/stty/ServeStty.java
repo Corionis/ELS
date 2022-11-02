@@ -5,7 +5,6 @@ import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
-import com.groksoft.els.stty.subscriber.Daemon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,18 +34,22 @@ public class ServeStty extends Thread
      * The single instance of this class
      */
     private static ServeStty instance = null;
+
     /**
      * The maximum connections allowed for this entire server instance
      */
     protected int maxConnections;
+
     /**
      * Flag used to determine when to stop listening
      */
     private boolean _stop = false;
+
     /**
      * The list of all service connections
      */
     private Vector<Connection> allConnections;
+
     private ThreadGroup allSessionThreads;
     private Hashtable<String, Listener> allSessions;
     private Configuration cfg;
@@ -54,6 +57,7 @@ public class ServeStty extends Thread
     private int listenPort;
     private transient Logger logger = LogManager.getLogger("applog");
     private boolean primaryServers;
+
     /**
      * Count of total connections since started
      */
@@ -131,7 +135,7 @@ public class ServeStty extends Thread
             }
             else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
-                theConnection = new Connection(aSocket, new Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
+                theConnection = new Connection(aSocket, new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
             }
             else if (cfg.isStatusServer())
             {
@@ -152,6 +156,13 @@ public class ServeStty extends Thread
         }
     }
 
+    /**
+     * Add a listener service on host and port
+     *
+     * @param host Hostname of listener
+     * @param aPort Port for listener
+     * @throws Exception
+     */
     protected void addListener(String host, int aPort) throws Exception
     {
         //Integer key = new Integer(aPort);   // hashtable key
@@ -235,8 +246,8 @@ public class ServeStty extends Thread
                 }
                 catch (IOException ioe)
                 {}
-*/
                 c.getConsole().requestStop();
+*/
             }
         }
         this.interrupt();
@@ -277,18 +288,9 @@ public class ServeStty extends Thread
             {
                 logger.debug("Stty interrupted, stop=" + ((_stop) ? "true" : "false"));
                 _stop = true;
+                break;
             }
         }
-
-        // when this server ends disconnect and stop other services
-        // otherwise the threads will never stop
-        if (context.serveSftp != null)
-        {
-            context.serveSftp.stopServer();
-            context.serveSftp = null;
-        }
-        logger.debug("Stopping stty server");
-        stopServer();
     }
 
     /**
@@ -317,6 +319,13 @@ public class ServeStty extends Thread
         }
     }
 
+    /**
+     * Start this stty server
+     *
+     * @param listen The listen value from the JSON library file
+     *
+     * @throws Exception
+     */
     public void startServer(String listen) throws Exception
     {
         String host = Utils.parseHost(listen);
@@ -337,6 +346,9 @@ public class ServeStty extends Thread
         }
     }
 
+    /**
+     * Stop this stty server
+     */
     public void stopServer()
     {
         if (allSessions != null)
@@ -351,6 +363,7 @@ public class ServeStty extends Thread
                         listener.requestStop();
                 }
             }
+            try { Thread.sleep(500L); } catch (Exception e) {};
             this.requestStop();
             allSessions = null;
         }

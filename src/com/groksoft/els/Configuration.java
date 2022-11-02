@@ -21,8 +21,8 @@ public class Configuration
     public static final int PUBLISH_REMOTE = 1;
     public static final int STATUS_SERVER = 6;
     public static final int STATUS_SERVER_FORCE_QUIT = 7;
-    public static final int SUBSCRIBER_SERVER_FORCE_QUIT = 9;
     public static final int SUBSCRIBER_LISTENER = 2;
+    public static final int SUBSCRIBER_SERVER_FORCE_QUIT = 9;
     public static final int SUBSCRIBER_TERMINAL = 5;
     private final String NAVIGATOR_NAME = "ELS Navigator";
     private final String PROGRAM_VERSION = "4.0.0";
@@ -31,9 +31,9 @@ public class Configuration
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private String blacklist = "";
-    private Context context;
     private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean consoleSet = false;
+    private Context context;
     private int crossCheck = -1;
     private ResourceBundle currentBundle = null;
     private String debugLevel = "debug";
@@ -49,6 +49,7 @@ public class Configuration
     private String hintKeysFile = "";
     private int hintSkipMainProcess = -1;
     private String hintsDaemonFilename = "";
+    private int ignoredReported = -1;
     private String iplist = "";
     private String jobName = "";
     private int keepGoing = -1;
@@ -58,6 +59,7 @@ public class Configuration
     private String mismatchFilename = "";
     private int navigator = -1;
     private int noBackFill = -1;
+    private int operation = NOT_REMOTE;
     private String[] originalArgs;
     private int overwrite = -1;
     private int preserveDates = -1;
@@ -66,7 +68,6 @@ public class Configuration
     private String publisherLibrariesFileName = "";
     private int quitStatusServer = -1;
     private int quitSubscriberListener = -1;
-    private int operation = NOT_REMOTE;
     private String remoteType = "-";
     private int requestCollection = -1;
     private int requestTargets = -1;
@@ -82,8 +83,6 @@ public class Configuration
     private int validation = -1;
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
-
-
     /**
      * Instantiates a new Configuration
      */
@@ -99,7 +98,7 @@ public class Configuration
      */
     public void addExcludedLibraryName(String publisherLibraryName)
     {
-        this.selectedLibraryExcludes.add(publisherLibraryName); 
+        this.selectedLibraryExcludes.add(publisherLibraryName);
     }
 
     /**
@@ -120,15 +119,6 @@ public class Configuration
     public ResourceBundle bundle()
     {
         return currentBundle;
-    }
-
-    private void log(Logger logger, Marker SHORT, String message, int indicator)
-    {
-       if (indicator >= 0)
-        {
-            String value = indicator == 0 ? "false" : "true";
-            logger.info(SHORT, message + value);
-        }
     }
 
     /**
@@ -154,7 +144,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
         }
-        log(logger, SHORT,"  cfg: -b No back fill = ", noBackFill);
+        log(logger, SHORT, "  cfg: -b No back fill = ", noBackFill);
         if (blacklist.length() > 0)
         {
             logger.info(SHORT, "  cfg: -B Blacklist filename = " + blacklist);
@@ -211,7 +201,7 @@ public class Configuration
         }
         if (!getExcludedLibraryNames().isEmpty())
         {
-            logger.info(SHORT, "  cfg: -L Excluded library name(s):"); 
+            logger.info(SHORT, "  cfg: -L Excluded library name(s):");
             for (String ln : getExcludedLibraryNames())
             {
                 logger.info(SHORT, "          " + ln);
@@ -222,6 +212,7 @@ public class Configuration
             logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
         }
         log(logger, SHORT, "  cfg: -n Navigator session = ", navigator);
+        log(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
         log(logger, SHORT, "  cfg: -o Overwrite = ", overwrite);
         if (getPublisherLibrariesFileName().length() > 0)
         {
@@ -322,7 +313,7 @@ public class Configuration
      */
     public ArrayList<String> getExcludedLibraryNames()
     {
-        return selectedLibraryExcludes; 
+        return selectedLibraryExcludes;
     }
 
     /**
@@ -376,16 +367,6 @@ public class Configuration
     }
 
     /**
-     * Gets log filename
-     *
-     * @return the log filename
-     */
-    public String getLogFilename()
-    {
-        return logFilename;
-    }
-
-    /**
      * Gets the job name
      *
      * @return the job name
@@ -393,6 +374,16 @@ public class Configuration
     public String getJobName()
     {
         return jobName;
+    }
+
+    /**
+     * Gets log filename
+     *
+     * @return the log filename
+     */
+    public String getLogFilename()
+    {
+        return logFilename;
     }
 
     /**
@@ -423,6 +414,16 @@ public class Configuration
     public String getNavigatorName()
     {
         return NAVIGATOR_NAME;
+    }
+
+    /**
+     * Gets remote flag
+     *
+     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server, 7 = force quit status server
+     */
+    public int getOperation()
+    {
+        return this.operation;
     }
 
     /**
@@ -491,16 +492,6 @@ public class Configuration
     public String getPublisherLibrariesFileName()
     {
         return publisherLibrariesFileName;
-    }
-
-    /**
-     * Gets remote flag
-     *
-     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server, 7 = force quit status server
-     */
-    public int getOperation()
-    {
-        return this.operation;
     }
 
     /**
@@ -579,16 +570,6 @@ public class Configuration
     }
 
     /**
-     * Get program version, build stamp
-     *
-     * @return version, build stamp
-     */
-    public String getVersionStamp()
-    {
-        return getVersion() + ", " + context.main.getBuildStamp();
-    }
-
-    /**
      * Gets program version
      *
      * @return the version
@@ -596,6 +577,16 @@ public class Configuration
     public String getVersion()
     {
         return PROGRAM_VERSION;
+    }
+
+    /**
+     * Get program version, build stamp
+     *
+     * @return version, build stamp
+     */
+    public String getVersionStamp()
+    {
+        return getVersion() + ", " + context.main.getBuildStamp();
     }
 
     /**
@@ -625,6 +616,16 @@ public class Configuration
             value = key;
         }
         return value;
+    }
+
+    /**
+     * Is the scaling factor binary?
+     *
+     * @return true == 1024, false == 1000
+     */
+    public boolean isBinaryScale()
+    {
+        return (getLongScale() == 1024.0 ? true : false);
     }
 
     /**
@@ -679,7 +680,7 @@ public class Configuration
      */
     public boolean isExcludedLibrary(String name)
     {
-        for (String library : selectedLibraryExcludes) 
+        for (String library : selectedLibraryExcludes)
         {
             if (library.equalsIgnoreCase(name))
             {
@@ -720,6 +721,16 @@ public class Configuration
     }
 
     /**
+     * Should ignored files be reported?
+     *
+     * @return true to report ignored files
+     */
+    public boolean isIgnoredReported()
+    {
+        return ignoredReported == 1 ? true : false;
+    }
+
+    /**
      * For a Publisher a true "keep going" flag skips sending
      * the quit command to the subscriber when the operation is
      * complete. For a subscriber it skips ending with a fault
@@ -750,16 +761,6 @@ public class Configuration
     public boolean isNavigator()
     {
         return navigator == 1 ? true : false;
-    }
-
-    /**
-     * Is the scaling factor binary?
-     *
-     * @return true == 1024, false == 1000
-     */
-    public boolean isBinaryScale()
-    {
-        return (getLongScale() == 1024.0 ? true : false);
     }
 
     /**
@@ -977,6 +978,15 @@ public class Configuration
         return this.whatsNewAll == 1 ? true : false;
     }
 
+    private void log(Logger logger, Marker SHORT, String message, int indicator)
+    {
+        if (indicator >= 0)
+        {
+            String value = indicator == 0 ? "false" : "true";
+            logger.info(SHORT, message + value);
+        }
+    }
+
     /**
      * Parse command line
      * <p>
@@ -987,7 +997,7 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // single option letters remaining, case-sensitive:  C I J M N O R U V X Y Z
+        // single option letters remaining, case-sensitive:  C J M O R U V X Y Z
 
         int index;
         originalArgs = args;
@@ -1219,7 +1229,7 @@ public class Configuration
                 case "--exclude":
                     if (index <= args.length - 2)
                     {
-                        addExcludedLibraryName(args[index + 1]); 
+                        addExcludedLibraryName(args[index + 1]);
                         setSpecificExclude(true);
                         ++index;
                     }
@@ -1243,6 +1253,10 @@ public class Configuration
                 case "-n":                                              // Navigator
                 case "--navigator":
                     setNavigator(true);
+                    break;
+                case "-N":                                              // ignored files reported
+                case "--ignored":
+                    setIgnoredReported(true);
                     break;
                 case "-o":                                              // overwrite
                 case "--overwrite":
@@ -1357,7 +1371,7 @@ public class Configuration
                     System.out.println("See the ELS wiki on GitHub for documentation at:");
                     System.out.println("  https://github.com/GrokSoft/ELS/wiki");
                     System.out.println("");
-                    System.exit(1);
+                    System.exit(1); // exit on --version
                     break;
                 case "-w":                                             // What's New output filename
                 case "--whatsnew":
@@ -1575,6 +1589,16 @@ public class Configuration
     }
 
     /**
+     * Enable to report ignored files, default false
+     *
+     * @param ignoredReported True to report ignored files
+     */
+    public void setIgnoredReported(boolean ignoredReported)
+    {
+        this.ignoredReported = ignoredReported == true ? 1 : 0;
+    }
+
+    /**
      * Set the IP address whitelist filename
      *
      * @param iplist Full or relative path to file
@@ -1582,6 +1606,16 @@ public class Configuration
     public void setIplist(String iplist)
     {
         this.iplist = iplist;
+    }
+
+    /**
+     * Sets the job name
+     *
+     * @param name the configuation name of the job
+     */
+    public void setJobName(String name)
+    {
+        this.jobName = name;
     }
 
     /**
@@ -1605,16 +1639,6 @@ public class Configuration
     public void setLogFilename(String logFilename)
     {
         this.logFilename = logFilename;
-    }
-
-    /**
-     * Sets the job name
-     *
-     * @param name the configuation name of the job
-     */
-    public void setJobName(String name)
-    {
-        this.jobName = name;
     }
 
     /**

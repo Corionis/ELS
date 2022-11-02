@@ -18,10 +18,6 @@ import java.net.*;
  */
 public class Listener extends Thread
 {
-    /**
-     * The default time-out for socket connections, in milliseconds
-     */
-    protected static final int socketTimeout = 2000;
     protected static Logger logger = LogManager.getLogger("applog");//
     private InetAddress addr;
     private Configuration cfg;
@@ -44,7 +40,7 @@ public class Listener extends Thread
     /**
      * Setup a new Listener on a specified port.
      * <p>
-     * The socket is set with a time-out to allow accept() to be interrupted, and
+     * The socket is set with a timeout to allow accept() to be interrupted, and
      * the service to be removed from the server.
      *
      * @param group The thread group used for the listener.
@@ -59,10 +55,10 @@ public class Listener extends Thread
         this.port = aPort;
         addr = Inet4Address.getByName(host);
 
+        // create server socket for up to 5 concurrent pending connection requests
         listenSocket = new ServerSocket(this.port, 5, addr);
 
-        // set a non-zero time-out on the socket so accept() may be interrupted
-        listenSocket.setSoTimeout(socketTimeout);
+        listenSocket.setSoTimeout(2000); // set listen time-out on the socket so accept() may be interrupted
     } // constructor
 
     public String getInetAddr()
@@ -70,10 +66,10 @@ public class Listener extends Thread
         return addr.getHostAddress();
     }
 
-    private boolean isListed(Socket aSocket, boolean whiteListed)
+    private boolean isListed(Socket aSocket, boolean whiteList)
     {
-        boolean sense = whiteListed;
-        String filename = (whiteListed ? cfg.getIpWhitelist() : cfg.getBlacklist());
+        boolean sense = whiteList;
+        String filename = (whiteList ? cfg.getIpWhitelist() : cfg.getBlacklist());
         if (filename.length() > 0)
         {
             String inet = aSocket.getInetAddress().toString();
@@ -133,8 +129,7 @@ public class Listener extends Thread
         {
             try
             {
-                socket = (Socket) listenSocket.accept();
-                socket.setTcpNoDelay(true);
+                socket = listenSocket.accept(); // new socket
                 if (isListed(socket, true)) // if it is whitelisted or there is no whitelist
                 {
                     if (isListed(socket, false)) // if it is blacklisted disconnect
@@ -144,19 +139,19 @@ public class Listener extends Thread
                     }
                     else
                     {
-                        //theSocket.setSoLinger(false, -1);
-                        socket.setSoLinger(true, 10000); // linger 10 seconds after transmission completed
                         ServeStty.getInstance().addConnection(socket);
                     }
                 }
             }
             catch (SocketTimeoutException e)
             {
-                continue;
+                //logger.debug("Socket timeout on listener port " + port + ", stop=" + ((stop) ? "true" : "false"));
+                continue; // ignore listen time-out
             }
             catch (InterruptedIOException e)
             {
                 logger.debug("Listener interrupted on port " + port + ", stop=" + ((stop) ? "true" : "false"));
+                break;
             }
             catch (IOException e)
             {
@@ -170,6 +165,6 @@ public class Listener extends Thread
             }
         }
         if (logger != null && socket != null)
-            logger.debug("Stopping stty listener on: " + socket.getInetAddress().toString() + ":" + socket.getPort());
+            logger.debug("Stopping stty listener on: " + socket.getLocalAddress().toString() + ":" + socket.getPort());
     }
 } // Listener

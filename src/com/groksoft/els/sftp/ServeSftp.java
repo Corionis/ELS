@@ -43,7 +43,6 @@ import java.util.Set;
 
 public class ServeSftp implements SftpErrorStatusDataHandler
 {
-    private final int ConnectionTimeout = 15; // connection timeout in minutes
     private Context context;
     private String hostname;
     private int listenport;
@@ -208,15 +207,23 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                 @Override
                 public boolean handleTimeoutDisconnectReason(Session session, TimeoutIndicator timeoutStatus) throws IOException
                 {
-                    logger.fatal("ELS sftp session timeout, ending session");
-                    context.serveStty.requestStop();
+                    String tor = timeoutStatus.getStatus().toString();
+                    logger.fatal("ELS sftp session time-out, ending session, " + tor);
+                    context.timeout = true;
                     context.fault = true;
-                    //return SessionDisconnectHandler.super.handleTimeoutDisconnectReason(session, timeoutStatus);
                     return true;
                 }
             };
+
             sshd.setSessionDisconnectHandler(disconnector);
-            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, ConnectionTimeout * 60 * 1000L); // idle timeout
+            // infinite inactivity time-out for sftp; timeouts in stty control process
+            //int tout = theirRepo.getLibraryData().libraries.timeout * 60 * 1000;
+            int tout = 0;
+
+            logger.trace("Setting sftp idle timeout to " + tout);
+            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, tout); // sftp idle time-out
+            Object o = sshd.getProperties().get(FactoryManager.IDLE_TIMEOUT);
+            logger.trace("sftp idle timeout is " + o.toString());
 
             sshd.start();
 

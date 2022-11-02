@@ -544,11 +544,11 @@ public class Hints
                             boolean updatePubSide = false;
                             if (cfg.isRemoteSession())
                             {
-                                logger.info("* Executing " + item.getFullPath() + " remotely on " + context.subscriberRepo.getLibraryData().libraries.description);
 
                                 // Send command to merge & execute
+                                String msg = "* Executing " + item.getFullPath() + " remotely on " + context.subscriberRepo.getLibraryData().libraries.description;
                                 String response = context.clientStty.roundTrip("execute \"" +
-                                        toItem.getLibrary() + "\" \"" + toItem.getItemPath() + "\" \"" + toPath + "\"");
+                                        toItem.getLibrary() + "\" \"" + toItem.getItemPath() + "\" \"" + toPath + "\"", msg, -1);
                                 if (response != null && response.length() > 0)
                                 {
                                     logger.info("  > execute command returned: " + response);
@@ -628,7 +628,6 @@ public class Hints
                 // request updated remote subscriber collection
                 if (request)
                 {
-                    logger.info("Requesting updated subscriber collection from: " + context.subscriberRepo.getLibraryData().libraries.description);
                     context.transfer.requestCollection();
                 }
             }
@@ -652,10 +651,10 @@ public class Hints
     {
         if (cfg.isRemoteSession() && !context.localMode)
         {
-            logger.debug("Sending hints cleanup command to remote: " + context.subscriberRepo.getLibraryData().libraries.description);
 
             // Send command to clean-up hints
-            String response = context.clientStty.roundTrip("cleanup");
+            String msg = "Sending hints cleanup command to remote: " + context.subscriberRepo.getLibraryData().libraries.description;
+            String response = context.clientStty.roundTrip("cleanup", msg, -1);
             if (response != null && response.length() > 0)
             {
                 logger.debug("  > cleanup command returned: " + response);
@@ -786,7 +785,7 @@ public class Hints
                                 "\"" + existingName + "\" " +
                                 "\"" + existingStatus + "\"";
 
-                        String response = context.statusStty.roundTrip(command);
+                        String response = context.statusStty.roundTrip(command, "Merge status", 10000);
                         if (response != null && !response.equalsIgnoreCase("false"))
                         {
                             mergeRank = statusToRank(response);
@@ -1296,7 +1295,7 @@ public class Hints
                         "\"" + backupName + "\" " +
                         "\"" + status + "\"";
 
-                String response = context.statusStty.roundTrip(command);
+                String response = context.statusStty.roundTrip(command, "Update status", 10000);
                 if (response == null || !response.equalsIgnoreCase(status))
                     throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
             }

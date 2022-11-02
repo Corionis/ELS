@@ -86,10 +86,13 @@ public class Task implements Comparable, Serializable
             try
             {
                 didDisconnect = true;
-                context.clientStty.send("bye");
-                Thread.sleep(500);
-                context.clientStty.disconnect();
-                Thread.sleep(500);
+                if (!context.timeout)
+                {
+                    context.clientStty.send("bye", "Disconnect previous session");
+                    Thread.sleep(500);
+                    context.clientStty.disconnect();
+                    Thread.sleep(500);
+                }
             }
             catch (Exception e)
             {
@@ -97,7 +100,7 @@ public class Task implements Comparable, Serializable
         }
 
         // start the serveStty client for automation
-        context.clientStty = new ClientStty(config, false, true);
+        context.clientStty = new ClientStty(config, context, false, true);
         if (!context.clientStty.connect(publisherRepo, subscriberRepo))
         {
             config.setRemoteType("-");

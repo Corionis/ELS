@@ -14,7 +14,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.StringTokenizer;
 
@@ -29,7 +29,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
-    private Context context;
     private boolean fault = false;
     private Hints hints = null;
     private boolean isTerminal = false;
@@ -42,8 +41,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
      */
     public Daemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
     {
-        super(config, mine, theirs);
-        context = ctxt;
+        super(config, ctxt, mine, theirs);
     } // constructor
 
     /**
@@ -85,29 +83,29 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         String system = "";
         try
         {
-            Utils.writeStream(out, myKey, "HELO");
+            send("HELO", "");
 
-            String input = Utils.readStream(in, myKey);
+            String input = receive("", 1000);
             if (input.equals("DribNit") || input.equals("DribNlt"))
             {
                 isTerminal = input.equals("DribNit");
                 if (isTerminal)  // terminal not allowed for hint status server
                 {
-                    Utils.writeStream(out, myKey, "Terminal session not allowed");
+                    send("Terminal session not allowed", "");
                     return system; // empty
                 }
-                Utils.writeStream(out, myKey, myKey);
+                send(myKey, "");
 
-                input = Utils.readStream(in, myKey);
+                input = receive("", 1000);
                 // validate with Hint Keys
                 HintKeys.HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
                 if (connectedKey != null)
                 {
                     // send my flavor
-                    Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
+                    send(myRepo.getLibraryData().libraries.flavor, "");
 
                     system = connectedKey.name;
-                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                    logger.info("Authenticated automated session: " + system);
                 }
             }
         }
@@ -124,32 +122,33 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public boolean process(Socket aSocket) throws Exception
+    public boolean process() throws Exception
     {
-        socket = aSocket;
-        port = aSocket.getPort();
-        address = aSocket.getInetAddress();
         int attempts = 0;
+        int commandCount = 0;
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
+
+        port = getSocket().getPort();
+        address = getSocket().getInetAddress();
 
         // Get ELS hints keys
         hints = new Hints(cfg, context, context.hintKeys);
         context.transfer = new Transfer(cfg, context);
 
         // setup i/o
-        aSocket.setSoTimeout(120000); // timeout so this thread does not hang server
+        getSocket().setKeepAlive(true); // keep alive to avoid time-out
 
-        in = new DataInputStream(aSocket.getInputStream());
-        out = new DataOutputStream(aSocket.getOutputStream());
+        in = new DataInputStream(getSocket().getInputStream());
+        out = new DataOutputStream(getSocket().getOutputStream());
 
         connected = true;
 
         String system = handshake();
         if (system.length() == 0) // special handshake using hints keys file instead of point-to-point
         {
-            logger.error("Connection to incoming request failed handshake");
+            logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
         }
         else
         {
@@ -168,15 +167,16 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 try
                 {
                     // prompt the user for a command
-                    try
+                    if (context.fault || context.timeout)
                     {
-                        Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
-                    }
-                    catch (Exception e)
-                    {
-                        logger.info("Client appears to have disconnected");
+                        fault = true;
+                        stop = true;
+                        logger.warn("Process fault, ending stty");
                         break;
                     }
+                    // send response or prompt the user for a command
+                    String log = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? "Writing response " + response.length() + " bytes" : "";
+                    send(response + (isTerminal ? prompt : ""), log);
                     response = "";
 
                     line = readStream(in, myKey);  // special readStream() variant for continuous server
@@ -185,12 +185,20 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         break; // break read loop and let the connection be closed
                     }
 
+                    // loop if internal "ping" received
+                    if (line.equalsIgnoreCase("heartbeat"))
+                    {
+                        logger.trace("HEARTBEAT received");
+                        continue;
+                    }
+
                     if (line.trim().length() < 1)
                     {
                         response = "\r";
                         continue;
                     }
 
+                    ++commandCount;
                     logger.info("Processing command: " + line + " from: " + system + ", " + Utils.formatAddresses(getSocket()));
 
                     // parse the command
@@ -250,8 +258,12 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         //Utils.writeStream(out, myKey, "End-Execution"); // not a round-trip
                         out.flush();
                         Thread.sleep(1000);
-                        if (!cfg.isKeepGoing())
+
+                        // if this is the first command or keep going is not enabled then stop
+                        if (commandCount == 1 || !cfg.isKeepGoing())
                             stop = true;
+                        else
+                            logger.info("Ignoring quit command, --listener-keep-going enabled");
                         break; // break the loop
                     }
 
@@ -280,6 +292,26 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     response = "\r\nunknown command '" + theCommand + "\r\n";
 
                 } // try
+                catch (SocketTimeoutException toe)
+                {
+                    context.timeout = true;
+                    fault = true;
+                    connected = false;
+                    stop = true;
+                    logger.error("SocketTimeoutException: " + Utils.getStackTrace(toe));
+                    break;
+                }
+                catch (SocketException se)
+                {
+                    if (se.toString().contains("timed out"))
+                        context.timeout = true;
+                    fault = true;
+                    connected = false;
+                    stop = true;
+                    logger.debug("SocketException, timeout is: " + context.timeout);
+                    logger.error(Utils.getStackTrace(se));
+                    break;
+                }
                 catch (Exception e)
                 {
                     fault = true;
@@ -288,7 +320,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     logger.error(Utils.getStackTrace(e));
                     try
                     {
-                        Utils.writeStream(out, myKey, e.getMessage());
+                        if (!context.timeout)
+                        {
+                            send(e.getMessage(), "Hint Server exception");
+                            Thread.sleep(1000);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -297,7 +333,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 }
             }
         }
-        context.fault = fault;
+        if (fault)
+            context.fault = true;
         return stop;
     } // process
 
@@ -344,7 +381,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             }
             catch (SocketTimeoutException e)
             {
-                continue;
+                continue; // ignore the time-out on a read
             }
             catch (EOFException e)
             {

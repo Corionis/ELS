@@ -337,7 +337,7 @@ public class RenamerTool extends AbstractTool
     @Override
     public String getDisplayName()
     {
-        return Utils.getCfg().gs("Renamer.displayName");
+        return Utils.getContext().cfg.gs("Renamer.displayName");
     }
 
     @Override

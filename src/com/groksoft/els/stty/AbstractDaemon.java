@@ -1,6 +1,8 @@
 package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -9,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 
@@ -27,7 +28,10 @@ public abstract class AbstractDaemon
     protected boolean authorized = false;
     protected Configuration cfg;
     protected boolean connected = false;
+    protected Context context;
     protected boolean fault = false;
+    private Thread heartBeat = null;
+    private boolean heartBeatEnabled = true;
     protected DataInputStream in = null;
     protected String myKey;
     protected Repository myRepo;
@@ -36,51 +40,92 @@ public abstract class AbstractDaemon
     protected String response = "";
     protected Socket socket;
     protected boolean stop = false;
-    protected String theirKey;
     protected Repository theirRepo;
 
     /**
      * Instantiate the Daemon service
      */
-    public AbstractDaemon(Configuration config, Repository mine, Repository theirs)
+    public AbstractDaemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
     {
         this.cfg = config;
+        this.context = ctxt;
         this.myRepo = mine;
         if (theirs != null)
         {
             this.theirRepo = theirs;
-            this.theirKey = this.theirRepo.getLibraryData().libraries.key;
         }
         this.myKey = myRepo.getLibraryData().libraries.key;
     } // constructor
 
     /**
-     * Dump statistics from all available internal sources.
-     *
-     * @param aWriter The PrintWriter to be used to print the list.
+     * Create and start the internal heartbeat "ping"
      */
-    public synchronized void dumpStatistics(PrintWriter aWriter)
+    protected void createHeartBeat()
     {
-		/*
-		aWriter.println("\r\Daemon currently connected: " + ((connected) ? "true" : "false"));
-		aWriter.println("  Connected on port: " + port);
-		aWriter.println("  Connected to: " + address);
-		try
-		{
-			aWriter.println("  Work: " + work);
-		}
-		catch (Exception e)
-		{
-			aWriter.println("Exception " + e.getMessage());
-			e.printStackTrace();
-		}
-		*/
+        heartBeat = new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    while (true)
+                    {
+                        sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
+                        if (heartBeatEnabled)
+                        {
+                            send("heartbeat", context.main.trace ? "HEARTBEAT sent" : "");
+                        }
+                    }
+                }
+                catch (InterruptedException e)
+                {
+                    logger.trace("Heartbeat interrupted");
+                    interrupt();
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                }
+            }
+        };
+        logger.trace("starting heartbeat");
+        heartBeat.start();
+    }
+
+    /**
+     * Temporarily disable the internal heartbeat "ping"
+     */
+    private void disableHeartBeat()
+    {
+        if (heartBeat != null)
+        {
+            if (!heartBeatEnabled)
+                logger.warn("Heartbeat already disabled");
+            else
+                logger.trace("Heartbeat disabled");
+            heartBeatEnabled = false;
+        }
+    }
+
+    /**
+     * Enable the internal heartbeat "ping"
+     */
+    private void enableHeartBeat()
+    {
+        if (heartBeat != null)
+        {
+            if (heartBeatEnabled)
+                logger.warn("Heartbeat already enabled");
+            else
+                logger.trace("Heartbeat enabled");
+            heartBeatEnabled = true;
+        }
     }
 
     /**
      * Get the fault indicator
      *
-     * @Return True if a fault occurred
+     * @return True if a fault occurred
      */
     public boolean getFault()
     {
@@ -97,6 +142,11 @@ public abstract class AbstractDaemon
         return "Daemon";
     }
 
+    /**
+     * Get the daemon service socket
+     *
+     * @return Socket of this daemon
+     */
     public Socket getSocket()
     {
         return socket;
@@ -110,7 +160,48 @@ public abstract class AbstractDaemon
     /**
      * Process a connection request to the Daemon service.
      */
-    public abstract boolean process(Socket aSocket) throws IOException, Exception;
+    public abstract boolean process() throws IOException, Exception;
+
+    /**
+     * Receive a response from the other end
+     *
+     * @param log Log line, if any
+     * @param timeout Timeout value in milliseconds
+     * @return String of response text
+     * @throws Exception
+     */
+    public String receive(String log, int timeout) throws Exception
+    {
+        if (getSocket().isOutputShutdown())
+            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+        if (!getSocket().isBound())
+            throw new MungeException("socket not bound");
+        if (!getSocket().isConnected())
+            throw new MungeException("socket not connected");
+        if (getSocket().isClosed())
+            throw new MungeException("socket closed");
+
+        if (timeout < 0)
+            timeout = myRepo.getLibraryData().libraries.timeout * 60 * 1000;
+        getSocket().setSoTimeout(timeout); // set read time-out
+        if (log != null && log.length() > 0)
+            logger.debug(log + ", " + timeout + " ms");
+        logger.trace("sotimeout " + getSocket().getSoTimeout());
+        //logger.trace("keep alive " + getSocket().getKeepAlive());
+
+        String response = null;
+        while (true)
+        {
+            response = Utils.readStream(in, myRepo.getLibraryData().libraries.key);
+
+            // loop if internal "ping" received
+            if (response.equalsIgnoreCase("heartbeat"))
+                logger.trace("HEARTBEAT received");
+            else
+                break;
+        }
+        return response;
+    }
 
     /**
      * Request the Daemon service to stop
@@ -119,6 +210,48 @@ public abstract class AbstractDaemon
     {
         this.stop = true;
         logger.debug("Requesting stop for stty session: " + Utils.formatAddresses(socket));
+    }
+
+    /**
+     * Send a command to the other end
+     *
+     * @param message Data to be sent
+     * @param log Log line, if any
+     * @throws Exception
+     */
+    public void send(String message, String log) throws Exception
+    {
+        if (log != null && log.length() > 0)
+            logger.debug(log);
+        //logger.trace("keep alive " + getSocket().getKeepAlive());
+        if (getSocket().isOutputShutdown())
+            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+        if (!getSocket().isBound())
+            throw new MungeException("socket not bound");
+        if (!getSocket().isConnected())
+            throw new MungeException("socket not connected");
+        if (getSocket().isClosed())
+            throw new MungeException("socket closed");
+
+        if (!message.equalsIgnoreCase("heartbeat"))
+            disableHeartBeat();
+
+        Utils.writeStream(out, myRepo.getLibraryData().libraries.key, message);
+
+        if (!message.equalsIgnoreCase("heartbeat"))
+            enableHeartBeat();
+    }
+
+    /**
+     * Stop the internal heart beat thread
+     */
+    protected void stopHeartBeat()
+    {
+        if (heartBeat != null && heartBeat.isAlive())
+        {
+            logger.trace("stopping heartbeat thread");
+            heartBeat.interrupt();
+        }
     }
 
 } // Daemon

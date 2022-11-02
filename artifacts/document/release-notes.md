@@ -107,6 +107,9 @@ _It's all built-in_ with the -n | --navigator option.
 
 13. Added option -N | --ignored to log ignored files. For backup runs and the --duplicates option.
 
+14. Implemented detailed logging of communications-related steps using the "trace" log level
+    for the --console-level and --debug-level options.
+
 
 ### Other Changes
 
@@ -124,7 +127,7 @@ _It's all built-in_ with the -n | --navigator option.
     "bye" command has been changed to end the terminal session but leave the remote listener
     running. Commands quit, exit and logout will shutdown the remote listener.
  
- 4. Added JSON library elements:
+ 4. Added JSON library elements for temporary files:
     1. temp_dated "true/false" : If temporary files such as received collection files have
        date and time embedded in the filename. If false the same file is overwritten.
     2. temp_location "path" : Where to place temporary files. An empty string "" is the
@@ -158,6 +161,10 @@ _It's all built-in_ with the -n | --navigator option.
 
  9. Changed free space checking when backing-up a group of files so the value checked is reduced as
     each item in the group is copied. GitHub Issue #55.
+
+10. Added JSON "timeout" element for the stty protocol in minutes. This provides a mechanism to avoid
+    process hangs and the implementation uses an internal heartbeat to keep the connection alive during
+    long-running operations. The heartbeat is _not_ an actual ping.
 
 
 ### Developer Notes

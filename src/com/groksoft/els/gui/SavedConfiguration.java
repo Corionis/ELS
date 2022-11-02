@@ -92,7 +92,7 @@ public class SavedConfiguration
                 {
                     try
                     {
-                        context.clientStty.send("bye");
+                        context.clientStty.send("bye", "Sending bye command");
                         Thread.sleep(500);
                         context.clientSftp.stopClient();
                         Thread.sleep(500);

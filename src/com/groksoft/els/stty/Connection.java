@@ -72,7 +72,8 @@ public class Connection extends Thread
         boolean stop = false;
         try
         {
-            stop = service.process(socket);
+            service.socket = socket;
+            stop = service.process();
         }
         catch (Exception e)
         {
@@ -81,16 +82,24 @@ public class Connection extends Thread
         }
         finally
         {
+/*
+
             // notify the ConnectionManager that this connection has closed
-            logger.debug("Closing stty connection to: " + Utils.formatAddresses(socket));
             ServeStty cm = ServeStty.getInstance();
-            if (cm != null)
+            if (cm != null && cm.isAlive()) // && !service.context.timeout)
             {
+                logger.debug("Closing stty connection to: " + Utils.formatAddresses(socket));
                 cm.endConnection();
                 if (stop)
                 {
                     cm.stopServer();
                 }
+            }
+*/
+            if (stop)
+            {
+                logger.trace("calling exit");
+                System.exit(0); // must be 0 to trigger Main.process.ShutdownHook()
             }
         }
     }

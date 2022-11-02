@@ -11,7 +11,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -30,7 +31,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
-    private Context context;
     private boolean fault = false;
     private Hints hints = null;
     private boolean isTerminal = false;
@@ -44,8 +44,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
      */
     public Daemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
     {
-        super(config, mine, theirs);
-        context = ctxt;
+        super(config, ctxt, mine, theirs);
     } // constructor
 
     /**
@@ -72,22 +71,23 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         String system = "";
         try
         {
-            Utils.writeStream(out, myKey, "HELO");
+            logger.trace("handshake");
+            send("HELO", "");
 
-            String input = Utils.readStream(in, myKey);
+            String input = receive("", 1000);
             if (input != null && (input.equals("DribNit") || input.equals("DribNlt")))
             {
                 isTerminal = input.equals("DribNit");
                 if (isTerminal && myRepo.getLibraryData().libraries.terminal_allowed != null &&
                         !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
-                    Utils.writeStream(out, myKey, "Terminal session not allowed");
+                    send("Terminal session not allowed", "");
                     logger.warn("Attempt made to login interactively but terminal sessions are not allowed");
                     return system;
                 }
-                Utils.writeStream(out, myKey, myKey);
+                send(myKey, "");
 
-                input = Utils.readStream(in, myKey);
+                input = receive("", 1000);
                 // validate with Authorization Keys if specified
                 if (context.authKeys != null)
                 {
@@ -95,15 +95,15 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     if (connectedKey != null)
                     {
                         // send my flavor
-                        Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
+                        send(myRepo.getLibraryData().libraries.flavor, "");
 
                         system = connectedKey.name;
                         logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
                     }
-                } else if (input.equals(theirKey)) // otherwise validate point-to-point
+                } else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
                     // send my flavor
-                    Utils.writeStream(out, myKey, myRepo.getLibraryData().libraries.flavor);
+                    send(myRepo.getLibraryData().libraries.flavor, "");
 
                     system = theirRepo.getLibraryData().libraries.description;
                     logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
@@ -123,17 +123,18 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
      * <p>
      * The Daemon service provides an interface for this instance.
      */
-    public boolean process(Socket aSocket) throws Exception, IOException
+    public boolean process() throws Exception, IOException
     {
-        socket = aSocket;
-        port = aSocket.getPort();
-        address = aSocket.getInetAddress();
         int attempts = 0;
+        int commandCount = 0;
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
         long size;
-        boolean tout = false;
+        boolean trace = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
+
+        port = getSocket().getPort();
+        address = getSocket().getInetAddress();
 
         // for get command
         long totalSize = 0L;
@@ -149,27 +150,33 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
         // setup i/o
         context.transfer = new Transfer(cfg, context);
-        aSocket.setSoTimeout(120000); // timeout so this thread does not hang server
 
-        in = new DataInputStream(aSocket.getInputStream());
-        out = new DataOutputStream(aSocket.getOutputStream());
+        getSocket().setKeepAlive(true); // keep alive to avoid time-out
+        getSocket().setSoTimeout(myRepo.getLibraryData().libraries.timeout * 60 * 1000); // read time-out
+        getSocket().setSoLinger(true, 10000); // time-out to linger after transmission completed, 10 seconds
+
+        in = new DataInputStream(getSocket().getInputStream());
+        out = new DataOutputStream(getSocket().getOutputStream());
 
         connected = true;
 
         String system = handshake();
         if (system.length() == 0)
         {
-            stop = true; // just hang-up on the connection
-            logger.error("Connection to " + theirRepo.getLibraryData().libraries.host + " failed handshake");
+            if (!context.cfg.isKeepGoing())
+                stop = true; // stop this daemon to avoid repeated attacks
+            logger.error("Connection to " + Utils.formatAddresses(socket) + " failed handshake");
         }
         else
         {
             if (isTerminal)
             {
-                response = "Enter 'help' for information\r\n"; // "Enter " checked in ClientStty.checkBannerCommands()
+                response = "Enter 'help' for information\r\n"; // "Enter " checked with ClientStty.checkBannerCommands()
             }
             else // is automation
             {
+                createHeartBeat();
+
                 response = "CMD";
 
                 //  -S Subscriber collection file
@@ -186,223 +193,179 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             }
 
             // prompt for & process interactive commands
-            while (stop == false)
+            try
             {
-                try
+                while (stop == false)
                 {
-                    // prompt the user for a command
-                    if (!tout)
+                    try
                     {
-                        Utils.writeStream(out, myKey, response + (isTerminal ? prompt : ""));
-                    }
-                    tout = false;
-                    response = "";
-
-                    line = Utils.readStream(in, myKey);
-                    if (line == null)
-                    {
-                        if (!cfg.isKeepGoing())
+                        // prompt the user for a command
+                        if (context.fault || context.timeout)
                         {
-                            fault = true; // exit on EOF
+                            fault = true;
                             stop = true;
-                            logger.info("EOF line. Process ended prematurely.");
+                            logger.warn("Process fault, ending stty");
+                            break;
                         }
-                        else
-                            logger.info("EOF line. -g|--listener-keep-going in affect.");
-                        break; // break read loop and let the connection be closed
-                    }
+                        // send response or prompt the user for a command
+                        send(response + (isTerminal ? prompt : ""), trace ? "Writing response " + response.length() + " bytes" : "");
+                        response = "";
 
-                    if (line.trim().length() < 1)
-                    {
-                        response = "\r";
-                        continue;
-                    }
-
-                    logger.info("Processing command: " + line + " from: " + system + ", " + Utils.formatAddresses(getSocket()));
-
-                    // parse the command
-                    StringTokenizer t = new StringTokenizer(line, "\"");
-                    if (!t.hasMoreTokens())
-                        continue; // ignore if empty
-
-                    String theCommand = t.nextToken().trim();
-
-                    // -------------- authorized level password -----------------
-                    if (theCommand.equalsIgnoreCase("auth"))
-                    {
-                        ++attempts;
-                        String pw = "";
-                        if (t.hasMoreTokens())
-                            pw = remainingTokens(t);
-                        if (cfg.getAuthorizedPassword().equals(pw.trim()))
+                        line = receive(trace ? "Reading command" : "", -1);
+                        if (line == null)
                         {
-                            response = "password accepted\r\n";
-                            authorized = true;
-                            prompt = "$ ";
-                            logger.info("Command auth accepted");
-                        }
-                        else
-                        {
-                            logger.warn("Auth password attempt failed using: " + pw);
-                            if (attempts >= 3) // disconnect on too many attempts
+                            if (!cfg.isKeepGoing())
                             {
-                                logger.error("Too many authentication failures, disconnecting");
-                                break;
-                            }
-                        }
-                        continue;
-                    }
-
-                    // -------------- bye ---------------------------------------
-                    if (theCommand.equalsIgnoreCase("bye"))
-                    {
-                        break;  // let the connection close
-                    }
-
-                    // -------------- return collection file --------------------
-                    if (theCommand.equalsIgnoreCase("collection"))
-                    {
-                        try
-                        {
-                            String stamp = "";
-                            if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
-                            {
-                                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                                LocalDateTime now = LocalDateTime.now();
-                                stamp = "-" + dtf.format(now);
-                            }
-
-                            String location;
-                            String path = "";
-                            String fn = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
-                            if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
-                            {
-                                path = myRepo.getLibraryData().libraries.temp_location;
-                                String sep = myRepo.getSeparator();
-                                if (!path.endsWith(sep))
-                                    path += sep;
-                                location = path + fn;
+                                fault = true; // exit on EOF
+                                stop = true;
+                                logger.warn("EOF line. Process ended prematurely");
                             }
                             else
-                                location = fn;
-                            location += "_collection-generated" + stamp + ".json";
-                            cfg.setExportCollectionFilename(location);
+                                logger.warn("EOF line. --listener-keep-going enabled");
+                            break; // break read loop and let the connection be closed
+                        }
 
-                            for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                        if (line.trim().length() < 1)
+                        {
+                            response = "\r";
+                            continue;
+                        }
+
+                        ++commandCount;
+                        logger.info("Processing command: " + line + " from: " + system + ", " + Utils.formatAddresses(getSocket()));
+
+                        // parse the command
+                        StringTokenizer t = new StringTokenizer(line, "\"");
+                        if (!t.hasMoreTokens())
+                            continue; // ignore if empty
+
+                        String theCommand = t.nextToken().trim();
+
+                        // -------------- authorized level password -----------------
+                        if (theCommand.equalsIgnoreCase("auth"))
+                        {
+                            ++attempts;
+                            String pw = "";
+                            if (t.hasMoreTokens())
+                                pw = t.nextToken(); // get the password
+                            if (cfg.getAuthorizedPassword().equals(pw.trim()))
                             {
-                                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
+                                response = "password accepted\r\n";
+                                authorized = true;
+                                prompt = "$ ";
+                                logger.info("Command auth accepted");
+                            }
+                            else
+                            {
+                                logger.warn("Auth password attempt failed using: " + pw);
+                                if (attempts >= 3) // disconnect on too many attempts
                                 {
-                                    if (subLib.items != null)
-                                    {
-                                        subLib.items = null; // clear any existing data
-                                    }
-                                    myRepo.scan(subLib.name);
+                                    logger.error("Too many authentication failures, disconnecting");
+                                    break;
+                                }
+                            }
+                            continue;
+                        }
+
+                        // -------------- bye ---------------------------------------
+                        if (theCommand.equalsIgnoreCase("bye"))
+                        {
+                            break;  // let the connection close
+                        }
+
+                        // -------------- return collection file --------------------
+                        if (theCommand.equalsIgnoreCase("collection"))
+                        {
+                            try
+                            {
+                                String stamp = "";
+                                if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
+                                {
+                                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+                                    LocalDateTime now = LocalDateTime.now();
+                                    stamp = "-" + dtf.format(now);
+                                }
+
+                                String location;
+                                String path = "";
+                                String fn = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
+                                if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
+                                {
+                                    path = myRepo.getLibraryData().libraries.temp_location;
+                                    String sep = myRepo.getSeparator();
+                                    if (!path.endsWith(sep))
+                                        path += sep;
+                                    location = path + fn;
                                 }
                                 else
-                                {
-                                    logger.info("Skipping publisher library: " + subLib.name);
-                                    subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name;
-                                }
-                            }
+                                    location = fn;
+                                location += "_collection-generated" + stamp + ".json";
+                                cfg.setExportCollectionFilename(location);
 
-                            // otherwise it must be -S so do not scan
-                            myRepo.exportItems(true);
-
-                            response = new String(Files.readAllBytes(Paths.get(location)));
-                        }
-                        catch (MungeException e)
-                        {
-                            logger.error(e.getMessage());
-                        }
-                        continue;
-                    }
-
-                    // -------------- fault ----------------------------------
-                    if (theCommand.equalsIgnoreCase("fault"))
-                    {
-                        fault = true;
-                        stop = true;
-                        Utils.writeStream(out, myKey, "End-Execution");
-                        out.flush();
-                        Thread.sleep(3000);
-                    }
-
-                    // -------------- find --------------------------------------
-                    if (theCommand.equalsIgnoreCase("find"))
-                    {
-                        if (!authorized)
-                        {
-                            response = "not authorized\r\n";
-                        }
-                        else
-                        {
-                            if (t.hasMoreTokens())
-                            {
-                                String find = remainingTokens(t);
-                                find = find.toLowerCase();
-                                logger.info("find: " + find);
                                 for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                                 {
-                                    boolean titled = false;
-                                    if (subLib.items == null)
+                                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
+                                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
                                     {
+                                        if (subLib.items != null)
+                                        {
+                                            subLib.items = null; // clear any existing data
+                                        }
                                         myRepo.scan(subLib.name);
                                     }
-                                    for (Item item : subLib.items)
+                                    else
                                     {
-                                        if (item.getItemPath().toLowerCase().contains(find))
-                                        {
-                                            if (!titled)
-                                            {
-                                                response += "  In library: " + subLib.name + "\r\n";
-                                                titled = true;
-                                            }
-                                            response += "    " + item.getItemPath() + "\r\n";
-                                        }
+                                        logger.info("Skipping publisher library: " + subLib.name);
+                                        subLib.name = "ELS-SUBSCRIBER-SKIP_" + subLib.name;
                                     }
                                 }
-                            }
-                            if (response.length() < 1)
-                            {
-                                response = "No results found, try collection command if refresh is needed\r\n";
-                            }
-                        }
-                        continue;
-                    }
 
-                    // -------------- get ---------------------------------------
-                    if (theCommand.equalsIgnoreCase("get"))
-                    {
-                        if (!authorized)
-                        {
-                            response = "not authorized\r\n";
-                        }
-                        else
-                        {
-                            boolean found = false;
-                            if (t.hasMoreTokens())
+                                // otherwise it must be -S so do not scan
+                                myRepo.exportItems(true);
+
+                                response = new String(Files.readAllBytes(Paths.get(location)));
+                            }
+                            catch (MungeException e)
                             {
-                                String find = remainingTokens(t);
-                                find = find.toLowerCase();
-                                logger.info("get: " + find);
-                                for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
+                                logger.error(e.getMessage());
+                            }
+                            continue;
+                        }
+
+                        // -------------- fault ----------------------------------
+                        if (theCommand.equalsIgnoreCase("fault"))
+                        {
+                            fault = true;
+                            stop = true;
+                            if (!context.timeout)
+                                send("End-Execution", trace ? "Write End-Execution" : "");
+                            Thread.sleep(3000);
+                        }
+
+                        // -------------- find --------------------------------------
+                        if (theCommand.equalsIgnoreCase("find"))
+                        {
+                            if (!authorized)
+                            {
+                                response = "not authorized\r\n";
+                            }
+                            else
+                            {
+                                if (t.hasMoreTokens())
                                 {
-                                    boolean titled = false;
-                                    if (subLib.items == null)
+                                    String find = remainingTokens(t);
+                                    find = find.toLowerCase();
+                                    logger.info("find: " + find);
+                                    for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                                     {
-                                        myRepo.scan(subLib.name);
-                                    }
-                                    for (Item item : subLib.items)
-                                    {
-                                        if (myRepo.ignore(item))
+                                        boolean titled = false;
+                                        if (subLib.items == null)
                                         {
-                                            response += "  ! Ignoring '" + item.getItemPath() + "'\r\n";
-                                            continue;
+                                            myRepo.scan(subLib.name);
                                         }
-                                        if (item.getItemPath().toLowerCase().contains(find))
+                                        for (Item item : subLib.items)
                                         {
-                                            if (!item.isDirectory())
+                                            if (item.getItemPath().toLowerCase().contains(find))
                                             {
                                                 if (!titled)
                                                 {
@@ -410,165 +373,219 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                                     titled = true;
                                                 }
                                                 response += "    " + item.getItemPath() + "\r\n";
-                                                if (item.getSize() < 0)
-                                                {
-                                                    logger.warn("File size was < 0 during get command, getting");
-                                                    size = Files.size(Paths.get(item.getFullPath()));
-                                                    item.setSize(size);
-                                                    totalSize += size;
-                                                }
-                                                else
-                                                {
-                                                    totalSize += item.getSize();
-                                                }
-                                                group.add(item);
-                                                found = true;
                                             }
                                         }
                                     }
                                 }
+                                if (response.length() < 1)
+                                {
+                                    response = "No results found, try collection command if refresh is needed\r\n";
+                                }
                             }
-                            if (!found)
+                            continue;
+                        }
+
+                        // -------------- get ---------------------------------------
+                        if (theCommand.equalsIgnoreCase("get"))
+                        {
+                            if (!authorized)
                             {
-                                response += "No results found, try collection command if refresh is needed\r\n";
+                                response = "not authorized\r\n";
                             }
                             else
                             {
-                                response += "  Total size: ";
-                                response += Utils.formatLong(totalSize, true) + "\r\n";
-                                response += "Copy listed items (y/N)? ";
-                                Utils.writeStream(out, myKey, response);
-
-                                line = Utils.readStream(in, myKey);
-                                if (line == null)
+                                boolean found = false;
+                                if (t.hasMoreTokens())
                                 {
-                                    logger.info("EOF line");
-                                    stop = true;
-                                    break; // exit on EOF
-                                }
-
-                                if (line.equalsIgnoreCase("Y"))
-                                {
-                                    if (context.clientStty == null)
+                                    String find = remainingTokens(t);
+                                    find = find.toLowerCase();
+                                    logger.info("get: " + find);
+                                    for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                                     {
-                                        // start the serveSftp client
-                                        context.clientSftp = new ClientSftp(cfg, myRepo, theirRepo, false);
-                                        if (!context.clientSftp.startClient())
+                                        boolean titled = false;
+                                        if (subLib.items == null)
                                         {
-                                            throw new MungeException("Publisher sftp client failed to connect");
+                                            myRepo.scan(subLib.name);
                                         }
-
-                                        // start the serveStty client for automation
-                                        context.clientStty = new ClientStty(cfg, false, false);
-                                        if (!context.clientStty.connect(myRepo, theirRepo))
+                                        for (Item item : subLib.items)
                                         {
-                                            throw new MungeException("Publisher stty client failed to connect");
+                                            if (myRepo.ignore(item))
+                                            {
+                                                response += "  ! Ignoring '" + item.getItemPath() + "'\r\n";
+                                                continue;
+                                            }
+                                            if (item.getItemPath().toLowerCase().contains(find))
+                                            {
+                                                if (!item.isDirectory())
+                                                {
+                                                    if (!titled)
+                                                    {
+                                                        response += "  In library: " + subLib.name + "\r\n";
+                                                        titled = true;
+                                                    }
+                                                    response += "    " + item.getItemPath() + "\r\n";
+                                                    if (item.getSize() < 0)
+                                                    {
+                                                        logger.warn("File size was < 0 during get command, getting");
+                                                        size = Files.size(Paths.get(item.getFullPath()));
+                                                        item.setSize(size);
+                                                        totalSize += size;
+                                                    }
+                                                    else
+                                                    {
+                                                        totalSize += item.getSize();
+                                                    }
+                                                    group.add(item);
+                                                    found = true;
+                                                }
+                                            }
                                         }
                                     }
-                                    response = transfer.copyGroup(group, totalSize, true);
-                                    group.clear();
+                                }
+                                if (!found)
+                                {
+                                    response += "No results found, try collection command if refresh is needed\r\n";
                                 }
                                 else
                                 {
-                                    response = "skipping get of items\r\n";
+                                    response += "  Total size: ";
+                                    response += Utils.formatLong(totalSize, true) + "\r\n";
+                                    response += "Copy listed items (y/N)? ";
+                                    send(response, "");
+
+                                    line = receive("", -1);
+                                    if (line == null)
+                                    {
+                                        logger.info("EOF line");
+                                        stop = true;
+                                        break; // exit on EOF
+                                    }
+
+                                    if (line.equalsIgnoreCase("Y"))
+                                    {
+                                        if (context.clientStty == null)
+                                        {
+                                            // start the serveSftp client
+                                            context.clientSftp = new ClientSftp(cfg, myRepo, theirRepo, false);
+                                            if (!context.clientSftp.startClient())
+                                            {
+                                                throw new MungeException("Publisher sftp client failed to connect");
+                                            }
+
+                                            // start the serveStty client for automation
+                                            context.clientStty = new ClientStty(cfg, context, false, false);
+                                            if (!context.clientStty.connect(myRepo, theirRepo))
+                                            {
+                                                throw new MungeException("Publisher stty client failed to connect");
+                                            }
+                                        }
+                                        response = transfer.copyGroup(group, totalSize, true);
+                                        group.clear();
+                                    }
+                                    else
+                                    {
+                                        response = "skipping get of items\r\n";
+                                    }
                                 }
                             }
-                        }
-                        continue;
-                    }
-
-                    // -------------- logout ------------------------------------
-                    if (theCommand.equalsIgnoreCase("logout"))
-                    {
-                        if (authorized)
-                        {
-                            authorized = false;
-                            prompt = basePrompt;
                             continue;
                         }
-                        else
-                        {
-                            theCommand = "quit";
-                            // let the logic fall through to the 'quit' handler below
-                        }
-                    }
 
-                    // -------------- quit, exit --------------------------------
-                    if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
-                    {
-                        Utils.writeStream(out, myKey, "End-Execution");
-                        out.flush();
-                        Thread.sleep(1000);
-                        if (!cfg.isKeepGoing())
-                            stop = true;
-                        break; // break the loop
-                    }
-
-                    // -------------- available disk space ----------------------
-                    if (theCommand.equalsIgnoreCase("space"))
-                    {
-                        String location = "";
-                        if (t.hasMoreTokens())
+                        // -------------- logout ------------------------------------
+                        if (theCommand.equalsIgnoreCase("logout"))
                         {
-                            location = t.nextToken();
-                            long space = Utils.availableSpace(location);
-                            logger.info("  space: " + Utils.formatLong(space, true) + " at " + location);
-                            if (isTerminal)
+                            if (authorized)
                             {
-                                response = Utils.formatLong(space, true);
+                                authorized = false;
+                                prompt = basePrompt;
+                                continue;
                             }
                             else
                             {
-                                response = String.valueOf(space);
+                                theCommand = "quit";
+                                // let the logic fall through to the 'quit' handler below
                             }
                         }
-                        else
-                        {
-                            response = (isTerminal ? "space command requires a location\r\n" : "0");
-                        }
-                        continue;
-                    }
 
-                    // -------------- status information ------------------------
-                    if (theCommand.equalsIgnoreCase("status"))
-                    {
-                        if (!authorized)
+                        // -------------- quit, exit --------------------------------
+                        if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                         {
-                            response = "not authorized\r\n";
-                        }
-                        else
-                        {
-                            response = ServeStty.getInstance().dumpStatistics();
-                            response += dumpStatistics();
-                        }
-                        continue;
-                    }
+                            send("End-Execution", trace ? "Write End-Execution" : "");
+                            Thread.sleep(1000);
 
-                    // -------------- return targets file -----------------------
-                    if (theCommand.equalsIgnoreCase("targets"))
-                    {
-                        try
+                            // if this is the first command or keep going is not enabled then stop
+                            if (commandCount == 1 || !cfg.isKeepGoing())
+                                stop = true;
+                            else
+                                logger.info("Ignoring quit command, --listener-keep-going enabled");
+                            break; // break the loop
+                        }
+
+                        // -------------- space check ----------------------
+                        if (theCommand.equalsIgnoreCase("space"))
                         {
-                            if (cfg.getTargetsFilename().length() > 0)
+                            String location = "";
+                            if (t.hasMoreTokens())
                             {
-                                response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                                location = t.nextToken();
+                                long space = Utils.availableSpace(location);
+                                logger.info("  space: " + Utils.formatLong(space, true) + " at " + location);
+                                if (isTerminal)
+                                {
+                                    response = Utils.formatLong(space, true);
+                                }
+                                else
+                                {
+                                    response = String.valueOf(space);
+                                }
                             }
                             else
                             {
-                                response = ""; // let it default to sources as target locations
+                                response = (isTerminal ? "space command requires a location\r\n" : "0");
                             }
+                            continue;
                         }
-                        catch (Exception e)
-                        {
-                            logger.error(e.getMessage());
-                        }
-                        continue;
-                    }
 
-                    // -------------- help! -------------------------------------
-                    if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
-                    {
-                        // @formatter:off
+                        // -------------- status information ------------------------
+                        if (theCommand.equalsIgnoreCase("status"))
+                        {
+                            if (!authorized)
+                            {
+                                response = "not authorized\r\n";
+                            }
+                            else
+                            {
+                                response = ServeStty.getInstance().dumpStatistics();
+                                response += dumpStatistics();
+                            }
+                            continue;
+                        }
+
+                        // -------------- return targets file -----------------------
+                        if (theCommand.equalsIgnoreCase("targets"))
+                        {
+                            try
+                            {
+                                if (cfg.getTargetsFilename().length() > 0)
+                                {
+                                    response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                                }
+                                else
+                                {
+                                    response = ""; // let it default to sources as target locations
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                logger.error(e.getMessage());
+                            }
+                            continue;
+                        }
+
+                        // -------------- help! -------------------------------------
+                        if (theCommand.equalsIgnoreCase("help") || theCommand.equals("?"))
+                        {
+                            // @formatter:off
                     response = "\r\nAvailable commands, not case sensitive:\r\n";
 
                     if (authorized)
@@ -580,7 +597,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                 " And:\r\n";
                     }
 
-                    response += "  auth \"password\" = access Authorized commands, enclose password in quote\r\n" +
+                    response += "  auth \"password\" = access Authorized commands, enclose password in quotes\r\n" +
                             "  collection = get collection data from remote, can take a few moments to scan\r\n" +
                             "  space \"[location]\" = free space at location on remote\r\n" +
                             "  targets = get targets file from remote\r\n" +
@@ -590,29 +607,60 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             "  quit, exit = disconnect and quit remote end\r\n" +
                             "\r\n";
                     // @formatter:on
-                        continue;
-                    }
+                            continue;
+                        }
 
-                    response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
+                        response = "\r\nunknown command '" + theCommand + "', use 'help' for information\r\n";
 
-                } // try
-                catch (Exception e)
-                {
-                    fault = true;
-                    connected = false;
-                    stop = true;
-                    try
+                    } // try
+                    catch (SocketTimeoutException toe)
                     {
-                        Utils.writeStream(out, myKey, e.getMessage());
+                        context.timeout = true;
+                        fault = true;
+                        connected = false;
+                        stop = true;
+                        logger.error("SocketTimeoutException: " + Utils.getStackTrace(toe));
+                        break;
                     }
-                    catch (Exception ex)
+                    catch (SocketException se)
                     {
+                        if (se.toString().contains("timed out"))
+                            context.timeout = true;
+                        fault = true;
+                        connected = false;
+                        stop = true;
+                        logger.debug("SocketException, timeout is: " + context.timeout);
+                        logger.error(Utils.getStackTrace(se));
+                        break;
                     }
-                    break;
+                    catch (Exception e)
+                    {
+                        fault = true;
+                        connected = false;
+                        stop = true;
+                        logger.error(Utils.getStackTrace(e));
+                        try
+                        {
+                            if (!context.timeout)
+                            {
+                                send(e.getMessage(), "Publisher exception");
+                                Thread.sleep(1000);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                        break;
+                    }
                 }
             }
+            finally
+            {
+                stopHeartBeat();
+            }
         }
-        context.fault = fault;
+        if (fault)
+            context.fault = true;
         return stop;
     } // process
 

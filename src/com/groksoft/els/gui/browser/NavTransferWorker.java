@@ -424,7 +424,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     {
                         command = "copy \"" + sourceTuo.path + "\" \"" + path + "\"";
                     }
-                    String response = guiContext.context.clientStty.roundTrip(command);
+                    String response = guiContext.context.clientStty.roundTrip(command, "Sending command: " + command, -1);
                     if (response.equalsIgnoreCase("true"))
                     {
                         setupToNode(sourceTuo, targetTuo, path);

@@ -6,6 +6,7 @@ import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.stty.gui.TerminalGui;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,7 +14,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -22,17 +25,19 @@ import java.time.format.DateTimeFormatter;
  */
 public class ClientStty
 {
-    TerminalGui gui = null;
-    DataInputStream in = null;
-    DataOutputStream out = null;
     private Configuration cfg;
+    private Context context;
+    protected TerminalGui gui = null;
+    private Thread heartBeat = null;
+    private boolean heartBeatEnabled = true;
+    protected DataInputStream in = null;
     private boolean isConnected = false;
     private boolean isTerminal = false;
     private String myKey;
     private Repository myRepo;
+    protected DataOutputStream out = null;
     private boolean primaryServers;
     private Socket socket;
-    private String theirKey;
     private Repository theirRepo;
     private transient Logger logger = LogManager.getLogger("applog");
 
@@ -43,9 +48,10 @@ public class ClientStty
      * @param isManualTerminal True if an interactive client, false if an automated client
      * @param primaryServers   True if base servers, false if secondary servers for Publisher
      */
-    public ClientStty(Configuration config, boolean isManualTerminal, boolean primaryServers)
+    public ClientStty(Configuration config, Context ctxt, boolean isManualTerminal, boolean primaryServers)
     {
         this.cfg = config;
+        this.context = ctxt;
         this.isTerminal = isManualTerminal;
         this.primaryServers = primaryServers;
     }
@@ -60,10 +66,10 @@ public class ClientStty
     public long availableSpace(String location) throws Exception
     {
         long space = 0L;
-        String response = roundTrip("space \"" + location + "\"");
+        String response = roundTrip("space \"" + location + "\"", "Available space check", 5000);
         if (response != null && response.length() > 0)
         {
-            //logger.debug("space command returned: " + response);
+            logger.trace("space command returned: " + response);
             space = Long.parseLong(response);
         }
         return space;
@@ -82,7 +88,7 @@ public class ClientStty
     public boolean checkBannerCommands() throws Exception
     {
         boolean hasCommands = false;
-        String response = receive(); // read opening terminal banner
+        String response = receive("", 5000); // read opening terminal banner
         if (!cfg.isNavigator()) // ignore subscriber commands with Navigator
         {
             if (!response.startsWith("Enter "))
@@ -144,7 +150,6 @@ public class ClientStty
                 this.theirRepo.getLibraryData().libraries.host != null)
         {
             this.myKey = myRepo.getLibraryData().libraries.key;
-            this.theirKey = theirRepo.getLibraryData().libraries.key;
 
             String host = Utils.parseHost(this.theirRepo.getLibraryData().libraries.host);
             if (host == null || host.isEmpty())
@@ -156,15 +161,28 @@ public class ClientStty
 
             try
             {
-                this.socket = new Socket(host, port);
+                this.socket = new Socket();
+                SocketAddress socketAddress = new InetSocketAddress(host, port);
+                this.socket.connect(socketAddress, theirRepo.getLibraryData().libraries.timeout * 60 * 1000);
+
+                this.socket.setKeepAlive(true); // keep alive to avoid time-out
+                this.socket.setSoTimeout(myRepo.getLibraryData().libraries.timeout * 60 * 1000); // read time-out
+                this.socket.setSoLinger(true, 10000); // time-out to linger after transmission completed, 10 sec.
+
                 in = new DataInputStream(socket.getInputStream());
                 out = new DataOutputStream(socket.getOutputStream());
+
                 logger.info("Successfully connected stty to: " + Utils.formatAddresses(this.socket));
-                this.socket.setSoTimeout(120000); // set timeout
+
+                // start a heartbeat thread if defined, initially disabled
+//                if (theirRepo.getLibraryData().libraries.heartbeat > 0)
+//                {
+//                    context.main.createHeartBeat(theirRepo.getLibraryData().libraries.heartbeat * 60 * 1000);
+//                }
             }
             catch (Exception e)
             {
-                logger.error(e.getMessage());
+                logger.error(Utils.getStackTrace(e));
             }
 
             if (in != null && out != null)
@@ -172,6 +190,7 @@ public class ClientStty
                 if (handshake())
                 {
                     isConnected = true;
+                    createHeartBeat();
                 }
                 else
                 {
@@ -188,12 +207,63 @@ public class ClientStty
     }
 
     /**
+     * Create and start the internal heartbeat "ping"
+     */
+    private void createHeartBeat()
+    {
+        heartBeat = new Thread()
+        {
+            public void run()
+            {
+                try
+                {
+                    while (true)
+                    {
+                        sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
+                        if (heartBeatEnabled)
+                        {
+                            send("heartbeat", context.main.trace ? "HEARTBEAT sent" : "");
+                        }
+                    }
+                }
+                catch (InterruptedException e)
+                {
+                    logger.trace("Heartbeat interrupted");
+                    interrupt();
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                }
+            }
+        };
+        logger.trace("starting heartbeat");
+        heartBeat.start();
+    }
+
+    /**
+     * Temporarily disable the internal heartbeat "ping"
+     */
+    private void disableHeartBeat()
+    {
+        if (heartBeat != null)
+        {
+            if (!heartBeatEnabled)
+                logger.warn("Heartbeat already disabled");
+            else
+                logger.trace("Heartbeat disabled");
+            heartBeatEnabled = false;
+        }
+    }
+
+    /**
      * Disconnect this STTY from the other end
      */
     public void disconnect()
     {
         try
         {
+            stopHeartBeat();
             if (isConnected)
             {
                 isConnected = false;
@@ -210,6 +280,21 @@ public class ClientStty
         }
     }
 
+    /**
+     * Enable the internal heartbeat "ping"
+     */
+    private void enableHeartBeat()
+    {
+        if (heartBeat != null)
+        {
+            if (heartBeatEnabled)
+                logger.warn("Heartbeat already enabled");
+            else
+                logger.trace("Heartbeat enabled");
+            heartBeatEnabled = true;
+        }
+    }
+
     public String getMyKey()
     {
         return myKey;
@@ -220,9 +305,14 @@ public class ClientStty
         return myRepo;
     }
 
+    public Socket getSocket()
+    {
+        return socket;
+    }
+
     public String getTheirKey()
     {
-        return theirKey;
+        return theirRepo.getLibraryData().libraries.key;
     }
 
     public Repository getTheirRepo()
@@ -253,18 +343,19 @@ public class ClientStty
     private boolean handshake() throws Exception
     {
         boolean valid = false;
-        String input = Utils.readStream(in, theirKey);
+        logger.trace("handshake");
+        String input = receive("", 1000);
         if (input != null && input.equals("HELO"))
         {
-            Utils.writeStream(out, theirKey, (isTerminal ? "DribNit" : "DribNlt"));
+            send((isTerminal ? "DribNit" : "DribNlt"), "");
 
-            input = Utils.readStream(in, theirKey);
-            if (input.equals(theirKey))
+            input = receive("", 1000);
+            if (input.equals(theirRepo.getLibraryData().libraries.key))
             {
-                Utils.writeStream(out, theirKey, myKey);
+                send(myKey, "");
 
                 // get the subscriber's flavor
-                input = Utils.readStream(in, theirKey);
+                input = receive("", 1000);
                 try
                 {
                     // if Utils.getFileSeparator() does not throw an exception
@@ -318,7 +409,7 @@ public class ClientStty
                 if (isConnected())
                 {
                     logger.info("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
-                    context.statusStty.send("quit");
+                    context.statusStty.send("quit", "");
                     Thread.sleep(1000);
                     context.statusStty.disconnect();
                     context.statusStty = null;
@@ -337,12 +428,41 @@ public class ClientStty
     /**
      * Receive a response from the other end
      *
+     * @param log Line to be logged, if any
+     * @param timeout Timeout for operation in milliseconds
      * @return String of response text
      * @throws Exception
      */
-    public String receive() throws Exception
+    public String receive(String log, int timeout) throws Exception
     {
-        String response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
+        if (getSocket().isOutputShutdown())
+            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+        if (!getSocket().isBound())
+            throw new MungeException("socket not bound");
+        if (!getSocket().isConnected())
+            throw new MungeException("socket not connected");
+        if (getSocket().isClosed())
+            throw new MungeException("socket closed");
+
+        if (timeout < 0)
+            timeout = myRepo.getLibraryData().libraries.timeout * 60 * 1000;
+        getSocket().setSoTimeout(timeout); // set read time-out
+        if (log != null && log.length() > 0)
+            logger.debug(log + ", " + timeout + " ms");
+        logger.trace("sotimeout " + getSocket().getSoTimeout());
+        //logger.trace("keep alive " + getSocket().getKeepAlive());
+
+        String response = null;
+        while (true)
+        {
+            response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
+
+            // loop if internal "ping" received
+            if (response.equalsIgnoreCase("heartbeat"))
+                logger.trace("HEARTBEAT received");
+            else
+                break;
+        }
         return response;
     }
 
@@ -350,16 +470,18 @@ public class ClientStty
      * Retrieve remote data and store it in a file
      *
      * @param filename File path to store the data
-     * @param command  The command to send
+     * @param message The command to send
+     * @param log Line to be logged, if any
+     * @param timeout Timeout for operation in milliseconds
      * @return The resulting date-stamped file path
      * @throws Exception
      */
-    public String retrieveRemoteData(String filename, String command) throws Exception
+    public String retrieveRemoteData(String filename, String message, String log, int timeout) throws Exception
     {
         String location = null;
         String response = "";
 
-        response = roundTrip(command);
+        response = roundTrip(message, log, timeout);
         if (response != null && response.length() > 0)
         {
             String stamp = "";
@@ -382,7 +504,8 @@ public class ClientStty
             }
             else
                 location = fn;
-            location += "_" + command + "-received" + stamp + ".json";
+
+            location += "_" + FilenameUtils.getBaseName(filename) + "-received" + stamp + ".json";
             try
             {
                 PrintWriter outputStream = new PrintWriter(location);
@@ -391,7 +514,7 @@ public class ClientStty
             }
             catch (FileNotFoundException fnf)
             {
-                throw new MungeException("Exception while writing " + command + " file " + location + " trace: " + Utils.getStackTrace(fnf));
+                throw new MungeException("Exception while writing " + message + " file " + location + " trace: " + Utils.getStackTrace(fnf));
             }
         }
         return location;
@@ -400,26 +523,59 @@ public class ClientStty
     /**
      * Make a round-trip to the other end by sending a command and receiving the response
      *
-     * @param command The command to send
+     * @param message The command to send
+     * @param log The line to be logged, if any
+     * @param timeout Timeout for operation
      * @return String of the response
      * @throws Exception
      */
-    public synchronized String roundTrip(String command) throws Exception
+    public synchronized String roundTrip(String message, String log, int timeout) throws Exception
     {
-        send(command);
-        String response = receive();
+        send(message, ""); // log only once
+        String response = receive(log, timeout);
         return response;
     }
 
     /**
      * Send a command to the other end
      *
-     * @param command The command to send
+     * @param message The command to send
+     * @param log Line to be logged, if any
      * @throws Exception
      */
-    public void send(String command) throws Exception
+    public void send(String message, String log) throws Exception
     {
-        Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, command);
+        if (log != null && log.length() > 0)
+            logger.debug(log);
+        //logger.trace("keep alive " + getSocket().getKeepAlive());
+        if (getSocket().isOutputShutdown())
+            throw new MungeException("socket output shutdown, keep alive " + getSocket().getKeepAlive());
+        if (!getSocket().isBound())
+            throw new MungeException("socket not bound");
+        if (!getSocket().isConnected())
+            throw new MungeException("socket not connected");
+        if (getSocket().isClosed())
+            throw new MungeException("socket closed");
+
+        if (!message.equalsIgnoreCase("heartbeat"))
+            disableHeartBeat();
+
+        Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, message);
+
+        if (!message.equalsIgnoreCase("heartbeat"))
+            enableHeartBeat();
+    }
+
+    /**
+     * Stop the internal heart beat thread
+     */
+    private void stopHeartBeat()
+    {
+        if (heartBeat != null && heartBeat.isAlive())
+        {
+            logger.trace("stopping heartbeat thread");
+            heartBeat.interrupt();
+        }
     }
 
 }

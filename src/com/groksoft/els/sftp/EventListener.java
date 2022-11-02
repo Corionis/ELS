@@ -189,7 +189,7 @@ public class EventListener implements SftpEventListener
     @Override
     public void writing(ServerSession session, String remoteHandle, FileHandle localHandle, long offset, byte[] data, int dataOffset, int dataLen) throws IOException
     {
-        logger.trace("event: writing " + localHandle.getFile().toString());
+        //logger.trace("event: writing " + localHandle.getFile().toString());
     }
 
     @Override

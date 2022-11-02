@@ -3,6 +3,7 @@
         "description": "Subscriber Two",
         "host": "localhost:50471",
         "listen": "localhost:50471",
+        "timeout": "10",
         "flavor": "linux",
         "case_sensitive": "false",
         "temp_dated": "false",

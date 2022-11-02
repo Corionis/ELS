@@ -32,6 +32,11 @@ public class Libraries
     public String listen;
 
     /**
+     * The connection timeout for stty connection, in minutes. 0 = infinite
+     */
+    public int timeout;
+
+    /**
      * Flavor of system: Windows, Linux, or Mac (only)
      */
     public String flavor;

@@ -129,6 +129,8 @@ public class Transfer
                 {
                     // -D Dry run option
                     ++copyCount;
+                    grandTotalItems = grandTotalItems + 1;
+                    grandTotalSize = grandTotalSize + groupItem.getSize();
                     logger.info("  > " + cfg.gs("Transfer.would.copy") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath());
                 }
                 else
@@ -342,7 +344,7 @@ public class Transfer
                 location = "subscriber-targets";
             }
             // request target data from remote subscriber
-            location = context.clientStty.retrieveRemoteData(location, "targets");
+            location = context.clientStty.retrieveRemoteData(location, "targets", "Requesting targets", 20000);
             cfg.setTargetsFilename(location);
         }
 
@@ -513,7 +515,6 @@ public class Transfer
             {
                 if (cfg.isRemoteSession())
                 {
-                    logger.info(cfg.gs("Transfer.requesting.subscriber.library"));
                     requestLibrary();
                 }
             }
@@ -524,7 +525,6 @@ public class Transfer
                 {
                     if (cfg.isRemoteSession() && cfg.isRequestCollection())
                     {
-                        logger.info(cfg.gs("Transfer.requesting.subscriber.collection"));
                         requestCollection();
                     }
                 }
@@ -822,8 +822,9 @@ public class Transfer
         List<String> lines = null;
         if (tuo.isRemote)
         {
-            context.clientStty.send("read \"" + tuo.path + "\"");
-            content = context.clientStty.receive();
+            String path = "\"" + tuo.path + "\"";
+            context.clientStty.send("read " + path, "Read text file " + path);
+            content = context.clientStty.receive("Reading", 10000);
             if (content.equalsIgnoreCase("false"))
                 content = "";
         }
@@ -1015,7 +1016,8 @@ public class Transfer
         if (cfg.isRemoteSession())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "collection");
+            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "collection",
+                    cfg.gs("Transfer.requesting.subscriber.collection"), -1);
             if (location == null || location.length() < 1)
                 throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.collection.file"));
             cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
@@ -1034,11 +1036,12 @@ public class Transfer
         if (cfg.isRemoteSession())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "library");
+            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "library",
+                    cfg.gs("Transfer.requesting.subscriber.library"), 20000);
             if (location == null || location.length() < 1)
                 throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.library.file"));
-            cfg.setSubscriberLibrariesFileName(location);
             cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
+            cfg.setSubscriberLibrariesFileName(location);
             context.subscriberRepo.read(cfg.getSubscriberLibrariesFileName(), true);
         }
     }
@@ -1199,8 +1202,7 @@ public class Transfer
         if (cfg.isRemoteSession() && !context.localMode)
         {
             String line = "hint \"" + hintPath + "\" " + command;
-            logger.info("Sending remote: " + line);
-            hintPath = context.clientStty.roundTrip(line + "\n");
+            hintPath = context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
         }
         else // local operation
         {

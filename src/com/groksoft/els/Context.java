@@ -18,8 +18,9 @@ public class Context
     public HintKeys authKeys;
     public ClientSftp clientSftp;
     public ClientStty clientStty;
+    public Configuration cfg;
     public Datastore datastore;
-    public boolean fault = false;
+    public boolean fault = false; // process fault indicator
     public HintKeys hintKeys;
     public boolean localMode = false;
     public Main main;
@@ -30,5 +31,6 @@ public class Context
     public Repository statusRepo;
     public ClientStty statusStty;
     public Repository subscriberRepo;
+    public boolean timeout = false; // time-out indicator
     public Transfer transfer;
 }

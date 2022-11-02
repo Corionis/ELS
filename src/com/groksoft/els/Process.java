@@ -80,6 +80,8 @@ public class Process
             }
         }
 
+        reportIgnored();
+
         int duplicates = 0;
         for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
         {
@@ -388,7 +390,7 @@ public class Process
                 {
                     fault = true;
                     ++errorCount;
-                    logger.error("Exception " + e.getMessage() + " trace: " + Utils.getStackTrace(e));
+                    logger.error(Utils.getStackTrace(e));
                 }
                 totalSize = 0L;
             }
@@ -410,15 +412,7 @@ public class Process
             }
         }
 
-        if (ignoredList.size() > 0)
-        {
-            logger.debug(SHORT, "+------------------------------------------");
-            logger.debug(SIMPLE, "Ignored " + ignoredList.size() + " files:");
-            for (String s : ignoredList)
-            {
-                logger.debug(SIMPLE, "    " + s);
-            }
-        }
+        reportIgnored();
 
         int duplicates = 0;
         for (Library pubLib : context.publisherRepo.getLibraryData().libraries.bibliography)
@@ -585,19 +579,20 @@ public class Process
                         // if a fault occurred tell any listener
                         if (fault && context.clientStty.isConnected())
                         {
+                            // ... this is done in Main.process finally clause ...
                             //logger.warn("Sending remote fault command (2)");
                             //resp = context.clientStty.roundTrip("fault");
-                            // ... this is done in Main.process finally clause
                         }
                         else
                         {
                             if (!cfg.isKeepGoing())
-                                resp = context.clientStty.roundTrip("quit");
+                                resp = context.clientStty.roundTrip("quit", "Sending quit command to remote", 1000);
                             else
                             {
-                                context.clientStty.send("bye");
+                                context.clientStty.send("bye", "Sending bye command to remote");
                                 resp = "End-Execution";
                             }
+                            Thread.sleep(1000);
                         }
                     }
                     catch (Exception e)
@@ -673,6 +668,27 @@ public class Process
         if (cfg.isEmptyDirectoryCheck())
             logger.debug(SIMPLE, "  " + item.getFullPath());
         return empties;
+    }
+
+    /**
+     * Dump the list of ignored files
+     */
+    private void reportIgnored()
+    {
+        if (cfg.isIgnoredReported())
+        {
+            Marker SHORT = MarkerManager.getMarker("SHORT");
+            Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+            if (ignoredList.size() > 0)
+            {
+                logger.debug(SHORT, "+------------------------------------------");
+                logger.debug(SIMPLE, "Ignored " + ignoredList.size() + " files:");
+                for (String s : ignoredList)
+                {
+                    logger.debug(SIMPLE, "    " + s);
+                }
+            }
+        }
     }
 
 } // Process

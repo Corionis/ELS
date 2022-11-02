@@ -56,6 +56,13 @@ public class ClientSftp
         password = theirRepo.getLibraryData().libraries.key;
     }
 
+    /**
+     * List a remote directory
+     *
+     * @param directory Path to list
+     * @return Vector of entries
+     * @throws Exception
+     */
     public synchronized Vector listDirectory(String directory) throws Exception
     {
         ChannelSftp jSftp = connect();
@@ -64,6 +71,13 @@ public class ClientSftp
         return listing;
     }
 
+    /**
+     * Get a remote file
+     *
+     * @param source Source path of file
+     * @param dest Destination path on local system
+     * @throws Exception
+     */
     public void get(String source, String dest) throws Exception
     {
         ChannelSftp jSftp = connect();
@@ -136,6 +150,11 @@ public class ClientSftp
         return whole;
     }
 
+    /**
+     * Establish a remote channel connection
+     *
+     * @return ChannelSftp object or null
+     */
     private ChannelSftp connect()
     {
         ChannelSftp jSftp = null;
@@ -152,6 +171,13 @@ public class ClientSftp
         return jSftp;
     }
 
+    /**
+     * Remove a remote file or directory
+     *
+     * @param path Remote path
+     * @param isDir True if path is a directory
+     * @throws Exception
+     */
     public void remove(String path, boolean isDir) throws Exception
     {
         ChannelSftp jSftp = connect();
@@ -162,6 +188,13 @@ public class ClientSftp
         jSftp.disconnect();
     }
 
+    /**
+     * Rename a remote file or directory
+     *
+     * @param from Remote path to rename
+     * @param to New name
+     * @throws Exception
+     */
     public void rename(String from, String to) throws Exception
     {
         ChannelSftp jSftp = connect();
@@ -169,6 +202,13 @@ public class ClientSftp
         jSftp.disconnect();
     }
 
+    /**
+     * Set the modified time of a remote file or directory
+     *
+     * @param dest Remote path
+     * @param mtime Modified date/time
+     * @throws Exception
+     */
     public void setDate(String dest, long mtime) throws Exception
     {
         ChannelSftp jSftp = connect();
@@ -192,11 +232,14 @@ public class ClientSftp
             //jsch.setKnownHosts("known_hosts");
             //jsch.addIdentity("id_rsa");
 
-            jSession.connect(60000); // sftp session connection timeout
+            jSession.connect(60000); // sftp session connection time-out, 60 secs
+
+            //jSession.setTimeout(theirRepo.getLibraryData().libraries.timeout * 60 * 1000); // inactivity time-out
+            logger.trace("client sftp timeout is " + jSession.getTimeout());
 
             // If this is a remote Navigator session then "keep alive" the connection
-            if (cfg.isRemoteSession() && cfg.isNavigator())
-                jSession.setServerAliveInterval(500000); // Navigator keep alive timeout
+            //if (cfg.isRemoteSession() && cfg.isNavigator())
+            //    jSession.setServerAliveInterval(500000); // Navigator keep alive time-out
         }
         catch (Exception e)
         {
@@ -240,7 +283,7 @@ public class ClientSftp
     public void transmitFile(String src, String dest, boolean overwrite) throws Exception
     {
         SftpATTRS destAttr = null;
-        int readOffset = 0;
+        long readOffset = 0;
         long writeOffset = 0L;
 
         ChannelSftp jSftp = connect();
@@ -257,7 +300,7 @@ public class ClientSftp
                 {
                     if (!overwrite)
                     {
-                        readOffset = (int) destAttr.getSize();
+                        readOffset = destAttr.getSize();
                         writeOffset = readOffset + 1;
                     }
                 }

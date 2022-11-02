@@ -252,7 +252,7 @@ public class Navigator
         // --- Main Menu ------------------------------------------
         //
         // -- File Menu
-        //-
+        // ---
         // Open Publisher
         AbstractAction openPublisherAction = new AbstractAction()
         {
@@ -378,7 +378,7 @@ public class Navigator
         };
         guiContext.mainFrame.menuItemOpenPublisher.addActionListener(openPublisherAction);
 
-        //-
+        // ---
         // Open Subscriber
         AbstractAction openSubscriberAction = new AbstractAction()
         {
@@ -445,7 +445,7 @@ public class Navigator
                     int selection = fc.showOpenDialog(guiContext.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (guiContext.cfg.isRemoteSession()) // TODO add Quit (shutdown) remote option checkbox
+                        if (guiContext.cfg.isRemoteSession())
                         {
                             int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
@@ -456,7 +456,7 @@ public class Navigator
 
                             try
                             {
-                                guiContext.context.clientStty.send("bye");
+                                guiContext.context.clientStty.send("bye", "Sending bye command to remote");
                             }
                             catch (Exception e)
                             {
@@ -507,7 +507,7 @@ public class Navigator
                                 guiContext.context.main.connectHintServer(guiContext.context.publisherRepo);
 
                                 // start the serveStty client for automation
-                                guiContext.context.clientStty = new ClientStty(guiContext.cfg, false, true);
+                                guiContext.context.clientStty = new ClientStty(guiContext.cfg, guiContext.context, false, true);
                                 if (!guiContext.context.clientStty.connect(guiContext.context.publisherRepo, guiContext.context.subscriberRepo))
                                 {
                                     JOptionPane.showMessageDialog(guiContext.mainFrame,
@@ -549,7 +549,7 @@ public class Navigator
         if (guiContext.context.subscriberRepo != null)
             guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
 
-        //-
+        // ---
         // Open Hint Keys
         AbstractAction openHintKeysAction = new AbstractAction()
         {
@@ -658,7 +658,7 @@ public class Navigator
         };
         guiContext.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
-        //-
+        // ---
         // Quit & Stop Remote
         guiContext.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
         {
@@ -681,13 +681,13 @@ public class Navigator
         if (!guiContext.cfg.isRemoteSession())
             guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
 
-        //-
+        // ---
         // Quit
         // Handled in MainFrame.menuItemFileQuitActionPerformed()
 
         //
         // -- Edit Menu
-        //-
+        // ---
         // New Folder
         AbstractAction newFolderAction = new AbstractAction()
         {
@@ -822,7 +822,7 @@ public class Navigator
         guiContext.mainFrame.menuItemNewFolder.addActionListener(newFolderAction);
         guiContext.mainFrame.popupMenuItemNewFolder.addActionListener(newFolderAction);
 
-        //-
+        // ---
         // Rename
         ActionListener renameAction = new AbstractAction()
         {
@@ -948,7 +948,7 @@ public class Navigator
         guiContext.mainFrame.menuItemRename.addActionListener(renameAction);
         guiContext.mainFrame.popupMenuItemRename.addActionListener(renameAction);
 
-        //-
+        // ---
         // Touch Date/Time
         ActionListener touchAction = new AbstractAction()
         {
@@ -971,7 +971,7 @@ public class Navigator
         guiContext.mainFrame.menuItemTouch.addActionListener(touchAction);
         guiContext.mainFrame.popupMenuItemTouch.addActionListener(touchAction);
 
-        //-
+        // ---
         // Copy
         ActionListener copyAction = new AbstractAction()
         {
@@ -989,7 +989,7 @@ public class Navigator
         guiContext.mainFrame.menuItemCopy.addActionListener(copyAction);
         guiContext.mainFrame.popupMenuItemCopy.addActionListener(copyAction);
 
-        //-
+        // ---
         // Cut
         ActionListener cutAction = new AbstractAction()
         {
@@ -1007,7 +1007,7 @@ public class Navigator
         guiContext.mainFrame.menuItemCut.addActionListener(cutAction);
         guiContext.mainFrame.popupMenuItemCut.addActionListener(cutAction);
 
-        //-
+        // ---
         // Paste
         ActionListener pasteAction = new AbstractAction()
         {
@@ -1025,7 +1025,7 @@ public class Navigator
         guiContext.mainFrame.menuItemPaste.addActionListener(pasteAction);
         guiContext.mainFrame.popupMenuItemPaste.addActionListener(pasteAction);
 
-        //-
+        // ---
         // Delete
         ActionListener deleteAction = new AbstractAction()
         {
@@ -1062,7 +1062,7 @@ public class Navigator
 
         //
         // -- View Menu
-        //-
+        // ---
         // Refresh
         guiContext.mainFrame.menuItemRefresh.addActionListener(new AbstractAction()
         {
@@ -1073,7 +1073,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Progress
         guiContext.mainFrame.menuItemProgress.addActionListener(new AbstractAction()
         {
@@ -1096,7 +1096,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Auto-Refresh
         guiContext.mainFrame.menuItemAutoRefresh.addActionListener(new AbstractAction()
         {
@@ -1116,7 +1116,7 @@ public class Navigator
         else
             guiContext.mainFrame.menuItemAutoRefresh.setSelected(false);
 
-        //-
+        // ---
         // Show Hidden
         guiContext.mainFrame.menuItemShowHidden.addActionListener(new AbstractAction()
         {
@@ -1134,7 +1134,7 @@ public class Navigator
 
         // -- Bookmarks Menu
         //
-        //-
+        // ---
         // Add Current Location
         guiContext.mainFrame.menuItemAddBookmark.addActionListener(new AbstractAction()
         {
@@ -1155,7 +1155,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Bookmarks Delete
         guiContext.mainFrame.menuItemBookmarksDelete.addActionListener(new AbstractAction()
         {
@@ -1210,7 +1210,7 @@ public class Navigator
         //
         // -- Tools Menu
         //
-        //-
+        // ---
         // Junk Remover Tool
         guiContext.mainFrame.menuItemJunk.addActionListener(new AbstractAction()
         {
@@ -1227,7 +1227,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Renamer Tool
         guiContext.mainFrame.menuItemRenamer.addActionListener(new AbstractAction()
         {
@@ -1263,7 +1263,7 @@ public class Navigator
 
         //
         // -- Window Menu
-        //-
+        // ---
         // Maximize
         guiContext.mainFrame.menuItemMaximize.addActionListener(new AbstractAction()
         {
@@ -1274,7 +1274,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Minimize
         guiContext.mainFrame.menuItemMinimize.addActionListener(new AbstractAction()
         {
@@ -1285,7 +1285,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Restore
         guiContext.mainFrame.menuItemRestore.addActionListener(new AbstractAction()
         {
@@ -1296,7 +1296,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Split Horizontal
         guiContext.mainFrame.menuItemSplitHorizontal.addActionListener(new AbstractAction()
         {
@@ -1311,7 +1311,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Split Vertical
         guiContext.mainFrame.menuItemSplitVertical.addActionListener(new AbstractAction()
         {
@@ -1327,7 +1327,7 @@ public class Navigator
         });
 
         // -- Help Menu
-        //-
+        // ---
         // Controls
         guiContext.mainFrame.menuItemControls.addActionListener(new AbstractAction()
         {
@@ -1340,7 +1340,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // Documentation
         guiContext.mainFrame.menuItemDocumentation.addActionListener(new AbstractAction()
         {
@@ -1359,7 +1359,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // GitHub Project
         guiContext.mainFrame.menuItemGitHubProject.addActionListener(new AbstractAction()
         {
@@ -1378,7 +1378,7 @@ public class Navigator
             }
         });
 
-        //-
+        // ---
         // About
         guiContext.mainFrame.menuItemAbout.addActionListener(new AbstractAction()
         {
@@ -1391,7 +1391,7 @@ public class Navigator
         });
 
         // popup menu log
-        //-
+        // ---
         // Bottom
         guiContext.mainFrame.popupMenuItemBottom.addActionListener(new AbstractAction()
         {
@@ -1402,7 +1402,7 @@ public class Navigator
                 vertical.setValue(vertical.getMaximum());
             }
         });
-        //-
+        // ---
         // Clear
         guiContext.mainFrame.popupMenuItemClear.addActionListener(new AbstractAction()
         {
@@ -1676,7 +1676,7 @@ public class Navigator
         {
             try
             {
-                context.clientStty.send("bye");
+                context.clientStty.send("bye", "");
                 context.clientSftp.stopClient();
                 Thread.sleep(500);
             }
@@ -1691,7 +1691,7 @@ public class Navigator
             context.main.connectHintServer(context.publisherRepo);
 
             // start the serveStty client for automation
-            context.clientStty = new ClientStty(guiContext.cfg, false, true);
+            context.clientStty = new ClientStty(guiContext.cfg, guiContext.context, false, true);
             if (!context.clientStty.connect(publisherRepo, subscriberRepo))
             {
                 config.setRemoteType("-");
@@ -1821,14 +1821,14 @@ public class Navigator
             try
             {
                 guiContext.context.clientSftp.stopClient();
-                if (guiContext.context.clientStty.isConnected())
+                if (guiContext.context.clientStty.isConnected() && !guiContext.context.timeout)
                 {
                     if (guiContext.context.fault)
                     {
                         String resp;
                         try
                         {
-                            resp = guiContext.context.clientStty.roundTrip("fault");
+                            resp = guiContext.context.clientStty.roundTrip("fault", "Sending fault to remote", 1000);
                         }
                         catch (Exception e)
                         {
@@ -1836,9 +1836,9 @@ public class Navigator
                         }
                     }
                     else if (quitRemote)
-                        guiContext.context.clientStty.send("quit");
+                        guiContext.context.clientStty.send("quit", "Sending quit command to remote");
                     else
-                        guiContext.context.clientStty.send("bye");
+                        guiContext.context.clientStty.send("bye", "Sending bye command to remote");
                 }
             }
             catch (Exception e)

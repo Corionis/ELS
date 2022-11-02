@@ -36,7 +36,7 @@ public class Utils
     private static Cipher cipher = null;
     private static Logger logger = LogManager.getLogger("applog");
 
-    private static Configuration cfg;
+    private static Context context;
 
     /**
      * Static methods - do not instantiate
@@ -200,7 +200,7 @@ public class Utils
         DecimalFormat longForm = new DecimalFormat("###,###,###,###,###,###,###,###.###");
         DecimalFormat shortForm = new DecimalFormat("###,###,###,###,###,###,###,###.#");
 
-        double scale = cfg.getLongScale();
+        double scale = context.cfg.getLongScale();
 
         brief = shortForm.format(value) + " B";
         full = brief;
@@ -228,13 +228,13 @@ public class Utils
     }
 
     /**
-     * Get the application Configuration class
+     * Get the application Context class
      *
-     * @return Configuration runtime class
+     * @return Context runtime class
      */
-    public static Configuration getCfg()
+    public static Context getContext()
     {
-        return cfg;
+        return context;
     }
 
     /**
@@ -280,6 +280,12 @@ public class Utils
         return (sb.toString());
     }
 
+    /**
+     * Parse file extension from filename
+     *
+     * @param name Filename to parse
+     * @return Extension
+     */
     public static String getFileExtension(String name)
     {
         String ext = "";
@@ -314,6 +320,12 @@ public class Utils
         return separator;
     }
 
+    /**
+     * Read last modified time from path
+     *
+     * @param path Path to get time
+     * @return FileTime of path
+     */
     public static FileTime getLocalFileTime(String path)
     {
         if (path != null && path.length() > 0)
@@ -453,6 +465,11 @@ public class Utils
         return perms;
     }
 
+    /**
+     * Get the operating system name from the JVM
+     *
+     * @return O/S name string
+     */
     public static String getOS()
     {
         String os = System.getProperty("os.name");
@@ -515,6 +532,12 @@ public class Utils
         return returnValue;
     }
 
+    /**
+     * Parse the file separator from a path
+     *
+     * @param path Path to parsse
+     * @return File separator character
+     */
     public static String getSeparatorFromPath(String path)
     {
         String separator = "";
@@ -697,7 +720,10 @@ public class Utils
         {
             try
             {
+                logger.trace("read() waiting ...");
                 int count = in.readInt();
+
+                logger.trace("  reading " + count + " bytes");
                 int pos = 0;
                 if (count > 0)
                 {
@@ -722,25 +748,28 @@ public class Utils
             }
             catch (SocketTimeoutException e)
             {
-                continue;
+                logger.error("read() timed-out");
+                input = null;
+                throw e;
             }
             catch (EOFException e)
             {
-                input = null;
+                logger.error("read() EOF");
+                input = null; // remote disconnected
                 break;
             }
             catch (IOException e)
             {
                 if (e.getMessage().toLowerCase().contains("connection reset"))
-                {
-                    logger.info("Connection closed by client");
-                    input = null;
-                }
+                    logger.warn("Connection closed by client");
+                input = null;
                 throw e;
             }
         }
         if (buf.length > 0)
             input = decrypt(key, buf);
+
+        logger.trace("read done");
         return input;
     }
 
@@ -799,12 +828,12 @@ public class Utils
     }
 
     /**
-     * Set Utils configuration value for some Utils methods
-     * @param c
+     * Set Utils Context
+     * @param ctxt
      */
-    public static void setConfiguration(Configuration c)
+    public static void setContext(Context ctxt)
     {
-        Utils.cfg = c;
+        Utils.context = ctxt;
     }
 
     /**
@@ -851,7 +880,6 @@ public class Utils
      * @param path Path to modify with pipe characters
      * @param separator The separator string to use
      * @return String Modified path
-     * @throws MungeException
      */
     public static String unpipe(String path, String separator)
     {
@@ -869,9 +897,21 @@ public class Utils
     public static void writeStream(DataOutputStream out, String key, String message) throws Exception
     {
         byte[] buf = encrypt(key, message);
+        logger.trace("writing " + buf.length + " bytes");
+
+        logger.trace("  writing size");
         out.writeInt(buf.length);
-        out.write(buf);
+
+        logger.trace("  flushing size");
         out.flush();
+
+        logger.trace("  writing data");
+        out.write(buf);
+
+        logger.trace("  flushing data");
+        out.flush();
+
+        logger.trace("write done");
     }
 
 }
