@@ -9,37 +9,35 @@ visual tool for adding media and curating a collection either locally or remotel
 Tools and jobs are provided to make performing repetitive tasks easier.
 
 Features:
+
  * Modes (where the Navigator is running)
-   * On a media collection
-   * On a separate workstation
+     * On a media collection
+     * On a separate workstation
  * Browser
-   * Split-pane Publisher/Subscriber view     
-   * Collection and System tabs for each
-   * Local or remote subscriber
-   * Drag 'n Drop and Copy, Cut, Paste
-   * Optional automatic ELS Hint Tracking
-   * Multiple named tool configurations
-     * Duplicate finder
-     * Junk remover
-     * Mass renamer
-     * External tools supported
-   * Named jobs of sequenced named tools to automate repetitive tasks
+     * Split-pane Publisher/Subscriber view     
+     * Collection and System tabs for each
+     * Local or remote subscriber
+     * Drag 'n Drop and Copy, Cut, Paste
+     * Automatic ELS Hint Tracking
+     * Multiple named tool configurations
+        * Duplicate finder
+        * Junk remover
+        * Mass renamer
+        * External tools supported
+     * Named jobs of sequenced named tools to automate repetitive tasks
  * BackUp
-   * Configure named ELS back-ups with different configurations
-   * Execute and monitor back-up runs
-   * Generate scripts for command line and/or background scheduled execution
+     * Configure named ELS back-ups with different configurations
+     * Execute and monitor back-up runs
+     * Generate scripts for command line and/or background scheduled execution
  * Libraries
-   * Create and edit ELS Publisher, Subscriber, and Hint Server JSON files
-   * Create and edit ELS Hint keys file
- * Options
-   * Numerous display options
-   * Multiple Look 'n Feel options
+     * Create and edit ELS Publisher, Subscriber, and Hint Server JSON files
+     * Create and edit ELS Hint keys file
 
 Like the rest of ELS the new Navigator is a general tool for anyone manipulating
-media and is compatible with modern media system such a Plex Media Server.
-Works on Windows, Linux and Mac.
+media across multiple storage devices and is also compatible with modern media
+systems such a Plex Media Server. Works on Windows, Linux and Mac.
 
-_It's all built-in_ with the new -n | --navigator option.
+_It's all built-in_ with the -n | --navigator option.
 
 ### Enhancements
 
@@ -64,23 +62,13 @@ _It's all built-in_ with the new -n | --navigator option.
 
  2. New ELS project download options including an all-in-one with an embedded Java JRE.
  
- 3. Two new optional elements have been added to the library/collection JSON files. Previously
-    versions had dated filenames that build-up. These options make managing temporary files easier.
-    1. temp_dated: true or false. If true temporary files have a time stamp in the filename
-       otherwise the same file is overwritten each time it is used.
-    2. temp_location: path. Path used for temporary files. Default is the location of the
-       matching library or collection file of the repository of the relevant system.
-
- 4. The listener daemons "bye" command behavior has changed. Now bye will leave the daemon
-    running instead of shutting down. Quit, exit and logout still perform a shutdown.
-    
 
 ### Command Line Changes
 
  1. The -n | --rename option has been removed in favor of the rename tool in the
     new ELS Navigator.
 
- 2. The -n option has been repurposed, and the --navigator option has been added.
+ 2. The -n option has been repurposed for the Navigator and the --navigator option has been added.
 
  3. Added option -y | --preserve-dates to retain original file dates.
 
@@ -95,9 +83,10 @@ _It's all built-in_ with the new -n | --navigator option.
     workstations and publishes, whereas hint keys are only for collections, publishers and
     subscribers, where Hints are processed. Hints are not used on workstations.
 
- 7. Added option -g | --listener-keep-going. For a Publisher the "keep going" flag skips
+ 7. Added option -g | --listener-keep-going. For a Publisher the "keep going" option skips
     sending the quit command to the subscriber when the backup operation is complete. For a
-    subscriber it skips ending with a fault on an unexpected disconnect (EOL).
+    subscriber it skips ending with a fault on an unexpected disconnect (EOL) and ignores
+    quit commands. To stop a subscriber in this mode use the --listener-quit command.
 
  8. Added option -G | --listener-quit that only sends the quit command to a remote
     subscriber, then exits. Similar to the -Q | --force-quit option.
@@ -116,6 +105,8 @@ _It's all built-in_ with the new -n | --navigator option.
 12. Added option -E | --empty-directories where empty directories are logged when this
     option is enabled. Otherwise only a total number is reported in the statistics.
 
+13. Added option -N | --ignored to log ignored files. For backup runs and the --duplicates option.
+
 
 ### Other Changes
 
@@ -125,27 +116,30 @@ _It's all built-in_ with the new -n | --navigator option.
  
     IMPORTANT: When upgrading from ELS versions earlier than 4.0.0 copy your existing library JSON
     files to your HOME/.els/libraries/ directory. If that directory does not exist create it.
- 
- 2. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
+
+ 2. The listener daemons "bye" command behavior has changed. Now bye will leave the daemon
+    running instead of shutting down. Quit, exit and logout still perform a shutdown.
+
+ 3. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
     "bye" command has been changed to end the terminal session but leave the remote listener
     running. Commands quit, exit and logout will shutdown the remote listener.
  
- 3. Added JSON library elements:
+ 4. Added JSON library elements:
     1. temp_dated "true/false" : If temporary files such as received collection files have
        date and time embedded in the filename. If false the same file is overwritten.
     2. temp_location "path" : Where to place temporary files. An empty string "" is the
        location of the ELS Jar file. If the path begins with "~/" the user's home directory
        is substituted for the "~".
 
- 4. Removed JSON library element renaming and the related Java code.
+ 5. Removed JSON library element "renaming" and the related Java code.
 
- 5. Changed the JSON library ignore_patterns behavior:
+ 6. Changed the JSON library "ignore_patterns" behavior:
     1. If the pattern contains the path separator literal for that repository the full path is matched.
        1. For example pattern: ".*\\/Plex Versions.*" will exclude the directory "/Plex Versions" and any
           subdirectories and files.
     2. If the pattern does not contain the path separator literal only the right-end directory or file name is matched.
 
- 6. Added a new authentication technique for subscriber and publisher listeners.
+ 7. Added a new authentication technique for subscriber and publisher listeners.
     1. Normally the publisher and subscriber are specific.
        1. If a connection is made to a listener and it is not the specific system expected
           the listener will fail and exit.
@@ -158,12 +152,12 @@ _It's all built-in_ with the new -n | --navigator option.
        1. This is to prevent hack attempts on listeners.
        2. May change in the future.
 
- 7. Modified the code for methodical exit code status values. Exit code 0 is normal, 1 indicates a
+ 8. Modified the code for methodical exit code status values. Exit code 0 is normal, 1 indicates a
     fault occurred. Exit code 130 is returned if Ctrl-C is hit on the command line. Useful for error
     handling in multi-step automation batch files or scripts.
 
- 8. Changed free space checking when backing-up a group of files so the value checked is reduced as
-    each item is copied. GitHub Issue #55.
+ 9. Changed free space checking when backing-up a group of files so the value checked is reduced as
+    each item in the group is copied. GitHub Issue #55.
 
 
 ### Developer Notes
@@ -172,6 +166,7 @@ _It's all built-in_ with the new -n | --navigator option.
     This inexpensive plug-in for IntelliJ allowed the creation of the Navigator
     much faster and with far fewer mistakes.
  
+
 ## Version 3.1.0
 
 Release 3.1.0 of ELS adds the Hint Status Tracker and a new mode - the Hint Status
@@ -218,7 +213,7 @@ separate TCP/IP port is required for the status server listener.
 
  1. Issue #30 *'Fix terminal_allowed handling'*.
 
-    Added the logic necessary to used the terminal_allowed value in the JSON file.
+    Added the logic necessary to use the terminal_allowed value in the JSON file.
  
  2. Issue #34 *'Fix empty -t | -T handling'*.
  
