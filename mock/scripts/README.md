@@ -38,6 +38,8 @@ Tests are *generally* organized in increasing options and functionality.
 
  70-    Remote Hint Server
 
+ 80-    Navigator
+
 
 ## Test Utility Scripts
 
@@ -68,9 +70,11 @@ At this point it's a manual and visual process.
 
 * ``00-04_Export.sh`` : Run once
 
-* ``00-05_Duplicates.sh`` : No dupes
+* ``00-05_Duplicates.sh`` : Show dupes
 
 * ``00-06_Duplicates-crosscheck.sh`` : Duplicate shown due to cross-check
+
+* ``00-07_Empty-directories.sh`` : Empty directory check 
 
 ### 10-00  Local Backup
 
@@ -96,21 +100,61 @@ At this point it's a manual and visual process.
 
 * ``20-22_Publisher-dryrun.sh`` : Separate terminal 2
 
-* ``20-21_Subscriber-listener.sh`` ; Separate terminal 1
+* ``20-21_Subscriber-listener.sh`` : Separate terminal 1
 
 * ``20-23_Publisher-backup.sh`` : Separate terminal 2
 
-### 30-00 Interactive Terminals
+* ``reset.sh`` : Reset the test/ directory
+
+* ``20-21_Subscriber-listener.sh`` : Separate terminal 2
+
+* ``20-24_Publisher-backup-keepgoing.sh`` : Separate terminal 1
+
+* ``20-99_Quit-Subscriber-listener.sh`` : Separate terminal 2
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``30-21_Subscriber-listener.sh`` : Separate terminal 1, AbstractPollingIoProcessor$Processor warnings on quit
+* ``20-31_Subscriber-listener+blacklist.sh`` : Separate terminal 1
 
-* ``30-29_Publisher-manual.sh`` : Separate terminal 2
+* ``20-23_Publisher-backup.sh`` : Separate terminal 2, should fail to connect
 
-* ``30-31_Publisher-listener.sh`` :  Separate terminal 1, AbstractPollingIoProcessor$Processor warnings on quit
+* Ctrl-C on 20-31_Subscriber-listener+blacklist.sh
 
-* ``30-39_Subscriber-terminal.sh`` :  Separate terminal 2
+* ``reset.sh`` : Reset the test/ directory
+
+* ``20-41_Subscriber-listener+whitelist.sh`` : Separate terminal 1
+
+* ``20-23_Publisher-backup.sh`` : Separate terminal 2, should connect and run
+
+* ``reset.sh`` : Reset the test/ directory
+
+* ``20-51_Subscriber-listener-auth.sh`` : Separate terminal 1
+
+* ``20-23_Publisher-backup.sh`` : Separate terminal 2
+
+* ``reset.sh`` : Reset the test/ directory
+
+* ``20-61_Subscriber-listener-keepgoing.sh`` : Separate terminal 1
+
+* ``20-22_Publisher-dryrun.sh`` : Separate terminal 2, subscriber should keep going
+
+* ``20-23_Publisher-backup.sh`` : Separate terminal 2
+
+* ``20-99_Quit-Subscriber-listener.sh`` : Separate terminal 2
+
+### 30-00 Interactive Terminals
+
+Special command authorization use, with quotes:  auth "sharkbait"
+
+* ``reset.sh`` : Reset the test/ directory
+
+* ``30-21_Subscriber-listener.sh`` : Separate terminal 1
+
+* ``30-29_Publisher-manual.sh`` : Separate terminal 2, bye leaves listener running, quit ends listener
+
+* ``30-31_Publisher-listener.sh`` :  Separate terminal 1
+
+* ``30-39_Subscriber-terminal.sh`` :  Separate terminal 2, bye leaves listener running, quit ends listener
 
 ### 40-00 Local Hints
 
@@ -119,13 +163,13 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``40-01_Hints-publisher.sh`` : Run once
+* ``40-01_Hints-publisher.sh`` : Run Hints on publisher, once
 
- * ``40-02_Hints-publisher-dryrun.sh`` : Run once
+* ``reset.sh`` : Reset the test/ directory
 
- * ``40-22_Publisher-dryrun.sh`` : Run once, results & copies will be wrong because hints not processed
+* ``40-22_Publisher-dryrun.sh`` : Run once, results & copies will be wrong because hints not processed
 
- * ``40-23_Publisher-backup.sh`` : Run once
+* ``40-23_Publisher-backup.sh`` : Run once
 
 ### 50-00 Remote Hints
 

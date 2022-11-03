@@ -123,7 +123,7 @@ _It's all built-in_ with the -n | --navigator option.
  2. The listener daemons "bye" command behavior has changed. Now bye will leave the daemon
     running instead of shutting down. Quit, exit and logout still perform a shutdown.
 
- 3. When using the ELS interactive terminal (not be to confused with ELS Navigator) the
+ 3. When using the ELS interactive terminal (not to be confused with ELS Navigator) the
     "bye" command has been changed to end the terminal session but leave the remote listener
     running. Commands quit, exit and logout will shutdown the remote listener.
  
