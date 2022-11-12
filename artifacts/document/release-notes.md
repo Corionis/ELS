@@ -1,14 +1,19 @@
 ## Version 4.0.0
 
-This major release 4.0.0 of ELS adds the ELS Navigator GUI and a variety related
-enhancements and changes. 
+This major release 4.0.0 of ELS adds the ELS Navigator desktop application and a
+variety of related enhancements and changes. 
 
-The Navigator is purpose-built to make building and the on-going maintenance of a home
-media collection easier. Using the built-in capabilities of ELS the Navigator provides a
-visual tool for adding media and curating a collection either locally or remotely.
-Tools and jobs are provided to make performing repetitive tasks easier.
+The Navigator is purpose-built to make building and on-going maintenance of collections
+of all types of media across multiple storage devices easier. Originally built for home
+media collections ELS 4.0 adds a new dimension to library-based, multi-device, cross-platform
+media management. Using the built-in capabilities of ELS the Navigator provides a
+visual tool for curating a collection either locally or remotely.
+Tools and jobs are provided to make performing repetitive tasks easier. And the original
+back-up tool is built-in of course.
 
-Features:
+_A work in progress._
+
+__Features:__
 
  * Modes (where the Navigator is running)
      * On a media collection
@@ -62,6 +67,8 @@ _It's all built-in_ with the -n | --navigator option.
              the Navigator. All data displayed are from active storage scans.
 
  2. New ELS project download options including an all-in-one with an embedded Java JRE.
+
+ 3. The remote communication paradigm has been changed to provide more reliability. 
  
 
 ### Command Line Changes
