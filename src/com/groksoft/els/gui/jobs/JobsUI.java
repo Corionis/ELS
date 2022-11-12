@@ -658,6 +658,7 @@ public class JobsUI extends JDialog
                 if (item.type == CACHED_LAST_TASK)
                 {
                     currentTask.setPublisherKey(key);
+                    currentTask.setSubscriberRemote(false);
                     currentTask.setSubscriberKey("");
                     currentJob.setDataHasChanged();
                 }
@@ -1461,7 +1462,7 @@ public class JobsUI extends JDialog
                 job = (Job) configModel.getValueAt(i, 0);
                 if (job.isDataChanged())
                 {
-                    if (!validateJob(job))
+                    if (!validateJob(job, false))
                         return false;
                     write(job);
                     changed = true;
@@ -1510,35 +1511,42 @@ public class JobsUI extends JDialog
         guiContext.navigator.setComponentEnabled(enabled, getContentPane());
     }
 
-    private boolean validateJob(Job job)
+    private boolean validateJob(Job job, boolean onlyFound) throws Exception
     {
         boolean cachedFound = false;
         boolean sense = true;
-        String msg = "";
 
         for (int i = 0; i < job.getTasks().size(); ++i)
         {
             Task task = job.getTasks().get(i);
-            AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
-            if (tool.isCachedLastTask())
+            if (!task.getInternalName().equals(Job.INTERNAL_NAME))
             {
-                if (task.getPublisherKey().equals(Task.CACHEDLASTTASK))
+                AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
+                if (tool.isCachedLastTask())
                 {
-                    if (task.getOrigins().size() == 0)
+                    if (task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                     {
-                        if (!cachedFound)
+                        if (task.getOrigins().size() == 0)
                         {
-                            sense = false;
-                            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") +
-                                    job.getConfigName() + ", " + task.getConfigName(), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                            if (!cachedFound)
+                            {
+                                sense = false;
+                                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") +
+                                        job.getConfigName() + ", " + task.getConfigName(), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                            }
                         }
                     }
+                    else if (task.getOrigins().size() > 0)
+                        cachedFound = true;
                 }
-                else if (task.getOrigins().size() > 0)
-                    cachedFound = true;
+            }
+            else
+            {
+                Job subJob = job.load(task.getConfigName());
+                cachedFound = validateJob(subJob, true);
             }
         }
-        return sense;
+        return (onlyFound) ? cachedFound : sense;
     }
 
     public void write(Job job) throws Exception
