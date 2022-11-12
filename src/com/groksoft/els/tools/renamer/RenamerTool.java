@@ -190,7 +190,7 @@ public class RenamerTool extends AbstractTool
                     if (word.length() == 1)
                         fc = word;
                     else
-                        fc = word.substring(0, 1);
+                        fc = word.substring(0, 1);   // FIXME problem with multiple spaces????????????
                     fc = fc.toUpperCase(cfg.bundle().getLocale());
                     word = fc + ((word.length() > 1) ? word.substring(1) : "");
                     value = value + (value.length() > 0 ? (sep != " " ? "." : " ") : "") + word;

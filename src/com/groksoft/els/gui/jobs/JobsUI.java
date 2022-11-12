@@ -1308,7 +1308,7 @@ public class JobsUI extends JDialog
         }
         else if (key.equals(Task.CACHEDLASTTASK))
         {
-            String name = "not found";
+            String name = guiContext.cfg.gs("Z.not.found");
             int taskIndex = findTaskIndex(task.getConfigName());
             if (taskIndex >= 0)
             {
@@ -1318,7 +1318,7 @@ public class JobsUI extends JDialog
                     name = cachedName;
                 }
             }
-            desc = "From: " + name;
+            desc = guiContext.cfg.gs("JobsUI.cached.task") + name;
         }
         else if (key.equals(Task.ANY_SERVER))
         {
@@ -1516,28 +1516,40 @@ public class JobsUI extends JDialog
         boolean cachedFound = false;
         boolean sense = true;
 
+        // reload tools from disk if they've changed while Jobs were shown
+        toolList = toolsHandler.loadAllTools(guiContext, null);
+
         for (int i = 0; i < job.getTasks().size(); ++i)
         {
             Task task = job.getTasks().get(i);
             if (!task.getInternalName().equals(Job.INTERNAL_NAME))
             {
                 AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
-                if (tool.isCachedLastTask())
+                if (tool != null)
                 {
-                    if (task.getPublisherKey().equals(Task.CACHEDLASTTASK))
+                    if (tool.isCachedLastTask())
                     {
-                        if (task.getOrigins().size() == 0)
+                        if (task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                         {
-                            if (!cachedFound)
+                            if (task.getOrigins().size() == 0)
                             {
-                                sense = false;
-                                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") +
-                                        job.getConfigName() + ", " + task.getConfigName(), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                                if (!cachedFound)
+                                {
+                                    sense = false;
+                                    JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") +
+                                            job.getConfigName() + ", " + task.getConfigName(), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                                }
                             }
                         }
+                        else if (task.getOrigins().size() > 0)
+                            cachedFound = true;
                     }
-                    else if (task.getOrigins().size() > 0)
-                        cachedFound = true;
+                }
+                else
+                {
+                    sense = false;
+                    JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.tool.not.found") +
+                            job.getConfigName() + ", " + task.getConfigName(), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
             }
             else
