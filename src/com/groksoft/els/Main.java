@@ -607,6 +607,8 @@ public class Main
                     connectHintServer(context.publisherRepo);
 
                     savedConfiguration = new SavedConfiguration(null, cfg, context);
+                    context.transfer = new Transfer(cfg, context);
+                    context.transfer.initialize();
 
                     // run the Job
                     Job tmpJob = new Job(cfg, context, "temp");

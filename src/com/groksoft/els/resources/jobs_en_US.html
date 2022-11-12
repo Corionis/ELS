@@ -43,6 +43,7 @@ The list of Tools is updated each time the button is clicked.
 <h3>Task Origins</h3>
 Select the publisher and/or subscriber accordingly by clicking the "..." button.
 <ul>
+  <li>"From: [name]" is only shown if a previous task's Origins are available.</li>
   <li>"Any publisher" will use any loaded publisher</li>
   <li>"Specific publisher" allows selection of a publisher from the list of libraries</li>
   <li>"Any subscriber" will use any loaded subscriber</li>
@@ -51,6 +52,12 @@ Select the publisher and/or subscriber accordingly by clicking the "..." button.
 </ul>
 The Add button uses <i><b>whatever</b> is currently selected in the Browser</i>. That means
 combinations can be assembled that do not necessarily make sense or will execute correctly.
+<p>
+  Some tasks, such as the Renamer, can use the Origins of a previous task. When previous Origins
+  are available a "From: [name]" selection is added as the first entry in the combobox. That entry
+  is the most recent task capable of providing Origins prior to the current task. A series of these
+  tasks may be defined to perform complex operations.
+</p>
 
 <h3>Generate</h3>
 The Generate button creates a <i>basic</i> command line to execute the currently-selected

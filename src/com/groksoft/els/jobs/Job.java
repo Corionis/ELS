@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class Job extends AbstractTool implements Comparable, Serializable
 {
-    public static String INTERNAL_NAME = "jobs";
+    public static String INTERNAL_NAME = "jobs"; // must be lowercase
 
     private String configName; // user name for this instance
     private ArrayList<Task> tasks;
@@ -36,7 +36,9 @@ public class Job extends AbstractTool implements Comparable, Serializable
     transient Context context;
     transient Task currentTask = null;
     transient private boolean dataHasChanged = false;
+    transient private ArrayList<String> forwardPaths;
     transient private Logger logger = LogManager.getLogger("applog");
+    transient private Task lastTask = null;
     transient private final boolean realOnly = false;
     transient private boolean stop = false;
 
@@ -86,6 +88,11 @@ public class Job extends AbstractTool implements Comparable, Serializable
         return path;
     }
 
+    public ArrayList<String> getForwardPaths()
+    {
+        return forwardPaths;
+    }
+
     @Override
     public String getInternalName()
     {
@@ -96,6 +103,11 @@ public class Job extends AbstractTool implements Comparable, Serializable
     public String getSubsystem()
     {
         return ""; // jobs are not a subsystem
+    }
+
+    public boolean isCachedLastTask()
+    {
+        return true;
     }
 
     @Override
@@ -125,7 +137,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     @Override
-    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
+    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         // to satisfy AbstractTool, not used
     }
@@ -271,6 +283,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     {
         int result = 0;
         stop = false;
+        forwardPaths = new ArrayList<String>();
 
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
@@ -285,10 +298,14 @@ public class Job extends AbstractTool implements Comparable, Serializable
                     break;
 
                 currentTask = task;
-                if (currentTask.getInternalName().equals(getInternalName()))
+
+                // is the task a Job?
+                if (currentTask.isJob())
                 {
                     Job subJob = load(currentTask.getConfigName());
                     subJob.processJob(guiContext, cfg, context, subJob, isDryRun);
+                    if (subJob.lastTask != null)
+                        lastTask = subJob.lastTask;
 
                     if (guiContext != null)
                         guiContext.browser.printLog(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
@@ -296,10 +313,16 @@ public class Job extends AbstractTool implements Comparable, Serializable
                         logger.info(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
 
                 }
-                else
+                else // regular task
                 {
+                    if (lastTask != null && currentTask.isCachedLastTask(cfg, context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
+                        currentTask.setLastTask(lastTask);
+
                     if (!currentTask.process(guiContext, cfg, context, isDryRun))
                         requestStop();
+
+                    if (currentTask.isCachedLastTask(cfg, context))
+                        lastTask = currentTask;
                 }
             }
 
@@ -331,6 +354,11 @@ public class Job extends AbstractTool implements Comparable, Serializable
         dataHasChanged = state;
     }
 
+    public void setForwardPaths(ArrayList<String> forwardPaths)
+    {
+        this.forwardPaths = forwardPaths;
+    }
+
     public void setTasks(ArrayList<Task> tasks)
     {
         this.tasks = tasks;
@@ -350,7 +378,8 @@ public class Job extends AbstractTool implements Comparable, Serializable
         {
             for (Task task : job.getTasks())
             {
-                if (!task.getInternalName().equals(getInternalName())) // if not a Job
+                // if not a Job or using cached task
+                if (!task.getInternalName().equals(getInternalName()) && !task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 {
                     if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
                     {

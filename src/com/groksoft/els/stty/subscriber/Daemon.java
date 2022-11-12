@@ -320,7 +320,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         {
                             try
                             {
-    //                            context.main.enableHeartBeat(); // LEFTOFF how to handle this????????????/
                                 String stamp = "";
                                 if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
                                 {
@@ -367,11 +366,9 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                 myRepo.exportItems(true);
 
                                 response = new String(Files.readAllBytes(Paths.get(location)));
-       //                         context.main.disableHeartBeat();
                             }
                             catch (MungeException e)
                             {
-       //                         context.main.disableHeartBeat();
                                 logger.error(e.getMessage());
                             }
                             continue;

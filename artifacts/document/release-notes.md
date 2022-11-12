@@ -20,9 +20,10 @@ Features:
      * Drag 'n Drop and Copy, Cut, Paste
      * Automatic ELS Hint Tracking
      * Multiple named tool configurations
-        * Duplicate finder
-        * Junk remover
-        * Mass renamer
+        * Duplicate Finder
+        * Empty Directory Finder
+        * Junk Remover
+        * Renamer
         * External tools supported
      * Named jobs of sequenced named tools to automate repetitive tasks
  * BackUp

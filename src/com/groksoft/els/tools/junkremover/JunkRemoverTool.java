@@ -10,6 +10,7 @@ import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
@@ -150,6 +151,11 @@ public class JunkRemoverTool extends AbstractTool
         return Utils.getContext().cfg.gs("JunkRemover.displayName");
     }
 
+    public ArrayList<String> getForwardPaths()
+    {
+        return null;
+    }
+
     @Override
     public String getInternalName()
     {
@@ -170,6 +176,11 @@ public class JunkRemoverTool extends AbstractTool
     public boolean isDataChanged()
     {
         return dataHasChanged; // used by the GUI
+    }
+
+    public boolean isCachedLastTask()
+    {
+        return false;
     }
 
     @Override
@@ -216,7 +227,7 @@ public class JunkRemoverTool extends AbstractTool
      * Used by a Job & the Run button of the tool
      */
     @Override
-    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
+    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         reset();
         isDryRun = dryRun;
@@ -320,7 +331,7 @@ public class JunkRemoverTool extends AbstractTool
             {
                 try
                 {
-                    processTool(guiContext, publisherRepo, subscriberRepo, origins, dryRun);
+                    processTool(guiContext, publisherRepo, subscriberRepo, origins, dryRun, null);
                 }
                 catch (Exception e)
                 {
@@ -328,7 +339,7 @@ public class JunkRemoverTool extends AbstractTool
                     if (guiContext != null)
                     {
                         guiContext.browser.printLog(msg, true);
-                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
                         logger.error(msg);
@@ -490,6 +501,10 @@ public class JunkRemoverTool extends AbstractTool
     public void setDataHasChanged()
     {
         dataHasChanged = true;
+    }
+
+    public void setForwardPaths(ArrayList<String> forwardPaths)
+    {
     }
 
     public void setJunkList(ArrayList<JunkItem> junkList)

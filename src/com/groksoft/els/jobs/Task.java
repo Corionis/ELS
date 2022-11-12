@@ -19,8 +19,9 @@ import java.util.ArrayList;
 
 public class Task implements Comparable, Serializable
 {
-    private final transient Logger logger = LogManager.getLogger("applog");
+    private transient Logger logger = LogManager.getLogger("applog");
     public static final String ANY_SERVER = "_ANY_SERVER_";
+    public static final String CACHEDLASTTASK = "_CACHEDLASTTASK_";
 
     private String configName; // name of tool configuration
     private String internalName; // internal name of tool
@@ -29,10 +30,15 @@ public class Task implements Comparable, Serializable
     private boolean subscriberRemote = false;
     private ArrayList<Origin> origins;
 
-    transient AbstractTool currentTool = null;
-    transient boolean dual = true;
-    transient GuiContext guiContext = null;
-    transient boolean realOnly = false;
+    transient private AbstractTool currentTool = null;
+    transient private boolean dual = true;
+    transient private GuiContext guiContext = null;
+    transient private Task lastTask = null;
+    transient private Repository pubRepo = null;
+    transient private Repository subRepo = null;
+    transient private boolean realOnly = false;
+    transient private Tools tools = null;
+    transient private String type;
 
     public Task(String internalName, String configName)
     {
@@ -168,9 +174,9 @@ public class Task implements Comparable, Serializable
     {
         Repository repo = null;
 
-        // any server
         if (key != null && key.length() > 0)
         {
+            // any server
             if (key.equals(ANY_SERVER))
             {
                 if (forPublisher)
@@ -225,9 +231,35 @@ public class Task implements Comparable, Serializable
         return subscriberKey;
     }
 
+    public AbstractTool getTool()
+    {
+        return currentTool;
+    }
+
+    public boolean isCachedLastTask(Configuration config, Context ctxt)
+    {
+        AbstractTool tool;
+        if (currentTool == null)
+        {
+            if (tools == null)
+                this.tools = new Tools();
+            tool = tools.makeTempTool(getInternalName(), config, ctxt);
+        }
+        else
+            tool = currentTool;
+        return tool.isCachedLastTask();
+    }
+
     public boolean isDual()
     {
         return dual;
+    }
+
+    public boolean isJob()
+    {
+        if (getInternalName().equalsIgnoreCase(Job.INTERNAL_NAME) && getOrigins().size() == 0)
+            return true;
+        return false;
     }
 
     public boolean isSubscriberRemote()
@@ -253,28 +285,46 @@ public class Task implements Comparable, Serializable
     public boolean process(GuiContext guiContext, Configuration config, Context ctxt, boolean dryRun) throws Exception
     {
         this.guiContext = guiContext;
+        if (logger == null)
+            logger = LogManager.getLogger("applog");
 
         // get tool
-        Tools tools = new Tools();
+        if (tools == null)
+            this.tools = new Tools();
+
         currentTool = tools.loadTool(guiContext, config, ctxt, getInternalName(), getConfigName());
         if (currentTool != null)
         {
-            if (origins == null || origins.size() == 0)
+            if ((origins == null || origins.size() == 0) && !useCachedLastTask(config, ctxt))
             {
                 if (guiContext != null)
-                    guiContext.browser.printLog(guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                {
+                    String msg = guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
+                    guiContext.browser.printLog(msg);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                }
                 else
                     logger.info(config.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+
                 return false;
             }
 
             // get repos
-            Repository pubRepo = getRepo(config, ctxt, getPublisherKey(), true);
-            Repository subRepo = getRepo(config, ctxt, getSubscriberKey(), false);
+            if (useCachedLastTask(config, ctxt))
+            {
+                pubRepo = lastTask.pubRepo;
+                subRepo = lastTask.subRepo;
+                setSubscriberRemote(lastTask.subscriberRemote);
+            }
+            else
+            {
+                pubRepo = getRepo(config, ctxt, getPublisherKey(), true);
+                subRepo = getRepo(config, ctxt, getSubscriberKey(), false);
+            }
             if (pubRepo == null && subRepo == null)
                 throw new MungeException((config.gs("Task.no.repository.is.loaded")));
 
-            String type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
+            type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
             config.setRemoteType(type);
             config.setPublishOperation(false);  // TODO Change when Backup tool added
 
@@ -287,7 +337,7 @@ public class Task implements Comparable, Serializable
                     return false;
             }
 
-            currentTool.processTool(guiContext, pubRepo, subRepo, origins, dryRun);
+            currentTool.processTool(guiContext, pubRepo, subRepo, origins, dryRun, useCachedLastTask(config, ctxt) ? lastTask : null);
         }
         else
             throw new MungeException(config.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
@@ -305,23 +355,39 @@ public class Task implements Comparable, Serializable
      */
     public SwingWorker<Void, Void> process(GuiContext guiContext, AbstractTool tool, boolean dryRun) throws Exception
     {
+        if (logger == null)
+            logger = LogManager.getLogger("applog");
+
         if (tool != null)
         {
             this.guiContext = guiContext;
             currentTool = tool;
 
-            if (origins == null || origins.size() == 0)
+            if ((origins == null || origins.size() == 0) && !useCachedLastTask(guiContext.cfg, guiContext.context))
             {
                 if (guiContext != null)
-                    guiContext.browser.printLog(guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                {
+                    String msg = guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
+                    guiContext.browser.printLog(msg);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                }
                 else
                     logger.info(guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
                 return null;
             }
 
             // get repos
-            Repository pubRepo = getRepo(guiContext.cfg, guiContext.context, getPublisherKey(), true);
-            Repository subRepo = getRepo(guiContext.cfg, guiContext.context, getSubscriberKey(), false);
+            if (useCachedLastTask(guiContext.cfg, guiContext.context))
+            {
+                pubRepo = lastTask.pubRepo;
+                subRepo = lastTask.subRepo;
+                setSubscriberRemote(lastTask.subscriberRemote);
+            }
+            else
+            {
+                pubRepo = getRepo(guiContext.cfg, guiContext.context, getPublisherKey(), true);
+                subRepo = getRepo(guiContext.cfg, guiContext.context, getSubscriberKey(), false);
+            }
             if (pubRepo == null && subRepo == null)
                 throw new MungeException((guiContext.cfg.gs("Task.no.repository.is.loaded")));
 
@@ -361,6 +427,11 @@ public class Task implements Comparable, Serializable
         this.origins = origins;
     }
 
+    public void setLastTask(Task lastTask)
+    {
+        this.lastTask = lastTask;
+    }
+
     public void setPublisherKey(String publisherKey)
     {
         this.publisherKey = publisherKey;
@@ -379,6 +450,13 @@ public class Task implements Comparable, Serializable
     public void setSubscriberRemote(boolean isSubscriberRemote)
     {
         this.subscriberRemote = isSubscriberRemote;
+    }
+
+    public boolean useCachedLastTask(Configuration cfg, Context ctxt)
+    {
+        if (isCachedLastTask(cfg, ctxt) && lastTask != null && publisherKey.equalsIgnoreCase(CACHEDLASTTASK))
+            return true;
+        return false;
     }
 
 }

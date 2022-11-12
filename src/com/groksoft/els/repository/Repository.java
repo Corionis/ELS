@@ -816,11 +816,6 @@ public class Repository
 
         if (getLibraryData().libraries.bibliography != null)
         {
-            //if (lbs.bibliography == null)  // QUESTION does this work?
-            //{
-            //    throw new MungeException("libraries.bibliography must be defined");
-            //}
-
             logger.info("Validating " + lbs.description + " Libraries in: " + getJsonFilename());
             for (int i = 0; i < lbs.bibliography.length; i++)
             {

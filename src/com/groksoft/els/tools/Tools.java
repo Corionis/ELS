@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
+import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import com.groksoft.els.tools.renamer.RenamerTool;
@@ -18,8 +19,9 @@ import java.util.Collections;
 
 public class Tools
 {
+
     /**
-     * Get tool from existing toolList from getAllTools()
+     * Get tool from existing toolList from loadAllTools()
      *
      * @param toolList Existing toolList
      * @param internalName Internal name of desired tool
@@ -181,6 +183,30 @@ public class Tools
         Collections.sort(toolList);
 
         return toolList;
+    }
+
+    /**
+     * Create an AbstractTool object based on the internal name
+     *
+     * @param internalName Internal name of tool
+     * @param config The Configuration
+     * @param ctxt The Context
+     * @return AbstractTool object
+     */
+    public AbstractTool makeTempTool(String internalName, Configuration config, Context ctxt)
+    {
+        AbstractTool tmpTool = null;
+        if (internalName.equals("JunkRemover"))
+        {
+            // begin JunkRemover
+            tmpTool = new JunkRemoverTool(null, config, ctxt);
+        }
+        else if (internalName.equals("Renamer"))
+        {
+            // begin Renamer
+            tmpTool = new RenamerTool(null, config, ctxt);
+        }
+        return tmpTool;
     }
 
     /**

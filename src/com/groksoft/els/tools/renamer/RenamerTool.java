@@ -10,6 +10,7 @@ import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
@@ -53,13 +54,12 @@ public class RenamerTool extends AbstractTool
     transient private int counter;
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int renameCount = 0;
-    transient private final boolean dualRepositories = false; // used by GUI, always false for this tool
     transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private final boolean realOnly = false; // are only real origins allowed?
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> physicalPaths;
+    transient private ArrayList<String> forwardPaths;
     // @formatter:on
 
     /**
@@ -278,7 +278,7 @@ public class RenamerTool extends AbstractTool
         return value;
     }
 
-    private int expandOrigins(ArrayList<Origin> origins) throws MungeException
+    private int expandOrigins(ArrayList<Origin> origins, Task lastTask) throws MungeException
     {
         int count = 0;
 
@@ -286,30 +286,24 @@ public class RenamerTool extends AbstractTool
         if (repo == null)
             return -1;
 
-        for (Origin origin : origins)
+        if (lastTask != null)
         {
-            if (origin.getType() == NavTreeUserObject.COLLECTION)
+            physicalPaths = lastTask.getTool().getForwardPaths();
+            count = physicalPaths.size();
+        }
+        else
+        {
+            for (Origin origin : origins)
             {
-                if (origin.getName().length() > 0)
+                if (origin.getType() == NavTreeUserObject.COLLECTION)
                 {
-                    if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getName()))
-                        throw new MungeException((cfg.gs("Renamer.task.definition.and.loaded.repository.do.not.match")));
-                }
-                // process in the order defined in the JSON
-                for (Library lib : repo.getLibraryData().libraries.bibliography)
-                {
-                    for (String source : lib.sources)
+                    if (origin.getName().length() > 0)
                     {
-                        physicalPaths.add(source);
-                        ++count;
+                        if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getName()))
+                            throw new MungeException((getCfg().gs("Renamer.task.definition.and.loaded.repository.do.not.match")));
                     }
-                }
-            }
-            else if (origin.getType() == NavTreeUserObject.LIBRARY)
-            {
-                for (Library lib : repo.getLibraryData().libraries.bibliography)
-                {
-                    if (lib.name.equalsIgnoreCase(origin.getName()))
+                    // process in the order defined in the JSON
+                    for (Library lib : repo.getLibraryData().libraries.bibliography)
                     {
                         for (String source : lib.sources)
                         {
@@ -318,11 +312,25 @@ public class RenamerTool extends AbstractTool
                         }
                     }
                 }
-            }
-            else if (origin.getType() == NavTreeUserObject.REAL)
-            {
-                physicalPaths.add(origin.getName());
-                ++count;
+                else if (origin.getType() == NavTreeUserObject.LIBRARY)
+                {
+                    for (Library lib : repo.getLibraryData().libraries.bibliography)
+                    {
+                        if (lib.name.equalsIgnoreCase(origin.getName()))
+                        {
+                            for (String source : lib.sources)
+                            {
+                                physicalPaths.add(source);
+                                ++count;
+                            }
+                        }
+                    }
+                }
+                else if (origin.getType() == NavTreeUserObject.REAL)
+                {
+                    physicalPaths.add(origin.getName());
+                    ++count;
+                }
             }
         }
 
@@ -334,16 +342,19 @@ public class RenamerTool extends AbstractTool
         return configName;
     }
 
-    @Override
     public String getDisplayName()
     {
         return Utils.getContext().cfg.gs("Renamer.displayName");
     }
 
-    @Override
     public String getInternalName()
     {
         return internalName;
+    }
+
+    public ArrayList<String> getForwardPaths()
+    {
+        return forwardPaths;
     }
 
     public int getSegment()
@@ -351,7 +362,6 @@ public class RenamerTool extends AbstractTool
         return segment;
     }
 
-    @Override
     public String getSubsystem()
     {
         return SUBSYSTEM;
@@ -423,10 +433,14 @@ public class RenamerTool extends AbstractTool
         return dataHasChanged; // used by the GUI
     }
 
-    @Override
+    public boolean isCachedLastTask()
+    {
+        return true;
+    }
+
     public boolean isDualRepositories()
     {
-        return dualRepositories;
+        return false;
     }
 
     public boolean isOption1()
@@ -444,10 +458,9 @@ public class RenamerTool extends AbstractTool
         return option3;
     }
 
-    @Override
     public boolean isRealOnly()
     {
-        return realOnly;
+        return false;
     }
 
     public boolean isRecursive()
@@ -463,20 +476,19 @@ public class RenamerTool extends AbstractTool
      * <br/>
      * Used by a Job & the Run button of the tool
      */
-    @Override
-    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception
+    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         reset();
         isDryRun = dryRun;
 
         if (publisherRepo != null && subscriberRepo != null)
-            throw new MungeException(java.text.MessageFormat.format(cfg.gs("Renamer.uses.only.one.repository"), getInternalName()));
+            throw new MungeException(java.text.MessageFormat.format(getCfg().gs("Renamer.uses.only.one.repository"), getInternalName()));
 
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
 
         // expand origins into physical physical paths
-        int count = expandOrigins(origins);
+        int count = expandOrigins(origins, lastTask);
         if (physicalPaths == null || physicalPaths.size() == 0)
             return;
 
@@ -488,18 +500,18 @@ public class RenamerTool extends AbstractTool
         {
             if (isRequestStop())
                 break;
-            String rem = isRemote() ? cfg.gs("Z.remote.uppercase") : "";
+            String rem = isRemote() ? getCfg().gs("Z.remote.uppercase") : "";
             if (guiContext != null)
-                guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + rem + path);
+                guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + rem + "\"" + path + "\"");
             else
-                logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
+                logger.info(getDisplayName() + ", " + getConfigName() + ": " + "\"" + path + "\"");
 
             scanForRenames(path, true);
         }
 
         if (guiContext != null)
         {
-            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? cfg.gs("Z.dry.run") : ""));
+            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
 
             // reset and reload relevant trees
             if (!isDryRun && renameCount > 0)
@@ -518,7 +530,7 @@ public class RenamerTool extends AbstractTool
         }
         else
         {
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? cfg.gs("Z.dry.run") : ""));
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
         }
     }
 
@@ -534,7 +546,6 @@ public class RenamerTool extends AbstractTool
      * @param dryRun         Boolean for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
-    @Override
     public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
         // create a fresh dialog
@@ -554,7 +565,7 @@ public class RenamerTool extends AbstractTool
             }
             else
             {
-                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(guiContext.mainFrame, getCfg().gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                 return null;
             }
 
@@ -568,15 +579,15 @@ public class RenamerTool extends AbstractTool
             {
                 try
                 {
-                    processTool(guiContext, publisherRepo, subscriberRepo, origins, dryRun);
+                    processTool(guiContext, publisherRepo, subscriberRepo, origins, dryRun, null);
                 }
                 catch (Exception e)
                 {
-                    String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                    String msg = getCfg().gs("Z.exception") + " " + Utils.getStackTrace(e);
                     if (guiContext != null)
                     {
                         guiContext.browser.printLog(msg, true);
-                        JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(guiContext.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
                         logger.error(msg);
@@ -610,24 +621,25 @@ public class RenamerTool extends AbstractTool
             newPath = left + repo.getSeparator() + change;
             ++renameCount;
             if (guiContext != null)
-                guiContext.mainFrame.labelStatusMiddle.setText(cfg.gs("Z.count") + renameCount);
+                guiContext.mainFrame.labelStatusMiddle.setText(getCfg().gs("Z.count") + renameCount);
             if (!isDryRun)
             {
                 getContext().transfer.rename(fullpath, newPath, isRemote());
                 fullpath = newPath;
                 if (guiContext != null)
-                    guiContext.browser.printLog(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+                    guiContext.browser.printLog(getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
                 else
-                    logger.info(cfg.gs("Z.renamed") + filename + cfg.gs("Z.to") + change);
+                    logger.info(getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
             }
             else
             {
                 if (guiContext != null)
-                    guiContext.browser.printLog(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
+                    guiContext.browser.printLog(getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
                 else
-                    logger.info(cfg.gs("Z.would.rename") + filename + cfg.gs("Z.to") + change);
+                    logger.info(getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
             }
         }
+        forwardPaths.add(fullpath);
         return fullpath;
     }
 
@@ -637,6 +649,7 @@ public class RenamerTool extends AbstractTool
         renameCount = 0;
         resetStop();
         physicalPaths = new ArrayList<>();
+        forwardPaths = new ArrayList<String>();
         if (logger == null)
             logger = LogManager.getLogger("applog");
     }
@@ -706,14 +719,15 @@ public class RenamerTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                String msg = getCfg().gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
                 {
                     guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 else
                     logger.error(msg);
+                requestStop();
             }
         }
         else // is local
@@ -788,19 +802,19 @@ public class RenamerTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                String msg = cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
                 {
                     guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, "!!!!" + msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 else
                     logger.error(msg);
+                requestStop();
             }
         }
     }
 
-    @Override
     public void setConfigName(String configName)
     {
         this.configName = configName;
@@ -809,6 +823,11 @@ public class RenamerTool extends AbstractTool
     public void setDataHasChanged()
     {
         dataHasChanged = true;
+    }
+
+    public void setForwardPaths(ArrayList<String> forwardPaths)
+    {
+        this.forwardPaths = forwardPaths;
     }
 
     public void setOption1(boolean option1)

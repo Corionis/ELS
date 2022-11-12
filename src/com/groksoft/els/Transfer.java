@@ -127,7 +127,7 @@ public class Transfer
             {
                 if (cfg.isDryRun())
                 {
-                    // -D Dry run option
+                    // -D Dryrun option
                     ++copyCount;
                     grandTotalItems = grandTotalItems + 1;
                     grandTotalSize = grandTotalSize + groupItem.getSize();
@@ -534,10 +534,6 @@ public class Transfer
                 {
                     logger.info(cfg.gs("Transfer.requesting.subscriber.targets"));
                     getStorageTargets();
-                }
-                else
-                {
-                    cfg.setDryRun(true);
                 }
             }
         }
@@ -1067,7 +1063,7 @@ public class Transfer
                 toItem = SerializationUtils.clone(fromItem);
                 toItem.setLibrary(toLib.name);
                 toItem.setItemPath(toName);
-                path = getTarget(toLib.name, false, toItem.getSize(), toItem.getItemPath()); // TODO toItem.getSize() should be a totalSize value
+                path = getTarget(toLib.name, false, toItem.getSize(), toItem.getItemPath());
                 path = path + repo.getSeparator() + toName;
             }
             else // exists, use same object

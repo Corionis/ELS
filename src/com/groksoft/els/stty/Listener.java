@@ -66,7 +66,7 @@ public class Listener extends Thread
         return addr.getHostAddress();
     }
 
-    private boolean isListed(Socket aSocket, boolean whiteList)
+    private boolean isListed(Socket aSocket, boolean whiteList) throws IOException
     {
         boolean sense = whiteList;
         String filename = (whiteList ? cfg.getIpWhitelist() : cfg.getBlacklist());
@@ -78,29 +78,21 @@ public class Listener extends Thread
                 sense = false;
                 inet = inet.replaceAll("/", "");
                 inet = inet.replaceAll("\\\\", "");
-                try
+                BufferedReader br = new BufferedReader(new FileReader(filename));
+                String line;
+                while ((line = br.readLine()) != null)
                 {
-                    BufferedReader br = new BufferedReader(new FileReader(filename));
-                    String line;
-                    while ((line = br.readLine()) != null)
+                    line = line.trim();
+                    if (line.length() > 0 && !line.startsWith("#"))
                     {
-                        line = line.trim();
-                        if (line.length() > 0 && !line.startsWith("#"))
+                        if (inet.equals(line))
                         {
-                            if (inet.equals(line))
-                            {
-                                sense = true;
-                                break;
-                            }
+                            sense = true;
+                            break;
                         }
                     }
-                    br.close();
                 }
-                catch (Exception e)
-                {
-                    // QUESTION should an exception be a fatal error?
-                    logger.warn("Could not process list: " + filename + ", " + e.getMessage());
-                }
+                br.close();
             }
         }
         return sense;
@@ -125,7 +117,7 @@ public class Listener extends Thread
     public void run()
     {
         Socket socket = null;
-        while (stop == false)
+        while (!stop)
         {
             try
             {

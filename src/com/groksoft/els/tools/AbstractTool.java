@@ -5,6 +5,7 @@ import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.Repository;
 
 import javax.swing.*;
@@ -73,6 +74,8 @@ public abstract class AbstractTool implements Comparable, Serializable
         return getDisplayName() + ": " + getConfigName();
     }
 
+    abstract public ArrayList<String> getForwardPaths();
+
     public String getFullPath()
     {
         String path = getDirectoryPath() + System.getProperty("file.separator") +
@@ -83,6 +86,8 @@ public abstract class AbstractTool implements Comparable, Serializable
     abstract public String getInternalName();
 
     abstract public String getSubsystem();
+
+    abstract public boolean isCachedLastTask();
 
     abstract public boolean isDualRepositories();
 
@@ -112,7 +117,7 @@ public abstract class AbstractTool implements Comparable, Serializable
      * @param dryRun Boolean dryrun
      * @throws Exception
      */
-    public abstract void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun) throws Exception;
+    public abstract void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception;
 
     /**
      * Process the tool on a SwingWorker thread
@@ -144,6 +149,8 @@ public abstract class AbstractTool implements Comparable, Serializable
     {
         this.displayName = displayName;
     }
+
+    abstract public void setForwardPaths(ArrayList<String> forwardPaths);
 
     public void setIncludeInToolsList(boolean includeInToolsList)
     {
