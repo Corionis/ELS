@@ -44,6 +44,7 @@ public class RenamerTool extends AbstractTool
     private int type = 0;
     private int segment = 0; // 0 = name only, 1 = extension only, 2 = whole filename
     private boolean recursive = false;
+    private boolean filesOnly = false;
     private String text1 = "";
     private String text2 = "";
     private String text3 = "";
@@ -88,6 +89,7 @@ public class RenamerTool extends AbstractTool
         renamer.setType(this.getType());
         renamer.setSegment(this.getSegment());
         renamer.setIsRecursive(this.isRecursive());
+        renamer.setIsFilesOnlyy(this.isFilesOnly());
         renamer.setText1(this.getText1());
         renamer.setText2(this.getText2());
         renamer.setText3(this.getText3());
@@ -443,6 +445,11 @@ public class RenamerTool extends AbstractTool
         return false;
     }
 
+    public boolean isFilesOnly()
+    {
+        return filesOnly;
+    }
+
     public boolean isOption1()
     {
         return option1;
@@ -599,44 +606,47 @@ public class RenamerTool extends AbstractTool
         return worker;
     }
 
-    private String rename(String fullpath, String filename) throws Exception
+    private String rename(String fullpath, String filename, boolean isDirectory) throws Exception
     {
         boolean hidden = false;
-        if (filename.startsWith(".") && filename.length() > 1)
+        if (!isDirectory || !isFilesOnly())
         {
-            filename = filename.substring(1);
-            hidden = true;
-        }
-        String change = exec(filename); // execute the renamer sub-tool
-        if (hidden)
-        {
-            change = "." + change;
-            filename = "." + filename;
-        }
-
-        String newPath = "";
-        if (!filename.equals(change))
-        {
-            String left = Utils.getLeftPath(fullpath, repo.getSeparator());
-            newPath = left + repo.getSeparator() + change;
-            ++renameCount;
-            if (guiContext != null)
-                guiContext.mainFrame.labelStatusMiddle.setText(getCfg().gs("Z.count") + renameCount);
-            if (!isDryRun)
+            if (filename.startsWith(".") && filename.length() > 1)
             {
-                getContext().transfer.rename(fullpath, newPath, isRemote());
-                fullpath = newPath;
-                if (guiContext != null)
-                    guiContext.browser.printLog(getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
-                else
-                    logger.info(getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                filename = filename.substring(1);
+                hidden = true;
             }
-            else
+            String change = exec(filename); // execute the renamer sub-tool
+            if (hidden)
             {
+                change = "." + change;
+                filename = "." + filename;
+            }
+
+            String newPath = "";
+            if (!filename.equals(change))
+            {
+                String left = Utils.getLeftPath(fullpath, repo.getSeparator());
+                newPath = left + repo.getSeparator() + change;
+                ++renameCount;
                 if (guiContext != null)
-                    guiContext.browser.printLog(getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                    guiContext.mainFrame.labelStatusMiddle.setText(getCfg().gs("Z.count") + renameCount);
+                if (!isDryRun)
+                {
+                    getContext().transfer.rename(fullpath, newPath, isRemote());
+                    fullpath = newPath;
+                    if (guiContext != null)
+                        guiContext.browser.printLog("  " + getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                    else
+                        logger.info("  " + getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                }
                 else
-                    logger.info(getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                {
+                    if (guiContext != null)
+                        guiContext.browser.printLog("  " + getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                    else
+                        logger.info("  " + getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                }
             }
         }
         forwardPaths.add(fullpath);
@@ -682,7 +692,7 @@ public class RenamerTool extends AbstractTool
                     {
                         guiContext.progress.update(" " + filename);
                     }
-                    String change = rename(path, filename);
+                    String change = rename(path, filename, true);
                     boolean changed = !path.equals(change);
                     path = change;
                     if (!isRecursive())
@@ -707,9 +717,12 @@ public class RenamerTool extends AbstractTool
                             guiContext.progress.update(" " + fullpath);
                         }
 
-                        String change = rename(fullpath, filename); // change & rename
-                        boolean changed = !fullpath.equals(change);
-                        fullpath = change;
+                        if (!attrs.isDir())
+                        {
+                            String change = rename(fullpath, filename, false); // change & rename
+                            boolean changed = !fullpath.equals(change);
+                            fullpath = change;
+                        }
                         if (attrs.isDir() && isRecursive())
                         {
                             scanForRenames(fullpath, false);
@@ -776,9 +789,13 @@ public class RenamerTool extends AbstractTool
                         }
                         fullpath = entry.getAbsolutePath();
 
-                        String change = rename(fullpath, filename); // change & rename
-                        boolean changed = !fullpath.equals(change);
-                        fullpath = change;
+                        boolean changed = false;
+                        if (!isDir)
+                        {
+                            String change = rename(fullpath, filename, isDir); // change & rename
+                            changed = !fullpath.equals(change);
+                            fullpath = change;
+                        }
                         if (isDir && !firstDir && isRecursive())
                         {
                             scanForRenames(fullpath, false);
@@ -806,7 +823,7 @@ public class RenamerTool extends AbstractTool
                 if (guiContext != null)
                 {
                     guiContext.browser.printLog(msg, true);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, "!!!!" + msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 else
                     logger.error(msg);
@@ -823,6 +840,11 @@ public class RenamerTool extends AbstractTool
     public void setDataHasChanged()
     {
         dataHasChanged = true;
+    }
+
+    public void setIsFilesOnlyy(boolean filesOnly)
+    {
+        this.filesOnly = filesOnly;
     }
 
     public void setForwardPaths(ArrayList<String> forwardPaths)

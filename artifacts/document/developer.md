@@ -62,3 +62,13 @@ deploy/ELS.jar exists:
  1. Goto mock/scripts/<your O/S, linux/mac or windows>/
  2. Run reset.bat or reset.sh  that creates a mock/test environment
  3. Run 80-10-Navigator-local.bat or 80-10-Navigator-local.sh
+
+### Tips
+
+ 1. Various places in the code have several distinct sections, e.g. case statements and
+    initialization segments. In many of those places each "section" may be found by
+    searching for the pattern:  // ---
+
+2. Communications time-out handling and the many changes those areas have gone through
+   made finding the code locations more important. Search the code for:  _time-out_  to
+   find the relevant code locations.

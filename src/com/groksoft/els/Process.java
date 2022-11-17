@@ -218,6 +218,9 @@ public class Process
         {
             for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
             {
+                if (fault)
+                    break;
+
                 boolean scanned = false;
                 Library pubLib = null;
 
@@ -257,6 +260,9 @@ public class Process
                         // iterate the publisher's items
                         for (Item item : pubLib.items)
                         {
+                            if (fault)
+                                break;
+
                             if (context.publisherRepo.ignore(item))
                             {
                                 logger.debug("  ! Ignoring " + item.getItemPath());
@@ -374,7 +380,8 @@ public class Process
         {
             fault = true;
             ++errorCount;
-            logger.error(Utils.getStackTrace(e));
+            //logger.error(Utils.getStackTrace(e));
+            throw (e);
         }
         finally
         {
@@ -390,7 +397,8 @@ public class Process
                 {
                     fault = true;
                     ++errorCount;
-                    logger.error(Utils.getStackTrace(e));
+                    //logger.error(Utils.getStackTrace(e));
+                    throw (e);
                 }
                 totalSize = 0L;
             }
@@ -527,7 +535,7 @@ public class Process
             }
 
             // if all the pieces are specified perform a full munge of the collections
-            if (!localHints && !cfg.isHintSkipMainProcess()) 
+            if (!context.fault && !localHints && !cfg.isHintSkipMainProcess())
             {
                 if (cfg.isTargetsEnabled() &&
                         (cfg.getPublisherLibrariesFileName().length() > 0 ||
@@ -540,7 +548,7 @@ public class Process
             }
 
             // clean-up ELS Hints on subscriber
-            if (hints != null && !localHints && !cfg.isDryRun() && cfg.isTargetsEnabled() &&
+            if (!context.fault && hints != null && !localHints && !cfg.isDryRun() && cfg.isTargetsEnabled() &&
                     (cfg.getPublisherLibrariesFileName().length() > 0 ||
                             cfg.getPublisherCollectionFilename().length() > 0) &&
                     (cfg.getSubscriberLibrariesFileName().length() > 0 ||

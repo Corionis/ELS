@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.0.0.0.194" Java: "11.0.15" encoding: "UTF-8"
+JFDML JFormDesigner: "8.0.0.0.194" Java: "17.0.4.1" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -21,16 +21,16 @@ new FormModel {
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
-				"preferredSize": new java.awt.Dimension( 570, 470 )
+				"preferredSize": new java.awt.Dimension( 630, 470 )
 				"minimumSize": new java.awt.Dimension( 150, 80 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 					name: "contentPanel"
-					"preferredSize": new java.awt.Dimension( 570, 470 )
+					"preferredSize": new java.awt.Dimension( 614, 470 )
 					"minimumSize": new java.awt.Dimension( 140, 120 )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 						name: "panelTop"
 						"minimumSize": new java.awt.Dimension( 140, 38 )
-						"preferredSize": new java.awt.Dimension( 570, 38 )
+						"preferredSize": new java.awt.Dimension( 614, 38 )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
 							"alignment": 0
 							"hgap": 2
@@ -155,13 +155,35 @@ new FormModel {
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "West"
 									} )
-									add( new FormComponent( "javax.swing.JCheckBox" ) {
-										name: "checkBoxRecursive"
-										"text": new FormMessage( null, "Renamer.checkBoxRecursive.text" )
-										"horizontalAlignment": 0
-										"toolTipText": new FormMessage( null, "Renamer.checkBoxRecursive.toolTipText" )
-										"actionCommand": "recursiveChanged"
-										addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRecursiveClicked", true ) )
+									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+										"axis": 0
+									} ) {
+										name: "panelCbOpts"
+										"maximumSize": new java.awt.Dimension( 32767, 21 )
+										"minimumSize": new java.awt.Dimension( 120, 21 )
+										"preferredSize": new java.awt.Dimension( 240, 21 )
+										add( new FormComponent( "javax.swing.JCheckBox" ) {
+											name: "checkBoxRecursive"
+											"text": new FormMessage( null, "Renamer.checkBoxRecursive.text" )
+											"horizontalAlignment": 0
+											"toolTipText": new FormMessage( null, "Renamer.checkBoxRecursive.toolTipText" )
+											"actionCommand": "recursiveChanged"
+											"preferredSize": new java.awt.Dimension( 120, 21 )
+											"maximumSize": new java.awt.Dimension( 32767, 21 )
+											"minimumSize": new java.awt.Dimension( 80, 21 )
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRecursiveClicked", true ) )
+										} )
+										add( new FormComponent( "javax.swing.JCheckBox" ) {
+											name: "checkBoxFilesOnly"
+											"text": new FormMessage( null, "Renamer.checkBoxFilesOnly.text" )
+											"horizontalAlignment": 0
+											"alignmentX": 0.5f
+											"preferredSize": new java.awt.Dimension( 120, 21 )
+											"maximumSize": new java.awt.Dimension( 32767, 21 )
+											"actionCommand": "filesOnlyChanged"
+											"toolTipText": new FormMessage( null, "Renamer.checkBoxFilesOnly.toolTipText" )
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionFilesOnlyClicked", true ) )
+										} )
 									}, new FormLayoutConstraints( class java.lang.String ) {
 										"value": "Center"
 									} )
@@ -756,7 +778,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 570, 470 )
+			"size": new java.awt.Dimension( 630, 470 )
 		} )
 		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
 			name: "buttonGroupChangeCase"
