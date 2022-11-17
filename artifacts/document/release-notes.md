@@ -118,6 +118,11 @@ _It's all built-in_ with the -n | --navigator option.
 14. Implemented detailed logging of communications-related steps using the "trace" log level
     for the --console-level and --debug-level options.
 
+15. Added remote mode J to the -r|--remote option. This is to support command-line use of
+    the "Any Subscriber" origin option of Job tasks. Combined with -j|--job the remote
+    subscriber defined with -s|-S is used. This is in contrast to the "Specific Subscriber"
+    origin option where the subscriber defined for the task overrides the -s|-S option.
+
 
 ### Other Changes
 

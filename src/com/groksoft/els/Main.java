@@ -231,7 +231,7 @@ public class Main
             boolean defaultNavigator = false;
             switch (cfg.getOperation())
             {
-                // --- handle standard local execution, no -r option
+                // --- handle standard local execution, no -r|--remote option
                 case NOT_REMOTE:
                     if (cfg.getPublisherFilename().length() == 0 && cfg.getSubscriberFilename().length() == 0)
                     {
@@ -587,7 +587,11 @@ public class Main
 
                 // --- handle -j|--job to execute a Job
                 case JOB_PROCESS:
-                    logger.info("ELS: Job, version " + cfg.getVersionStamp());
+                    if (cfg.getRemoteType().equals("J"))
+                        logger.info("ELS: Remote Job, version " + cfg.getVersionStamp());
+                    else
+                        logger.info("ELS: Job, version " + cfg.getVersionStamp());
+
                     cfg.dump();
 
                     if (cfg.isNavigator())
@@ -613,6 +617,8 @@ public class Main
                     // run the Job
                     Job tmpJob = new Job(cfg, context, "temp");
                     Job job = tmpJob.load(cfg.getJobName());
+                    if (job == null)
+                        throw new MungeException("Job \"" + cfg.getJobName() + "\" could not be loaded");
                     job.process(cfg, context);
                     break;
 

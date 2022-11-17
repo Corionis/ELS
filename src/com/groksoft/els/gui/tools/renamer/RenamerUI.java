@@ -265,6 +265,24 @@ public class RenamerUI extends JDialog
         }
     }
 
+    private void actionFilesOnlyClicked(ActionEvent e)
+    {
+        if (e.getActionCommand() != null)
+        {
+            if (e.getActionCommand().equals("filesOnlyChanged"))
+            {
+                if (currentRenamer != null)
+                {
+                    if (currentRenamer.isFilesOnly() != checkBoxFilesOnly.isSelected())
+                    {
+                        setRenamerOptions(currentRenamer);
+                        processTable();
+                    }
+                }
+            }
+        }
+    }
+
     private void actionHelpClicked(MouseEvent e)
     {
         if (helpDialog == null)
@@ -489,6 +507,7 @@ public class RenamerUI extends JDialog
     {
         currentRenamer.setDataHasChanged();
         checkBoxRecursive.setSelected(false);
+        checkBoxFilesOnly.setSelected(false);
         comboBoxFilenameSegment.setSelectedIndex(0);
         switch (type)
         {
@@ -578,6 +597,7 @@ public class RenamerUI extends JDialog
 
             labelRenameType.setText(displayNames[currentRenamer.getType()]);
             checkBoxRecursive.setSelected(currentRenamer.isRecursive());
+            checkBoxFilesOnly.setSelected(currentRenamer.isFilesOnly());
             comboBoxFilenameSegment.setSelectedIndex(currentRenamer.getSegment());
 
             ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[currentRenamer.getType()]);
@@ -943,6 +963,7 @@ public class RenamerUI extends JDialog
         {
             renamer.setDataHasChanged();
             renamer.setIsRecursive(checkBoxRecursive.isSelected());
+            renamer.setIsFilesOnlyy(checkBoxFilesOnly.isSelected());
             renamer.setSegment(comboBoxFilenameSegment.getSelectedIndex());
             switch (renamer.getType())
             {
@@ -1183,7 +1204,9 @@ public class RenamerUI extends JDialog
         panelRenameType = new JPanel();
         hSpacer1 = new JPanel(null);
         labelRenameType = new JLabel();
+        panelCbOpts = new JPanel();
         checkBoxRecursive = new JCheckBox();
+        checkBoxFilesOnly = new JCheckBox();
         panelFilenameSegment = new JPanel();
         comboBoxFilenameSegment = new JComboBox<>();
         hSpacer2 = new JPanel(null);
@@ -1269,20 +1292,20 @@ public class RenamerUI extends JDialog
         //======== dialogPane ========
         {
             dialogPane.setBorder(new EmptyBorder(12, 12, 12, 12));
-            dialogPane.setPreferredSize(new Dimension(570, 470));
+            dialogPane.setPreferredSize(new Dimension(630, 470));
             dialogPane.setMinimumSize(new Dimension(150, 80));
             dialogPane.setLayout(new BorderLayout());
 
             //======== contentPanel ========
             {
-                contentPanel.setPreferredSize(new Dimension(570, 470));
+                contentPanel.setPreferredSize(new Dimension(614, 470));
                 contentPanel.setMinimumSize(new Dimension(140, 120));
                 contentPanel.setLayout(new BorderLayout());
 
                 //======== panelTop ========
                 {
                     panelTop.setMinimumSize(new Dimension(140, 38));
-                    panelTop.setPreferredSize(new Dimension(570, 38));
+                    panelTop.setPreferredSize(new Dimension(614, 38));
                     panelTop.setLayout(new BorderLayout());
 
                     //======== panelTopButtons ========
@@ -1416,13 +1439,36 @@ public class RenamerUI extends JDialog
                                 }
                                 topOptions.add(panelRenameType, BorderLayout.WEST);
 
-                                //---- checkBoxRecursive ----
-                                checkBoxRecursive.setText(guiContext.cfg.gs("Renamer.checkBoxRecursive.text"));
-                                checkBoxRecursive.setHorizontalAlignment(SwingConstants.CENTER);
-                                checkBoxRecursive.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxRecursive.toolTipText"));
-                                checkBoxRecursive.setActionCommand("recursiveChanged");
-                                checkBoxRecursive.addActionListener(e -> actionRecursiveClicked(e));
-                                topOptions.add(checkBoxRecursive, BorderLayout.CENTER);
+                                //======== panelCbOpts ========
+                                {
+                                    panelCbOpts.setMaximumSize(new Dimension(32767, 21));
+                                    panelCbOpts.setMinimumSize(new Dimension(120, 21));
+                                    panelCbOpts.setPreferredSize(new Dimension(240, 21));
+                                    panelCbOpts.setLayout(new BoxLayout(panelCbOpts, BoxLayout.X_AXIS));
+
+                                    //---- checkBoxRecursive ----
+                                    checkBoxRecursive.setText(guiContext.cfg.gs("Renamer.checkBoxRecursive.text"));
+                                    checkBoxRecursive.setHorizontalAlignment(SwingConstants.CENTER);
+                                    checkBoxRecursive.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxRecursive.toolTipText"));
+                                    checkBoxRecursive.setActionCommand("recursiveChanged");
+                                    checkBoxRecursive.setPreferredSize(new Dimension(120, 21));
+                                    checkBoxRecursive.setMaximumSize(new Dimension(32767, 21));
+                                    checkBoxRecursive.setMinimumSize(new Dimension(80, 21));
+                                    checkBoxRecursive.addActionListener(e -> actionRecursiveClicked(e));
+                                    panelCbOpts.add(checkBoxRecursive);
+
+                                    //---- checkBoxFilesOnly ----
+                                    checkBoxFilesOnly.setText(guiContext.cfg.gs("Renamer.checkBoxFilesOnly.text"));
+                                    checkBoxFilesOnly.setHorizontalAlignment(SwingConstants.CENTER);
+                                    checkBoxFilesOnly.setAlignmentX(0.5F);
+                                    checkBoxFilesOnly.setPreferredSize(new Dimension(120, 21));
+                                    checkBoxFilesOnly.setMaximumSize(new Dimension(32767, 21));
+                                    checkBoxFilesOnly.setActionCommand("filesOnlyChanged");
+                                    checkBoxFilesOnly.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxFilesOnly.toolTipText"));
+                                    checkBoxFilesOnly.addActionListener(e -> actionFilesOnlyClicked(e));
+                                    panelCbOpts.add(checkBoxFilesOnly);
+                                }
+                                topOptions.add(panelCbOpts, BorderLayout.CENTER);
 
                                 //======== panelFilenameSegment ========
                                 {
@@ -2160,7 +2206,9 @@ public class RenamerUI extends JDialog
     private JPanel panelRenameType;
     private JPanel hSpacer1;
     private JLabel labelRenameType;
+    private JPanel panelCbOpts;
     private JCheckBox checkBoxRecursive;
+    private JCheckBox checkBoxFilesOnly;
     private JPanel panelFilenameSegment;
     private JComboBox<String> comboBoxFilenameSegment;
     private JPanel hSpacer2;

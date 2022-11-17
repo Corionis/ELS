@@ -29,7 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Utils class of static utility methods.
+ * Utils class of static utility methods
  */
 public class Utils
 {
@@ -321,28 +321,6 @@ public class Utils
     }
 
     /**
-     * Read last modified time from path
-     *
-     * @param path Path to get time
-     * @return FileTime of path
-     */
-    public static FileTime getLocalFileTime(String path)
-    {
-        if (path != null && path.length() > 0)
-        {
-            try
-            {
-                return Files.getLastModifiedTime(Paths.get(path));
-            }
-            catch (Exception e)
-            {
-                // noop
-            }
-        }
-        return FileTime.from(0, TimeUnit.SECONDS);
-    }
-
-    /**
      * Get the local system hostname
      *
      * @return Hostname or empty
@@ -417,27 +395,25 @@ public class Utils
     }
 
     /**
-     * Get the right path segment
+     * Read last modified time from path
      *
-     * @param full Full path to parse
-     * @param sep  The directory separator for the local O/S, if null get separator from full
-     * @return String of right path
+     * @param path Path to get time
+     * @return FileTime of path
      */
-    public static String getRightPath(String full, String sep)
+    public static FileTime getLocalFileTime(String path)
     {
-        String path = "";
-        if (sep == null)
-            sep = getSeparatorFromPath(full);
-        int p = full.lastIndexOf(sep);
-        if (p >= 0 && p < full.length() - 1)
+        if (path != null && path.length() > 0)
         {
-            path = full.substring(p + 1);
+            try
+            {
+                return Files.getLastModifiedTime(Paths.get(path));
+            }
+            catch (Exception e)
+            {
+                // noop
+            }
         }
-        if (path.length() == 0)
-        {
-            path = full;
-        }
-        return path;
+        return FileTime.from(0, TimeUnit.SECONDS);
     }
 
     /**
@@ -503,6 +479,30 @@ public class Utils
             logger.info(site + " is disabled, port < 1");
         }
         return port;
+    }
+
+    /**
+     * Get the right path segment
+     *
+     * @param full Full path to parse
+     * @param sep  The directory separator for the local O/S, if null get separator from full
+     * @return String of right path
+     */
+    public static String getRightPath(String full, String sep)
+    {
+        String path = "";
+        if (sep == null)
+            sep = getSeparatorFromPath(full);
+        int p = full.lastIndexOf(sep);
+        if (p >= 0 && p < full.length() - 1)
+        {
+            path = full.substring(p + 1);
+        }
+        if (path.length() == 0)
+        {
+            path = full;
+        }
+        return path;
     }
 
     /**
@@ -817,26 +817,6 @@ public class Utils
     }
 
     /**
-     * Scrub invalid filename characters from a filename
-     * @param name Filename to scrub
-     * @return Scrubbed filename, may be the same if there were no invalid characters
-     */
-    public static String scrubFilename(String name)
-    {
-        String scubbed = name.replaceAll("[\\\\/:*?\"<>|]", "");
-        return scubbed;
-    }
-
-    /**
-     * Set Utils Context
-     * @param ctxt
-     */
-    public static void setContext(Context ctxt)
-    {
-        Utils.context = ctxt;
-    }
-
-    /**
      * Find the right-side Nth occurrence of a character
      *
      * @param value String to search
@@ -859,6 +839,25 @@ public class Utils
         return -1;
     }
 
+    /**
+     * Scrub invalid filename characters from a filename
+     * @param name Filename to scrub
+     * @return Scrubbed filename, may be the same if there were no invalid characters
+     */
+    public static String scrubFilename(String name)
+    {
+        String scubbed = name.replaceAll("[\\\\/:*?\"<>|]", "");
+        return scubbed;
+    }
+
+    /**
+     * Set Utils Context
+     * @param ctxt
+     */
+    public static void setContext(Context ctxt)
+    {
+        Utils.context = ctxt;
+    }
 
     /**
      * Replace source pipe character with path separators

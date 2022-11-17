@@ -419,7 +419,7 @@ public class Configuration
     /**
      * Gets remote flag
      *
-     * @return the remote flag, 0 = none, 1 = publisher, 2 = subscriber, 3 = pub terminal, 4 = pub listener, 5 = sub terminal, 6 = status server, 7 = force quit status server
+     * @return the remote flag
      */
     public int getOperation()
     {
@@ -1768,6 +1768,8 @@ public class Configuration
             this.operation = PUBLISHER_LISTENER;
         else if (type.equalsIgnoreCase("T"))
             this.operation = SUBSCRIBER_TERMINAL;
+        else if (type.equalsIgnoreCase("J"))
+            this.operation = JOB_PROCESS;
         else if (!type.equals("-"))
             throw new MungeException("Error: -r must be followed by B|L|P|S|T, case-insensitive");
     }

@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
-import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import com.groksoft.els.tools.renamer.RenamerTool;
