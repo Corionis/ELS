@@ -76,6 +76,10 @@ public class Preferences implements Serializable
     private int systemTwoNameWidth = 128;
     private int systemTwoSizeWidth = 80;
     private int tabPlacement = JTabbedPane.LEFT;
+    private int toolsEmptyDirectoryFinderHeight = 470;
+    private int toolsEmptyDirectoryFinderWidth = 570;
+    private int toolsEmptyDirectoryFinderXpos = -1;
+    private int toolsEmptyDirectoryFinderYpos = -1;
     private int toolsJunkRemoverDividerLocation = 142;
     private int toolsJunkRemoverHeight = 470;
     private int toolsJunkRemoverWidth = 570;
@@ -88,7 +92,6 @@ public class Preferences implements Serializable
     private int toolsRenamerYpos = -1;
     private transient Configuration cfg;
     private transient Context context;
-
     /**
      * Constructor
      */
@@ -161,6 +164,23 @@ public class Preferences implements Serializable
         fixColumnSizes(guiContext, null);
     }
 
+    /**
+     * Fix (set) the position of the Browser bottom divider
+     *
+     * @param guiContext
+     * @param bottomSize If < 0 use the bottomSize from Preferences
+     */
+    public void fixBrowserDivider(GuiContext guiContext, int bottomSize)
+    {
+        if (bottomSize < 0)
+            bottomSize = guiContext.preferences.getBrowserBottomSize();
+
+        int whole = guiContext.mainFrame.splitPaneBrowser.getHeight();
+        int divider = guiContext.mainFrame.splitPaneBrowser.getDividerSize();
+        int pos = whole - divider - bottomSize;
+        guiContext.mainFrame.splitPaneBrowser.setDividerLocation(pos);
+    }
+
     public void fixColumnSizes(GuiContext guiContext, JTable table)
     {
         // column sizes
@@ -219,23 +239,6 @@ public class Preferences implements Serializable
                 guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getSystemTwoDateWidth());
             }
         }
-    }
-
-    /**
-     * Fix (set) the position of the Browser bottom divider
-     *
-     * @param guiContext
-     * @param bottomSize If < 0 use the bottomSize from Preferences
-     */
-    public void fixBrowserDivider(GuiContext guiContext, int bottomSize)
-    {
-        if (bottomSize < 0)
-            bottomSize = guiContext.preferences.getBrowserBottomSize();
-
-        int whole = guiContext.mainFrame.splitPaneBrowser.getHeight();
-        int divider = guiContext.mainFrame.splitPaneBrowser.getDividerSize();
-        int pos = whole - divider - bottomSize;
-        guiContext.mainFrame.splitPaneBrowser.setDividerLocation(pos);
     }
 
     public int getAppHeight()
@@ -495,6 +498,26 @@ public class Preferences implements Serializable
         return tabPlacement;
     }
 
+    public int getToolsEmptyDirectoryFinderHeight()
+    {
+        return toolsEmptyDirectoryFinderHeight;
+    }
+
+    public int getToolsEmptyDirectoryFinderWidth()
+    {
+        return toolsEmptyDirectoryFinderWidth;
+    }
+
+    public int getToolsEmptyDirectoryFinderXpos()
+    {
+        return toolsEmptyDirectoryFinderXpos;
+    }
+
+    public int getToolsEmptyDirectoryFinderYpos()
+    {
+        return toolsEmptyDirectoryFinderYpos;
+    }
+
     public int getToolsJunkRemoverDividerLocation()
     {
         return toolsJunkRemoverDividerLocation;
@@ -660,6 +683,11 @@ public class Preferences implements Serializable
         this.centerDividerOrientation = centerDividerOrientation;
     }
 
+    public void setCfg(Configuration cfg)
+    {
+        this.cfg = cfg;
+    }
+
     public void setCollectionOneDateWidth(int collectionOneDateWidth)
     {
         this.collectionOneDateWidth = collectionOneDateWidth;
@@ -698,11 +726,6 @@ public class Preferences implements Serializable
     public void setCollectionTwoSizeWidth(int collectionTwoSizeWidth)
     {
         this.collectionTwoSizeWidth = collectionTwoSizeWidth;
-    }
-
-    public void setCfg(Configuration cfg)
-    {
-        this.cfg = cfg;
     }
 
     public void setDateFormat(String dateFormat)
@@ -908,6 +931,26 @@ public class Preferences implements Serializable
     public void setTabPlacement(int tabPlacement)
     {
         this.tabPlacement = tabPlacement;
+    }
+
+    public void setToolsEmptyDirectoryFinderHeight(int toolsEmptyDirectoryFinderHeight)
+    {
+        this.toolsEmptyDirectoryFinderHeight = toolsEmptyDirectoryFinderHeight;
+    }
+
+    public void setToolsEmptyDirectoryFinderWidth(int toolsEmptyDirectoryFinderWidth)
+    {
+        this.toolsEmptyDirectoryFinderWidth = toolsEmptyDirectoryFinderWidth;
+    }
+
+    public void setToolsEmptyDirectoryFinderXpos(int toolsEmptyDirectoryFinderXpos)
+    {
+        this.toolsEmptyDirectoryFinderXpos = toolsEmptyDirectoryFinderXpos;
+    }
+
+    public void setToolsEmptyDirectoryFinderYpos(int toolsEmptyDirectoryFinderYpos)
+    {
+        this.toolsEmptyDirectoryFinderYpos = toolsEmptyDirectoryFinderYpos;
     }
 
     public void setToolsJunkRemoverDividerLocation(int toolsJunkRemoverDividerLocation)

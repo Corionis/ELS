@@ -12,6 +12,9 @@ hs_err_pid*
 /mock/output/
 /mock/test/
 /mock/*.json
-/mock/scripts/linux/89-23-Navigator-rockplex.sh
 /deploy/ELS-nav.jar
+/mock/scripts/linux/89-23-Navigator-rockplex.sh
 /mock/scripts/linux/90-00-RockPlex-timeout.sh
+/mock/scripts/linux/90-23-Navigator-rockplex-test.sh
+/mock/scripts/linux/90-60_Publisher-RockPlex-test-job.sh
+/mock/scripts/linux/90-61_Publisher-Any-test-job.sh

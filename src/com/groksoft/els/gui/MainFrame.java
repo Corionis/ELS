@@ -641,7 +641,6 @@ public class MainFrame extends JFrame
                 menuItemEmptyFinder.setText(guiContext.cfg.gs("Navigator.menuItemEmptyFinder.text"));
                 menuItemEmptyFinder.setHorizontalAlignment(SwingConstants.LEFT);
                 menuItemEmptyFinder.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemEmptyFinder.setEnabled(false);
                 menuItemEmptyFinder.setMnemonic(guiContext.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
                 menuTools.add(menuItemEmptyFinder);
 

@@ -11,6 +11,7 @@ import com.groksoft.els.gui.browser.NavTransferHandler;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.jobs.JobsUI;
+import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinder;
 import com.groksoft.els.gui.tools.junkremover.JunkRemoverUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
 import com.groksoft.els.jobs.Job;
@@ -44,6 +45,7 @@ public class Navigator
 {
     public static GuiContext guiContext;
     public Bookmarks bookmarks;
+    public EmptyDirectoryFinder dialogEmptyDirectoryFinder;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
     public Job[] jobs;
@@ -1210,6 +1212,23 @@ public class Navigator
         //
         // -- Tools Menu
         //
+        // ---
+        // Empty Directory Finder
+        guiContext.mainFrame.menuItemEmptyFinder.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogEmptyDirectoryFinder == null || !dialogEmptyDirectoryFinder.isShowing())
+                {
+                    dialogEmptyDirectoryFinder = new EmptyDirectoryFinder(guiContext.mainFrame, guiContext);
+                    dialogEmptyDirectoryFinder.setVisible(true);
+                }
+                else
+                    dialogEmptyDirectoryFinder.requestFocus();
+            }
+        });
+
         // ---
         // Junk Remover Tool
         guiContext.mainFrame.menuItemJunk.addActionListener(new AbstractAction()
