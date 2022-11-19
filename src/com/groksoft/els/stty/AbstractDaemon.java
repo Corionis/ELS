@@ -195,7 +195,7 @@ public abstract class AbstractDaemon
             response = Utils.readStream(in, myRepo.getLibraryData().libraries.key);
 
             // loop if internal "ping" received
-            if (response != null && response.equalsIgnoreCase("heartbeat"))
+            if (response != null && response.startsWith("heartbeat"))
                 logger.trace("HEARTBEAT received");
             else
                 break;

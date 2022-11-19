@@ -458,7 +458,7 @@ public class ClientStty
             response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
 
             // loop if internal "ping" received
-            if (response != null && response.equalsIgnoreCase("heartbeat"))
+            if (response != null && response.startsWith("heartbeat"))
                 logger.trace("HEARTBEAT received");
             else
                 break;

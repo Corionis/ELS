@@ -186,7 +186,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     }
 
                     // loop if internal "ping" received
-                    if (line.equalsIgnoreCase("heartbeat"))
+                    if (line.startsWith("heartbeat"))
                     {
                         logger.trace("HEARTBEAT received");
                         continue;
