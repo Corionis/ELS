@@ -478,6 +478,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                             {
                                                 throw new MungeException("Publisher stty client failed to connect");
                                             }
+                                            if (context.clientStty.checkBannerCommands())
+                                            {
+                                                logger.info(cfg.gs("Transfer.received.subscriber.commands") + (cfg.isRequestCollection() ? "RequestCollection " : "") + (cfg.isRequestTargets() ? "RequestTargets" : ""));
+                                            }
                                         }
                                         response = transfer.copyGroup(group, totalSize, true);
                                         group.clear();

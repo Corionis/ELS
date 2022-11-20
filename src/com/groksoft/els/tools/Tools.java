@@ -141,6 +141,9 @@ public class Tools
 
     /**
      * Load all tools of a particular internalName from disk
+     * <p><br>
+     * Note the Duplicate Finder and Empty Directory Finder tools are run manually and
+     * are not appropriate for Jobs. Therefore they are not loaded here.
      *
      * @param guiContext The guiContext, null is allowed
      * @param internalName Internal name of desired tool, or null/empty for all tools
