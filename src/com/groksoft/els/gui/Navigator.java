@@ -48,6 +48,7 @@ public class Navigator
     public EmptyDirectoryFinder dialogEmptyDirectoryFinder;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
+    private Settings dialogSettings = null;
     public Job[] jobs;
     public boolean showHintTrackingButton = false;
     private int bottomSize;
@@ -447,7 +448,7 @@ public class Navigator
                     int selection = fc.showOpenDialog(guiContext.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (guiContext.cfg.isRemoteSession())
+                        if (guiContext.cfg.isRemoteSession() && guiContext.context.clientStty.isConnected())
                         {
                             int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
@@ -517,6 +518,10 @@ public class Navigator
                                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     guiContext.cfg.setRemoteType("-");
                                     return;
+                                }
+                                if (guiContext.context.clientStty.checkBannerCommands())
+                                {
+                                    logger.info(guiContext.cfg.gs("Transfer.received.subscriber.commands") + (guiContext.cfg.isRequestCollection() ? "RequestCollection " : "") + (guiContext.cfg.isRequestTargets() ? "RequestTargets" : ""));
                                 }
 
                                 // start the serveSftp client
@@ -1057,8 +1062,16 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                Settings dialog = new Settings(guiContext.mainFrame, guiContext);
-                dialog.setVisible(true);
+                if (dialogSettings == null || !dialogSettings.isShowing())
+                {
+                    dialogSettings = new Settings(guiContext.mainFrame, guiContext);
+                    dialogSettings.setVisible(true);
+                }
+                else
+                {
+                    dialogSettings.toFront();
+                    dialogSettings.requestFocus();
+                }
             }
         });
 
@@ -1225,7 +1238,10 @@ public class Navigator
                     dialogEmptyDirectoryFinder.setVisible(true);
                 }
                 else
+                {
+                    dialogEmptyDirectoryFinder.toFront();
                     dialogEmptyDirectoryFinder.requestFocus();
+                }
             }
         });
 
@@ -1242,7 +1258,10 @@ public class Navigator
                     dialogJunkRemover.setVisible(true);
                 }
                 else
+                {
+                    dialogJunkRemover.toFront();
                     dialogJunkRemover.requestFocus();
+                }
             }
         });
 
@@ -1259,7 +1278,10 @@ public class Navigator
                     dialogRenamer.setVisible(true);
                 }
                 else
+                {
+                    dialogJobs.toFront();
                     dialogRenamer.requestFocus();
+                }
             }
         });
 
@@ -1276,7 +1298,10 @@ public class Navigator
                     dialogJobs.setVisible(true);
                 }
                 else
+                {
+                    dialogJobs.toFront();
                     dialogJobs.requestFocus();
+                }
             }
         });
 

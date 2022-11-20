@@ -68,6 +68,7 @@ public class JunkTableModel extends DefaultTableModel
         return 0;
     }
 
+    @Override
     public Object getValueAt(int row, int column)
     {
         if (tool != null)

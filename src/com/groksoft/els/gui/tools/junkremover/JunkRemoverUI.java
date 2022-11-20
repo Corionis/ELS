@@ -108,7 +108,7 @@ public class JunkRemoverUI extends JDialog
             }
         });
 
-        adjustTable();
+        adjustJunkTable();
         loadConfigurations();
         deletedTools = new ArrayList<JunkRemoverTool>();
     }
@@ -364,7 +364,7 @@ public class JunkRemoverUI extends JDialog
         }
     }
 
-    private void adjustTable()
+    private void adjustJunkTable()
     {
         tableJunk.setModel(new JunkTableModel(guiContext.cfg));
         tableJunk.getTableHeader().setReorderingAllowed(false);

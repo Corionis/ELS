@@ -3,7 +3,9 @@ package com.groksoft.els.gui.tools.emptyDirectoryFinder;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
-import com.groksoft.els.tools.junkremover.JunkRemoverTool;
+import com.groksoft.els.repository.Item;
+import com.groksoft.els.repository.Library;
+import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,17 +14,16 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
 
-public class EmptyDirectoryFinder extends JDialog 
+public class EmptyDirectoryFinder extends JDialog
 {
-    private boolean autoDelete = false;
-    private ArrayList<JunkRemoverTool> deletedTools;
+    private ArrayList<Empty> empties;
     private GuiContext guiContext;
+    private boolean isPublisher = false;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
-    private SwingWorker<Void, Void> worker;
-//    private JunkRemoverTool workerJrt = null;
-//    private boolean workerRunning = false;
 
     private EmptyDirectoryFinder()
     {
@@ -71,23 +72,59 @@ public class EmptyDirectoryFinder extends JDialog
         };
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        deletedTools = new ArrayList<JunkRemoverTool>();
+        adjustEmptiesTable();
     }
 
-    private void actionAutoDeleteClicked(ActionEvent e)
+    private void actionAllClicked(ActionEvent e)
     {
-        if (e.getActionCommand() != null)
+        if (empties.size() > 0)
         {
-            if (e.getActionCommand().equals("autoDeleteChanged"))
+            for (int i = 0; i < empties.size(); ++i)
             {
-                autoDelete = checkBoxAutoDelete.isSelected();
+                empties.get(i).isSelected = true;
             }
+            EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
+            etm.fireTableDataChanged();
         }
     }
 
     private void actionCancelClicked(ActionEvent e)
     {
         setVisible(false);
+    }
+
+    private void actionDeleteClicked(ActionEvent e)
+    {
+        int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.delete.the.selected.empties"),
+                this.getTitle(), JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION)
+        {
+            for (int i = 0; i < empties.size(); ++i)
+            {
+                Empty empty = empties.get(i);
+                if (empty.isSelected)
+                {
+                    if (guiContext.context.transfer != null)
+                    {
+                        try
+                        {
+                            guiContext.browser.printLog(guiContext.cfg.gs("EmptyDirectoryFinder.removing") + empty.path);
+                            guiContext.context.transfer.remove(empty.path, true, guiContext.cfg.isRemoteSession());
+                        }
+                        catch (Exception ex)
+                        {
+                            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
+                            guiContext.browser.printLog(msg, true);
+                            JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+            }
+            Object[] opts = { "OK"};
+            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
+                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
+                    null, opts, opts[0]);
+        }
     }
 
     private void actionHelpClicked(MouseEvent e)
@@ -111,6 +148,19 @@ public class EmptyDirectoryFinder extends JDialog
         }
     }
 
+    private void actionNoneClicked(ActionEvent e)
+    {
+        if (empties.size() > 0)
+        {
+            for (int i = 0; i < empties.size(); ++i)
+            {
+                empties.get(i).isSelected = false;
+            }
+            EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
+            etm.fireTableDataChanged();
+        }
+    }
+
     private void actionOkClicked(ActionEvent e)
     {
         savePreferences();
@@ -119,6 +169,148 @@ public class EmptyDirectoryFinder extends JDialog
 
     private void actionRunClicked(ActionEvent e)
     {
+        String name = "";
+
+        // publisher or subscriber?
+        Object object = guiContext.browser.lastComponent;
+        if (object instanceof JTree)
+        {
+            JTree sourceTree = (JTree) object;
+            name = sourceTree.getName();
+        }
+        else if (object instanceof JTable)
+        {
+            JTable sourceTable = (JTable) object;
+            name = sourceTable.getName();
+        }
+        // do not allow system origin
+        if (name.toLowerCase().contains("system"))
+        {
+            Object[] opts = { "OK"};
+            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.please.select.a.collection.for.run"),
+                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                    null, opts, opts[0]);
+            return;
+        }
+        // which is it?
+        String which;
+        if (name.toLowerCase().endsWith("one"))
+        {
+            isPublisher = true;
+            which = guiContext.cfg.gs("Z.publisher");
+        }
+        else
+            which = guiContext.cfg.gs("Z.subscriber");
+
+        // prompt and process
+        int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(guiContext.cfg.gs("EmptyDirectoryFinder.run.tool.on.collection"), which), this.getTitle(), JOptionPane.YES_NO_OPTION);
+        if (reply == JOptionPane.YES_OPTION)
+        {
+            process();
+        }
+    }
+
+    private void adjustEmptiesTable()
+    {
+        empties = new ArrayList<Empty>();
+        tableEmpties.setModel(new EmptiesTableModel(guiContext.cfg, empties));
+
+        DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
+
+        // selection column
+        TableColumn column = tableEmpties.getColumnModel().getColumn(0);
+        column.setResizable(false);
+        column.setWidth(32);
+        column.setPreferredWidth(32);
+        column.setMaxWidth(32);
+        column.setMinWidth(32);
+
+        // path
+        column = tableEmpties.getColumnModel().getColumn(1);
+        cellRenderer.setHorizontalAlignment(JLabel.LEFT);
+        column.setMinWidth(32);
+        column.setCellRenderer(cellRenderer);
+        column.setResizable(true);
+    }
+
+    private void process()
+    {
+        try
+        {
+            Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+            if (repo != null)
+            {
+                empties = new ArrayList<Empty>();
+                EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
+                etm.setEmptyies(empties);
+                etm.fireTableDataChanged();
+
+                // get content
+                if (isPublisher)
+                {
+                    repo.scan();
+                }
+                else
+                {
+                    if (guiContext.cfg.isRemoteSession())
+                    {
+                        if (!guiContext.context.clientStty.isConnected())
+                        {
+                            Object[] opts = { "OK"};
+                            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("Browser.connection.lost"),
+                                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                                    null, opts, opts[0]);
+                        }
+
+                        if (guiContext.context.transfer != null)
+                        {
+                            guiContext.context.transfer.requestCollection();
+                        }
+                        else
+                        {
+                            Object[] opts = { "OK"};
+                            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
+                                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                                    null, opts, opts[0]);
+                        }
+                    }
+                    else
+                    {
+                        repo.scan();
+                    }
+                }
+                repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+                // scan for empties
+                int emptyCount = 0;
+                for (Library lib : repo.getLibraryData().libraries.bibliography)
+                {
+                    for (Item item : lib.items)
+                    {
+                        if (item.isDirectory() && item.getSize() == 0)
+                        {
+                            ++emptyCount;
+                            Empty empty = new Empty(item.getFullPath());
+                            empties.add(empty);
+                        }
+                    }
+                }
+                etm.fireTableDataChanged();
+                guiContext.mainFrame.labelStatusMiddle.setText(emptyCount + guiContext.cfg.gs("EmptyDirectoryFinder.empty.directories"));
+            }
+            else
+            {
+                Object[] opts = { "OK"};
+                JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.collection.not.loaded"),
+                        this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                        null, opts, opts[0]);
+            }
+        }
+        catch (Exception ex)
+        {
+            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
+            guiContext.browser.printLog(msg, true);
+            JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void savePreferences()
@@ -137,6 +329,22 @@ public class EmptyDirectoryFinder extends JDialog
 
     // ================================================================================================================
 
+    public class Empty
+    {
+        boolean isSelected = false;
+        String path = "";
+
+        public Empty(String path)
+        {
+            this.path = path;
+        }
+    }
+
+    // ================================================================================================================
+
+    // <editor-fold desc="Generated code (Fold)">
+    // @formatter:off
+    //
     private void initComponents()
     {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -144,13 +352,16 @@ public class EmptyDirectoryFinder extends JDialog
         contentPanel = new JPanel();
         panelTop = new JPanel();
         panelTopButtons = new JPanel();
-        checkBoxAutoDelete = new JCheckBox();
-        hSpacerBeforeRun = new JPanel(null);
         buttonRun = new JButton();
+        hSpacerBeforeRun = new JPanel(null);
+        buttonDelete = new JButton();
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         scrollPaneEmpties = new JScrollPane();
         tableEmpties = new JTable();
+        panelOptionsButtons = new JPanel();
+        buttonAll = new JButton();
+        buttonNone = new JButton();
         buttonBar = new JPanel();
         okButton = new JButton();
         cancelButton = new JButton();
@@ -189,24 +400,24 @@ public class EmptyDirectoryFinder extends JDialog
                         panelTopButtons.setMinimumSize(new Dimension(140, 38));
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
-                        //---- checkBoxAutoDelete ----
-                        checkBoxAutoDelete.setText(guiContext.cfg.gs("EmptyDirectoryFinder.checkBoxAutoDelete.text"));
-                        checkBoxAutoDelete.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.checkBoxAutoDelete.toolTipText"));
-                        checkBoxAutoDelete.setActionCommand("autoDeleteChanged");
-                        checkBoxAutoDelete.addActionListener(e -> actionAutoDeleteClicked(e));
-                        panelTopButtons.add(checkBoxAutoDelete);
-
-                        //---- hSpacerBeforeRun ----
-                        hSpacerBeforeRun.setMinimumSize(new Dimension(22, 6));
-                        hSpacerBeforeRun.setPreferredSize(new Dimension(22, 6));
-                        panelTopButtons.add(hSpacerBeforeRun);
-
                         //---- buttonRun ----
                         buttonRun.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonRun.text"));
                         buttonRun.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonRun.mnemonic").charAt(0));
                         buttonRun.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonRun.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
                         panelTopButtons.add(buttonRun);
+
+                        //---- hSpacerBeforeRun ----
+                        hSpacerBeforeRun.setMinimumSize(new Dimension(22, 6));
+                        hSpacerBeforeRun.setPreferredSize(new Dimension(22, 6));
+                        panelTopButtons.add(hSpacerBeforeRun);
+
+                        //---- buttonDelete ----
+                        buttonDelete.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonDelete.text"));
+                        buttonDelete.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonDelete.mnemonic_2").charAt(0));
+                        buttonDelete.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonDelete.toolTipText"));
+                        buttonDelete.addActionListener(e -> actionDeleteClicked(e));
+                        panelTopButtons.add(buttonDelete);
                     }
                     panelTop.add(panelTopButtons, BorderLayout.WEST);
 
@@ -245,6 +456,34 @@ public class EmptyDirectoryFinder extends JDialog
                     scrollPaneEmpties.setViewportView(tableEmpties);
                 }
                 contentPanel.add(scrollPaneEmpties, BorderLayout.CENTER);
+
+                //======== panelOptionsButtons ========
+                {
+                    panelOptionsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
+
+                    //---- buttonAll ----
+                    buttonAll.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonAll.text"));
+                    buttonAll.setFont(buttonAll.getFont().deriveFont(buttonAll.getFont().getSize() - 2f));
+                    buttonAll.setPreferredSize(new Dimension(78, 24));
+                    buttonAll.setMinimumSize(new Dimension(78, 24));
+                    buttonAll.setMaximumSize(new Dimension(78, 24));
+                    buttonAll.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonAll.mnemonic").charAt(0));
+                    buttonAll.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonAll.toolTipText"));
+                    buttonAll.addActionListener(e -> actionAllClicked(e));
+                    panelOptionsButtons.add(buttonAll);
+
+                    //---- buttonNone ----
+                    buttonNone.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonNone.text"));
+                    buttonNone.setFont(buttonNone.getFont().deriveFont(buttonNone.getFont().getSize() - 2f));
+                    buttonNone.setPreferredSize(new Dimension(78, 24));
+                    buttonNone.setMinimumSize(new Dimension(78, 24));
+                    buttonNone.setMaximumSize(new Dimension(78, 24));
+                    buttonNone.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonNone.mnemonic_2").charAt(0));
+                    buttonNone.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonNone.toolTipText"));
+                    buttonNone.addActionListener(e -> actionNoneClicked(e));
+                    panelOptionsButtons.add(buttonNone);
+                }
+                contentPanel.add(panelOptionsButtons, BorderLayout.SOUTH);
             }
             dialogPane.add(contentPanel, BorderLayout.CENTER);
 
@@ -284,15 +523,22 @@ public class EmptyDirectoryFinder extends JDialog
     private JPanel contentPanel;
     private JPanel panelTop;
     private JPanel panelTopButtons;
-    private JCheckBox checkBoxAutoDelete;
-    private JPanel hSpacerBeforeRun;
     private JButton buttonRun;
+    private JPanel hSpacerBeforeRun;
+    private JButton buttonDelete;
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JScrollPane scrollPaneEmpties;
     private JTable tableEmpties;
+    private JPanel panelOptionsButtons;
+    private JButton buttonAll;
+    private JButton buttonNone;
     private JPanel buttonBar;
     private JButton okButton;
     private JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
+
+    //
+    // @formatter:on
+    // </editor-fold>
 }

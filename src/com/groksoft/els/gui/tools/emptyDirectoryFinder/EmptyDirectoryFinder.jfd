@@ -34,12 +34,12 @@ new FormModel {
 						} ) {
 							name: "panelTopButtons"
 							"minimumSize": new java.awt.Dimension( 140, 38 )
-							add( new FormComponent( "javax.swing.JCheckBox" ) {
-								name: "checkBoxAutoDelete"
-								"text": new FormMessage( null, "EmptyDirectoryFinder.checkBoxAutoDelete.text" )
-								"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.checkBoxAutoDelete.toolTipText" )
-								"actionCommand": "autoDeleteChanged"
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAutoDeleteClicked", true ) )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonRun"
+								"text": new FormMessage( null, "EmptyDirectoryFinder.buttonRun.text" )
+								"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonRun.mnemonic" )
+								"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonRun.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )
 							} )
 							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 								name: "hSpacerBeforeRun"
@@ -47,11 +47,11 @@ new FormModel {
 								"preferredSize": new java.awt.Dimension( 22, 6 )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
-								name: "buttonRun"
-								"text": new FormMessage( null, "EmptyDirectoryFinder.buttonRun.text" )
-								"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonRun.mnemonic" )
-								"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonRun.toolTipText" )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )
+								name: "buttonDelete"
+								"text": new FormMessage( null, "EmptyDirectoryFinder.buttonDelete.text" )
+								"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonDelete.mnemonic_2" )
+								"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonDelete.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "West"
@@ -90,6 +90,37 @@ new FormModel {
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {
 						"value": "Center"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+						"alignment": 0
+						"vgap": 2
+						"hgap": 4
+					} ) {
+						name: "panelOptionsButtons"
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "buttonAll"
+							"text": new FormMessage( null, "EmptyDirectoryFinder.buttonAll.text" )
+							"font": &SwingDerivedFont0 new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
+							"preferredSize": new java.awt.Dimension( 78, 24 )
+							"minimumSize": new java.awt.Dimension( 78, 24 )
+							"maximumSize": new java.awt.Dimension( 78, 24 )
+							"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonAll.mnemonic" )
+							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonAll.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAllClicked", true ) )
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "buttonNone"
+							"text": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.text" )
+							"font": #SwingDerivedFont0
+							"preferredSize": new java.awt.Dimension( 78, 24 )
+							"minimumSize": new java.awt.Dimension( 78, 24 )
+							"maximumSize": new java.awt.Dimension( 78, 24 )
+							"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.mnemonic_2" )
+							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionNoneClicked", true ) )
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "South"
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
