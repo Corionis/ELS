@@ -17,7 +17,7 @@ import javax.swing.border.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 
-public class EmptyDirectoryFinder extends JDialog
+public class EmptyDirectoryFinderUI extends JDialog
 {
     private ArrayList<Empty> empties;
     private GuiContext guiContext;
@@ -25,12 +25,12 @@ public class EmptyDirectoryFinder extends JDialog
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
 
-    private EmptyDirectoryFinder()
+    private EmptyDirectoryFinderUI()
     {
         // hide default constructor
     }
 
-    public EmptyDirectoryFinder(Window owner, GuiContext guiContext)
+    public EmptyDirectoryFinderUI(Window owner, GuiContext guiContext)
     {
         super(owner);
         this.guiContext = guiContext;
@@ -242,7 +242,7 @@ public class EmptyDirectoryFinder extends JDialog
             {
                 empties = new ArrayList<Empty>();
                 EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
-                etm.setEmptyies(empties);
+                etm.setEmpties(empties);
                 etm.fireTableDataChanged();
 
                 // get content
@@ -374,7 +374,7 @@ public class EmptyDirectoryFinder extends JDialog
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                EmptyDirectoryFinder.this.windowClosing(e);
+                EmptyDirectoryFinderUI.this.windowClosing(e);
             }
         });
         Container contentPane = getContentPane();

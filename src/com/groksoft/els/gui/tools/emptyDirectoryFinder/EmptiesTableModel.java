@@ -1,7 +1,6 @@
 package com.groksoft.els.gui.tools.emptyDirectoryFinder;
 
 import com.groksoft.els.Configuration;
-import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -10,9 +9,9 @@ import java.util.ArrayList;
 public class EmptiesTableModel extends DefaultTableModel
 {
     private Configuration cfg;
-    private ArrayList<EmptyDirectoryFinder.Empty> empties;
+    private ArrayList<EmptyDirectoryFinderUI.Empty> empties;
 
-    public EmptiesTableModel(Configuration cfg, ArrayList<EmptyDirectoryFinder.Empty> empties)
+    public EmptiesTableModel(Configuration cfg, ArrayList<EmptyDirectoryFinderUI.Empty> empties)
     {
         super();
         this.cfg = cfg;
@@ -83,7 +82,7 @@ public class EmptiesTableModel extends DefaultTableModel
         return false;
     }
 
-    public void setEmptyies(ArrayList<EmptyDirectoryFinder.Empty> empties)
+    public void setEmpties(ArrayList<EmptyDirectoryFinderUI.Empty> empties)
     {
         this.empties = empties;
     }
