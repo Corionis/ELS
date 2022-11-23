@@ -507,7 +507,7 @@ public class RenamerUI extends JDialog
     {
         currentRenamer.setDataHasChanged();
         checkBoxRecursive.setSelected(false);
-        checkBoxFilesOnly.setSelected(false);
+        checkBoxFilesOnly.setSelected(true);
         comboBoxFilenameSegment.setSelectedIndex(0);
         switch (type)
         {

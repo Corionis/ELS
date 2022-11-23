@@ -11,6 +11,7 @@ import com.groksoft.els.gui.browser.NavTransferHandler;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.jobs.JobsUI;
+import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.groksoft.els.gui.tools.junkremover.JunkRemoverUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
@@ -45,6 +46,7 @@ public class Navigator
 {
     public static GuiContext guiContext;
     public Bookmarks bookmarks;
+    public DuplicateFinderUI dialogDuplicateFinder;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
@@ -1225,6 +1227,26 @@ public class Navigator
         //
         // -- Tools Menu
         //
+        // ---
+        // Duplicate Finder
+        guiContext.mainFrame.menuItemDuplicates.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogDuplicateFinder == null || !dialogDuplicateFinder.isShowing())
+                {
+                    dialogDuplicateFinder = new DuplicateFinderUI(guiContext.mainFrame, guiContext);
+                    dialogDuplicateFinder.setVisible(true);
+                }
+                else
+                {
+                    dialogDuplicateFinder.toFront();
+                    dialogDuplicateFinder.requestFocus();
+                }
+            }
+        });
+
         // ---
         // Empty Directory Finder
         guiContext.mainFrame.menuItemEmptyFinder.addActionListener(new AbstractAction()

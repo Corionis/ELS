@@ -1,0 +1,144 @@
+JFDML JFormDesigner: "8.0.0.0.194" Java: "17.0.4.1" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.groksoft.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "DuplicateFinder"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
+			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.bundle()"
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"defaultCloseOperation": 0
+			"title": new FormMessage( null, "DuplicateFinder.this.title" )
+			"name": "dialogDuplicateFinderUI"
+			"minimumSize": new java.awt.Dimension( 150, 126 )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"minimumSize": new java.awt.Dimension( 214, 152 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "contentPanel"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+						name: "panelTop"
+						"minimumSize": new java.awt.Dimension( 140, 38 )
+						"preferredSize": new java.awt.Dimension( 570, 38 )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 0
+							"hgap": 2
+							"vgap": 4
+						} ) {
+							name: "panelTopButtons"
+							"minimumSize": new java.awt.Dimension( 140, 38 )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "checkBoxCrossLibrary"
+								"text": new FormMessage( null, "DuplicateFinder.checkBoxCrossLibrary.text" )
+								"actionCommand": "crossLibraryChanged"
+								"toolTipText": new FormMessage( null, "DuplicateFinder.checkBoxCrossLibrary.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCrossLibraryClicked", true ) )
+							} )
+							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+								name: "hSpacerBeforeRun"
+								"minimumSize": new java.awt.Dimension( 22, 6 )
+								"preferredSize": new java.awt.Dimension( 22, 6 )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonRun"
+								"text": new FormMessage( null, "DuplicateFinder.buttonRun.text" )
+								"mnemonic": new FormMessage( null, "DuplicateFinder.buttonRun.mnemonic" )
+								"toolTipText": new FormMessage( null, "DuplicateFinder.buttonRun.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "West"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 2
+							"hgap": 4
+							"vgap": 4
+						} ) {
+							name: "panelHelp"
+							"preferredSize": new java.awt.Dimension( 40, 38 )
+							"minimumSize": new java.awt.Dimension( 0, 38 )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "labelHelp"
+								"icon": new com.jformdesigner.model.SwingIcon( 2, "OptionPane.informationIcon" )
+								"preferredSize": new java.awt.Dimension( 32, 30 )
+								"minimumSize": new java.awt.Dimension( 32, 30 )
+								"maximumSize": new java.awt.Dimension( 32, 30 )
+								"toolTipText": new FormMessage( null, "DuplicateFinder.labelHelp.toolTipText" )
+								"cursor": new java.awt.Cursor( 12 )
+								"iconTextGap": 0
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "Center"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "North"
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "scrollPaneDupes"
+						add( new FormComponent( "javax.swing.JTable" ) {
+							name: "tableDupes"
+							"fillsViewportHeight": true
+							"selectionMode": 0
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+						name: "panelBottom"
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "labelStatus"
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "Center"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+							"$columnSpecs": "0:1.0, 80, 80"
+							"$rowSpecs": "0"
+							"$hGap": 5
+							"$vGap": 5
+						} ) {
+							name: "buttonBar"
+							"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "okButton"
+								"text": new FormMessage( null, "DuplicateFinder.okButton.text" )
+								"toolTipText": new FormMessage( null, "Z.save.changes.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 1
+								"gridy": 0
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "cancelButton"
+								"text": new FormMessage( null, "DuplicateFinder.cancelButton.text" )
+								"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
+							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+								"gridx": 2
+								"gridy": 0
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "After"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "South"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 570, 470 )
+		} )
+	}
+}

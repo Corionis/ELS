@@ -76,6 +76,10 @@ public class Preferences implements Serializable
     private int systemTwoNameWidth = 128;
     private int systemTwoSizeWidth = 80;
     private int tabPlacement = JTabbedPane.LEFT;
+    private int toolsDuplicateFinderHeight = 470;
+    private int toolsDuplicateFinderWidth = 570;
+    private int toolsDuplicateFinderXpos = -1;
+    private int toolsDuplicateFinderYpos = -1;
     private int toolsEmptyDirectoryFinderHeight = 470;
     private int toolsEmptyDirectoryFinderWidth = 570;
     private int toolsEmptyDirectoryFinderXpos = -1;
@@ -496,6 +500,26 @@ public class Preferences implements Serializable
     public int getTabPlacementIndex()
     {
         return tabPlacement;
+    }
+
+    public int getToolsDuplicateFinderHeight()
+    {
+        return toolsDuplicateFinderHeight;
+    }
+
+    public int getToolsDuplicateFinderWidth()
+    {
+        return toolsDuplicateFinderWidth;
+    }
+
+    public int getToolsDuplicateFinderXpos()
+    {
+        return toolsDuplicateFinderXpos;
+    }
+
+    public int getToolsDuplicateFinderYpos()
+    {
+        return toolsDuplicateFinderYpos;
     }
 
     public int getToolsEmptyDirectoryFinderHeight()
@@ -931,6 +955,26 @@ public class Preferences implements Serializable
     public void setTabPlacement(int tabPlacement)
     {
         this.tabPlacement = tabPlacement;
+    }
+
+    public void setToolsDuplicateFinderHeight(int toolsDuplicateFinderHeight)
+    {
+        this.toolsDuplicateFinderHeight = toolsDuplicateFinderHeight;
+    }
+
+    public void setToolsDuplicateFinderWidth(int toolsDuplicateFinderWidth)
+    {
+        this.toolsDuplicateFinderWidth = toolsDuplicateFinderWidth;
+    }
+
+    public void setToolsDuplicateFinderXpos(int toolsDuplicateFinderXpos)
+    {
+        this.toolsDuplicateFinderXpos = toolsDuplicateFinderXpos;
+    }
+
+    public void setToolsDuplicateFinderYpos(int toolsDuplicateFinderYpos)
+    {
+        this.toolsDuplicateFinderYpos = toolsDuplicateFinderYpos;
     }
 
     public void setToolsEmptyDirectoryFinderHeight(int toolsEmptyDirectoryFinderHeight)

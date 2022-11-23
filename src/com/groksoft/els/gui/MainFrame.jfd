@@ -713,7 +713,6 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Duplicates.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Duplicates.mnemonic" )
 						"horizontalTextPosition": 2
-						"enabled": false
 						"horizontalAlignment": 2
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {

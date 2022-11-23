@@ -633,7 +633,6 @@ public class MainFrame extends JFrame
                 menuItemDuplicates.setText(guiContext.cfg.gs("Navigator.menu.Duplicates.text"));
                 menuItemDuplicates.setMnemonic(guiContext.cfg.gs("Navigator.menu.Duplicates.mnemonic").charAt(0));
                 menuItemDuplicates.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemDuplicates.setEnabled(false);
                 menuItemDuplicates.setHorizontalAlignment(SwingConstants.LEFT);
                 menuTools.add(menuItemDuplicates);
 
