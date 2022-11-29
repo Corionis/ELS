@@ -185,10 +185,9 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         break; // break read loop and let the connection be closed
                     }
 
-                    // loop if internal "ping" received
-                    if (line.startsWith("heartbeat"))
+                    if (line.startsWith("ping"))
                     {
-                        logger.trace("HEARTBEAT received");
+                        logger.trace("HEARTBEAT received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
                         continue;
                     }
 

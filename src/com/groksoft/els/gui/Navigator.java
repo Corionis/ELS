@@ -13,7 +13,7 @@ import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.jobs.JobsUI;
 import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
-import com.groksoft.els.gui.tools.junkremover.JunkRemoverUI;
+import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.jobs.Task;

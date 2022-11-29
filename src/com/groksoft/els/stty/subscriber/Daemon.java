@@ -1,5 +1,7 @@
 package com.groksoft.els.stty.subscriber;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.groksoft.els.*;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
@@ -9,9 +11,7 @@ import com.groksoft.els.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
+import java.io.*;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.file.Files;
@@ -56,6 +56,27 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         data += "  Connected to: " + address + "\r\n";
         return data;
     } // dumpStatistics
+
+    public void exportLibrary(String filename) throws MungeException
+    {
+        String json;
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        logger.info("Writing library file " + filename);
+        Repository repo = myRepo.cloneNoItems(); // clone with no items
+
+        json = gson.toJson(repo.getLibraryData());
+        try
+        {
+            PrintWriter outputStream = new PrintWriter(filename);
+            outputStream.println(json);
+            outputStream.close();
+        }
+        catch (FileNotFoundException fnf)
+        {
+            throw new MungeException("Exception while writing library file " + filename + " trace: " + Utils.getStackTrace(fnf));
+        }
+    }
 
     /**
      * Get the next available token trimmed
@@ -512,10 +533,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                 else
                                     location = fn;
                                 location += "_library-generated" + stamp + ".json";
-                                cfg.setExportCollectionFilename(location);
+                                exportLibrary(location);
+//                                cfg.setExportCollectionFilename(location);
 
                                 // do not scan
-                                myRepo.exportItems(false);
+//                                myRepo.exportItems(false);
 
                                 response = new String(Files.readAllBytes(Paths.get(location)));
                             }

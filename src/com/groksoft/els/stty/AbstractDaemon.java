@@ -58,7 +58,7 @@ public abstract class AbstractDaemon
     } // constructor
 
     /**
-     * Create and start the internal heartbeat "ping"
+     * Create and start the internal heartbeat
      */
     protected void createHeartBeat()
     {
@@ -68,12 +68,13 @@ public abstract class AbstractDaemon
             {
                 try
                 {
+                    String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
                     while (true)
                     {
                         sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
                         if (heartBeatEnabled)
                         {
-                            send("heartbeat", context.main.trace ? "HEARTBEAT sent" : "");
+                            send("ping", context.main.trace ? "HEARTBEAT sent" + desc : "");
                         }
                     }
                 }
@@ -93,31 +94,31 @@ public abstract class AbstractDaemon
     }
 
     /**
-     * Temporarily disable the internal heartbeat "ping"
+     * Temporarily disable the internal heartbeat
      */
     private void disableHeartBeat()
     {
         if (heartBeat != null)
         {
             if (!heartBeatEnabled)
-                logger.warn("Heartbeat already disabled");
+                logger.warn("heartbeat already disabled");
             else
-                logger.trace("Heartbeat disabled");
+                logger.trace("heartbeat disabled");
             heartBeatEnabled = false;
         }
     }
 
     /**
-     * Enable the internal heartbeat "ping"
+     * Enable the internal heartbeat
      */
     private void enableHeartBeat()
     {
         if (heartBeat != null)
         {
             if (heartBeatEnabled)
-                logger.warn("Heartbeat already enabled");
+                logger.warn("heartbeat already enabled");
             else
-                logger.trace("Heartbeat enabled");
+                logger.trace("heartbeat enabled");
             heartBeatEnabled = true;
         }
     }
@@ -194,9 +195,8 @@ public abstract class AbstractDaemon
         {
             response = Utils.readStream(in, myRepo.getLibraryData().libraries.key);
 
-            // loop if internal "ping" received
-            if (response != null && response.startsWith("heartbeat"))
-                logger.trace("HEARTBEAT received");
+            if (response != null && response.startsWith("ping"))
+                logger.trace("HEARTBEAT received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }
@@ -233,12 +233,12 @@ public abstract class AbstractDaemon
         if (getSocket().isClosed())
             throw new MungeException("socket closed");
 
-        if (!message.equalsIgnoreCase("heartbeat"))
+        if (!message.equalsIgnoreCase("ping"))
             disableHeartBeat();
 
         Utils.writeStream(out, myRepo.getLibraryData().libraries.key, message);
 
-        if (!message.equalsIgnoreCase("heartbeat"))
+        if (!message.equalsIgnoreCase("ping"))
             enableHeartBeat();
     }
 

@@ -2076,7 +2076,7 @@ public class JobsUI extends JDialog
 
                 //---- cancelButton ----
                 cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
-                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

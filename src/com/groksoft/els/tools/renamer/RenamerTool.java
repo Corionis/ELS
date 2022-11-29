@@ -44,7 +44,7 @@ public class RenamerTool extends AbstractTool
     private int type = 0;
     private int segment = 0; // 0 = name only, 1 = extension only, 2 = whole filename
     private boolean recursive = false;
-    private boolean filesOnly = false;
+    private boolean filesOnly = true;
     private String text1 = "";
     private String text2 = "";
     private String text3 = "";

@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -24,6 +26,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     private boolean isPublisher = false;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
+    private final EmptyDirectoryFinderUI thisDialog = this;
 
     private EmptyDirectoryFinderUI()
     {
@@ -67,7 +70,7 @@ public class EmptyDirectoryFinderUI extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                cancelButton.doClick();
+                closeButton.doClick();
             }
         };
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -88,7 +91,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         }
     }
 
-    private void actionCancelClicked(ActionEvent e)
+    private void actionCloseClicked(ActionEvent e)
     {
         setVisible(false);
     }
@@ -237,65 +240,123 @@ public class EmptyDirectoryFinderUI extends JDialog
     {
         try
         {
-            Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+            final Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
             if (repo != null)
             {
+                buttonDelete.setEnabled(false);
+                buttonRun.setEnabled(false);
+                closeButton.setEnabled(false);
                 empties = new ArrayList<Empty>();
                 EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
                 etm.setEmpties(empties);
                 etm.fireTableDataChanged();
 
-                // get content
-                if (isPublisher)
-                {
-                    repo.scan();
-                }
-                else
-                {
-                    if (guiContext.cfg.isRemoteSession())
-                    {
-                        if (!guiContext.context.clientStty.isConnected())
-                        {
-                            Object[] opts = { "OK"};
-                            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("Browser.connection.lost"),
-                                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
-                                    null, opts, opts[0]);
-                        }
+                labelStatus.setText("Working ...");
+                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                        if (guiContext.context.transfer != null)
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void >()
+                {
+                    int emptyCount = 0;
+                    int totalDirectories = 0;
+                    int totalItems = 0;
+
+                    @Override
+                    protected Void doInBackground() throws Exception
+                    {
+                        // get content
+                        if (isPublisher)
                         {
-                            guiContext.context.transfer.requestCollection();
+                            labelStatus.setText("Scanning ...");
+                            repo.scan();
                         }
                         else
                         {
-                            Object[] opts = { "OK"};
-                            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
-                                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
-                                    null, opts, opts[0]);
+                            if (guiContext.cfg.isRemoteSession())
+                            {
+                                if (!guiContext.context.clientStty.isConnected())
+                                {
+                                    Object[] opts = { "OK"};
+                                    JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Browser.connection.lost"),
+                                            thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                                            null, opts, opts[0]);
+                                }
+
+                                if (guiContext.context.transfer != null)
+                                {
+                                    labelStatus.setText("Requesting collection data from remote ...");
+                                    guiContext.context.transfer.requestCollection();
+                                }
+                                else
+                                {
+                                    Object[] opts = { "OK"};
+                                    JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
+                                            thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
+                                            null, opts, opts[0]);
+                                }
+                            }
+                            else
+                            {
+                                labelStatus.setText("Scanning ...");
+                                repo.scan();
+                            }
                         }
-                    }
-                    else
-                    {
-                        repo.scan();
-                    }
-                }
-                repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
-                // scan for empties
-                int emptyCount = 0;
-                for (Library lib : repo.getLibraryData().libraries.bibliography)
-                {
-                    for (Item item : lib.items)
-                    {
-                        if (item.isDirectory() && item.getSize() == 0)
+                        final Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+
+                        // scan for empties
+                        for (Library lib : repo.getLibraryData().libraries.bibliography)
                         {
-                            ++emptyCount;
-                            Empty empty = new Empty(item.getFullPath());
-                            empties.add(empty);
+                            String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
+                            labelStatus.setText(msg);
+                            for (Item item : lib.items)
+                            {
+                                if (item.isDirectory())
+                                {
+                                    ++totalDirectories;
+                                    if (item.getSize() == 0)
+                                    {
+                                        ++emptyCount;
+                                        Empty empty = new Empty(item.getFullPath());
+                                        empties.add(empty);
+                                    }
+                                }
+                                else
+                                    ++totalItems;
+                            }
                         }
-                    }
+
+                        labelStatus.setText("  " + java.text.MessageFormat.format(guiContext.cfg.gs("EmptyDirectoryFinder.empty.items.directories"),
+                                emptyCount, totalItems, totalDirectories));
+
+                        etm.fireTableDataChanged();
+                        guiContext.mainFrame.labelStatusMiddle.setText(emptyCount + guiContext.cfg.gs("EmptyDirectoryFinder.empty.directories"));
+
+                        return null;
+                    };
+                };
+                if (worker != null)
+                {
+                    worker.addPropertyChangeListener(new PropertyChangeListener()
+                    {
+                        @Override
+                        public void propertyChange(PropertyChangeEvent e)
+                        {
+                            if (e.getPropertyName().equals("state"))
+                            {
+                                if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                {
+                                    buttonDelete.setEnabled(true);
+                                    buttonRun.setEnabled(true);
+                                    closeButton.setEnabled(true);
+                                    EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
+                                    etm.setEmpties(empties);
+                                    etm.fireTableDataChanged();
+                                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                }
+                            }
+                        }
+                    });
                 }
-                etm.fireTableDataChanged();
-                guiContext.mainFrame.labelStatusMiddle.setText(emptyCount + guiContext.cfg.gs("EmptyDirectoryFinder.empty.directories"));
+                worker.execute();
             }
             else
             {
@@ -320,11 +381,6 @@ public class EmptyDirectoryFinderUI extends JDialog
         Point location = this.getLocation();
         guiContext.preferences.setToolsEmptyDirectoryFinderXpos(location.x);
         guiContext.preferences.setToolsEmptyDirectoryFinderYpos(location.y);
-    }
-
-    private void windowClosing(WindowEvent e)
-    {
-        cancelButton.doClick();
     }
 
     // ================================================================================================================
@@ -362,21 +418,16 @@ public class EmptyDirectoryFinderUI extends JDialog
         panelOptionsButtons = new JPanel();
         buttonAll = new JButton();
         buttonNone = new JButton();
+        panelBottom = new JPanel();
+        labelStatus = new JLabel();
         buttonBar = new JPanel();
-        okButton = new JButton();
-        cancelButton = new JButton();
+        closeButton = new JButton();
 
         //======== this ========
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle(guiContext.cfg.gs("EmptyDirectoryFinder.this.title"));
         setMinimumSize(new Dimension(150, 126));
         setName("dialogEmptyDirectoryUI");
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                EmptyDirectoryFinderUI.this.windowClosing(e);
-            }
-        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
@@ -487,30 +538,29 @@ public class EmptyDirectoryFinderUI extends JDialog
             }
             dialogPane.add(contentPanel, BorderLayout.CENTER);
 
-            //======== buttonBar ========
+            //======== panelBottom ========
             {
-                buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
-                buttonBar.setLayout(new GridBagLayout());
-                ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 85, 80};
-                ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
+                panelBottom.setLayout(new BorderLayout());
+                panelBottom.add(labelStatus, BorderLayout.CENTER);
 
-                //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("EmptyDirectoryFinder.okButton.text"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
-                okButton.addActionListener(e -> actionOkClicked(e));
-                buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 5), 0, 0));
+                //======== buttonBar ========
+                {
+                    buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
+                    buttonBar.setLayout(new GridBagLayout());
+                    ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 85, 80};
+                    ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
-                //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("EmptyDirectoryFinder.cancelButton.text"));
-                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
-                cancelButton.addActionListener(e -> actionCancelClicked(e));
-                buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 0, 0), 0, 0));
+                    //---- closeButton ----
+                    closeButton.setText(guiContext.cfg.gs("EmptyDirectoryFinder.closeButton.text"));
+                    closeButton.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.closeButton.toolTipText"));
+                    closeButton.addActionListener(e -> actionCloseClicked(e));
+                    buttonBar.add(closeButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 0), 0, 0));
+                }
+                panelBottom.add(buttonBar, BorderLayout.LINE_END);
             }
-            dialogPane.add(buttonBar, BorderLayout.SOUTH);
+            dialogPane.add(panelBottom, BorderLayout.SOUTH);
         }
         contentPane.add(dialogPane, BorderLayout.CENTER);
         pack();
@@ -533,9 +583,10 @@ public class EmptyDirectoryFinderUI extends JDialog
     private JPanel panelOptionsButtons;
     private JButton buttonAll;
     private JButton buttonNone;
+    private JPanel panelBottom;
+    private JLabel labelStatus;
     private JPanel buttonBar;
-    private JButton okButton;
-    private JButton cancelButton;
+    private JButton closeButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 
     //

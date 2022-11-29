@@ -335,16 +335,12 @@ public class Transfer
      */
     private void getStorageTargets() throws Exception
     {
-        String location = cfg.getTargetsFilename();
+        String location = null;
 
         if (cfg.isRemoteSession() && cfg.isRequestTargets())
         {
-            if (location == null || location.length() < 1)
-            {
-                location = "subscriber-targets";
-            }
             // request target data from remote subscriber
-            location = context.clientStty.retrieveRemoteData(location, "targets", "Requesting targets", 20000);
+            location = context.clientStty.retrieveRemoteData("targets", "Requesting targets", 20000);
             cfg.setTargetsFilename(location);
         }
 
@@ -1012,7 +1008,7 @@ public class Transfer
         if (cfg.isRemoteSession())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "collection",
+            String location = context.clientStty.retrieveRemoteData("collection",
                     cfg.gs("Transfer.requesting.subscriber.collection"), -1);
             if (location == null || location.length() < 1)
                 throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.collection.file"));
@@ -1032,7 +1028,7 @@ public class Transfer
         if (cfg.isRemoteSession())
         {
             // request collection data from remote subscriber
-            String location = context.clientStty.retrieveRemoteData(cfg.getSubscriberFilename(), "library",
+            String location = context.clientStty.retrieveRemoteData("library",
                     cfg.gs("Transfer.requesting.subscriber.library"), 20000);
             if (location == null || location.length() < 1)
                 throw new MungeException(cfg.gs("Transfer.could.not.retrieve.remote.library.file"));

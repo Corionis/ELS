@@ -207,7 +207,7 @@ public class ClientStty
     }
 
     /**
-     * Create and start the internal heartbeat "ping"
+     * Create and start the internal heartbeat
      */
     private void createHeartBeat()
     {
@@ -217,12 +217,13 @@ public class ClientStty
             {
                 try
                 {
+                    String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
                     while (true)
                     {
                         sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
                         if (heartBeatEnabled)
                         {
-                            send("heartbeat", context.main.trace ? "HEARTBEAT sent" : "");
+                            send("ping", context.main.trace ? "HEARTBEAT sent" + desc : "");
                         }
                     }
                 }
@@ -242,16 +243,16 @@ public class ClientStty
     }
 
     /**
-     * Temporarily disable the internal heartbeat "ping"
+     * Temporarily disable the internal heartbeat
      */
     private void disableHeartBeat()
     {
         if (heartBeat != null)
         {
             if (!heartBeatEnabled)
-                logger.warn("Heartbeat already disabled");
+                logger.warn("heartbeat already disabled");
             else
-                logger.trace("Heartbeat disabled");
+                logger.trace("heartbeat disabled");
             heartBeatEnabled = false;
         }
     }
@@ -281,16 +282,16 @@ public class ClientStty
     }
 
     /**
-     * Enable the internal heartbeat "ping"
+     * Enable the internal heartbeat
      */
     private void enableHeartBeat()
     {
         if (heartBeat != null)
         {
             if (heartBeatEnabled)
-                logger.warn("Heartbeat already enabled");
+                logger.warn("heartbeat already enabled");
             else
-                logger.trace("Heartbeat enabled");
+                logger.trace("heartbeat enabled");
             heartBeatEnabled = true;
         }
     }
@@ -457,9 +458,8 @@ public class ClientStty
         {
             response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
 
-            // loop if internal "ping" received
-            if (response != null && response.startsWith("heartbeat"))
-                logger.trace("HEARTBEAT received");
+            if (response != null && response.startsWith("ping"))
+                logger.trace("HEARTBEAT received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }
@@ -476,7 +476,7 @@ public class ClientStty
      * @return The resulting date-stamped file path
      * @throws Exception
      */
-    public String retrieveRemoteData(String filename, String message, String log, int timeout) throws Exception
+    public String retrieveRemoteData(String message, String log, int timeout) throws Exception
     {
         String location = null;
         String response = "";
@@ -505,7 +505,7 @@ public class ClientStty
             else
                 location = fn;
 
-            location += "_" + FilenameUtils.getBaseName(filename) + "-received" + stamp + ".json";
+            location += "_" + message + "-received" + stamp + ".json";
             try
             {
                 PrintWriter outputStream = new PrintWriter(location);
@@ -557,12 +557,12 @@ public class ClientStty
         if (getSocket().isClosed())
             throw new MungeException("socket closed");
 
-        if (!message.equalsIgnoreCase("heartbeat"))
+        if (!message.equalsIgnoreCase("ping"))
             disableHeartBeat();
 
         Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, message);
 
-        if (!message.equalsIgnoreCase("heartbeat"))
+        if (!message.equalsIgnoreCase("ping"))
             enableHeartBeat();
     }
 

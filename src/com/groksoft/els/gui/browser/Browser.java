@@ -3,6 +3,7 @@ package com.groksoft.els.gui.browser;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.*;
 import com.groksoft.els.gui.bookmarks.Bookmark;
+import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import org.apache.commons.io.FilenameUtils;
@@ -468,6 +469,26 @@ public class Browser
                 }
             }
         }
+    }
+
+    public Bookmark bookmarkCreate(Item item, String name, boolean isPublisher)
+    {
+        Bookmark bm = new Bookmark();
+        bm.name = name;
+        bm.panel = (isPublisher) ? "tableCollectionOne" : "tableCollectionTwo";
+        Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+
+        String sep = Utils.getSeparatorFromPath(item.getFullPath());
+        String[] split = item.getItemPath().split(sep);
+        if (split != null && split.length > 0)
+        {
+            bm.pathElements = new String[split.length + 2];
+            bm.pathElements[0] = repo.getLibraryData().libraries.description;
+            bm.pathElements[1] = item.getLibrary();
+            for (int i = 0; i < split.length; ++i)
+                bm.pathElements[i + 2] = split[i];
+        }
+        return bm;
     }
 
     /**
@@ -1860,7 +1881,10 @@ public class Browser
                         int index = guiContext.browser.findRowIndex(table, pathElements[pathElements.length - 1]); // last element
                         if (index > -1)
                         {
+                            // select and scroll into view
                             table.setRowSelectionInterval(index, index);
+                            table.scrollRectToVisible(new Rectangle(table.getCellRect(index, index, true)));
+                            table.scrollRectToVisible(new Rectangle(table.getCellRect(index, index, true)));
                         }
                     }
                 }

@@ -98,7 +98,7 @@ public class Connection extends Thread
 */
             if (stop)
             {
-                logger.trace("calling exit");
+                logger.trace("stty calling exit");
                 System.exit(0); // must be 0 to trigger Main.process.ShutdownHook()
             }
         }

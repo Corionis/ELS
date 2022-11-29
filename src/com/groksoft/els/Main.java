@@ -666,10 +666,10 @@ public class Main
                 if (context.statusStty != null)
                     context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
-                main.stopVerbiage();
-
                 // stop any remaining services, must be last
                 main.stopServices();
+
+                main.stopVerbiage();
             }
             else if (isListening) // daemons
             {
@@ -691,7 +691,7 @@ public class Main
                                 main.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
                             main.stopVerbiage();
-                            main.stopServices();
+                            main.stopServices(); // must be AFTER stopVerbiage()
 
                             // halt kills the remaining threads
                             if (main.context.fault)

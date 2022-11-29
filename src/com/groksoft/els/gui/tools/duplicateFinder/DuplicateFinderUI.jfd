@@ -39,6 +39,7 @@ new FormModel {
 								"text": new FormMessage( null, "DuplicateFinder.checkBoxCrossLibrary.text" )
 								"actionCommand": "crossLibraryChanged"
 								"toolTipText": new FormMessage( null, "DuplicateFinder.checkBoxCrossLibrary.toolTipText" )
+								"mnemonic": new FormMessage( null, "DuplicateFinder.checkBoxCrossLibrary.mnemonic" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCrossLibraryClicked", true ) )
 							} )
 							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
@@ -107,19 +108,10 @@ new FormModel {
 							name: "buttonBar"
 							"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
 							add( new FormComponent( "javax.swing.JButton" ) {
-								name: "okButton"
-								"text": new FormMessage( null, "DuplicateFinder.okButton.text" )
-								"toolTipText": new FormMessage( null, "Z.save.changes.toolTipText" )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
-							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-								"gridx": 1
-								"gridy": 0
-							} )
-							add( new FormComponent( "javax.swing.JButton" ) {
-								name: "cancelButton"
-								"text": new FormMessage( null, "DuplicateFinder.cancelButton.text" )
-								"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
+								name: "closeButton"
+								"text": new FormMessage( null, "Z.done" )
+								"toolTipText": new FormMessage( null, "Z.done.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCloseClicked", true ) )
 							}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 								"gridx": 2
 								"gridy": 0

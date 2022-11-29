@@ -17,7 +17,6 @@ new FormModel {
 			"title": new FormMessage( null, "EmptyDirectoryFinder.this.title" )
 			"minimumSize": new java.awt.Dimension( 150, 126 )
 			"name": "dialogEmptyDirectoryUI"
-			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "windowClosing", true ) )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 				name: "dialogPane"
 				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
@@ -125,31 +124,32 @@ new FormModel {
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"
 				} )
-				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "0:1.0, 80, 80"
-					"$rowSpecs": "0"
-					"$hGap": 5
-					"$vGap": 5
-				} ) {
-					name: "buttonBar"
-					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "okButton"
-						"text": new FormMessage( null, "EmptyDirectoryFinder.okButton.text" )
-						"toolTipText": new FormMessage( null, "Z.save.changes.toolTipText" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
-					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 1
-						"gridy": 0
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "panelBottom"
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelStatus"
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
 					} )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "cancelButton"
-						"text": new FormMessage( null, "EmptyDirectoryFinder.cancelButton.text" )
-						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
-					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 2
-						"gridy": 0
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+						"$columnSpecs": "0:1.0, 80, 80"
+						"$rowSpecs": "0"
+						"$hGap": 5
+						"$vGap": 5
+					} ) {
+						name: "buttonBar"
+						"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "closeButton"
+							"text": new FormMessage( null, "EmptyDirectoryFinder.closeButton.text" )
+							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.closeButton.toolTipText" )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCloseClicked", true ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 2
+							"gridy": 0
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "After"
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "South"

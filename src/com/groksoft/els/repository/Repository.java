@@ -52,6 +52,40 @@ public class Repository
     }
 
     /**
+     * Close this repository but do not include individual items
+     *
+     * @return Cloned Repository
+     */
+    public Repository cloneNoItems()
+    {
+        Repository noItems = new Repository(cfg, purpose);
+        noItems.setJsonFilename(getJsonFilename());
+        noItems.libraryData = new LibraryData();
+        noItems.libraryData.libraries = new Libraries();
+        noItems.libraryData.libraries.description = getLibraryData().libraries.description;
+        noItems.libraryData.libraries.host = getLibraryData().libraries.host;
+        noItems.libraryData.libraries.listen = getLibraryData().libraries.listen;
+        noItems.libraryData.libraries.timeout = getLibraryData().libraries.timeout;
+        noItems.libraryData.libraries.flavor = getLibraryData().libraries.flavor;
+        noItems.libraryData.libraries.case_sensitive =getLibraryData().libraries.case_sensitive;
+        noItems.libraryData.libraries.temp_dated = getLibraryData().libraries.temp_dated;
+        noItems.libraryData.libraries.temp_location = getLibraryData().libraries.temp_location;
+        noItems.libraryData.libraries.terminal_allowed = getLibraryData().libraries.terminal_allowed;
+        noItems.libraryData.libraries.key = getLibraryData().libraries.key;
+        noItems.libraryData.libraries.ignore_patterns = getLibraryData().libraries.ignore_patterns.clone();
+        noItems.libraryData.libraries.locations = getLibraryData().libraries.locations.clone();
+        noItems.libraryData.libraries.bibliography = new Library[getLibraryData().libraries.bibliography.length];
+        for (int i = 0; i < getLibraryData().libraries.bibliography.length; ++i)
+        {
+            Library lib = new Library();
+            lib.name = getLibraryData().libraries.bibliography[i].name;
+            lib.sources = getLibraryData().libraries.bibliography[i].sources.clone();
+            noItems.libraryData.libraries.bibliography[i] = lib;
+        }
+        return noItems;
+    }
+
+    /**
      * Export library items to JSON collection file.
      *
      * @throws MungeException the els exception
@@ -695,7 +729,7 @@ public class Repository
                 item.setDirectory(isDir);
                 size = (isDir ? 0L : Files.size(path));                 // size
                 item.setSize(size);
-                itemPath = fullPath.substring(base.length() + 1);       // item path
+                itemPath = fullPath.substring(base.length() + 1);    // item path
                 item.setItemPath(itemPath);
                 isSym = Files.isSymbolicLink(path);                     // is symbolic link check
                 item.setSymLink(isSym);

@@ -72,3 +72,6 @@ deploy/ELS.jar exists:
 2. Communications time-out handling and the many changes those areas have gone through
    made finding the code locations more important. Search the code for:  _time-out_  to
    find the relevant code locations.
+
+3. The locations that handle the internal heartbeat for remote connections can be found
+   by searching the code for:  _"ping"_
