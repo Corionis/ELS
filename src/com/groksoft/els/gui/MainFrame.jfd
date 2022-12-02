@@ -874,14 +874,6 @@ new FormModel {
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "popupMenuBrowser"
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
-				name: "popupMenuItemFind"
-				"text": new FormMessage( null, "Navigator.popupMenu.Find.text" )
-				"horizontalAlignment": 2
-				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Find.mnemonic" )
-				"horizontalTextPosition": 2
-				"enabled": false
-			} )
-			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemNewFolder"
 				"text": new FormMessage( null, "Navigator.popupMenu.NewFolder.text" )
 				"horizontalAlignment": 2

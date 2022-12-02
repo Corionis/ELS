@@ -245,7 +245,7 @@ public class EmptyDirectoryFinderUI extends JDialog
             {
                 buttonDelete.setEnabled(false);
                 buttonRun.setEnabled(false);
-                closeButton.setEnabled(false);
+                //closeButton.setEnabled(false);
                 empties = new ArrayList<Empty>();
                 EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
                 etm.setEmpties(empties);
@@ -346,7 +346,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                                 {
                                     buttonDelete.setEnabled(true);
                                     buttonRun.setEnabled(true);
-                                    closeButton.setEnabled(true);
+                                    //closeButton.setEnabled(true);
                                     EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
                                     etm.setEmpties(empties);
                                     etm.fireTableDataChanged();

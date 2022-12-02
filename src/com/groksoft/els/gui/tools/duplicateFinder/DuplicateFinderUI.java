@@ -250,7 +250,7 @@ public class DuplicateFinderUI extends JDialog
             {
                 checkBoxCrossLibrary.setEnabled(false);
                 buttonRun.setEnabled(false);
-                closeButton.setEnabled(false);
+                //closeButton.setEnabled(false);
                 dupes = new ArrayList<Dupe>();
                 DupesTableModel dtm = (DupesTableModel) tableDupes.getModel();
                 dtm.setDupes(dupes);
@@ -360,7 +360,7 @@ public class DuplicateFinderUI extends JDialog
                                 {
                                     checkBoxCrossLibrary.setEnabled(true);
                                     buttonRun.setEnabled(true);
-                                    closeButton.setEnabled(true);
+                                    //closeButton.setEnabled(true);
                                     DupesTableModel dtm = (DupesTableModel) tableDupes.getModel();
                                     dtm.setDupes(dupes);
                                     dtm.fireTableDataChanged();

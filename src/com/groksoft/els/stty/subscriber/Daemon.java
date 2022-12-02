@@ -494,7 +494,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                     {
                                         valid = true;
                                         context.localMode = true;
-                                        response = context.transfer.writeUpdateHint(filename, command);
+                                        response = context.transfer.writeUpdateHint(filename, command, myKey);
                                         context.localMode = false;
                                     }
                                 }
@@ -534,11 +534,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                     location = fn;
                                 location += "_library-generated" + stamp + ".json";
                                 exportLibrary(location);
-//                                cfg.setExportCollectionFilename(location);
-
-                                // do not scan
-//                                myRepo.exportItems(false);
-
                                 response = new String(Files.readAllBytes(Paths.get(location)));
                             }
                             catch (MungeException e)

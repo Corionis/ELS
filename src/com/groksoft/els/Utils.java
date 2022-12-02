@@ -85,8 +85,9 @@ public class Utils
             {
                 key = key.substring(0, 16);
             }
+            logger.trace("decrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
-            if (cipher == null)
+//            if (cipher == null)
             {
                 cipher = Cipher.getInstance("AES");
             }
@@ -119,8 +120,9 @@ public class Utils
             {
                 key = key.substring(0, 16);
             }
+            logger.trace("encrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
-            if (cipher == null)
+//            if (cipher == null)
             {
                 cipher = Cipher.getInstance("AES");
             }

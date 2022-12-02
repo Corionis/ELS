@@ -391,7 +391,6 @@ public class MainFrame extends JFrame
         labelStatusMiddle = new JLabel();
         labelStatusRight = new JLabel();
         popupMenuBrowser = new JPopupMenu();
-        popupMenuItemFind = new JMenuItem();
         popupMenuItemNewFolder = new JMenuItem();
         popupMenuItemRename = new JMenuItem();
         popupMenuItemTouch = new JMenuItem();
@@ -1255,14 +1254,6 @@ public class MainFrame extends JFrame
         //======== popupMenuBrowser ========
         {
 
-            //---- popupMenuItemFind ----
-            popupMenuItemFind.setText(guiContext.cfg.gs("Navigator.popupMenu.Find.text"));
-            popupMenuItemFind.setHorizontalAlignment(SwingConstants.LEFT);
-            popupMenuItemFind.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Find.mnemonic").charAt(0));
-            popupMenuItemFind.setHorizontalTextPosition(SwingConstants.LEFT);
-            popupMenuItemFind.setEnabled(false);
-            popupMenuBrowser.add(popupMenuItemFind);
-
             //---- popupMenuItemNewFolder ----
             popupMenuItemNewFolder.setText(guiContext.cfg.gs("Navigator.popupMenu.NewFolder.text"));
             popupMenuItemNewFolder.setHorizontalAlignment(SwingConstants.LEFT);
@@ -1441,7 +1432,6 @@ public class MainFrame extends JFrame
     public JLabel labelStatusMiddle;
     public JLabel labelStatusRight;
     public JPopupMenu popupMenuBrowser;
-    public JMenuItem popupMenuItemFind;
     public JMenuItem popupMenuItemNewFolder;
     public JMenuItem popupMenuItemRename;
     public JMenuItem popupMenuItemTouch;

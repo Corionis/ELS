@@ -46,7 +46,6 @@ public class Browser
     public NavTransferHandler navTransferHandler;
     public boolean trackingHints = false;
     private GuiContext guiContext;
-    private Color hintTrackingColor;
     private String keyBuffer = "";
     private long keyTime = 0L;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -916,11 +915,6 @@ public class Browser
 
     }
 
-    public Color getHintTrackingColor()
-    {
-        return hintTrackingColor;
-    }
-
     public int getPanelNumber(String name)
     {
         int panelNo = -1;
@@ -1458,7 +1452,6 @@ public class Browser
                 }
             }
         });
-        hintTrackingColor = guiContext.mainFrame.buttonHintTracking.getBackground();
     }
 
     public void loadCollectionTree(JTree tree, Repository repo, boolean remote)
@@ -1995,11 +1988,6 @@ public class Browser
         tree.setLargeModel(true);
         tree.setModel(model);
         return root;
-    }
-
-    public void setHintTrackingColor(Color hintTrackingColor)
-    {
-        this.hintTrackingColor = hintTrackingColor;
     }
 
     private void styleCollectionAll(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive) throws Exception

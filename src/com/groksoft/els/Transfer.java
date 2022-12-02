@@ -1183,13 +1183,15 @@ public class Transfer
 
             if (!sourceTuo.isSubscriber())
                 context.localMode = true;
-            hintPath = writeUpdateHint(hintPath, command);
+
+            String sourceKey = sourceTuo.isSubscriber() ? context.subscriberRepo.getLibraryData().libraries.key : context.publisherRepo.getLibraryData().libraries.key;
+            hintPath = writeUpdateHint(hintPath, command, sourceKey);
             context.localMode = false;
         }
         return hintPath;
     }
 
-    public String writeUpdateHint(String hintPath, String command) throws Exception
+    public String writeUpdateHint(String hintPath, String command, String sourceKey) throws Exception
     {
         if (cfg.isRemoteSession() && !context.localMode)
         {
@@ -1214,10 +1216,10 @@ public class Transfer
                 ArrayList<HintKeys.HintKey> keys = context.hintKeys.get();
                 for (HintKeys.HintKey key : keys)
                 {
-                    if (!key.uuid.equalsIgnoreCase(context.publisherRepo.getLibraryData().libraries.key))
-                    {
+                    if (key.uuid.equalsIgnoreCase(sourceKey))
+                        sb.append("Done " + key.name + "\n");
+                    else
                         sb.append("For " + key.name + "\n");
-                    }
                 }
                 sb.append(command);
                 Files.write(hintFile.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
