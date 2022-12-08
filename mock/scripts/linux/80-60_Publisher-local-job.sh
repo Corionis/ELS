@@ -15,6 +15,7 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-##java -jar ../deploy/ELS.jar -c debug -d debug -j "10 Renamer Tests" -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -F output/80-60_Publisher-local-job.log
-java -jar ../deploy/ELS.jar -c debug -d debug -j "20 Renamer Tests" -p test/publisher/publisher.json -F output/80-60_Publisher-local-job.log
+#java -jar ../deploy/ELS.jar -c debug -d debug -j "20 Renamer Tests" -p test/publisher/publisher.json -F output/80-60_Publisher-local-job.log
+
+java -jar ../deploy/ELS.jar -j "20 Renamer Tests" -F output/80-60_Publisher-local-job.log
 

@@ -172,7 +172,7 @@ public class ServeStty extends Thread
             throw new IllegalArgumentException("Port " + aPort + " already in use");
 
         // create a listener on the port
-        Listener listener = new Listener(allSessionThreads, host, aPort, cfg);
+        Listener listener = new Listener(allSessionThreads, host, aPort, cfg, context);
 
         // put it in the hashtable
         allSessions.put("Listener:" + host + ":" + aPort, listener);

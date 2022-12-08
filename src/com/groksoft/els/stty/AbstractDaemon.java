@@ -86,6 +86,7 @@ public abstract class AbstractDaemon
                 catch (Exception e)
                 {
                     logger.error(Utils.getStackTrace(e));
+                    context.fault = true;
                 }
             }
         };

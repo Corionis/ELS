@@ -1,6 +1,7 @@
 package com.groksoft.els.stty;
 
 import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ public class Listener extends Thread
     protected static Logger logger = LogManager.getLogger("applog");//
     private InetAddress addr;
     private Configuration cfg;
+    private Context context;
 
     /**
      * The socket to listen on for the associated service
@@ -46,12 +48,13 @@ public class Listener extends Thread
      * @param group The thread group used for the listener.
      * @param aPort The port to listen on.
      */
-    public Listener(ThreadGroup group, String host, int aPort, Configuration config) throws Exception
+    public Listener(ThreadGroup group, String host, int aPort, Configuration config, Context ctxt) throws Exception
     {
         super(group, "Listener:" + host + ":" + aPort);
 
         // setup this listener
         this.cfg = config;
+        this.context = ctxt;
         this.port = aPort;
         addr = Inet4Address.getByName(host);
 
@@ -149,11 +152,13 @@ public class Listener extends Thread
             {
                 logger.error(e);
                 stop = true;
+                context.fault = true;
             }
             catch (MungeException e)
             {
                 logger.error(e);
                 stop = true;
+                context.fault = true;
             }
         }
         if (logger != null && socket != null)
