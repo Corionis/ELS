@@ -163,9 +163,6 @@ public class Transfer
                 }
             }
         }
-
-//        grandTotalItems = grandTotalItems + group.size();
-//        grandTotalSize = grandTotalSize + totalSize;
         lastGroupName = currentGroupName;
         group.clear();
 

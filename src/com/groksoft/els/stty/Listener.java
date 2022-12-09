@@ -137,6 +137,8 @@ public class Listener extends Thread
                         ServeStty.getInstance().addConnection(socket);
                     }
                 }
+                else
+                    logger.warn("Not Whitelisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
             }
             catch (SocketTimeoutException e)
             {

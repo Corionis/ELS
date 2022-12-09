@@ -89,7 +89,7 @@ public class RenamerTool extends AbstractTool
         renamer.setType(this.getType());
         renamer.setSegment(this.getSegment());
         renamer.setIsRecursive(this.isRecursive());
-        renamer.setIsFilesOnlyy(this.isFilesOnly());
+        renamer.setIsFilesOnly(this.isFilesOnly());
         renamer.setText1(this.getText1());
         renamer.setText2(this.getText2());
         renamer.setText3(this.getText3());
@@ -346,17 +346,17 @@ public class RenamerTool extends AbstractTool
 
     public String getDisplayName()
     {
-        return Utils.getContext().cfg.gs("Renamer.displayName");
-    }
-
-    public String getInternalName()
-    {
-        return internalName;
+        return displayName;
     }
 
     public ArrayList<String> getForwardPaths()
     {
         return forwardPaths;
+    }
+
+    public String getInternalName()
+    {
+        return internalName;
     }
 
     public int getSegment()
@@ -430,14 +430,14 @@ public class RenamerTool extends AbstractTool
         return value;
     }
 
-    public boolean isDataChanged()
-    {
-        return dataHasChanged; // used by the GUI
-    }
-
     public boolean isCachedLastTask()
     {
         return true;
+    }
+
+    public boolean isDataChanged()
+    {
+        return dataHasChanged; // used by the GUI
     }
 
     public boolean isDualRepositories()
@@ -842,7 +842,7 @@ public class RenamerTool extends AbstractTool
         dataHasChanged = true;
     }
 
-    public void setIsFilesOnlyy(boolean filesOnly)
+    public void setIsFilesOnly(boolean filesOnly)
     {
         this.filesOnly = filesOnly;
     }

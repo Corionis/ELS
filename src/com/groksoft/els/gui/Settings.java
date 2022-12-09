@@ -466,7 +466,7 @@ public class Settings extends JDialog
                                     .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(194, Short.MAX_VALUE))
+                                    .addContainerGap(187, Short.MAX_VALUE))
                         );
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
@@ -706,8 +706,8 @@ public class Settings extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.ok"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
+                okButton.setText(guiContext.cfg.gs("Z.save"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));

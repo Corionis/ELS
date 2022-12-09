@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.0.0.0.194" Java: "17.0.4.1" encoding: "UTF-8"
+JFDML JFormDesigner: "8.0.0.0.194" Java: "17.0.5" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -624,7 +624,7 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labeReplace"
-													"text": new FormMessage( null, "Renamer.labeReplace.text" )
+													"text": new FormMessage( null, "Renamer.labelReplace.text" )
 													"horizontalAlignment": 11
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 1
@@ -754,8 +754,8 @@ new FormModel {
 					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "okButton"
-						"text": new FormMessage( null, "Z.ok" )
-						"toolTipText": new FormMessage( null, "Z.save.changes.toolTipText" )
+						"text": new FormMessage( null, "Z.save" )
+						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1

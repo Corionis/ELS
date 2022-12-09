@@ -148,7 +148,7 @@ public class JunkRemoverTool extends AbstractTool
     @Override
     public String getDisplayName()
     {
-        return Utils.getContext().cfg.gs("JunkRemover.displayName");
+        return displayName;
     }
 
     public ArrayList<String> getForwardPaths()

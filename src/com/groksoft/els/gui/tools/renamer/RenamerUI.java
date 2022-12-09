@@ -963,7 +963,7 @@ public class RenamerUI extends JDialog
         {
             renamer.setDataHasChanged();
             renamer.setIsRecursive(checkBoxRecursive.isSelected());
-            renamer.setIsFilesOnlyy(checkBoxFilesOnly.isSelected());
+            renamer.setIsFilesOnly(checkBoxFilesOnly.isSelected());
             renamer.setSegment(comboBoxFilenameSegment.getSelectedIndex());
             switch (renamer.getType())
             {
@@ -2029,7 +2029,7 @@ public class RenamerUI extends JDialog
                                                 new Insets(0, 0, 0, 0), 0, 0));
 
                                             //---- labeReplace ----
-                                            labeReplace.setText(guiContext.cfg.gs("Renamer.labeReplace.text"));
+                                            labeReplace.setText(guiContext.cfg.gs("Renamer.labelReplace.text"));
                                             labeReplace.setHorizontalAlignment(SwingConstants.TRAILING);
                                             panelReplaceCard.add(labeReplace, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2155,8 +2155,8 @@ public class RenamerUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.ok"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
+                okButton.setText(guiContext.cfg.gs("Z.save"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

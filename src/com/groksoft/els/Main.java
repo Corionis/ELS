@@ -10,6 +10,7 @@ import com.groksoft.els.sftp.ServeSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
 import com.groksoft.els.stty.hintServer.Datastore;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -218,7 +219,7 @@ public class Main
                 //logger.debug("Local locale not supported, loading default");
                 loadLocale("-");
             }
-            else
+            //else
                 //logger.debug("Loaded locale: " + filePart);
             currentFilePart = filePart;
 
@@ -666,9 +667,8 @@ public class Main
                 if (context.statusStty != null)
                     context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
 
-                // stop any remaining services, must be last
+                // stop any remaining services
                 main.stopServices();
-
                 main.stopVerbiage();
             }
             else if (isListening) // daemons
@@ -677,7 +677,7 @@ public class Main
                 // threads used by the daemon have been closed and stopped,
                 // see ServeStty.run(). Also System.exit(0) triggers it and
                 // is preferred over trying to determine which threads are
-                // still alive and won't block
+                // still alive and will block or hang
                 Runtime.getRuntime().addShutdownHook(new Thread()
                 {
                     public void run()
@@ -688,7 +688,7 @@ public class Main
 
                             // optionally command status server to quit
                             if (main.context.statusStty != null)
-                                main.context.statusStty.quitStatusServer(context);  // do before stopping the necessary services
+                                main.context.statusStty.quitStatusServer(context);  // do before stopping the services
 
                             main.stopVerbiage();
                             main.stopServices(); // must be AFTER stopVerbiage()

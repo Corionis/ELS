@@ -5,6 +5,7 @@ import com.google.gson.InstanceCreator;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.tools.backup.BackupTool;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import com.groksoft.els.tools.renamer.RenamerTool;
 
@@ -53,7 +54,38 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals("JunkRemover"))
+        if (internalName.equals("Backup"))
+        {
+            // begin Backup
+            BackupTool tmpTool = new BackupTool(null, config, ctxt);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                BackupParser backupParser = new BackupParser();
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+                for (File entry : files)
+                {
+                    if (!entry.isDirectory())
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        if (json != null)
+                        {
+                            AbstractTool but = backupParser.parseTool(guiContext, config, ctxt, json);
+                            if (but != null)
+                            {
+                                if (but.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = but;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end Backup
+        }
+        else if (internalName.equals("JunkRemover"))
         {
             // begin JunkRemover
             JunkRemoverTool tmpTool = new JunkRemoverTool(null, config, ctxt);
@@ -159,13 +191,23 @@ public class Tools
         File toolDir = null;
         ToolParserI toolParser = null;
 
+        // being Backup
+        if (internalName == null || internalName.equals(BackupTool.INTERNAL_NAME))
+        {
+            toolParser = new BackupParser();
+            BackupTool tmpBackup = new BackupTool(null, guiContext.cfg, guiContext.context);
+            toolDir = new File(tmpBackup.getDirectoryPath());
+            toolList = scanTools(guiContext, toolList, toolParser, toolDir);
+        }
+        // end Backup
+
         // begin JunkRemover
         if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
             toolParser = new JunkRemoverParser();
             JunkRemoverTool tmpJrt = new JunkRemoverTool(null, guiContext.cfg, guiContext.context);
             toolDir = new File(tmpJrt.getDirectoryPath());
-            toolList = scanTools(guiContext, guiContext.cfg, guiContext.context, toolList, toolParser, toolDir);
+            toolList = scanTools(guiContext, toolList, toolParser, toolDir);
         }
         // end JunkRemover
 
@@ -175,7 +217,7 @@ public class Tools
             toolParser = new RenamerParser();
             RenamerTool tmpRenamer = new RenamerTool(null, guiContext.cfg, guiContext.context);
             toolDir = new File(tmpRenamer.getDirectoryPath());
-            toolList = scanTools(guiContext, guiContext.cfg, guiContext.context, toolList, toolParser, toolDir);
+            toolList = scanTools(guiContext, toolList, toolParser, toolDir);
         }
         // end Renamer
 
@@ -198,14 +240,16 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Configuration config, Context ctxt)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals("JunkRemover"))
+        if (internalName.equals("Backup"))
         {
-            // begin JunkRemover
+            tmpTool = new BackupTool(null, config, ctxt);
+        }
+        else if (internalName.equals("JunkRemover"))
+        {
             tmpTool = new JunkRemoverTool(null, config, ctxt);
         }
         else if (internalName.equals("Renamer"))
         {
-            // begin Renamer
             tmpTool = new RenamerTool(null, config, ctxt);
         }
         return tmpTool;
@@ -215,15 +259,13 @@ public class Tools
      * Scan the disk for a specific tool's configurations
      *
      * @param guiContext The guiContext, null is allowed
-     * @param config The Configuration
-     * @param ctxt The Context
-     * @param toolList Existing toolList
-     * @param parser The ToolParserI implementation for this tool
-     * @param toolDir The full path to this tool's configurations
+     * @param toolList   Existing toolList
+     * @param parser     The ToolParserI implementation for this tool
+     * @param toolDir    The full path to this tool's configurations
      * @return ArrayList&lt;AbstractTool&gt; toolList
      * @throws Exception File system exceptions
      */
-    private ArrayList<AbstractTool> scanTools(GuiContext guiContext, Configuration config, Context ctxt, ArrayList<AbstractTool> toolList, ToolParserI parser, File toolDir) throws Exception
+    private ArrayList<AbstractTool> scanTools(GuiContext guiContext, ArrayList<AbstractTool> toolList, ToolParserI parser, File toolDir) throws Exception
     {
         if (toolDir.exists() && toolDir.isDirectory())
         {
@@ -235,7 +277,7 @@ public class Tools
                     String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                     if (json != null)
                     {
-                        AbstractTool tool = parser.parseTool(guiContext, config, ctxt, json);
+                        AbstractTool tool = parser.parseTool(guiContext, guiContext.cfg, guiContext.context, json);
                         if (tool != null)
                             toolList.add(tool);
                     }
@@ -253,6 +295,41 @@ public class Tools
     private interface ToolParserI
     {
         AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json);
+    }
+
+    //=================================================================================================================
+
+    /**
+     * ToolParserI implementation for the BackupTool
+     */
+    private class BackupParser implements ToolParserI
+    {
+        /**
+         * Parse a BackupTool
+         *
+         * @param guiContext The guiContext, null is allowed
+         * @param config The Configuration
+         * @param ctxt The Context
+         * @param json String of JSON to parse
+         * @return AbstractTool instance
+         */
+        @Override
+        public AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new BackupTool(guiContext, config, ctxt);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(BackupTool.class, new objInstanceCreator());
+            BackupTool tool = builder.create().fromJson(json, BackupTool.class);
+            return tool;
+        }
     }
 
     //=================================================================================================================

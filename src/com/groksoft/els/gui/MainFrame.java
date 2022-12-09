@@ -280,6 +280,12 @@ public class MainFrame extends JFrame
         return true;
     }
 
+    private void actionCloseClicked(ActionEvent e) {
+        // TODO add your code here
+    }
+
+    // ================================================================================================================
+
     // <editor-fold desc="Generated code (Fold)">
     // @formatter:off
     //
@@ -385,6 +391,36 @@ public class MainFrame extends JFrame
         scrollPaneProperties = new JScrollPane();
         textAreaProperties = new JEditorPane();
         splitPaneBackup = new JSplitPane();
+        panelBackupTop = new JPanel();
+        panelBackupButtons = new JPanel();
+        panelTopButtons = new JPanel();
+        buttonNewBackup = new JButton();
+        buttonCopyBackup = new JButton();
+        buttonDeleteBackup = new JButton();
+        hSpacerBeforeRun = new JPanel(null);
+        buttonRunBackup = new JButton();
+        hSpacerBeforeGenerate = new JPanel(null);
+        buttonGenerateBackup = new JButton();
+        panelHelp = new JPanel();
+        labelBackupHelp = new JLabel();
+        splitPaneBackupContent = new JSplitPane();
+        scrollPaneBackupConfig = new JScrollPane();
+        backupConfigItems = new JTable();
+        panelBackupOptions = new JPanel();
+        panelBackupControls = new JPanel();
+        topBackupOptions = new JPanel();
+        vSpacer0 = new JPanel(null);
+        panelBackupMode = new JPanel();
+        hSpacer3 = new JPanel(null);
+        labelBackupMode = new JLabel();
+        panelBackupBottom = new JPanel();
+        labelBackupStatus = new JLabel();
+        panelBackupBottomButtons = new JPanel();
+        buttonBackupSave = new JButton();
+        buttonBackupCancel = new JButton();
+        tabbedPaneBackupBottom = new JTabbedPane();
+        scrollPaneBackupLog = new JScrollPane();
+        textAreaBackupLog = new JTextArea();
         panelLibraries = new JPanel();
         panelStatus = new JPanel();
         labelStatusLeft = new JLabel();
@@ -1207,6 +1243,203 @@ public class MainFrame extends JFrame
                     splitPaneBackup.setOrientation(JSplitPane.VERTICAL_SPLIT);
                     splitPaneBackup.setDividerLocation(450);
                     splitPaneBackup.setLastDividerLocation(450);
+
+                    //======== panelBackupTop ========
+                    {
+                        panelBackupTop.setLayout(new BorderLayout());
+
+                        //======== panelBackupButtons ========
+                        {
+                            panelBackupButtons.setMinimumSize(new Dimension(140, 38));
+                            panelBackupButtons.setPreferredSize(new Dimension(614, 38));
+                            panelBackupButtons.setLayout(new BorderLayout());
+
+                            //======== panelTopButtons ========
+                            {
+                                panelTopButtons.setMinimumSize(new Dimension(140, 38));
+                                panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
+
+                                //---- buttonNewBackup ----
+                                buttonNewBackup.setText(guiContext.cfg.gs("Backup.buttonNew.text"));
+                                buttonNewBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonNew.mnemonic").charAt(0));
+                                buttonNewBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonNew.toolTipText"));
+                                panelTopButtons.add(buttonNewBackup);
+
+                                //---- buttonCopyBackup ----
+                                buttonCopyBackup.setText(guiContext.cfg.gs("Backup.buttonCopy.text"));
+                                buttonCopyBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonCopy.mnemonic").charAt(0));
+                                buttonCopyBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonCopy.toolTipText"));
+                                panelTopButtons.add(buttonCopyBackup);
+
+                                //---- buttonDeleteBackup ----
+                                buttonDeleteBackup.setText(guiContext.cfg.gs("Backup.buttonDelete.text"));
+                                buttonDeleteBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonDelete.mnemonic").charAt(0));
+                                buttonDeleteBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonDelete.toolTipText"));
+                                panelTopButtons.add(buttonDeleteBackup);
+
+                                //---- hSpacerBeforeRun ----
+                                hSpacerBeforeRun.setMinimumSize(new Dimension(22, 6));
+                                hSpacerBeforeRun.setPreferredSize(new Dimension(22, 6));
+                                panelTopButtons.add(hSpacerBeforeRun);
+
+                                //---- buttonRunBackup ----
+                                buttonRunBackup.setText(guiContext.cfg.gs("Backup.buttonRun.text"));
+                                buttonRunBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonRun.mnemonic").charAt(0));
+                                buttonRunBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonRun.toolTipText"));
+                                panelTopButtons.add(buttonRunBackup);
+
+                                //---- hSpacerBeforeGenerate ----
+                                hSpacerBeforeGenerate.setMinimumSize(new Dimension(22, 6));
+                                hSpacerBeforeGenerate.setPreferredSize(new Dimension(22, 6));
+                                panelTopButtons.add(hSpacerBeforeGenerate);
+
+                                //---- buttonGenerateBackup ----
+                                buttonGenerateBackup.setText(guiContext.cfg.gs("Backup.buttonGenerate.text"));
+                                buttonGenerateBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonGenerate.mnemonic").charAt(0));
+                                buttonGenerateBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonGenerate.toolTipText"));
+                                panelTopButtons.add(buttonGenerateBackup);
+                            }
+                            panelBackupButtons.add(panelTopButtons, BorderLayout.WEST);
+
+                            //======== panelHelp ========
+                            {
+                                panelHelp.setPreferredSize(new Dimension(40, 38));
+                                panelHelp.setMinimumSize(new Dimension(0, 38));
+                                panelHelp.setLayout(new FlowLayout(FlowLayout.RIGHT, 4, 4));
+
+                                //---- labelBackupHelp ----
+                                labelBackupHelp.setIcon(UIManager.getIcon("OptionPane.informationIcon"));
+                                labelBackupHelp.setPreferredSize(new Dimension(32, 30));
+                                labelBackupHelp.setMinimumSize(new Dimension(32, 30));
+                                labelBackupHelp.setMaximumSize(new Dimension(32, 30));
+                                labelBackupHelp.setToolTipText(guiContext.cfg.gs("Backup.labelHelp.toolTipText"));
+                                labelBackupHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                                labelBackupHelp.setIconTextGap(0);
+                                panelHelp.add(labelBackupHelp);
+                            }
+                            panelBackupButtons.add(panelHelp, BorderLayout.EAST);
+                        }
+                        panelBackupTop.add(panelBackupButtons, BorderLayout.NORTH);
+
+                        //======== splitPaneBackupContent ========
+                        {
+                            splitPaneBackupContent.setDividerLocation(142);
+                            splitPaneBackupContent.setLastDividerLocation(142);
+                            splitPaneBackupContent.setMinimumSize(new Dimension(140, 80));
+
+                            //======== scrollPaneBackupConfig ========
+                            {
+                                scrollPaneBackupConfig.setMinimumSize(new Dimension(140, 16));
+                                scrollPaneBackupConfig.setPreferredSize(new Dimension(142, 146));
+
+                                //---- backupConfigItems ----
+                                backupConfigItems.setPreferredSize(new Dimension(128, 54));
+                                backupConfigItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                                backupConfigItems.setShowVerticalLines(false);
+                                backupConfigItems.setFillsViewportHeight(true);
+                                scrollPaneBackupConfig.setViewportView(backupConfigItems);
+                            }
+                            splitPaneBackupContent.setLeftComponent(scrollPaneBackupConfig);
+
+                            //======== panelBackupOptions ========
+                            {
+                                panelBackupOptions.setMinimumSize(new Dimension(0, 78));
+                                panelBackupOptions.setLayout(new BorderLayout());
+
+                                //======== panelBackupControls ========
+                                {
+                                    panelBackupControls.setLayout(new BorderLayout());
+
+                                    //======== topBackupOptions ========
+                                    {
+                                        topBackupOptions.setLayout(new BorderLayout());
+
+                                        //---- vSpacer0 ----
+                                        vSpacer0.setPreferredSize(new Dimension(10, 2));
+                                        vSpacer0.setMinimumSize(new Dimension(10, 2));
+                                        vSpacer0.setMaximumSize(new Dimension(10, 2));
+                                        topBackupOptions.add(vSpacer0, BorderLayout.NORTH);
+
+                                        //======== panelBackupMode ========
+                                        {
+                                            panelBackupMode.setLayout(new BoxLayout(panelBackupMode, BoxLayout.X_AXIS));
+
+                                            //---- hSpacer3 ----
+                                            hSpacer3.setPreferredSize(new Dimension(4, 10));
+                                            hSpacer3.setMinimumSize(new Dimension(4, 12));
+                                            hSpacer3.setMaximumSize(new Dimension(4, 32767));
+                                            panelBackupMode.add(hSpacer3);
+
+                                            //---- labelBackupMode ----
+                                            labelBackupMode.setText("Mode");
+                                            labelBackupMode.setMaximumSize(new Dimension(110, 16));
+                                            labelBackupMode.setFont(labelBackupMode.getFont().deriveFont(labelBackupMode.getFont().getSize() + 1f));
+                                            labelBackupMode.setPreferredSize(new Dimension(110, 16));
+                                            labelBackupMode.setMinimumSize(new Dimension(110, 16));
+                                            panelBackupMode.add(labelBackupMode);
+                                        }
+                                        topBackupOptions.add(panelBackupMode, BorderLayout.WEST);
+                                    }
+                                    panelBackupControls.add(topBackupOptions, BorderLayout.NORTH);
+                                }
+                                panelBackupOptions.add(panelBackupControls, BorderLayout.NORTH);
+                            }
+                            splitPaneBackupContent.setRightComponent(panelBackupOptions);
+                        }
+                        panelBackupTop.add(splitPaneBackupContent, BorderLayout.CENTER);
+
+                        //======== panelBackupBottom ========
+                        {
+                            panelBackupBottom.setLayout(new BorderLayout());
+                            panelBackupBottom.add(labelBackupStatus, BorderLayout.CENTER);
+
+                            //======== panelBackupBottomButtons ========
+                            {
+                                panelBackupBottomButtons.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+
+                                //---- buttonBackupSave ----
+                                buttonBackupSave.setText(guiContext.cfg.gs("Z.save"));
+                                buttonBackupSave.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                                panelBackupBottomButtons.add(buttonBackupSave);
+
+                                //---- buttonBackupCancel ----
+                                buttonBackupCancel.setText(guiContext.cfg.gs("Z.cancel"));
+                                buttonBackupCancel.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                                panelBackupBottomButtons.add(buttonBackupCancel);
+                            }
+                            panelBackupBottom.add(panelBackupBottomButtons, BorderLayout.EAST);
+                        }
+                        panelBackupTop.add(panelBackupBottom, BorderLayout.SOUTH);
+                    }
+                    splitPaneBackup.setTopComponent(panelBackupTop);
+
+                    //======== tabbedPaneBackupBottom ========
+                    {
+                        tabbedPaneBackupBottom.setTabPlacement(SwingConstants.BOTTOM);
+                        tabbedPaneBackupBottom.setPreferredSize(new Dimension(1160, 90));
+                        tabbedPaneBackupBottom.setFocusable(false);
+                        tabbedPaneBackupBottom.setMinimumSize(new Dimension(0, 0));
+                        tabbedPaneBackupBottom.setAutoscrolls(true);
+
+                        //======== scrollPaneBackupLog ========
+                        {
+                            scrollPaneBackupLog.setFocusable(false);
+                            scrollPaneBackupLog.setMinimumSize(new Dimension(0, 0));
+                            scrollPaneBackupLog.setAutoscrolls(true);
+
+                            //---- textAreaBackupLog ----
+                            textAreaBackupLog.setEditable(false);
+                            textAreaBackupLog.setTabSize(4);
+                            textAreaBackupLog.setLineWrap(true);
+                            textAreaBackupLog.setMinimumSize(new Dimension(0, 0));
+                            textAreaBackupLog.setComponentPopupMenu(popupMenuLog);
+                            textAreaBackupLog.setVerifyInputWhenFocusTarget(false);
+                            scrollPaneBackupLog.setViewportView(textAreaBackupLog);
+                        }
+                        tabbedPaneBackupBottom.addTab(guiContext.cfg.gs("Backup.scrollPaneLog.tab.title"), scrollPaneBackupLog);
+                        tabbedPaneBackupBottom.setMnemonicAt(0, guiContext.cfg.gs("Backup.scrollPaneLog.tab.mnemonic").charAt(0));
+                    }
+                    splitPaneBackup.setBottomComponent(tabbedPaneBackupBottom);
                 }
                 tabbedPaneMain.addTab(guiContext.cfg.gs("Navigator.splitPane.Backup.tab.title"), splitPaneBackup);
                 tabbedPaneMain.setMnemonicAt(1, guiContext.cfg.gs("Navigator.splitPane.Backup.tab.mnemonic").charAt(0));
@@ -1426,6 +1659,36 @@ public class MainFrame extends JFrame
     public JScrollPane scrollPaneProperties;
     public JEditorPane textAreaProperties;
     public JSplitPane splitPaneBackup;
+    public JPanel panelBackupTop;
+    public JPanel panelBackupButtons;
+    public JPanel panelTopButtons;
+    public JButton buttonNewBackup;
+    public JButton buttonCopyBackup;
+    public JButton buttonDeleteBackup;
+    public JPanel hSpacerBeforeRun;
+    public JButton buttonRunBackup;
+    public JPanel hSpacerBeforeGenerate;
+    public JButton buttonGenerateBackup;
+    public JPanel panelHelp;
+    public JLabel labelBackupHelp;
+    public JSplitPane splitPaneBackupContent;
+    public JScrollPane scrollPaneBackupConfig;
+    public JTable backupConfigItems;
+    public JPanel panelBackupOptions;
+    public JPanel panelBackupControls;
+    public JPanel topBackupOptions;
+    public JPanel vSpacer0;
+    public JPanel panelBackupMode;
+    public JPanel hSpacer3;
+    public JLabel labelBackupMode;
+    public JPanel panelBackupBottom;
+    public JLabel labelBackupStatus;
+    public JPanel panelBackupBottomButtons;
+    public JButton buttonBackupSave;
+    public JButton buttonBackupCancel;
+    public JTabbedPane tabbedPaneBackupBottom;
+    public JScrollPane scrollPaneBackupLog;
+    public JTextArea textAreaBackupLog;
     public JPanel panelLibraries;
     public JPanel panelStatus;
     public JLabel labelStatusLeft;

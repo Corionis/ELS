@@ -367,7 +367,7 @@ public class Process
                     }
                     else
                     {
-                        logger.warn("Subscribed Publisher library " + subLib.name + " not found");
+                        logger.warn("Subscribed publisher library " + subLib.name + " not found");
                     }
                 }
                 else

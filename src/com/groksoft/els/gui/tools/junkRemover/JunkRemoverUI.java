@@ -933,8 +933,8 @@ public class JunkRemoverUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.ok"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
+                okButton.setText(guiContext.cfg.gs("Z.save"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

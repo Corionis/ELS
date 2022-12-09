@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.groksoft.els.*;
+import com.groksoft.els.gui.backup.Backup;
 import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.gui.bookmarks.Bookmarks;
 import com.groksoft.els.gui.browser.Browser;
@@ -30,7 +31,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -213,10 +215,8 @@ public class Navigator
             // setup the Main Menu and primary tabs
             initializeMainMenu();
             guiContext.browser = new Browser(guiContext);
-
-
-            // TODO Add Backup and Library tab content creation here
-
+            guiContext.backup = new Backup(guiContext);
+            // TODO Add Library tab content creation here
 
             // disable back-fill because we never know what combination of items might be selected
             guiContext.cfg.setNoBackFill(true);
@@ -504,6 +504,7 @@ public class Navigator
 
                             guiContext.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                             guiContext.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
+                            guiContext.cfg.setSubscriberCollectionFilename("");
                             guiContext.context.subscriberRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.SUBSCRIBER, !guiContext.preferences.isLastIsRemote());
 
                             if (guiContext.preferences.isLastIsRemote())

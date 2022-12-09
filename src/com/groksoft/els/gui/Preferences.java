@@ -18,6 +18,8 @@ public class Preferences implements Serializable
     private int appXpos = -1;
     private int appYpos = -1;
     private boolean autoRefresh = true;
+    private int backupDividerConfigLocation = 142;
+    private int backupDividerLocation = 500;
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int browserBottomSize = 143;
     private int centerDividerLocation = 512;
@@ -263,6 +265,16 @@ public class Preferences implements Serializable
     public int getAppYpos()
     {
         return appYpos;
+    }
+
+    public int getBackupDividerConfigLocation()
+    {
+        return backupDividerConfigLocation;
+    }
+
+    public int getBackupDividerLocation()
+    {
+        return backupDividerLocation;
     }
 
     public int getBrowserBottomSize()
@@ -687,6 +699,16 @@ public class Preferences implements Serializable
         this.autoRefresh = autoRefresh;
     }
 
+    public void setBackupDividerConfigLocation(int backupDividerConfigLocation)
+    {
+        this.backupDividerConfigLocation = backupDividerConfigLocation;
+    }
+
+    public void setBackupDividerLocation(int backupDividerLocation)
+    {
+        this.backupDividerLocation = backupDividerLocation;
+    }
+
     public void setBinaryScale(boolean binaryScale)
     {
         this.binaryScale = binaryScale;
@@ -1073,6 +1095,9 @@ public class Preferences implements Serializable
 
         // all columns
         extractColumnSizes(guiContext, null);
+
+        // other panels
+        guiContext.backup.savePreferences();
 
         json = gson.toJson(this);
         try

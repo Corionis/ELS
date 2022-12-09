@@ -24,7 +24,7 @@ public abstract class AbstractTool implements Comparable, Serializable
     transient protected Context context;
     transient protected boolean includeInToolsList = true; // set by tool at runtime
     transient private boolean isRemote;
-    transient private String displayName; // GUI i18n display name
+    transient protected String displayName; // GUI i18n display name
     transient private boolean stop = false;
 
     private AbstractTool()

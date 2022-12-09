@@ -491,11 +491,11 @@ public class JobsUI extends JDialog
                 }
             }
 
-            title = (which == 0) ? guiContext.cfg.gs("JobsUI.pubsub.select.publisher") : guiContext.cfg.gs("JobsUI.pubsub.select.subscriber");
+            title = (which == 0) ? guiContext.cfg.gs("JobsUI.combo.select.publisher") : guiContext.cfg.gs("JobsUI.combo.select.subscriber");
 
             if (which == 0 || which == 99) // publisher or both
             {
-                title = guiContext.cfg.gs("JobsUI.pubsub.select.publisher");
+                title = guiContext.cfg.gs("JobsUI.combo.select.publisher");
                 tip = guiContext.cfg.gs("JobsUI.select.publisher.tooltip");
 
                 combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.publisher"), ANY_PUBLISHER));
@@ -516,7 +516,7 @@ public class JobsUI extends JDialog
 
             if (which == 1 || which == 99) // subscriber or both
             {
-                title = guiContext.cfg.gs("JobsUI.pubsub.select.subscriber");
+                title = guiContext.cfg.gs("JobsUI.combo.select.subscriber");
                 tip = guiContext.cfg.gs("JobsUI.select.subscriber.tooltip");
 
                 combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.subscriber"), ANY_SUBSCRIBER));
@@ -546,7 +546,7 @@ public class JobsUI extends JDialog
 
             if (which == 99)
             {
-                title = guiContext.cfg.gs("JobsUI.pubsub.select.publisher.or.subscriber");
+                title = guiContext.cfg.gs("JobsUI.combo.select.publisher.or.subscriber");
                 tip = guiContext.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
             }
 
@@ -627,9 +627,9 @@ public class JobsUI extends JDialog
                     int index = list.getSelectedIndex();
                     if (index < 0)
                     {
-                        String msg = (which == 0 ? guiContext.cfg.gs("JobsUI.pubsub.select.publisher") :
-                                     (which == 1 ? guiContext.cfg.gs("JobsUI.pubsub.select.subscriber") :
-                                        guiContext.cfg.gs("JobsUI.pubsub.select.publisher.or.subscriber")));
+                        String msg = (which == 0 ? guiContext.cfg.gs("JobsUI.combo.select.publisher") :
+                                     (which == 1 ? guiContext.cfg.gs("JobsUI.combo.select.subscriber") :
+                                        guiContext.cfg.gs("JobsUI.combo.select.publisher.or.subscriber")));
                         JOptionPane.showMessageDialog(this, msg,
                                 guiContext.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE);
                         return;
@@ -2067,8 +2067,9 @@ public class JobsUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.ok"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.changes.toolTipText"));
+                okButton.setText(guiContext.cfg.gs("Z.save"));
+                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                okButton.setActionCommand(guiContext.cfg.gs("Z.save"));
                 okButton.addActionListener(e -> actionOkClicked(e));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2076,7 +2077,7 @@ public class JobsUI extends JDialog
 
                 //---- cancelButton ----
                 cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
-                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes"));
+                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
