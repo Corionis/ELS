@@ -216,6 +216,7 @@ public class ClientStty
             {
                 try
                 {
+                    sleep(20 * 1000); // offset this heartbeat timing
                     String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
                     while (true)
                     {
@@ -469,7 +470,6 @@ public class ClientStty
     /**
      * Retrieve remote data and store it in a file
      *
-     * @param filename File path to store the data
      * @param message The command to send
      * @param log Line to be logged, if any
      * @param timeout Timeout for operation in milliseconds

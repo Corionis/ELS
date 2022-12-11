@@ -68,6 +68,7 @@ public abstract class AbstractDaemon
             {
                 try
                 {
+                    sleep(10 * 1000); // offset this heartbeat timing
                     String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
                     while (true)
                     {

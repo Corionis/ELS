@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
  */
 public class Utils
 {
-    private static Cipher cipher = null;
     private static Logger logger = LogManager.getLogger("applog");
 
     private static Context context;
@@ -74,7 +73,7 @@ public class Utils
      * @param encrypted Data to decrypt
      * @return String Decrypted texts
      */
-    public static String decrypt(String key, byte[] encrypted)
+    public static synchronized String decrypt(String key, byte[] encrypted)
     {
         String output = "";
         try
@@ -87,10 +86,7 @@ public class Utils
             }
             logger.trace("decrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
-//            if (cipher == null)
-            {
-                cipher = Cipher.getInstance("AES");
-            }
+            Cipher cipher = Cipher.getInstance("AES");
             // decrypt the text
             cipher.init(Cipher.DECRYPT_MODE, aesKey);
             output = new String(cipher.doFinal(encrypted));
@@ -109,7 +105,7 @@ public class Utils
      * @param text Data to encrypt
      * @return byte[] of encrypted data
      */
-    public static byte[] encrypt(String key, String text)
+    public static synchronized byte[] encrypt(String key, String text)
     {
         byte[] encrypted = {};
         try
@@ -122,10 +118,7 @@ public class Utils
             }
             logger.trace("encrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
-//            if (cipher == null)
-            {
-                cipher = Cipher.getInstance("AES");
-            }
+            Cipher cipher = Cipher.getInstance("AES");
             // encrypt the text
             cipher.init(Cipher.ENCRYPT_MODE, aesKey);
             encrypted = cipher.doFinal(text.getBytes());

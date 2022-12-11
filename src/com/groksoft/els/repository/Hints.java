@@ -372,7 +372,7 @@ public class Hints
      * Run all the local hints on the publisher.
      * <p>
      * If not done manually and the publisher's hint status set to Done, a hint
-     * must be executed on the publisher before a backup operation to a subscriber
+     * must be executed on the publisher before a operation operation to a subscriber
      * so the two ends match.
      *
      * @throws Exception
@@ -519,7 +519,7 @@ public class Hints
                             List<String> lines = readHint(item.getFullPath());
 
                             // check if the publisher has Done or Seen this hint
-                            // this is important prior to a backup run to avoid duplicates, etc.
+                            // this is important prior to a operation run to avoid duplicates, etc.
                             HintKeys.HintKey hintKey = findHintKey(context.publisherRepo);
                             String statusLine = findNameLine(lines, hintKey.name);
                             if (statusLine == null || (!statusLine.toLowerCase().startsWith("done ") && !statusLine.toLowerCase().startsWith("seen ")))
@@ -1212,7 +1212,7 @@ public class Hints
     /**
      * Update hint status for a specific back-up name.
      * <p>
-     * Updates and saves the status for the backup name in the hint
+     * Updates and saves the status for the operation name in the hint
      * file and updates the hint status tracker/server if defined.
      * <p>
      * The higher value of either the existing or the new value is saved.
