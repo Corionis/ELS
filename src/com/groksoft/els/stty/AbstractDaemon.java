@@ -68,20 +68,20 @@ public abstract class AbstractDaemon
             {
                 try
                 {
-                    sleep(10 * 1000); // offset this heartbeat timing
+                    sleep(20 * 1000); // offset this heartbeat timing
                     String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
                     while (true)
                     {
                         sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
                         if (heartBeatEnabled)
                         {
-                            send("ping", context.main.trace ? "HEARTBEAT sent" + desc : "");
+                            send("ping", context.main.trace ? "heartbeat sent" + desc : "");
                         }
                     }
                 }
                 catch (InterruptedException e)
                 {
-                    logger.trace("Heartbeat interrupted");
+                    logger.trace("heartbeat interrupted");
                     interrupt();
                 }
                 catch (Exception e)
@@ -198,7 +198,7 @@ public abstract class AbstractDaemon
             response = Utils.readStream(in, myRepo.getLibraryData().libraries.key);
 
             if (response != null && response.startsWith("ping"))
-                logger.trace("HEARTBEAT received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                logger.debug("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }

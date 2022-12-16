@@ -1195,7 +1195,7 @@ public class Transfer
             String line = "hint \"" + hintPath + "\" " + command;
             hintPath = context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
         }
-        else // local operation
+        else // local operations
         {
             File hintFile = new File(hintPath);
             command = command + "\n";

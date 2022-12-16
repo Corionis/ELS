@@ -280,10 +280,6 @@ public class MainFrame extends JFrame
         return true;
     }
 
-    private void actionCloseClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
     // ================================================================================================================
 
     // <editor-fold desc="Generated code (Fold)">
@@ -310,7 +306,6 @@ public class MainFrame extends JFrame
         menuItemCut = new JMenuItem();
         menuItemPaste = new JMenuItem();
         menuItemDelete = new JMenuItem();
-        menuItemSettings = new JMenuItem();
         menuView = new JMenu();
         menuItemRefresh = new JMenuItem();
         menuItemProgress = new JMenuItem();
@@ -329,6 +324,12 @@ public class MainFrame extends JFrame
         menuItemPlexGenerator = new JMenuItem();
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
+        menuSystem = new JMenu();
+        menuItemSettings = new JMenuItem();
+        menuItemAuthKeys = new JMenuItem();
+        menuItemHintKeys = new JMenuItem();
+        menuItemBlacklist = new JMenuItem();
+        menuItemWhitelist = new JMenuItem();
         menuWindows = new JMenu();
         menuItemMaximize = new JMenuItem();
         menuItemMinimize = new JMenuItem();
@@ -390,37 +391,126 @@ public class MainFrame extends JFrame
         textAreaLog = new JTextArea();
         scrollPaneProperties = new JScrollPane();
         textAreaProperties = new JEditorPane();
-        splitPaneBackup = new JSplitPane();
-        panelBackupTop = new JPanel();
-        panelBackupButtons = new JPanel();
-        panelTopButtons = new JPanel();
-        buttonNewBackup = new JButton();
-        buttonCopyBackup = new JButton();
-        buttonDeleteBackup = new JButton();
+        splitPaneOperation = new JSplitPane();
+        panelOperationTop = new JPanel();
+        panelOperationButtons = new JPanel();
+        panelTopOperationButtons = new JPanel();
+        buttonNewOperation = new JButton();
+        buttonCopyOperation = new JButton();
+        buttonDeleteOperation = new JButton();
         hSpacerBeforeRun = new JPanel(null);
-        buttonRunBackup = new JButton();
+        buttonRunOperation = new JButton();
         hSpacerBeforeGenerate = new JPanel(null);
-        buttonGenerateBackup = new JButton();
-        panelHelp = new JPanel();
-        labelBackupHelp = new JLabel();
-        splitPaneBackupContent = new JSplitPane();
-        scrollPaneBackupConfig = new JScrollPane();
-        backupConfigItems = new JTable();
-        panelBackupOptions = new JPanel();
-        panelBackupControls = new JPanel();
-        topBackupOptions = new JPanel();
+        buttonGenerateOperation = new JButton();
+        panelOperationHelp = new JPanel();
+        labelOperationHelp = new JLabel();
+        splitPaneOperationContent = new JSplitPane();
+        scrollPaneOperationConfig = new JScrollPane();
+        operationConfigItems = new JTable();
+        panelOperationOptions = new JPanel();
+        panelOperationControls = new JPanel();
+        topOperationOptions = new JPanel();
         vSpacer0 = new JPanel(null);
-        panelBackupMode = new JPanel();
+        panelOperationMode = new JPanel();
         hSpacer3 = new JPanel(null);
-        labelBackupMode = new JLabel();
-        panelBackupBottom = new JPanel();
-        labelBackupStatus = new JLabel();
-        panelBackupBottomButtons = new JPanel();
-        buttonBackupSave = new JButton();
-        buttonBackupCancel = new JButton();
-        tabbedPaneBackupBottom = new JTabbedPane();
-        scrollPaneBackupLog = new JScrollPane();
-        textAreaBackupLog = new JTextArea();
+        labelOperationMode = new JLabel();
+        scrollPaneOperationCards = new JScrollPane();
+        panelOperationCards = new JPanel();
+        panelCardPublisher = new JPanel();
+        labelOperationNavigatorCheckbox = new JLabel();
+        checkBoxOperationNavigator = new JCheckBox();
+        vSpacer3 = new JPanel(null);
+        panelOperationIncludeExcludeBox = new JPanel();
+        vSpacer8 = new JPanel(null);
+        scrollPaneOperationIncludeExclude = new JScrollPane();
+        listOperationIncludeExclude = new JList();
+        panelOperationIncludeExcludeButtons = new JPanel();
+        buttonOperationAddIncludeExclude = new JButton();
+        buttonOperationRemoveIncludeExclude = new JButton();
+        labelOperationIncludeExclude = new JLabel();
+        labelOperationJob = new JLabel();
+        textFieldOperationJob = new JTextField();
+        buttonOperationJobFilePick = new JButton();
+        vSpacer4 = new JPanel(null);
+        comboBoxOperationTargets = new JComboBox<>();
+        textFieldOperationTargets = new JTextField();
+        buttonOperationTargetsFilePick = new JButton();
+        vSpacer5 = new JPanel(null);
+        labelOperationsMismatches = new JLabel();
+        textFieldOperationMismatches = new JTextField();
+        buttonOperationMismatchesFilePick = new JButton();
+        vSpacer6 = new JPanel(null);
+        comboBoxOperationWhatsNew = new JComboBox<>();
+        textFieldOperationWhatsNew = new JTextField();
+        buttonOperationWhatsNewFilePick = new JButton();
+        vSpacer7 = new JPanel(null);
+        labelOperationDryRun = new JLabel();
+        checkBoxOperationDryRun = new JCheckBox();
+        labelOperationExportText = new JLabel();
+        textFieldOperationExportText = new JTextField();
+        buttonOperationExportTextFilePick = new JButton();
+        vSpacer9 = new JPanel(null);
+        labelOperationNoBackfill = new JLabel();
+        checkBoxOperationNoBackFill = new JCheckBox();
+        labelOperationExportItems = new JLabel();
+        textFieldOperationExportItems = new JTextField();
+        buttonOperationExportItemsFilePick = new JButton();
+        vSpacer10 = new JPanel(null);
+        labelOperationOverwrite = new JLabel();
+        checkBoxOperationOverwrite = new JCheckBox();
+        vSpacer11 = new JPanel(null);
+        labelOperationPreservedDates = new JLabel();
+        checkBoxOperationPreserveDates = new JCheckBox();
+        comboBoxOperationHintKeys = new JComboBox<>();
+        textFieldOperationHintKeys = new JTextField();
+        buttonOperationHintKeysFilePick = new JButton();
+        vSpacer19 = new JPanel(null);
+        labelOperationDecimalScale = new JLabel();
+        checkBoxOperationDecimalScale = new JCheckBox();
+        comboBoxOperationHintsAndServer = new JComboBox<>();
+        textFieldOperationHints = new JTextField();
+        buttonOperationHintsFilePick = new JButton();
+        vSpacer18 = new JPanel(null);
+        labelOperationValidate = new JLabel();
+        checkBoxOperationValidate = new JCheckBox();
+        labelOperationQuitStatusServer = new JLabel();
+        checkBoxOperationQuitStatus = new JCheckBox();
+        vSpacer17 = new JPanel(null);
+        labelOperationKeepGoing = new JLabel();
+        checkBoxOperationKeepGoing = new JCheckBox();
+        vSpacer16 = new JPanel(null);
+        labelOperationDuplicates = new JLabel();
+        checkBoxOperationDuplicates = new JCheckBox();
+        vSpacer15 = new JPanel(null);
+        labelOperationCrossCheck = new JLabel();
+        checkBoxOperationCrossCheck = new JCheckBox();
+        comboBoxOperationLog = new JComboBox<>();
+        textFieldOperationLog = new JTextField();
+        buttonOperationLogFilePick = new JButton();
+        vSpacer14 = new JPanel(null);
+        labelOperationEmptyDirectories = new JLabel();
+        checkBoxOperationEmptyDirectories = new JCheckBox();
+        labelOperationLogLevels = new JLabel();
+        panelOperationLogLevels = new JPanel();
+        comboBoxOperationConsoleLevel = new JComboBox<>();
+        comboBoxOperationDebugLevel = new JComboBox<>();
+        vSpacer13 = new JPanel(null);
+        labelOperationIgnored = new JLabel();
+        checkBoxOperationIgnored = new JCheckBox();
+        panelCardListener = new JPanel();
+        label1 = new JLabel();
+        panelCardQuit = new JPanel();
+        label2 = new JLabel();
+        panelCardTerminal = new JPanel();
+        label3 = new JLabel();
+        panelOperationBottom = new JPanel();
+        labelOperationStatus = new JLabel();
+        panelOperationBottomButtons = new JPanel();
+        buttonOperationSave = new JButton();
+        buttonOperationCancel = new JButton();
+        tabbedPaneOperationBottom = new JTabbedPane();
+        scrollPaneOperationLog = new JScrollPane();
+        textAreaOperationLog = new JTextArea();
         panelLibraries = new JPanel();
         panelStatus = new JPanel();
         labelStatusLeft = new JLabel();
@@ -586,14 +676,6 @@ public class MainFrame extends JFrame
                 menuItemDelete.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemDelete.setHorizontalAlignment(SwingConstants.LEFT);
                 menuEdit.add(menuItemDelete);
-                menuEdit.addSeparator();
-
-                //---- menuItemSettings ----
-                menuItemSettings.setText(guiContext.cfg.gs("Navigator.menu.Settings.text"));
-                menuItemSettings.setMnemonic(guiContext.cfg.gs("Navigator.menu.Settings.mnemonic").charAt(0));
-                menuItemSettings.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemSettings.setHorizontalAlignment(SwingConstants.LEFT);
-                menuEdit.add(menuItemSettings);
             }
             menuBarMain.add(menuEdit);
 
@@ -731,6 +813,54 @@ public class MainFrame extends JFrame
                 menuJobs.addSeparator();
             }
             menuBarMain.add(menuJobs);
+
+            //======== menuSystem ========
+            {
+                menuSystem.setText("System");
+                menuSystem.setMnemonic(guiContext.cfg.gs("Navigator.menuSystem.mnemonic").charAt(0));
+
+                //---- menuItemSettings ----
+                menuItemSettings.setText(guiContext.cfg.gs("Navigator.menu.Settings.text"));
+                menuItemSettings.setMnemonic(guiContext.cfg.gs("Navigator.menu.Settings.mnemonic").charAt(0));
+                menuItemSettings.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemSettings.setHorizontalAlignment(SwingConstants.LEFT);
+                menuSystem.add(menuItemSettings);
+                menuSystem.addSeparator();
+
+                //---- menuItemAuthKeys ----
+                menuItemAuthKeys.setText(guiContext.cfg.gs("Navigator.menuItemAuthKeys.text"));
+                menuItemAuthKeys.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemAuthKeys.setMnemonic(guiContext.cfg.gs("Navigator.menuItemAuthKeys.mnemonic").charAt(0));
+                menuItemAuthKeys.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemAuthKeys.setEnabled(false);
+                menuSystem.add(menuItemAuthKeys);
+
+                //---- menuItemHintKeys ----
+                menuItemHintKeys.setText(guiContext.cfg.gs("Navigator.menuItemHintKeys.text"));
+                menuItemHintKeys.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemHintKeys.setMnemonic(guiContext.cfg.gs("Navigator.menuItemHintKeys.mnemonic").charAt(0));
+                menuItemHintKeys.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemHintKeys.setEnabled(false);
+                menuSystem.add(menuItemHintKeys);
+                menuSystem.addSeparator();
+
+                //---- menuItemBlacklist ----
+                menuItemBlacklist.setText(guiContext.cfg.gs("Navigator.menuItemBlacklist.text"));
+                menuItemBlacklist.setMnemonic(guiContext.cfg.gs("Navigator.menuItemBlacklist.mnemonic").charAt(0));
+                menuItemBlacklist.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemBlacklist.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemBlacklist.setEnabled(false);
+                menuSystem.add(menuItemBlacklist);
+
+                //---- menuItemWhitelist ----
+                menuItemWhitelist.setText(guiContext.cfg.gs("Navigator.menuItemWhitelist.text"));
+                menuItemWhitelist.setEnabled(false);
+                menuItemWhitelist.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemWhitelist.setMnemonic(guiContext.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
+                menuItemWhitelist.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuSystem.add(menuItemWhitelist);
+            }
+            menuBarMain.add(menuSystem);
 
             //======== menuWindows ========
             {
@@ -1036,6 +1166,7 @@ public class MainFrame extends JFrame
                                 }
                                 tabbedPaneBrowserOne.addTab(guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.title"), panelCollectionOne);
                                 tabbedPaneBrowserOne.setMnemonicAt(0, guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserOne.setDisplayedMnemonicIndexAt(0, 11);
 
                                 //======== panelSystemOne ========
                                 {
@@ -1082,6 +1213,7 @@ public class MainFrame extends JFrame
                                 }
                                 tabbedPaneBrowserOne.addTab(guiContext.cfg.gs("Navigator.panel.SystemOne.tab.title"), panelSystemOne);
                                 tabbedPaneBrowserOne.setMnemonicAt(1, guiContext.cfg.gs("Navigator.panel.SystemOne.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserOne.setDisplayedMnemonicIndexAt(1, Integer.parseInt(guiContext.cfg.gs("Navigator.panelSystemOne.tab.mnemonicIndex")));
                             }
                             splitPaneTwoBrowsers.setLeftComponent(tabbedPaneBrowserOne);
 
@@ -1141,6 +1273,7 @@ public class MainFrame extends JFrame
                                 }
                                 tabbedPaneBrowserTwo.addTab(guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.title"), panelCollectionTwo);
                                 tabbedPaneBrowserTwo.setMnemonicAt(0, guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserTwo.setDisplayedMnemonicIndexAt(0, Integer.parseInt(guiContext.cfg.gs("Navigator.panelCollectionTwo.tab.mnemonicIndex")));
 
                                 //======== panelSystemTwo ========
                                 {
@@ -1186,6 +1319,7 @@ public class MainFrame extends JFrame
                                 }
                                 tabbedPaneBrowserTwo.addTab(guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.title"), panelSystemTwo);
                                 tabbedPaneBrowserTwo.setMnemonicAt(1, guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserTwo.setDisplayedMnemonicIndexAt(1, Integer.parseInt(guiContext.cfg.gs("Navigator.panelSystemTwo.tab.mnemonicIndex")));
                             }
                             splitPaneTwoBrowsers.setRightComponent(tabbedPaneBrowserTwo);
                         }
@@ -1238,211 +1372,1031 @@ public class MainFrame extends JFrame
                 tabbedPaneMain.addTab(guiContext.cfg.gs("Navigator.splitPane.Browser.tab.title"), splitPaneBrowser);
                 tabbedPaneMain.setMnemonicAt(0, guiContext.cfg.gs("Navigator.splitPane.Browser.tab.mnemonic").charAt(0));
 
-                //======== splitPaneBackup ========
+                //======== splitPaneOperation ========
                 {
-                    splitPaneBackup.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                    splitPaneBackup.setDividerLocation(450);
-                    splitPaneBackup.setLastDividerLocation(450);
+                    splitPaneOperation.setOrientation(JSplitPane.VERTICAL_SPLIT);
+                    splitPaneOperation.setDividerLocation(650);
+                    splitPaneOperation.setLastDividerLocation(450);
 
-                    //======== panelBackupTop ========
+                    //======== panelOperationTop ========
                     {
-                        panelBackupTop.setLayout(new BorderLayout());
+                        panelOperationTop.setLayout(new BorderLayout());
 
-                        //======== panelBackupButtons ========
+                        //======== panelOperationButtons ========
                         {
-                            panelBackupButtons.setMinimumSize(new Dimension(140, 38));
-                            panelBackupButtons.setPreferredSize(new Dimension(614, 38));
-                            panelBackupButtons.setLayout(new BorderLayout());
+                            panelOperationButtons.setMinimumSize(new Dimension(140, 38));
+                            panelOperationButtons.setPreferredSize(new Dimension(614, 38));
+                            panelOperationButtons.setLayout(new BorderLayout());
 
-                            //======== panelTopButtons ========
+                            //======== panelTopOperationButtons ========
                             {
-                                panelTopButtons.setMinimumSize(new Dimension(140, 38));
-                                panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
+                                panelTopOperationButtons.setMinimumSize(new Dimension(140, 38));
+                                panelTopOperationButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
-                                //---- buttonNewBackup ----
-                                buttonNewBackup.setText(guiContext.cfg.gs("Backup.buttonNew.text"));
-                                buttonNewBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonNew.mnemonic").charAt(0));
-                                buttonNewBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonNew.toolTipText"));
-                                panelTopButtons.add(buttonNewBackup);
+                                //---- buttonNewOperation ----
+                                buttonNewOperation.setText(guiContext.cfg.gs("Operations.buttonNew.text"));
+                                buttonNewOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonNew.toolTipText"));
+                                buttonNewOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonNew.mnemonic").charAt(0));
+                                panelTopOperationButtons.add(buttonNewOperation);
 
-                                //---- buttonCopyBackup ----
-                                buttonCopyBackup.setText(guiContext.cfg.gs("Backup.buttonCopy.text"));
-                                buttonCopyBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonCopy.mnemonic").charAt(0));
-                                buttonCopyBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonCopy.toolTipText"));
-                                panelTopButtons.add(buttonCopyBackup);
+                                //---- buttonCopyOperation ----
+                                buttonCopyOperation.setText(guiContext.cfg.gs("Operations.buttonCopy.text"));
+                                buttonCopyOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonCopy.mnemonic").charAt(0));
+                                buttonCopyOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonCopy.toolTipText"));
+                                panelTopOperationButtons.add(buttonCopyOperation);
 
-                                //---- buttonDeleteBackup ----
-                                buttonDeleteBackup.setText(guiContext.cfg.gs("Backup.buttonDelete.text"));
-                                buttonDeleteBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonDelete.mnemonic").charAt(0));
-                                buttonDeleteBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonDelete.toolTipText"));
-                                panelTopButtons.add(buttonDeleteBackup);
+                                //---- buttonDeleteOperation ----
+                                buttonDeleteOperation.setText(guiContext.cfg.gs("Operations.buttonDelete.text"));
+                                buttonDeleteOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonDelete.mnemonic").charAt(0));
+                                buttonDeleteOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonDelete.toolTipText"));
+                                panelTopOperationButtons.add(buttonDeleteOperation);
 
                                 //---- hSpacerBeforeRun ----
                                 hSpacerBeforeRun.setMinimumSize(new Dimension(22, 6));
                                 hSpacerBeforeRun.setPreferredSize(new Dimension(22, 6));
-                                panelTopButtons.add(hSpacerBeforeRun);
+                                panelTopOperationButtons.add(hSpacerBeforeRun);
 
-                                //---- buttonRunBackup ----
-                                buttonRunBackup.setText(guiContext.cfg.gs("Backup.buttonRun.text"));
-                                buttonRunBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonRun.mnemonic").charAt(0));
-                                buttonRunBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonRun.toolTipText"));
-                                panelTopButtons.add(buttonRunBackup);
+                                //---- buttonRunOperation ----
+                                buttonRunOperation.setText(guiContext.cfg.gs("Operations.buttonRun.text"));
+                                buttonRunOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonRun.mnemonic").charAt(0));
+                                buttonRunOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonRun.toolTipText"));
+                                panelTopOperationButtons.add(buttonRunOperation);
 
                                 //---- hSpacerBeforeGenerate ----
                                 hSpacerBeforeGenerate.setMinimumSize(new Dimension(22, 6));
                                 hSpacerBeforeGenerate.setPreferredSize(new Dimension(22, 6));
-                                panelTopButtons.add(hSpacerBeforeGenerate);
+                                panelTopOperationButtons.add(hSpacerBeforeGenerate);
 
-                                //---- buttonGenerateBackup ----
-                                buttonGenerateBackup.setText(guiContext.cfg.gs("Backup.buttonGenerate.text"));
-                                buttonGenerateBackup.setMnemonic(guiContext.cfg.gs("Backup.buttonGenerate.mnemonic").charAt(0));
-                                buttonGenerateBackup.setToolTipText(guiContext.cfg.gs("Backup.buttonGenerate.toolTipText"));
-                                panelTopButtons.add(buttonGenerateBackup);
+                                //---- buttonGenerateOperation ----
+                                buttonGenerateOperation.setText(guiContext.cfg.gs("Operations.buttonGenerate.text"));
+                                buttonGenerateOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonGenerate.mnemonic").charAt(0));
+                                buttonGenerateOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonGenerate.toolTipText"));
+                                panelTopOperationButtons.add(buttonGenerateOperation);
                             }
-                            panelBackupButtons.add(panelTopButtons, BorderLayout.WEST);
+                            panelOperationButtons.add(panelTopOperationButtons, BorderLayout.WEST);
 
-                            //======== panelHelp ========
+                            //======== panelOperationHelp ========
                             {
-                                panelHelp.setPreferredSize(new Dimension(40, 38));
-                                panelHelp.setMinimumSize(new Dimension(0, 38));
-                                panelHelp.setLayout(new FlowLayout(FlowLayout.RIGHT, 4, 4));
+                                panelOperationHelp.setPreferredSize(new Dimension(40, 38));
+                                panelOperationHelp.setMinimumSize(new Dimension(0, 38));
+                                panelOperationHelp.setLayout(new FlowLayout(FlowLayout.RIGHT, 4, 4));
 
-                                //---- labelBackupHelp ----
-                                labelBackupHelp.setIcon(UIManager.getIcon("OptionPane.informationIcon"));
-                                labelBackupHelp.setPreferredSize(new Dimension(32, 30));
-                                labelBackupHelp.setMinimumSize(new Dimension(32, 30));
-                                labelBackupHelp.setMaximumSize(new Dimension(32, 30));
-                                labelBackupHelp.setToolTipText(guiContext.cfg.gs("Backup.labelHelp.toolTipText"));
-                                labelBackupHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                                labelBackupHelp.setIconTextGap(0);
-                                panelHelp.add(labelBackupHelp);
+                                //---- labelOperationHelp ----
+                                labelOperationHelp.setIcon(UIManager.getIcon("OptionPane.informationIcon"));
+                                labelOperationHelp.setPreferredSize(new Dimension(32, 30));
+                                labelOperationHelp.setMinimumSize(new Dimension(32, 30));
+                                labelOperationHelp.setMaximumSize(new Dimension(32, 30));
+                                labelOperationHelp.setToolTipText(guiContext.cfg.gs("Operations.labelHelp.toolTipText"));
+                                labelOperationHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                                labelOperationHelp.setIconTextGap(0);
+                                panelOperationHelp.add(labelOperationHelp);
                             }
-                            panelBackupButtons.add(panelHelp, BorderLayout.EAST);
+                            panelOperationButtons.add(panelOperationHelp, BorderLayout.EAST);
                         }
-                        panelBackupTop.add(panelBackupButtons, BorderLayout.NORTH);
+                        panelOperationTop.add(panelOperationButtons, BorderLayout.NORTH);
 
-                        //======== splitPaneBackupContent ========
+                        //======== splitPaneOperationContent ========
                         {
-                            splitPaneBackupContent.setDividerLocation(142);
-                            splitPaneBackupContent.setLastDividerLocation(142);
-                            splitPaneBackupContent.setMinimumSize(new Dimension(140, 80));
+                            splitPaneOperationContent.setDividerLocation(142);
+                            splitPaneOperationContent.setLastDividerLocation(142);
+                            splitPaneOperationContent.setMinimumSize(new Dimension(140, 80));
 
-                            //======== scrollPaneBackupConfig ========
+                            //======== scrollPaneOperationConfig ========
                             {
-                                scrollPaneBackupConfig.setMinimumSize(new Dimension(140, 16));
-                                scrollPaneBackupConfig.setPreferredSize(new Dimension(142, 146));
+                                scrollPaneOperationConfig.setMinimumSize(new Dimension(140, 16));
+                                scrollPaneOperationConfig.setPreferredSize(new Dimension(142, 146));
 
-                                //---- backupConfigItems ----
-                                backupConfigItems.setPreferredSize(new Dimension(128, 54));
-                                backupConfigItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                                backupConfigItems.setShowVerticalLines(false);
-                                backupConfigItems.setFillsViewportHeight(true);
-                                scrollPaneBackupConfig.setViewportView(backupConfigItems);
+                                //---- operationConfigItems ----
+                                operationConfigItems.setPreferredSize(new Dimension(128, 54));
+                                operationConfigItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                                operationConfigItems.setShowVerticalLines(false);
+                                operationConfigItems.setFillsViewportHeight(true);
+                                scrollPaneOperationConfig.setViewportView(operationConfigItems);
                             }
-                            splitPaneBackupContent.setLeftComponent(scrollPaneBackupConfig);
+                            splitPaneOperationContent.setLeftComponent(scrollPaneOperationConfig);
 
-                            //======== panelBackupOptions ========
+                            //======== panelOperationOptions ========
                             {
-                                panelBackupOptions.setMinimumSize(new Dimension(0, 78));
-                                panelBackupOptions.setLayout(new BorderLayout());
+                                panelOperationOptions.setMinimumSize(new Dimension(0, 78));
+                                panelOperationOptions.setLayout(new BorderLayout());
 
-                                //======== panelBackupControls ========
+                                //======== panelOperationControls ========
                                 {
-                                    panelBackupControls.setLayout(new BorderLayout());
+                                    panelOperationControls.setLayout(new BorderLayout());
 
-                                    //======== topBackupOptions ========
+                                    //======== topOperationOptions ========
                                     {
-                                        topBackupOptions.setLayout(new BorderLayout());
+                                        topOperationOptions.setLayout(new BorderLayout());
 
                                         //---- vSpacer0 ----
                                         vSpacer0.setPreferredSize(new Dimension(10, 2));
                                         vSpacer0.setMinimumSize(new Dimension(10, 2));
                                         vSpacer0.setMaximumSize(new Dimension(10, 2));
-                                        topBackupOptions.add(vSpacer0, BorderLayout.NORTH);
+                                        topOperationOptions.add(vSpacer0, BorderLayout.NORTH);
 
-                                        //======== panelBackupMode ========
+                                        //======== panelOperationMode ========
                                         {
-                                            panelBackupMode.setLayout(new BoxLayout(panelBackupMode, BoxLayout.X_AXIS));
+                                            panelOperationMode.setLayout(new BoxLayout(panelOperationMode, BoxLayout.X_AXIS));
 
                                             //---- hSpacer3 ----
                                             hSpacer3.setPreferredSize(new Dimension(4, 10));
                                             hSpacer3.setMinimumSize(new Dimension(4, 12));
                                             hSpacer3.setMaximumSize(new Dimension(4, 32767));
-                                            panelBackupMode.add(hSpacer3);
+                                            panelOperationMode.add(hSpacer3);
 
-                                            //---- labelBackupMode ----
-                                            labelBackupMode.setText("Mode");
-                                            labelBackupMode.setMaximumSize(new Dimension(110, 16));
-                                            labelBackupMode.setFont(labelBackupMode.getFont().deriveFont(labelBackupMode.getFont().getSize() + 1f));
-                                            labelBackupMode.setPreferredSize(new Dimension(110, 16));
-                                            labelBackupMode.setMinimumSize(new Dimension(110, 16));
-                                            panelBackupMode.add(labelBackupMode);
+                                            //---- labelOperationMode ----
+                                            labelOperationMode.setMaximumSize(new Dimension(800, 16));
+                                            labelOperationMode.setFont(labelOperationMode.getFont().deriveFont(labelOperationMode.getFont().getSize() + 1f));
+                                            labelOperationMode.setPreferredSize(new Dimension(800, 16));
+                                            labelOperationMode.setMinimumSize(new Dimension(110, 16));
+                                            panelOperationMode.add(labelOperationMode);
                                         }
-                                        topBackupOptions.add(panelBackupMode, BorderLayout.WEST);
+                                        topOperationOptions.add(panelOperationMode, BorderLayout.WEST);
                                     }
-                                    panelBackupControls.add(topBackupOptions, BorderLayout.NORTH);
+                                    panelOperationControls.add(topOperationOptions, BorderLayout.NORTH);
                                 }
-                                panelBackupOptions.add(panelBackupControls, BorderLayout.NORTH);
+                                panelOperationOptions.add(panelOperationControls, BorderLayout.NORTH);
+
+                                //======== scrollPaneOperationCards ========
+                                {
+
+                                    //======== panelOperationCards ========
+                                    {
+                                        panelOperationCards.setLayout(new CardLayout());
+
+                                        //======== panelCardPublisher ========
+                                        {
+                                            panelCardPublisher.setName("publisher");
+                                            panelCardPublisher.setLayout(new GridBagLayout());
+                                            ((GridBagLayout)panelCardPublisher.getLayout()).rowHeights = new int[] {0, 28, 34, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+                                            //---- labelOperationNavigatorCheckbox ----
+                                            labelOperationNavigatorCheckbox.setText(guiContext.cfg.gs("Operations.labelOperationNavigatorCheckbox.text"));
+                                            labelOperationNavigatorCheckbox.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationNavigatorCheckbox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationNavigator ----
+                                            checkBoxOperationNavigator.setName("navigator");
+                                            checkBoxOperationNavigator.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationNavigator, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer3 ----
+                                            vSpacer3.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer3.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer3.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer3, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //======== panelOperationIncludeExcludeBox ========
+                                            {
+                                                panelOperationIncludeExcludeBox.setLayout(new BoxLayout(panelOperationIncludeExcludeBox, BoxLayout.Y_AXIS));
+
+                                                //---- vSpacer8 ----
+                                                vSpacer8.setMinimumSize(new Dimension(12, 4));
+                                                panelOperationIncludeExcludeBox.add(vSpacer8);
+
+                                                //======== scrollPaneOperationIncludeExclude ========
+                                                {
+
+                                                    //---- listOperationIncludeExclude ----
+                                                    listOperationIncludeExclude.setMinimumSize(new Dimension(60, 32));
+                                                    listOperationIncludeExclude.setPreferredSize(new Dimension(240, 32));
+                                                    listOperationIncludeExclude.setVisibleRowCount(5);
+                                                    listOperationIncludeExclude.setMaximumSize(new Dimension(5280, 54));
+                                                    scrollPaneOperationIncludeExclude.setViewportView(listOperationIncludeExclude);
+                                                }
+                                                panelOperationIncludeExcludeBox.add(scrollPaneOperationIncludeExclude);
+
+                                                //======== panelOperationIncludeExcludeButtons ========
+                                                {
+                                                    panelOperationIncludeExcludeButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
+
+                                                    //---- buttonOperationAddIncludeExclude ----
+                                                    buttonOperationAddIncludeExclude.setText(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.text"));
+                                                    buttonOperationAddIncludeExclude.setFont(buttonOperationAddIncludeExclude.getFont().deriveFont(buttonOperationAddIncludeExclude.getFont().getSize() - 2f));
+                                                    buttonOperationAddIncludeExclude.setPreferredSize(new Dimension(78, 24));
+                                                    buttonOperationAddIncludeExclude.setMinimumSize(new Dimension(78, 24));
+                                                    buttonOperationAddIncludeExclude.setMaximumSize(new Dimension(78, 24));
+                                                    buttonOperationAddIncludeExclude.setMnemonic(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.mnemonic").charAt(0));
+                                                    buttonOperationAddIncludeExclude.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.toolTipText"));
+                                                    buttonOperationAddIncludeExclude.addActionListener(e -> guiContext.operations.eventOperationAddRowClicked(e));
+                                                    panelOperationIncludeExcludeButtons.add(buttonOperationAddIncludeExclude);
+
+                                                    //---- buttonOperationRemoveIncludeExclude ----
+                                                    buttonOperationRemoveIncludeExclude.setText(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.text"));
+                                                    buttonOperationRemoveIncludeExclude.setFont(buttonOperationRemoveIncludeExclude.getFont().deriveFont(buttonOperationRemoveIncludeExclude.getFont().getSize() - 2f));
+                                                    buttonOperationRemoveIncludeExclude.setPreferredSize(new Dimension(78, 24));
+                                                    buttonOperationRemoveIncludeExclude.setMinimumSize(new Dimension(78, 24));
+                                                    buttonOperationRemoveIncludeExclude.setMaximumSize(new Dimension(78, 24));
+                                                    buttonOperationRemoveIncludeExclude.setMnemonic(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.mnemonic").charAt(0));
+                                                    buttonOperationRemoveIncludeExclude.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.toolTipText"));
+                                                    buttonOperationRemoveIncludeExclude.addActionListener(e -> guiContext.operations.eventOperationRemoveRowClicked(e));
+                                                    panelOperationIncludeExcludeButtons.add(buttonOperationRemoveIncludeExclude);
+                                                }
+                                                panelOperationIncludeExcludeBox.add(panelOperationIncludeExcludeButtons);
+                                            }
+                                            panelCardPublisher.add(panelOperationIncludeExcludeBox, new GridBagConstraints(5, 0, 1, 4, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationIncludeExclude ----
+                                            labelOperationIncludeExclude.setText(guiContext.cfg.gs("Operations.labelOperationIncludeExclude.text"));
+                                            labelOperationIncludeExclude.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationIncludeExclude, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationJob ----
+                                            labelOperationJob.setText(guiContext.cfg.gs("Operations.labelOperationJob.text"));
+                                            labelOperationJob.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationJob, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationJob ----
+                                            textFieldOperationJob.setPreferredSize(new Dimension(240, 30));
+                                            textFieldOperationJob.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationJob.setName("job");
+                                            textFieldOperationJob.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationJob.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationJob, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationJobFilePick ----
+                                            buttonOperationJobFilePick.setText("...");
+                                            buttonOperationJobFilePick.setFont(buttonOperationJobFilePick.getFont().deriveFont(buttonOperationJobFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationJobFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationJobFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationJobFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationJobFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationJobFilePick.setIconTextGap(0);
+                                            buttonOperationJobFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationJobFilePick.setActionCommand("jobFilePick");
+                                            panelCardPublisher.add(buttonOperationJobFilePick, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer4 ----
+                                            vSpacer4.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer4.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer4.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer4, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- comboBoxOperationTargets ----
+                                            comboBoxOperationTargets.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationTargets.prototypeDisplayValue"));
+                                            comboBoxOperationTargets.setMinimumSize(new Dimension(60, 30));
+                                            comboBoxOperationTargets.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                "Targets:",
+                                                "Targets, forced:"
+                                            }));
+                                            comboBoxOperationTargets.setName("targets");
+                                            comboBoxOperationTargets.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(comboBoxOperationTargets, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationTargets ----
+                                            textFieldOperationTargets.setPreferredSize(new Dimension(240, 30));
+                                            textFieldOperationTargets.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationTargets.setName("targets");
+                                            textFieldOperationTargets.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationTargets.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationTargets, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationTargetsFilePick ----
+                                            buttonOperationTargetsFilePick.setText("...");
+                                            buttonOperationTargetsFilePick.setFont(buttonOperationTargetsFilePick.getFont().deriveFont(buttonOperationTargetsFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationTargetsFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationTargetsFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationTargetsFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationTargetsFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationTargetsFilePick.setIconTextGap(0);
+                                            buttonOperationTargetsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationTargetsFilePick.setActionCommand("targetsFilePick");
+                                            panelCardPublisher.add(buttonOperationTargetsFilePick, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer5 ----
+                                            vSpacer5.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer5.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer5.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer5, new GridBagConstraints(3, 2, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationsMismatches ----
+                                            labelOperationsMismatches.setText(guiContext.cfg.gs("Operations.labelOperationsMismatches.text"));
+                                            labelOperationsMismatches.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationsMismatches, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationMismatches ----
+                                            textFieldOperationMismatches.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationMismatches.setName("mismatches");
+                                            textFieldOperationMismatches.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationMismatches.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationMismatches, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationMismatchesFilePick ----
+                                            buttonOperationMismatchesFilePick.setText("...");
+                                            buttonOperationMismatchesFilePick.setFont(buttonOperationMismatchesFilePick.getFont().deriveFont(buttonOperationMismatchesFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationMismatchesFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationMismatchesFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationMismatchesFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationMismatchesFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationMismatchesFilePick.setIconTextGap(0);
+                                            buttonOperationMismatchesFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationMismatchesFilePick.setActionCommand("mismatchesFilePick");
+                                            panelCardPublisher.add(buttonOperationMismatchesFilePick, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer6 ----
+                                            vSpacer6.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer6.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer6.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer6, new GridBagConstraints(3, 3, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- comboBoxOperationWhatsNew ----
+                                            comboBoxOperationWhatsNew.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationWhatsNew.prototypeDisplayValue"));
+                                            comboBoxOperationWhatsNew.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                "What's New:",
+                                                "What's New, all:"
+                                            }));
+                                            comboBoxOperationWhatsNew.setMinimumSize(new Dimension(60, 30));
+                                            comboBoxOperationWhatsNew.setName("whatsnew");
+                                            comboBoxOperationWhatsNew.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(comboBoxOperationWhatsNew, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationWhatsNew ----
+                                            textFieldOperationWhatsNew.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationWhatsNew.setName("whatsNew");
+                                            textFieldOperationWhatsNew.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationWhatsNew.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationWhatsNew, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationWhatsNewFilePick ----
+                                            buttonOperationWhatsNewFilePick.setText("...");
+                                            buttonOperationWhatsNewFilePick.setFont(buttonOperationWhatsNewFilePick.getFont().deriveFont(buttonOperationWhatsNewFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationWhatsNewFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationWhatsNewFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationWhatsNewFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationWhatsNewFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationWhatsNewFilePick.setIconTextGap(0);
+                                            buttonOperationWhatsNewFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationWhatsNewFilePick.setActionCommand("mismatchesFilePick");
+                                            panelCardPublisher.add(buttonOperationWhatsNewFilePick, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer7 ----
+                                            vSpacer7.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer7.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer7.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer7, new GridBagConstraints(3, 4, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationDryRun ----
+                                            labelOperationDryRun.setText(guiContext.cfg.gs("Operations.labelOperationDryRun.text"));
+                                            labelOperationDryRun.setMinimumSize(new Dimension(5260, 16));
+                                            panelCardPublisher.add(labelOperationDryRun, new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationDryRun ----
+                                            checkBoxOperationDryRun.setName("dryRun");
+                                            checkBoxOperationDryRun.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationDryRun, new GridBagConstraints(5, 4, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationExportText ----
+                                            labelOperationExportText.setText(guiContext.cfg.gs("Operations.labelOperationExportText.text"));
+                                            labelOperationExportText.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationExportText, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationExportText ----
+                                            textFieldOperationExportText.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationExportText.setName("exportText");
+                                            textFieldOperationExportText.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationExportText.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationExportText, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationExportTextFilePick ----
+                                            buttonOperationExportTextFilePick.setText("...");
+                                            buttonOperationExportTextFilePick.setFont(buttonOperationExportTextFilePick.getFont().deriveFont(buttonOperationExportTextFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationExportTextFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationExportTextFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationExportTextFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationExportTextFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationExportTextFilePick.setIconTextGap(0);
+                                            buttonOperationExportTextFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationExportTextFilePick.setActionCommand("mismatchesFilePick");
+                                            panelCardPublisher.add(buttonOperationExportTextFilePick, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer9 ----
+                                            vSpacer9.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer9.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer9.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer9, new GridBagConstraints(3, 5, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationNoBackfill ----
+                                            labelOperationNoBackfill.setText(guiContext.cfg.gs("Operations.labelOperationNoBackfill.text"));
+                                            labelOperationNoBackfill.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationNoBackfill, new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationNoBackFill ----
+                                            checkBoxOperationNoBackFill.setName("noBackFill");
+                                            checkBoxOperationNoBackFill.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationNoBackFill, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationExportItems ----
+                                            labelOperationExportItems.setText(guiContext.cfg.gs("Operations.labelOperationExportItems.text"));
+                                            labelOperationExportItems.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationExportItems, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationExportItems ----
+                                            textFieldOperationExportItems.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationExportItems.setName("exportItems");
+                                            textFieldOperationExportItems.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationExportItems.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationExportItems, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationExportItemsFilePick ----
+                                            buttonOperationExportItemsFilePick.setText("...");
+                                            buttonOperationExportItemsFilePick.setFont(buttonOperationExportItemsFilePick.getFont().deriveFont(buttonOperationExportItemsFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationExportItemsFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationExportItemsFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationExportItemsFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationExportItemsFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationExportItemsFilePick.setIconTextGap(0);
+                                            buttonOperationExportItemsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationExportItemsFilePick.setActionCommand("mismatchesFilePick");
+                                            panelCardPublisher.add(buttonOperationExportItemsFilePick, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer10 ----
+                                            vSpacer10.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer10.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer10.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer10, new GridBagConstraints(3, 6, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationOverwrite ----
+                                            labelOperationOverwrite.setText(guiContext.cfg.gs("Operations.labelOperationOverwrite.text"));
+                                            labelOperationOverwrite.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationOverwrite, new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationOverwrite ----
+                                            checkBoxOperationOverwrite.setName("overwrite");
+                                            checkBoxOperationOverwrite.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationOverwrite, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer11 ----
+                                            vSpacer11.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer11.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer11.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer11, new GridBagConstraints(3, 7, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationPreservedDates ----
+                                            labelOperationPreservedDates.setText(guiContext.cfg.gs("Operations.labelOperationPreservedDates.text"));
+                                            labelOperationPreservedDates.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationPreservedDates, new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationPreserveDates ----
+                                            checkBoxOperationPreserveDates.setName("preserveDates");
+                                            checkBoxOperationPreserveDates.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationPreserveDates, new GridBagConstraints(5, 7, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- comboBoxOperationHintKeys ----
+                                            comboBoxOperationHintKeys.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationHintKeys.prototypeDisplayValue"));
+                                            comboBoxOperationHintKeys.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                "Hint keys:",
+                                                "Hint keys, only:"
+                                            }));
+                                            comboBoxOperationHintKeys.setMinimumSize(new Dimension(60, 30));
+                                            comboBoxOperationHintKeys.setName("keys");
+                                            comboBoxOperationHintKeys.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(comboBoxOperationHintKeys, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationHintKeys ----
+                                            textFieldOperationHintKeys.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationHintKeys.setName("hintKeys");
+                                            textFieldOperationHintKeys.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationHintKeys.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationHintKeys, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationHintKeysFilePick ----
+                                            buttonOperationHintKeysFilePick.setText("...");
+                                            buttonOperationHintKeysFilePick.setFont(buttonOperationHintKeysFilePick.getFont().deriveFont(buttonOperationHintKeysFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationHintKeysFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationHintKeysFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationHintKeysFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationHintKeysFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationHintKeysFilePick.setIconTextGap(0);
+                                            buttonOperationHintKeysFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationHintKeysFilePick.setActionCommand("mismatchesFilePick");
+                                            panelCardPublisher.add(buttonOperationHintKeysFilePick, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer19 ----
+                                            vSpacer19.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer19.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer19.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer19, new GridBagConstraints(3, 8, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationDecimalScale ----
+                                            labelOperationDecimalScale.setText(guiContext.cfg.gs("Operations.labelOperationDecimalScale.text"));
+                                            labelOperationDecimalScale.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationDecimalScale, new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationDecimalScale ----
+                                            checkBoxOperationDecimalScale.setName("decimalScale");
+                                            checkBoxOperationDecimalScale.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationDecimalScale, new GridBagConstraints(5, 8, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- comboBoxOperationHintsAndServer ----
+                                            comboBoxOperationHintsAndServer.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationHintsAndServer.prototypeDisplayValue"));
+                                            comboBoxOperationHintsAndServer.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                "Hints:",
+                                                "Hint Server:"
+                                            }));
+                                            comboBoxOperationHintsAndServer.setMinimumSize(new Dimension(60, 30));
+                                            comboBoxOperationHintsAndServer.setName("hints");
+                                            comboBoxOperationHintsAndServer.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(comboBoxOperationHintsAndServer, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationHints ----
+                                            textFieldOperationHints.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationHints.setName("hints");
+                                            textFieldOperationHints.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationHints.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationHints, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationHintsFilePick ----
+                                            buttonOperationHintsFilePick.setText("...");
+                                            buttonOperationHintsFilePick.setFont(buttonOperationHintsFilePick.getFont().deriveFont(buttonOperationHintsFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationHintsFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationHintsFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationHintsFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationHintsFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationHintsFilePick.setIconTextGap(0);
+                                            buttonOperationHintsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationHintsFilePick.setActionCommand("mismatchesFilePick");
+                                            panelCardPublisher.add(buttonOperationHintsFilePick, new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer18 ----
+                                            vSpacer18.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer18.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer18.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer18, new GridBagConstraints(3, 9, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationValidate ----
+                                            labelOperationValidate.setText(guiContext.cfg.gs("Operations.labelOperationValidate.text"));
+                                            labelOperationValidate.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationValidate, new GridBagConstraints(4, 9, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationValidate ----
+                                            checkBoxOperationValidate.setName("validate");
+                                            checkBoxOperationValidate.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationValidate, new GridBagConstraints(5, 9, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationQuitStatusServer ----
+                                            labelOperationQuitStatusServer.setText(guiContext.cfg.gs("Operations.labelOperationQuitStatusServer.text"));
+                                            labelOperationQuitStatusServer.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationQuitStatusServer, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationQuitStatus ----
+                                            checkBoxOperationQuitStatus.setName("quitStatusServer");
+                                            checkBoxOperationQuitStatus.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationQuitStatus, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer17 ----
+                                            vSpacer17.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer17.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer17.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer17, new GridBagConstraints(3, 10, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationKeepGoing ----
+                                            labelOperationKeepGoing.setText(guiContext.cfg.gs("Operations.labelOperationKeepGoing.text"));
+                                            labelOperationKeepGoing.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationKeepGoing, new GridBagConstraints(0, 11, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationKeepGoing ----
+                                            checkBoxOperationKeepGoing.setName("keepGoing");
+                                            checkBoxOperationKeepGoing.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationKeepGoing, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer16 ----
+                                            vSpacer16.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer16.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer16.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer16, new GridBagConstraints(3, 11, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationDuplicates ----
+                                            labelOperationDuplicates.setText(guiContext.cfg.gs("Operations.labelOperationDuplicates.text"));
+                                            labelOperationDuplicates.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationDuplicates, new GridBagConstraints(4, 11, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationDuplicates ----
+                                            checkBoxOperationDuplicates.setName("duplicates");
+                                            checkBoxOperationDuplicates.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationDuplicates, new GridBagConstraints(5, 11, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer15 ----
+                                            vSpacer15.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer15.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer15.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer15, new GridBagConstraints(3, 12, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationCrossCheck ----
+                                            labelOperationCrossCheck.setText(guiContext.cfg.gs("Operations.labelOperationCrossCheck.text"));
+                                            labelOperationCrossCheck.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationCrossCheck, new GridBagConstraints(4, 12, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 8, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationCrossCheck ----
+                                            checkBoxOperationCrossCheck.setName("crossCheck");
+                                            checkBoxOperationCrossCheck.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationCrossCheck, new GridBagConstraints(5, 12, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- comboBoxOperationLog ----
+                                            comboBoxOperationLog.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationLog.prototypeDisplayValue"));
+                                            comboBoxOperationLog.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                "Log:",
+                                                "Log, overwrite:"
+                                            }));
+                                            comboBoxOperationLog.setMinimumSize(new Dimension(60, 30));
+                                            comboBoxOperationLog.setName("log");
+                                            comboBoxOperationLog.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(comboBoxOperationLog, new GridBagConstraints(0, 13, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationLog ----
+                                            textFieldOperationLog.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationLog.setName("log");
+                                            textFieldOperationLog.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationLog.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(textFieldOperationLog, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationLogFilePick ----
+                                            buttonOperationLogFilePick.setText("...");
+                                            buttonOperationLogFilePick.setFont(buttonOperationLogFilePick.getFont().deriveFont(buttonOperationLogFilePick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationLogFilePick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationLogFilePick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationLogFilePick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationLogFilePick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationLogFilePick.setIconTextGap(0);
+                                            buttonOperationLogFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationLogFilePick.setActionCommand("mismatchesFilePick");
+                                            panelCardPublisher.add(buttonOperationLogFilePick, new GridBagConstraints(2, 13, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer14 ----
+                                            vSpacer14.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer14.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer14.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer14, new GridBagConstraints(3, 13, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationEmptyDirectories ----
+                                            labelOperationEmptyDirectories.setText(guiContext.cfg.gs("Operations.labelOperationEmptyDirectories.text"));
+                                            labelOperationEmptyDirectories.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationEmptyDirectories, new GridBagConstraints(4, 13, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationEmptyDirectories ----
+                                            checkBoxOperationEmptyDirectories.setName("emptyDirectories");
+                                            checkBoxOperationEmptyDirectories.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationEmptyDirectories, new GridBagConstraints(5, 13, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationLogLevels ----
+                                            labelOperationLogLevels.setText(guiContext.cfg.gs("Operations.labelOperationLogLevels.text"));
+                                            labelOperationLogLevels.setMinimumSize(new Dimension(60, 16));
+                                            labelOperationLogLevels.setPreferredSize(new Dimension(138, 16));
+                                            panelCardPublisher.add(labelOperationLogLevels, new GridBagConstraints(0, 14, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //======== panelOperationLogLevels ========
+                                            {
+                                                panelOperationLogLevels.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
+
+                                                //---- comboBoxOperationConsoleLevel ----
+                                                comboBoxOperationConsoleLevel.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                    "All",
+                                                    "Trace",
+                                                    "Debug",
+                                                    "Info",
+                                                    "Warn",
+                                                    "Error",
+                                                    "Fatal",
+                                                    "Off"
+                                                }));
+                                                comboBoxOperationConsoleLevel.setSelectedIndex(3);
+                                                comboBoxOperationConsoleLevel.setName("consolelevel");
+                                                comboBoxOperationConsoleLevel.addActionListener(e -> guiContext.operations.genericAction(e));
+                                                panelOperationLogLevels.add(comboBoxOperationConsoleLevel);
+
+                                                //---- comboBoxOperationDebugLevel ----
+                                                comboBoxOperationDebugLevel.setModel(new DefaultComboBoxModel<>(new String[] {
+                                                    "All",
+                                                    "Trace",
+                                                    "Debug",
+                                                    "Info",
+                                                    "Warn",
+                                                    "Error",
+                                                    "Fatal",
+                                                    "Off"
+                                                }));
+                                                comboBoxOperationDebugLevel.setSelectedIndex(2);
+                                                comboBoxOperationDebugLevel.setName("debuglevel");
+                                                comboBoxOperationDebugLevel.addActionListener(e -> guiContext.operations.genericAction(e));
+                                                panelOperationLogLevels.add(comboBoxOperationDebugLevel);
+                                            }
+                                            panelCardPublisher.add(panelOperationLogLevels, new GridBagConstraints(1, 14, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer13 ----
+                                            vSpacer13.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer13.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer13.setMaximumSize(new Dimension(20, 30));
+                                            panelCardPublisher.add(vSpacer13, new GridBagConstraints(3, 14, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationIgnored ----
+                                            labelOperationIgnored.setText(guiContext.cfg.gs("Operations.labelOperationIgnored.text"));
+                                            labelOperationIgnored.setPreferredSize(new Dimension(138, 16));
+                                            labelOperationIgnored.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationIgnored, new GridBagConstraints(4, 14, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- checkBoxOperationIgnored ----
+                                            checkBoxOperationIgnored.setName("ignored");
+                                            checkBoxOperationIgnored.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationIgnored, new GridBagConstraints(5, 14, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+                                        }
+                                        panelOperationCards.add(panelCardPublisher, "publisher");
+
+                                        //======== panelCardListener ========
+                                        {
+                                            panelCardListener.setName("listener");
+                                            panelCardListener.setLayout(new GridBagLayout());
+                                            ((GridBagLayout)panelCardListener.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                            ((GridBagLayout)panelCardListener.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+
+                                            //---- label1 ----
+                                            label1.setText("Listener card");
+                                            panelCardListener.add(label1, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 0, 0), 0, 0));
+                                        }
+                                        panelOperationCards.add(panelCardListener, "listener");
+
+                                        //======== panelCardQuit ========
+                                        {
+                                            panelCardQuit.setName("quit");
+                                            panelCardQuit.setLayout(new GridBagLayout());
+                                            ((GridBagLayout)panelCardQuit.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                            ((GridBagLayout)panelCardQuit.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+
+                                            //---- label2 ----
+                                            label2.setText("Quit card");
+                                            panelCardQuit.add(label2, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 0, 0), 0, 0));
+                                        }
+                                        panelOperationCards.add(panelCardQuit, "quit");
+
+                                        //======== panelCardTerminal ========
+                                        {
+                                            panelCardTerminal.setName("terminal");
+                                            panelCardTerminal.setLayout(new GridBagLayout());
+                                            ((GridBagLayout)panelCardTerminal.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                            ((GridBagLayout)panelCardTerminal.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+
+                                            //---- label3 ----
+                                            label3.setText("Terminal card");
+                                            panelCardTerminal.add(label3, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 0, 0), 0, 0));
+                                        }
+                                        panelOperationCards.add(panelCardTerminal, "terminal");
+                                    }
+                                    scrollPaneOperationCards.setViewportView(panelOperationCards);
+                                }
+                                panelOperationOptions.add(scrollPaneOperationCards, BorderLayout.CENTER);
                             }
-                            splitPaneBackupContent.setRightComponent(panelBackupOptions);
+                            splitPaneOperationContent.setRightComponent(panelOperationOptions);
                         }
-                        panelBackupTop.add(splitPaneBackupContent, BorderLayout.CENTER);
+                        panelOperationTop.add(splitPaneOperationContent, BorderLayout.CENTER);
 
-                        //======== panelBackupBottom ========
+                        //======== panelOperationBottom ========
                         {
-                            panelBackupBottom.setLayout(new BorderLayout());
-                            panelBackupBottom.add(labelBackupStatus, BorderLayout.CENTER);
+                            panelOperationBottom.setLayout(new BorderLayout());
+                            panelOperationBottom.add(labelOperationStatus, BorderLayout.CENTER);
 
-                            //======== panelBackupBottomButtons ========
+                            //======== panelOperationBottomButtons ========
                             {
-                                panelBackupBottomButtons.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+                                panelOperationBottomButtons.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
-                                //---- buttonBackupSave ----
-                                buttonBackupSave.setText(guiContext.cfg.gs("Z.save"));
-                                buttonBackupSave.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
-                                panelBackupBottomButtons.add(buttonBackupSave);
+                                //---- buttonOperationSave ----
+                                buttonOperationSave.setText(guiContext.cfg.gs("Z.save"));
+                                buttonOperationSave.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                                panelOperationBottomButtons.add(buttonOperationSave);
 
-                                //---- buttonBackupCancel ----
-                                buttonBackupCancel.setText(guiContext.cfg.gs("Z.cancel"));
-                                buttonBackupCancel.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
-                                panelBackupBottomButtons.add(buttonBackupCancel);
+                                //---- buttonOperationCancel ----
+                                buttonOperationCancel.setText(guiContext.cfg.gs("Z.cancel"));
+                                buttonOperationCancel.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                                panelOperationBottomButtons.add(buttonOperationCancel);
                             }
-                            panelBackupBottom.add(panelBackupBottomButtons, BorderLayout.EAST);
+                            panelOperationBottom.add(panelOperationBottomButtons, BorderLayout.EAST);
                         }
-                        panelBackupTop.add(panelBackupBottom, BorderLayout.SOUTH);
+                        panelOperationTop.add(panelOperationBottom, BorderLayout.SOUTH);
                     }
-                    splitPaneBackup.setTopComponent(panelBackupTop);
+                    splitPaneOperation.setTopComponent(panelOperationTop);
 
-                    //======== tabbedPaneBackupBottom ========
+                    //======== tabbedPaneOperationBottom ========
                     {
-                        tabbedPaneBackupBottom.setTabPlacement(SwingConstants.BOTTOM);
-                        tabbedPaneBackupBottom.setPreferredSize(new Dimension(1160, 90));
-                        tabbedPaneBackupBottom.setFocusable(false);
-                        tabbedPaneBackupBottom.setMinimumSize(new Dimension(0, 0));
-                        tabbedPaneBackupBottom.setAutoscrolls(true);
+                        tabbedPaneOperationBottom.setTabPlacement(SwingConstants.BOTTOM);
+                        tabbedPaneOperationBottom.setPreferredSize(new Dimension(1160, 90));
+                        tabbedPaneOperationBottom.setFocusable(false);
+                        tabbedPaneOperationBottom.setMinimumSize(new Dimension(0, 0));
+                        tabbedPaneOperationBottom.setAutoscrolls(true);
 
-                        //======== scrollPaneBackupLog ========
+                        //======== scrollPaneOperationLog ========
                         {
-                            scrollPaneBackupLog.setFocusable(false);
-                            scrollPaneBackupLog.setMinimumSize(new Dimension(0, 0));
-                            scrollPaneBackupLog.setAutoscrolls(true);
+                            scrollPaneOperationLog.setFocusable(false);
+                            scrollPaneOperationLog.setMinimumSize(new Dimension(0, 0));
+                            scrollPaneOperationLog.setAutoscrolls(true);
 
-                            //---- textAreaBackupLog ----
-                            textAreaBackupLog.setEditable(false);
-                            textAreaBackupLog.setTabSize(4);
-                            textAreaBackupLog.setLineWrap(true);
-                            textAreaBackupLog.setMinimumSize(new Dimension(0, 0));
-                            textAreaBackupLog.setComponentPopupMenu(popupMenuLog);
-                            textAreaBackupLog.setVerifyInputWhenFocusTarget(false);
-                            scrollPaneBackupLog.setViewportView(textAreaBackupLog);
+                            //---- textAreaOperationLog ----
+                            textAreaOperationLog.setEditable(false);
+                            textAreaOperationLog.setTabSize(4);
+                            textAreaOperationLog.setLineWrap(true);
+                            textAreaOperationLog.setMinimumSize(new Dimension(0, 0));
+                            textAreaOperationLog.setComponentPopupMenu(popupMenuLog);
+                            textAreaOperationLog.setVerifyInputWhenFocusTarget(false);
+                            scrollPaneOperationLog.setViewportView(textAreaOperationLog);
                         }
-                        tabbedPaneBackupBottom.addTab(guiContext.cfg.gs("Backup.scrollPaneLog.tab.title"), scrollPaneBackupLog);
-                        tabbedPaneBackupBottom.setMnemonicAt(0, guiContext.cfg.gs("Backup.scrollPaneLog.tab.mnemonic").charAt(0));
+                        tabbedPaneOperationBottom.addTab(guiContext.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);
+                        tabbedPaneOperationBottom.setMnemonicAt(0, guiContext.cfg.gs("Operations.scrollPaneLog.tab.mnemonic").charAt(0));
                     }
-                    splitPaneBackup.setBottomComponent(tabbedPaneBackupBottom);
+                    splitPaneOperation.setBottomComponent(tabbedPaneOperationBottom);
                 }
-                tabbedPaneMain.addTab(guiContext.cfg.gs("Navigator.splitPane.Backup.tab.title"), splitPaneBackup);
-                tabbedPaneMain.setMnemonicAt(1, guiContext.cfg.gs("Navigator.splitPane.Backup.tab.mnemonic").charAt(0));
+                tabbedPaneMain.addTab(guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), splitPaneOperation);
+                tabbedPaneMain.setMnemonicAt(1, guiContext.cfg.gs("Navigator.splitPaneOperations.tab.mnemonic").charAt(0));
 
                 //======== panelLibraries ========
                 {
@@ -1481,7 +2435,7 @@ public class MainFrame extends JFrame
                 new Insets(0, 0, 0, 8), 0, 0));
         }
         contentPane.add(panelStatus, BorderLayout.SOUTH);
-        setSize(1024, 640);
+        setSize(1024, 835);
         setLocationRelativeTo(getOwner());
 
         //======== popupMenuBrowser ========
@@ -1578,7 +2532,6 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemCut;
     public JMenuItem menuItemPaste;
     public JMenuItem menuItemDelete;
-    public JMenuItem menuItemSettings;
     public JMenu menuView;
     public JMenuItem menuItemRefresh;
     public JMenuItem menuItemProgress;
@@ -1597,6 +2550,12 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemPlexGenerator;
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
+    public JMenu menuSystem;
+    public JMenuItem menuItemSettings;
+    public JMenuItem menuItemAuthKeys;
+    public JMenuItem menuItemHintKeys;
+    public JMenuItem menuItemBlacklist;
+    public JMenuItem menuItemWhitelist;
     public JMenu menuWindows;
     public JMenuItem menuItemMaximize;
     public JMenuItem menuItemMinimize;
@@ -1658,37 +2617,126 @@ public class MainFrame extends JFrame
     public JTextArea textAreaLog;
     public JScrollPane scrollPaneProperties;
     public JEditorPane textAreaProperties;
-    public JSplitPane splitPaneBackup;
-    public JPanel panelBackupTop;
-    public JPanel panelBackupButtons;
-    public JPanel panelTopButtons;
-    public JButton buttonNewBackup;
-    public JButton buttonCopyBackup;
-    public JButton buttonDeleteBackup;
+    public JSplitPane splitPaneOperation;
+    public JPanel panelOperationTop;
+    public JPanel panelOperationButtons;
+    public JPanel panelTopOperationButtons;
+    public JButton buttonNewOperation;
+    public JButton buttonCopyOperation;
+    public JButton buttonDeleteOperation;
     public JPanel hSpacerBeforeRun;
-    public JButton buttonRunBackup;
+    public JButton buttonRunOperation;
     public JPanel hSpacerBeforeGenerate;
-    public JButton buttonGenerateBackup;
-    public JPanel panelHelp;
-    public JLabel labelBackupHelp;
-    public JSplitPane splitPaneBackupContent;
-    public JScrollPane scrollPaneBackupConfig;
-    public JTable backupConfigItems;
-    public JPanel panelBackupOptions;
-    public JPanel panelBackupControls;
-    public JPanel topBackupOptions;
+    public JButton buttonGenerateOperation;
+    public JPanel panelOperationHelp;
+    public JLabel labelOperationHelp;
+    public JSplitPane splitPaneOperationContent;
+    public JScrollPane scrollPaneOperationConfig;
+    public JTable operationConfigItems;
+    public JPanel panelOperationOptions;
+    public JPanel panelOperationControls;
+    public JPanel topOperationOptions;
     public JPanel vSpacer0;
-    public JPanel panelBackupMode;
+    public JPanel panelOperationMode;
     public JPanel hSpacer3;
-    public JLabel labelBackupMode;
-    public JPanel panelBackupBottom;
-    public JLabel labelBackupStatus;
-    public JPanel panelBackupBottomButtons;
-    public JButton buttonBackupSave;
-    public JButton buttonBackupCancel;
-    public JTabbedPane tabbedPaneBackupBottom;
-    public JScrollPane scrollPaneBackupLog;
-    public JTextArea textAreaBackupLog;
+    public JLabel labelOperationMode;
+    public JScrollPane scrollPaneOperationCards;
+    public JPanel panelOperationCards;
+    public JPanel panelCardPublisher;
+    public JLabel labelOperationNavigatorCheckbox;
+    public JCheckBox checkBoxOperationNavigator;
+    public JPanel vSpacer3;
+    public JPanel panelOperationIncludeExcludeBox;
+    public JPanel vSpacer8;
+    public JScrollPane scrollPaneOperationIncludeExclude;
+    public JList listOperationIncludeExclude;
+    public JPanel panelOperationIncludeExcludeButtons;
+    public JButton buttonOperationAddIncludeExclude;
+    public JButton buttonOperationRemoveIncludeExclude;
+    public JLabel labelOperationIncludeExclude;
+    public JLabel labelOperationJob;
+    public JTextField textFieldOperationJob;
+    public JButton buttonOperationJobFilePick;
+    public JPanel vSpacer4;
+    public JComboBox<String> comboBoxOperationTargets;
+    public JTextField textFieldOperationTargets;
+    public JButton buttonOperationTargetsFilePick;
+    public JPanel vSpacer5;
+    public JLabel labelOperationsMismatches;
+    public JTextField textFieldOperationMismatches;
+    public JButton buttonOperationMismatchesFilePick;
+    public JPanel vSpacer6;
+    public JComboBox<String> comboBoxOperationWhatsNew;
+    public JTextField textFieldOperationWhatsNew;
+    public JButton buttonOperationWhatsNewFilePick;
+    public JPanel vSpacer7;
+    public JLabel labelOperationDryRun;
+    public JCheckBox checkBoxOperationDryRun;
+    public JLabel labelOperationExportText;
+    public JTextField textFieldOperationExportText;
+    public JButton buttonOperationExportTextFilePick;
+    public JPanel vSpacer9;
+    public JLabel labelOperationNoBackfill;
+    public JCheckBox checkBoxOperationNoBackFill;
+    public JLabel labelOperationExportItems;
+    public JTextField textFieldOperationExportItems;
+    public JButton buttonOperationExportItemsFilePick;
+    public JPanel vSpacer10;
+    public JLabel labelOperationOverwrite;
+    public JCheckBox checkBoxOperationOverwrite;
+    public JPanel vSpacer11;
+    public JLabel labelOperationPreservedDates;
+    public JCheckBox checkBoxOperationPreserveDates;
+    public JComboBox<String> comboBoxOperationHintKeys;
+    public JTextField textFieldOperationHintKeys;
+    public JButton buttonOperationHintKeysFilePick;
+    public JPanel vSpacer19;
+    public JLabel labelOperationDecimalScale;
+    public JCheckBox checkBoxOperationDecimalScale;
+    public JComboBox<String> comboBoxOperationHintsAndServer;
+    public JTextField textFieldOperationHints;
+    public JButton buttonOperationHintsFilePick;
+    public JPanel vSpacer18;
+    public JLabel labelOperationValidate;
+    public JCheckBox checkBoxOperationValidate;
+    public JLabel labelOperationQuitStatusServer;
+    public JCheckBox checkBoxOperationQuitStatus;
+    public JPanel vSpacer17;
+    public JLabel labelOperationKeepGoing;
+    public JCheckBox checkBoxOperationKeepGoing;
+    public JPanel vSpacer16;
+    public JLabel labelOperationDuplicates;
+    public JCheckBox checkBoxOperationDuplicates;
+    public JPanel vSpacer15;
+    public JLabel labelOperationCrossCheck;
+    public JCheckBox checkBoxOperationCrossCheck;
+    public JComboBox<String> comboBoxOperationLog;
+    public JTextField textFieldOperationLog;
+    public JButton buttonOperationLogFilePick;
+    public JPanel vSpacer14;
+    public JLabel labelOperationEmptyDirectories;
+    public JCheckBox checkBoxOperationEmptyDirectories;
+    public JLabel labelOperationLogLevels;
+    public JPanel panelOperationLogLevels;
+    public JComboBox<String> comboBoxOperationConsoleLevel;
+    public JComboBox<String> comboBoxOperationDebugLevel;
+    public JPanel vSpacer13;
+    public JLabel labelOperationIgnored;
+    public JCheckBox checkBoxOperationIgnored;
+    public JPanel panelCardListener;
+    public JLabel label1;
+    public JPanel panelCardQuit;
+    public JLabel label2;
+    public JPanel panelCardTerminal;
+    public JLabel label3;
+    public JPanel panelOperationBottom;
+    public JLabel labelOperationStatus;
+    public JPanel panelOperationBottomButtons;
+    public JButton buttonOperationSave;
+    public JButton buttonOperationCancel;
+    public JTabbedPane tabbedPaneOperationBottom;
+    public JScrollPane scrollPaneOperationLog;
+    public JTextArea textAreaOperationLog;
     public JPanel panelLibraries;
     public JPanel panelStatus;
     public JLabel labelStatusLeft;

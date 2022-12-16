@@ -216,20 +216,20 @@ public class ClientStty
             {
                 try
                 {
-                    sleep(20 * 1000); // offset this heartbeat timing
+                    sleep(40 * 1000); // offset this heartbeat timing
                     String desc = (theirRepo != null) ? " to " + theirRepo.getLibraryData().libraries.description : "";
                     while (true)
                     {
                         sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
                         if (heartBeatEnabled)
                         {
-                            send("ping", context.main.trace ? "HEARTBEAT sent" + desc : "");
+                            send("ping", context.main.trace ? "heartbeat sent" + desc : "");
                         }
                     }
                 }
                 catch (InterruptedException e)
                 {
-                    logger.trace("Heartbeat interrupted");
+                    logger.trace("heartbeat interrupted");
                     interrupt();
                 }
                 catch (Exception e)
@@ -431,7 +431,7 @@ public class ClientStty
      * Receive a response from the other end
      *
      * @param log Line to be logged, if any
-     * @param timeout Timeout for operation in milliseconds
+     * @param timeout Timeout for operations in milliseconds
      * @return String of response text
      * @throws Exception
      */
@@ -460,7 +460,7 @@ public class ClientStty
             response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
 
             if (response != null && response.startsWith("ping"))
-                logger.trace("HEARTBEAT received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                logger.debug("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }
@@ -472,7 +472,7 @@ public class ClientStty
      *
      * @param message The command to send
      * @param log Line to be logged, if any
-     * @param timeout Timeout for operation in milliseconds
+     * @param timeout Timeout for operations in milliseconds
      * @return The resulting date-stamped file path
      * @throws Exception
      */
@@ -525,7 +525,7 @@ public class ClientStty
      *
      * @param message The command to send
      * @param log The line to be logged, if any
-     * @param timeout Timeout for operation
+     * @param timeout Timeout for operations
      * @return String of the response
      * @throws Exception
      */

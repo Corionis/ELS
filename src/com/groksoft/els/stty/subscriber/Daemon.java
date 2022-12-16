@@ -464,7 +464,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             fault = true;
                             stop = true;
                             if (!context.timeout)
-                                send("End-Execution", trace ? "Write End-Execution" : "");
+                                send("End-Execution", trace ? "send End-Execution" : "");
                             Thread.sleep(3000);
                         }
 
@@ -562,7 +562,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         // -------------- quit, exit --------------------------------
                         if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                         {
-                            send("End-Execution", trace ? "Write End-Execution" : "");
+                            send("End-Execution", trace ? "send End-Execution" : "");
                             Thread.sleep(1000);
 
                             // if this is the first command or keep going is not enabled then stop

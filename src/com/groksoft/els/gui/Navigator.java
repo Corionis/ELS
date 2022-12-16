@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
 import com.groksoft.els.*;
-import com.groksoft.els.gui.backup.Backup;
+import com.groksoft.els.gui.operations.Operations;
 import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.gui.bookmarks.Bookmarks;
 import com.groksoft.els.gui.browser.Browser;
@@ -209,13 +209,14 @@ public class Navigator
         }
 
         // setup the GUI
+        guiContext.operations = new Operations(guiContext);
         guiContext.mainFrame = new MainFrame(guiContext);
         if (!guiContext.context.fault)
         {
             // setup the Main Menu and primary tabs
             initializeMainMenu();
             guiContext.browser = new Browser(guiContext);
-            guiContext.backup = new Backup(guiContext);
+            guiContext.operations.initialize();
             // TODO Add Library tab content creation here
 
             // disable back-fill because we never know what combination of items might be selected

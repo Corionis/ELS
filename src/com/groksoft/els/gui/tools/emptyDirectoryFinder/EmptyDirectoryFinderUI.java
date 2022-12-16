@@ -26,7 +26,9 @@ public class EmptyDirectoryFinderUI extends JDialog
     private boolean isPublisher = false;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
+    private boolean requestStop = false;
     private final EmptyDirectoryFinderUI thisDialog = this;
+    private boolean workerRunning = false;
 
     private EmptyDirectoryFinderUI()
     {
@@ -93,6 +95,19 @@ public class EmptyDirectoryFinderUI extends JDialog
 
     private void actionCloseClicked(ActionEvent e)
     {
+        if (workerRunning)
+        {
+            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.stop.run.after.scan"),
+                    "Z.cancel.run", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                requestStop = true;
+                guiContext.browser.printLog(guiContext.cfg.gs("z.run.cancelled"));
+            }
+            else
+                return;
+        }
+        savePreferences();
         setVisible(false);
     }
 
@@ -123,7 +138,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                     }
                 }
             }
-            Object[] opts = { "OK"};
+            Object[] opts = { guiContext.cfg.gs("Z.ok") };
             JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
                     null, opts, opts[0]);
@@ -164,12 +179,6 @@ public class EmptyDirectoryFinderUI extends JDialog
         }
     }
 
-    private void actionOkClicked(ActionEvent e)
-    {
-        savePreferences();
-        setVisible(false);
-    }
-
     private void actionRunClicked(ActionEvent e)
     {
         String name = "";
@@ -189,7 +198,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         // do not allow system origin
         if (name.toLowerCase().contains("system"))
         {
-            Object[] opts = { "OK"};
+            Object[] opts = { guiContext.cfg.gs("Z.ok") };
             JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.please.select.a.collection.for.run"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                     null, opts, opts[0]);
@@ -251,7 +260,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                 etm.setEmpties(empties);
                 etm.fireTableDataChanged();
 
-                labelStatus.setText("Working ...");
+                guiContext.browser.printLog(guiContext.cfg.gs("EmptyDirectoryFinder.running"));
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void >()
@@ -263,10 +272,12 @@ public class EmptyDirectoryFinderUI extends JDialog
                     @Override
                     protected Void doInBackground() throws Exception
                     {
+                        workerRunning = true;
+
                         // get content
                         if (isPublisher)
                         {
-                            labelStatus.setText("Scanning ...");
+                            labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
                             repo.scan();
                         }
                         else
@@ -275,7 +286,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                             {
                                 if (!guiContext.context.clientStty.isConnected())
                                 {
-                                    Object[] opts = { "OK"};
+                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
                                     JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Browser.connection.lost"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
@@ -283,12 +294,12 @@ public class EmptyDirectoryFinderUI extends JDialog
 
                                 if (guiContext.context.transfer != null)
                                 {
-                                    labelStatus.setText("Requesting collection data from remote ...");
+                                    labelStatus.setText(guiContext.cfg.gs("Z.requesting.collection.data.from.remote"));
                                     guiContext.context.transfer.requestCollection();
                                 }
                                 else
                                 {
-                                    Object[] opts = { "OK"};
+                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
                                     JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
@@ -296,7 +307,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                             }
                             else
                             {
-                                labelStatus.setText("Scanning ...");
+                                labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
                                 repo.scan();
                             }
                         }
@@ -305,6 +316,8 @@ public class EmptyDirectoryFinderUI extends JDialog
                         // scan for empties
                         for (Library lib : repo.getLibraryData().libraries.bibliography)
                         {
+                            if (requestStop)
+                                break;
                             String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
                             labelStatus.setText(msg);
                             for (Item item : lib.items)
@@ -344,6 +357,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                             {
                                 if (e.getNewValue() == SwingWorker.StateValue.DONE)
                                 {
+                                    workerRunning = false;
                                     buttonDelete.setEnabled(true);
                                     buttonRun.setEnabled(true);
                                     //closeButton.setEnabled(true);
@@ -360,7 +374,7 @@ public class EmptyDirectoryFinderUI extends JDialog
             }
             else
             {
-                Object[] opts = { "OK"};
+                Object[] opts = { guiContext.cfg.gs("Z.ok") };
                 JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.collection.not.loaded"),
                         this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                         null, opts, opts[0]);
@@ -381,6 +395,11 @@ public class EmptyDirectoryFinderUI extends JDialog
         Point location = this.getLocation();
         guiContext.preferences.setToolsEmptyDirectoryFinderXpos(location.x);
         guiContext.preferences.setToolsEmptyDirectoryFinderYpos(location.y);
+    }
+
+    private void windowClosing(WindowEvent e)
+    {
+        closeButton.doClick();
     }
 
     // ================================================================================================================
@@ -428,6 +447,12 @@ public class EmptyDirectoryFinderUI extends JDialog
         setTitle(guiContext.cfg.gs("EmptyDirectoryFinder.this.title"));
         setMinimumSize(new Dimension(150, 126));
         setName("dialogEmptyDirectoryUI");
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                EmptyDirectoryFinderUI.this.windowClosing(e);
+            }
+        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 

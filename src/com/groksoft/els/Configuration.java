@@ -10,10 +10,11 @@ import java.util.*;
 /**
  * Configuration class
  * <p>
- * Contains all command-line options and any other application-level configuration.
+ * Contains all command-line options and other application-level configuration.
  */
 public class Configuration
 {
+    // operations
     public static final int JOB_PROCESS = 8;
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
@@ -24,6 +25,7 @@ public class Configuration
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_SERVER_FORCE_QUIT = 9;
     public static final int SUBSCRIBER_TERMINAL = 5;
+
     private final String NAVIGATOR_NAME = "ELS Navigator";
     private final String PROGRAM_VERSION = "4.0.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
@@ -1121,7 +1123,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced collection" operation?
+     * Is this a "forced collection" operations?
      *
      * @return true/false
      */
@@ -1131,7 +1133,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced targets" operation
+     * Is this a "forced targets" operations
      *
      * @return true/false
      */
@@ -1162,7 +1164,7 @@ public class Configuration
 
     /**
      * For a Publisher a true "keep going" flag skips sending
-     * the quit command to the subscriber when the operation is
+     * the quit command to the subscriber when the operations is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
      *
@@ -1220,7 +1222,7 @@ public class Configuration
     }
 
     /**
-     * Is this a publish operation?
+     * Is this a publish operations?
      *
      * @return true/false
      */
@@ -1290,7 +1292,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request collection" operation?
+     * Is this a "request collection" operations?
      *
      * @return true/false
      */
@@ -1300,7 +1302,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request targets" operation?
+     * Is this a "request targets" operations?
      *
      * @return true/false
      */
@@ -1540,7 +1542,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced collection" operation
+     * Set if this is a "forced collection" operations
      *
      * @param forceCollection true/false
      */
@@ -1550,7 +1552,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced targets" operation
+     * Set if this is a "forced targets" operations
      *
      * @param forceTargets true/false
      */
@@ -1621,7 +1623,7 @@ public class Configuration
 
     /**
      * For a Publisher the "keep going" flag skips sending
-     * the quit command to the subscriber when the operation is
+     * the quit command to the subscriber when the operations is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
      *
@@ -1701,7 +1703,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a publish operation
+     * Set if this is a publish operations
      *
      * @param publishOperation true/false
      */
@@ -1741,7 +1743,7 @@ public class Configuration
     }
 
     /**
-     * Sets the flag for the operation to force the subscriber to quit, then end
+     * Sets the flag for the operations to force the subscriber to quit, then end
      *
      * @param quitSubscriberListener
      */
@@ -1776,7 +1778,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request collection" operation
+     * Set if this is a "request collection" operations
      *
      * @param requestCollection true/false
      */
@@ -1786,7 +1788,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request targets" operation
+     * Set if this is a "request targets" operations
      *
      * @param requestTargets true/false
      */

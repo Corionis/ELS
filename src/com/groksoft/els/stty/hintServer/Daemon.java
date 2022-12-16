@@ -187,7 +187,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                     if (line.startsWith("ping"))
                     {
-                        logger.trace("HEARTBEAT received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                        logger.debug("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
                         continue;
                     }
 
@@ -254,7 +254,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     // -------------- quit, exit --------------------------------
                     if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                     {
-                        //Utils.writeStream(out, myKey, "End-Execution"); // not a round-trip
                         out.flush();
                         Thread.sleep(1000);
 

@@ -87,9 +87,8 @@ _It's all built-in_ with the -n | --navigator option.
     whitespace enclose it in quotations. In this mode the job controls ELS actions.
 
  6. Added option -A | --auth-keys for subscriber and publisher listeners. This is the same
-    format as Hint Keys. The difference is authorization keys are used to authenticate both
-    workstations and publishes, whereas hint keys are only for collections, publishers and
-    subscribers, where Hints are processed. Hints are not used on workstations.
+    format as Hint Keys. Authorization keys are used to authenticate both workstations and
+    publishers instead of requiring a specific system defined by -s|S.
 
  7. Added option -g | --listener-keep-going. For a Publisher the "keep going" option skips
     sending the quit command to the subscriber when the backup operation is complete. For a

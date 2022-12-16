@@ -84,7 +84,7 @@ public class Utils
             {
                 key = key.substring(0, 16);
             }
-            logger.trace("decrypt with " + key);
+            logger.trace("  decrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // decrypt the text
@@ -116,7 +116,6 @@ public class Utils
             {
                 key = key.substring(0, 16);
             }
-            logger.trace("encrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // encrypt the text
@@ -127,6 +126,8 @@ public class Utils
         {
             logger.error(e.getMessage());
         }
+        logger.trace("writing " + encrypted.length + " bytes");
+        logger.trace("  encrypt with " + key);
         return encrypted;
     }
 
@@ -891,7 +892,6 @@ public class Utils
     public static void writeStream(DataOutputStream out, String key, String message) throws Exception
     {
         byte[] buf = encrypt(key, message);
-        logger.trace("writing " + buf.length + " bytes");
 
         logger.trace("  writing size");
         out.writeInt(buf.length);

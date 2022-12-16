@@ -34,6 +34,7 @@ import java.util.Vector;
 
 public class JunkRemoverTool extends AbstractTool
 {
+    // @formatter:off
     public static final String INTERNAL_NAME = "JunkRemover";
     public static final String SUBSYSTEM = "tools";
 
@@ -50,6 +51,7 @@ public class JunkRemoverTool extends AbstractTool
     transient private final boolean realOnly = false;
     transient private Repository repo; // this tool only uses one repo
     transient private ArrayList<String> toolPaths;
+    // @formatter:on
 
     /**
      * Constructor when used from the command line

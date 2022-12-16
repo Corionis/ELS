@@ -25,6 +25,15 @@ public class Settings extends JDialog
     Color hintTrackingColor;
     Settings thisDialog;
 
+    /*
+        TODO
+         General
+            + Default dry run
+         Operations
+            + Short or long options
+            + Default console and debug levels
+     */
+
     public Settings(Window owner, GuiContext ctxt)
     {
         super(owner);
@@ -242,7 +251,7 @@ public class Settings extends JDialog
         tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.right"));
         tabPlacementComboBox.setSelectedIndex(guiContext.preferences.getTabPlacementIndex());
 
-        // backup
+        // operations
 
         // libraries
 
@@ -357,7 +366,7 @@ public class Settings extends JDialog
         sortReverseCheckBox = new JCheckBox();
         tabPlacementlabel = new JLabel();
         tabPlacementComboBox = new JComboBox<>();
-        backupPanel = new JPanel();
+        operationsPanel = new JPanel();
         librariesPanel = new JPanel();
         buttonBar = new JPanel();
         okButton = new JButton();
@@ -466,7 +475,7 @@ public class Settings extends JDialog
                                     .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(187, Short.MAX_VALUE))
+                                    .addContainerGap(163, Short.MAX_VALUE))
                         );
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
@@ -682,11 +691,11 @@ public class Settings extends JDialog
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
 
-                    //======== backupPanel ========
+                    //======== operationsPanel ========
                     {
-                        backupPanel.setLayout(new GridLayout(1, 2, 2, 2));
+                        operationsPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.backupPanel.tab.title"), backupPanel);
+                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.operationsPanel.tab.title"), operationsPanel);
 
                     //======== librariesPanel ========
                     {
@@ -776,7 +785,7 @@ public class Settings extends JDialog
     private JCheckBox sortReverseCheckBox;
     private JLabel tabPlacementlabel;
     private JComboBox<String> tabPlacementComboBox;
-    private JPanel backupPanel;
+    private JPanel operationsPanel;
     private JPanel librariesPanel;
     private JPanel buttonBar;
     private JButton okButton;

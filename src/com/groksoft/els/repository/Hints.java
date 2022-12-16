@@ -372,7 +372,7 @@ public class Hints
      * Run all the local hints on the publisher.
      * <p>
      * If not done manually and the publisher's hint status set to Done, a hint
-     * must be executed on the publisher before a operation operation to a subscriber
+     * must be executed on the publisher before a operations operations to a subscriber
      * so the two ends match.
      *
      * @throws Exception
@@ -519,7 +519,7 @@ public class Hints
                             List<String> lines = readHint(item.getFullPath());
 
                             // check if the publisher has Done or Seen this hint
-                            // this is important prior to a operation run to avoid duplicates, etc.
+                            // this is important prior to a operations run to avoid duplicates, etc.
                             HintKeys.HintKey hintKey = findHintKey(context.publisherRepo);
                             String statusLine = findNameLine(lines, hintKey.name);
                             if (statusLine == null || (!statusLine.toLowerCase().startsWith("done ") && !statusLine.toLowerCase().startsWith("seen ")))
@@ -750,7 +750,7 @@ public class Hints
      * Merge values from the ELS Hint Tracker with those in a hint file.
      * <p>
      * If hint tracking is being used, where a --hint-server is defined
-     * for either a local or remote operation, then it's status values are
+     * for either a local or remote operations, then it's status values are
      * merged with the hint file.
      *
      * @param item  Item of the hint file
@@ -1152,7 +1152,7 @@ public class Hints
     /**
      * Clean-up a local subscriber's hint files.
      * <p>
-     * Used at the end of an operation either locally or by the
+     * Used at the end of an operations either locally or by the
      * subscriber/Daemon when the command is received from the
      * publisher. Scans the subscriber for .els files then runs
      * postprocessHintFile() on each.
@@ -1212,7 +1212,7 @@ public class Hints
     /**
      * Update hint status for a specific back-up name.
      * <p>
-     * Updates and saves the status for the operation name in the hint
+     * Updates and saves the status for the operations name in the hint
      * file and updates the hint status tracker/server if defined.
      * <p>
      * The higher value of either the existing or the new value is saved.

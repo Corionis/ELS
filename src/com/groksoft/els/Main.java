@@ -43,6 +43,12 @@ public class Main
     // add new locales here
     public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO: Update locales here
 
+    /*
+        IDEA
+            * Knob for "Show examples" then
+                + Include, or not, files from examples directories
+     */
+
     /**
      * Main application
      */
@@ -243,7 +249,7 @@ public class Main
                     // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
                     {
-                        logger.info("ELS: Navigator, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Local Navigator, version " + cfg.getVersionStamp());
                         cfg.dump();
 
                         if (cfg.getPublisherFilename().length() > 0)
@@ -268,7 +274,7 @@ public class Main
                     }
                     else
                     {
-                        logger.info("ELS: Local Process, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Local Publish, version " + cfg.getVersionStamp());
                         cfg.dump();
 
                         context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -322,7 +328,7 @@ public class Main
 
                 // --- handle -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS: Publisher Manual Terminal, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Publisher Terminal, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
@@ -355,13 +361,13 @@ public class Main
                     }
                     break;
 
-                // --- handle -r P execute the backup process to remote subscriber -r S
+                // --- handle -r P execute the operations process to remote subscriber -r S
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (cfg.isNavigator())
-                        logger.info("ELS: Navigator Remote, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Remote Navigator, version " + cfg.getVersionStamp());
                     else
-                        logger.info("ELS: Publish Process to Remote Subscriber, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Remote Publish, version " + cfg.getVersionStamp());
 
                     cfg.dump();
 
@@ -443,7 +449,7 @@ public class Main
 
                 // --- handle -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS: Subscriber Manual Terminal, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Subscriber Terminal, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (!cfg.isTargetsEnabled())
@@ -539,7 +545,7 @@ public class Main
 
                 // --- handle -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Quit Hint Status Server, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Hint Status Server Quit, version " + cfg.getVersionStamp());
                     cfg.dump();
 
                     if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)
@@ -591,7 +597,7 @@ public class Main
                     if (cfg.getRemoteType().equals("J"))
                         logger.info("ELS: Remote Job, version " + cfg.getVersionStamp());
                     else
-                        logger.info("ELS: Job, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Local Job, version " + cfg.getVersionStamp());
 
                     cfg.dump();
 

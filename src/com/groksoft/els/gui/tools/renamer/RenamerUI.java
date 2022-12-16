@@ -136,11 +136,11 @@ public class RenamerUI extends JDialog
 
         // get display names once
         displayNames = new String[6];
-        displayNames[0] = guiContext.cfg.gs("RenameUI.type.combobox.case.change"); // 0
-        displayNames[1] = guiContext.cfg.gs("RenameUI.type.combobox.insert");
-        displayNames[2] = guiContext.cfg.gs("RenameUI.type.combobox.numbering");
-        displayNames[3] = guiContext.cfg.gs("RenameUI.type.combobox.remove");
-        displayNames[4] = guiContext.cfg.gs("RenameUI.type.combobox.replace"); // 4
+        displayNames[0] = guiContext.cfg.gs("RenameUI.type.combobox.0.case.change"); // 0
+        displayNames[1] = guiContext.cfg.gs("RenameUI.type.combobox.1.insert");
+        displayNames[2] = guiContext.cfg.gs("RenameUI.type.combobox.2.numbering");
+        displayNames[3] = guiContext.cfg.gs("RenameUI.type.combobox.3.remove");
+        displayNames[4] = guiContext.cfg.gs("RenameUI.type.combobox.4.replace"); // 4
 
         addHandlers();
 
@@ -317,7 +317,6 @@ public class RenamerUI extends JDialog
         {
             JComboBox comboBoxRenameType = new JComboBox<>();
             comboBoxRenameType.setModel(new DefaultComboBoxModel<>(new String[]{
-                    "Rename Type"
             }));
 
             // set Rename Type combobox

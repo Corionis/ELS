@@ -5,7 +5,7 @@ import com.google.gson.InstanceCreator;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.gui.GuiContext;
-import com.groksoft.els.tools.backup.BackupTool;
+import com.groksoft.els.tools.operations.OperationsTool;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import com.groksoft.els.tools.renamer.RenamerTool;
 
@@ -54,14 +54,14 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals("Backup"))
+        if (internalName.equals("Operations"))
         {
-            // begin Backup
-            BackupTool tmpTool = new BackupTool(null, config, ctxt);
+            // begin Operations
+            OperationsTool tmpTool = new OperationsTool(null, config, ctxt);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
             {
-                BackupParser backupParser = new BackupParser();
+                OperationParser operationParser = new OperationParser();
                 File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
                 for (File entry : files)
                 {
@@ -70,7 +70,7 @@ public class Tools
                         String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                         if (json != null)
                         {
-                            AbstractTool but = backupParser.parseTool(guiContext, config, ctxt, json);
+                            AbstractTool but = operationParser.parseTool(guiContext, config, ctxt, json);
                             if (but != null)
                             {
                                 if (but.getConfigName().equalsIgnoreCase(configName))
@@ -83,7 +83,7 @@ public class Tools
                     }
                 }
             }
-            // end Backup
+            // end Operations
         }
         else if (internalName.equals("JunkRemover"))
         {
@@ -191,15 +191,15 @@ public class Tools
         File toolDir = null;
         ToolParserI toolParser = null;
 
-        // being Backup
-        if (internalName == null || internalName.equals(BackupTool.INTERNAL_NAME))
+        // being Operations
+        if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
         {
-            toolParser = new BackupParser();
-            BackupTool tmpBackup = new BackupTool(null, guiContext.cfg, guiContext.context);
-            toolDir = new File(tmpBackup.getDirectoryPath());
+            toolParser = new OperationParser();
+            OperationsTool tmpOperation = new OperationsTool(null, guiContext.cfg, guiContext.context);
+            toolDir = new File(tmpOperation.getDirectoryPath());
             toolList = scanTools(guiContext, toolList, toolParser, toolDir);
         }
-        // end Backup
+        // end Operations
 
         // begin JunkRemover
         if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
@@ -240,9 +240,9 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Configuration config, Context ctxt)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals("Backup"))
+        if (internalName.equals("Operations"))
         {
-            tmpTool = new BackupTool(null, config, ctxt);
+            tmpTool = new OperationsTool(null, config, ctxt);
         }
         else if (internalName.equals("JunkRemover"))
         {
@@ -300,12 +300,12 @@ public class Tools
     //=================================================================================================================
 
     /**
-     * ToolParserI implementation for the BackupTool
+     * ToolParserI implementation for the OperationsTool
      */
-    private class BackupParser implements ToolParserI
+    private class OperationParser implements ToolParserI
     {
         /**
-         * Parse a BackupTool
+         * Parse a OperationsTool
          *
          * @param guiContext The guiContext, null is allowed
          * @param config The Configuration
@@ -321,13 +321,13 @@ public class Tools
                 @Override
                 public Object createInstance(Type type)
                 {
-                    return new BackupTool(guiContext, config, ctxt);
+                    return new OperationsTool(guiContext, config, ctxt);
                 }
             };
 
             GsonBuilder builder = new GsonBuilder();
-            builder.registerTypeAdapter(BackupTool.class, new objInstanceCreator());
-            BackupTool tool = builder.create().fromJson(json, BackupTool.class);
+            builder.registerTypeAdapter(OperationsTool.class, new objInstanceCreator());
+            OperationsTool tool = builder.create().fromJson(json, OperationsTool.class);
             return tool;
         }
     }

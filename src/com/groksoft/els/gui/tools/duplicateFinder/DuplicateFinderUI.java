@@ -27,7 +27,9 @@ public class DuplicateFinderUI extends JDialog
     private boolean isPublisher = false;
     private NavHelp helpDialog;
     private Logger logger = LogManager.getLogger("applog");
+    private boolean requestStop = false;
     private final DuplicateFinderUI thisDialog = this;
+    private boolean workerRunning = false;
 
     private DuplicateFinderUI()
     {
@@ -81,6 +83,18 @@ public class DuplicateFinderUI extends JDialog
 
     private void actionCloseClicked(ActionEvent e)
     {
+        if (workerRunning)
+        {
+            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.stop.run.after.scan"),
+                    "Z.cancel.run", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                requestStop = true;
+                guiContext.browser.printLog(guiContext.cfg.gs("z.run.cancelled"));
+            }
+            else
+                return;
+        }
         savePreferences();
         setVisible(false);
     }
@@ -141,7 +155,7 @@ public class DuplicateFinderUI extends JDialog
         // do not allow system origin
         if (name.toLowerCase().contains("system"))
         {
-            Object[] opts = { "OK"};
+            Object[] opts = { guiContext.cfg.gs("Z.ok") };
             JOptionPane.showOptionDialog(this, guiContext.cfg.gs("DuplicateFinder.please.select.a.collection.for.run"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                     null, opts, opts[0]);
@@ -250,13 +264,12 @@ public class DuplicateFinderUI extends JDialog
             {
                 checkBoxCrossLibrary.setEnabled(false);
                 buttonRun.setEnabled(false);
-                //closeButton.setEnabled(false);
                 dupes = new ArrayList<Dupe>();
                 DupesTableModel dtm = (DupesTableModel) tableDupes.getModel();
                 dtm.setDupes(dupes);
                 dtm.fireTableDataChanged();
 
-                labelStatus.setText("Working ...");
+                guiContext.browser.printLog(guiContext.cfg.gs("DuplicateFinder.running"));
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 guiContext.cfg.setCrossCheck(checkBoxCrossLibrary.isSelected());
@@ -270,10 +283,12 @@ public class DuplicateFinderUI extends JDialog
                     @Override
                     protected Void doInBackground() throws Exception
                     {
+                        workerRunning = true;
+
                         // get content
                         if (isPublisher)
                         {
-                            labelStatus.setText("Scanning ...");
+                            labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
                             repo.scan();
                         }
                         else
@@ -282,7 +297,7 @@ public class DuplicateFinderUI extends JDialog
                             {
                                 if (!guiContext.context.clientStty.isConnected())
                                 {
-                                    Object[] opts = {"OK"};
+                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
                                     JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Browser.connection.lost"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
@@ -290,12 +305,12 @@ public class DuplicateFinderUI extends JDialog
 
                                 if (guiContext.context.transfer != null)
                                 {
-                                    labelStatus.setText("Requesting collection data from remote ...");
+                                    labelStatus.setText(guiContext.cfg.gs("Z.requesting.collection.data.from.remote"));
                                     guiContext.context.transfer.requestCollection();
                                 }
                                 else
                                 {
-                                    Object[] opts = {"OK"};
+                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
                                     JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
@@ -303,7 +318,7 @@ public class DuplicateFinderUI extends JDialog
                             }
                             else
                             {
-                                labelStatus.setText("Scanning ...");
+                                labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
                                 repo.scan();
                             }
 
@@ -313,6 +328,8 @@ public class DuplicateFinderUI extends JDialog
                         // analyze the collection items
                         for (Library lib : repo.getLibraryData().libraries.bibliography)
                         {
+                            if (requestStop)
+                                break;
                             String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
                             labelStatus.setText(msg);
                             guiContext.browser.printLog(msg);
@@ -330,6 +347,8 @@ public class DuplicateFinderUI extends JDialog
 
                         for (Library pubLib : repo.getLibraryData().libraries.bibliography)
                         {
+                            if (requestStop)
+                                break;
                             String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + pubLib.name + "'";
                             labelStatus.setText(msg);
                             for (Item item : pubLib.items)
@@ -358,6 +377,7 @@ public class DuplicateFinderUI extends JDialog
                             {
                                 if (e.getNewValue() == SwingWorker.StateValue.DONE)
                                 {
+                                    workerRunning = false;
                                     checkBoxCrossLibrary.setEnabled(true);
                                     buttonRun.setEnabled(true);
                                     //closeButton.setEnabled(true);
@@ -374,7 +394,7 @@ public class DuplicateFinderUI extends JDialog
             }
             else
             {
-                Object[] opts = { "OK"};
+                Object[] opts = { guiContext.cfg.gs("Z.ok") };
                 JOptionPane.showOptionDialog(this, guiContext.cfg.gs("DuplicateFinder.collection.not.loaded"),
                         this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                         null, opts, opts[0]);
@@ -420,6 +440,11 @@ public class DuplicateFinderUI extends JDialog
         guiContext.preferences.setToolsDuplicateFinderYpos(location.y);
     }
 
+    private void windowClosing(WindowEvent e)
+    {
+        closeButton.doClick();
+    }
+
     // ================================================================================================================
 
     private void initComponents()
@@ -446,6 +471,12 @@ public class DuplicateFinderUI extends JDialog
         setTitle(guiContext.cfg.gs("DuplicateFinder.this.title"));
         setName("dialogDuplicateFinderUI");
         setMinimumSize(new Dimension(150, 126));
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                DuplicateFinderUI.this.windowClosing(e);
+            }
+        });
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 

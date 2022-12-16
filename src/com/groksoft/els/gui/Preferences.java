@@ -18,8 +18,8 @@ public class Preferences implements Serializable
     private int appXpos = -1;
     private int appYpos = -1;
     private boolean autoRefresh = true;
-    private int backupDividerConfigLocation = 142;
-    private int backupDividerLocation = 500;
+    private int operationDividerConfigLocation = 142;
+    private int operationDividerLocation = 500;
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int browserBottomSize = 143;
     private int centerDividerLocation = 512;
@@ -267,14 +267,14 @@ public class Preferences implements Serializable
         return appYpos;
     }
 
-    public int getBackupDividerConfigLocation()
+    public int getOperationDividerConfigLocation()
     {
-        return backupDividerConfigLocation;
+        return operationDividerConfigLocation;
     }
 
-    public int getBackupDividerLocation()
+    public int getOperationDividerLocation()
     {
-        return backupDividerLocation;
+        return operationDividerLocation;
     }
 
     public int getBrowserBottomSize()
@@ -699,14 +699,14 @@ public class Preferences implements Serializable
         this.autoRefresh = autoRefresh;
     }
 
-    public void setBackupDividerConfigLocation(int backupDividerConfigLocation)
+    public void setOperationDividerConfigLocation(int operationDividerConfigLocation)
     {
-        this.backupDividerConfigLocation = backupDividerConfigLocation;
+        this.operationDividerConfigLocation = operationDividerConfigLocation;
     }
 
-    public void setBackupDividerLocation(int backupDividerLocation)
+    public void setOperationDividerLocation(int operationDividerLocation)
     {
-        this.backupDividerLocation = backupDividerLocation;
+        this.operationDividerLocation = operationDividerLocation;
     }
 
     public void setBinaryScale(boolean binaryScale)
@@ -1097,7 +1097,7 @@ public class Preferences implements Serializable
         extractColumnSizes(guiContext, null);
 
         // other panels
-        guiContext.backup.savePreferences();
+        guiContext.operations.savePreferences();
 
         json = gson.toJson(this);
         try

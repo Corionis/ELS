@@ -593,10 +593,10 @@ public class JobsUI extends JDialog
             JScrollPane pane = new JScrollPane();
             pane.setViewportView(list);
             list.requestFocus();
-            Object[] params = {combo, pane};
+            Object[] params = {title, combo, pane};
 
             // prompt user
-            int opt = JOptionPane.showConfirmDialog(this, params, title, JOptionPane.OK_CANCEL_OPTION);
+            int opt = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JobsUI.title"), JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
                 String key;
