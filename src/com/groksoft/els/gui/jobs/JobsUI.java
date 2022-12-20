@@ -15,6 +15,7 @@ import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.gui.util.RotatedIcon;
 import com.groksoft.els.gui.util.TextIcon;
+import com.groksoft.els.tools.renamer.RenamerTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -180,9 +181,12 @@ public class JobsUI extends JDialog
             if (checkForChanges())
             {
                 int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
-                        "Z.cancel.changes", JOptionPane.YES_NO_OPTION);
+                        guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
+                {
+                    cancelChanges();
                     setVisible(false);
+                }
             }
             else
                 setVisible(false);
@@ -248,12 +252,11 @@ public class JobsUI extends JDialog
         try
         {
             // TODO change when JRE is embedded in ELS distro
-            String jarPath = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-            String jar = jarPath;
+            String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
             String generated = "java -jar " + jar + " -c debug -d debug -j \"" + currentJob.getConfigName() + "\" -F \"" + currentJob.getConfigName() + ".log\"";
 
             JOptionPane.showInputDialog(this,
-                    guiContext.cfg.gs("JobsUI.generated") + currentJob.getConfigName() +
+                    guiContext.cfg.gs("Z.generated") + currentJob.getConfigName() +
                             "                                                                                    ",
                     guiContext.cfg.gs("JobsUI.title"), JOptionPane.PLAIN_MESSAGE,
                     null, null, generated);
@@ -318,7 +321,7 @@ public class JobsUI extends JDialog
         }
     }
 
-    private void actionOkClicked(ActionEvent e)
+    private void actionSaveClicked(ActionEvent e)
     {
         if (saveConfigurations())
         {
@@ -895,7 +898,18 @@ public class JobsUI extends JDialog
         }
     }
 
-    private boolean checkForChanges()
+    public void cancelChanges()
+    {
+        if (deletedJobs.size() > 0)
+            deletedJobs = new ArrayList<Job>();
+
+        for (int i = 0; i < configModel.getRowCount(); ++i)
+        {
+            ((Job) configModel.getValueAt(i, 0)).setDataHasChanged(false);
+        }
+    }
+
+    public boolean checkForChanges()
     {
         if (deletedJobs.size() > 0)
             return true;
@@ -1467,6 +1481,7 @@ public class JobsUI extends JDialog
                         return false;
                     write(job);
                     changed = true;
+                    job.setDataHasChanged(false);
                 }
             }
 
@@ -1662,7 +1677,7 @@ public class JobsUI extends JDialog
         buttonTaskDown = new JButton();
         buttonRemoveTask = new JButton();
         buttonBar = new JPanel();
-        okButton = new JButton();
+        saveButton = new JButton();
         cancelButton = new JButton();
 
         //======== this ========
@@ -2066,12 +2081,12 @@ public class JobsUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 82, 80};
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
-                //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.save"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
-                okButton.setActionCommand(guiContext.cfg.gs("Z.save"));
-                okButton.addActionListener(e -> actionOkClicked(e));
-                buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                //---- saveButton ----
+                saveButton.setText(guiContext.cfg.gs("Z.save"));
+                saveButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                saveButton.setActionCommand(guiContext.cfg.gs("Z.save"));
+                saveButton.addActionListener(e -> actionSaveClicked(e));
+                buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
@@ -2092,52 +2107,52 @@ public class JobsUI extends JDialog
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JPanel dialogPane;
-    private JPanel contentPanel;
-    private JPanel panelTop;
-    private JPanel panelTopButtons;
-    private JButton buttonNew;
-    private JButton buttonCopy;
-    private JButton buttonDelete;
-    private JPanel hSpacerBeforeRun;
-    private JButton buttonRun;
-    private JPanel hSpacerBeforeGenerate;
-    private JButton buttonGenerate;
-    private JPanel panelHelp;
-    private JLabel labelHelp;
-    private JSplitPane splitPaneContent;
-    private JScrollPane scrollPaneConfig;
-    private JTable configItems;
-    private JPanel panelJob;
-    private JSplitPane splitPaneToolsOrigin;
-    private JPanel panelTasks;
-    private JLabel labelTasks;
-    private JScrollPane scrollPaneTasks;
-    private JList listTasks;
-    private JPanel panelOrigin;
-    private JLabel labelSpacer;
-    private JLabel labelOrigins;
-    private JPanel panelOriginInstance;
-    private JPanel panelPubSub;
-    private JLabel labelPub;
-    private JButton buttonPub;
-    private JLabel labelSub;
-    private JButton buttonSub;
-    private JScrollPane scrollPaneOrigins;
-    private JList listOrigins;
-    private JPanel panelOriginsButtons;
-    private JButton buttonAddOrigin;
-    private JButton buttonOriginUp;
-    private JButton buttonOriginDown;
-    private JButton buttonRemoveOrigin;
-    private JPanel panelToolButtons;
-    private JButton buttonAddTask;
-    private JButton buttonTaskUp;
-    private JButton buttonTaskDown;
-    private JButton buttonRemoveTask;
-    private JPanel buttonBar;
-    private JButton okButton;
-    private JButton cancelButton;
+    public JPanel dialogPane;
+    public JPanel contentPanel;
+    public JPanel panelTop;
+    public JPanel panelTopButtons;
+    public JButton buttonNew;
+    public JButton buttonCopy;
+    public JButton buttonDelete;
+    public JPanel hSpacerBeforeRun;
+    public JButton buttonRun;
+    public JPanel hSpacerBeforeGenerate;
+    public JButton buttonGenerate;
+    public JPanel panelHelp;
+    public JLabel labelHelp;
+    public JSplitPane splitPaneContent;
+    public JScrollPane scrollPaneConfig;
+    public JTable configItems;
+    public JPanel panelJob;
+    public JSplitPane splitPaneToolsOrigin;
+    public JPanel panelTasks;
+    public JLabel labelTasks;
+    public JScrollPane scrollPaneTasks;
+    public JList listTasks;
+    public JPanel panelOrigin;
+    public JLabel labelSpacer;
+    public JLabel labelOrigins;
+    public JPanel panelOriginInstance;
+    public JPanel panelPubSub;
+    public JLabel labelPub;
+    public JButton buttonPub;
+    public JLabel labelSub;
+    public JButton buttonSub;
+    public JScrollPane scrollPaneOrigins;
+    public JList listOrigins;
+    public JPanel panelOriginsButtons;
+    public JButton buttonAddOrigin;
+    public JButton buttonOriginUp;
+    public JButton buttonOriginDown;
+    public JButton buttonRemoveOrigin;
+    public JPanel panelToolButtons;
+    public JButton buttonAddTask;
+    public JButton buttonTaskUp;
+    public JButton buttonTaskDown;
+    public JButton buttonRemoveTask;
+    public JPanel buttonBar;
+    public JButton saveButton;
+    public JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
     //

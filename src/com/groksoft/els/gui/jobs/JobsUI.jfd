@@ -10,6 +10,7 @@ new FormModel {
 		auxiliary() {
 			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
 			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.bundle()"
+			"JavaCodeGenerator.defaultVariableModifiers": 1
 		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
@@ -413,11 +414,11 @@ new FormModel {
 					name: "buttonBar"
 					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
 					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "okButton"
+						name: "saveButton"
 						"text": new FormMessage( null, "Z.save" )
 						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
 						"actionCommand": new FormMessage( null, "Z.save" )
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOkClicked", true ) )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1
 						"gridy": 0

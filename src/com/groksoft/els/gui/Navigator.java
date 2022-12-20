@@ -37,6 +37,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -149,8 +151,8 @@ public class Navigator
     {
         guiContext.context.main.loadLocale(guiContext.preferences.getLocale());
 
-        guiContext.context.main.savedConfiguration = new SavedConfiguration(guiContext, guiContext.cfg, guiContext.context);
-        guiContext.context.main.savedConfiguration.save();
+        guiContext.context.main.savedEnvironment = new SavedEnvironment(guiContext, guiContext.cfg, guiContext.context);
+        guiContext.context.main.savedEnvironment.save();
 
         if (guiContext.cfg.getPublisherCollectionFilename().length() > 0)
         {
@@ -232,22 +234,15 @@ public class Navigator
             loadJobsMenu();
 
 /*
-        Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
-            logger.error("GOT IT: " + Utils.getStackTrace(throwable));
-        });
+            Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
+                logger.error("GOT IT: " + Utils.getStackTrace(throwable));
+            });
 */
 
-/*
-        PrintStream originalOut = System.out;
-        System.setErr(new PrintStream(new OutputStream()
-        {
-            @Override
-            public void write(int i) throws IOException
-            {
+            PrintStream originalOut = System.out;
+            PrintStream teeStdout = new TeeLog(originalOut);
+            System.setOut(teeStdout);
 
-            }
-        }));
-*/
         }
 
         return !guiContext.context.fault;
@@ -1934,6 +1929,34 @@ public class Navigator
 
         // end the Navigator Swing thread
         System.exit(guiContext.context.fault ? 1 : 0);
+    }
+
+    public class TeeLog extends PrintStream
+    {
+        public TeeLog(PrintStream out1)
+        {
+            super(out1);
+        }
+
+        public void write(byte buf[], int offset, int length)
+        {
+            try
+            {
+                super.write(buf, offset, length);
+                guiContext.mainFrame.textAreaOperationLog.append(buf.toString() + System.getProperty("line.separator"));
+                guiContext.mainFrame.textAreaOperationLog.repaint();
+            }
+            catch (Exception e)
+            {
+                System.err.print("TeeLog failure: " + Utils.getStackTrace(e));
+            }
+        }
+
+        public void flush()
+        {
+            super.flush();
+        }
+
     }
 
 }

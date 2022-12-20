@@ -165,6 +165,55 @@ public class MainFrame extends JFrame
         }
     }
 
+    private boolean changesCheckAll()
+    {
+        boolean changes = false;
+        if (guiContext.operations.checkForChanges())
+            changes = true;
+        else if (guiContext.navigator.dialogJunkRemover != null && guiContext.navigator.dialogJunkRemover.checkForChanges())
+            changes = true;
+        else if (guiContext.navigator.dialogRenamer != null && guiContext.navigator.dialogRenamer.checkForChanges())
+            changes = true;
+        else if (guiContext.navigator.dialogJobs != null && guiContext.navigator.dialogJobs.checkForChanges())
+            changes = true;
+        return changes;
+    }
+
+    private void changesGotoUnsaved()
+    {
+        boolean changes = false;
+        if (guiContext.operations.checkForChanges())
+        {
+            tabbedPaneMain.setSelectedIndex(1);
+            buttonOperationSave.requestFocus();
+        }
+        else if (guiContext.navigator.dialogJunkRemover != null && guiContext.navigator.dialogJunkRemover.checkForChanges())
+        {
+            guiContext.navigator.dialogJunkRemover.setVisible(true);
+            guiContext.navigator.dialogJunkRemover.toFront();
+            guiContext.navigator.dialogJunkRemover.requestFocus();
+            guiContext.navigator.dialogJunkRemover.toFront();
+            guiContext.navigator.dialogJunkRemover.requestFocus();
+            guiContext.navigator.dialogJunkRemover.saveButton.requestFocus();
+        }
+        else if (guiContext.navigator.dialogRenamer != null && guiContext.navigator.dialogRenamer.checkForChanges())
+        {
+            guiContext.navigator.dialogRenamer.toFront();
+            guiContext.navigator.dialogRenamer.requestFocus();
+            guiContext.navigator.dialogRenamer.toFront();
+            guiContext.navigator.dialogRenamer.requestFocus();
+            guiContext.navigator.dialogRenamer.saveButton.requestFocus();
+        }
+        else if (guiContext.navigator.dialogJobs != null && guiContext.navigator.dialogJobs.checkForChanges())
+        {
+            guiContext.navigator.dialogJobs.toFront();
+            guiContext.navigator.dialogJobs.requestFocus();
+            guiContext.navigator.dialogJobs.toFront();
+            guiContext.navigator.dialogJobs.requestFocus();
+            guiContext.navigator.dialogJobs.saveButton.requestFocus();
+        }
+    }
+
     public LookAndFeel getLookAndFeel(int value)
     {
         switch (value)
@@ -262,6 +311,18 @@ public class MainFrame extends JFrame
 
     public boolean verifyClose()
     {
+        if (changesCheckAll())
+        {
+            int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
+                    guiContext.cfg.gs("MainFrame.unsaved.changes.are.you.sure"),
+                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+            {
+                changesGotoUnsaved();
+                return false;
+            }
+        }
+
         if (guiContext.progress != null && guiContext.progress.isBeingUsed())
         {
             int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
@@ -432,7 +493,7 @@ public class MainFrame extends JFrame
         textFieldOperationJob = new JTextField();
         buttonOperationJobFilePick = new JButton();
         vSpacer4 = new JPanel(null);
-        comboBoxOperationTargets = new JComboBox<>();
+        labelOperationTargets = new JLabel();
         textFieldOperationTargets = new JTextField();
         buttonOperationTargetsFilePick = new JButton();
         vSpacer5 = new JPanel(null);
@@ -1655,16 +1716,9 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- comboBoxOperationTargets ----
-                                            comboBoxOperationTargets.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationTargets.prototypeDisplayValue"));
-                                            comboBoxOperationTargets.setMinimumSize(new Dimension(60, 30));
-                                            comboBoxOperationTargets.setModel(new DefaultComboBoxModel<>(new String[] {
-                                                "Targets:",
-                                                "Targets, forced:"
-                                            }));
-                                            comboBoxOperationTargets.setName("targets");
-                                            comboBoxOperationTargets.addActionListener(e -> guiContext.operations.genericAction(e));
-                                            panelCardPublisher.add(comboBoxOperationTargets, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationTargets ----
+                                            labelOperationTargets.setText(guiContext.cfg.gs("Operations.labelOperationTargets.text"));
+                                            panelCardPublisher.add(labelOperationTargets, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2658,7 +2712,7 @@ public class MainFrame extends JFrame
     public JTextField textFieldOperationJob;
     public JButton buttonOperationJobFilePick;
     public JPanel vSpacer4;
-    public JComboBox<String> comboBoxOperationTargets;
+    public JLabel labelOperationTargets;
     public JTextField textFieldOperationTargets;
     public JButton buttonOperationTargetsFilePick;
     public JPanel vSpacer5;

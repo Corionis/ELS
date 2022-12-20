@@ -1,7 +1,7 @@
 package com.groksoft.els;
 
 import com.groksoft.els.gui.Navigator;
-import com.groksoft.els.gui.SavedConfiguration;
+import com.groksoft.els.gui.SavedEnvironment;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
@@ -37,7 +37,7 @@ public class Main
     private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
-    public SavedConfiguration savedConfiguration;
+    public SavedEnvironment savedEnvironment;
     public boolean trace;
 
     // add new locales here
@@ -617,7 +617,7 @@ public class Main
                     // setup the hint status server if defined
                     connectHintServer(context.publisherRepo);
 
-                    savedConfiguration = new SavedConfiguration(null, cfg, context);
+                    savedEnvironment = new SavedEnvironment(null, cfg, context);
                     context.transfer = new Transfer(cfg, context);
                     context.transfer.initialize();
 

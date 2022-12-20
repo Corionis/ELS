@@ -505,6 +505,11 @@ public class JunkRemoverTool extends AbstractTool
         dataHasChanged = true;
     }
 
+    public void setDataHasChanged(boolean state)
+    {
+        dataHasChanged = state;
+    }
+
     public void setForwardPaths(ArrayList<String> forwardPaths)
     {
     }

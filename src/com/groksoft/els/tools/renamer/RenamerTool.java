@@ -842,6 +842,11 @@ public class RenamerTool extends AbstractTool
         dataHasChanged = true;
     }
 
+    public void setDataHasChanged(boolean state)
+    {
+        dataHasChanged = state;
+    }
+
     public void setIsFilesOnly(boolean filesOnly)
     {
         this.filesOnly = filesOnly;

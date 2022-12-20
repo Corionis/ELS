@@ -28,7 +28,7 @@ import java.util.Arrays;
 
 public class JunkRemoverUI extends JDialog
 {
-    private JunkConfigModel configModel;
+    private ConfigModel configModel;
     private ArrayList<JunkRemoverTool> deletedTools;
     private GuiContext guiContext;
     private Logger logger = LogManager.getLogger("applog");
@@ -88,7 +88,7 @@ public class JunkRemoverUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // setup the left-side list of configurations
-        configModel = new JunkConfigModel(guiContext, this);
+        configModel = new ConfigModel(guiContext, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -156,7 +156,10 @@ public class JunkRemoverUI extends JDialog
                 int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
                         guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
+                {
+                    cancelChanges();
                     setVisible(false);
+                }
             }
             else
                 setVisible(false);
@@ -257,7 +260,7 @@ public class JunkRemoverUI extends JDialog
         }
     }
 
-    private void actionOkClicked(ActionEvent e)
+    private void actionSaveClicked(ActionEvent e)
     {
         saveConfigurations();
         savePreferences();
@@ -388,6 +391,23 @@ public class JunkRemoverUI extends JDialog
         // tab to move to next row & add new row if needed
         tableJunk.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0), "Action.NextCell");
         tableJunk.getActionMap().put("Action.NextCell", new NextCellAction());
+    }
+
+    public void cancelChanges()
+    {
+        if (tableJunk.isEditing())
+        {
+            tableJunk.getCellEditor().stopCellEditing();
+        }
+
+        if (deletedTools.size() > 0)
+            deletedTools = new ArrayList<JunkRemoverTool>();
+
+        for (int i = 0; i < configModel.getRowCount(); ++i)
+        {
+            ((JunkRemoverTool) configModel.getValueAt(i, 0)).reset();
+            ((JunkRemoverTool) configModel.getValueAt(i, 0)).setDataHasChanged(false);
+        }
     }
 
     public boolean checkForChanges()
@@ -628,6 +648,7 @@ public class JunkRemoverUI extends JDialog
                 jrt = (JunkRemoverTool) configModel.getValueAt(i, 0);
                 if (jrt.isDataChanged())
                     jrt.write();
+                jrt.setDataHasChanged(false);
             }
 
             // remove any deleted tools JSON configuration file
@@ -746,7 +767,7 @@ public class JunkRemoverUI extends JDialog
         buttonAddRow = new JButton();
         buttonRemoveRow = new JButton();
         buttonBar = new JPanel();
-        okButton = new JButton();
+        saveButton = new JButton();
         cancelButton = new JButton();
 
         //======== this ========
@@ -932,11 +953,11 @@ public class JunkRemoverUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 82, 80};
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
-                //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.save"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
-                okButton.addActionListener(e -> actionOkClicked(e));
-                buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                //---- saveButton ----
+                saveButton.setText(guiContext.cfg.gs("Z.save"));
+                saveButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                saveButton.addActionListener(e -> actionSaveClicked(e));
+                buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
@@ -957,29 +978,29 @@ public class JunkRemoverUI extends JDialog
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JPanel dialogPane;
-    private JPanel contentPanel;
-    private JPanel panelTop;
-    private JPanel panelTopButtons;
-    private JButton buttonNew;
-    private JButton buttonCopy;
-    private JButton buttonDelete;
-    private JPanel hSpacerBeforeRun;
-    private JButton buttonRun;
-    private JPanel panelHelp;
-    private JLabel labelHelp;
-    private JSplitPane splitPaneContent;
-    private JScrollPane scrollPaneConfig;
-    private JTable configItems;
-    private JPanel panelOptions;
-    private JScrollPane scrollPaneOptions;
-    private JTable tableJunk;
-    private JPanel panelOptionsButtons;
-    private JButton buttonAddRow;
-    private JButton buttonRemoveRow;
-    private JPanel buttonBar;
-    private JButton okButton;
-    private JButton cancelButton;
+    public JPanel dialogPane;
+    public JPanel contentPanel;
+    public JPanel panelTop;
+    public JPanel panelTopButtons;
+    public JButton buttonNew;
+    public JButton buttonCopy;
+    public JButton buttonDelete;
+    public JPanel hSpacerBeforeRun;
+    public JButton buttonRun;
+    public JPanel panelHelp;
+    public JLabel labelHelp;
+    public JSplitPane splitPaneContent;
+    public JScrollPane scrollPaneConfig;
+    public JTable configItems;
+    public JPanel panelOptions;
+    public JScrollPane scrollPaneOptions;
+    public JTable tableJunk;
+    public JPanel panelOptionsButtons;
+    public JButton buttonAddRow;
+    public JButton buttonRemoveRow;
+    public JPanel buttonBar;
+    public JButton saveButton;
+    public JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //
     // @formatter:on

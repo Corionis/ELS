@@ -2,11 +2,10 @@ package com.groksoft.els.tools.operations;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.groksoft.els.Configuration;
-import com.groksoft.els.Context;
-import com.groksoft.els.MungeException;
-import com.groksoft.els.Utils;
+import com.groksoft.els.*;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.gui.Progress;
+import com.groksoft.els.gui.util.ArgumentTokenizer;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.Repository;
@@ -15,12 +14,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
-public class OperationsTool extends AbstractTool
+public class OperationsTool extends AbstractTool implements Comparable, Serializable
 {
     // @formatter:off
     public static final String INTERNAL_NAME = "Operations";
@@ -58,7 +61,6 @@ public class OperationsTool extends AbstractTool
     private boolean optQuitStatus = false; // -q | --quit-status
     private boolean optForceQuit = false; // -Q | --force-quit
     private String optTargets = ""; // -t | --targets
-    private String optTargetsForced = ""; // -T | --force-targets
     private boolean optDuplicates = false; // -u | --duplicates
     private boolean optValidate = false; // -v | --validate
     private String optWhatsNew = ""; // -w | --whatsnew
@@ -70,6 +72,8 @@ public class OperationsTool extends AbstractTool
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private GuiContext guiContext = null;
     transient private Logger logger = LogManager.getLogger("applog");
+    transient private Repository pubRepo;
+    transient private Repository subRepo;
     transient boolean stop = false;
     // @formatter-on
 
@@ -82,7 +86,207 @@ public class OperationsTool extends AbstractTool
 
     public OperationsTool clone()
     {
-        return null;
+        assert guiContext != null;
+        OperationsTool tool = new OperationsTool(guiContext, this.cfg, this.context);
+        tool.setConfigName(getConfigName());
+        tool.internalName = INTERNAL_NAME;
+        tool.setOperation(getOperation());
+        tool.setOptAuthorize(getOptAuthorize());
+        tool.setOptAuthKeys(getOptAuthKeys());
+        tool.setOptNoBackFill(isOptNoBackFill());
+        tool.setOptBlacklist(getOptBlacklist());
+        tool.setOptConsoleLevel(getOptConsoleLevel());
+        tool.setOptDebugLevel(getOptDebugLevel());
+        tool.setOptDryRun(isOptDryRun());
+        tool.setOptExportText(getOptExportText());
+        tool.setOptEmptyDirectories(isOptEmptyDirectories());
+        tool.setOptLogFile(getOptLogFile());
+        tool.setOptLogFileOverwrite(getOptLogFileOverwrite());
+        tool.setOptListenerKeepGoing(isOptListenerKeepGoing());
+        tool.setOptListenerQuit(isOptListenerQuit());
+        tool.setOptHints(getOptHints());
+        tool.setOptHintServer(getOptHintServer());
+        tool.setOptExportItems(getOptExportItems());
+        tool.setOptIpWhitelist(getOptIpWhitelist());
+        tool.setOptJob(getOptJob());
+        tool.setOptKeys(getOptKeys());
+        tool.setOptKeysOnly(getOptKeysOnly());
+//        tool.setOptLibrary(getOptLibrary().clone());
+//        tool.setOptExclude(getOptExclude().clone());
+        tool.setOptMismatches(getOptMismatches());
+        tool.setOptNavigator(isOptNavigator());
+        tool.setOptIgnored(isOptIgnored());
+        tool.setOptOverwrite(isOptOverwrite());
+        tool.setOptQuitStatus(isOptQuitStatus());
+        tool.setOptForceQuit(isOptForceQuit());
+        tool.setOptTargets(getOptTargets());
+        tool.setOptDuplicates(isOptDuplicates());
+        tool.setOptValidate(isOptValidate());
+        tool.setOptWhatsNew(getOptWhatsNew());
+        tool.setOptWhatsNewAll(getOptWhatsNewAll());
+        tool.setOptCrossCheck(isOptCrossCheck());
+        tool.setOptPreserveDates(isOptPreserveDates());
+        tool.setOptDecimalScale(isOptDecimalScale());
+
+        tool.setIncludeInToolsList(isIncludeInToolsList());
+        return tool;
+    }
+
+    public String generateCommandLine()
+    {
+        Configuration defCfg = new Configuration(context);
+        boolean glo = guiContext.preferences.isGenerateLongOptions();
+        StringBuilder sb = new StringBuilder();
+
+        // --- non-munging actions
+        if (isOptNavigator() != defCfg.isNavigator())
+            sb.append(" " + (glo ? "--navigator" : "-n"));
+        if (getOptJob().length() > 0)
+            sb.append(" " + (glo ? "--job" : "-j") + " " + getOptJob());
+        if (isOptForceQuit())
+            sb.append(" " + (glo ? "--force-quit" : "-Q"));
+        if (isOptQuitStatus())
+            sb.append(" " + (glo ? "--quit-status" : "-q"));
+
+        // --- remote mode
+        switch (operation)
+        {
+            case Configuration.JOB_PROCESS:
+                sb.append(" " + (glo ? "--remote" : "-r") + " J");
+                break;
+            case Configuration.PUBLISHER_LISTENER:
+                sb.append(" " + (glo ? "--remote" : "-r") + " L");
+                break;
+            case Configuration.PUBLISHER_MANUAL:
+                sb.append(" " + (glo ? "--remote" : "-r") + " M");
+                break;
+            case Configuration.PUBLISH_REMOTE:
+                sb.append(" " + (glo ? "--remote" : "-r") + " P");
+                break;
+            case Configuration.SUBSCRIBER_LISTENER:
+                sb.append(" " + (glo ? "--remote" : "-r") + " S");
+                break;
+            case Configuration.SUBSCRIBER_TERMINAL:
+                sb.append(" " + (glo ? "--remote" : "-r") + " T");
+                break;
+            case Configuration.NOT_REMOTE:
+            case Configuration.STATUS_SERVER:
+            case Configuration.STATUS_SERVER_FORCE_QUIT:
+            case Configuration.SUBSCRIBER_SERVER_FORCE_QUIT:
+                break;
+        }
+
+        // --- libraries
+        if (pubRepo != null)
+            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubRepo.getJsonFilename() + "\"");
+        if (subRepo != null)
+            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subRepo.getJsonFilename() + "\"");
+
+        // --- targets
+        switch (operation)
+        {
+            case Configuration.JOB_PROCESS:
+            case Configuration.NOT_REMOTE:
+            case Configuration.PUBLISHER_LISTENER:
+            case Configuration.PUBLISH_REMOTE:
+            case Configuration.SUBSCRIBER_LISTENER:
+            case Configuration.SUBSCRIBER_SERVER_FORCE_QUIT:
+                sb.append(" " + (glo ? "--targets" : "-t"));
+                if (getOptTargets().length() > 0)
+                    sb.append(" \"" + getOptTargets() + "\"");
+                break;
+            case Configuration.PUBLISHER_MANUAL:
+            case Configuration.STATUS_SERVER:
+            case Configuration.STATUS_SERVER_FORCE_QUIT:
+            case Configuration.SUBSCRIBER_TERMINAL:
+                break;
+        }
+
+        // --- hint keys
+        if (getOptKeys().length() > 0)
+            sb.append(" " + (glo ? "--keys" : "-k") + " \"" + getOptKeys() + "\"");
+        if (getOptKeysOnly().length() > 0)
+            sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + getOptKeysOnly() + "\"");
+
+        // --- hints & hint server
+        if (getOptHints().length() > 0)
+            sb.append(" " + (glo ? "--hints" : "-h") + " \"" + getOptHints() + "\"");
+        if (getOptHintServer().length() > 0)
+            sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + getOptHintServer() + "\"");
+
+        // --- security
+        if (getOptAuthorize().length() > 0)
+            sb.append(" " + (glo ? "--authorize" : "-a") + " \"" + getOptAuthorize() + "\"");
+        if (getOptAuthKeys().length() > 0)
+            sb.append(" " + (glo ? "--auth-keys" : "-A") + " \"" + getOptAuthorize() + "\"");
+        if (getOptBlacklist().length() > 0)
+            sb.append(" " + (glo ? "--blacklist" : "-B") + " \"" + getOptBlacklist() + "\"");
+        if (getOptIpWhitelist().length() > 0)
+            sb.append(" " + (glo ? "--ip-whitelist" : "-I") + " \"" + getOptIpWhitelist() + "\"");
+
+        // --- exports
+        if (getOptExportText().length() > 0)
+            sb.append(" " + (glo ? "--export-text" : "-e") + " \"" + getOptExportText() + "\"");
+        if (getOptExportItems().length() > 0)
+            sb.append(" " + (glo ? "--export-items" : "-i") + " \"" + getOptExportItems() + "\"");
+
+        // --- include/exclude libraries
+        // TODO add
+
+        // --- differences
+        if (getOptMismatches().length() > 0)
+            sb.append(" " + (glo ? "--mismatches" : "-m") + " \"" + getOptMismatches() + "\"");
+        if (getOptWhatsNew().length() > 0)
+            sb.append(" " + (glo ? "--whatsnew" : "-w") + " \"" + getOptWhatsNew() + "\"");
+        if (getOptWhatsNewAll().length() > 0)
+            sb.append(" " + (glo ? "--whatsnew-all" : "-W") + " \"" + getOptWhatsNewAll() + "\"");
+
+        // --- options
+        if (isOptDecimalScale() != !defCfg.isBinaryScale())
+            sb.append(" " + (glo ? "--decimal-scale" : "-z"));
+        if (isOptDryRun() != defCfg.isDryRun())
+            sb.append(" " + (glo ? "--dry-run" : "-D"));
+        if (isOptDuplicates() != defCfg.isDuplicateCheck())
+            sb.append(" " + (glo ? "--duplicates" : "-u"));
+        if (isOptEmptyDirectories() != defCfg.isEmptyDirectoryCheck())
+            sb.append(" " + (glo ? "--empty-directories" : "-E"));
+        if (isOptCrossCheck() != defCfg.isCrossCheck())
+            sb.append(" " + (glo ? "--cross-check" : "-x"));
+        if (isOptIgnored() != defCfg.isIgnoredReported())
+            sb.append(" " + (glo ? "--ignored" : "-N"));
+        if (isOptListenerQuit() != defCfg.isQuitSubscriberListener())
+            sb.append(" " + (glo ? "--listener-quit" : "-G"));
+        if (isOptListenerKeepGoing() != defCfg.isKeepGoing())
+            sb.append(" " + (glo ? "--listener-keep-going" : "-g"));
+        if (isOptNoBackFill() != defCfg.isNoBackFill())
+            sb.append(" " + (glo ? "--no-back-fill" : "-B"));
+        if (isOptOverwrite() != defCfg.isOverwrite())
+            sb.append(" " + (glo ? "--overwrite" : "-o"));
+        if (isOptPreserveDates() != defCfg.isPreserveDates())
+            sb.append(" " + (glo ? "--preserve-dates" : "-y"));
+        if (isOptValidate() != defCfg.isValidation())
+            sb.append(" " + (glo ? "--validate" : "-v"));
+
+        // --- log levels
+        if (!getOptConsoleLevel().equals(defCfg.getConsoleLevel()))
+            sb.append(" " + (glo ? "--console-level" : "-c") + " " + getOptConsoleLevel());
+        if (!getOptDebugLevel().equals(defCfg.getDebugLevel()))
+            sb.append(" " + (glo ? "--debug-level" : "-d") + " " + getOptDebugLevel());
+
+        // -- logging
+        if (getOptLogFile().length() > 0)
+            sb.append(" " + (glo ? "--log-file" : "-f") + " \"" + getOptLogFile() + "\"");
+        if (getOptLogFileOverwrite().length() > 0)
+            sb.append(" " + (glo ? "--log-overwrite" : "-f") + " \"" + getOptLogFileOverwrite() + "\"");
+
+        return sb.toString().trim();
+    }
+
+    public String generateCommandLine(Repository pubRepo, Repository subRepo)
+    {
+        this.pubRepo = pubRepo;
+        this.subRepo = subRepo;
+        return generateCommandLine();
     }
 
     @Override
@@ -202,11 +406,6 @@ public class OperationsTool extends AbstractTool
     public String getOptTargets()
     {
         return optTargets;
-    }
-
-    public String getOptTargetsForced()
-    {
-        return optTargetsForced;
     }
 
     public String getOptWhatsNew()
@@ -331,13 +530,71 @@ public class OperationsTool extends AbstractTool
     @Override
     public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
+        pubRepo = publisherRepo;
+        subRepo = subscriberRepo;
+        // origins, dryRun & lastTask not used
+
+        String cmd = generateCommandLine();
+        List<String> list = ArgumentTokenizer.tokenize(cmd);
+        String[] args = list.toArray(new String[0]);
+
+        Main main = new Main();
+        main.process(args);          // ELS Processor
 
     }
 
     @Override
     public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
-        return null;
+        // create a fresh dialog
+        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+        {
+            ActionListener cancel = new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    requestStop();
+                }
+            };
+            guiContext.progress = new Progress(guiContext, guiContext.mainFrame.panelOperationTop, cancel, dryRun);
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        guiContext.progress.display();
+
+        // using currently-loaded repositories means there is no change in connection
+        //if (willDisconnect(guiContext))
+        //{
+        //    int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame.panelOperationTop, guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.YES_NO_OPTION);
+        //    if (reply != JOptionPane.YES_OPTION)
+        //        return null;
+        //}
+
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
+        {
+            @Override
+            protected Void doInBackground() throws Exception
+            {
+                try
+                {
+                    processTool(guiContext, publisherRepo, subscriberRepo, null, false, null);
+                }
+                catch (Exception e)
+                {
+                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                    guiContext.browser.printLog(msg, true);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
+                            guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.ERROR_MESSAGE);
+                }
+                return null;
+            }
+        };
+        return worker;
     }
 
     public void requestStop()
@@ -359,6 +616,11 @@ public class OperationsTool extends AbstractTool
     public void setDataHasChanged()
     {
         dataHasChanged = true;
+    }
+
+    public void setDataHasChanged(boolean sense)
+    {
+        dataHasChanged = sense;
     }
 
     @Override
@@ -530,11 +792,6 @@ public class OperationsTool extends AbstractTool
     public void setOptTargets(String optTargets)
     {
         this.optTargets = optTargets;
-    }
-
-    public void setOptTargetsForced(String optTargetsForced)
-    {
-        this.optTargetsForced = optTargetsForced;
     }
 
     public void setOptValidate(boolean optValidate)

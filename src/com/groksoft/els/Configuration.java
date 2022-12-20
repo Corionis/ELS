@@ -33,12 +33,12 @@ public class Configuration
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private String blacklist = "";
-    private String consoleLevel = "debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
+    private String consoleLevel = "Debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean consoleSet = false;
     private Context context;
     private int crossCheck = -1;
     private ResourceBundle currentBundle = null;
-    private String debugLevel = "debug";
+    private String debugLevel = "Debug";
     private boolean debugSet = false;
     private int dryRun = -1;
     private int dumpSystem = -1;
@@ -934,6 +934,42 @@ public class Configuration
     public String getRemoteType()
     {
         return this.remoteType;
+    }
+
+    /**
+     * Gets remote type based on operation
+     *
+     * @return the remote type from the command line
+     */
+    public String getRemoteType(int operation)
+    {
+        // STATUS_SERVER 6, STATUS_SERVER_FORCE_QUIT 7 and SUBSCRIBER_SERVER_FORCE_QUIT 9 are not remote modes
+        String op = "";
+        switch (operation)
+        {
+            case JOB_PROCESS: // 8
+                op = "J";
+                break;
+            case NOT_REMOTE: // 0
+                op = "-";
+                break;
+            case PUBLISHER_LISTENER: // 4
+                op = "L";
+                break;
+            case PUBLISHER_MANUAL: // 3
+                op = "M";
+                break;
+            case PUBLISH_REMOTE: // 1
+                op = "P";
+                break;
+            case SUBSCRIBER_LISTENER: // 2
+                op = "S";
+                break;
+            case SUBSCRIBER_TERMINAL: // 5
+                op = "T";
+                break;
+        }
+        return op;
     }
 
     /**

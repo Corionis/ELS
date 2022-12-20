@@ -40,7 +40,7 @@ public class RenamerUI extends JDialog
     private String caseChangeActions = "firstupper lower titlecase upper";
     private ChangesTableModel changeModel;
     private String[][] changeStrings;
-    private RenamerConfigModel configModel;
+    private ConfigModel configModel;
     private JPanel currentCard = null;
     private int currentConfigIndex = -1;
     private RenamerTool currentRenamer = null;
@@ -107,7 +107,7 @@ public class RenamerUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // setup the left-side list of configurations
-        configModel = new RenamerConfigModel(guiContext, this);
+        configModel = new ConfigModel(guiContext, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -170,7 +170,10 @@ public class RenamerUI extends JDialog
                 int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
                         guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
+                {
+                    cancelChanges();
                     setVisible(false);
+                }
             }
             else
                 setVisible(false);
@@ -304,7 +307,7 @@ public class RenamerUI extends JDialog
         }
     }
 
-    private void actionOkClicked(ActionEvent e)
+    private void actionSaveClicked(ActionEvent e)
     {
         saveConfigurations();
         savePreferences();
@@ -445,6 +448,18 @@ public class RenamerUI extends JDialog
         loadTable();
         updateState();
         processTable();
+    }
+
+    public void cancelChanges()
+    {
+        if (deletedTools.size() > 0)
+            deletedTools = new ArrayList<RenamerTool>();
+
+        for (int i = 0; i < configModel.getRowCount(); ++i)
+        {
+            ((RenamerTool) configModel.getValueAt(i, 0)).reset();
+            ((RenamerTool) configModel.getValueAt(i, 0)).setDataHasChanged(false);
+        }
     }
 
     public boolean checkForChanges()
@@ -884,6 +899,7 @@ public class RenamerUI extends JDialog
                 renamer = (RenamerTool) configModel.getValueAt(i, 0);
                 if (renamer.isDataChanged())
                     renamer.write();
+                renamer.setDataHasChanged(false);
             }
 
             // remove any deleted tools JSON configuration file
@@ -1270,7 +1286,7 @@ public class RenamerUI extends JDialog
         panelOptionsButtons = new JPanel();
         buttonRefresh = new JButton();
         buttonBar = new JPanel();
-        okButton = new JButton();
+        saveButton = new JButton();
         cancelButton = new JButton();
         buttonGroupChangeCase = new ButtonGroup();
 
@@ -2153,11 +2169,11 @@ public class RenamerUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 82, 80};
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
-                //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.save"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
-                okButton.addActionListener(e -> actionOkClicked(e));
-                buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                //---- saveButton ----
+                saveButton.setText(guiContext.cfg.gs("Z.save"));
+                saveButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                saveButton.addActionListener(e -> actionSaveClicked(e));
+                buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
@@ -2184,97 +2200,97 @@ public class RenamerUI extends JDialog
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JPanel dialogPane;
-    private JPanel contentPanel;
-    private JPanel panelTop;
-    private JPanel panelTopButtons;
-    private JButton buttonNew;
-    private JButton buttonCopy;
-    private JButton buttonDelete;
-    private JPanel hSpacerBeforeRun;
-    private JButton buttonRun;
-    private JPanel panelHelp;
-    private JLabel labelHelp;
-    private JSplitPane splitPaneContent;
-    private JScrollPane scrollPaneConfig;
-    private JTable configItems;
-    private JPanel panelOptions;
-    private JPanel panelControls;
-    private JPanel topOptions;
-    private JPanel vSpacer0;
-    private JPanel panelRenameType;
-    private JPanel hSpacer1;
-    private JLabel labelRenameType;
-    private JPanel panelCbOpts;
-    private JCheckBox checkBoxRecursive;
-    private JCheckBox checkBoxFilesOnly;
-    private JPanel panelFilenameSegment;
-    private JComboBox<String> comboBoxFilenameSegment;
-    private JPanel hSpacer2;
-    private JPanel panelCardBox;
-    private JPanel vSpacer1;
-    private JSeparator separator1;
-    private JPanel vSpacer2;
-    private JPanel panelOptionsCards;
-    private JPanel panelCaseChangeCard;
-    private JRadioButton radioButtonFirstUpperCase;
-    private JRadioButton radioButtonLowerCase;
-    private JRadioButton radioButtonTitleCase;
-    private JRadioButton radioButtonUpperCase;
-    private JPanel panelInsertCard;
-    private JLabel labelTextToInsert;
-    private JTextField textFieldToInsert;
-    private JLabel labelInsertPosition;
-    private JPanel panelInsertPostion;
-    private JTextField textFieldInsertPosition;
-    private JPanel hSpacer3;
-    private JCheckBox checkBoxInsertFromEnd;
-    private JPanel hSpacer7;
-    private JCheckBox checkBoxInsertAtEnd;
-    private JPanel panelInsertOther;
-    private JCheckBox checkBoxInsertOverwrite;
-    private JPanel panelNumberingCard;
-    private JLabel labelStart;
-    private JPanel panelNums;
-    private JTextField textFieldNumberingStart;
-    private JPanel hSpacer5;
-    private JLabel labelZeros;
-    private JTextField textFieldNumberingZeros;
-    private JLabel labelNumberingPosition;
-    private JPanel panelNumberingPostion;
-    private JTextField textFieldNumberingPosition;
-    private JPanel hSpacer4;
-    private JCheckBox checkBoxNumberingFromEnd;
-    private JPanel hSpacer8;
-    private JCheckBox checkBoxNumberingAtEnd;
-    private JPanel panelNumberingOther;
-    private JCheckBox checkBoxNumberingOverwrite;
-    private JPanel panelRemoveCard;
-    private JLabel labelFrom;
-    private JPanel panelFrom;
-    private JTextField textFieldFrom;
-    private JPanel hSpacer6;
-    private JLabel labelLength;
-    private JPanel panelLength;
-    private JTextField textFieldLength;
-    private JPanel panelRemoveOther;
-    private JCheckBox checkBoxRemoveFromEnd;
-    private JPanel panelReplaceCard;
-    private JLabel labelFind;
-    private JTextField textFieldFind;
-    private JLabel labeReplace;
-    private JTextField textFieldReplace;
-    private JPanel panelReplaceOther;
-    private JCheckBox checkBoxRegularExpr;
-    private JCheckBox checkBoxCase;
-    private JScrollPane scrollPaneExamples;
-    private JTable tableChanges;
-    private JPanel panelOptionsButtons;
-    private JButton buttonRefresh;
-    private JPanel buttonBar;
-    private JButton okButton;
-    private JButton cancelButton;
-    private ButtonGroup buttonGroupChangeCase;
+    public JPanel dialogPane;
+    public JPanel contentPanel;
+    public JPanel panelTop;
+    public JPanel panelTopButtons;
+    public JButton buttonNew;
+    public JButton buttonCopy;
+    public JButton buttonDelete;
+    public JPanel hSpacerBeforeRun;
+    public JButton buttonRun;
+    public JPanel panelHelp;
+    public JLabel labelHelp;
+    public JSplitPane splitPaneContent;
+    public JScrollPane scrollPaneConfig;
+    public JTable configItems;
+    public JPanel panelOptions;
+    public JPanel panelControls;
+    public JPanel topOptions;
+    public JPanel vSpacer0;
+    public JPanel panelRenameType;
+    public JPanel hSpacer1;
+    public JLabel labelRenameType;
+    public JPanel panelCbOpts;
+    public JCheckBox checkBoxRecursive;
+    public JCheckBox checkBoxFilesOnly;
+    public JPanel panelFilenameSegment;
+    public JComboBox<String> comboBoxFilenameSegment;
+    public JPanel hSpacer2;
+    public JPanel panelCardBox;
+    public JPanel vSpacer1;
+    public JSeparator separator1;
+    public JPanel vSpacer2;
+    public JPanel panelOptionsCards;
+    public JPanel panelCaseChangeCard;
+    public JRadioButton radioButtonFirstUpperCase;
+    public JRadioButton radioButtonLowerCase;
+    public JRadioButton radioButtonTitleCase;
+    public JRadioButton radioButtonUpperCase;
+    public JPanel panelInsertCard;
+    public JLabel labelTextToInsert;
+    public JTextField textFieldToInsert;
+    public JLabel labelInsertPosition;
+    public JPanel panelInsertPostion;
+    public JTextField textFieldInsertPosition;
+    public JPanel hSpacer3;
+    public JCheckBox checkBoxInsertFromEnd;
+    public JPanel hSpacer7;
+    public JCheckBox checkBoxInsertAtEnd;
+    public JPanel panelInsertOther;
+    public JCheckBox checkBoxInsertOverwrite;
+    public JPanel panelNumberingCard;
+    public JLabel labelStart;
+    public JPanel panelNums;
+    public JTextField textFieldNumberingStart;
+    public JPanel hSpacer5;
+    public JLabel labelZeros;
+    public JTextField textFieldNumberingZeros;
+    public JLabel labelNumberingPosition;
+    public JPanel panelNumberingPostion;
+    public JTextField textFieldNumberingPosition;
+    public JPanel hSpacer4;
+    public JCheckBox checkBoxNumberingFromEnd;
+    public JPanel hSpacer8;
+    public JCheckBox checkBoxNumberingAtEnd;
+    public JPanel panelNumberingOther;
+    public JCheckBox checkBoxNumberingOverwrite;
+    public JPanel panelRemoveCard;
+    public JLabel labelFrom;
+    public JPanel panelFrom;
+    public JTextField textFieldFrom;
+    public JPanel hSpacer6;
+    public JLabel labelLength;
+    public JPanel panelLength;
+    public JTextField textFieldLength;
+    public JPanel panelRemoveOther;
+    public JCheckBox checkBoxRemoveFromEnd;
+    public JPanel panelReplaceCard;
+    public JLabel labelFind;
+    public JTextField textFieldFind;
+    public JLabel labeReplace;
+    public JTextField textFieldReplace;
+    public JPanel panelReplaceOther;
+    public JCheckBox checkBoxRegularExpr;
+    public JCheckBox checkBoxCase;
+    public JScrollPane scrollPaneExamples;
+    public JTable tableChanges;
+    public JPanel panelOptionsButtons;
+    public JButton buttonRefresh;
+    public JPanel buttonBar;
+    public JButton saveButton;
+    public JButton cancelButton;
+    public ButtonGroup buttonGroupChangeCase;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //
     // @formatter:on

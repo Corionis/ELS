@@ -717,17 +717,9 @@ new FormModel {
 													"gridy": 1
 													"gridx": 3
 												} )
-												add( new FormComponent( "javax.swing.JComboBox" ) {
-													name: "comboBoxOperationTargets"
-													"prototypeDisplayValue": new FormMessage( null, "Operations.comboBoxOperationTargets.prototypeDisplayValue" )
-													"minimumSize": new java.awt.Dimension( 60, 30 )
-													"model": new javax.swing.DefaultComboBoxModel {
-														selectedItem: "Targets:"
-														addElement( "Targets:" )
-														addElement( "Targets, forced:" )
-													}
-													"name": "targets"
-													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "guiContext.operations.genericAction", true ) )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelOperationTargets"
+													"text": new FormMessage( null, "Operations.labelOperationTargets.text" )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 2
 												} )

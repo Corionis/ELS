@@ -18,8 +18,6 @@ public class Preferences implements Serializable
     private int appXpos = -1;
     private int appYpos = -1;
     private boolean autoRefresh = true;
-    private int operationDividerConfigLocation = 142;
-    private int operationDividerLocation = 500;
     private boolean binaryScale = true; // true = 1024, false = 1000
     private int browserBottomSize = 143;
     private int centerDividerLocation = 512;
@@ -34,6 +32,7 @@ public class Preferences implements Serializable
     private int collectionTwoSizeWidth = 80;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
+    private boolean generateLongOptions = false;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
     private String hintTrackingColor = "336633";
@@ -57,6 +56,8 @@ public class Preferences implements Serializable
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
+    private int operationDividerConfigLocation = 142;
+    private int operationDividerLocation = 500;
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
@@ -98,6 +99,7 @@ public class Preferences implements Serializable
     private int toolsRenamerYpos = -1;
     private transient Configuration cfg;
     private transient Context context;
+
     /**
      * Constructor
      */
@@ -267,16 +269,6 @@ public class Preferences implements Serializable
         return appYpos;
     }
 
-    public int getOperationDividerConfigLocation()
-    {
-        return operationDividerConfigLocation;
-    }
-
-    public int getOperationDividerLocation()
-    {
-        return operationDividerLocation;
-    }
-
     public int getBrowserBottomSize()
     {
         return browserBottomSize;
@@ -420,6 +412,16 @@ public class Preferences implements Serializable
     public int getLookAndFeel()
     {
         return lookAndFeel;
+    }
+
+    public int getOperationDividerConfigLocation()
+    {
+        return operationDividerConfigLocation;
+    }
+
+    public int getOperationDividerLocation()
+    {
+        return operationDividerLocation;
     }
 
     public int getProgressHeight()
@@ -614,6 +616,11 @@ public class Preferences implements Serializable
         return binaryScale;
     }
 
+    public boolean isGenerateLongOptions()
+    {
+        return generateLongOptions;
+    }
+
     public boolean isHideFilesInTree()
     {
         return hideFilesInTree;
@@ -699,16 +706,6 @@ public class Preferences implements Serializable
         this.autoRefresh = autoRefresh;
     }
 
-    public void setOperationDividerConfigLocation(int operationDividerConfigLocation)
-    {
-        this.operationDividerConfigLocation = operationDividerConfigLocation;
-    }
-
-    public void setOperationDividerLocation(int operationDividerLocation)
-    {
-        this.operationDividerLocation = operationDividerLocation;
-    }
-
     public void setBinaryScale(boolean binaryScale)
     {
         this.binaryScale = binaryScale;
@@ -777,6 +774,11 @@ public class Preferences implements Serializable
     public void setDateFormat(String dateFormat)
     {
         this.dateFormat = dateFormat;
+    }
+
+    public void setGenerateLongOptions(boolean generateLongOptions)
+    {
+        this.generateLongOptions = generateLongOptions;
     }
 
     public void setHideFilesInTree(boolean hideFilesInTree)
@@ -872,6 +874,16 @@ public class Preferences implements Serializable
     public void setLookAndFeel(int lookAndFeel)
     {
         this.lookAndFeel = lookAndFeel;
+    }
+
+    public void setOperationDividerConfigLocation(int operationDividerConfigLocation)
+    {
+        this.operationDividerConfigLocation = operationDividerConfigLocation;
+    }
+
+    public void setOperationDividerLocation(int operationDividerLocation)
+    {
+        this.operationDividerLocation = operationDividerLocation;
     }
 
     public void setPreserveFileTimes(boolean preserveFileTimes)

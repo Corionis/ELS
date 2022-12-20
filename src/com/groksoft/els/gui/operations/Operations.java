@@ -5,6 +5,7 @@ import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.tools.operations.OperationsTool;
@@ -19,6 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -26,7 +29,7 @@ public class Operations
 {
     private JTable configItems;
     private JComboBox comboBoxMode;
-    private OperationsConfigModel configModel;
+    private ConfigModel configModel;
     private OperationsTool currentTool;
     private int currentConfigIndex = -1;
     private ArrayList<OperationsTool> deletedTools;
@@ -53,43 +56,130 @@ public class Operations
 
     private void actionCancelClicked(ActionEvent e)
     {
+        if (workerRunning && worker != null)
+        {
+            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Operations.stop.running.operation"),
+                    "Z.cancel.run", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                workerOperation.requestStop();
+                guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("Operations.config.cancelled"), workerOperation.getConfigName()));
+            }
+        }
+        else
+        {
+            if (checkForChanges())
+            {
+                int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.cancel.all.changes"),
+                        guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.YES_OPTION)
+                {
+                    cancelChanges();
+                }
+            }
+        }
     }
 
     private void actionCopyClicked(ActionEvent e)
     {
+        int index = configItems.getSelectedRow();
+        if (index >= 0)
+        {
+            OperationsTool original = (OperationsTool) configModel.getValueAt(index, 0);
+            String rename = original.getConfigName() + guiContext.cfg.gs("Z.copy");
+            if (configModel.find(rename, null) == null)
+            {
+                OperationsTool copy = original.clone();
+                copy.setConfigName(rename);
+                copy.setDataHasChanged();
+                configModel.addRow(new Object[]{copy});
+
+                currentConfigIndex = configModel.getRowCount() - 1;
+                loadOptions(currentConfigIndex);
+                configItems.editCellAt(currentConfigIndex, 0);
+                configItems.changeSelection(currentConfigIndex, currentConfigIndex, false, false);
+                configItems.getEditorComponent().requestFocus();
+                ((JTextField) configItems.getEditorComponent()).selectAll();
+            }
+            else
+            {
+                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.rename.the.existing") +
+                        rename, displayName, JOptionPane.WARNING_MESSAGE);
+            }
+        }
     }
 
     private void actionDeleteClicked(ActionEvent e)
     {
+        int index = configItems.getSelectedRow();
+        if (index >= 0)
+        {
+            OperationsTool tool = (OperationsTool) configModel.getValueAt(index, 0);
+
+            // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
+
+            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
+                    guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                deletedTools.add(tool);
+                configModel.removeRow(index);
+                configModel.fireTableDataChanged();
+                if (index > 0)
+                    index = configModel.getRowCount() - 1;
+                configItems.requestFocus();
+                if (index >= 0)
+                {
+                    configItems.changeSelection(index, 0, false, false);
+                    loadOptions(index);
+                }
+                currentConfigIndex = index;
+            }
+        }
     }
 
-    private void actionGenerateClicked(ActionEvent e)
+    private void actionGenerateClicked(ActionEvent evt)
     {
+        try
+        {
+            // TODO change when JRE is embedded in ELS distro
+            String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+            String generated = "java -jar " + jar + " " + currentTool.generateCommandLine(guiContext.context.publisherRepo, guiContext.context.subscriberRepo);
+
+            JOptionPane.showInputDialog(guiContext.mainFrame,
+                    guiContext.cfg.gs("Z.generated") + currentTool.getConfigName() +
+                            "                                                                                    ",
+                    displayName, JOptionPane.PLAIN_MESSAGE,null, null, generated);
+        }
+        catch (Exception e)
+        {
+        }
+    }
+
+    private void actionHelpClicked(MouseEvent e)
+    {
+        if (helpDialog == null)
+        {
+            helpDialog = new NavHelp(guiContext.mainFrame, guiContext.mainFrame, guiContext,
+                    guiContext.cfg.gs("Operations.help"), "operations_" + guiContext.preferences.getLocale() + ".html");
+        }
+        if (!helpDialog.isVisible())
+        {
+            helpDialog.setVisible(true);
+            // offset the help dialog from the parent dialog
+            Point loc = guiContext.mainFrame.getLocation();
+            loc.x = loc.x + 32;
+            loc.y = loc.y + 32;
+            helpDialog.setLocation(loc);
+        }
+        else
+        {
+            helpDialog.toFront();
+        }
     }
 
     private void actionNewClicked(ActionEvent e)
     {
-
-        /* Card types:
-            FULL
-             Local publish w/ Navigator option
-             Remote publish w/ Navigator option
-             Job
-             Hint status server
-
-            LISTENER
-             Publisher listener
-             Subscriber listener
-
-            TERMINAL
-             Publisher terminal
-             Subscriber terminal
-
-            QUIT
-             Hint server force quit
-             Subscriber listener force quit
-        */
-
         if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
         {
             String message = guiContext.cfg.gs("Operations.mode.select.type");
@@ -133,12 +223,26 @@ public class Operations
         }
     }
 
-    private void actionHelpClicked(MouseEvent e)
-    {
-    }
-
     private void actionRunClicked(ActionEvent e)
     {
+        int index = configItems.getSelectedRow();
+        if (index >= 0)
+        {
+            currentConfigIndex = index;
+            OperationsTool tool = (OperationsTool) configModel.getValueAt(index, 0);
+            currentTool = tool;
+
+            // make dialog pieces
+            String message = java.text.MessageFormat.format(guiContext.cfg.gs("Operations.run.as.defined"), tool.getConfigName());
+
+            // confirm run of job
+            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, message, guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                workerOperation = tool.clone();
+                process();
+            }
+        }
     }
 
     private void actionSaveClicked(ActionEvent e)
@@ -147,8 +251,27 @@ public class Operations
         savePreferences();
     }
 
-    private void configItemsMouseClicked(MouseEvent e)
+    public void cancelChanges()
     {
+        configModel.setRowCount(0);
+        configItems.revalidate();
+        loadConfigurations();
+        deletedTools = new ArrayList<OperationsTool>();
+    }
+
+    public boolean checkForChanges()
+    {
+        if (deletedTools.size() > 0)
+            return true;
+
+        for (int i = 0; i < configModel.getRowCount(); ++i)
+        {
+            if (((OperationsTool) configModel.getValueAt(i, 0)).isDataChanged())
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void eventOperationAddRowClicked(ActionEvent e)
@@ -244,7 +367,7 @@ public class Operations
         }
 
         // setup the left-side list of configurations
-        configModel = new OperationsConfigModel(guiContext, this);
+        configModel = new ConfigModel(guiContext, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -268,22 +391,6 @@ public class Operations
             }
         });
         configItems.setTableHeader(null);
-
-        /* Combobox order:
-             Local publish w/ Navigator option
-             Remote publish w/ Navigator option
-             Subscriber listener
-
-             Job
-             Hint status server
-
-             Publisher terminal
-             Publisher listener
-             Subscriber terminal
-
-             Hint server force quit
-             Subscriber listener force quit
-        */
 
         // make Mode objects
         modes = new Mode[10];
@@ -323,6 +430,7 @@ public class Operations
         });
         guiContext.mainFrame.buttonOperationSave.addActionListener(e -> actionSaveClicked(e));
         guiContext.mainFrame.buttonOperationCancel.addActionListener(e -> actionCancelClicked(e));
+/*
         guiContext.mainFrame.operationConfigItems.addMouseListener(new MouseAdapter()
         {
             @Override
@@ -332,6 +440,7 @@ public class Operations
                 configItemsMouseClicked(e);
             }
         });
+*/
 
         initializeComboBoxes();
         loadConfigurations();
@@ -340,10 +449,6 @@ public class Operations
 
     private void initializeComboBoxes()
     {
-        guiContext.mainFrame.comboBoxOperationTargets.removeAllItems();
-        guiContext.mainFrame.comboBoxOperationTargets.addItem(guiContext.cfg.gs("Operations.comboBoxOperationTargets.0.targets"));
-        guiContext.mainFrame.comboBoxOperationTargets.addItem(guiContext.cfg.gs("Operations.comboBoxOperationTargets.1.targetsForced"));
-
         guiContext.mainFrame.comboBoxOperationWhatsNew.removeAllItems();
         guiContext.mainFrame.comboBoxOperationWhatsNew.addItem(guiContext.cfg.gs("Operations.comboBoxOperationWhatsNew.0.whatsNew"));
         guiContext.mainFrame.comboBoxOperationWhatsNew.addItem(guiContext.cfg.gs("Operations.comboBoxOperationWhatsNew.1.whatsNewAll"));
@@ -467,13 +572,11 @@ public class Operations
         mf.textFieldOperationJob.setText(currentTool.getOptJob());
         if (currentTool.getOptTargets().length() > 0)
         {
-            mf.comboBoxOperationTargets.setSelectedIndex(0);
             mf.textFieldOperationTargets.setText(currentTool.getOptTargets());
         }
-        else if (currentTool.getOptTargetsForced().length() > 0)
+        else
         {
-            mf.comboBoxOperationTargets.setSelectedIndex(1);
-            mf.textFieldOperationTargets.setText(currentTool.getOptTargetsForced());
+            mf.textFieldOperationTargets.setText("");
         }
         mf.textFieldOperationMismatches.setText(currentTool.getOptMismatches());
         if (currentTool.getOptWhatsNew().length() > 0)
@@ -485,6 +588,11 @@ public class Operations
         {
             mf.comboBoxOperationWhatsNew.setSelectedIndex(1);
             mf.textFieldOperationWhatsNew.setText(currentTool.getOptWhatsNewAll());
+        }
+        else
+        {
+            mf.comboBoxOperationWhatsNew.setSelectedIndex(0);
+            mf.textFieldOperationWhatsNew.setText("");
         }
         mf.textFieldOperationExportText.setText(currentTool.getOptExportText());
         mf.textFieldOperationExportItems.setText(currentTool.getOptExportItems());
@@ -500,6 +608,11 @@ public class Operations
             mf.comboBoxOperationHintKeys.setSelectedIndex(1);
             mf.textFieldOperationHintKeys.setText(currentTool.getOptKeysOnly());
         }
+        else
+        {
+            mf.comboBoxOperationHintKeys.setSelectedIndex(0);
+            mf.textFieldOperationHintKeys.setText("");
+        }
         if (currentTool.getOptHints().length() > 0)
         {
             mf.comboBoxOperationHintsAndServer.setSelectedIndex(0);
@@ -509,6 +622,11 @@ public class Operations
         {
             mf.comboBoxOperationHintsAndServer.setSelectedIndex(1);
             mf.textFieldOperationHints.setText(currentTool.getOptHintServer());
+        }
+        else
+        {
+            mf.comboBoxOperationHintsAndServer.setSelectedIndex(0);
+            mf.textFieldOperationHints.setText("");
         }
         mf.checkBoxOperationQuitStatus.setSelected(currentTool.isOptQuitStatus());
         mf.checkBoxOperationKeepGoing.setSelected(currentTool.isOptListenerKeepGoing());
@@ -523,6 +641,11 @@ public class Operations
         {
             mf.comboBoxOperationLog.setSelectedIndex(1);
             mf.textFieldOperationLog.setText(currentTool.getOptLogFileOverwrite());
+        }
+        else
+        {
+            mf.comboBoxOperationLog.setSelectedIndex(0);
+            mf.textFieldOperationLog.setText("");
         }
         mf.comboBoxOperationConsoleLevel.setSelectedIndex(getLogLevelIndex(currentTool.getOptConsoleLevel()));
         mf.comboBoxOperationDebugLevel.setSelectedIndex(getLogLevelIndex(currentTool.getOptDebugLevel()));
@@ -546,6 +669,63 @@ public class Operations
         mf.checkBoxOperationIgnored.setSelected(currentTool.isOptIgnored());
     }
 
+    private void process ()
+    {
+        guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        guiContext.navigator.setComponentEnabled(false, guiContext.mainFrame.panelOperationTop);
+        guiContext.mainFrame.buttonOperationCancel.setEnabled(true);
+        guiContext.mainFrame.buttonOperationCancel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        guiContext.mainFrame.labelOperationHelp.setEnabled(true);
+        guiContext.mainFrame.labelOperationHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        Repository pubRepo = guiContext.context.publisherRepo;
+        Repository subRepo = guiContext.context.subscriberRepo;
+
+        worker = workerOperation.processToolThread(guiContext, pubRepo, subRepo, null, false);
+        if (worker != null)
+        {
+            workerRunning = true;
+            guiContext.navigator.disableGui(true);
+            worker.addPropertyChangeListener(new PropertyChangeListener()
+            {
+                @Override
+                public void propertyChange(PropertyChangeEvent e)
+                {
+                    if (e.getPropertyName().equals("state"))
+                    {
+                        if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                            processTerminated(currentTool);
+                    }
+                }
+            });
+            worker.execute();
+        }
+        else
+            processTerminated(currentTool);
+    }
+
+    private void processTerminated(OperationsTool operation)
+    {
+        if (guiContext.progress != null)
+            guiContext.progress.done();
+
+        guiContext.navigator.disableGui(false);
+        guiContext.navigator.setComponentEnabled(true,  guiContext.mainFrame.panelOperationTop);
+        guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        workerRunning = false;
+
+        if (operation.isRequestStop())
+        {
+            guiContext.browser.printLog(operation.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            guiContext.mainFrame.labelStatusMiddle.setText(operation.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+        }
+        else
+        {
+            guiContext.browser.printLog(operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            guiContext.mainFrame.labelStatusMiddle.setText(operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
+        }
+    }
+
     private void saveConfigurations()
     {
         OperationsTool tool = null;
@@ -557,6 +737,7 @@ public class Operations
                 tool = (OperationsTool) configModel.getValueAt(i, 0);
                 if (tool.isDataChanged())
                     tool.write();
+                tool.setDataHasChanged(false);
             }
 
             // remove any deleted tools JSON configuration file
@@ -576,7 +757,7 @@ public class Operations
             if (guiContext != null)
             {
                 guiContext.browser.printLog(msg, true);
-                JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, displayName, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -663,16 +844,8 @@ public class Operations
                         currentTool.setOptMismatches(tf.getText());
                         break;
                     case "targets":
-                        if (guiContext.mainFrame.comboBoxOperationTargets.getSelectedIndex() == 0)
-                        {
-                            current = currentTool.getOptTargets();
-                            currentTool.setOptTargets(tf.getText());
-                        }
-                        else if (guiContext.mainFrame.comboBoxOperationTargets.getSelectedIndex() == 1)
-                        {
-                            current = currentTool.getOptTargetsForced();
-                            currentTool.setOptTargetsForced(tf.getText());
-                        }
+                        current = currentTool.getOptTargets();
+                        currentTool.setOptTargets(tf.getText());
                         break;
                     case "whatsNew":
                         if (guiContext.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 0)
@@ -821,22 +994,6 @@ public class Operations
                         {
                             currentTool.setOptLogFileOverwrite(guiContext.mainFrame.textFieldOperationLog.getText());
                             currentTool.setOptLogFile("");
-                        }
-                        break;
-                    case "targets":
-                        if (currentTool.getOptTargets().length() > 0)
-                            current = 0;
-                        else if (currentTool.getOptTargetsForced().length() > 0)
-                            current = 1;
-                        if (index == 0)
-                        {
-                            currentTool.setOptTargets(guiContext.mainFrame.textFieldOperationTargets.getText());
-                            currentTool.setOptTargetsForced("");
-                        }
-                        else if (index == 1)
-                        {
-                            currentTool.setOptTargetsForced(guiContext.mainFrame.textFieldOperationTargets.getText());
-                            currentTool.setOptTargets("");
                         }
                         break;
                     case "whatsnew":
