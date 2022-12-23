@@ -508,17 +508,14 @@ public class RenamerTool extends AbstractTool
             if (isRequestStop())
                 break;
             String rem = isRemote() ? getCfg().gs("Z.remote.uppercase") : "";
-            if (guiContext != null)
-                guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + rem + "\"" + path + "\"");
-            else
-                logger.info(getDisplayName() + ", " + getConfigName() + ": " + "\"" + path + "\"");
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + rem + "\"" + path + "\"");
 
             scanForRenames(path, true);
         }
 
         if (guiContext != null)
         {
-            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
 
             // reset and reload relevant trees
             if (!isDryRun && renameCount > 0)
@@ -593,7 +590,7 @@ public class RenamerTool extends AbstractTool
                     String msg = getCfg().gs("Z.exception") + " " + Utils.getStackTrace(e);
                     if (guiContext != null)
                     {
-                        guiContext.browser.printLog(msg, true);
+                        logger.error(msg);
                         JOptionPane.showMessageDialog(guiContext.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
@@ -635,17 +632,11 @@ public class RenamerTool extends AbstractTool
                 {
                     getContext().transfer.rename(fullpath, newPath, isRemote());
                     fullpath = newPath;
-                    if (guiContext != null)
-                        guiContext.browser.printLog("  " + getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
-                    else
-                        logger.info("  " + getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                    logger.info("  " + getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
                 }
                 else
                 {
-                    if (guiContext != null)
-                        guiContext.browser.printLog("  " + getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
-                    else
-                        logger.info("  " + getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
+                    logger.info("  " + getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
                 }
             }
         }
@@ -735,7 +726,7 @@ public class RenamerTool extends AbstractTool
                 String msg = getCfg().gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
                 {
-                    guiContext.browser.printLog(msg, true);
+                    logger.error(msg);
                     JOptionPane.showMessageDialog(guiContext.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 else
@@ -822,7 +813,7 @@ public class RenamerTool extends AbstractTool
                 String msg = cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
                 {
-                    guiContext.browser.printLog(msg, true);
+                    logger.error(msg);
                     JOptionPane.showMessageDialog(guiContext.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 else

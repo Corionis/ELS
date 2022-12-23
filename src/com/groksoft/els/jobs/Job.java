@@ -268,7 +268,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 catch (Exception e)
                 {
                     String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                    guiContext.browser.printLog(msg, true);
+                    logger.error(msg, true);
                     JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
                             guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
 
@@ -287,11 +287,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
-            if (guiContext != null)
-                guiContext.browser.printLog(cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
-            else
-                logger.info(cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
-
+            logger.info(cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
             for (Task task : job.getTasks())
             {
                 if (isRequestStop())
@@ -307,11 +303,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                     if (subJob.lastTask != null)
                         lastTask = subJob.lastTask;
 
-                    if (guiContext != null)
-                        guiContext.browser.printLog(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
-                    else
-                        logger.info(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
-
+                    logger.info(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
                 }
                 else // regular task
                 {

@@ -146,7 +146,7 @@ public class JunkRemoverUI extends JDialog
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerJrt.requestStop();
-                guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.config.cancelled"), workerJrt.getConfigName()));
+                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.config.cancelled"), workerJrt.getConfigName()));
             }
         }
         else
@@ -226,15 +226,15 @@ public class JunkRemoverUI extends JDialog
             {
                 deletedTools.add(jrt);
                 configModel.removeRow(index);
-                configModel.fireTableDataChanged();
                 if (index > 0)
                     index = configModel.getRowCount() - 1;
-                configItems.requestFocus();
+                configModel.fireTableDataChanged();
                 if (index >= 0)
                 {
-                    configItems.changeSelection(index, 0, false, false);
+                    configItems.changeSelection(index, 0, true, false);
                     loadJunkTable(index);
                 }
+                configItems.requestFocus();
             }
         }
     }
@@ -472,7 +472,7 @@ public class JunkRemoverUI extends JDialog
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
             if (guiContext != null)
             {
-                guiContext.browser.printLog(msg, true);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
@@ -582,7 +582,7 @@ public class JunkRemoverUI extends JDialog
                             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                             if (guiContext != null)
                             {
-                                guiContext.browser.printLog(msg, true);
+                                logger.error(msg);
                                 JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                             }
                             else
@@ -603,7 +603,7 @@ public class JunkRemoverUI extends JDialog
                     String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                     if (guiContext != null)
                     {
-                        guiContext.browser.printLog(msg, true);
+                        logger.error(msg);
                         JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
@@ -627,12 +627,12 @@ public class JunkRemoverUI extends JDialog
 
         if (jrt.isRequestStop())
         {
-            guiContext.browser.printLog(jrt.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(jrt.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
             guiContext.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
         }
         else
         {
-            guiContext.browser.printLog(jrt.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(jrt.getConfigName() + guiContext.cfg.gs("Z.completed"));
             guiContext.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + guiContext.cfg.gs("Z.completed"));
         }
     }
@@ -667,7 +667,7 @@ public class JunkRemoverUI extends JDialog
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
             if (guiContext != null)
             {
-                guiContext.browser.printLog(msg, true);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
             }
             else

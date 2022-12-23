@@ -4,6 +4,8 @@ import com.groksoft.els.MungeException;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
@@ -14,6 +16,7 @@ import static com.groksoft.els.gui.Navigator.guiContext;
 
 public class Origins
 {
+    private transient static Logger logger = LogManager.getLogger("applog");
 
     /**
      * Determine if NavTreeUserObject is a valid selection
@@ -64,7 +67,7 @@ public class Origins
                         NavTreeNode ntn = (NavTreeNode) sp.getLastPathComponent();
                         if (ntn != ctn && ntn.isNodeChild(ctn))
                         {
-                            guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("Z.skipping.child"),
+                            logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Z.skipping.child"),
                                 ctn.getUserObject().name, ntn.getUserObject().name));
                             child = true;
                         }

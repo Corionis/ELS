@@ -3,6 +3,7 @@ package com.groksoft.els.repository;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;

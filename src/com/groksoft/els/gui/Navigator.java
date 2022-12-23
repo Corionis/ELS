@@ -16,6 +16,7 @@ import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
+import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.HintKeys;
@@ -25,6 +26,10 @@ import com.groksoft.els.stty.ClientStty;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.AbstractConfiguration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -37,7 +42,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
@@ -45,6 +49,7 @@ import java.nio.file.Paths;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 public class Navigator
 {
@@ -56,6 +61,9 @@ public class Navigator
     public JunkRemoverUI dialogJunkRemover = null;
     private Settings dialogSettings = null;
     public Job[] jobs;
+    private int lastFindPosition = 0;
+    private String lastFindString = "";
+    private int lastFindTab = -1;
     public boolean showHintTrackingButton = false;
     private int bottomSize;
     private boolean quitRemote = false;
@@ -88,7 +96,8 @@ public class Navigator
         guiContext.mainFrame.menuItemOpenHintKeys.setEnabled(enable);
         // TODO guiContext.mainFrame.menuItemOpenHintServer.setEnabled(disable);
 
-        // TODO guiContext.mainFrame.menuItemFind.setEnabled(disable);
+        guiContext.mainFrame.menuItemFind.setEnabled(enable);
+        guiContext.mainFrame.menuItemFindNext.setEnabled(enable);
         guiContext.mainFrame.menuItemNewFolder.setEnabled(enable);
         guiContext.mainFrame.menuItemRename.setEnabled(enable);
         guiContext.mainFrame.menuItemTouch.setEnabled(enable);
@@ -100,6 +109,7 @@ public class Navigator
         guiContext.mainFrame.menuItemRefresh.setEnabled(enable);
         guiContext.mainFrame.menuItemAutoRefresh.setEnabled(enable);
         guiContext.mainFrame.menuItemShowHidden.setEnabled(enable);
+        guiContext.mainFrame.menuItemWordWrap.setEnabled(enable);
 
         for (int i = 0; i < guiContext.mainFrame.menuBookmarks.getItemCount(); ++i)
         {
@@ -226,6 +236,20 @@ public class Navigator
 
             guiContext.cfg.setPreserveDates(guiContext.preferences.isPreserveFileTimes());
 
+            // set the TextArea for the GUI log
+            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+            AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+            LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+            Map<String, Appender> appenders = loggerConfig.getAppenders();
+            GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+            appender.setTextArea(guiContext);
+
+            // show banner in Navigator log tabs
+            if (guiContext.cfg.isRemoteSession())
+                logger.info("ELS: Remote Navigator, version " + guiContext.cfg.getVersionStamp());
+            else
+                logger.info("ELS: Local Navigator, version " + guiContext.cfg.getVersionStamp());
+
             // add any defined bookmarks to the menu
             bookmarks = new Bookmarks();
             loadBookmarksMenu();
@@ -238,10 +262,6 @@ public class Navigator
                 logger.error("GOT IT: " + Utils.getStackTrace(throwable));
             });
 */
-
-            PrintStream originalOut = System.out;
-            PrintStream teeStdout = new TeeLog(originalOut);
-            System.setOut(teeStdout);
 
         }
 
@@ -655,7 +675,7 @@ public class Navigator
                 }
                 catch (Exception e)
                 {
-                    guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                    logger.error(Utils.getStackTrace(e));
                     JOptionPane.showMessageDialog(guiContext.mainFrame,
                             guiContext.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
                             guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -693,6 +713,114 @@ public class Navigator
 
         //
         // -- Edit Menu
+        // ---
+        // Find
+        AbstractAction findAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                String name;
+                lastFindTab = guiContext.mainFrame.tabbedPaneMain.getSelectedIndex();
+                if (lastFindTab == 0)
+                    name = guiContext.cfg.gs("Navigator.splitPane.Browser.tab.title");
+                else if (lastFindTab == 1)
+                    name = guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title");
+                else
+                {
+                    lastFindTab = -1;
+                    return;
+                }
+
+                Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
+                        guiContext.cfg.gs("Operations.find"),
+                        name, JOptionPane.QUESTION_MESSAGE,
+                        null, null, lastFindString);
+                lastFindString = (String) obj;
+                if (lastFindString != null && lastFindString.length() > 0)
+                {
+                    String content;
+                    if (lastFindTab == 0)
+                        content = guiContext.mainFrame.textAreaLog.getText().toLowerCase();
+                    else
+                        content = guiContext.mainFrame.textAreaOperationLog.getText().toLowerCase();
+                    lastFindPosition = content.indexOf(lastFindString.toLowerCase(), 0);
+                    if (lastFindPosition > 0)
+                    {
+                        if (lastFindTab == 0)
+                        {
+                            guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                            guiContext.mainFrame.textAreaLog.requestFocus();
+                            guiContext.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
+                            guiContext.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                        }
+                        else
+                        {
+                            guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                            guiContext.mainFrame.textAreaOperationLog.requestFocus();
+                            guiContext.mainFrame.textAreaOperationLog.setSelectionStart(lastFindPosition);
+                            guiContext.mainFrame.textAreaOperationLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                        }
+                        lastFindPosition += lastFindString.length();
+                    }
+                }
+            }
+        };
+        guiContext.mainFrame.menuItemFind.addActionListener(findAction);
+        // ---
+        // Find Next
+        AbstractAction findNextAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (lastFindTab < 0)
+                    return;
+                String content;
+                if (lastFindTab == 0)
+                    content = guiContext.mainFrame.textAreaLog.getText().toLowerCase();
+                else
+                    content = guiContext.mainFrame.textAreaOperationLog.getText().toLowerCase();
+                lastFindPosition = content.indexOf(lastFindString.toLowerCase(), lastFindPosition);
+                if (lastFindPosition > 0)
+                {
+                    if (lastFindTab == 0)
+                    {
+                        guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                        guiContext.mainFrame.textAreaLog.requestFocus();
+                        try
+                        {
+                            Rectangle rect = guiContext.mainFrame.textAreaLog.modelToView(lastFindPosition);
+                            guiContext.mainFrame.textAreaLog.scrollRectToVisible(rect);
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println("bad scroll position");
+                        }
+                        guiContext.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
+                        guiContext.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                    }
+                    else
+                    {
+                        guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                        guiContext.mainFrame.textAreaOperationLog.requestFocus();
+                        try
+                        {
+                            Rectangle rect = guiContext.mainFrame.textAreaOperationLog.modelToView(lastFindPosition);
+                            guiContext.mainFrame.textAreaOperationLog.scrollRectToVisible(rect);
+                        }
+                        catch (Exception e)
+                        {
+                            System.out.println("bad scroll position");
+                        }
+                        guiContext.mainFrame.textAreaOperationLog.setSelectionStart(lastFindPosition);
+                        guiContext.mainFrame.textAreaOperationLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                    }
+                    lastFindPosition += lastFindString.length();
+                }
+            }
+        };
+        guiContext.mainFrame.menuItemFindNext.addActionListener(findNextAction);
         // ---
         // New Folder
         AbstractAction newFolderAction = new AbstractAction()
@@ -755,7 +883,7 @@ public class Navigator
                                 String msg = guiContext.cfg.gs("Navigator.menu.New.folder.creating") +
                                         (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") + " " : "") +
                                         guiContext.cfg.gs("Navigator.menu.New.folder.directory") + ": " + path;
-                                guiContext.browser.printLog(msg);
+                                logger.info(msg);
 
                                 if (guiContext.context.transfer.makeDirs((tuo.isRemote ? path + Utils.getSeparatorFromPath(path) + "dummyfile.els" : path), true, tuo.isRemote))
                                 {
@@ -778,7 +906,7 @@ public class Navigator
                                 else
                                 {
                                     error = true;
-                                    guiContext.browser.printLog(guiContext.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"), true);
+                                    logger.error(guiContext.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"));
                                     JOptionPane.showMessageDialog(guiContext.mainFrame,
                                             guiContext.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"),
                                             guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
@@ -786,7 +914,7 @@ public class Navigator
                             }
                             catch (Exception e)
                             {
-                                guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                                logger.error(Utils.getStackTrace(e));
                                 JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Navigator.menu.New.folder.error.creating") +
                                                 (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") + " " : "") +
@@ -933,7 +1061,7 @@ public class Navigator
                             }
                             catch (Exception e)
                             {
-                                guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                                logger.error(Utils.getStackTrace(e));
                                 JOptionPane.showMessageDialog(guiContext.mainFrame,
                                         guiContext.cfg.gs("Navigator.menu.Rename.error.renaming") +
                                                 (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") +
@@ -1078,14 +1206,16 @@ public class Navigator
         // -- View Menu
         // ---
         // Refresh
-        guiContext.mainFrame.menuItemRefresh.addActionListener(new AbstractAction()
+        ActionListener refreshAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 guiContext.browser.rescanByObject(guiContext.browser.lastComponent);
             }
-        });
+        };
+        guiContext.mainFrame.menuItemRefresh.addActionListener(refreshAction);
+        guiContext.mainFrame.popupMenuItemRefresh.addActionListener(refreshAction);
 
         // ---
         // Progress
@@ -1145,6 +1275,20 @@ public class Navigator
             guiContext.mainFrame.menuItemShowHidden.setSelected(false);
         else
             guiContext.mainFrame.menuItemShowHidden.setSelected(true);
+
+        // ---
+        // Word Wrap Log
+        guiContext.mainFrame.menuItemWordWrap.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.mainFrame.textAreaLog.setLineWrap(guiContext.mainFrame.menuItemWordWrap.isSelected());
+                guiContext.mainFrame.textAreaOperationLog.setLineWrap(guiContext.mainFrame.menuItemWordWrap.isSelected());
+            }
+        });
+        // set initial state of Word Wrap Log
+        guiContext.mainFrame.menuItemWordWrap.setSelected(true);
 
         // -- Bookmarks Menu
         //
@@ -1211,7 +1355,7 @@ public class Navigator
                         }
                         catch (Exception e)
                         {
-                            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                            logger.error(Utils.getStackTrace(e));
                             JOptionPane.showMessageDialog(guiContext.mainFrame,
                                     guiContext.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -1475,7 +1619,51 @@ public class Navigator
                 guiContext.mainFrame.textAreaLog.setText("");
             }
         });
+        // ---
+        // Top
+        guiContext.mainFrame.popupMenuItemTop.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JScrollBar vertical = guiContext.mainFrame.scrollPaneLog.getVerticalScrollBar();
+                vertical.setValue(0);
+            }
+        });
 
+        // popup menu operation log
+        // ---
+        // Bottom
+        guiContext.mainFrame.popupMenuItemOperationBottom.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JScrollBar vertical = guiContext.mainFrame.scrollPaneOperationLog.getVerticalScrollBar();
+                vertical.setValue(vertical.getMaximum());
+            }
+        });
+        // ---
+        // Clear
+        guiContext.mainFrame.popupMenuItemOperationClear.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                guiContext.mainFrame.textAreaOperationLog.setText("");
+            }
+        });
+        // ---
+        // Top
+        guiContext.mainFrame.popupMenuItemOperationTop.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                JScrollBar vertical = guiContext.mainFrame.scrollPaneOperationLog.getVerticalScrollBar();
+                vertical.setValue(0);
+            }
+        });
     }
 
     public void loadBookmarksMenu()
@@ -1577,7 +1765,7 @@ public class Navigator
                         catch (Exception e)
                         {
                             String msg = guiContext.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
-                            guiContext.browser.printLog(msg);
+                            logger.error(msg);
                             JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
@@ -1683,12 +1871,12 @@ public class Navigator
         }
         if (job.isRequestStop())
         {
-            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
             guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
         }
         else
         {
-            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
             guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
         }
         disableGui(false);
@@ -1820,7 +2008,7 @@ public class Navigator
                 // execute the Navigator GUI
                 if (initialize())
                 {
-                    logger.info(guiContext.cfg.gs("Navigator.initialized"));
+                    //logger.info(guiContext.cfg.gs("Navigator.initialized"));
                     guiContext.preferences.fixApplication(guiContext);
 
                     for (ActionListener listener : guiContext.mainFrame.buttonHintTracking.getActionListeners())
@@ -1832,7 +2020,7 @@ public class Navigator
                     logger.debug(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
                     guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
 
-                    logger.info(guiContext.cfg.gs("Navigator.displaying"));
+                    //logger.info(guiContext.cfg.gs("Navigator.displaying"));
                     guiContext.mainFrame.setVisible(true);
 
                     guiContext.preferences.fixBrowserDivider(guiContext, -1);

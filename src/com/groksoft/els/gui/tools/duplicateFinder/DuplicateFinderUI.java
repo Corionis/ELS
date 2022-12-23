@@ -90,7 +90,7 @@ public class DuplicateFinderUI extends JDialog
             if (reply == JOptionPane.YES_OPTION)
             {
                 requestStop = true;
-                guiContext.browser.printLog(guiContext.cfg.gs("z.run.cancelled"));
+                logger.info(guiContext.cfg.gs("Z.run.cancelled"));
             }
             else
                 return;
@@ -269,7 +269,7 @@ public class DuplicateFinderUI extends JDialog
                 dtm.setDupes(dupes);
                 dtm.fireTableDataChanged();
 
-                guiContext.browser.printLog(guiContext.cfg.gs("DuplicateFinder.running"));
+                logger.info(guiContext.cfg.gs("DuplicateFinder.running"));
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 guiContext.cfg.setCrossCheck(checkBoxCrossLibrary.isSelected());
@@ -332,7 +332,7 @@ public class DuplicateFinderUI extends JDialog
                                 break;
                             String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
                             labelStatus.setText(msg);
-                            guiContext.browser.printLog(msg);
+                            logger.info(msg);
                             for (Item item : lib.items)
                             {
                                 if (item.isDirectory())
@@ -404,7 +404,7 @@ public class DuplicateFinderUI extends JDialog
         {
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
-            guiContext.browser.printLog(msg, true);
+            logger.error(msg);
             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
         }
     }

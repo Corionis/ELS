@@ -112,6 +112,7 @@ public class MainFrame extends JFrame
             // add smart scroll to the log
             // https://tips4java.wordpress.com/2013/03/03/smart-scrolling/
             new SmartScroller(scrollPaneLog);
+            new SmartScroller(scrollPaneOperationLog);
 
             // Change default JOptionPanel button names based on the locale
             // TODO add tool tip text & mnemonic
@@ -359,19 +360,21 @@ public class MainFrame extends JFrame
         menuItemQuitTerminate = new JMenuItem();
         menuItemFileQuit = new JMenuItem();
         menuEdit = new JMenu();
-        menuItemFind = new JMenuItem();
-        menuItemNewFolder = new JMenuItem();
-        menuItemRename = new JMenuItem();
-        menuItemTouch = new JMenuItem();
         menuItemCopy = new JMenuItem();
         menuItemCut = new JMenuItem();
         menuItemPaste = new JMenuItem();
         menuItemDelete = new JMenuItem();
+        menuItemFind = new JMenuItem();
+        menuItemFindNext = new JMenuItem();
+        menuItemNewFolder = new JMenuItem();
+        menuItemRename = new JMenuItem();
+        menuItemTouch = new JMenuItem();
         menuView = new JMenu();
         menuItemRefresh = new JMenuItem();
         menuItemProgress = new JMenuItem();
         menuItemAutoRefresh = new JCheckBoxMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
+        menuItemWordWrap = new JCheckBoxMenuItem();
         menuBookmarks = new JMenu();
         menuItemAddBookmark = new JMenuItem();
         menuItemBookmarksDelete = new JMenuItem();
@@ -578,6 +581,7 @@ public class MainFrame extends JFrame
         labelStatusMiddle = new JLabel();
         labelStatusRight = new JLabel();
         popupMenuBrowser = new JPopupMenu();
+        popupMenuItemRefresh = new JMenuItem();
         popupMenuItemNewFolder = new JMenuItem();
         popupMenuItemRename = new JMenuItem();
         popupMenuItemTouch = new JMenuItem();
@@ -586,8 +590,13 @@ public class MainFrame extends JFrame
         popupMenuItemPaste = new JMenuItem();
         popupMenuItemDelete = new JMenuItem();
         popupMenuLog = new JPopupMenu();
-        popupMenuItemBottom = new JMenuItem();
+        popupMenuItemTop = new JMenuItem();
         popupMenuItemClear = new JMenuItem();
+        popupMenuItemBottom = new JMenuItem();
+        popupMenuOperationLog = new JPopupMenu();
+        popupMenuItemOperationTop = new JMenuItem();
+        popupMenuItemOperationClear = new JMenuItem();
+        popupMenuItemOperationBottom = new JMenuItem();
 
         //======== this ========
         setMinimumSize(new Dimension(100, 100));
@@ -672,39 +681,6 @@ public class MainFrame extends JFrame
                 menuEdit.setText(guiContext.cfg.gs("Navigator.menu.Edit.text"));
                 menuEdit.setMnemonic(guiContext.cfg.gs("Navigator.menu.Edit.mnemonic").charAt(0));
 
-                //---- menuItemFind ----
-                menuItemFind.setText(guiContext.cfg.gs("Navigator.menu.Find.text"));
-                menuItemFind.setMnemonic(guiContext.cfg.gs("Navigator.menu.Find.mnemonic").charAt(0));
-                menuItemFind.setEnabled(false);
-                menuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
-                menuItemFind.setHorizontalAlignment(SwingConstants.LEFT);
-                menuItemFind.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuEdit.add(menuItemFind);
-
-                //---- menuItemNewFolder ----
-                menuItemNewFolder.setText(guiContext.cfg.gs("Navigator.menu.New.folder.text"));
-                menuItemNewFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
-                menuItemNewFolder.setMnemonic(guiContext.cfg.gs("Navigator.menu.New.folder.mnemonic").charAt(0));
-                menuItemNewFolder.setHorizontalAlignment(SwingConstants.LEFT);
-                menuItemNewFolder.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuEdit.add(menuItemNewFolder);
-
-                //---- menuItemRename ----
-                menuItemRename.setText(guiContext.cfg.gs("Navigator.menu.Rename.text"));
-                menuItemRename.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
-                menuItemRename.setHorizontalAlignment(SwingConstants.LEFT);
-                menuItemRename.setMnemonic(guiContext.cfg.gs("Navigator.menu.Rename.mnemonic").charAt(0));
-                menuItemRename.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuEdit.add(menuItemRename);
-
-                //---- menuItemTouch ----
-                menuItemTouch.setText(guiContext.cfg.gs("Navigator.menu.Touch.text"));
-                menuItemTouch.setMnemonic(guiContext.cfg.gs("Navigator.menu.Touch.mnemonic").charAt(0));
-                menuItemTouch.setHorizontalTextPosition(SwingConstants.LEFT);
-                menuItemTouch.setHorizontalAlignment(SwingConstants.LEFT);
-                menuEdit.add(menuItemTouch);
-                menuEdit.addSeparator();
-
                 //---- menuItemCopy ----
                 menuItemCopy.setText(guiContext.cfg.gs("Navigator.menu.Copy.text"));
                 menuItemCopy.setMnemonic(guiContext.cfg.gs("Navigator.menu.Copy.mnemonic").charAt(0));
@@ -737,6 +713,47 @@ public class MainFrame extends JFrame
                 menuItemDelete.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemDelete.setHorizontalAlignment(SwingConstants.LEFT);
                 menuEdit.add(menuItemDelete);
+                menuEdit.addSeparator();
+
+                //---- menuItemFind ----
+                menuItemFind.setText(guiContext.cfg.gs("Navigator.menu.Find.text"));
+                menuItemFind.setMnemonic(guiContext.cfg.gs("Navigator.menu.Find.mnemonic").charAt(0));
+                menuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+                menuItemFind.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemFind.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuEdit.add(menuItemFind);
+
+                //---- menuItemFindNext ----
+                menuItemFindNext.setText(guiContext.cfg.gs("Navigator.menuItemFindNext.text"));
+                menuItemFindNext.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+                menuItemFindNext.setMnemonic(guiContext.cfg.gs("Navigator.menuItemFindNext.mnemonic").charAt(0));
+                menuItemFindNext.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuEdit.add(menuItemFindNext);
+                menuEdit.addSeparator();
+
+                //---- menuItemNewFolder ----
+                menuItemNewFolder.setText(guiContext.cfg.gs("Navigator.menu.New.folder.text"));
+                menuItemNewFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
+                menuItemNewFolder.setMnemonic(guiContext.cfg.gs("Navigator.menu.New.folder.mnemonic").charAt(0));
+                menuItemNewFolder.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemNewFolder.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuEdit.add(menuItemNewFolder);
+
+                //---- menuItemRename ----
+                menuItemRename.setText(guiContext.cfg.gs("Navigator.menu.Rename.text"));
+                menuItemRename.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
+                menuItemRename.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemRename.setMnemonic(guiContext.cfg.gs("Navigator.menu.Rename.mnemonic").charAt(0));
+                menuItemRename.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuEdit.add(menuItemRename);
+
+                //---- menuItemTouch ----
+                menuItemTouch.setText(guiContext.cfg.gs("Navigator.menu.Touch.text"));
+                menuItemTouch.setMnemonic(guiContext.cfg.gs("Navigator.menu.Touch.mnemonic").charAt(0));
+                menuItemTouch.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuItemTouch.setHorizontalAlignment(SwingConstants.LEFT);
+                menuEdit.add(menuItemTouch);
             }
             menuBarMain.add(menuEdit);
 
@@ -777,6 +794,14 @@ public class MainFrame extends JFrame
                 menuItemShowHidden.setHorizontalTextPosition(SwingConstants.LEFT);
                 menuItemShowHidden.setDisplayedMnemonicIndex(5);
                 menuView.add(menuItemShowHidden);
+
+                //---- menuItemWordWrap ----
+                menuItemWordWrap.setText(guiContext.cfg.gs("Navigator.menuItemWordWrap.text"));
+                menuItemWordWrap.setHorizontalAlignment(SwingConstants.LEFT);
+                menuItemWordWrap.setMnemonic(guiContext.cfg.gs("Navigator.menuItemWordWrap.mnemonic").charAt(0));
+                menuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+                menuItemWordWrap.setHorizontalTextPosition(SwingConstants.LEFT);
+                menuView.add(menuItemWordWrap);
             }
             menuBarMain.add(menuView);
 
@@ -1409,6 +1434,7 @@ public class MainFrame extends JFrame
                             textAreaLog.setMinimumSize(new Dimension(0, 0));
                             textAreaLog.setComponentPopupMenu(popupMenuLog);
                             textAreaLog.setVerifyInputWhenFocusTarget(false);
+                            textAreaLog.setFont(new Font("Ubuntu Mono", Font.PLAIN, 14));
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(guiContext.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
@@ -2440,8 +2466,9 @@ public class MainFrame extends JFrame
                             textAreaOperationLog.setTabSize(4);
                             textAreaOperationLog.setLineWrap(true);
                             textAreaOperationLog.setMinimumSize(new Dimension(0, 0));
-                            textAreaOperationLog.setComponentPopupMenu(popupMenuLog);
+                            textAreaOperationLog.setComponentPopupMenu(popupMenuOperationLog);
                             textAreaOperationLog.setVerifyInputWhenFocusTarget(false);
+                            textAreaOperationLog.setFont(new Font("Ubuntu Mono", Font.PLAIN, 14));
                             scrollPaneOperationLog.setViewportView(textAreaOperationLog);
                         }
                         tabbedPaneOperationBottom.addTab(guiContext.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);
@@ -2494,6 +2521,14 @@ public class MainFrame extends JFrame
 
         //======== popupMenuBrowser ========
         {
+
+            //---- popupMenuItemRefresh ----
+            popupMenuItemRefresh.setText(guiContext.cfg.gs("Navigator.popupMenuItemRefresh.text"));
+            popupMenuItemRefresh.setHorizontalAlignment(SwingConstants.LEFT);
+            popupMenuItemRefresh.setHorizontalTextPosition(SwingConstants.LEFT);
+            popupMenuItemRefresh.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemRefresh.mnemonic").charAt(0));
+            popupMenuBrowser.add(popupMenuItemRefresh);
+            popupMenuBrowser.addSeparator();
 
             //---- popupMenuItemNewFolder ----
             popupMenuItemNewFolder.setText(guiContext.cfg.gs("Navigator.popupMenu.NewFolder.text"));
@@ -2550,12 +2585,12 @@ public class MainFrame extends JFrame
         //======== popupMenuLog ========
         {
 
-            //---- popupMenuItemBottom ----
-            popupMenuItemBottom.setText(guiContext.cfg.gs("Navigator.popupMenu.Bottom.text"));
-            popupMenuItemBottom.setHorizontalAlignment(SwingConstants.LEFT);
-            popupMenuItemBottom.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Bottom.mnemonic").charAt(0));
-            popupMenuItemBottom.setHorizontalTextPosition(SwingConstants.LEFT);
-            popupMenuLog.add(popupMenuItemBottom);
+            //---- popupMenuItemTop ----
+            popupMenuItemTop.setText(guiContext.cfg.gs("Navigator.popupMenuItemTop.text"));
+            popupMenuItemTop.setHorizontalAlignment(SwingConstants.LEFT);
+            popupMenuItemTop.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemTop.mnemonic").charAt(0));
+            popupMenuItemTop.setHorizontalTextPosition(SwingConstants.LEFT);
+            popupMenuLog.add(popupMenuItemTop);
 
             //---- popupMenuItemClear ----
             popupMenuItemClear.setText(guiContext.cfg.gs("Navigator.popupMenu.Clear.text"));
@@ -2563,6 +2598,38 @@ public class MainFrame extends JFrame
             popupMenuItemClear.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Clear.mnemonic").charAt(0));
             popupMenuItemClear.setHorizontalTextPosition(SwingConstants.LEFT);
             popupMenuLog.add(popupMenuItemClear);
+
+            //---- popupMenuItemBottom ----
+            popupMenuItemBottom.setText(guiContext.cfg.gs("Navigator.popupMenu.Bottom.text"));
+            popupMenuItemBottom.setHorizontalAlignment(SwingConstants.LEFT);
+            popupMenuItemBottom.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Bottom.mnemonic").charAt(0));
+            popupMenuItemBottom.setHorizontalTextPosition(SwingConstants.LEFT);
+            popupMenuLog.add(popupMenuItemBottom);
+        }
+
+        //======== popupMenuOperationLog ========
+        {
+
+            //---- popupMenuItemOperationTop ----
+            popupMenuItemOperationTop.setText(guiContext.cfg.gs("Operations.popupMenuItemOperationTop.text"));
+            popupMenuItemOperationTop.setHorizontalAlignment(SwingConstants.LEFT);
+            popupMenuItemOperationTop.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationTop.mnemonic").charAt(0));
+            popupMenuItemOperationTop.setHorizontalTextPosition(SwingConstants.LEFT);
+            popupMenuOperationLog.add(popupMenuItemOperationTop);
+
+            //---- popupMenuItemOperationClear ----
+            popupMenuItemOperationClear.setText(guiContext.cfg.gs("Navigator.popupMenuItemOperationClear.text"));
+            popupMenuItemOperationClear.setHorizontalAlignment(SwingConstants.LEFT);
+            popupMenuItemOperationClear.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationClear.mnemonic").charAt(0));
+            popupMenuItemOperationClear.setHorizontalTextPosition(SwingConstants.LEFT);
+            popupMenuOperationLog.add(popupMenuItemOperationClear);
+
+            //---- popupMenuItemOperationBottom ----
+            popupMenuItemOperationBottom.setText(guiContext.cfg.gs("Navigator.popupMenuItemOperationBottom.text"));
+            popupMenuItemOperationBottom.setHorizontalAlignment(SwingConstants.LEFT);
+            popupMenuItemOperationBottom.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationBottom.mnemonic").charAt(0));
+            popupMenuItemOperationBottom.setHorizontalTextPosition(SwingConstants.LEFT);
+            popupMenuOperationLog.add(popupMenuItemOperationBottom);
         }
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
     }
@@ -2578,19 +2645,21 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemQuitTerminate;
     public JMenuItem menuItemFileQuit;
     public JMenu menuEdit;
-    public JMenuItem menuItemFind;
-    public JMenuItem menuItemNewFolder;
-    public JMenuItem menuItemRename;
-    public JMenuItem menuItemTouch;
     public JMenuItem menuItemCopy;
     public JMenuItem menuItemCut;
     public JMenuItem menuItemPaste;
     public JMenuItem menuItemDelete;
+    public JMenuItem menuItemFind;
+    public JMenuItem menuItemFindNext;
+    public JMenuItem menuItemNewFolder;
+    public JMenuItem menuItemRename;
+    public JMenuItem menuItemTouch;
     public JMenu menuView;
     public JMenuItem menuItemRefresh;
     public JMenuItem menuItemProgress;
     public JCheckBoxMenuItem menuItemAutoRefresh;
     public JCheckBoxMenuItem menuItemShowHidden;
+    public JCheckBoxMenuItem menuItemWordWrap;
     public JMenu menuBookmarks;
     public JMenuItem menuItemAddBookmark;
     public JMenuItem menuItemBookmarksDelete;
@@ -2797,6 +2866,7 @@ public class MainFrame extends JFrame
     public JLabel labelStatusMiddle;
     public JLabel labelStatusRight;
     public JPopupMenu popupMenuBrowser;
+    public JMenuItem popupMenuItemRefresh;
     public JMenuItem popupMenuItemNewFolder;
     public JMenuItem popupMenuItemRename;
     public JMenuItem popupMenuItemTouch;
@@ -2805,8 +2875,13 @@ public class MainFrame extends JFrame
     public JMenuItem popupMenuItemPaste;
     public JMenuItem popupMenuItemDelete;
     public JPopupMenu popupMenuLog;
-    public JMenuItem popupMenuItemBottom;
+    public JMenuItem popupMenuItemTop;
     public JMenuItem popupMenuItemClear;
+    public JMenuItem popupMenuItemBottom;
+    public JPopupMenu popupMenuOperationLog;
+    public JMenuItem popupMenuItemOperationTop;
+    public JMenuItem popupMenuItemOperationClear;
+    public JMenuItem popupMenuItemOperationBottom;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
     //
     // @formatter:on

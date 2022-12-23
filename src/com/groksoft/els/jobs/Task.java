@@ -300,7 +300,7 @@ public class Task implements Comparable, Serializable
                 if (guiContext != null)
                 {
                     String msg = guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
-                    guiContext.browser.printLog(msg);
+                    logger.info(msg);
                     JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
@@ -368,7 +368,7 @@ public class Task implements Comparable, Serializable
                 if (guiContext != null)
                 {
                     String msg = guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
-                    guiContext.browser.printLog(msg);
+                    logger.info(msg);
                     JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else

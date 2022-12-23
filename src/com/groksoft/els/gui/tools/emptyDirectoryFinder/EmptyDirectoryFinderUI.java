@@ -102,7 +102,7 @@ public class EmptyDirectoryFinderUI extends JDialog
             if (reply == JOptionPane.YES_OPTION)
             {
                 requestStop = true;
-                guiContext.browser.printLog(guiContext.cfg.gs("z.run.cancelled"));
+                logger.info(guiContext.cfg.gs("Z.run.cancelled"));
             }
             else
                 return;
@@ -126,13 +126,13 @@ public class EmptyDirectoryFinderUI extends JDialog
                     {
                         try
                         {
-                            guiContext.browser.printLog(guiContext.cfg.gs("EmptyDirectoryFinder.removing") + empty.path);
+                            logger.info(guiContext.cfg.gs("EmptyDirectoryFinder.removing") + empty.path);
                             guiContext.context.transfer.remove(empty.path, true, guiContext.cfg.isRemoteSession());
                         }
                         catch (Exception ex)
                         {
                             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
-                            guiContext.browser.printLog(msg, true);
+                            logger.error(msg, true);
                             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -260,7 +260,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                 etm.setEmpties(empties);
                 etm.fireTableDataChanged();
 
-                guiContext.browser.printLog(guiContext.cfg.gs("EmptyDirectoryFinder.running"));
+                logger.info(guiContext.cfg.gs("EmptyDirectoryFinder.running"));
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void >()
@@ -383,7 +383,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         catch (Exception ex)
         {
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
-            guiContext.browser.printLog(msg, true);
+            logger.error(msg);
             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
         }
     }

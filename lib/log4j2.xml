@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration packages="com.groksoft.els.gui.util" status="WARN">
     <Appenders>
         <RollingFile name="applog" fileName="${sys:logFilename}" filePattern="${sys:logFilename}.zip" append="true">
             <PatternLayout>
@@ -21,11 +21,20 @@
                 </MarkerPatternSelector>
             </PatternLayout>
         </Console>
+        <GuiLogAppender name="GuiLogAppender">
+            <PatternLayout>
+                <MarkerPatternSelector defaultPattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n">
+                    <PatternMatch key="SHORT" pattern="%-5p %d{MM/dd/yyyy HH:mm:ss.SSS} %m%n"/>
+                    <PatternMatch key="SIMPLE" pattern="    %m%n"/>
+                </MarkerPatternSelector>
+            </PatternLayout>
+        </GuiLogAppender>
     </Appenders>
     <Loggers>
         <!-- Levels: TRACE, DEBUG, INFO, WARN, ERROR, FATAL and OFF -->
         <Logger name="applog">
             <AppenderRef ref="applog" level="${sys:debugLevel}"/>
+            <AppenderRef ref="GuiLogAppender" level="${sys:consoleLevel}"/>
         </Logger>
         <Root level="trace">
             <AppenderRef ref="Console" level="${sys:consoleLevel}"/>

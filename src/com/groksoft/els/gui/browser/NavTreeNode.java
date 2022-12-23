@@ -157,12 +157,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 {
                     if (myTuo.isRemote)
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..remote.drive") + myTuo.path);
+                        logger.info(guiContext.cfg.gs("NavTreeNode.deep.scan..remote.drive") + myTuo.path);
                         scanRemote(myTuo.path, nodeArray, recursive);
                     }
                     else
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..local.drive") + myTuo.path);
+                        logger.info(guiContext.cfg.gs("NavTreeNode.deep.scan..local.drive") + myTuo.path);
                         scan(new File(myTuo.path).getAbsoluteFile(), nodeArray, recursive);
                     }
                 }
@@ -171,7 +171,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 File file = new File(myTuo.path);
                 if (file.isDirectory())
                 {
-                    guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..home.directory") + myTuo.path);
+                    logger.info(guiContext.cfg.gs("NavTreeNode.deep.scan..home.directory") + myTuo.path);
                     scan(file.getAbsoluteFile(), nodeArray, recursive);
                 }
                 break;
@@ -182,12 +182,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     {
                         if (myTuo.isRemote)
                         {
-                            guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..remote.library") + path);
+                            logger.info(guiContext.cfg.gs("NavTreeNode.deep.scan..remote.library") + path);
                             scanRemote(path, nodeArray, recursive);
                         }
                         else
                         {
-                            guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan..local.library") + path);
+                            logger.info(guiContext.cfg.gs("NavTreeNode.deep.scan..local.library") + path);
                             scan(new File(path).getAbsoluteFile(), nodeArray, recursive);
                         }
                     }
@@ -198,12 +198,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 {
                     if (myTuo.isRemote)
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.remote.directory") + myTuo.path);
+                        logger.info(guiContext.cfg.gs("NavTreeNode.deep.scan.remote.directory") + myTuo.path);
                         scanRemote(myTuo.path, nodeArray, recursive);
                     }
                     else
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.deep.scan.local.directory") + myTuo.file.getAbsolutePath());
+                        logger.info(guiContext.cfg.gs("NavTreeNode.deep.scan.local.directory") + myTuo.file.getAbsolutePath());
                         scan(myTuo.file.getAbsoluteFile(), nodeArray, recursive);
                     }
                 }
@@ -478,12 +478,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         {
                             if (myTuo.isRemote)
                             {
-                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
+                                logger.info(guiContext.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
                                 scanRemote(myTuo.path, nodeArray, false);
                             }
                             else
                             {
-                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
+                                logger.info(guiContext.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
                                 scan(new File(myTuo.path).getAbsoluteFile(), nodeArray, false);
                             }
                         }
@@ -492,7 +492,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         File file = new File(myTuo.path);
                         if (file.isDirectory())
                         {
-                            guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
+                            logger.info(guiContext.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
                             scan(file.getAbsoluteFile(), nodeArray, false);
                         }
                         break;
@@ -503,12 +503,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                             {
                                 if (myTuo.isRemote)
                                 {
-                                    guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.library") + path);
+                                    logger.info(guiContext.cfg.gs("NavTreeNode.scanning.remote.library") + path);
                                     scanRemote(path, nodeArray, false);
                                 }
                                 else
                                 {
-                                    guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.library") + path);
+                                    logger.info(guiContext.cfg.gs("NavTreeNode.scanning.local.library") + path);
                                     scan(new File(path).getAbsoluteFile(), nodeArray, false);
                                 }
                             }
@@ -519,12 +519,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         {
                             if (myTuo.isRemote)
                             {
-                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
+                                logger.info(guiContext.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
                                 scanRemote(myTuo.path, nodeArray, false);
                             }
                             else
                             {
-                                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
+                                logger.info(guiContext.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
                                 scan(myTuo.file.getAbsoluteFile(), nodeArray, false);
                             }
                         }
@@ -557,7 +557,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 }
 
                 if (traceActions)
-                    guiContext.browser.printLog(((NavTreeUserObject) getUserObject()).name + " has " +
+                    logger.info(((NavTreeUserObject) getUserObject()).name + " has " +
                             Utils.formatInteger(getChildCount(false, false)) + " node(s)");
 
                 super.done();
@@ -673,7 +673,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         {
             String msg = guiContext.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
                     guiContext.context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
-            guiContext.browser.printLog(msg, true);
+            logger.error(msg);
             JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }

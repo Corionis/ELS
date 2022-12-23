@@ -51,7 +51,6 @@ public class Browser
     private transient Logger logger = LogManager.getLogger("applog");
     private Stack<NavItem>[] navStack = new Stack[4];
     private int[] navStackIndex = { -1, -1, -1, -1 };
-    private String os;
     private int tabStop = 0;
     private int[] tabStops = {0, 1, 4, 5};
 
@@ -460,7 +459,7 @@ public class Browser
                     }
                     catch (Exception e)
                     {
-                        guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                        logger.error(Utils.getStackTrace(e));
                         JOptionPane.showMessageDialog(guiContext.mainFrame,
                                 guiContext.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
                                 guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -646,7 +645,7 @@ public class Browser
                     }
                     else
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
                 if (!error)
@@ -757,7 +756,7 @@ public class Browser
                     }
                     else
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
                 if (!error)
@@ -1021,7 +1020,7 @@ public class Browser
         for (int i = 0; i < navStack.length; ++i) // four individual NavStacks for the four browser tabs
             navStack[i] = new Stack<NavItem>();
 
-        printLog(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());
+        logger.info(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());
         initializeToolbar();
         initializeNavigation();
         initializeBrowserOne();
@@ -1599,24 +1598,6 @@ public class Browser
         }
     }
 
-    public synchronized void printLog(String text, boolean isError)
-    {
-        if (isError)
-        {
-            logger.error(text);
-            guiContext.mainFrame.textAreaLog.append(guiContext.cfg.gs("Browser.error") + text + System.getProperty("line.separator"));
-        }
-        else
-            printLog(text);
-    }
-
-    public synchronized void printLog(String text)
-    {
-        logger.info(text);
-        guiContext.mainFrame.textAreaLog.append(text + System.getProperty("line.separator"));
-        guiContext.mainFrame.textAreaLog.repaint();
-    }
-
     public synchronized void printProperties(NavTreeUserObject tuo)
     {
         guiContext.mainFrame.textAreaProperties.setText("");
@@ -2179,7 +2160,7 @@ public class Browser
                     }
                     else
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
             }
@@ -2263,7 +2244,7 @@ public class Browser
                     }
                     else
                     {
-                        guiContext.browser.printLog(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
             }

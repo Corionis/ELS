@@ -63,7 +63,7 @@ public class Operations
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerOperation.requestStop();
-                guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("Operations.config.cancelled"), workerOperation.getConfigName()));
+                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Operations.config.cancelled"), workerOperation.getConfigName()));
             }
         }
         else
@@ -124,16 +124,16 @@ public class Operations
             {
                 deletedTools.add(tool);
                 configModel.removeRow(index);
-                configModel.fireTableDataChanged();
                 if (index > 0)
                     index = configModel.getRowCount() - 1;
-                configItems.requestFocus();
+                currentConfigIndex = index;
+                configModel.fireTableDataChanged();
                 if (index >= 0)
                 {
-                    configItems.changeSelection(index, 0, false, false);
+                    configItems.changeSelection(index, 0, true, false);
                     loadOptions(index);
                 }
-                currentConfigIndex = index;
+                configItems.requestFocus();
             }
         }
     }
@@ -146,6 +146,7 @@ public class Operations
             String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
             String generated = "java -jar " + jar + " " + currentTool.generateCommandLine(guiContext.context.publisherRepo, guiContext.context.subscriberRepo);
 
+            Object[] opts = { guiContext.cfg.gs("Z.ok") };
             JOptionPane.showInputDialog(guiContext.mainFrame,
                     guiContext.cfg.gs("Z.generated") + currentTool.getConfigName() +
                             "                                                                                    ",
@@ -225,21 +226,14 @@ public class Operations
 
     private void actionRunClicked(ActionEvent e)
     {
-        int index = configItems.getSelectedRow();
-        if (index >= 0)
+        if (currentTool != null)
         {
-            currentConfigIndex = index;
-            OperationsTool tool = (OperationsTool) configModel.getValueAt(index, 0);
-            currentTool = tool;
-
-            // make dialog pieces
-            String message = java.text.MessageFormat.format(guiContext.cfg.gs("Operations.run.as.defined"), tool.getConfigName());
-
             // confirm run of job
+            String message = java.text.MessageFormat.format(guiContext.cfg.gs("Operations.run.as.defined"), currentTool.getConfigName());
             int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, message, guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
-                workerOperation = tool.clone();
+                workerOperation = currentTool.clone();
                 process();
             }
         }
@@ -489,7 +483,7 @@ public class Operations
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
             if (guiContext != null)
             {
-                guiContext.browser.printLog(msg, true);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
             }
             else
@@ -698,6 +692,9 @@ public class Operations
                     }
                 }
             });
+
+            logger.info(guiContext.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
+            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
             worker.execute();
         }
         else
@@ -716,13 +713,13 @@ public class Operations
 
         if (operation.isRequestStop())
         {
-            guiContext.browser.printLog(operation.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(operation.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
             guiContext.mainFrame.labelStatusMiddle.setText(operation.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
         }
         else
         {
-            guiContext.browser.printLog(operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
-            guiContext.mainFrame.labelStatusMiddle.setText(operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(guiContext.cfg.gs("Operations.operation") + operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Operations.operation") + operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
         }
     }
 
@@ -756,7 +753,7 @@ public class Operations
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
             if (guiContext != null)
             {
-                guiContext.browser.printLog(msg, true);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
             }
             else

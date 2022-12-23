@@ -337,7 +337,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         {
             if (!isCancelled())
             {
-                guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                logger.error(Utils.getStackTrace(e));
                 JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") + e,
                         guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
             }
@@ -369,7 +369,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             if (!sourceTuo.isRemote && !targetTuo.isRemote)
             {
                 // local copy
-                guiContext.browser.printLog(guiContext.cfg.gs("NavTreeNode.local") + msg);
+                logger.info(guiContext.cfg.gs("NavTreeNode.local") + msg);
                 if (!guiContext.cfg.isDryRun())
                 {
                     if (action == TransferHandler.MOVE)
@@ -386,7 +386,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             else if (!sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // put to remote
-                guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.put") + msg);
+                logger.info(guiContext.cfg.gs("NavTransferHandler.put") + msg);
                 if (!guiContext.cfg.isDryRun())
                 {
                     guiContext.context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, true, false);
@@ -396,7 +396,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             else if (sourceTuo.isRemote && !targetTuo.isRemote)
             {
                 // get from remote
-                guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.get") + msg);
+                logger.info(guiContext.cfg.gs("NavTransferHandler.get") + msg);
                 if (!guiContext.cfg.isDryRun())
                 {
                     String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
@@ -410,7 +410,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             else if (sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // send command to remote
-                guiContext.browser.printLog(guiContext.cfg.gs("Z.remote.uppercase") + msg);
+                logger.info(guiContext.cfg.gs("Z.remote.uppercase") + msg);
                 if (!guiContext.cfg.isDryRun())
                 {
                     String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
@@ -446,7 +446,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         }
         catch (Exception e)
         {
-            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            logger.error(Utils.getStackTrace(e));
             if (!isCancelled())
             {
                 int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") +

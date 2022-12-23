@@ -205,10 +205,7 @@ public class JunkRemoverTool extends AbstractTool
         else
             msg = "  > " + cfg.gs("Z.would.delete") + fullpath;
 
-        if (guiContext != null)
-            guiContext.browser.printLog(msg);
-        else
-            logger.info(msg);
+        logger.info(msg);
     }
 
     private boolean match(String filename, String fullpath, JunkItem junk)
@@ -254,18 +251,14 @@ public class JunkRemoverTool extends AbstractTool
             if (isRequestStop())
                 break;
             String rem = isRemote() ? cfg.gs("Z.remote.uppercase") : "";
-            if (guiContext != null)
-                guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + rem + path);
-            else
-                logger.info(getDisplayName() + ", " + getConfigName() + ": " + path);
+            logger.info(getDisplayName() + ", " + getConfigName() + ": " + rem + path);
 
             scanForJunk(path);
         }
 
+        logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount + (isDryRun ? " (dry-run)" : ""));
         if (guiContext != null)
         {
-            guiContext.browser.printLog(getDisplayName() + ", " + getConfigName() + ": " + deleteCount + (isDryRun ? " (dry-run)" : ""));
-
             // reset and reload relevant trees
             if (!isDryRun && deleteCount > 0)
             {
@@ -280,10 +273,6 @@ public class JunkRemoverTool extends AbstractTool
                     guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, isRemote());
                 }
             }
-        }
-        else
-        {
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount + (isDryRun ? " (dry-run)" : ""));
         }
     }
 
@@ -340,7 +329,7 @@ public class JunkRemoverTool extends AbstractTool
                     String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                     if (guiContext != null)
                     {
-                        guiContext.browser.printLog(msg, true);
+                        logger.error(msg);
                         JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
@@ -417,7 +406,7 @@ public class JunkRemoverTool extends AbstractTool
                 String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
                 {
-                    guiContext.browser.printLog(msg, true);
+                    logger.error(msg);
                     int reply = JOptionPane.showConfirmDialog(guiContext.navigator.dialogJunkRemover, guiContext.cfg.gs("JunkRemover.title"),
                             "Z.cancel.run", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
@@ -480,7 +469,7 @@ public class JunkRemoverTool extends AbstractTool
                 String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                 if (guiContext != null)
                 {
-                    guiContext.browser.printLog(msg, true);
+                    logger.error(msg);
                     int reply = JOptionPane.showConfirmDialog(guiContext.navigator.dialogJunkRemover, guiContext.cfg.gs("JunkRemover.title"),
                             "Z.cancel.run", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)

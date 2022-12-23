@@ -1,7 +1,9 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.gui.SavedEnvironment;
+import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
@@ -14,7 +16,9 @@ import com.groksoft.els.stty.hintServer.Datastore;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.sshd.common.util.io.IoUtils;
 
@@ -30,10 +34,11 @@ import static com.groksoft.els.Configuration.*;
  */
 public class Main
 {
-    public static Main main;
+    public Main main;
     public final Context context = new Context();
     public Configuration cfg;
     public String currentFilePart;
+    public GuiContext guiContext; // used only when executing an Operation
     private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
@@ -50,11 +55,33 @@ public class Main
      */
 
     /**
-     * Main application
+     * Main application default constructor
      */
     public Main()
     {
+        main = this;
         context.main = this;
+    }
+
+    /**
+     * Main application command line constructor
+     */
+    public Main(String[] args)
+    {
+        main = this;
+        context.main = this;
+        main.process(args);          // ELS Processor
+    }
+
+    /**
+     * Main application Operation constructor
+     */
+    public Main(String[] args, GuiContext guiContext)
+    {
+        main = this;
+        context.main = this;
+        this.guiContext = guiContext;
+        main.process(args);          // ELS Processor
     }
 
     /**
@@ -64,8 +91,7 @@ public class Main
      */
     public static void main(String[] args)
     {
-        main = new Main();
-        main.process(args);          // ELS Processor
+        new Main(args);
     }
 
     /**
@@ -177,7 +203,7 @@ public class Main
                 cfgException = e; // configuration exception
             }
 
-            // setup the logger based on configuration and/or defaults
+            // setup the logger
             if (cfg.getLogFilename().length() < 1)
                 cfg.setLogFilename("els.log"); // make sure there's a filename
             if (cfg.isLogOverwrite()) // optionally delete any existing log
@@ -189,14 +215,20 @@ public class Main
             System.setProperty("consoleLevel", cfg.getConsoleLevel());
             System.setProperty("debugLevel", cfg.getDebugLevel());
             System.setProperty("pattern", cfg.getPattern());
-            LoggerContext lctx = (LoggerContext) LogManager.getContext(LogManager.class.getClassLoader(), false);
-            lctx.reconfigure();
-            org.apache.logging.log4j.core.config.Configuration ccfg = lctx.getConfiguration();
-            LoggerConfig lcfg = ccfg.getLoggerConfig("Console");
-            lcfg.setLevel(Level.toLevel(cfg.getConsoleLevel()));
-            lcfg = ccfg.getLoggerConfig("applog");
-            lcfg.setLevel(Level.toLevel(cfg.getDebugLevel()));
-            lctx.updateLoggers();
+            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(guiContext == null ? true : false);
+            loggerContext.reconfigure();
+            AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+            LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
+            loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
+            loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+            loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
+            if (guiContext != null)
+            {
+                Map<String, Appender> appenders = loggerConfig.getAppenders();
+                GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                appender.setTextArea(guiContext);
+            }
+            loggerContext.updateLoggers();
 
             // get the named logger
             logger = LogManager.getLogger("applog");
@@ -635,7 +667,9 @@ public class Main
         }
         catch (Exception e)
         {
-            context.fault = true;
+            if (guiContext == null) // if not running as an Operation
+                context.fault = true;
+
             if (logger != null)
             {
                 logger.error(Utils.getStackTrace(e));
@@ -645,7 +679,8 @@ public class Main
                 System.out.println(Utils.getStackTrace(e));
             }
             if (cfg.isNavigator())
-                JOptionPane.showMessageDialog(null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(guiContext != null ? guiContext.mainFrame : null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+
             isListening = false; // force stop
         }
         finally
@@ -850,11 +885,11 @@ public class Main
      */
     public void stopVerbiage()
     {
-        if (!main.cfg.getConsoleLevel().equalsIgnoreCase(main.cfg.getDebugLevel()))
-            main.logger.info("Log file has more details: " + main.cfg.getLogFilename());
+        if (!main.cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
+            main.logger.info("Log file has more details: " + cfg.getLogFilename());
 
         Date done = new Date();
-        long millis = Math.abs(done.getTime() - main.stamp.getTime());
+        long millis = Math.abs(done.getTime() - stamp.getTime());
         main.logger.fatal("Runtime: " + Utils.getDuration(millis));
 
         if (!main.context.fault)

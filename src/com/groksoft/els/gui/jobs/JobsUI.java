@@ -15,7 +15,6 @@ import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.gui.util.RotatedIcon;
 import com.groksoft.els.gui.util.TextIcon;
-import com.groksoft.els.tools.renamer.RenamerTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -173,7 +172,7 @@ public class JobsUI extends JDialog
             if (reply == JOptionPane.YES_OPTION)
             {
                 currentJob.requestStop();
-                guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("Job.config.cancelled"), currentJob.getConfigName()));
+                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Job.config.cancelled"), currentJob.getConfigName()));
             }
         }
         else
@@ -234,15 +233,15 @@ public class JobsUI extends JDialog
             {
                 deletedJobs.add(job);
                 configModel.removeRow(index);
-                configModel.fireTableDataChanged();
                 if (index > configModel.getRowCount() - 1)
                     index = configModel.getRowCount() - 1;
-                configItems.requestFocus();
+                configModel.fireTableDataChanged();
                 if (index >= 0)
                 {
-                    configItems.changeSelection(index, 0, false, false);
+                    configItems.changeSelection(index, 0, true, false);
                     loadTasks(index);
                 }
+                configItems.requestFocus();
             }
         }
     }
@@ -783,7 +782,7 @@ public class JobsUI extends JDialog
             catch (Exception e)
             {
                 String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-                guiContext.browser.printLog(msg);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(this, msg,
                         guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
@@ -1040,7 +1039,7 @@ public class JobsUI extends JDialog
         catch (Exception e)
         {
             String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-            guiContext.browser.printLog(msg);
+            logger.error(msg);
             JOptionPane.showMessageDialog(this, msg,
                     guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
         }
@@ -1112,7 +1111,7 @@ public class JobsUI extends JDialog
             catch (Exception e)
             {
                 String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-                guiContext.browser.printLog(msg);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(this, msg,
                         guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
@@ -1164,7 +1163,7 @@ public class JobsUI extends JDialog
                     catch (Exception e)
                     {
                         String msg = guiContext.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
-                        guiContext.browser.printLog(msg);
+                        logger.error(msg);
                         JOptionPane.showMessageDialog(this, msg,
                                 guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
                     }
@@ -1455,12 +1454,12 @@ public class JobsUI extends JDialog
 
         if (job.isRequestStop())
         {
-            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
             guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
         }
         else
         {
-            guiContext.browser.printLog(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
             guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
         }
     }
@@ -1503,7 +1502,7 @@ public class JobsUI extends JDialog
         catch (Exception e)
         {
             String name = (job != null) ? job.getConfigName() + " " : " ";
-            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            logger.error(Utils.getStackTrace(e));
             JOptionPane.showMessageDialog(this,
                     guiContext.cfg.gs("Z.error.writing") + name + e.getMessage(),
                     guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);

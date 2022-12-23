@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The type Item.
@@ -17,7 +18,8 @@ public class Item implements Serializable
     private long size = -1L;
     private boolean directory = false;
     private boolean symLink = false;
-    private FileTime modifiedDate;
+    //private FileTime modifiedDate;
+    private long modifiedDate;
 
     private transient List<Item> hasList = null;
     private transient boolean hintExecuted = false;
@@ -112,7 +114,7 @@ public class Item implements Serializable
 
     public FileTime getModifiedDate()
     {
-        return modifiedDate;
+        return FileTime.from(modifiedDate, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -239,7 +241,7 @@ public class Item implements Serializable
 
     public void setModifiedDate(FileTime modifiedDate)
     {
-        this.modifiedDate = modifiedDate;
+        this.modifiedDate = modifiedDate.toMillis();
     }
 
     /**

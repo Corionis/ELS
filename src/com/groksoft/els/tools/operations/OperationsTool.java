@@ -6,12 +6,18 @@ import com.groksoft.els.*;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.util.ArgumentTokenizer;
+import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.AbstractConfiguration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -22,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class OperationsTool extends AbstractTool implements Comparable, Serializable
 {
@@ -534,13 +541,36 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         subRepo = subscriberRepo;
         // origins, dryRun & lastTask not used
 
+        // construct the arguments
         String cmd = generateCommandLine();
         List<String> list = ArgumentTokenizer.tokenize(cmd);
         String[] args = list.toArray(new String[0]);
 
-        Main main = new Main();
-        main.process(args);          // ELS Processor
+        // run the Operation
+        Main main = new Main(args, guiContext);
 
+        // reconfigure logging for current context
+        System.setProperty("logFilename", cfg.getLogFilename());
+        System.setProperty("consoleLevel", cfg.getConsoleLevel());
+        System.setProperty("debugLevel", cfg.getDebugLevel());
+        System.setProperty("pattern", cfg.getPattern());
+        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(guiContext == null ? true : false);  //(LogManager.class.getClassLoader(), false);
+        loggerContext.reconfigure();
+        AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+        LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
+        loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
+        loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+        loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
+        if (guiContext != null)
+        {
+            Map<String, Appender> appenders = loggerConfig.getAppenders();
+            GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+            appender.setTextArea(guiContext);
+        }
+        loggerContext.updateLoggers();
+
+        // get the named logger
+        logger = LogManager.getLogger("applog");
     }
 
     @Override
@@ -587,7 +617,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                 catch (Exception e)
                 {
                     String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                    guiContext.browser.printLog(msg, true);
+                    logger.error(msg);
                     JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
                             guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.ERROR_MESSAGE);
                 }

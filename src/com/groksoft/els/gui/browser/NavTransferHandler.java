@@ -92,7 +92,7 @@ public class NavTransferHandler extends TransferHandler
             }
 
             if (traceActions)
-                guiContext.browser.printLog("Create transferable from " + sourceTable.getName() + " starting at row " + row + ", " + rows.length + " rows total");
+                logger.trace("Create transferable from " + sourceTable.getName() + " starting at row " + row + ", " + rows.length + " rows total");
         }
         else if (c instanceof JTree)
         {
@@ -110,7 +110,7 @@ public class NavTransferHandler extends TransferHandler
             }
 
             if (traceActions)
-                guiContext.browser.printLog("Create transferable from " + sourceTree.getName() + " starting at row " + row + ", " + paths.length + " rows total");
+                logger.trace("Create transferable from " + sourceTree.getName() + " starting at row " + row + ", " + paths.length + " rows total");
         }
         return new DataHandler(rowList, flavor.getMimeType());
     }
@@ -121,7 +121,7 @@ public class NavTransferHandler extends TransferHandler
         action = act;
 
         if (traceActions)
-            guiContext.browser.printLog("end of exportDone");
+            logger.trace("end of exportDone");
 
         if (isDrop) // Drag 'n Drop
         {
@@ -131,16 +131,16 @@ public class NavTransferHandler extends TransferHandler
                 switch (action)
                 {
                     case TransferHandler.MOVE:
-                        guiContext.browser.printLog("Done MOVE");
+                        logger.trace("Done MOVE");
                         break;
                     case TransferHandler.COPY:
-                        guiContext.browser.printLog("Done COPY");
+                        logger.trace("Done COPY");
                         break;
                     case TransferHandler.COPY_OR_MOVE:
-                        guiContext.browser.printLog("Done COPY_OR_MOVE");
+                        logger.trace("Done COPY_OR_MOVE");
                         break;
                     case TransferHandler.NONE:
-                        guiContext.browser.printLog("Done NONE");
+                        logger.trace("Done NONE");
                         break;
                 }
             }
@@ -327,7 +327,7 @@ public class NavTransferHandler extends TransferHandler
         if (action == TransferHandler.NONE)
         {
             guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
-            guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
+            logger.info(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
             isDrop = false;
             return false;
         }
@@ -371,7 +371,7 @@ public class NavTransferHandler extends TransferHandler
                 {
                     JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.source.target.are.the.same"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
-                    guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
+                    logger.info(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
                     action = TransferHandler.NONE;
                     return false;
                 }
@@ -395,7 +395,7 @@ public class NavTransferHandler extends TransferHandler
                 {
                     JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
-                    guiContext.browser.printLog(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
+                    logger.info(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
                     action = TransferHandler.NONE;
                     return false;
                 }
@@ -420,7 +420,7 @@ public class NavTransferHandler extends TransferHandler
             }
 
             if (traceActions)
-                guiContext.browser.printLog("end of importData");
+                logger.trace("end of importData");
 
             if (!isDrop) // Copy, Cut, Paste
             {
@@ -430,16 +430,16 @@ public class NavTransferHandler extends TransferHandler
                     switch (action)
                     {
                         case TransferHandler.MOVE:
-                            guiContext.browser.printLog("Done MOVE");
+                            logger.trace("Done MOVE");
                             break;
                         case TransferHandler.COPY:
-                            guiContext.browser.printLog("Done COPY");
+                            logger.trace("Done COPY");
                             break;
                         case TransferHandler.COPY_OR_MOVE:
-                            guiContext.browser.printLog("Done COPY_OR_MOVE");
+                            logger.trace("Done COPY_OR_MOVE");
                             break;
                         case TransferHandler.NONE:
-                            guiContext.browser.printLog("Done NONE");
+                            logger.trace("Done NONE");
                             break;
                     }
                 }
@@ -448,13 +448,13 @@ public class NavTransferHandler extends TransferHandler
             action = TransferHandler.NONE;
             boolean indicator = (reply == JOptionPane.YES_OPTION && !guiContext.context.fault);
             if (traceActions)
-                guiContext.browser.printLog("Returning " + indicator);
+                logger.trace("Returning " + indicator);
 
             return indicator;
         }
         catch (Exception e)
         {
-            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            logger.error(Utils.getStackTrace(e));
             int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") + e.toString(),
                     guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
         }
@@ -525,7 +525,7 @@ public class NavTransferHandler extends TransferHandler
                 else
                     msg = guiContext.cfg.gs("NavTreeNode.local");
                 msg += MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.delete.directory.message"), guiContext.cfg.isDryRun() ? 0 : 1, sourceTuo.path);
-                guiContext.browser.printLog(msg);
+                logger.info(msg);
 
                 // remove directory itself
                 if (!guiContext.cfg.isDryRun())
@@ -537,7 +537,7 @@ public class NavTransferHandler extends TransferHandler
         catch (Exception e)
         {
             //guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            guiContext.browser.printLog(Utils.getStackTrace(e), true);
+            logger.error(Utils.getStackTrace(e));
             int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.delete.directory.error") +
                             e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
@@ -562,7 +562,7 @@ public class NavTransferHandler extends TransferHandler
             if (!guiContext.cfg.isDryRun())
             {
                 guiContext.context.transfer.remove(sourceTuo.path, false, sourceTuo.isRemote);
-                guiContext.browser.printLog(msg); // not printed if file is missing
+                logger.info(msg); // not printed if file is missing
             }
         }
         catch (Exception e)
@@ -577,7 +577,7 @@ public class NavTransferHandler extends TransferHandler
             if (!skip)
             {
                 //guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                guiContext.browser.printLog(Utils.getStackTrace(e), true);
+                logger.error(Utils.getStackTrace(e), true);
                 int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.delete.file.error") +
                                 e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
                         guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);

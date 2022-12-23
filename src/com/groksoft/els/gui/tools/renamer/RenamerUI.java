@@ -160,7 +160,7 @@ public class RenamerUI extends JDialog
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerRenamer.requestStop();
-                guiContext.browser.printLog(java.text.MessageFormat.format(guiContext.cfg.gs("Renamer.config.cancelled"), workerRenamer.getConfigName()));
+                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Renamer.config.cancelled"), workerRenamer.getConfigName()));
             }
         }
         else
@@ -236,16 +236,16 @@ public class RenamerUI extends JDialog
             {
                 deletedTools.add(renamer);
                 configModel.removeRow(index);
-                configModel.fireTableDataChanged();
                 if (index > 0)
                     index = configModel.getRowCount() - 1;
-                configItems.requestFocus();
+                currentConfigIndex = index;
+                configModel.fireTableDataChanged();
                 if (index >= 0)
                 {
-                    configItems.changeSelection(index, 0, false, false);
+                    configItems.changeSelection(index, 0, true, false);
                     loadOptions(index);
                 }
-                currentConfigIndex = index;
+                configItems.requestFocus();
             }
         }
     }
@@ -573,7 +573,7 @@ public class RenamerUI extends JDialog
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
             if (guiContext != null)
             {
-                guiContext.browser.printLog(msg, true);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
@@ -800,7 +800,7 @@ public class RenamerUI extends JDialog
                             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                             if (guiContext != null)
                             {
-                                guiContext.browser.printLog(msg, true);
+                                logger.error(msg);
                                 JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                             }
                             else
@@ -821,7 +821,7 @@ public class RenamerUI extends JDialog
                     String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                     if (guiContext != null)
                     {
-                        guiContext.browser.printLog(msg, true);
+                        logger.error(msg);
                         JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
@@ -848,12 +848,12 @@ public class RenamerUI extends JDialog
 
         if (renamer.isRequestStop())
         {
-            guiContext.browser.printLog(renamer.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(renamer.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
             guiContext.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
         }
         else
         {
-            guiContext.browser.printLog(renamer.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(renamer.getConfigName() + guiContext.cfg.gs("Z.completed"));
             guiContext.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + guiContext.cfg.gs("Z.completed"));
         }
     }
@@ -918,7 +918,7 @@ public class RenamerUI extends JDialog
             String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
             if (guiContext != null)
             {
-                guiContext.browser.printLog(msg, true);
+                logger.error(msg);
                 JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
             }
             else

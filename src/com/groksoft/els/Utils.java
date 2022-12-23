@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 public class Utils
 {
     private static Logger logger = LogManager.getLogger("applog");
-
     private static Context context;
 
     /**
@@ -51,7 +50,7 @@ public class Utils
      * @param location the path to the target
      * @return the long space available on target in bytes
      */
-    public static long availableSpace(String location)
+    public static synchronized long availableSpace(String location)
     {
         long space = 0;
         try
@@ -138,7 +137,7 @@ public class Utils
      * @param text
      * @return Original or ellipsed string based on pixel length
      */
-    public static String ellipseFileString(Component component, String text)
+    public static synchronized String ellipseFileString(Component component, String text)
     {
         FontMetrics metrics = component.getFontMetrics(component.getFont());
         int width = metrics.stringWidth(text);
@@ -177,7 +176,7 @@ public class Utils
      * @param value
      * @return String of formatted value
      */
-    public static String formatInteger(int value)
+    public static synchronized String formatInteger(int value)
     {
         DecimalFormat form = new DecimalFormat("###,###,###,###");
         return form.format(value);
@@ -189,7 +188,7 @@ public class Utils
      * @param value Long value to format
      * @return String Formatting text
      */
-    public static String formatLong(long value, boolean isFull)
+    public static synchronized String formatLong(long value, boolean isFull)
     {
         String full;
         String brief;
@@ -239,7 +238,7 @@ public class Utils
      * @param millis
      * @return String
      */
-    public static String getDuration(long millis)
+    public static synchronized String getDuration(long millis)
     {
         if (millis < 0)
         {
@@ -282,7 +281,7 @@ public class Utils
      * @param name Filename to parse
      * @return Extension
      */
-    public static String getFileExtension(String name)
+    public static synchronized String getFileExtension(String name)
     {
         String ext = "";
         int i = name.lastIndexOf(".");
@@ -298,7 +297,7 @@ public class Utils
      * @return String containing matching file separator character
      * @throws MungeException
      */
-    public static String getFileSeparator(String flavor)
+    public static synchronized String getFileSeparator(String flavor)
     {
         String separator = "";
         if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
@@ -321,7 +320,7 @@ public class Utils
      *
      * @return Hostname or empty
      */
-    public static String getHostname()
+    public static synchronized String getHostname()
     {
         String hostname = "";
         try
@@ -349,7 +348,7 @@ public class Utils
      * @param sep  The directory separator for the local O/S, if null get separator from full
      * @return the last path
      */
-    public static String getLastPath(String full, String sep)
+    public static synchronized String getLastPath(String full, String sep)
     {
         String path = "";
         if (sep == null)
@@ -373,7 +372,7 @@ public class Utils
      * @param sep  The directory separator for the local O/S, if null get separator from full
      * @return String of left path
      */
-    public static String getLeftPath(String full, String sep)
+    public static synchronized String getLeftPath(String full, String sep)
     {
         String path = "";
         if (sep == null)
@@ -396,7 +395,7 @@ public class Utils
      * @param path Path to get time
      * @return FileTime of path
      */
-    public static FileTime getLocalFileTime(String path)
+    public static synchronized FileTime getLocalFileTime(String path)
     {
         if (path != null && path.length() > 0)
         {
@@ -418,7 +417,7 @@ public class Utils
      * @param thing String of local file to check
      * @return int permissions
      */
-    public static int getLocalPermissions(String thing)
+    public static synchronized int getLocalPermissions(String thing)
     {
         int perms = 000;
         Path p = Paths.get(thing);
@@ -460,7 +459,7 @@ public class Utils
      * @param site Site string, e.g. hostname:port
      * @return int Port number
      */
-    public static int getPort(String site)
+    public static synchronized int getPort(String site)
     {
         int port = 0;
         String sport = parsePort(site);
@@ -484,7 +483,7 @@ public class Utils
      * @param sep  The directory separator for the local O/S, if null get separator from full
      * @return String of right path
      */
-    public static String getRightPath(String full, String sep)
+    public static synchronized String getRightPath(String full, String sep)
     {
         String path = "";
         if (sep == null)
@@ -507,7 +506,7 @@ public class Utils
      * @param size the string to parse
      * @return the scaled value
      */
-    public static long getScaledValue(String size)
+    public static synchronized long getScaledValue(String size)
     {
         long returnValue = -1;
         Pattern patt = Pattern.compile("([\\d.]+)([TGMK]B)", Pattern.CASE_INSENSITIVE);
@@ -534,7 +533,7 @@ public class Utils
      * @param path Path to parsse
      * @return File separator character
      */
-    public static String getSeparatorFromPath(String path)
+    public static synchronized String getSeparatorFromPath(String path)
     {
         String separator = "";
         if (path.contains("\\"))
@@ -559,7 +558,7 @@ public class Utils
      * @param sep  The directory separator for the local O/S
      * @return String of path
      */
-    public static String getShortPath(String full, String sep)
+    public static synchronized String getShortPath(String full, String sep)
     {
         String path = "";
         int p = full.lastIndexOf(sep);
@@ -597,7 +596,7 @@ public class Utils
      * @param icon Icon to convert
      * @return Image from icon
      */
-    public static Image iconToImage(Icon icon)
+    public static synchronized Image iconToImage(Icon icon)
     {
         if (icon instanceof ImageIcon)
         {
@@ -641,7 +640,7 @@ public class Utils
      * @param location Site string
      * @return String host
      */
-    public static String parseHost(String location)
+    public static synchronized String parseHost(String location)
     {
         String host = null;
         String[] a = location.split(":");
@@ -662,7 +661,7 @@ public class Utils
      * @param location
      * @return port
      */
-    public static String parsePort(String location)
+    public static synchronized String parsePort(String location)
     {
         String port = "";
         String[] a = location.split(":");
@@ -681,7 +680,7 @@ public class Utils
      * @return String Modified path
      * @throws MungeException
      */
-    public static String pipe(Repository repo, String path) throws MungeException
+    public static synchronized String pipe(Repository repo, String path) throws MungeException
     {
         String p = path.replaceAll(repo.getWriteSeparator(), "|");
         return p;
@@ -695,7 +694,7 @@ public class Utils
      * @return String Modified path
      * @throws MungeException
      */
-    public static String pipe(String path, String separator)
+    public static synchronized String pipe(String path, String separator)
     {
         String p = path.replaceAll(separator, "|");
         return p;
@@ -774,7 +773,7 @@ public class Utils
      *
      * @param filename The local file to read
      */
-    public static String readString(String filename) throws Exception
+    public static synchronized String readString(String filename) throws Exception
     {
         String content = "";
         URL url = new URL("file:" + filename);
@@ -792,7 +791,7 @@ public class Utils
      * @param directory The directory tree to be deleted
      * @return true if not all directories, files were also deleted
      */
-    public static boolean removeDirectoryTree(File directory)
+    public static synchronized boolean removeDirectoryTree(File directory)
     {
         boolean notAllDirectories = false;
         File[] all = directory.listFiles();
@@ -820,7 +819,7 @@ public class Utils
      * @param rightSideOccurrence Which occurrence to return, 0 = last segment only
      * @return Position in value of Nth occurrence of find character, or -1 if not found
      */
-    public static int rightIndexOf(String value, String find, int rightSideOccurrence)
+    public static synchronized int rightIndexOf(String value, String find, int rightSideOccurrence)
     {
         int count = 0;
         for (int i = value.length() - 1; i > -1; --i)
@@ -840,7 +839,7 @@ public class Utils
      * @param name Filename to scrub
      * @return Scrubbed filename, may be the same if there were no invalid characters
      */
-    public static String scrubFilename(String name)
+    public static synchronized String scrubFilename(String name)
     {
         String scubbed = name.replaceAll("[\\\\/:*?\"<>|]", "");
         return scubbed;
@@ -863,7 +862,7 @@ public class Utils
      * @return String Modified path
      * @throws MungeException
      */
-    public static String unpipe(Repository repo, String path) throws MungeException
+    public static synchronized String unpipe(Repository repo, String path) throws MungeException
     {
         String p = path.replaceAll("\\|", repo.getWriteSeparator());
         return p;
@@ -876,7 +875,7 @@ public class Utils
      * @param separator The separator string to use
      * @return String Modified path
      */
-    public static String unpipe(String path, String separator)
+    public static synchronized String unpipe(String path, String separator)
     {
         String p = path.replaceAll("\\|", separator);
         return p;
