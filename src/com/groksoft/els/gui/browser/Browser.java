@@ -1017,7 +1017,8 @@ public class Browser
     {
         navTransferHandler = new NavTransferHandler(guiContext);  // single instance
 
-        for (int i = 0; i < navStack.length; ++i) // four individual NavStacks for the four browser tabs
+        // four individual NavStacks for the four browser tabs
+        for (int i = 0; i < navStack.length; ++i)
             navStack[i] = new Stack<NavItem>();
 
         logger.info(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());

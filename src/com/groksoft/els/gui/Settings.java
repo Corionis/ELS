@@ -2,6 +2,7 @@ package com.groksoft.els.gui;
 
 import java.awt.event.*;
 
+import com.formdev.flatlaf.FlatLaf;
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -20,10 +22,9 @@ import javax.swing.border.*;
 public class Settings extends JDialog
 {
     private transient Logger logger = LogManager.getLogger("applog");
-    GuiContext guiContext;
+    private GuiContext guiContext;
     private NavHelp helpDialog;
-    Color hintTrackingColor;
-    Settings thisDialog;
+    private Settings thisDialog;
 
     /*
         TODO
@@ -41,11 +42,6 @@ public class Settings extends JDialog
         initComponents();
         thisDialog = this;
         setDialog();
-
-        // disable buttonhintTracking background color
-        hintButtonColorLabel.setVisible(false);
-        textFieldHintButtonColor.setVisible(false);
-        buttonChooseColor.setVisible(false);
 
         cancelButton.addActionListener(new AbstractAction()
         {
@@ -161,12 +157,29 @@ public class Settings extends JDialog
     }
 
     private void chooseColor(ActionEvent e) {
-        Color color = new Color(Integer.parseInt(textFieldHintButtonColor.getText(), 16));
-        color = JColorChooser.showDialog(guiContext.mainFrame, "Select Hint Button Color", color);
+        Color color = new Color(Integer.parseInt(textFieldAccentColor.getText(), 16));
+        color = JColorChooser.showDialog(guiContext.mainFrame, guiContext.cfg.gs("Settings.select.accent.color"), color);
         if (color != null)
         {
-            textFieldHintButtonColor.setText(Integer.toHexString(color.getRed()) + Integer.toHexString(color.getGreen()) + Integer.toHexString(color.getBlue()));
-            guiContext.mainFrame.buttonHintTracking.setBackground(color);
+            textFieldAccentColor.setText(Utils.formatHex(color.getRed(), 2) +
+                    Utils.formatHex(color.getGreen(), 2) +
+                    Utils.formatHex(color.getBlue(), 2));
+            try
+            {
+                // set accent color for current LaF
+                FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + textFieldAccentColor.getText()));
+                Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
+                FlatLaf.setup(lafClass.newInstance());
+                FlatLaf.updateUI();
+            }
+            catch (Exception ex)
+            {
+                logger.error(Utils.getStackTrace(ex));
+                JOptionPane.showMessageDialog(guiContext.mainFrame,
+                        guiContext.cfg.gs("Z.exception") + ex.getMessage(),
+                        guiContext.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+
+            }
         }
     }
 
@@ -174,15 +187,27 @@ public class Settings extends JDialog
     {
         try
         {
-            //if (guiContext.browser.trackingHints)
-            //    guiContext.mainFrame.buttonHintTracking.setBackground(new Color(Integer.parseInt(guiContext.preferences.getHintTrackingColor(), 16)));
-            //else
-            //    guiContext.mainFrame.buttonHintTracking.setBackground(hintTrackingColor);
-
             if (index == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
                 UIManager.setLookAndFeel(guiContext.mainFrame.getLookAndFeel(index));
+
+            try
+            {
+                // set accent color for current LaF
+                FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + guiContext.preferences.getAccentColor()));
+                Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
+                FlatLaf.setup(lafClass.newInstance());
+                FlatLaf.updateUI();
+            }
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+                JOptionPane.showMessageDialog(guiContext.mainFrame,
+                        guiContext.cfg.gs("Z.exception") + e.getMessage(),
+                        guiContext.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+
+            }
 
             for (Frame frame : Frame.getFrames())
             {
@@ -233,8 +258,11 @@ public class Settings extends JDialog
         }
         scaleCheckBox.setSelected(guiContext.preferences.isBinaryScale());
         dateFormatTextField.setText(guiContext.preferences.getDateFormat());
-        hintTrackingColor = guiContext.mainFrame.buttonHintTracking.getBackground();
-        textFieldHintButtonColor.setText(guiContext.preferences.getHintTrackingColor());
+        if (guiContext.preferences.getAccentColor() == null || guiContext.preferences.getAccentColor().length() < 1)
+        {
+            guiContext.preferences.setAccentColor("2675BF");
+        }
+        textFieldAccentColor.setText(guiContext.preferences.getAccentColor());
 
         // browser
         autoRefreshCheckBox.setSelected(guiContext.preferences.isAutoRefresh());
@@ -284,7 +312,9 @@ public class Settings extends JDialog
         guiContext.preferences.setLocale((String) localeComboBox.getSelectedItem());
         guiContext.preferences.setBinaryScale(scaleCheckBox.isSelected());
         guiContext.preferences.setDateFormat(dateFormatTextField.getText());
-        guiContext.preferences.setHintTrackingColor(textFieldHintButtonColor.getText());
+        if (guiContext.preferences.getAccentColor().length() < 6) // use default if empty
+            guiContext.preferences.setAccentColor("2675BF");
+        guiContext.preferences.setAccentColor(textFieldAccentColor.getText());
 
         // browser
         guiContext.preferences.setAutoRefresh(autoRefreshCheckBox.isSelected());
@@ -347,9 +377,9 @@ public class Settings extends JDialog
         scaleCheckBox = new JCheckBox();
         dateFormatLabel = new JLabel();
         dateFormatTextField = new JTextField();
-        hintButtonColorLabel = new JLabel();
+        accentColorButtonLabel = new JLabel();
         dateInfoButton = new JButton();
-        textFieldHintButtonColor = new JTextField();
+        textFieldAccentColor = new JTextField();
         buttonChooseColor = new JButton();
         browserPanel = new JPanel();
         autoRefreshLabel = new JLabel();
@@ -479,6 +509,7 @@ public class Settings extends JDialog
                         );
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
+                    settingsTabbedPane.setMnemonicAt(0, guiContext.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
 
                     //======== apperancePanel ========
                     {
@@ -517,15 +548,15 @@ public class Settings extends JDialog
                         //---- dateFormatTextField ----
                         dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
 
-                        //---- hintButtonColorLabel ----
-                        hintButtonColorLabel.setText(guiContext.cfg.gs("Settings.hintButton.ColorLabel.text"));
+                        //---- accentColorButtonLabel ----
+                        accentColorButtonLabel.setText(guiContext.cfg.gs("Settings.accentColorLabel.text"));
 
                         //---- dateInfoButton ----
                         dateInfoButton.setText(guiContext.cfg.gs("Settings.button.dateInfo.text"));
                         dateInfoButton.setToolTipText(guiContext.cfg.gs("Settings.button.dateInfo.text.tooltip"));
 
-                        //---- textFieldHintButtonColor ----
-                        textFieldHintButtonColor.setToolTipText(guiContext.cfg.gs("Settings.textField.HintButtonColor.toolTipText"));
+                        //---- textFieldAccentColor ----
+                        textFieldAccentColor.setToolTipText(guiContext.cfg.gs("Settings.textField.HintButtonColor.toolTipText"));
 
                         //---- buttonChooseColor ----
                         buttonChooseColor.setText(guiContext.cfg.gs("Settings.button.ChooseColor.text"));
@@ -555,9 +586,9 @@ public class Settings extends JDialog
                                                 .addComponent(scaleCheckBox, GroupLayout.PREFERRED_SIZE, 238, GroupLayout.PREFERRED_SIZE)
                                                 .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(apperancePanelLayout.createSequentialGroup()
-                                            .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(accentColorButtonLabel, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(textFieldHintButtonColor, GroupLayout.PREFERRED_SIZE, 104, GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(textFieldAccentColor, GroupLayout.PREFERRED_SIZE, 104, GroupLayout.PREFERRED_SIZE)
                                             .addGap(8, 8, 8)
                                             .addComponent(buttonChooseColor)))
                                     .addContainerGap(17, Short.MAX_VALUE))
@@ -588,13 +619,14 @@ public class Settings extends JDialog
                                                 .addComponent(dateFormatTextField, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))))
                                     .addGap(0, 0, 0)
                                     .addGroup(apperancePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(hintButtonColorLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(accentColorButtonLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(buttonChooseColor)
-                                        .addComponent(textFieldHintButtonColor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(textFieldAccentColor, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
                                     .addContainerGap())
                         );
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
+                    settingsTabbedPane.setMnemonicAt(1, guiContext.cfg.gs("Settings.apperancePanel.tab.mnemonic").charAt(0));
 
                     //======== browserPanel ========
                     {
@@ -690,18 +722,21 @@ public class Settings extends JDialog
                         );
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
+                    settingsTabbedPane.setMnemonicAt(2, guiContext.cfg.gs("Settings.browserPanel.tab.mnemonic").charAt(0));
 
                     //======== operationsPanel ========
                     {
                         operationsPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.operationsPanel.tab.title"), operationsPanel);
+                    settingsTabbedPane.setMnemonicAt(3, guiContext.cfg.gs("Settings.operationsPanel.tab.mnemonic").charAt(0));
 
                     //======== librariesPanel ========
                     {
                         librariesPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.librariesPanel.tab.title"), librariesPanel);
+                    settingsTabbedPane.setMnemonicAt(4, guiContext.cfg.gs("Settings.librariesPanel.tab.mnemonic").charAt(0));
                 }
                 settingsContentPanel.add(settingsTabbedPane);
             }
@@ -766,9 +801,9 @@ public class Settings extends JDialog
     private JCheckBox scaleCheckBox;
     private JLabel dateFormatLabel;
     private JTextField dateFormatTextField;
-    private JLabel hintButtonColorLabel;
+    private JLabel accentColorButtonLabel;
     private JButton dateInfoButton;
-    private JTextField textFieldHintButtonColor;
+    private JTextField textFieldAccentColor;
     private JButton buttonChooseColor;
     private JPanel browserPanel;
     private JLabel autoRefreshLabel;

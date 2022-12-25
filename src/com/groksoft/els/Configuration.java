@@ -62,7 +62,6 @@ public class Configuration
     private int navigator = -1;
     private int noBackFill = -1;
     private int operation = NOT_REMOTE;
-    private String operationName = "";
     private String[] originalArgs;
     private int overwrite = -1;
     private int preserveDates = -1;
@@ -86,12 +85,442 @@ public class Configuration
     private int validation = -1;
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
+
     /**
      * Constructor
      */
     public Configuration(Context ctxt)
     {
         context = ctxt;
+    }
+
+    /**
+     * Parse command line
+     * <p>
+     * This populates the rest.
+     *
+     * @param args the args
+     * @throws MungeException the els exception
+     */
+    public void parseCommandLine(String[] args) throws MungeException
+    {
+        // single option letters remaining, case-sensitive:  C J M O R U V X Y Z
+
+        int index;
+        originalArgs = args;
+
+        for (index = 0; index < args.length; ++index)
+        {
+            switch (args[index])
+            {
+                case "-A":                                              // authorization keys for publisher/subscriber listeners
+                case "--auth-keys":
+                    if (index <= args.length - 2)
+                    {
+                        setAuthKeysFile(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -A requires an ELS authorization keys filename");
+                    }
+                    break;
+                case "-a":                                             // authorize mode password
+                case "--authorize":
+                    if (index <= args.length - 2)
+                    {
+                        setAuthorizedPassword(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -a requires a password value");
+                    }
+                    break;
+                case "-b":                                             // disable back-filling
+                case "--no-back-fill":
+                    setNoBackFill(true);
+                    break;
+                case "-B":                                             // blacklist
+                case "--blacklist":
+                    if (index <= args.length - 2)
+                    {
+                        setBlacklist(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -B requires a blacklist filename");
+                    }
+                    break;
+                case "-c":                                             // console level
+                case "--console-level":
+                    if (index <= args.length - 2)
+                    {
+                        setConsoleLevel(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                    }
+                    break;
+                case "-d":                                             // debug level
+                case "--debug-level":
+                    if (index <= args.length - 2)
+                    {
+                        setDebugLevel(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
+                    }
+                    break;
+                case "-D":                                             // Dry run
+                case "--dry-run":
+                    setDryRun(true);
+                    break;
+                case "--dump-system":
+                    setDumpSystem(true);
+                    break;
+                case "-e":                                             // export publisher items to flat text file
+                case "--export-text":
+                    if (index <= args.length - 2)
+                    {
+                        setExportTextFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -e requires an export path output filename");
+                    }
+                    break;
+                case "-E":                                             // publisher empty directory check
+                case "--empty-directories":
+                    setEmptyDirectoryCheck(true);
+                    break;
+                case "-f":                                             // log filename
+                case "-F":
+                case "--log-file":
+                case "--log-overwrite":
+                    if (getLogFilename().length() > 0)
+                        throw new MungeException("Error: -f and -F cannot be used at the same time");
+                    if (args[index].equals("-F") || args[index].equals("--log-overwrite"))
+                        setLogOverwrite(true);
+                    if (index <= args.length - 2)
+                    {
+                        setLogFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -f requires a log filename");
+                    }
+                    break;
+                case "-g":                                              // publisher and subscriber keep subscriber going
+                case "--listener-keep-going":
+                    setKeepGoing(true);
+                    break;
+                case "-G":                                              // tell listener to quit right now, then end
+                case "--listener-quit":
+                    setQuitSubscriberListener(true);
+                    operation = SUBSCRIBER_SERVER_FORCE_QUIT;
+                    break;
+                case "-h":                                              // hint status tracker
+                case "--hints":
+                    if (index <= args.length - 2)
+                    {
+                        setStatusTrackerFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -h requires a hint status server repository filename");
+                    }
+                    break;
+                case "-H":                                              // hint status server
+                case "--hint-server":
+                    this.operation = STATUS_SERVER;
+                    if (index <= args.length - 2)
+                    {
+                        setHintsDaemonFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -H requires a hint status server repository filename");
+                    }
+                    break;
+                case "-i":                                             // export publisher items to collection file
+                case "--export-items":
+                    if (index <= args.length - 2)
+                    {
+                        setExportCollectionFilename(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -i requires a collection output filename");
+                    }
+                    break;
+                case "-I":                                             // whitelist
+                case "--ip-whitelist":
+                    if (index <= args.length - 2)
+                    {
+                        setIplist(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -I requires an IP whitelist filename");
+                    }
+                    break;
+                case "-j":                                             // Job
+                case "--job":
+                    this.operation = JOB_PROCESS;
+                    if (index <= args.length - 2)
+                    {
+                        setJobName(args[index + 1]);
+                        ++index;
+                        setPublishOperation(false);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -j requires a job name");
+                    }
+                    break;
+                case "-k":                                             // ELS keys file
+                case "--keys":
+                    if (index <= args.length - 2)
+                    {
+                        setHintKeysFile(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -k requires an ELS hint keys filename");
+                    }
+                    break;
+                case "-K":                                             // ELS keys file and skip main process munge
+                case "--keys-only":
+                    if (index <= args.length - 2)
+                    {
+                        setHintKeysFile(args[index + 1]);
+                        ++index;
+                        setHintSkipMainProcess(true);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -K requires an ELS hint keys filename");
+                    }
+                    break;
+                case "-l":                                             // publisher library to process
+                case "--library":
+                    if (index <= args.length - 2)
+                    {
+                        addPublisherLibraryName(args[index + 1]);
+                        setSpecificLibrary(true);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -l requires a publisher library name");
+                    }
+                    break;
+                case "-L":                                             // publisher library to exclude
+                case "--exclude":
+                    if (index <= args.length - 2)
+                    {
+                        addExcludedLibraryName(args[index + 1]);
+                        setSpecificExclude(true);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -L requires a publisher library name to exclude");
+                    }
+                    break;
+                case "-m":                                             // Mismatch output filename
+                case "--mismatches":
+                    if (index <= args.length - 2)
+                    {
+                        setMismatchFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -m requires a mismatches output filename");
+                    }
+                    break;
+                case "-n":                                              // Navigator
+                case "--navigator":
+                    setNavigator(true);
+                    break;
+                case "-N":                                              // ignored files reported
+                case "--ignored":
+                    setIgnoredReported(true);
+                    break;
+                case "-o":                                              // overwrite
+                case "--overwrite":
+                    setOverwrite(true);
+                    break;
+                case "-p":                                              // publisher JSON libraries file
+                case "--publisher-libraries":
+                    if (index <= args.length - 2)
+                    {
+                        setPublisherLibrariesFileName(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -p requires a publisher libraries filename");
+                    }
+                    break;
+                case "-P":                                             // publisher JSON collection items file
+                case "--publisher-collection":
+                    if (index <= args.length - 2)
+                    {
+                        setPublisherCollectionFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -P requires a publisher collection filename");
+                    }
+                    break;
+                case "-q":                                             // tell status server to quit when done
+                case "--quit-status":
+                    setQuitStatusServer(true);
+                    break;
+                case "-Q":                                             // tell status server to quit right now, then end
+                case "--force-quit":
+                    setQuitStatusServer(true);
+                    this.operation = STATUS_SERVER_FORCE_QUIT;
+                    break;
+                case "-r":                                             // remote session
+                case "--remote":
+                    if (index <= args.length - 2)
+                    {
+                        setRemoteType(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
+                    }
+                    break;
+                case "-s":                                             // subscriber JSON libraries file
+                case "--subscriber-libraries":
+                    if (index <= args.length - 2)
+                    {
+                        setForceCollection(false);
+                        setRequestCollection(true);
+                        setSubscriberLibrariesFileName(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -s requires a subscriber libraries filename");
+                    }
+                    break;
+                case "-S":                                             // subscriber JSON collection items file
+                case "--subscriber-collection":
+                    if (index <= args.length - 2)
+                    {
+                        setForceCollection(true);
+                        setRequestCollection(false);
+                        setSubscriberCollectionFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -S requires an subscriber collection filename");
+                    }
+                    break;
+                case "-t":                                             // targets filename
+                case "--targets":
+                    setTargetsEnabled(true);
+                    setForceTargets(false);
+                    setRequestTargets(true);
+                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
+                    {
+                        setTargetsFilename(args[index + 1]);
+                        ++index;
+                    }
+                    break;
+                case "-T":                                             // targets filename - force to publisher
+                case "--force-targets":
+                    setTargetsEnabled(true);
+                    setForceTargets(true);
+                    setRequestTargets(false);
+                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
+                    {
+                        setTargetsFilename(args[index + 1]);
+                        ++index;
+                    }
+                    break;
+                case "-u":                                             // publisher duplicate check
+                case "--duplicates":
+                    setDuplicateCheck(true);
+                    break;
+                case "-v":                                             // validation run
+                case "--validate":
+                    setValidation(true);
+                    break;
+                case "--version":                                       // version
+                    System.out.println("");
+                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION + ", " + context.main.getBuildStamp());
+                    System.out.println("See the ELS wiki on GitHub for documentation at:");
+                    System.out.println("  https://github.com/GrokSoft/ELS/wiki");
+                    System.out.println("");
+                    System.exit(1); // exit on --version
+                    break;
+                case "-w":                                             // What's New output filename
+                case "--whatsnew":
+                    if (index <= args.length - 2)
+                    {
+                        setWhatsNewFilename(args[index + 1]);
+                        ++index;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -w requires a What's New output filename");
+                    }
+                    break;
+                case "-W":                                             // What's New output filename, set "all" option
+                case "--whatsnew-all":
+                    if (index <= args.length - 2)
+                    {
+                        setWhatsNewFilename(args[index + 1]);
+                        ++index;
+                        setWhatsNewAll(true);
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -W requires a What's New output filename");
+                    }
+                    break;
+                case "-x":                                             // cross-library duplicate check
+                case "--cross-check":
+                    setCrossCheck(true);
+                    break;
+                case "-y":                                             // preserve file dates
+                case "--preserve-dates":
+                    setPreserveDates(true);
+                    break;
+                case "-z":                                             // scale long values with 1000 instead of 1024
+                case "--decimal-scale":
+                    setLongScale(false);
+                    break;
+                default:
+                    throw new MungeException("Error: unknown option: " + args[index]);
+            }
+        }
     }
 
     /**
@@ -427,11 +856,6 @@ public class Configuration
     public int getOperation()
     {
         return this.operation;
-    }
-
-    public String getOperationName()
-    {
-        return operationName;
     }
 
     /**
@@ -1032,447 +1456,6 @@ public class Configuration
     }
 
     /**
-     * Parse command line
-     * <p>
-     * This populates the rest.
-     *
-     * @param args the args
-     * @throws MungeException the els exception
-     */
-    public void parseCommandLine(String[] args) throws MungeException
-    {
-        // single option letters remaining, case-sensitive:  C J M R U V X Y Z
-
-        int index;
-        originalArgs = args;
-
-        for (index = 0; index < args.length; ++index)
-        {
-            switch (args[index])
-            {
-                case "-A":                                              // authorization keys for publisher/subscriber listeners
-                case "--auth-keys":
-                    if (index <= args.length - 2)
-                    {
-                        setAuthKeysFile(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -A requires an ELS authorization keys filename");
-                    }
-                    break;
-                case "-a":                                             // authorize mode password
-                case "--authorize":
-                    if (index <= args.length - 2)
-                    {
-                        setAuthorizedPassword(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -a requires a password value");
-                    }
-                    break;
-                case "-b":                                             // disable back-filling
-                case "--no-back-fill":
-                    setNoBackFill(true);
-                    break;
-                case "-B":                                             // blacklist
-                case "--blacklist":
-                    if (index <= args.length - 2)
-                    {
-                        setBlacklist(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -B requires a blacklist filename");
-                    }
-                    break;
-                case "-c":                                             // console level
-                case "--console-level":
-                    if (index <= args.length - 2)
-                    {
-                        setConsoleLevel(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
-                    }
-                    break;
-                case "-d":                                             // debug level
-                case "--debug-level":
-                    if (index <= args.length - 2)
-                    {
-                        setDebugLevel(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -d requires a level, trace, debug, info, warn, error, fatal, or off");
-                    }
-                    break;
-                case "-D":                                             // Dry run
-                case "--dry-run":
-                    setDryRun(true);
-                    break;
-                case "--dump-system":
-                    setDumpSystem(true);
-                    break;
-                case "-e":                                             // export publisher items to flat text file
-                case "--export-text":
-                    if (index <= args.length - 2)
-                    {
-                        setExportTextFilename(args[index + 1]);
-                        ++index;
-                        setPublishOperation(false);
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -e requires an export path output filename");
-                    }
-                    break;
-                case "-E":                                             // publisher empty directory check
-                case "--empty-directories":
-                    setEmptyDirectoryCheck(true);
-                    break;
-                case "-f":                                             // log filename
-                case "-F":
-                case "--log-file":
-                case "--log-overwrite":
-                    if (getLogFilename().length() > 0)
-                        throw new MungeException("Error: -f and -F cannot be used at the same time");
-                    if (args[index].equals("-F") || args[index].equals("--log-overwrite"))
-                        setLogOverwrite(true);
-                    if (index <= args.length - 2)
-                    {
-                        setLogFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -f requires a log filename");
-                    }
-                    break;
-                case "-g":                                              // publisher and subscriber keep subscriber going
-                case "--listener-keep-going":
-                    setKeepGoing(true);
-                    break;
-                case "-G":                                              // tell listener to quit right now, then end
-                case "--listener-quit":
-                    setQuitSubscriberListener(true);
-                    operation = SUBSCRIBER_SERVER_FORCE_QUIT;
-                    break;
-                case "-h":                                              // hint status tracker
-                case "--hints":
-                    if (index <= args.length - 2)
-                    {
-                        setStatusTrackerFilename(args[index + 1]);
-                        ++index;
-                        setPublishOperation(false);
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -h requires a hint status server repository filename");
-                    }
-                    break;
-                case "-H":                                              // hint status server
-                case "--hint-server":
-                    this.operation = STATUS_SERVER;
-                    if (index <= args.length - 2)
-                    {
-                        setHintsDaemonFilename(args[index + 1]);
-                        ++index;
-                        setPublishOperation(false);
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -H requires a hint status server repository filename");
-                    }
-                    break;
-                case "-i":                                             // export publisher items to collection file
-                case "--export-items":
-                    if (index <= args.length - 2)
-                    {
-                        setExportCollectionFilename(args[index + 1]);
-                        ++index;
-                        setPublishOperation(false);
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -i requires a collection output filename");
-                    }
-                    break;
-                case "-I":                                             // whitelist
-                case "--ip-whitelist":
-                    if (index <= args.length - 2)
-                    {
-                        setIplist(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -I requires an IP whitelist filename");
-                    }
-                    break;
-                case "-j":                                             // Job
-                case "--job":
-                    this.operation = JOB_PROCESS;
-                    if (index <= args.length - 2)
-                    {
-                        setJobName(args[index + 1]);
-                        ++index;
-                        setPublishOperation(false);
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -j requires a job name");
-                    }
-                    break;
-                case "-k":                                             // ELS keys file
-                case "--keys":
-                    if (index <= args.length - 2)
-                    {
-                        setHintKeysFile(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -k requires an ELS hint keys filename");
-                    }
-                    break;
-                case "-K":                                             // ELS keys file and skip main process munge
-                case "--keys-only":
-                    if (index <= args.length - 2)
-                    {
-                        setHintKeysFile(args[index + 1]);
-                        ++index;
-                        setHintSkipMainProcess(true);
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -K requires an ELS hint keys filename");
-                    }
-                    break;
-                case "-l":                                             // publisher library to process
-                case "--library":
-                    if (index <= args.length - 2)
-                    {
-                        addPublisherLibraryName(args[index + 1]);
-                        setSpecificLibrary(true);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -l requires a publisher library name");
-                    }
-                    break;
-                case "-L":                                             // publisher library to exclude
-                case "--exclude":
-                    if (index <= args.length - 2)
-                    {
-                        addExcludedLibraryName(args[index + 1]);
-                        setSpecificExclude(true);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -L requires a publisher library name to exclude");
-                    }
-                    break;
-                case "-m":                                             // Mismatch output filename
-                case "--mismatches":
-                    if (index <= args.length - 2)
-                    {
-                        setMismatchFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -m requires a mismatches output filename");
-                    }
-                    break;
-                case "-n":                                              // Navigator
-                case "--navigator":
-                    setNavigator(true);
-                    break;
-                case "-N":                                              // ignored files reported
-                case "--ignored":
-                    setIgnoredReported(true);
-                    break;
-                case "-o":                                              // overwrite
-                case "--overwrite":
-                    setOverwrite(true);
-                    break;
-                case "-O":                                              // operation
-                case "--operation":
-                    if (index <= args.length - 2)
-                    {
-                        setOperationName(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -p requires a publisher libraries filename");
-                    }
-                    break;
-                case "-p":                                              // publisher JSON libraries file
-                case "--publisher-libraries":
-                    if (index <= args.length - 2)
-                    {
-                        setPublisherLibrariesFileName(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -p requires a publisher libraries filename");
-                    }
-                    break;
-                case "-P":                                             // publisher JSON collection items file
-                case "--publisher-collection":
-                    if (index <= args.length - 2)
-                    {
-                        setPublisherCollectionFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -P requires a publisher collection filename");
-                    }
-                    break;
-                case "-q":                                             // tell status server to quit when done
-                case "--quit-status":
-                    setQuitStatusServer(true);
-                    break;
-                case "-Q":                                             // tell status server to quit right now, then end
-                case "--force-quit":
-                    setQuitStatusServer(true);
-                    this.operation = STATUS_SERVER_FORCE_QUIT;
-                    break;
-                case "-r":                                             // remote session
-                case "--remote":
-                    if (index <= args.length - 2)
-                    {
-                        setRemoteType(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -r must be followed by P|L|M|S|T, case-insensitive");
-                    }
-                    break;
-                case "-s":                                             // subscriber JSON libraries file
-                case "--subscriber-libraries":
-                    if (index <= args.length - 2)
-                    {
-                        setForceCollection(false);
-                        setRequestCollection(true);
-                        setSubscriberLibrariesFileName(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -s requires a subscriber libraries filename");
-                    }
-                    break;
-                case "-S":                                             // subscriber JSON collection items file
-                case "--subscriber-collection":
-                    if (index <= args.length - 2)
-                    {
-                        setForceCollection(true);
-                        setRequestCollection(false);
-                        setSubscriberCollectionFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -S requires an subscriber collection filename");
-                    }
-                    break;
-                case "-t":                                             // targets filename
-                case "--targets":
-                    setTargetsEnabled(true);
-                    setForceTargets(false);
-                    setRequestTargets(true);
-                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
-                    {
-                        setTargetsFilename(args[index + 1]);
-                        ++index;
-                    }
-                    break;
-                case "-T":                                             // targets filename - force to publisher
-                case "--force-targets":
-                    setTargetsEnabled(true);
-                    setForceTargets(true);
-                    setRequestTargets(false);
-                    if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
-                    {
-                        setTargetsFilename(args[index + 1]);
-                        ++index;
-                    }
-                    break;
-                case "-u":                                             // publisher duplicate check
-                case "--duplicates":
-                    setDuplicateCheck(true);
-                    break;
-                case "-v":                                             // validation run
-                case "--validate":
-                    setValidation(true);
-                    break;
-                case "--version":                                       // version
-                    System.out.println("");
-                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION + ", " + context.main.getBuildStamp());
-                    System.out.println("See the ELS wiki on GitHub for documentation at:");
-                    System.out.println("  https://github.com/GrokSoft/ELS/wiki");
-                    System.out.println("");
-                    System.exit(1); // exit on --version
-                    break;
-                case "-w":                                             // What's New output filename
-                case "--whatsnew":
-                    if (index <= args.length - 2)
-                    {
-                        setWhatsNewFilename(args[index + 1]);
-                        ++index;
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -w requires a What's New output filename");
-                    }
-                    break;
-                case "-W":                                             // What's New output filename, set "all" option
-                case "--whatsnew-all":
-                    if (index <= args.length - 2)
-                    {
-                        setWhatsNewFilename(args[index + 1]);
-                        ++index;
-                        setWhatsNewAll(true);
-                    }
-                    else
-                    {
-                        throw new MungeException("Error: -W requires a What's New output filename");
-                    }
-                    break;
-                case "-x":                                             // cross-library duplicate check
-                case "--cross-check":
-                    setCrossCheck(true);
-                    break;
-                case "-y":                                             // preserve file dates
-                case "--preserve-dates":
-                    setPreserveDates(true);
-                    break;
-                case "-z":                                             // scale long values with 1000 instead of 1024
-                case "--decimal-scale":
-                    setLongScale(false);
-                    break;
-                default:
-                    throw new MungeException("Error: unknown option: " + args[index]);
-            }
-        }
-    }
-
-    /**
      * Set the Authorization Keys filename
      *
      * @param authKeysFile
@@ -1740,11 +1723,6 @@ public class Configuration
     public void setNoBackFill(boolean noBackFill)
     {
         this.noBackFill = noBackFill == true ? 1 : 0;
-    }
-
-    public void setOperationName(String operationName)
-    {
-        this.operationName = operationName;
     }
 
     /**

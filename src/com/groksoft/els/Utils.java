@@ -171,6 +171,22 @@ public class Utils
     }
 
     /**
+     * Format an integer as a hexadecimal string
+     * @param value Integer to format
+     * @param width Desired total width with leading zeros
+     * @return Formatted hexadecimal string
+     */
+    public static synchronized String formatHex(int value, int width)
+    {
+        String result = Integer.toHexString(value);
+        while (result.length() < width)
+        {
+            result = "0" + result;
+        }
+        return result;
+    }
+
+    /**
      * Format an integer number with commas
      *
      * @param value

@@ -71,10 +71,11 @@ new FormModel {
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.generalPanel.tab.mnemonic" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
-							"$horizontalGroup": "par l {seq {space :::p, par l {seq {par l {comp lookFeelLabel::l:p:180:p, comp localeLabel::l:p:180:p, comp scaleLabel::l:p:180:p, seq l {comp dateFormatLabel:::p:96:p, space :p:12:p, comp dateInfoButton:::p::p}}, space :::p, par l {comp lookFeelComboBox::l:p:200:p, comp localeComboBox::l:p:200:p, comp scaleCheckBox::l:p:238:p, comp dateFormatTextField::l:p:200:p}}, seq l {comp hintButtonColorLabel:::p:180:p, space u:::p, comp textFieldHintButtonColor:::p:104:p, space :p:8:p, comp buttonChooseColor:::p::p}}, space ::17:x}}"
-							"$verticalGroup": "par l {seq l {space :0:0:p, par l {seq {comp lookFeelLabel:::p:36:p, space :0:0:p, comp localeLabel:::p:36:p, space :0:0:p, comp scaleLabel:::p:36:p, space :0:0:p, comp dateFormatLabel:::p:36:p}, seq {comp lookFeelComboBox:::p:36:p, space :0:0:p, comp localeComboBox:::p:36:p, space :0:0:p, comp scaleCheckBox:::p:36:p}, seq {space :p:111:p, par b {comp dateInfoButton::b:p::p, comp dateFormatTextField::b:p:36:p}}}, space :0:0:p, par b {comp hintButtonColorLabel::b:p:36:p, comp buttonChooseColor::b:p::p, comp textFieldHintButtonColor::b:p::p}, space :::p}}"
+							"$horizontalGroup": "par l {seq {space :::p, par l {seq {par l {comp lookFeelLabel::l:p:180:p, comp localeLabel::l:p:180:p, comp scaleLabel::l:p:180:p, seq l {comp dateFormatLabel:::p:96:p, space :p:12:p, comp dateInfoButton:::p::p}}, space :::p, par l {comp lookFeelComboBox::l:p:200:p, comp localeComboBox::l:p:200:p, comp scaleCheckBox::l:p:238:p, comp dateFormatTextField::l:p:200:p}}, seq l {comp accentColorButtonLabel:::p:180:p, space u:::p, comp textFieldAccentColor:::p:104:p, space :p:8:p, comp buttonChooseColor:::p::p}}, space ::17:x}}"
+							"$verticalGroup": "par l {seq l {space :0:0:p, par l {seq {comp lookFeelLabel:::p:36:p, space :0:0:p, comp localeLabel:::p:36:p, space :0:0:p, comp scaleLabel:::p:36:p, space :0:0:p, comp dateFormatLabel:::p:36:p}, seq {comp lookFeelComboBox:::p:36:p, space :0:0:p, comp localeComboBox:::p:36:p, space :0:0:p, comp scaleCheckBox:::p:36:p}, seq {space :p:111:p, par b {comp dateInfoButton::b:p::p, comp dateFormatTextField::b:p:36:p}}}, space :0:0:p, par b {comp accentColorButtonLabel::b:p:36:p, comp buttonChooseColor::b:p::p, comp textFieldAccentColor::b:p::p}, space :::p}}"
 						} ) {
 							name: "apperancePanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
@@ -122,8 +123,8 @@ new FormModel {
 								"text": "yyyy-MM-dd hh:mm:ss aa"
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
-								name: "hintButtonColorLabel"
-								"text": new FormMessage( null, "Settings.hintButton.ColorLabel.text" )
+								name: "accentColorButtonLabel"
+								"text": new FormMessage( null, "Settings.accentColorLabel.text" )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "dateInfoButton"
@@ -131,7 +132,7 @@ new FormModel {
 								"toolTipText": new FormMessage( null, "Settings.button.dateInfo.text.tooltip" )
 							} )
 							add( new FormComponent( "javax.swing.JTextField" ) {
-								name: "textFieldHintButtonColor"
+								name: "textFieldAccentColor"
 								"toolTipText": new FormMessage( null, "Settings.textField.HintButtonColor.toolTipText" )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
@@ -142,6 +143,7 @@ new FormModel {
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.appearance.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.apperancePanel.tab.mnemonic" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 							"$horizontalGroup": "par l {seq l {space :::p, par l {comp autoRefreshLabel::l:p:180:p, comp hideFilesInTreeLabel::l:p:180:p, comp hideHiddenFilesLabel::l:p:180:p, comp sortCaseSensitiveLabel::l:p:180:p, comp sortFoldersBeforeFilesLabel::l:p:180:p, comp sortReverseLabel::l:p:180:p, comp tabPlacementlabel::l:p:180:p}, space :p:12:p, par l {comp autoRefreshCheckBox::l:p:238:p, comp hideFilesInTreeCheckBox::l:p:238:p, comp hideHiddenFilesCheckBox::l:p:238:p, comp sortCaseSensitiveCheckBox::l:p:238:p, comp sortFoldersBeforeFilesCheckBox::l:p:238:p, comp sortReverseCheckBox::l:p:238:p, comp tabPlacementComboBox::l:p::p}, space :::x}}"
@@ -207,6 +209,7 @@ new FormModel {
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.browserPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.browserPanel.tab.mnemonic" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
 							"columns": 2
@@ -216,6 +219,7 @@ new FormModel {
 							name: "operationsPanel"
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.operationsPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.operationsPanel.tab.mnemonic" )
 						} )
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
 							"columns": 2
@@ -225,6 +229,7 @@ new FormModel {
 							name: "librariesPanel"
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.librariesPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.librariesPanel.tab.mnemonic" )
 						} )
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {

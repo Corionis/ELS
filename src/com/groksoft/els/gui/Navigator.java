@@ -47,9 +47,7 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 
 public class Navigator
 {
@@ -264,7 +262,6 @@ public class Navigator
 */
 
         }
-
         return !guiContext.context.fault;
     }
 
@@ -714,7 +711,7 @@ public class Navigator
         //
         // -- Edit Menu
         // ---
-        // Find
+        // Find in Log
         AbstractAction findAction = new AbstractAction()
         {
             @Override
@@ -767,6 +764,9 @@ public class Navigator
             }
         };
         guiContext.mainFrame.menuItemFind.addActionListener(findAction);
+        guiContext.mainFrame.popupMenuItemFind.addActionListener(findAction);
+        guiContext.mainFrame.popupMenuItemOperationFind.addActionListener(findAction);
+
         // ---
         // Find Next
         AbstractAction findNextAction = new AbstractAction()
@@ -774,53 +774,59 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (lastFindTab < 0)
+                if (lastFindTab < 0 || lastFindString.length() == 0)
                     return;
                 String content;
                 if (lastFindTab == 0)
                     content = guiContext.mainFrame.textAreaLog.getText().toLowerCase();
                 else
                     content = guiContext.mainFrame.textAreaOperationLog.getText().toLowerCase();
-                lastFindPosition = content.indexOf(lastFindString.toLowerCase(), lastFindPosition);
-                if (lastFindPosition > 0)
+                if (content != null && content.length() > 0)
                 {
-                    if (lastFindTab == 0)
+                    lastFindPosition = content.indexOf(lastFindString.toLowerCase(), lastFindPosition);
+                    if (lastFindPosition > 0)
                     {
-                        guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                        guiContext.mainFrame.textAreaLog.requestFocus();
-                        try
+                        if (lastFindTab == 0)
                         {
-                            Rectangle rect = guiContext.mainFrame.textAreaLog.modelToView(lastFindPosition);
-                            guiContext.mainFrame.textAreaLog.scrollRectToVisible(rect);
+                            guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                            guiContext.mainFrame.textAreaLog.requestFocus();
+                            try
+                            {
+                                Rectangle rect = guiContext.mainFrame.textAreaLog.modelToView(lastFindPosition);
+                                guiContext.mainFrame.textAreaLog.scrollRectToVisible(rect);
+                            }
+                            catch (Exception e)
+                            {
+                                System.out.println("bad scroll position");
+                            }
+                            guiContext.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
+                            guiContext.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
                         }
-                        catch (Exception e)
+                        else
                         {
-                            System.out.println("bad scroll position");
+                            guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                            guiContext.mainFrame.textAreaOperationLog.requestFocus();
+                            try
+                            {
+                                Rectangle rect = guiContext.mainFrame.textAreaOperationLog.modelToView(lastFindPosition);
+                                guiContext.mainFrame.textAreaOperationLog.scrollRectToVisible(rect);
+                            }
+                            catch (Exception e)
+                            {
+                                System.out.println("bad scroll position");
+                            }
+                            guiContext.mainFrame.textAreaOperationLog.setSelectionStart(lastFindPosition);
+                            guiContext.mainFrame.textAreaOperationLog.setSelectionEnd(lastFindPosition + lastFindString.length());
                         }
-                        guiContext.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
-                        guiContext.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                        lastFindPosition += lastFindString.length();
                     }
-                    else
-                    {
-                        guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(1);
-                        guiContext.mainFrame.textAreaOperationLog.requestFocus();
-                        try
-                        {
-                            Rectangle rect = guiContext.mainFrame.textAreaOperationLog.modelToView(lastFindPosition);
-                            guiContext.mainFrame.textAreaOperationLog.scrollRectToVisible(rect);
-                        }
-                        catch (Exception e)
-                        {
-                            System.out.println("bad scroll position");
-                        }
-                        guiContext.mainFrame.textAreaOperationLog.setSelectionStart(lastFindPosition);
-                        guiContext.mainFrame.textAreaOperationLog.setSelectionEnd(lastFindPosition + lastFindString.length());
-                    }
-                    lastFindPosition += lastFindString.length();
                 }
             }
         };
         guiContext.mainFrame.menuItemFindNext.addActionListener(findNextAction);
+        guiContext.mainFrame.popupMenuItemFindNext.addActionListener(findNextAction);
+        guiContext.mainFrame.popupMenuItemOperationFindNext.addActionListener(findNextAction);
+
         // ---
         // New Folder
         AbstractAction newFolderAction = new AbstractAction()
@@ -1278,17 +1284,32 @@ public class Navigator
 
         // ---
         // Word Wrap Log
-        guiContext.mainFrame.menuItemWordWrap.addActionListener(new AbstractAction()
+        ActionListener wordWrapAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                boolean selected = false;
+                if (actionEvent.getSource() == guiContext.mainFrame.menuItemWordWrap)
+                    selected = guiContext.mainFrame.menuItemWordWrap.isSelected();
+                if (actionEvent.getSource() == guiContext.mainFrame.popupCheckBoxMenuItemWordWrap)
+                    selected = guiContext.mainFrame.popupCheckBoxMenuItemWordWrap.isSelected();
+                if (actionEvent.getSource() == guiContext.mainFrame.popupCheckBoxMenuItemOperationWordWrap)
+                    selected = guiContext.mainFrame.popupCheckBoxMenuItemOperationWordWrap.isSelected();
+                guiContext.mainFrame.menuItemWordWrap.setSelected(selected);
+                guiContext.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(selected);
+                guiContext.mainFrame.popupCheckBoxMenuItemOperationWordWrap.setSelected(selected);
                 guiContext.mainFrame.textAreaLog.setLineWrap(guiContext.mainFrame.menuItemWordWrap.isSelected());
                 guiContext.mainFrame.textAreaOperationLog.setLineWrap(guiContext.mainFrame.menuItemWordWrap.isSelected());
             }
-        });
+        };
         // set initial state of Word Wrap Log
         guiContext.mainFrame.menuItemWordWrap.setSelected(true);
+        guiContext.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(true);
+        guiContext.mainFrame.popupCheckBoxMenuItemOperationWordWrap.setSelected(true);
+        guiContext.mainFrame.menuItemWordWrap.addActionListener(wordWrapAction);
+        guiContext.mainFrame.popupCheckBoxMenuItemWordWrap.addActionListener(wordWrapAction);
+        guiContext.mainFrame.popupCheckBoxMenuItemOperationWordWrap.addActionListener(wordWrapAction);
 
         // -- Bookmarks Menu
         //
@@ -1688,8 +1709,9 @@ public class Navigator
             for (int i = 0; i < count; ++i)
             {
                 JMenuItem item = new JMenuItem(bookmarks.get(i).name);
-                item.setHorizontalTextPosition(SwingConstants.RIGHT);
                 item.setHorizontalAlignment(SwingConstants.LEADING);
+                item.setHorizontalTextPosition(SwingConstants.TRAILING);
+                item.setMargin(new Insets(2, 18, 2, 2));
                 item.addActionListener(new AbstractAction()
                 {
                     @Override
@@ -1776,8 +1798,9 @@ public class Navigator
                 for (int i = 0; i < jobs.length; ++i)
                 {
                     JMenuItem item = new JMenuItem(jobs[i].getConfigName());
-                    item.setHorizontalTextPosition(SwingConstants.RIGHT);
                     item.setHorizontalAlignment(SwingConstants.LEADING);
+                    item.setHorizontalTextPosition(SwingConstants.TRAILING);
+                    item.setMargin(new Insets(2, 18, 2, 2));
                     item.addActionListener(new AbstractAction()
                     {
                         @Override
@@ -2108,6 +2131,10 @@ public class Navigator
             }
             catch (Exception e)
             {
+                logger.error(Utils.getStackTrace(e));
+                JOptionPane.showMessageDialog(guiContext.mainFrame,
+                        guiContext.cfg.gs("Z.exception") + e.getMessage(),
+                        guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
             guiContext.mainFrame.setVisible(false);
             guiContext.mainFrame.dispose();

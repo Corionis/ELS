@@ -10,9 +10,13 @@ import com.groksoft.els.Utils;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class Preferences implements Serializable
 {
+    private String accentColor = "2675BF";
     private int appHeight = 640;
     private int appWidth = 1024;
     private int appXpos = -1;
@@ -26,16 +30,19 @@ public class Preferences implements Serializable
     private int collectionOneDividerLocation = 150;
     private int collectionOneNameWidth = 128;
     private int collectionOneSizeWidth = 80;
+    private int collectionOneSortColumn = -1;
+    private int collectionOneSortDirection = 0;
     private int collectionTwoDateWidth = 80;
     private int collectionTwoDividerLocation = 150;
     private int collectionTwoNameWidth = 128;
     private int collectionTwoSizeWidth = 80;
+    private int collectionTwoSortColumn = -1;
+    private int collectionTwoSortDirection = 0;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
     private boolean generateLongOptions = false;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
-    private String hintTrackingColor = "336633";
     private int jobsHeight = 470;
     private int jobsOriginDividerLocation = 142;
     private int jobsTaskDividerLocation = 142;
@@ -74,10 +81,14 @@ public class Preferences implements Serializable
     private int systemOneDividerLocation = 152;
     private int systemOneNameWidth = 128;
     private int systemOneSizeWidth = 80;
+    private int systemOneSortColumn = -1;
+    private int systemOneSortDirection = 0;
     private int systemTwoDateWidth = 80;
     private int systemTwoDividerLocation = 152;
     private int systemTwoNameWidth = 128;
     private int systemTwoSizeWidth = 80;
+    private int systemTwoSortColumn = -1;
+    private int systemTwoSortDirection = 0;
     private int tabPlacement = JTabbedPane.LEFT;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
@@ -99,6 +110,7 @@ public class Preferences implements Serializable
     private int toolsRenamerYpos = -1;
     private transient Configuration cfg;
     private transient Context context;
+
 
     /**
      * Constructor
@@ -203,6 +215,7 @@ public class Preferences implements Serializable
                 guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getCollectionOneSizeWidth());
                 guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getCollectionOneDateWidth());
                 guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getCollectionOneDateWidth());
+                setTableSort(guiContext.mainFrame.tableCollectionOne, getCollectionOneSortColumn(), getCollectionOneSortDirection());
             }
         }
 
@@ -217,6 +230,7 @@ public class Preferences implements Serializable
                 guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getCollectionTwoSizeWidth());
                 guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getCollectionTwoDateWidth());
                 guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getCollectionTwoDateWidth());
+                setTableSort(guiContext.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
             }
         }
 
@@ -231,6 +245,7 @@ public class Preferences implements Serializable
                 guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getSystemOneSizeWidth());
                 guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getSystemOneDateWidth());
                 guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getSystemOneDateWidth());
+                setTableSort(guiContext.mainFrame.tableSystemOne, getSystemOneSortColumn(), getSystemOneSortDirection());
             }
         }
 
@@ -245,8 +260,14 @@ public class Preferences implements Serializable
                 guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getSystemTwoSizeWidth());
                 guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getSystemTwoDateWidth());
                 guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getSystemTwoDateWidth());
+                setTableSort(guiContext.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
             }
         }
+    }
+
+    public String getAccentColor()
+    {
+        return accentColor;
     }
 
     public int getAppHeight()
@@ -304,6 +325,16 @@ public class Preferences implements Serializable
         return collectionOneSizeWidth;
     }
 
+    public int getCollectionOneSortColumn()
+    {
+        return collectionOneSortColumn;
+    }
+
+    public int getCollectionOneSortDirection()
+    {
+        return collectionOneSortDirection;
+    }
+
     public int getCollectionTwoDateWidth()
     {
         return collectionTwoDateWidth;
@@ -324,6 +355,16 @@ public class Preferences implements Serializable
         return collectionTwoSizeWidth;
     }
 
+    public int getCollectionTwoSortColumn()
+    {
+        return collectionTwoSortColumn;
+    }
+
+    public int getCollectionTwoSortDirection()
+    {
+        return collectionTwoSortDirection;
+    }
+
     public String getDateFormat()
     {
         return dateFormat;
@@ -335,11 +376,6 @@ public class Preferences implements Serializable
                 ".els" + System.getProperty("file.separator") +
                 "preferences.json";
         return path;
-    }
-
-    public String getHintTrackingColor()
-    {
-        return hintTrackingColor;
     }
 
     public int getJobsHeight()
@@ -464,6 +500,16 @@ public class Preferences implements Serializable
         return systemOneSizeWidth;
     }
 
+    public int getSystemOneSortColumn()
+    {
+        return systemOneSortColumn;
+    }
+
+    public int getSystemOneSortDirection()
+    {
+        return systemOneSortDirection;
+    }
+
     public int getSystemTwoDateWidth()
     {
         return systemTwoDateWidth;
@@ -482,6 +528,16 @@ public class Preferences implements Serializable
     public int getSystemTwoSizeWidth()
     {
         return systemTwoSizeWidth;
+    }
+
+    public int getSystemTwoSortColumn()
+    {
+        return systemTwoSortColumn;
+    }
+
+    public int getSystemTwoSortDirection()
+    {
+        return systemTwoSortDirection;
     }
 
     public int getTabPlacement()
@@ -514,6 +570,30 @@ public class Preferences implements Serializable
     public int getTabPlacementIndex()
     {
         return tabPlacement;
+    }
+
+    public SortMeta getTableSort(JTable table)
+    {
+        SortMeta sortMeta = null;
+        List<? extends RowSorter.SortKey> rowSorter = table.getRowSorter().getSortKeys();
+        Iterator<? extends RowSorter.SortKey> it = rowSorter.iterator();
+        while (it.hasNext())
+        {
+            RowSorter.SortKey sortKey = it.next();
+            if (sortKey.getSortOrder().compareTo(SortOrder.UNSORTED) != 0)
+            {
+                int direction = 0;
+                if (sortKey.getSortOrder().compareTo(SortOrder.ASCENDING) == 0)
+                    direction = 1;
+                else if (sortKey.getSortOrder().compareTo(SortOrder.DESCENDING) == 0)
+                    direction = -1;
+                sortMeta = new SortMeta(sortKey.getColumn(), direction);
+                break;
+            }
+        }
+        if (sortMeta == null)
+            sortMeta = new SortMeta(1, 0);
+        return sortMeta;
     }
 
     public int getToolsDuplicateFinderHeight()
@@ -681,6 +761,11 @@ public class Preferences implements Serializable
         return sortReverse;
     }
 
+    public void setAccentColor(String accentColor)
+    {
+        this.accentColor = accentColor;
+    }
+
     public void setAppHeight(int appHeight)
     {
         this.appHeight = appHeight;
@@ -751,6 +836,16 @@ public class Preferences implements Serializable
         this.collectionOneSizeWidth = collectionOneSizeWidth;
     }
 
+    public void setCollectionOneSortColumn(int collectionOneSortColumn)
+    {
+        this.collectionOneSortColumn = collectionOneSortColumn;
+    }
+
+    public void setCollectionOneSortDirection(int collectionOneSortDirection)
+    {
+        this.collectionOneSortDirection = collectionOneSortDirection;
+    }
+
     public void setCollectionTwoDateWidth(int collectionTwoDateWidth)
     {
         this.collectionTwoDateWidth = collectionTwoDateWidth;
@@ -771,6 +866,16 @@ public class Preferences implements Serializable
         this.collectionTwoSizeWidth = collectionTwoSizeWidth;
     }
 
+    public void setCollectionTwoSortColumn(int collectionTwoSortColumn)
+    {
+        this.collectionTwoSortColumn = collectionTwoSortColumn;
+    }
+
+    public void setCollectionTwoSortDirection(int collectionTwoSortDirection)
+    {
+        this.collectionTwoSortDirection = collectionTwoSortDirection;
+    }
+
     public void setDateFormat(String dateFormat)
     {
         this.dateFormat = dateFormat;
@@ -789,11 +894,6 @@ public class Preferences implements Serializable
     public void setHideHiddenFiles(boolean hideHiddenFiles)
     {
         this.hideHiddenFiles = hideHiddenFiles;
-    }
-
-    public void setHintTrackingColor(String hintTrackingColor)
-    {
-        this.hintTrackingColor = hintTrackingColor;
     }
 
     public void setJobsHeight(int jobsHeight)
@@ -966,6 +1066,16 @@ public class Preferences implements Serializable
         this.systemOneSizeWidth = systemOneSizeWidth;
     }
 
+    public void setSystemOneSortColumn(int systemOneSortColumn)
+    {
+        this.systemOneSortColumn = systemOneSortColumn;
+    }
+
+    public void setSystemOneSortDirection(int systemOneSortDirection)
+    {
+        this.systemOneSortDirection = systemOneSortDirection;
+    }
+
     public void setSystemTwoDateWidth(int systemTwoDateWidth)
     {
         this.systemTwoDateWidth = systemTwoDateWidth;
@@ -986,9 +1096,29 @@ public class Preferences implements Serializable
         this.systemTwoSizeWidth = systemTwoSizeWidth;
     }
 
+    public void setSystemTwoSortColumn(int systemTwoSortColumn)
+    {
+        this.systemTwoSortColumn = systemTwoSortColumn;
+    }
+
+    public void setSystemTwoSortDirection(int systemTwoSortDirection)
+    {
+        this.systemTwoSortDirection = systemTwoSortDirection;
+    }
+
     public void setTabPlacement(int tabPlacement)
     {
         this.tabPlacement = tabPlacement;
+    }
+
+    public void setTableSort(JTable table, int column, int direction)
+    {
+        DefaultRowSorter rowSorter = (DefaultRowSorter) table.getRowSorter();
+        SortOrder so = (direction == 1) ? SortOrder.ASCENDING : (direction == -1) ? SortOrder.DESCENDING : SortOrder.UNSORTED;
+        RowSorter.SortKey sortKey = new RowSorter.SortKey(column, so);
+        ArrayList<RowSorter.SortKey> list = new ArrayList<>();
+        list.add(sortKey);
+        rowSorter.setSortKeys(list);
     }
 
     public void setToolsDuplicateFinderHeight(int toolsDuplicateFinderHeight)
@@ -1100,10 +1230,27 @@ public class Preferences implements Serializable
 //        browserBottomSize = pos;
         centerDividerOrientation = guiContext.mainFrame.splitPaneTwoBrowsers.getOrientation();
         centerDividerLocation = guiContext.mainFrame.splitPaneTwoBrowsers.getDividerLocation();
+
+        SortMeta sortMeta;
         collectionOneDividerLocation = guiContext.mainFrame.splitPaneCollectionOne.getDividerLocation();
+        sortMeta = getTableSort(guiContext.mainFrame.tableCollectionOne);
+        collectionOneSortColumn = sortMeta.column;
+        collectionOneSortDirection = sortMeta.direction;
+
         systemOneDividerLocation = guiContext.mainFrame.splitPaneSystemOne.getDividerLocation();
+        sortMeta = getTableSort(guiContext.mainFrame.tableSystemOne);
+        systemOneSortColumn = sortMeta.column;
+        systemOneSortDirection = sortMeta.direction;
+
         collectionTwoDividerLocation = guiContext.mainFrame.splitPaneCollectionTwo.getDividerLocation();
+        sortMeta = getTableSort(guiContext.mainFrame.tableCollectionTwo);
+        collectionTwoSortColumn = sortMeta.column;
+        collectionTwoSortDirection = sortMeta.direction;
+
         systemTwoDividerLocation = guiContext.mainFrame.splitPaneSystemTwo.getDividerLocation();
+        sortMeta = getTableSort(guiContext.mainFrame.tableSystemTwo);
+        systemTwoSortColumn = sortMeta.column;
+        systemTwoSortDirection = sortMeta.direction;
 
         // all columns
         extractColumnSizes(guiContext, null);
@@ -1126,6 +1273,20 @@ public class Preferences implements Serializable
         catch (FileNotFoundException fnf)
         {
             throw new MungeException("Error writing: " + getFullPath() + " trace: " + Utils.getStackTrace(fnf));
+        }
+    }
+
+    // ================================================================================================================
+
+    private class SortMeta
+    {
+        int column = -1;
+        int direction = 0;
+
+        public SortMeta(int column, int direction)
+        {
+            this.column = column;
+            this.direction = direction;
         }
     }
 
