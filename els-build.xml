@@ -91,14 +91,14 @@
     </fileset>
     <pathelement location="${basedir}/lib/commons-io-2.11.0.jar"/>
     <pathelement location="${basedir}/lib/commons-lang3-3.12.0.jar"/>
-    <pathelement location="${basedir}/lib/flatlaf-2.4.jar"/>
-    <pathelement location="${basedir}/lib/gson-2.8.0.jar"/>
+    <pathelement location="${basedir}/lib/flatlaf-3.0.jar"/>
+    <pathelement location="${basedir}/lib/gson-2.10.0.jar"/>
     <pathelement location="${basedir}/lib/guava-30.0-jre.jar"/>
     <pathelement location="${basedir}/lib/javax.activation-1.2.0.jar"/>
     <pathelement location="${basedir}/lib/jsch-0.1.55.jar"/>
-    <pathelement location="${basedir}/lib/log4j-api-2.16.0.jar"/>
-    <pathelement location="${basedir}/lib/log4j-core-2.16.0.jar"/>
-    <pathelement location="${basedir}/lib/log4j-slf4j18-impl-2.16.0.jar"/>
+    <pathelement location="${basedir}/lib/log4j-api-2.19.0.jar"/>
+    <pathelement location="${basedir}/lib/log4j-core-2.19.0.jar"/>
+    <pathelement location="${basedir}/lib/log4j-slf4j18-impl-2.19.0.jar"/>
     <pathelement location="${basedir}/lib/mina-core-2.0.21.jar"/>
     <pathelement location="${basedir}/lib/slf4j-api-1.7.9.jar"/>
     <pathelement location="${basedir}/lib/slf4j-simple-1.7.9.jar"/>
@@ -301,7 +301,7 @@
     </ant>
     <jar destfile="${temp.jar.path.ELS.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
       <zipfileset dir="${els.output.dir}"/>
-      <zipfileset src="${basedir}/lib/gson-2.8.0.jar"/>
+      <zipfileset src="${basedir}/lib/gson-2.10.0.jar"/>
       <zipfileset file="${basedir}/lib/log4j2.xml"/>
       <zipfileset src="${basedir}/lib/guava-30.0-jre.jar"/>
       <zipfileset src="${basedir}/lib/mina-core-2.0.21.jar"/>
@@ -311,14 +311,14 @@
       <zipfileset src="${basedir}/lib/sshd-sftp-2.5.1.jar"/>
       <zipfileset src="${basedir}/lib/jsch-0.1.55.jar"/>
       <zipfileset src="${basedir}/lib/commons-lang3-3.12.0.jar"/>
-      <zipfileset src="${basedir}/lib/log4j-api-2.16.0.jar"/>
-      <zipfileset src="${basedir}/lib/log4j-core-2.16.0.jar"/>
-      <zipfileset src="${basedir}/lib/log4j-slf4j18-impl-2.16.0.jar"/>
+      <zipfileset src="${basedir}/lib/log4j-api-2.19.0.jar"/>
+      <zipfileset src="${basedir}/lib/log4j-core-2.19.0.jar"/>
+      <zipfileset src="${basedir}/lib/log4j-slf4j18-impl-2.19.0.jar"/>
       <zipfileset src="${basedir}/lib/slf4j-api-1.7.9.jar"/>
       <zipfileset src="${basedir}/lib/slf4j-simple-1.7.9.jar"/>
       <zipfileset src="${basedir}/lib/commons-io-2.11.0.jar"/>
       <zipfileset src="${basedir}/lib/javax.activation-1.2.0.jar"/>
-      <zipfileset src="${basedir}/lib/flatlaf-2.4.jar"/>
+      <zipfileset src="${basedir}/lib/flatlaf-3.0.jar"/>
     </jar>
     <copy file="${temp.jar.path.ELS.jar}" tofile="${artifact.temp.output.els:jar}/ELS.jar"/>
   </target>
