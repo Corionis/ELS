@@ -431,7 +431,7 @@ public class ClientStty
      * Receive a response from the other end
      *
      * @param log Line to be logged, if any
-     * @param timeout Timeout for operations in milliseconds
+     * @param timeout Timeout for operationsUI in milliseconds
      * @return String of response text
      * @throws Exception
      */
@@ -472,7 +472,7 @@ public class ClientStty
      *
      * @param message The command to send
      * @param log Line to be logged, if any
-     * @param timeout Timeout for operations in milliseconds
+     * @param timeout Timeout for operationsUI in milliseconds
      * @return The resulting date-stamped file path
      * @throws Exception
      */
@@ -525,7 +525,7 @@ public class ClientStty
      *
      * @param message The command to send
      * @param log The line to be logged, if any
-     * @param timeout Timeout for operations
+     * @param timeout Timeout for operationsUI
      * @return String of the response
      * @throws Exception
      */

@@ -326,7 +326,7 @@ public class Task implements Comparable, Serializable
 
             type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
             config.setRemoteType(type);
-            config.setPublishOperation(false);  // TODO Change when Operations tool added
+            config.setPublishOperation(false);  // TODO Change when OperationsUI tool added
 
             if (isSubscriberRemote())
             {

@@ -14,7 +14,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
- * Process class where the primary operations are executed.
+ * Process class where the primary operationsUI are executed.
  */
 public class Process
 {

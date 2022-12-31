@@ -292,6 +292,16 @@ public class Utils
     }
 
     /**
+     * Get the home directory for ELS
+     *
+     * @return Path to ELS home, no trailing separator
+     */
+    public static String getElsHome()
+    {
+        return System.getProperty("user.home") + System.getProperty("file.separator") + ".els";
+    }
+
+    /**
      * Parse file extension from filename
      *
      * @param name Filename to parse
@@ -646,6 +656,21 @@ public class Utils
                 !path.contains("|"))
             return true;
         return false;
+    }
+
+    /**
+     * Is the path relative or absolute?
+     *
+     * @param path Path to check
+     * @return true if a relative path, false if an absolute path
+     */
+    public static boolean isRelativePath(String path)
+    {
+        if (path.matches("^[a-zA-Z]:"))
+            return false;
+        if (path.startsWith("/") || path.startsWith("\\"))
+            return false;
+        return true;
     }
 
     /**

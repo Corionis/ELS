@@ -2,7 +2,7 @@ package com.groksoft.els.gui;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
-import com.groksoft.els.gui.operations.Operations;
+import com.groksoft.els.gui.operations.OperationsUI;
 import com.groksoft.els.gui.browser.Browser;
 
 /**
@@ -17,7 +17,7 @@ public class GuiContext
     // Navigator-related
     public Navigator navigator;
     public Browser browser;
-    public Operations operations = null;
+    public OperationsUI operationsUI = null;
     public MainFrame mainFrame;
     public Preferences preferences;
     public Progress progress;

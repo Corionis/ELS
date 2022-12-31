@@ -1401,10 +1401,10 @@ public class RenamerUI extends JDialog
                         scrollPaneConfig.setPreferredSize(new Dimension(142, 146));
 
                         //---- configItems ----
-                        configItems.setPreferredSize(new Dimension(128, 54));
                         configItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         configItems.setShowVerticalLines(false);
                         configItems.setFillsViewportHeight(true);
+                        configItems.setShowHorizontalLines(false);
                         configItems.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
@@ -1447,7 +1447,7 @@ public class RenamerUI extends JDialog
                                     //---- labelRenameType ----
                                     labelRenameType.setText("Rename Type");
                                     labelRenameType.setMaximumSize(new Dimension(110, 16));
-                                    labelRenameType.setFont(labelRenameType.getFont().deriveFont(labelRenameType.getFont().getSize() + 1f));
+                                    labelRenameType.setFont(labelRenameType.getFont().deriveFont(labelRenameType.getFont().getStyle() | Font.BOLD, labelRenameType.getFont().getSize() + 1f));
                                     labelRenameType.setPreferredSize(new Dimension(110, 16));
                                     labelRenameType.setMinimumSize(new Dimension(110, 16));
                                     panelRenameType.add(labelRenameType);

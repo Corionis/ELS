@@ -45,9 +45,9 @@ public class MainFrame extends JFrame
 
         try
         {
-            UIManager.put( "ScrollBar.showButtons", true );
-            UIManager.put( "Component.hideMnemonics", false );
-            UIManager.put( "TabbedPane.showTabSeparators", true );
+            UIManager.put( "ScrollBar.showButtons", true ); // show scrollbar up/down buttons
+            UIManager.put( "Component.hideMnemonics", false ); // show/hide mnemonic letters
+            UIManager.put( "TabbedPane.showTabSeparators", true ); // separators between tabs
 //            UIManager.put( "TabbedPane.tabSeparatorsFullHeight", true );
 
             if (guiContext.preferences.getLookAndFeel() == 0)
@@ -183,7 +183,7 @@ public class MainFrame extends JFrame
     private boolean changesCheckAll()
     {
         boolean changes = false;
-        if (guiContext.operations.checkForChanges())
+        if (guiContext.operationsUI.checkForChanges())
             changes = true;
         else if (guiContext.navigator.dialogJunkRemover != null && guiContext.navigator.dialogJunkRemover.checkForChanges())
             changes = true;
@@ -197,7 +197,7 @@ public class MainFrame extends JFrame
     private void changesGotoUnsaved()
     {
         boolean changes = false;
-        if (guiContext.operations.checkForChanges())
+        if (guiContext.operationsUI.checkForChanges())
         {
             tabbedPaneMain.setSelectedIndex(1);
             buttonOperationSave.requestFocus();
@@ -369,7 +369,6 @@ public class MainFrame extends JFrame
         menuItemOpenPublisher = new JMenuItem();
         menuItemOpenSubscriber = new JMenuItem();
         menuItemOpenHintKeys = new JMenuItem();
-        menuItemOpenHintServer = new JMenuItem();
         menuItemSaveLayout = new JMenuItem();
         menuItemQuitTerminate = new JMenuItem();
         menuItemFileQuit = new JMenuItem();
@@ -417,6 +416,7 @@ public class MainFrame extends JFrame
         menuHelp = new JMenu();
         menuItemControls = new JMenuItem();
         menuItemDocumentation = new JMenuItem();
+        menuItemGettingStarted = new JMenuItem();
         menuItemGitHubProject = new JMenuItem();
         menuItemUpdates = new JMenuItem();
         menuItemAbout = new JMenuItem();
@@ -497,18 +497,16 @@ public class MainFrame extends JFrame
         panelCardPublisher = new JPanel();
         labelOperationNavigatorCheckbox = new JLabel();
         checkBoxOperationNavigator = new JCheckBox();
-        vSpacer3 = new JPanel(null);
         panelOperationIncludeExcludeBox = new JPanel();
-        vSpacer8 = new JPanel(null);
         scrollPaneOperationIncludeExclude = new JScrollPane();
-        listOperationIncludeExclude = new JList();
+        listOperationIncludeExclude = new JList<>();
         panelOperationIncludeExcludeButtons = new JPanel();
         buttonOperationAddIncludeExclude = new JButton();
         buttonOperationRemoveIncludeExclude = new JButton();
         labelOperationIncludeExclude = new JLabel();
         labelOperationJob = new JLabel();
         textFieldOperationJob = new JTextField();
-        buttonOperationJobFilePick = new JButton();
+        buttonOperationJobPick = new JButton();
         vSpacer4 = new JPanel(null);
         labelOperationTargets = new JLabel();
         textFieldOperationTargets = new JTextField();
@@ -657,12 +655,6 @@ public class MainFrame extends JFrame
                 menuItemOpenHintKeys.setSelected(true);
                 menuItemOpenHintKeys.setMnemonic(guiContext.cfg.gs("Navigator.menu.OpenHintKeys.mnemonic").charAt(0));
                 menuFile.add(menuItemOpenHintKeys);
-
-                //---- menuItemOpenHintServer ----
-                menuItemOpenHintServer.setText(guiContext.cfg.gs("Navigator.menu.OpenHintServer.text"));
-                menuItemOpenHintServer.setMnemonic(guiContext.cfg.gs("Navigator.menu.OpenHintServer.mnemonic").charAt(0));
-                menuItemOpenHintServer.setEnabled(false);
-                menuFile.add(menuItemOpenHintServer);
                 menuFile.addSeparator();
 
                 //---- menuItemSaveLayout ----
@@ -951,6 +943,11 @@ public class MainFrame extends JFrame
                 menuItemDocumentation.setMnemonic(guiContext.cfg.gs("Navigator.menu.Documentation.mnemonic").charAt(0));
                 menuItemDocumentation.setToolTipText(guiContext.cfg.gs("Navigator.menuItemDocumentation.toolTipText"));
                 menuHelp.add(menuItemDocumentation);
+
+                //---- menuItemGettingStarted ----
+                menuItemGettingStarted.setText(guiContext.cfg.gs("Navigator.menuItemGettingStarted.text"));
+                menuItemGettingStarted.setEnabled(false);
+                menuHelp.add(menuItemGettingStarted);
 
                 //---- menuItemGitHubProject ----
                 menuItemGitHubProject.setText(guiContext.cfg.gs("Navigator.menu.GitHubProject.text"));
@@ -1377,7 +1374,7 @@ public class MainFrame extends JFrame
                             textAreaLog.setMinimumSize(new Dimension(0, 0));
                             textAreaLog.setComponentPopupMenu(popupMenuLog);
                             textAreaLog.setVerifyInputWhenFocusTarget(false);
-                            textAreaLog.setFont(new Font("Ubuntu Mono", Font.PLAIN, 14));
+                            textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 14));
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(guiContext.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
@@ -1498,7 +1495,6 @@ public class MainFrame extends JFrame
                                 scrollPaneOperationConfig.setPreferredSize(new Dimension(142, 146));
 
                                 //---- operationConfigItems ----
-                                operationConfigItems.setPreferredSize(new Dimension(128, 54));
                                 operationConfigItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                                 operationConfigItems.setShowVerticalLines(false);
                                 operationConfigItems.setFillsViewportHeight(true);
@@ -1540,7 +1536,7 @@ public class MainFrame extends JFrame
 
                                             //---- labelOperationMode ----
                                             labelOperationMode.setMaximumSize(new Dimension(800, 16));
-                                            labelOperationMode.setFont(labelOperationMode.getFont().deriveFont(labelOperationMode.getFont().getSize() + 1f));
+                                            labelOperationMode.setFont(labelOperationMode.getFont().deriveFont(labelOperationMode.getFont().getStyle() | Font.BOLD, labelOperationMode.getFont().getSize() + 1f));
                                             labelOperationMode.setPreferredSize(new Dimension(800, 16));
                                             labelOperationMode.setMinimumSize(new Dimension(110, 16));
                                             panelOperationMode.add(labelOperationMode);
@@ -1574,41 +1570,45 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationNavigator ----
                                             checkBoxOperationNavigator.setName("navigator");
-                                            checkBoxOperationNavigator.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationNavigator.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationNavigator, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- vSpacer3 ----
-                                            vSpacer3.setMinimumSize(new Dimension(10, 30));
-                                            vSpacer3.setPreferredSize(new Dimension(20, 30));
-                                            vSpacer3.setMaximumSize(new Dimension(20, 30));
-                                            panelCardPublisher.add(vSpacer3, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //======== panelOperationIncludeExcludeBox ========
                                             {
+                                                panelOperationIncludeExcludeBox.setPreferredSize(new Dimension(240, 120));
+                                                panelOperationIncludeExcludeBox.setMinimumSize(new Dimension(168, 120));
                                                 panelOperationIncludeExcludeBox.setLayout(new BoxLayout(panelOperationIncludeExcludeBox, BoxLayout.Y_AXIS));
-
-                                                //---- vSpacer8 ----
-                                                vSpacer8.setMinimumSize(new Dimension(12, 4));
-                                                panelOperationIncludeExcludeBox.add(vSpacer8);
 
                                                 //======== scrollPaneOperationIncludeExclude ========
                                                 {
+                                                    scrollPaneOperationIncludeExclude.setPreferredSize(new Dimension(52, 120));
 
                                                     //---- listOperationIncludeExclude ----
-                                                    listOperationIncludeExclude.setMinimumSize(new Dimension(60, 32));
-                                                    listOperationIncludeExclude.setPreferredSize(new Dimension(240, 32));
+                                                    listOperationIncludeExclude.setName("includeexclude");
                                                     listOperationIncludeExclude.setVisibleRowCount(5);
-                                                    listOperationIncludeExclude.setMaximumSize(new Dimension(5280, 54));
+                                                    listOperationIncludeExclude.setModel(new AbstractListModel<String>() {
+                                                        String[] values = {
+                                                            "Item 1",
+                                                            "Item 2",
+                                                            "Item 3",
+                                                            "Item 4",
+                                                            "Item 5",
+                                                            "Item 6"
+                                                        };
+                                                        @Override
+                                                        public int getSize() { return values.length; }
+                                                        @Override
+                                                        public String getElementAt(int i) { return values[i]; }
+                                                    });
                                                     scrollPaneOperationIncludeExclude.setViewportView(listOperationIncludeExclude);
                                                 }
                                                 panelOperationIncludeExcludeBox.add(scrollPaneOperationIncludeExclude);
 
                                                 //======== panelOperationIncludeExcludeButtons ========
                                                 {
+                                                    panelOperationIncludeExcludeButtons.setPreferredSize(new Dimension(250, 28));
                                                     panelOperationIncludeExcludeButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                                                     //---- buttonOperationAddIncludeExclude ----
@@ -1619,7 +1619,8 @@ public class MainFrame extends JFrame
                                                     buttonOperationAddIncludeExclude.setMaximumSize(new Dimension(78, 24));
                                                     buttonOperationAddIncludeExclude.setMnemonic(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.mnemonic").charAt(0));
                                                     buttonOperationAddIncludeExclude.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.toolTipText"));
-                                                    buttonOperationAddIncludeExclude.addActionListener(e -> guiContext.operations.eventOperationAddRowClicked(e));
+                                                    buttonOperationAddIncludeExclude.setName("addincexc");
+                                                    buttonOperationAddIncludeExclude.addActionListener(e -> guiContext.operationsUI.actionOperationAddRowClicked(e));
                                                     panelOperationIncludeExcludeButtons.add(buttonOperationAddIncludeExclude);
 
                                                     //---- buttonOperationRemoveIncludeExclude ----
@@ -1630,13 +1631,14 @@ public class MainFrame extends JFrame
                                                     buttonOperationRemoveIncludeExclude.setMaximumSize(new Dimension(78, 24));
                                                     buttonOperationRemoveIncludeExclude.setMnemonic(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.mnemonic").charAt(0));
                                                     buttonOperationRemoveIncludeExclude.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.toolTipText"));
-                                                    buttonOperationRemoveIncludeExclude.addActionListener(e -> guiContext.operations.eventOperationRemoveRowClicked(e));
+                                                    buttonOperationRemoveIncludeExclude.setName("removeincexc");
+                                                    buttonOperationRemoveIncludeExclude.addActionListener(e -> guiContext.operationsUI.actionOperationRemoveRowClicked(e));
                                                     panelOperationIncludeExcludeButtons.add(buttonOperationRemoveIncludeExclude);
                                                 }
                                                 panelOperationIncludeExcludeBox.add(panelOperationIncludeExcludeButtons);
                                             }
                                             panelCardPublisher.add(panelOperationIncludeExcludeBox, new GridBagConstraints(5, 0, 1, 4, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                GridBagConstraints.NORTHWEST, GridBagConstraints.NONE,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationIncludeExclude ----
@@ -1657,28 +1659,32 @@ public class MainFrame extends JFrame
                                             textFieldOperationJob.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationJob.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationJob.setName("job");
+                                            textFieldOperationJob.setMaximumSize(new Dimension(240, 30));
                                             textFieldOperationJob.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationJob.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationJob.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationJob, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- buttonOperationJobFilePick ----
-                                            buttonOperationJobFilePick.setText("...");
-                                            buttonOperationJobFilePick.setFont(buttonOperationJobFilePick.getFont().deriveFont(buttonOperationJobFilePick.getFont().getStyle() | Font.BOLD));
-                                            buttonOperationJobFilePick.setMaximumSize(new Dimension(32, 24));
-                                            buttonOperationJobFilePick.setMinimumSize(new Dimension(32, 24));
-                                            buttonOperationJobFilePick.setPreferredSize(new Dimension(32, 24));
-                                            buttonOperationJobFilePick.setVerticalTextPosition(SwingConstants.TOP);
-                                            buttonOperationJobFilePick.setIconTextGap(0);
-                                            buttonOperationJobFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationJobFilePick.setActionCommand("jobFilePick");
-                                            panelCardPublisher.add(buttonOperationJobFilePick, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+                                            //---- buttonOperationJobPick ----
+                                            buttonOperationJobPick.setText("...");
+                                            buttonOperationJobPick.setFont(buttonOperationJobPick.getFont().deriveFont(buttonOperationJobPick.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationJobPick.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationJobPick.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationJobPick.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationJobPick.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationJobPick.setIconTextGap(0);
+                                            buttonOperationJobPick.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationJobPick.setActionCommand("jobPick");
+                                            buttonOperationJobPick.setName("job");
+                                            buttonOperationJobPick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationJobPick.toolTipText"));
+                                            buttonOperationJobPick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            panelCardPublisher.add(buttonOperationJobPick, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -1700,13 +1706,14 @@ public class MainFrame extends JFrame
                                             textFieldOperationTargets.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationTargets.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationTargets.setName("targets");
+                                            textFieldOperationTargets.setMaximumSize(new Dimension(240, 30));
                                             textFieldOperationTargets.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationTargets.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationTargets.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationTargets, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1721,6 +1728,9 @@ public class MainFrame extends JFrame
                                             buttonOperationTargetsFilePick.setIconTextGap(0);
                                             buttonOperationTargetsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationTargetsFilePick.setActionCommand("targetsFilePick");
+                                            buttonOperationTargetsFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationTargetsFilePick.toolTipText"));
+                                            buttonOperationTargetsFilePick.setName("targets");
+                                            buttonOperationTargetsFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationTargetsFilePick, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1743,13 +1753,15 @@ public class MainFrame extends JFrame
                                             //---- textFieldOperationMismatches ----
                                             textFieldOperationMismatches.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationMismatches.setName("mismatches");
+                                            textFieldOperationMismatches.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationMismatches.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationMismatches.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationMismatches.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationMismatches.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationMismatches, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1764,6 +1776,9 @@ public class MainFrame extends JFrame
                                             buttonOperationMismatchesFilePick.setIconTextGap(0);
                                             buttonOperationMismatchesFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationMismatchesFilePick.setActionCommand("mismatchesFilePick");
+                                            buttonOperationMismatchesFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationMismatchesFilePick.toolTipText"));
+                                            buttonOperationMismatchesFilePick.setName("mismatches");
+                                            buttonOperationMismatchesFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationMismatchesFilePick, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1784,7 +1799,7 @@ public class MainFrame extends JFrame
                                             }));
                                             comboBoxOperationWhatsNew.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationWhatsNew.setName("whatsnew");
-                                            comboBoxOperationWhatsNew.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            comboBoxOperationWhatsNew.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationWhatsNew, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1792,19 +1807,21 @@ public class MainFrame extends JFrame
                                             //---- textFieldOperationWhatsNew ----
                                             textFieldOperationWhatsNew.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationWhatsNew.setName("whatsNew");
+                                            textFieldOperationWhatsNew.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationWhatsNew.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationWhatsNew.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationWhatsNew.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationWhatsNew.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationWhatsNew, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- buttonOperationWhatsNewFilePick ----
-                                            buttonOperationWhatsNewFilePick.setText("...");
+                                            buttonOperationWhatsNewFilePick.setText(guiContext.cfg.gs("Operations.buttonOperationWhatsNewFilePick.text"));
                                             buttonOperationWhatsNewFilePick.setFont(buttonOperationWhatsNewFilePick.getFont().deriveFont(buttonOperationWhatsNewFilePick.getFont().getStyle() | Font.BOLD));
                                             buttonOperationWhatsNewFilePick.setMaximumSize(new Dimension(32, 24));
                                             buttonOperationWhatsNewFilePick.setMinimumSize(new Dimension(32, 24));
@@ -1812,7 +1829,10 @@ public class MainFrame extends JFrame
                                             buttonOperationWhatsNewFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                             buttonOperationWhatsNewFilePick.setIconTextGap(0);
                                             buttonOperationWhatsNewFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationWhatsNewFilePick.setActionCommand("mismatchesFilePick");
+                                            buttonOperationWhatsNewFilePick.setActionCommand("whatsnewFilePick");
+                                            buttonOperationWhatsNewFilePick.setName("whatsnew");
+                                            buttonOperationWhatsNewFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationWhatsNewFilePick.toolTipText"));
+                                            buttonOperationWhatsNewFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationWhatsNewFilePick, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1834,7 +1854,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDryRun ----
                                             checkBoxOperationDryRun.setName("dryRun");
-                                            checkBoxOperationDryRun.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationDryRun.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationDryRun, new GridBagConstraints(5, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1849,13 +1869,15 @@ public class MainFrame extends JFrame
                                             //---- textFieldOperationExportText ----
                                             textFieldOperationExportText.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationExportText.setName("exportText");
+                                            textFieldOperationExportText.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationExportText.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationExportText.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationExportText.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationExportText.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationExportText, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1869,7 +1891,10 @@ public class MainFrame extends JFrame
                                             buttonOperationExportTextFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                             buttonOperationExportTextFilePick.setIconTextGap(0);
                                             buttonOperationExportTextFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationExportTextFilePick.setActionCommand("mismatchesFilePick");
+                                            buttonOperationExportTextFilePick.setActionCommand("exportTextFilePick");
+                                            buttonOperationExportTextFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationExportTextFilePick.toolTipText"));
+                                            buttonOperationExportTextFilePick.setName("exporttext");
+                                            buttonOperationExportTextFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationExportTextFilePick, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1891,7 +1916,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationNoBackFill ----
                                             checkBoxOperationNoBackFill.setName("noBackFill");
-                                            checkBoxOperationNoBackFill.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationNoBackFill.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationNoBackFill, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1906,13 +1931,15 @@ public class MainFrame extends JFrame
                                             //---- textFieldOperationExportItems ----
                                             textFieldOperationExportItems.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationExportItems.setName("exportItems");
+                                            textFieldOperationExportItems.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationExportItems.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationExportItems.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationExportItems.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationExportItems.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationExportItems, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1926,7 +1953,10 @@ public class MainFrame extends JFrame
                                             buttonOperationExportItemsFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                             buttonOperationExportItemsFilePick.setIconTextGap(0);
                                             buttonOperationExportItemsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationExportItemsFilePick.setActionCommand("mismatchesFilePick");
+                                            buttonOperationExportItemsFilePick.setActionCommand("exportItemsFilePick");
+                                            buttonOperationExportItemsFilePick.setName("exportitems");
+                                            buttonOperationExportItemsFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationExportItemsFilePick.toolTipText"));
+                                            buttonOperationExportItemsFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationExportItemsFilePick, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1948,7 +1978,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationOverwrite ----
                                             checkBoxOperationOverwrite.setName("overwrite");
-                                            checkBoxOperationOverwrite.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationOverwrite.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationOverwrite, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1970,7 +2000,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationPreserveDates ----
                                             checkBoxOperationPreserveDates.setName("preserveDates");
-                                            checkBoxOperationPreserveDates.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationPreserveDates.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationPreserveDates, new GridBagConstraints(5, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1983,7 +2013,7 @@ public class MainFrame extends JFrame
                                             }));
                                             comboBoxOperationHintKeys.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationHintKeys.setName("keys");
-                                            comboBoxOperationHintKeys.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            comboBoxOperationHintKeys.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationHintKeys, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1991,13 +2021,15 @@ public class MainFrame extends JFrame
                                             //---- textFieldOperationHintKeys ----
                                             textFieldOperationHintKeys.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationHintKeys.setName("hintKeys");
+                                            textFieldOperationHintKeys.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationHintKeys.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationHintKeys.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationHintKeys.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationHintKeys.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationHintKeys, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2011,7 +2043,10 @@ public class MainFrame extends JFrame
                                             buttonOperationHintKeysFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                             buttonOperationHintKeysFilePick.setIconTextGap(0);
                                             buttonOperationHintKeysFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationHintKeysFilePick.setActionCommand("mismatchesFilePick");
+                                            buttonOperationHintKeysFilePick.setActionCommand("hintKeysFilePick");
+                                            buttonOperationHintKeysFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationHintKeysFilePick.toolTipText"));
+                                            buttonOperationHintKeysFilePick.setName("hintkeys");
+                                            buttonOperationHintKeysFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationHintKeysFilePick, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2033,7 +2068,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDecimalScale ----
                                             checkBoxOperationDecimalScale.setName("decimalScale");
-                                            checkBoxOperationDecimalScale.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationDecimalScale.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationDecimalScale, new GridBagConstraints(5, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2046,7 +2081,7 @@ public class MainFrame extends JFrame
                                             }));
                                             comboBoxOperationHintsAndServer.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationHintsAndServer.setName("hints");
-                                            comboBoxOperationHintsAndServer.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            comboBoxOperationHintsAndServer.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationHintsAndServer, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2054,13 +2089,15 @@ public class MainFrame extends JFrame
                                             //---- textFieldOperationHints ----
                                             textFieldOperationHints.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationHints.setName("hints");
+                                            textFieldOperationHints.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationHints.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationHints.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationHints.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationHints.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationHints, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2074,7 +2111,10 @@ public class MainFrame extends JFrame
                                             buttonOperationHintsFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                             buttonOperationHintsFilePick.setIconTextGap(0);
                                             buttonOperationHintsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationHintsFilePick.setActionCommand("mismatchesFilePick");
+                                            buttonOperationHintsFilePick.setActionCommand("hintsFilePick");
+                                            buttonOperationHintsFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationHintsFilePick.toolTipText"));
+                                            buttonOperationHintsFilePick.setName("hints");
+                                            buttonOperationHintsFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationHintsFilePick, new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2096,7 +2136,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationValidate ----
                                             checkBoxOperationValidate.setName("validate");
-                                            checkBoxOperationValidate.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationValidate.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationValidate, new GridBagConstraints(5, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2110,7 +2150,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationQuitStatus ----
                                             checkBoxOperationQuitStatus.setName("quitStatusServer");
-                                            checkBoxOperationQuitStatus.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationQuitStatus.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationQuitStatus, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2132,7 +2172,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationKeepGoing ----
                                             checkBoxOperationKeepGoing.setName("keepGoing");
-                                            checkBoxOperationKeepGoing.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationKeepGoing.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationKeepGoing, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2154,7 +2194,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDuplicates ----
                                             checkBoxOperationDuplicates.setName("duplicates");
-                                            checkBoxOperationDuplicates.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationDuplicates.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationDuplicates, new GridBagConstraints(5, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2176,7 +2216,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationCrossCheck ----
                                             checkBoxOperationCrossCheck.setName("crossCheck");
-                                            checkBoxOperationCrossCheck.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationCrossCheck.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationCrossCheck, new GridBagConstraints(5, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2189,7 +2229,7 @@ public class MainFrame extends JFrame
                                             }));
                                             comboBoxOperationLog.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationLog.setName("log");
-                                            comboBoxOperationLog.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            comboBoxOperationLog.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationLog, new GridBagConstraints(0, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2197,13 +2237,15 @@ public class MainFrame extends JFrame
                                             //---- textFieldOperationLog ----
                                             textFieldOperationLog.setMinimumSize(new Dimension(60, 30));
                                             textFieldOperationLog.setName("log");
+                                            textFieldOperationLog.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationLog.setPreferredSize(new Dimension(240, 30));
                                             textFieldOperationLog.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operations.genericTextFieldFocusLost(e);
+                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationLog.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            textFieldOperationLog.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationLog, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2217,7 +2259,10 @@ public class MainFrame extends JFrame
                                             buttonOperationLogFilePick.setVerticalTextPosition(SwingConstants.TOP);
                                             buttonOperationLogFilePick.setIconTextGap(0);
                                             buttonOperationLogFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationLogFilePick.setActionCommand("mismatchesFilePick");
+                                            buttonOperationLogFilePick.setActionCommand("logFilePick");
+                                            buttonOperationLogFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationLogFilePick.toolTipText"));
+                                            buttonOperationLogFilePick.setName("log");
+                                            buttonOperationLogFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationLogFilePick, new GridBagConstraints(2, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2239,7 +2284,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationEmptyDirectories ----
                                             checkBoxOperationEmptyDirectories.setName("emptyDirectories");
-                                            checkBoxOperationEmptyDirectories.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationEmptyDirectories.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationEmptyDirectories, new GridBagConstraints(5, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2269,7 +2314,7 @@ public class MainFrame extends JFrame
                                                 }));
                                                 comboBoxOperationConsoleLevel.setSelectedIndex(3);
                                                 comboBoxOperationConsoleLevel.setName("consolelevel");
-                                                comboBoxOperationConsoleLevel.addActionListener(e -> guiContext.operations.genericAction(e));
+                                                comboBoxOperationConsoleLevel.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                                 panelOperationLogLevels.add(comboBoxOperationConsoleLevel);
 
                                                 //---- comboBoxOperationDebugLevel ----
@@ -2285,7 +2330,7 @@ public class MainFrame extends JFrame
                                                 }));
                                                 comboBoxOperationDebugLevel.setSelectedIndex(2);
                                                 comboBoxOperationDebugLevel.setName("debuglevel");
-                                                comboBoxOperationDebugLevel.addActionListener(e -> guiContext.operations.genericAction(e));
+                                                comboBoxOperationDebugLevel.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                                 panelOperationLogLevels.add(comboBoxOperationDebugLevel);
                                             }
                                             panelCardPublisher.add(panelOperationLogLevels, new GridBagConstraints(1, 14, 1, 1, 0.0, 0.0,
@@ -2310,7 +2355,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationIgnored ----
                                             checkBoxOperationIgnored.setName("ignored");
-                                            checkBoxOperationIgnored.addActionListener(e -> guiContext.operations.genericAction(e));
+                                            checkBoxOperationIgnored.addActionListener(e -> guiContext.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationIgnored, new GridBagConstraints(5, 14, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2417,7 +2462,7 @@ public class MainFrame extends JFrame
                             textAreaOperationLog.setMinimumSize(new Dimension(0, 0));
                             textAreaOperationLog.setComponentPopupMenu(popupMenuOperationLog);
                             textAreaOperationLog.setVerifyInputWhenFocusTarget(false);
-                            textAreaOperationLog.setFont(new Font("Ubuntu Mono", Font.PLAIN, 14));
+                            textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 14));
                             scrollPaneOperationLog.setViewportView(textAreaOperationLog);
                         }
                         tabbedPaneOperationBottom.addTab(guiContext.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);
@@ -2465,7 +2510,7 @@ public class MainFrame extends JFrame
                 new Insets(0, 0, 0, 8), 0, 0));
         }
         contentPane.add(panelStatus, BorderLayout.SOUTH);
-        setSize(1024, 835);
+        setSize(1025, 835);
         setLocationRelativeTo(getOwner());
 
         //======== popupMenuBrowser ========
@@ -2560,6 +2605,7 @@ public class MainFrame extends JFrame
             //---- popupCheckBoxMenuItemWordWrap ----
             popupCheckBoxMenuItemWordWrap.setText(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.text"));
             popupCheckBoxMenuItemWordWrap.setMnemonic(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.mnemonic").charAt(0));
+            popupCheckBoxMenuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
             popupMenuLog.add(popupCheckBoxMenuItemWordWrap);
         }
 
@@ -2600,6 +2646,7 @@ public class MainFrame extends JFrame
             //---- popupCheckBoxMenuItemOperationWordWrap ----
             popupCheckBoxMenuItemOperationWordWrap.setText(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemOperationWordWrap.text"));
             popupCheckBoxMenuItemOperationWordWrap.setMnemonic(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemOperationWordWrap.mnemonic").charAt(0));
+            popupCheckBoxMenuItemOperationWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
             popupMenuOperationLog.add(popupCheckBoxMenuItemOperationWordWrap);
         }
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -2611,7 +2658,6 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemOpenPublisher;
     public JMenuItem menuItemOpenSubscriber;
     public JMenuItem menuItemOpenHintKeys;
-    public JMenuItem menuItemOpenHintServer;
     public JMenuItem menuItemSaveLayout;
     public JMenuItem menuItemQuitTerminate;
     public JMenuItem menuItemFileQuit;
@@ -2659,6 +2705,7 @@ public class MainFrame extends JFrame
     public JMenu menuHelp;
     public JMenuItem menuItemControls;
     public JMenuItem menuItemDocumentation;
+    public JMenuItem menuItemGettingStarted;
     public JMenuItem menuItemGitHubProject;
     public JMenuItem menuItemUpdates;
     public JMenuItem menuItemAbout;
@@ -2739,18 +2786,16 @@ public class MainFrame extends JFrame
     public JPanel panelCardPublisher;
     public JLabel labelOperationNavigatorCheckbox;
     public JCheckBox checkBoxOperationNavigator;
-    public JPanel vSpacer3;
     public JPanel panelOperationIncludeExcludeBox;
-    public JPanel vSpacer8;
     public JScrollPane scrollPaneOperationIncludeExclude;
-    public JList listOperationIncludeExclude;
+    public JList<String> listOperationIncludeExclude;
     public JPanel panelOperationIncludeExcludeButtons;
     public JButton buttonOperationAddIncludeExclude;
     public JButton buttonOperationRemoveIncludeExclude;
     public JLabel labelOperationIncludeExclude;
     public JLabel labelOperationJob;
     public JTextField textFieldOperationJob;
-    public JButton buttonOperationJobFilePick;
+    public JButton buttonOperationJobPick;
     public JPanel vSpacer4;
     public JLabel labelOperationTargets;
     public JTextField textFieldOperationTargets;

@@ -12,9 +12,9 @@ public class ConfigModel extends DefaultTableModel
 {
     private MainFrame myDialog;
     private GuiContext guiContext;
-    private Operations ui;
+    private OperationsUI ui;
 
-    public ConfigModel(GuiContext guiContext, Operations ui)
+    public ConfigModel(GuiContext guiContext, OperationsUI ui)
     {
         super();
         this.guiContext = guiContext;
@@ -23,11 +23,11 @@ public class ConfigModel extends DefaultTableModel
     }
 
     /**
-     * Find a Operations in the table
+     * Find a OperationsUI in the table
      *
-     * @param configName Operations configuration name to find
-     * @param operation If not null that Operations is skipped (a duplicate check)
-     * @return Operations found, or null if not found
+     * @param configName OperationsUI configuration name to find
+     * @param operation If not null that OperationsUI is skipped (a duplicate check)
+     * @return OperationsUI found, or null if not found
      */
     public OperationsTool find(String configName, OperationsTool operation)
     {
@@ -67,7 +67,7 @@ public class ConfigModel extends DefaultTableModel
                 {
                     JOptionPane.showMessageDialog(myDialog,
                             guiContext.cfg.gs(("Z.that.configuration.already.exists")),
-                            guiContext.cfg.gs("Operations.title"), JOptionPane.WARNING_MESSAGE);
+                            guiContext.cfg.gs("OperationsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
                 {

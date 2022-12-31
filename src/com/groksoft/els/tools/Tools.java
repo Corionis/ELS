@@ -54,9 +54,9 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals("Operations"))
+        if (internalName.equals("OperationsUI"))
         {
-            // begin Operations
+            // begin OperationsUI
             OperationsTool tmpTool = new OperationsTool(null, config, ctxt);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
@@ -83,7 +83,7 @@ public class Tools
                     }
                 }
             }
-            // end Operations
+            // end OperationsUI
         }
         else if (internalName.equals("JunkRemover"))
         {
@@ -191,7 +191,7 @@ public class Tools
         File toolDir = null;
         ToolParserI toolParser = null;
 
-        // being Operations
+        // being OperationsUI
         if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             toolParser = new OperationParser();
@@ -199,7 +199,7 @@ public class Tools
             toolDir = new File(tmpOperation.getDirectoryPath());
             toolList = scanTools(guiContext, toolList, toolParser, toolDir);
         }
-        // end Operations
+        // end OperationsUI
 
         // begin JunkRemover
         if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
@@ -240,7 +240,7 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Configuration config, Context ctxt)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals("Operations"))
+        if (internalName.equals("OperationsUI"))
         {
             tmpTool = new OperationsTool(null, config, ctxt);
         }

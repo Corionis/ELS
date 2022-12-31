@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class Configuration
 {
-    // operations
+    // operationsUI
     public static final int JOB_PROCESS = 8;
     public static final int NOT_REMOTE = 0;
     public static final int PUBLISHER_LISTENER = 4;
@@ -105,6 +105,7 @@ public class Configuration
     public void parseCommandLine(String[] args) throws MungeException
     {
         // single option letters remaining, case-sensitive:  C J M O R U V X Y Z
+        // Reserved: C configuration directory; O operation; M match dates
 
         int index;
         originalArgs = args;
@@ -1159,7 +1160,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced collection" operations?
+     * Is this a "forced collection" operationsUI?
      *
      * @return true/false
      */
@@ -1169,7 +1170,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "forced targets" operations
+     * Is this a "forced targets" operationsUI
      *
      * @return true/false
      */
@@ -1200,7 +1201,7 @@ public class Configuration
 
     /**
      * For a Publisher a true "keep going" flag skips sending
-     * the quit command to the subscriber when the operations is
+     * the quit command to the subscriber when the operationsUI is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
      *
@@ -1258,7 +1259,7 @@ public class Configuration
     }
 
     /**
-     * Is this a publish operations?
+     * Is this a publish operationsUI?
      *
      * @return true/false
      */
@@ -1328,7 +1329,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request collection" operations?
+     * Is this a "request collection" operationsUI?
      *
      * @return true/false
      */
@@ -1338,7 +1339,7 @@ public class Configuration
     }
 
     /**
-     * Is this a "request targets" operations?
+     * Is this a "request targets" operationsUI?
      *
      * @return true/false
      */
@@ -1578,7 +1579,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced collection" operations
+     * Set if this is a "forced collection" operationsUI
      *
      * @param forceCollection true/false
      */
@@ -1588,7 +1589,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "forced targets" operations
+     * Set if this is a "forced targets" operationsUI
      *
      * @param forceTargets true/false
      */
@@ -1659,7 +1660,7 @@ public class Configuration
 
     /**
      * For a Publisher the "keep going" flag skips sending
-     * the quit command to the subscriber when the operations is
+     * the quit command to the subscriber when the operationsUI is
      * complete. For a subscriber it skips ending with a fault
      * on an unexpected disconnect (EOL).
      *
@@ -1739,7 +1740,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a publish operations
+     * Set if this is a publish operationsUI
      *
      * @param publishOperation true/false
      */
@@ -1779,7 +1780,7 @@ public class Configuration
     }
 
     /**
-     * Sets the flag for the operations to force the subscriber to quit, then end
+     * Sets the flag for the operationsUI to force the subscriber to quit, then end
      *
      * @param quitSubscriberListener
      */
@@ -1814,7 +1815,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request collection" operations
+     * Set if this is a "request collection" operationsUI
      *
      * @param requestCollection true/false
      */
@@ -1824,7 +1825,7 @@ public class Configuration
     }
 
     /**
-     * Set if this is a "request targets" operations
+     * Set if this is a "request targets" operationsUI
      *
      * @param requestTargets true/false
      */

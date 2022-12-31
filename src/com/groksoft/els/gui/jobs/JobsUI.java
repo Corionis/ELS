@@ -395,7 +395,6 @@ public class JobsUI extends JDialog
             if (indices.length > 0)
             {
                 listOrigins.requestFocus();
-
                 int count = indices.length;
 
                 // make dialog pieces
@@ -1793,14 +1792,12 @@ public class JobsUI extends JDialog
 
                     //======== scrollPaneConfig ========
                     {
-                        scrollPaneConfig.setMinimumSize(new Dimension(140, 16));
-                        scrollPaneConfig.setPreferredSize(new Dimension(142, 146));
 
                         //---- configItems ----
-                        configItems.setPreferredSize(new Dimension(128, 54));
                         configItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         configItems.setFillsViewportHeight(true);
                         configItems.setShowVerticalLines(false);
+                        configItems.setShowHorizontalLines(false);
                         configItems.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {
@@ -1832,7 +1829,7 @@ public class JobsUI extends JDialog
                                 labelTasks.setText(guiContext.cfg.gs("JobsUI.labelTasks.text"));
                                 labelTasks.setHorizontalAlignment(SwingConstants.LEFT);
                                 labelTasks.setHorizontalTextPosition(SwingConstants.LEFT);
-                                labelTasks.setFont(labelTasks.getFont().deriveFont(labelTasks.getFont().getSize() + 1f));
+                                labelTasks.setFont(labelTasks.getFont().deriveFont(labelTasks.getFont().getStyle() | Font.BOLD, labelTasks.getFont().getSize() + 1f));
                                 labelTasks.setMaximumSize(new Dimension(37, 18));
                                 labelTasks.setMinimumSize(new Dimension(37, 18));
                                 labelTasks.setPreferredSize(new Dimension(37, 18));
@@ -1881,7 +1878,7 @@ public class JobsUI extends JDialog
 
                                 //---- labelOrigins ----
                                 labelOrigins.setText(guiContext.cfg.gs("JobsUI.labelOrigins.text"));
-                                labelOrigins.setFont(labelOrigins.getFont().deriveFont(labelOrigins.getFont().getSize() + 1f));
+                                labelOrigins.setFont(labelOrigins.getFont().deriveFont(labelOrigins.getFont().getStyle() | Font.BOLD, labelOrigins.getFont().getSize() + 1f));
                                 labelOrigins.setHorizontalAlignment(SwingConstants.LEFT);
                                 labelOrigins.setHorizontalTextPosition(SwingConstants.LEFT);
                                 labelOrigins.setMaximumSize(new Dimension(57, 18));

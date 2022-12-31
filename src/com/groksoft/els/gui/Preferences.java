@@ -63,6 +63,7 @@ public class Preferences implements Serializable
     // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
     // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
+    private int operationDividerBottomSize = 143;
     private int operationDividerConfigLocation = 142;
     private int operationDividerLocation = 500;
     private boolean preserveFileTimes = true;
@@ -110,8 +111,6 @@ public class Preferences implements Serializable
     private int toolsRenamerYpos = -1;
     private transient Configuration cfg;
     private transient Context context;
-
-
     /**
      * Constructor
      */
@@ -263,6 +262,23 @@ public class Preferences implements Serializable
                 setTableSort(guiContext.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
             }
         }
+    }
+
+    /**
+     * Fix (set) the position of the Operations bottom divider
+     *
+     * @param guiContext
+     * @param bottomSize If < 0 use the bottomSize from Preferences
+     */
+    public void fixOperationsDivider(GuiContext guiContext, int bottomSize)
+    {
+        if (bottomSize < 0)
+            bottomSize = guiContext.preferences.getOperationDividerBottomSize();
+
+        int whole = guiContext.mainFrame.splitPaneOperation.getHeight();
+        int divider = guiContext.mainFrame.splitPaneOperation.getDividerSize();
+        int pos = whole - divider - bottomSize;
+        guiContext.mainFrame.splitPaneOperation.setDividerLocation(pos);
     }
 
     public String getAccentColor()
@@ -448,6 +464,11 @@ public class Preferences implements Serializable
     public int getLookAndFeel()
     {
         return lookAndFeel;
+    }
+
+    public int getOperationDividerBottomSize()
+    {
+        return operationDividerBottomSize;
     }
 
     public int getOperationDividerConfigLocation()
@@ -976,6 +997,11 @@ public class Preferences implements Serializable
         this.lookAndFeel = lookAndFeel;
     }
 
+    public void setOperationDividerBottomSize(int operationDividerBottomSize)
+    {
+        this.operationDividerBottomSize = operationDividerBottomSize;
+    }
+
     public void setOperationDividerConfigLocation(int operationDividerConfigLocation)
     {
         this.operationDividerConfigLocation = operationDividerConfigLocation;
@@ -1256,7 +1282,7 @@ public class Preferences implements Serializable
         extractColumnSizes(guiContext, null);
 
         // other panels
-        guiContext.operations.savePreferences();
+        guiContext.operationsUI.savePreferences();
 
         json = gson.toJson(this);
         try

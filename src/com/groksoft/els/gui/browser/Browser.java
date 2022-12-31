@@ -1055,7 +1055,7 @@ public class Browser
             }, AWTEvent.MOUSE_EVENT_MASK);
         }
 
-        // handle setting the size of the bottom window using the divider location
+        // handle setting the size of the Browser bottom window using the divider location
         guiContext.mainFrame.addComponentListener(new ComponentAdapter()
         {
             @Override
@@ -1063,6 +1063,7 @@ public class Browser
             {
                 super.componentResized(componentEvent);
                 guiContext.preferences.fixBrowserDivider(guiContext, -1);
+                guiContext.preferences.fixOperationsDivider(guiContext, -1);
             }
         });
         //
@@ -1073,6 +1074,17 @@ public class Browser
             {
                 super.componentResized(componentEvent);
                 guiContext.preferences.setBrowserBottomSize(componentEvent.getComponent().getHeight());
+            }
+        });
+
+        // handle setting the size of the Operations bottom window using the divider location
+        guiContext.mainFrame.tabbedPaneOperationBottom.addComponentListener(new ComponentAdapter()
+        {
+            @Override
+            public void componentResized(ComponentEvent componentEvent)
+            {
+                super.componentResized(componentEvent);
+                guiContext.preferences.setOperationDividerBottomSize(componentEvent.getComponent().getHeight());
             }
         });
 

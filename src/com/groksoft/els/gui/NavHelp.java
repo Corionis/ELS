@@ -183,7 +183,7 @@ public class NavHelp extends JDialog
 
                 //---- okButton ----
                 okButton.setText(guiContext.cfg.gs("Z.ok"));
-                okButton.setActionCommand(guiContext.cfg.gs("NavHelp.button.Ok.text"));
+                okButton.setActionCommand(guiContext.cfg.gs("Z.ok"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

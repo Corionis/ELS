@@ -600,7 +600,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         // using currently-loaded repositories means there is no change in connection
         //if (willDisconnect(guiContext))
         //{
-        //    int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame.panelOperationTop, guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.YES_NO_OPTION);
+        //    int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame.panelOperationTop, guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), guiContext.cfg.gs("Navigator.splitPane.OperationsUI.tab.title"), JOptionPane.YES_NO_OPTION);
         //    if (reply != JOptionPane.YES_OPTION)
         //        return null;
         //}

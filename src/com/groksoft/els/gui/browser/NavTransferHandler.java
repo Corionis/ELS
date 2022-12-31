@@ -225,7 +225,7 @@ public class NavTransferHandler extends TransferHandler
     {
         NavTreeNode targetNode = null;
 
-        // Drop operations, otherwise Paste
+        // Drop operationsUI, otherwise Paste
         if (info.isDrop())
         {
             if (info.getComponent() instanceof JTable)

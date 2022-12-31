@@ -28,10 +28,13 @@ public class Settings extends JDialog
 
     /*
         TODO
+         + Change from group layout to gridbag
          General
             + Default dry run
-         Operations
-            + Short or long options
+         Apperance
+            + Show mnemonic
+         OperationsUI
+            + Generate short or long options
             + Default console and debug levels
      */
 
@@ -137,6 +140,11 @@ public class Settings extends JDialog
             {
                 JComboBox combobox = (JComboBox) actionEvent.getSource();
                 int index = combobox.getSelectedIndex();
+                if (Utils.getOS().equals("Linux") && index == 0) // System, for Windows, will fail on Linux
+                {
+                    index = 6;
+                    combobox.setSelectedIndex(index);
+                }
                 refreshLookAndFeel(index);
             }
         });
@@ -279,7 +287,7 @@ public class Settings extends JDialog
         tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.right"));
         tabPlacementComboBox.setSelectedIndex(guiContext.preferences.getTabPlacementIndex());
 
-        // operations
+        // operationsUI
 
         // libraries
 
@@ -511,7 +519,7 @@ public class Settings extends JDialog
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
                     settingsTabbedPane.setMnemonicAt(0, guiContext.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
 
-                    //======== apperancePanel ========
+                    //======== appearancePanel ========
                     {
 
                         //---- lookFeelLabel ----
@@ -519,7 +527,7 @@ public class Settings extends JDialog
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
-                            "System (Windows)",
+                            "System (Windows only)",
                             "Metal",
                             "Nimbus",
                             "Flat light",

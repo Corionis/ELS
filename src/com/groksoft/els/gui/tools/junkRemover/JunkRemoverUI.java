@@ -881,10 +881,10 @@ public class JunkRemoverUI extends JDialog
                         scrollPaneConfig.setPreferredSize(new Dimension(142, 146));
 
                         //---- configItems ----
-                        configItems.setPreferredSize(new Dimension(128, 54));
                         configItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                         configItems.setShowVerticalLines(false);
                         configItems.setFillsViewportHeight(true);
+                        configItems.setShowHorizontalLines(false);
                         configItems.addMouseListener(new MouseAdapter() {
                             @Override
                             public void mouseClicked(MouseEvent e) {

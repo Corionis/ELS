@@ -134,12 +134,6 @@ public class DuplicateFinderUI extends JDialog
     {
         String name = "";
 
-        /*
-            LEFTOFF
-                * Why not allow selection of a Collection or Library?
-                * Add option(s) for dupes, like "also filenames"?
-         */
-
         // publisher or subscriber?
         Object object = guiContext.browser.lastComponent;
         if (object instanceof JTree)

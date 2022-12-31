@@ -21,7 +21,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
  * Transfer class to handle copying content to the appropriate location and
- * the local-only operations needed for ELS Hints.
+ * the local-only operationsUI needed for ELS Hints.
  */
 public class Transfer
 {
@@ -105,8 +105,8 @@ public class Transfer
     /**
      * Copy group of files
      * <p>
-     * The overwrite parameter is false for normal Process munge operations, and
-     * true for Subscriber terminal (-r T) to Publisher listener (-r L) operations.
+     * The overwrite parameter is false for normal Process munge operationsUI, and
+     * true for Subscriber terminal (-r T) to Publisher listener (-r L) operationsUI.
      *
      * @param group     the group
      * @param totalSize the total size
@@ -1195,7 +1195,7 @@ public class Transfer
             String line = "hint \"" + hintPath + "\" " + command;
             hintPath = context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
         }
-        else // local operations
+        else // local operationsUI
         {
             File hintFile = new File(hintPath);
             command = command + "\n";
