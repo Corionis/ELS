@@ -130,7 +130,7 @@ public class Listener extends Thread
                     if (isListed(socket, false)) // if it is blacklisted disconnect
                     {
                         socket.close();
-                        logger.warn("Blacklisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
+                        logger.warn("blacklisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
                     }
                     else
                     {
@@ -138,16 +138,16 @@ public class Listener extends Thread
                     }
                 }
                 else
-                    logger.warn("Not Whitelisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
+                    logger.warn("not whitelisted IP " + socket.getInetAddress().toString().replaceAll("/", "").replaceAll("\\\\", "") + " attempted login");
             }
             catch (SocketTimeoutException e)
             {
-                //logger.debug("Socket timeout on listener port " + port + ", stop=" + ((stop) ? "true" : "false"));
+                //logger.debug("socket timeout on listener port " + port + ", stop=" + ((stop) ? "true" : "false"));
                 continue; // ignore listen time-out
             }
             catch (InterruptedIOException e)
             {
-                logger.debug("Listener interrupted on port " + port + ", stop=" + ((stop) ? "true" : "false"));
+                logger.debug("listener interrupted on port " + port + ", stop=" + ((stop) ? "true" : "false"));
                 break;
             }
             catch (IOException e)
@@ -164,6 +164,6 @@ public class Listener extends Thread
             }
         }
         if (logger != null && socket != null)
-            logger.debug("Stopping stty listener on: " + socket.getLocalAddress().toString() + ":" + socket.getPort());
+            logger.debug("stopping stty listener on: " + socket.getLocalAddress().toString() + ":" + socket.getPort());
     }
 } // Listener

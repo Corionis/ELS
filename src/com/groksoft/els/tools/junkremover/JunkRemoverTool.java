@@ -305,14 +305,13 @@ public class JunkRemoverTool extends AbstractTool
                     }
                 };
                 guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, isDryRun);
+                guiContext.progress.display();
             }
             else
             {
                 JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                 return null;
             }
-
-            guiContext.progress.display();
         }
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()

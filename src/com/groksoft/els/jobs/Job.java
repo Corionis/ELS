@@ -229,6 +229,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     public SwingWorker<Void, Void> process(GuiContext guiContext, Component comp, String title, Job job, boolean isDryRun)
     {
         // create a fresh dialog
+        // TODO factors controlling whether to display the progress dialog may needed adjusting
         if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()
@@ -240,14 +241,13 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 }
             };
             guiContext.progress = new Progress(guiContext, comp, cancel, isDryRun);
+            guiContext.progress.display();
         }
         else
         {
             JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return null;
         }
-
-        guiContext.progress.display();
 
         if (willDisconnect(guiContext))
         {
@@ -268,7 +268,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 catch (Exception e)
                 {
                     String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                    logger.error(msg, true);
+                    logger.error(msg);
                     JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
                             guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
 
@@ -317,7 +317,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
                         lastTask = currentTask;
                 }
             }
-
             context.main.savedEnvironment.restore(currentTask);
         }
         else

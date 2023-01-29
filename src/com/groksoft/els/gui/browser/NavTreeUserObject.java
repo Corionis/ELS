@@ -2,6 +2,7 @@ package com.groksoft.els.gui.browser;
 
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.Navigator;
+import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 
 import java.io.File;
@@ -151,6 +152,53 @@ public class NavTreeUserObject implements Comparable
         tuo.sources = this.sources;
         tuo.type = this.type;
         return tuo;
+    }
+
+    public String getItemPath(String library, String path)
+    {
+        String itemPath = "";
+        try
+        {
+            Library lib = getRepo().getLibrary(library);
+            if (lib != null)
+            {
+                for (String source : lib.sources)
+                {
+                    File sourceFile = new File(source);
+                    String sourcePath = sourceFile.getAbsolutePath();
+                    if (path.startsWith(sourcePath))
+                    {
+                        itemPath = path.substring(sourcePath.length() + 1);
+                        break;
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+
+        }
+        return itemPath;
+    }
+
+    public NavTreeNode getParentLibrary()
+    {
+        boolean found = false;
+        NavTreeNode node = this.node;
+        while (true)
+        {
+            if (node.getUserObject().type == LIBRARY)
+            {
+                found = true;
+                break;
+            }
+            node = (NavTreeNode) node.getParent();
+            if (node == null)
+                break;
+        }
+        if (!found)
+            node = null;
+        return node;
     }
 
     public String getPath()

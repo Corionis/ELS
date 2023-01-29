@@ -46,13 +46,7 @@ public class Main
     public boolean trace;
 
     // add new locales here
-    public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO: Update locales here
-
-    /*
-        IDEA
-            * Knob for "Show examples" then
-                + Include, or not, files from examples directories
-     */
+    public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO EXTEND+ Update locales here
 
     /**
      * Main application default constructor
@@ -102,18 +96,18 @@ public class Main
      */
     public void connectHintServer(Repository repo) throws Exception
     {
-        if (cfg.isUsingHintTracker() && repo != null)
+        if (cfg.isUsingHintTracking() && repo != null)
         {
             context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
-            context.statusRepo.read(cfg.getStatusTrackerFilename(), true);
-
-            if (cfg.isRemoteSession())
+            if (cfg.getHintsDaemonFilename().length() > 0)
             {
+                context.statusRepo.read(cfg.getHintsDaemonFilename(), true);
+
                 // start the serveStty client to the hints status server
                 context.statusStty = new ClientStty(cfg, context, false, true);
                 if (!context.statusStty.connect(repo, context.statusRepo))
                 {
-                    throw new MungeException("Hint Status Server failed to connect");
+                    throw new MungeException("Hint Status Server " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
                 }
                 String response = context.statusStty.receive("", 1000); // check the initial prompt
                 if (!response.startsWith("CMD"))
@@ -121,6 +115,8 @@ public class Main
             }
             else
             {
+                context.statusRepo.read(cfg.getHintTrackerFilename(), true);
+
                 // Setup the hint status store, single instance
                 context.datastore = new Datastore(cfg, context);
                 context.datastore.initialize();
@@ -254,11 +250,11 @@ public class Main
             loadLocale(filePart);
             if (cfg.gs("Transfer.received.subscriber.commands").length() == 0)
             {
-                //logger.debug("Local locale not supported, loading default");
+                //logger.debug("local locale not supported, loading default");
                 loadLocale("-");
             }
             //else
-                //logger.debug("Loaded locale: " + filePart);
+                //logger.debug("loaded locale: " + filePart);
             currentFilePart = filePart;
 
             Utils.setContext(context);
@@ -273,13 +269,10 @@ public class Main
                 // --- handle standard local execution, no -r|--remote option
                 case NOT_REMOTE:
                     if (cfg.getPublisherFilename().length() == 0 && cfg.getSubscriberFilename().length() == 0)
-                    {
-                        cfg.setNavigator(true);
                         defaultNavigator = true;
-                    }
 
                     // handle -n|--navigator to display the Navigator
-                    if (cfg.isNavigator())
+                    if (defaultNavigator || cfg.isNavigator())
                     {
                         logger.info("ELS: Local Navigator, version " + cfg.getVersionStamp());
                         cfg.dump();
@@ -294,8 +287,11 @@ public class Main
                             context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
 
-                        if (defaultNavigator)
-                            logger.warn("Publisher and subscriber not defined. Defaulting to the Navigator");
+                        if (defaultNavigator && !cfg.isNavigator())
+                        {
+                            cfg.setNavigator(true);
+                            logger.warn("Publisher, subscriber and mode not defined. Defaulting to Navigator");
+                        }
 
                         // setup the hint status server if defined
                         connectHintServer(context.publisherRepo);
@@ -381,14 +377,14 @@ public class Main
                         }
                         else
                         {
-                            throw new MungeException("Publisher manual console failed to connect");
+                            throw new MungeException("Publisher manual console to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(cfg, context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungeException("Publisher sftp client failed to connect");
+                            throw new MungeException("Publisher sftp client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
                     }
                     break;
@@ -416,14 +412,14 @@ public class Main
                         context.clientStty = new ClientStty(cfg, context, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
-                            throw new MungeException("Remote subscriber failed to connect");
+                            throw new MungeException("Remote subscriber " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(cfg, context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungeException("Subscriber sftp failed to connect");
+                            throw new MungeException("Subscriber sftp to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // handle -n|--navigator to display the Navigator
@@ -505,14 +501,14 @@ public class Main
                         }
                         else
                         {
-                            throw new MungeException("Subscriber terminal console failed to connect");
+                            throw new MungeException("Subscriber terminal console to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // start the serveSftp client
                         context.clientSftp = new ClientSftp(cfg, context.subscriberRepo, context.publisherRepo, true);
                         if (!context.clientSftp.startClient())
                         {
-                            throw new MungeException("Publisher sftp failed to connect");
+                            throw new MungeException("Publisher sftp to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // start serveStty server
@@ -580,8 +576,8 @@ public class Main
                     logger.info("ELS: Hint Status Server Quit, version " + cfg.getVersionStamp());
                     cfg.dump();
 
-                    if (cfg.getStatusTrackerFilename() == null || cfg.getStatusTrackerFilename().length() == 0)
-                        throw new MungeException("-Q|--force-quit requires a -h|--hints hint server JSON file");
+                    if (cfg.getHintHandlerFilename() == null || cfg.getHintHandlerFilename().length() == 0)
+                        throw new MungeException("-Q|--force-quit requires a either -h|--hints or -H|--hint-server");
 
                     context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
@@ -593,7 +589,7 @@ public class Main
                     break;
 
                 // --- handle -G|--listener-quit the remote subscriber
-                case SUBSCRIBER_SERVER_FORCE_QUIT:
+                case SUBSCRIBER_LISTENER_FORCE_QUIT:
                     logger.info("ELS: Subscriber Listener Quit, version " + cfg.getVersionStamp());
                     cfg.dump();
 
@@ -610,7 +606,7 @@ public class Main
                         context.clientStty = new ClientStty(cfg, context, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
-                            throw new MungeException("Remote subscriber failed to connect");
+                            throw new MungeException("Remote subscriber " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
                         try
                         {
@@ -662,7 +658,7 @@ public class Main
                     break;
 
                 default:
-                    throw new MungeException("Unknown type of execution");
+                    throw new MungeException("Unknown operation");
             }
         }
         catch (Exception e)
@@ -679,7 +675,19 @@ public class Main
                 System.out.println(Utils.getStackTrace(e));
             }
             if (cfg.isNavigator())
+            {
+                if (context.navigator == null)
+                {
+                    try
+                    {
+                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    }
+                    catch (Exception ignoredEx)
+                    {
+                    }
+                }
                 JOptionPane.showMessageDialog(guiContext != null ? guiContext.mainFrame : null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
 
             isListening = false; // force stop
         }
@@ -721,9 +729,10 @@ public class Main
                 // still alive and will block or hang
                 Runtime.getRuntime().addShutdownHook(new Thread()
                 {
+                    @Override
                     public void run()
                     {
-                        try
+                        try // also done in Connection.run()
                         {
                             logger.trace("shutdown hook");
 
@@ -746,13 +755,14 @@ public class Main
                         }
                     }
                 });
+                logger.trace("shutdown hook added");
             }
         }
 
         if (main.context.fault)
         {
             logger.error("Exiting with error code");
-            System.exit(1);
+            Runtime.getRuntime().halt(1);
         }
     } // process
 
@@ -886,7 +896,7 @@ public class Main
     public void stopVerbiage()
     {
         if (!main.cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
-            main.logger.info("Log file has more details: " + cfg.getLogFilename());
+            main.logger.info("log file has more details: " + cfg.getLogFilename());
 
         Date done = new Date();
         long millis = Math.abs(done.getTime() - stamp.getTime());

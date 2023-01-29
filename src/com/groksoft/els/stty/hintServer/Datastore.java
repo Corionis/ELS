@@ -14,6 +14,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,8 +28,8 @@ public class Datastore
     private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private Configuration cfg;
     private Context context;
-    private String statDirectory;
-    private Library statLibrary;
+    private String statusDirectory;
+    private Library statusLibrary;
 
     /**
      * Constructor
@@ -56,10 +57,10 @@ public class Datastore
     {
         Item item = new Item();
         item.setLibrary(itemLib);
-        item.setItemPath(itemLib + "--" + itemPath.replaceAll(context.subscriberRepo.getWriteSeparator(), "--"));
-        item.setFullPath(statDirectory + context.statusRepo.getSeparator() + item.getItemPath());
+        item.setItemPath(itemLib + "--" + itemPath.replaceAll(context.statusRepo.getWriteSeparator(), "--"));
+        item.setFullPath(statusDirectory + context.statusRepo.getSeparator() + item.getItemPath());
         item.setSize(42);
-        statLibrary.items.add(item); // add to the in-memory collection
+        statusLibrary.items.add(item); // add to the in-memory collection
 
         File stat = new File(item.getFullPath()); // create an empty file
         stat.createNewFile();
@@ -102,7 +103,7 @@ public class Datastore
     private Item findItem(String itemLib, String itemPath, String backupName, String defaultStatus) throws Exception
     {
         String path = itemLib + "--" + itemPath;
-        Item item = statLibrary.get(path);
+        Item item = statusLibrary.get(path);
         if (item == null)
         {
             item = add(itemLib, itemPath, backupName, defaultStatus);
@@ -162,34 +163,34 @@ public class Datastore
                 context.statusRepo.getLibraryData().libraries.bibliography != null &&
                 context.statusRepo.getLibraryData().libraries.bibliography.length > 0)
         {
-            statLibrary = context.statusRepo.getLibraryData().libraries.bibliography[0];
+            statusLibrary = context.statusRepo.getLibraryData().libraries.bibliography[0];
         }
         else
             throw new MungeException("Hint Status Tracker/Server repo contains no library for status datastore");
 
-        statDirectory = "";
-        if (statLibrary.sources != null && statLibrary.sources.length > 0)
+        statusDirectory = "";
+        if (statusLibrary.sources != null && statusLibrary.sources.length > 0)
         {
-            statDirectory = statLibrary.sources[0];
+            statusDirectory = statusLibrary.sources[0];
         }
         else
-            throw new MungeException("Hint Status Tracker/Server repo first library contains no sources: " + statLibrary.name);
+            throw new MungeException("Hint Status Tracker/Server repo first library contains no sources: " + statusLibrary.name);
 
-        File dir = new File(statDirectory);
+        File dir = new File(statusDirectory);
         if (dir.exists())
         {
             if (!dir.isDirectory())
-                throw new MungeException("Status directory is not a directory: " + statDirectory);
-            logger.info("Using library \'" + statLibrary.name + "\" source directory \"" + statDirectory + "\" for status datastore");
+                throw new MungeException("Status directory is not a directory: " + statusDirectory);
+            logger.info("Using library \'" + statusLibrary.name + "\" source directory \"" + statusDirectory + "\" for status datastore");
         }
         else
         {
-            logger.info("Creating new library \'" + statLibrary.name + "\" source directory \"" + statDirectory + "\" for status datastore");
+            logger.info("Creating new library \'" + statusLibrary.name + "\" source directory \"" + statusDirectory + "\" for status datastore");
             dir.mkdirs();
         }
 
         // scan the status datastore (repository)
-        context.statusRepo.scan(statLibrary.name);
+        context.statusRepo.scan(statusLibrary.name);
     }
 
     /**
@@ -206,13 +207,14 @@ public class Datastore
     {
         String path = itemLib + "--" + itemPath;
         path = path.replaceAll("/", "--").replaceAll("\\\\", "--");
-        Item item = statLibrary.get(path);
-        if (item == null) // if a get() was done first this shouldn't happen
+        Item item = statusLibrary.get(path);
+        if (item == null)
         {
             item = add(itemLib, itemPath, backupName, status);
         }
 
-        List<String> lines = Files.readAllLines(Paths.get(item.getFullPath()));
+        List<String> lines = new ArrayList<String>();
+        lines = Files.readAllLines(Paths.get(item.getFullPath()));
         lines = updateDatastore(item, lines, backupName, status);
         return status;
     }

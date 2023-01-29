@@ -120,7 +120,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
                     send("Terminal session not allowed", "");
-                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");
+                    logger.warn("attempt made to login interactively but terminal sessions are not allowed");
                     return system;
                 }
                 send(myKey, "");
@@ -137,6 +137,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                         system = connectedKey.name;
                         logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                        context.fault = false;
+                        context.timeout = false;
                     }
                 } else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
@@ -145,6 +147,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                     system = theirRepo.getLibraryData().libraries.description;
                     logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                    context.fault = false;
+                    context.timeout = false;
                 }
             }
         }
@@ -182,7 +186,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 context.authKeys.read(cfg.getAuthKeysFile());
             }
 
-            // Get ELS Hints Keys if specified
+            // Get ELS hints keys & Tracker if specified
             if (cfg.getHintKeysFile().length() > 0)
             {
                 context.hintKeys = new HintKeys(cfg, context);
@@ -252,12 +256,12 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         {
                             fault = true;
                             stop = true;
-                            logger.warn("Process fault, ending stty");
+                            logger.warn("process fault, ending stty");
                             break;
                         }
 
                         // send response or prompt the user for a command
-                        send(response + (isTerminal ? prompt : ""), trace ? "Writing response " + response.length() + " bytes" : "");
+                        send(response + (isTerminal ? prompt : ""), trace ? "writing response " + response.length() + " bytes to " + system : "");
                         response = "";
 
                         // read command
@@ -282,7 +286,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         }
 
                         ++commandCount;
-                        logger.info("Processing command: " + line + " from: " + system + ", " + Utils.formatAddresses(getSocket()));
+                        logger.info("Processing command: " + line + " from: " + system); // + ", " + Utils.formatAddresses(getSocket()));
 
                         // parse the command
                         StringTokenizer t = new StringTokenizer(line, "\"");
@@ -307,7 +311,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             }
                             else
                             {
-                                logger.warn("Auth password attempt failed using: " + pw);
+                                logger.warn("auth password attempt failed using: " + pw);
                                 if (attempts >= 3) // disconnect on too many attempts
                                 {
                                     logger.error("Too many authentication failures, disconnecting");
@@ -494,14 +498,14 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                     {
                                         valid = true;
                                         context.localMode = true;
-                                        response = context.transfer.writeUpdateHint(filename, command, myKey);
+                                        hints.writeOrUpdateHint(filename, command, myKey); // response is ignored
                                         context.localMode = false;
                                     }
                                 }
                                 if (!valid)
-                                {
                                     response = (isTerminal ? "hint command requires a 2 arguments, filename and command\r\n" : "false");
-                                }
+                                else
+                                    response = (isTerminal ? "\r\n" : "true");
                             }
                             continue;
                         }
@@ -761,9 +765,9 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 stopHeartBeat();
             }
         }
-        logger.trace("subscriber session done, stop = " + stop);
         if (fault)
             context.fault = true;
+        logger.trace("subscriber session done, stop = " + stop + ", fault = " + context.fault);
         return stop;
     } // process
 
@@ -773,7 +777,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     public void requestStop()
     {
         this.stop = true;
-        logger.debug("Requesting stop for stty session on " + socket.getInetAddress().toString() + ":" + socket.getPort());
+        logger.debug("requesting stop for stty session on " + socket.getInetAddress().toString() + ":" + socket.getPort());
     } // requestStop
 
 } // Daemon

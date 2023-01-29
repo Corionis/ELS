@@ -519,7 +519,7 @@ public class Settings extends JDialog
                     settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
                     settingsTabbedPane.setMnemonicAt(0, guiContext.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
 
-                    //======== appearancePanel ========
+                    //======== apperancePanel ========
                     {
 
                         //---- lookFeelLabel ----
@@ -527,7 +527,7 @@ public class Settings extends JDialog
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
-                            "System (Windows only)",
+                            "System (Windows)",
                             "Metal",
                             "Nimbus",
                             "Flat light",

@@ -17,6 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 
+@SuppressWarnings(value = "unchecked")
 public class Tools
 {
 
@@ -149,7 +150,7 @@ public class Tools
         }
         else if (0 == 1)
         {
-            // TODO Add other tool implementations here
+            // TODO EXTEND+ Add other tool implementations here
         }
 
         return tool;
@@ -221,7 +222,7 @@ public class Tools
         }
         // end Renamer
 
-        // TODO add other tool parsers here
+        // TODO EXTEND+ Add other tool parsers here
 
         // sort the list
         Collections.sort(toolList);

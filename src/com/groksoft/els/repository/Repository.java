@@ -3,7 +3,6 @@ package com.groksoft.els.repository;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
@@ -73,8 +72,14 @@ public class Repository
         noItems.libraryData.libraries.temp_location = getLibraryData().libraries.temp_location;
         noItems.libraryData.libraries.terminal_allowed = getLibraryData().libraries.terminal_allowed;
         noItems.libraryData.libraries.key = getLibraryData().libraries.key;
-        noItems.libraryData.libraries.ignore_patterns = getLibraryData().libraries.ignore_patterns.clone();
-        noItems.libraryData.libraries.locations = getLibraryData().libraries.locations.clone();
+        if (getLibraryData().libraries.ignore_patterns != null)
+            noItems.libraryData.libraries.ignore_patterns = getLibraryData().libraries.ignore_patterns.clone();
+        else
+            noItems.libraryData.libraries.ignore_patterns = null;
+        if (getLibraryData().libraries.locations != null)
+            noItems.libraryData.libraries.locations = getLibraryData().libraries.locations.clone();
+        else
+            noItems.libraryData.libraries.locations = null;
         noItems.libraryData.libraries.bibliography = new Library[getLibraryData().libraries.bibliography.length];
         for (int i = 0; i < getLibraryData().libraries.bibliography.length; ++i)
         {

@@ -224,6 +224,7 @@ public class JunkRemoverUI extends JDialog
                     guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
+                jrt.setDataHasChanged();
                 deletedTools.add(jrt);
                 configModel.removeRow(index);
                 if (index > 0)
@@ -417,8 +418,11 @@ public class JunkRemoverUI extends JDialog
             tableJunk.getCellEditor().stopCellEditing();
         }
 
-        if (deletedTools.size() > 0)
-            return true;
+        for (int i = 0; i < deletedTools.size(); ++i)
+        {
+            if (deletedTools.get(i).isDataChanged())
+                return true;
+        }
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -660,6 +664,7 @@ public class JunkRemoverUI extends JDialog
                 {
                     file.delete();
                 }
+                jrt.setDataHasChanged(false);
             }
         }
         catch (Exception e)

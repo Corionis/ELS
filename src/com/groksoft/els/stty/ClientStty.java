@@ -65,10 +65,9 @@ public class ClientStty
     public long availableSpace(String location) throws Exception
     {
         long space = 0L;
-        String response = roundTrip("space \"" + location + "\"", "Available space check", 5000);
+        String response = roundTrip("space \"" + location + "\"", "Available space check: " + location, 5000);
         if (response != null && response.length() > 0)
         {
-            logger.trace("space command returned: " + response);
             space = Long.parseLong(response);
         }
         return space;
@@ -269,7 +268,7 @@ public class ClientStty
             if (isConnected)
             {
                 isConnected = false;
-                logger.debug("Disconnecting stty: " + Utils.formatAddresses(socket));
+                logger.debug("disconnecting stty: " + Utils.formatAddresses(socket));
                 if (gui != null)
                     gui.stop();
                 out.flush();
@@ -376,7 +375,7 @@ public class ClientStty
                 }
             }
             else if (input.equalsIgnoreCase("Terminal session not allowed"))
-                logger.warn("Attempted to login interactively but terminal sessions are not allowed");
+                logger.warn("attempt to login interactively but terminal sessions are not allowed");
         }
         return valid;
     }
@@ -417,7 +416,7 @@ public class ClientStty
                     context.statusStty = null;
                 }
                 else
-                    logger.warn("Could not send quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
+                    logger.warn("could not send quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
             }
             catch (Exception e)
             {
@@ -458,9 +457,8 @@ public class ClientStty
         while (true)
         {
             response = Utils.readStream(in, theirRepo.getLibraryData().libraries.key);
-
             if (response != null && response.startsWith("ping"))
-                logger.debug("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                logger.trace("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }
@@ -560,7 +558,13 @@ public class ClientStty
         if (!message.equalsIgnoreCase("ping"))
             disableHeartBeat();
 
-        Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, message);
+        // for the rare circumstance when if, in the middle of reading a requested collection file from disk,
+        // and sending a heartbeat in the same 1-2 seconds, the data may not be entirely there.
+        if (out != null && theirRepo != null && theirRepo.getLibraryData() != null && theirRepo.getLibraryData().libraries != null &&
+                theirRepo.getLibraryData().libraries.key != null && theirRepo.getLibraryData().libraries.key.length() > 0)
+        {
+            Utils.writeStream(out, theirRepo.getLibraryData().libraries.key, message);
+        }
 
         if (!message.equalsIgnoreCase("ping"))
             enableHeartBeat();

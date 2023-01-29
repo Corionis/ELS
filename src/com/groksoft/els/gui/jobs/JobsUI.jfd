@@ -215,7 +215,6 @@ new FormModel {
 											name: "panelPubSub"
 											add( new FormComponent( "javax.swing.JLabel" ) {
 												name: "labelPub"
-												"text": new FormMessage( null, "JobsUI.labelPub.text" )
 												"maximumSize": new java.awt.Dimension( 24, 18 )
 												"minimumSize": new java.awt.Dimension( 24, 18 )
 												"preferredSize": new java.awt.Dimension( 24, 18 )
@@ -241,7 +240,6 @@ new FormModel {
 											} )
 											add( new FormComponent( "javax.swing.JLabel" ) {
 												name: "labelSub"
-												"text": new FormMessage( null, "JobsUI.labelSub.text" )
 												"maximumSize": new java.awt.Dimension( 24, 18 )
 												"minimumSize": new java.awt.Dimension( 24, 18 )
 												"preferredSize": new java.awt.Dimension( 24, 18 )

@@ -2,7 +2,6 @@ package com.groksoft.els.stty.hintServer;
 
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
-import com.groksoft.els.Transfer;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
@@ -106,6 +105,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                     system = connectedKey.name;
                     logger.info("Authenticated automated session: " + system);
+                    context.fault = false;
+                    context.timeout = false;
                 }
             }
         }
@@ -133,9 +134,13 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         port = getSocket().getPort();
         address = getSocket().getInetAddress();
 
-        // Get ELS hints keys
-        hints = new Hints(cfg, context, context.hintKeys);
-        context.transfer = new Transfer(cfg, context);
+        // Get ELS hints keys & Tracker if specified
+        if (cfg.getHintKeysFile().length() > 0)
+        {
+            context.hintKeys = new HintKeys(cfg, context);
+            context.hintKeys.read(cfg.getHintKeysFile());
+            hints = new Hints(cfg, context, context.hintKeys);
+        }
 
         // setup i/o
         getSocket().setKeepAlive(true); // keep alive to avoid time-out
@@ -162,6 +167,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             }
 
             // prompt for & process interactive commands
+            boolean isPing = false;
             while (stop == false)
             {
                 try
@@ -171,12 +177,16 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     {
                         fault = true;
                         stop = true;
-                        logger.warn("Process fault, ending stty");
+                        logger.warn("process fault, ending stty");
                         break;
                     }
+
                     // send response or prompt the user for a command
-                    String log = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? "Writing response " + response.length() + " bytes" : "";
-                    send(response + (isTerminal ? prompt : ""), log);
+                    if (!isPing)
+                    {
+                        String log = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? "writing response " + response.length() + " bytes to " + system : "";
+                        send(response + (isTerminal ? prompt : ""), log);
+                    }
                     response = "";
 
                     line = readStream(in, myKey);  // special readStream() variant for continuous server
@@ -185,9 +195,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         break; // break read loop and let the connection be closed
                     }
 
+                    isPing = false;
                     if (line.startsWith("ping"))
                     {
-                        logger.debug("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                        isPing = true;
+                        logger.trace("heartbeat received from " + system);
                         continue;
                     }
 
@@ -372,7 +384,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     }
                     if (pos != count)
                     {
-                        logger.warn("Read counts do not match, expected " + count + ", received " + pos);
+                        logger.warn("read counts do not match, expected " + count + ", received " + pos);
                     }
                 }
                 break;
@@ -390,7 +402,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             {
                 if (e.getMessage().toLowerCase().contains("connection reset"))
                 {
-                    logger.info("Connection closed by client");
+                    logger.warn("connection closed by client");
                     input = null;
                     break;
                 }
@@ -409,7 +421,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     public void requestStop()
     {
         this.stop = true;
-        logger.debug("Requesting stop for stty session on: " + Utils.formatAddresses(socket));
+        logger.debug("requesting stop for stty session on: " + Utils.formatAddresses(socket));
     } // requestStop
 
 } // Daemon

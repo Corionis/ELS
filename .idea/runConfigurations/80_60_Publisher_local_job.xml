@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="80-60 Publisher local job" type="Application" factoryName="Application" folderName="80-00 Navigator">
+  <configuration default="false" name="80-60 Publisher local job" type="Application" factoryName="Application" folderName="80-00 Navigator - Local Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-c debug -d debug -j &quot;10 Renamer Tests&quot; -p test/publisher/publisher.json -F output/80-60_Publisher-local-job.log" />

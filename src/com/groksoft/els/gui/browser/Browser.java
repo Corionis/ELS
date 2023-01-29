@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings(value = "unchecked")
 public class Browser
 {
     // style definitions of tree display
@@ -43,14 +44,15 @@ public class Browser
     //
     public JComponent lastComponent = null;
     public int lastTab = 0;
-    public NavTransferHandler navTransferHandler;
-    public boolean trackingHints = false;
+    public boolean hintTrackingEnabled = false;
     private GuiContext guiContext;
     private String keyBuffer = "";
     private long keyTime = 0L;
     private transient Logger logger = LogManager.getLogger("applog");
     private Stack<NavItem>[] navStack = new Stack[4];
     private int[] navStackIndex = { -1, -1, -1, -1 };
+    public NavTransferHandler navTransferHandler;
+    static boolean printPropertiesInUse = false;
     private int tabStop = 0;
     private int[] tabStops = {0, 1, 4, 5};
 
@@ -70,6 +72,7 @@ public class Browser
             {
                 String name = "";
                 Component active = focusEvent.getComponent();
+                //if (active.isEnabled())
                 name = active.getName();
                 if (name.length() > 0)
                 {
@@ -1021,7 +1024,7 @@ public class Browser
         for (int i = 0; i < navStack.length; ++i)
             navStack[i] = new Stack<NavItem>();
 
-        logger.info(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());
+        //logger.info(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());
         initializeToolbar();
         initializeNavigation();
         initializeBrowserOne();
@@ -1418,10 +1421,10 @@ public class Browser
         if (!guiContext.navigator.showHintTrackingButton)
         {
             guiContext.mainFrame.panelHintTracking.setVisible(false);
-            trackingHints = false;
+            hintTrackingEnabled = false;
         }
         else
-            trackingHints = true;
+            hintTrackingEnabled = true;
 
         guiContext.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
         {
@@ -1432,15 +1435,18 @@ public class Browser
                 {
                     if (guiContext.mainFrame.panelHintTracking.isVisible())
                     {
-                        if (!trackingHints) // toggle hint tacking
+                        if (!hintTrackingEnabled) // toggle hint tacking
                         {
                             try
                             {
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-green.png");
                                 Image icon = ImageIO.read(url);
+                                guiContext.mainFrame.buttonHintTracking.setText(guiContext.cfg.gs("Navigator.button.HintTracking.text"));
+                                String tt = guiContext.context.statusStty != null ? guiContext.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
+                                        guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip");
+                                guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
                                 guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
-                                guiContext.mainFrame.buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip"));
-                                trackingHints = true;
+                                hintTrackingEnabled = true;
                             }
                             catch (Exception e)
                             {
@@ -1453,8 +1459,10 @@ public class Browser
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-red.png");
                                 Image icon = ImageIO.read(url);
                                 guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
-                                guiContext.mainFrame.buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip"));
-                                trackingHints = false;
+                                String tt = guiContext.context.statusStty != null ? guiContext.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
+                                        guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip");
+                                guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
+                                hintTrackingEnabled = false;
                             }
                             catch (Exception e)
                             {
@@ -1464,6 +1472,16 @@ public class Browser
                 }
             }
         });
+
+        String tt = guiContext.context.statusStty != null ? guiContext.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
+                guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip");
+        guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
+
+    }
+
+    public boolean isHintTrackingEnabled()
+    {
+        return this.hintTrackingEnabled;
     }
 
     public void loadCollectionTree(JTree tree, Repository repo, boolean remote)
@@ -1611,76 +1629,87 @@ public class Browser
         }
     }
 
-    public synchronized void printProperties(NavTreeUserObject tuo)
+    public void printProperties(NavTreeUserObject tuo)
     {
-        guiContext.mainFrame.textAreaProperties.setText("");
-        String msg = "<html>";
-        msg += "<style>table { margin:0; padding:0; }" +
-                "th { margin:0; padding:0; }" +
-                "td { text-align:left; }" +
-                "</style>";
-        msg += "<body>";
-        msg += guiContext.cfg.gs("Properties.type") + tuo.getType() + "<br/>" + System.getProperty("line.separator");
+        if (tuo == null || tuo.node == null || !tuo.node.isLoaded())
+            return;
 
-        try
+        if (!printPropertiesInUse)
         {
-            switch (tuo.type)
+            printPropertiesInUse = true;
+            guiContext.mainFrame.textAreaProperties.setText("");
+            String msg = "<html>";
+            msg += "<style>table { margin:0; padding:0; }" +
+                    "th { margin:0; padding:0; }" +
+                    "td { text-align:left; }" +
+                    "</style>";
+            msg += "<body>";
+            msg += guiContext.cfg.gs("Properties.type") + tuo.getType() + "<br/>" + System.getProperty("line.separator");
+
+            try
             {
-                case NavTreeUserObject.BOOKMARKS:
-                    break;
-                case NavTreeUserObject.COLLECTION:
-                    msg += guiContext.cfg.gs("Properties.libraries") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
-                    break;
-                case NavTreeUserObject.COMPUTER:
-                    msg += guiContext.cfg.gs("Properties.drives") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
-                    break;
-                case NavTreeUserObject.DRIVE:
-                    msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
-                    break;
-                case NavTreeUserObject.HOME:
-                    msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
-                    break;
-                case NavTreeUserObject.LIBRARY:
-                    msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
-                            "<tr><td>" + MessageFormat.format(guiContext.cfg.gs("Properties.sources"), tuo.sources.length) + "</td> <td></td> <td>" +
-                            guiContext.cfg.gs("Properties.free") + "</td></tr>";
-                    if (tuo.isRemote)
-                        guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    for (String source : tuo.sources)
-                    {
-                        String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true);
-                        msg += "<tr><td>" + source + "</td> <td><div>&nbsp;&nbsp;&nbsp;&nbsp;</div></td> <td>" + free + "</td></tr>";
-                    }
-                    guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    msg += "</table>";
-                    msg += System.getProperty("line.separator");
-                    break;
-                case NavTreeUserObject.REAL:
-                    msg += guiContext.cfg.gs("Properties.path") + tuo.path + "<br/>" + System.getProperty("line.separator");
-                    if (!tuo.isDir)
-                        msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
-                    if (tuo.path.endsWith(".els"))
-                    {
-                        String content = guiContext.context.transfer.readTextFile(tuo);
-                        if (content.length() > 0)
+                switch (tuo.type)
+                {
+                    case NavTreeUserObject.BOOKMARKS:
+                        break;
+                    case NavTreeUserObject.COLLECTION:
+                        msg += guiContext.cfg.gs("Properties.libraries") + tuo.node.getChildCount(false, false) +
+                                "<br/>" + System.getProperty("line.separator") +
+                                guiContext.cfg.gs("Properties.path") + tuo.node.getMyRepo().getJsonFilename() +
+                                "<br/>" + System.getProperty("line.separator");
+                        break;
+                    case NavTreeUserObject.COMPUTER:
+                        msg += guiContext.cfg.gs("Properties.drives") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
+                        break;
+                    case NavTreeUserObject.DRIVE:
+                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
+                        break;
+                    case NavTreeUserObject.HOME:
+                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
+                        break;
+                    case NavTreeUserObject.LIBRARY:
+                        msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
+                                "<tr><td>" + MessageFormat.format(guiContext.cfg.gs("Properties.sources"), tuo.sources.length) + "</td> <td></td> <td>" +
+                                guiContext.cfg.gs("Properties.free") + "</td></tr>";
+                        if (tuo.isRemote)
+                            guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                        for (String source : tuo.sources)
                         {
-                            content = content.replaceAll("\r\n", "<br/>" + System.getProperty("line.separator"));
-                            content = content.replaceAll("\n", "<br/>" + System.getProperty("line.separator"));
-                            content = content.replaceAll("\r", "<br/>" + System.getProperty("line.separator"));
+                            String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true);
+                            msg += "<tr><td>" + source + "</td> <td><div>&nbsp;&nbsp;&nbsp;&nbsp;</div></td> <td>" + free + "</td></tr>";
                         }
-                        msg += "<hr>" + System.getProperty("line.separator");
-                        msg += content;
-                    }
-                    break;
-                case NavTreeUserObject.SYSTEM:
-                    break;
+                        guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        msg += "</table>";
+                        msg += System.getProperty("line.separator");
+                        break;
+                    case NavTreeUserObject.REAL:
+                        msg += guiContext.cfg.gs("Properties.path") + tuo.path + "<br/>" + System.getProperty("line.separator");
+                        if (!tuo.isDir)
+                            msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
+                        if (tuo.path.endsWith(".els"))
+                        {
+                            String content = guiContext.context.transfer.readTextFile(tuo);
+                            if (content.length() > 0)
+                            {
+                                content = content.replaceAll("\r\n", "<br/>" + System.getProperty("line.separator"));
+                                content = content.replaceAll("\n", "<br/>" + System.getProperty("line.separator"));
+                                content = content.replaceAll("\r", "<br/>" + System.getProperty("line.separator"));
+                            }
+                            msg += "<hr>" + System.getProperty("line.separator");
+                            msg += content;
+                        }
+                        break;
+                    case NavTreeUserObject.SYSTEM:
+                        break;
+                }
+                msg += "</body></html>";
+                guiContext.mainFrame.textAreaProperties.setText(msg);
             }
-            msg += "</body></html>";
-            guiContext.mainFrame.textAreaProperties.setText(msg);
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+            }
+            printPropertiesInUse = false;
         }
     }
 
@@ -1707,7 +1736,7 @@ public class Browser
         }
     }
 
-    public void refreshTree(JTree tree)
+    public synchronized void refreshTree(JTree tree)
     {
         if (tree != null)
         {

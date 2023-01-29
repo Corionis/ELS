@@ -82,7 +82,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         !myRepo.getLibraryData().libraries.terminal_allowed)
                 {
                     send("Terminal session not allowed", "");
-                    logger.warn("Attempt made to login interactively but terminal sessions are not allowed");
+                    logger.warn("attempt made to login interactively but terminal sessions are not allowed");
                     return system;
                 }
                 send(myKey, "");
@@ -99,6 +99,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                         system = connectedKey.name;
                         logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                        context.fault = false;
+                        context.timeout = false;
                     }
                 } else if (input.equals(theirRepo.getLibraryData().libraries.key)) // otherwise validate point-to-point
                 {
@@ -107,6 +109,8 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                     system = theirRepo.getLibraryData().libraries.description;
                     logger.info("Stty server authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + system);
+                    context.fault = false;
+                    context.timeout = false;
                 }
             }
         }
@@ -140,7 +144,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         long totalSize = 0L;
         ArrayList<Item> group = new ArrayList<>();
 
-        // Get ELS hints keys if specified
+        // Get ELS hints keys & Tracker if specified
         if (cfg.getHintKeysFile().length() > 0) 
         {
             context.hintKeys = new HintKeys(cfg, context);
@@ -204,11 +208,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         {
                             fault = true;
                             stop = true;
-                            logger.warn("Process fault, ending stty");
+                            logger.warn("process fault, ending stty");
                             break;
                         }
                         // send response or prompt the user for a command
-                        send(response + (isTerminal ? prompt : ""), trace ? "Writing response " + response.length() + " bytes" : "");
+                        send(response + (isTerminal ? prompt : ""), trace ? "writing response " + response.length() + " bytes to " + system : "");
                         response = "";
 
                         line = receive(trace ? "Reading command" : "", -1);
@@ -257,7 +261,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             }
                             else
                             {
-                                logger.warn("Auth password attempt failed using: " + pw);
+                                logger.warn("auth password attempt failed using: " + pw);
                                 if (attempts >= 3) // disconnect on too many attempts
                                 {
                                     logger.error("Too many authentication failures, disconnecting");
@@ -426,7 +430,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                                     response += "    " + item.getItemPath() + "\r\n";
                                                     if (item.getSize() < 0)
                                                     {
-                                                        logger.warn("File size was < 0 during get command, getting");
+                                                        logger.warn("file size was < 0 during get command, getting");
                                                         size = Files.size(Paths.get(item.getFullPath()));
                                                         item.setSize(size);
                                                         totalSize += size;
@@ -690,7 +694,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     public void requestStop()
     {
         this.stop = true;
-        logger.debug("Requesting stop for stty session on: " + socket.getInetAddress().toString() + ":" + socket.getPort());
+        logger.debug("requesting stop for stty session on: " + socket.getInetAddress().toString() + ":" + socket.getPort());
     } // requestStop
 
 } // Daemon

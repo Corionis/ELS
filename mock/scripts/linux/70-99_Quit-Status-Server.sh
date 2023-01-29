@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -c debug -d debug --force-quit --hints test/hints/hint-server.json -p test/publisher/publisher.json -F output/70-99_Quit-Status-Server.log
+java -jar ../deploy/ELS.jar -c debug -d debug --force-quit --hint-server test/hints/hint-server.json -p test/publisher/publisher.json -F output/70-99_Quit-Status-Server.log

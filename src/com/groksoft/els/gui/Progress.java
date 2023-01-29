@@ -97,15 +97,17 @@ public class Progress extends JFrame
 
     public void done()
     {
-        savePreferences();
+        if (isBeingUsed())
+        {
+            savePreferences();
 
-        // clear the progress content
-        labelForIcon.setVisible(false);
-        progressTextField.setText(guiContext.cfg.gs("Progress.not.active"));
-        redraw();
-
-        setVisible(false);
+            // clear the progress content
+            labelForIcon.setVisible(false);
+            progressTextField.setText(guiContext.cfg.gs("Progress.not.active"));
+            redraw();
+        }
         beingUsed = false;
+        setVisible(false);
     }
 
     public boolean isBeingUsed()

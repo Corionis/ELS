@@ -487,7 +487,7 @@ public class Process
                 isInitialized = true;
             }
 
-            // Get ELS hints keys if specified
+            // Get ELS hints keys & Tracker if specified
             if (cfg.getHintKeysFile().length() > 0) 
             {
                 context.hintKeys = new HintKeys(cfg, context);
@@ -525,11 +525,7 @@ public class Process
             }
 
             // process ELS Hints to subscriber
-            if (hints != null && cfg.isTargetsEnabled() &&
-                    (cfg.getPublisherLibrariesFileName().length() > 0 ||
-                            cfg.getPublisherCollectionFilename().length() > 0) &&
-                    (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                            cfg.getSubscriberCollectionFilename().length() > 0))
+            if (hints != null && cfg.isTargetsEnabled() && cfg.getPublisherFilename().length() > 0 && cfg.getSubscriberFilename().length() > 0)
             {
                 hints.hintsMunge();
             }
@@ -537,11 +533,7 @@ public class Process
             // if all the pieces are specified perform a full munge of the collections
             if (!context.fault && !localHints && !cfg.isHintSkipMainProcess())
             {
-                if (cfg.isTargetsEnabled() &&
-                        (cfg.getPublisherLibrariesFileName().length() > 0 ||
-                                cfg.getPublisherCollectionFilename().length() > 0) &&
-                        (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                                cfg.getSubscriberCollectionFilename().length() > 0))
+                if (cfg.isTargetsEnabled() && cfg.getPublisherFilename().length() > 0 && cfg.getSubscriberFilename().length() > 0)
                 {
                     munge();
                 }
@@ -549,10 +541,7 @@ public class Process
 
             // clean-up ELS Hints on subscriber
             if (!context.fault && hints != null && !localHints && !cfg.isDryRun() && cfg.isTargetsEnabled() &&
-                    (cfg.getPublisherLibrariesFileName().length() > 0 ||
-                            cfg.getPublisherCollectionFilename().length() > 0) &&
-                    (cfg.getSubscriberLibrariesFileName().length() > 0 ||
-                            cfg.getSubscriberCollectionFilename().length() > 0))
+                    cfg.getPublisherFilename().length() > 0 && cfg.getSubscriberFilename().length() > 0)
             {
                 logger.info(SHORT, "-------------------------------------------");
                 lined = true;

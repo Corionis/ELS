@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="80-43 Navigator Workstation" type="Application" factoryName="Application" folderName="80-00 Navigator">
+  <configuration default="false" name="80-43 Navigator Workstation" type="Application" factoryName="Application" folderName="80-00 Navigator - Local Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value=" --navigator -c debug -d debug --remote P -P test/workstation.json -s test/publisher/publisher.json -F output/80-43_Navigator-workstation.log" />

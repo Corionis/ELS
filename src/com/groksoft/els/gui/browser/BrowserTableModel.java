@@ -117,6 +117,8 @@ public class BrowserTableModel extends DefaultTableModel
 
             if (column == 1) // name
             {
+                if (tuo.name.length() == 0)
+                    System.out.println("empty name");
                 return tuo;
             }
 

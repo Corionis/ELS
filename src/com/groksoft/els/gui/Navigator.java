@@ -20,6 +20,7 @@ import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.HintKeys;
+import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
@@ -200,9 +201,10 @@ public class Navigator
 
             if (guiContext.cfg.getHintKeysFile() != null && guiContext.cfg.getHintKeysFile().length() > 0)
             {
-                // Get ELS hints keys
+                // Get ELS hints keys & Tracker if specified
                 guiContext.context.hintKeys = new HintKeys(guiContext.cfg, guiContext.context);
                 guiContext.context.hintKeys.read(guiContext.cfg.getHintKeysFile());
+                guiContext.hints = new Hints(guiContext.cfg, guiContext.context, guiContext.context.hintKeys);
                 showHintTrackingButton = true;
 
                 File json = new File(guiContext.cfg.getHintKeysFile());
@@ -659,6 +661,184 @@ public class Navigator
             }
         };
         guiContext.mainFrame.menuItemOpenHintKeys.addActionListener(openHintKeysAction);
+
+        // ---
+        // Open Hint Tracking
+        AbstractAction openHintTracking = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.cfg.getHintKeysFile() == null || guiContext.cfg.getHintKeysFile().length() == 0)
+                {
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Open.hint.tracking.please.open.a.publisher.library.first"), guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
+                JFileChooser fc = new JFileChooser();
+                fc.setFileFilter(new FileFilter()
+                {
+                    @Override
+                    public boolean accept(File file)
+                    {
+                        if (file.isDirectory())
+                            return true;
+                        return (file.getName().toLowerCase().endsWith(".json"));
+                    }
+
+                    @Override
+                    public String getDescription()
+                    {
+                        return guiContext.cfg.gs("Navigator.menu.Open.hint.tracking.files");
+                    }
+                });
+                fc.setDialogTitle(guiContext.cfg.gs("Navigator.menu.Open.hint.tracking"));
+                fc.setFileHidingEnabled(false);
+                if (guiContext.preferences.getLastSubscriberOpenPath().length() > 0)
+                {
+                    File ld = new File(guiContext.preferences.getLastSubscriberOpenPath());
+                    if (ld.exists() && ld.isDirectory())
+                        fc.setCurrentDirectory(ld);
+                }
+                if (guiContext.preferences.getLastSubscriberOpenFile().length() > 0)
+                {
+                    File lf = new File(guiContext.preferences.getLastSubscriberOpenFile());
+                    if (lf.exists())
+                        fc.setSelectedFile(lf);
+                }
+
+                // Remote Connection checkbox accessory
+                JPanel jp = new JPanel();
+                GridBagLayout gb = new GridBagLayout();
+                jp.setLayout(gb);
+                jp.setBackground(UIManager.getColor("TextField.background"));
+                jp.setBorder(guiContext.mainFrame.textFieldLocation.getBorder());
+                JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>" +
+                        guiContext.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox") + "</body></html>");
+                cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
+                cbIsRemote.setToolTipText(guiContext.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox.tooltip"));
+                cbIsRemote.setSelected(guiContext.preferences.isLastIsRemote());
+                GridBagConstraints gbc = new GridBagConstraints();
+                gbc.insets = new Insets(0, 0, 0, 8);
+                gb.setConstraints(cbIsRemote, gbc);
+                jp.add(cbIsRemote);
+                fc.setAccessory(jp);
+
+                while (true)
+                {
+                    int selection = fc.showOpenDialog(guiContext.mainFrame);
+                    if (selection == JFileChooser.APPROVE_OPTION)
+                    {
+                        if (guiContext.cfg.isRemoteSession() && guiContext.context.clientStty.isConnected())
+                        {
+                            int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
+                                    guiContext.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+
+                            if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                                return;
+
+                            try
+                            {
+                                guiContext.context.clientStty.send("bye", "Sending bye command to remote");
+                            }
+                            catch (Exception e)
+                            {
+                            }
+                            guiContext.context.clientStty.disconnect();
+                            guiContext.context.clientSftp.stopClient();
+                        }
+
+                        guiContext.preferences.setLastIsRemote(cbIsRemote.isSelected());
+                        File last = fc.getCurrentDirectory();
+                        guiContext.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
+                        File file = fc.getSelectedFile();
+                        if (!file.exists())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
+                                    guiContext.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        if (file.isDirectory())
+                        {
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
+                                    guiContext.cfg.gs("Navigator.open.error.select.a.file.only"),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        try
+                        {
+                            // this defines the value returned by guiContext.cfg.isRemoteSession()
+                            if (guiContext.preferences.isLastIsRemote())
+                            {
+                                guiContext.cfg.setRemoteType("P"); // publisher to remote subscriber
+                                guiContext.mainFrame.menuItemQuitTerminate.setVisible(true);
+                            }
+                            else
+                            {
+                                guiContext.cfg.setRemoteType("-"); // not remote
+                                guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
+                            }
+
+                            guiContext.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
+                            guiContext.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
+                            guiContext.cfg.setSubscriberCollectionFilename("");
+                            guiContext.context.subscriberRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.SUBSCRIBER, !guiContext.preferences.isLastIsRemote());
+
+                            if (guiContext.preferences.isLastIsRemote())
+                            {
+                                // connect to the hint status server if defined
+                                guiContext.context.main.connectHintServer(guiContext.context.publisherRepo);
+
+                                // start the serveStty client for automation
+                                guiContext.context.clientStty = new ClientStty(guiContext.cfg, guiContext.context, false, true);
+                                if (!guiContext.context.clientStty.connect(guiContext.context.publisherRepo, guiContext.context.subscriberRepo))
+                                {
+                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
+                                            guiContext.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
+                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    guiContext.cfg.setRemoteType("-");
+                                    return;
+                                }
+                                if (guiContext.context.clientStty.checkBannerCommands())
+                                {
+                                    logger.info(guiContext.cfg.gs("Transfer.received.subscriber.commands") + (guiContext.cfg.isRequestCollection() ? "RequestCollection " : "") + (guiContext.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                                }
+
+                                // start the serveSftp client
+                                guiContext.context.clientSftp = new ClientSftp(guiContext.cfg, guiContext.context.publisherRepo, guiContext.context.subscriberRepo, true);
+                                if (!guiContext.context.clientSftp.startClient())
+                                {
+                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
+                                            guiContext.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    guiContext.cfg.setRemoteType("-");
+                                    return;
+                                }
+                            }
+
+                            // load the subscriber library
+                            guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
+                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
+                        }
+                        catch (Exception e)
+                        {
+                            JOptionPane.showMessageDialog(guiContext.mainFrame,
+                                    guiContext.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
+                                    guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        };
+/*
+        guiContext.mainFrame.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
+        if (guiContext.context.subscriberRepo != null)
+            guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
+*/
 
         // Save Layout
         AbstractAction saveLayoutAction = new AbstractAction()
@@ -1960,11 +2140,11 @@ public class Navigator
             }
         }
 
+        // connect to the hint status server if defined
+        context.main.connectHintServer(context.publisherRepo);
+
         if (config.isRemoteSession())
         {
-            // connect to the hint status server if defined
-            context.main.connectHintServer(context.publisherRepo);
-
             // start the serveStty client for automation
             context.clientStty = new ClientStty(guiContext.cfg, guiContext.context, false, true);
             if (!context.clientStty.connect(publisherRepo, subscriberRepo))
@@ -2031,7 +2211,7 @@ public class Navigator
                 // execute the Navigator GUI
                 if (initialize())
                 {
-                    //logger.info(guiContext.cfg.gs("Navigator.initialized"));
+                    logger.trace(guiContext.cfg.gs("Navigator.initialized"));
                     guiContext.preferences.fixApplication(guiContext);
 
                     for (ActionListener listener : guiContext.mainFrame.buttonHintTracking.getActionListeners())
@@ -2043,7 +2223,7 @@ public class Navigator
                     logger.debug(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
                     guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Navigator.detected.local.system.as") + os);
 
-                    //logger.info(guiContext.cfg.gs("Navigator.displaying"));
+                    logger.trace(guiContext.cfg.gs("Navigator.displaying"));
                     guiContext.mainFrame.setVisible(true);
 
                     guiContext.preferences.fixBrowserDivider(guiContext, -1);
@@ -2144,34 +2324,6 @@ public class Navigator
 
         // end the Navigator Swing thread
         System.exit(guiContext.context.fault ? 1 : 0);
-    }
-
-    public class TeeLog extends PrintStream
-    {
-        public TeeLog(PrintStream out1)
-        {
-            super(out1);
-        }
-
-        public void write(byte buf[], int offset, int length)
-        {
-            try
-            {
-                super.write(buf, offset, length);
-                guiContext.mainFrame.textAreaOperationLog.append(buf.toString() + System.getProperty("line.separator"));
-                guiContext.mainFrame.textAreaOperationLog.repaint();
-            }
-            catch (Exception e)
-            {
-                System.err.print("TeeLog failure: " + Utils.getStackTrace(e));
-            }
-        }
-
-        public void flush()
-        {
-            super.flush();
-        }
-
     }
 
 }

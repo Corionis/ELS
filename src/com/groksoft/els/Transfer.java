@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
@@ -20,8 +19,7 @@ import java.util.concurrent.TimeUnit;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * Transfer class to handle copying content to the appropriate location and
- * the local-only operationsUI needed for ELS Hints.
+ * Transfer class to handle content operations to the appropriate location
  */
 public class Transfer
 {
@@ -643,7 +641,7 @@ public class Transfer
             repo.scan(toLib.name);
         }
 
-        Collection collection = repo.getMapItem(fromLib, fromName);
+        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, fromName));
         if (collection != null)
         {
             Iterator it = collection.iterator();
@@ -652,7 +650,6 @@ public class Transfer
                 for (int i = 0; i < collection.size(); ++i) // generally there is only one
                 {
                     Integer j = (Integer) it.next();
-
                     Item fromItem = fromLib.items.elementAt(j);
 
                     if (fromItem.isDirectory())
@@ -824,49 +821,6 @@ public class Transfer
         return content;
     }
 
-    public String reduceCollectionPath(NavTreeUserObject tuo)
-    {
-        String path = null;
-        if (tuo.node.getMyTree().getName().contains("Collection"))
-        {
-            Repository repo = tuo.getRepo();
-            if (repo != null)
-            {
-                String tuoPath = (repo.getLibraryData().libraries.case_sensitive) ? tuo.path : tuo.path.toLowerCase();
-                if (tuoPath.length() == 0)
-                {
-                    path = tuo.name + " | ";
-                }
-                else
-                {
-                    for (Library lib : repo.getLibraryData().libraries.bibliography)
-                    {
-                        for (String source : lib.sources)
-                        {
-                            String srcPath = source;
-                            if (!tuo.isRemote)
-                            {
-                                File srcDir = new File(source);
-                                srcPath = srcDir.getAbsolutePath();
-                            }
-                            srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcPath : srcPath.toLowerCase();
-                            if (tuoPath.startsWith(srcPath))
-                            {
-                                path = lib.name + " | " + tuo.path.substring(srcPath.length() + 1);
-                                break;
-                            }
-                        }
-                        if (path != null)
-                            break;
-                    }
-                }
-            }
-        }
-        if (path == null)
-            path = tuo.path;
-        return path;
-    }
-
     /**
      * Remove a file, local or remote
      *
@@ -905,7 +859,7 @@ public class Transfer
             return false;
         }
 
-        Collection collection = repo.getMapItem(fromLib, fromName);
+        Collection collection = repo.getMapItem(fromLib, Utils.pipe(repo, fromName));
         if (collection != null)
         {
             Iterator it = collection.iterator();
@@ -930,7 +884,7 @@ public class Transfer
                             File rmdir = new File(rmPath);
                             if (Utils.removeDirectoryTree(rmdir))
                             {
-                                logger.warn("  ! Previous directory was not empty: " + fromItem.getFullPath());
+                                logger.warn(cfg.gs("Transfer.previous.directory.was.not.empty") + fromItem.getFullPath());
                             }
                             logger.info(cfg.gs("Transfer.rm.directory") + "\"" + fromItem.getFullPath() + "\"");
                             fromLib.rescanNeeded = true;
@@ -1093,137 +1047,6 @@ public class Transfer
         }
         seconds = seconds / 1000l;
         return seconds;
-    }
-
-    public String writeHint(String action, boolean isWorkstation, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
-    {
-        /*
-         * Publisher Workstation & Subscriber Collection
-         *      Source                  Target                  Action
-         *      ----------------------  ----------------------  ----------------------
-         *      Workstation *           Workstation *           none
-         *      Workstation *           Subscriber Collection   basic add, none
-         *      Workstation *           Subscriber System       none
-         *      Subscriber Collection   Workstation *           hint rm
-         *      Subscriber System       Workstation *           none
-         *
-         *      Subscriber Collection   Subscriber Collection   hint
-         *      Subscriber System       Subscriber Collection   basic add, none
-         *      Subscriber Collection   Subscriber System       hint rm
-         *      Subscriber System       Subscriber System       none
-         *
-         * Publisher Collection & Subscriber Collection
-         *      Source                  Target                  Action
-         *      ----------------------  ----------------------  ----------------------
-         *      Publisher Collection    Publisher Collection    hint
-         *      Publisher System        Publisher Collection    basic add, none
-         *      Publisher Collection    Publisher System        hint rm
-         *      Publisher System        Publisher System        none
-         *
-         *      Publisher Collection    Subscriber Collection
-         *      Publisher System        Subscriber Collection
-         *      Publisher Collection    Subscriber System       hint rm
-         *      Publisher System        Subscriber System       none
-         *
-         *      Subscriber Collection    Publisher Collection
-         *      Subscriber System        Publisher Collection
-         *      Subscriber Collection    Publisher System       hint rm
-         *      Subscriber System        Publisher System       none
-         *
-         *      Subscriber Collection    Subscriber Collection
-         *      Subscriber System        Subscriber Collection
-         *      Subscriber Collection    Subscriber System
-         *      Subscriber System        Subscriber System
-         *
-         */
-        String hintPath = "";
-
-        // if a workstation and source is publisher then it is local or a basic add and there is no hint
-        if (isWorkstation && !sourceTuo.isSubscriber())
-            return "";
-
-        boolean sourceIsCollection = sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection");
-        boolean targetIsCollection = (targetTuo != null) ? targetTuo.node.getMyTree().getName().toLowerCase().contains("collection") : false;
-
-        // if source is subscriber system tab this it is a basic add, no hint
-        if (sourceTuo.isSubscriber() && !sourceIsCollection)
-            return "";
-
-        // if either the source or target are not a collection there is no hint
-        if (sourceIsCollection || targetIsCollection)
-        {
-            String command = "";
-            String act = action.trim().toLowerCase();
-
-            // a move out of a collection is an rm from the collection's point of view
-            if (!targetIsCollection || !targetTuo.isSubscriber())
-                act = "rm";
-
-            if (act.equals("mv"))
-            {
-                command = "mv \"" + reduceCollectionPath(sourceTuo) + "\" \"" + reduceCollectionPath(targetTuo) + "\"";
-            }
-            else if (act.equals("rm"))
-            {
-                command = "rm \"" + reduceCollectionPath(sourceTuo) + "\"";
-            }
-            else
-                throw new MungeException("Action must be 'mv' or 'rm'");
-
-            hintPath = Utils.getLeftPath(sourceTuo.path, null);
-            String hintName = Utils.getRightPath(hintPath, null);
-            hintPath = hintPath + Utils.getSeparatorFromPath(hintPath) + hintName + ".els";
-
-            // do not write a Hint about the same Hint
-            if (Utils.getRightPath(sourceTuo.path, null).equals(hintName + ".els"))
-                return "";
-
-            if (!sourceTuo.isSubscriber())
-                context.localMode = true;
-
-            String sourceKey = sourceTuo.isSubscriber() ? context.subscriberRepo.getLibraryData().libraries.key : context.publisherRepo.getLibraryData().libraries.key;
-            hintPath = writeUpdateHint(hintPath, command, sourceKey);
-            context.localMode = false;
-        }
-        return hintPath;
-    }
-
-    public String writeUpdateHint(String hintPath, String command, String sourceKey) throws Exception
-    {
-        if (cfg.isRemoteSession() && !context.localMode)
-        {
-            String line = "hint \"" + hintPath + "\" " + command;
-            hintPath = context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
-        }
-        else // local operationsUI
-        {
-            File hintFile = new File(hintPath);
-            command = command + "\n";
-            if (Files.exists(hintFile.toPath()))
-            {
-                Files.write(hintFile.toPath(), command.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                logger.info(cfg.gs("Transfer.updated.hint.file") + hintFile.getAbsolutePath());
-                hintPath = "";
-            }
-            else
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.append("# Created " + new Date().toString() + "\n");
-
-                ArrayList<HintKeys.HintKey> keys = context.hintKeys.get();
-                for (HintKeys.HintKey key : keys)
-                {
-                    if (key.uuid.equalsIgnoreCase(sourceKey))
-                        sb.append("Done " + key.name + "\n");
-                    else
-                        sb.append("For " + key.name + "\n");
-                }
-                sb.append(command);
-                Files.write(hintFile.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
-                logger.info(cfg.gs("Transfer.created.hint.file") + hintFile.getAbsolutePath());
-            }
-        }
-        return hintPath;
     }
 
 }

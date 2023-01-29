@@ -83,12 +83,13 @@ public class Utils
             {
                 key = key.substring(0, 16);
             }
-            logger.trace("  decrypt with " + key);
+            //logger.trace("  decrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // decrypt the text
             cipher.init(Cipher.DECRYPT_MODE, aesKey);
             output = new String(cipher.doFinal(encrypted));
+            //logger.trace("  decrypted " + output.length() + " bytes");
         }
         catch (Exception e)
         {
@@ -115,18 +116,18 @@ public class Utils
             {
                 key = key.substring(0, 16);
             }
+            //logger.trace("  encrypt with " + key);
             Key aesKey = new SecretKeySpec(key.getBytes(), "AES");
             Cipher cipher = Cipher.getInstance("AES");
             // encrypt the text
             cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+            //logger.trace("  encrypted " + text.getBytes().length + " bytes");
             encrypted = cipher.doFinal(text.getBytes());
         }
         catch (Exception e)
         {
             logger.error(e.getMessage());
         }
-        logger.trace("writing " + encrypted.length + " bytes");
-        logger.trace("  encrypt with " + key);
         return encrypted;
     }
 
@@ -759,7 +760,7 @@ public class Utils
                 logger.trace("read() waiting ...");
                 int count = in.readInt();
 
-                logger.trace("  reading " + count + " bytes");
+                logger.trace("  receiving " + count + " encrypted bytes");
                 int pos = 0;
                 if (count > 0)
                 {
@@ -777,7 +778,7 @@ public class Utils
                     }
                     if (pos != count)
                     {
-                        logger.warn("Read counts do not match, expected " + count + ", received " + pos);
+                        logger.warn("read counts do not match, expected " + count + ", received " + pos);
                     }
                 }
                 break;
@@ -790,22 +791,22 @@ public class Utils
             }
             catch (EOFException e)
             {
-                logger.error("read() EOF");
+                logger.error("  read() EOF");
                 input = null; // remote disconnected
                 break;
             }
             catch (IOException e)
             {
                 if (e.getMessage().toLowerCase().contains("connection reset"))
-                    logger.warn("Connection closed by client");
+                    logger.warn("connection closed by client");
                 input = null;
                 throw e;
             }
         }
-        if (buf.length > 0)
+        if (buf.length > 0 && input != null)
             input = decrypt(key, buf);
 
-        logger.trace("read done");
+        logger.trace("read done " + ((input != null) ? input.length() : "0") + " bytes");
         return input;
     }
 
@@ -817,11 +818,15 @@ public class Utils
     public static synchronized String readString(String filename) throws Exception
     {
         String content = "";
-        URL url = new URL("file:" + filename);
-        List<String> lines = IoUtils.readAllLines(url);
-        for (int i = 0; i < lines.size(); ++i)
+        File file = new File(filename);
+        if (file.exists())
         {
-            content += lines.get(i) + System.getProperty("line.separator");
+            URL url = new URL("file:" + filename);
+            List<String> lines = IoUtils.readAllLines(url);
+            for (int i = 0; i < lines.size(); ++i)
+            {
+                content += lines.get(i) + System.getProperty("line.separator");
+            }
         }
         return content;
     }
@@ -931,18 +936,20 @@ public class Utils
      */
     public static void writeStream(DataOutputStream out, String key, String message) throws Exception
     {
+        logger.trace("writing " + message.length() + " bytes");
         byte[] buf = encrypt(key, message);
 
-        logger.trace("  writing size");
+        logger.trace("  sending " + buf.length + " encrypted bytes");
+        //logger.trace("  writing size");
         out.writeInt(buf.length);
 
-        logger.trace("  flushing size");
+        //logger.trace("  flushing size");
         out.flush();
 
-        logger.trace("  writing data");
+        //logger.trace("  writing data");
         out.write(buf);
 
-        logger.trace("  flushing data");
+        //logger.trace("  flushing data");
         out.flush();
 
         logger.trace("write done");

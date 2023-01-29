@@ -35,11 +35,13 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     // @formatter:off
     public static final String INTERNAL_NAME = "Operations";
     public static final String SUBSYSTEM = "tools";
+    public static enum Cards { Publisher, Listener, HintServer, Terminal, Quitter }
 
     private String configName; // user name for this instance
     private String internalName = INTERNAL_NAME;
-    private int operation = 0;
-    private String optAuthorize = ""; // -a | --authorize
+    private Configuration.Operations operation = Configuration.Operations.NotRemote;
+    private Cards card = Cards.Publisher;
+    private char[] optAuthorize = null; // -a | --authorize
     private String optAuthKeys = ""; // -A | --auth-keys
     private boolean optNoBackFill = false; // -b | --no-back-fill
     private String optBlacklist = ""; // -B | --blacklist
@@ -158,28 +160,28 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         // --- remote mode
         switch (operation)
         {
-            case Configuration.JOB_PROCESS:
-                sb.append(" " + (glo ? "--remote" : "-r") + " J");
-                break;
-            case Configuration.PUBLISHER_LISTENER:
-                sb.append(" " + (glo ? "--remote" : "-r") + " L");
-                break;
-            case Configuration.PUBLISHER_MANUAL:
-                sb.append(" " + (glo ? "--remote" : "-r") + " M");
-                break;
-            case Configuration.PUBLISH_REMOTE:
+            case PublishRemote:
                 sb.append(" " + (glo ? "--remote" : "-r") + " P");
                 break;
-            case Configuration.SUBSCRIBER_LISTENER:
+            case SubscriberListener:
                 sb.append(" " + (glo ? "--remote" : "-r") + " S");
                 break;
-            case Configuration.SUBSCRIBER_TERMINAL:
+            case PublisherListener:
+                sb.append(" " + (glo ? "--remote" : "-r") + " L");
+                break;
+            case PublisherManual:
+                sb.append(" " + (glo ? "--remote" : "-r") + " M");
+                break;
+            case SubscriberTerminal:
                 sb.append(" " + (glo ? "--remote" : "-r") + " T");
                 break;
-            case Configuration.NOT_REMOTE:
-            case Configuration.STATUS_SERVER:
-            case Configuration.STATUS_SERVER_FORCE_QUIT:
-            case Configuration.SUBSCRIBER_SERVER_FORCE_QUIT:
+            case JobProcess:
+                sb.append(" " + (glo ? "--remote" : "-r") + " J");
+                break;
+            case NotRemote:
+            case StatusServer:
+            case StatusServerForceQuit:
+            case SubscriberListenerForceQuit:
                 break;
         }
 
@@ -192,20 +194,20 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         // --- targets
         switch (operation)
         {
-            case Configuration.JOB_PROCESS:
-            case Configuration.NOT_REMOTE:
-            case Configuration.PUBLISHER_LISTENER:
-            case Configuration.PUBLISH_REMOTE:
-            case Configuration.SUBSCRIBER_LISTENER:
-            case Configuration.SUBSCRIBER_SERVER_FORCE_QUIT:
+            case JobProcess:
+            case NotRemote:
+            case PublisherListener:
+            case PublishRemote:
+            case SubscriberListener:
+            case SubscriberListenerForceQuit:
                 sb.append(" " + (glo ? "--targets" : "-t"));
                 if (getOptTargets().length() > 0)
                     sb.append(" \"" + getOptTargets() + "\"");
                 break;
-            case Configuration.PUBLISHER_MANUAL:
-            case Configuration.STATUS_SERVER:
-            case Configuration.STATUS_SERVER_FORCE_QUIT:
-            case Configuration.SUBSCRIBER_TERMINAL:
+            case PublisherManual:
+            case StatusServer:
+            case StatusServerForceQuit:
+            case SubscriberTerminal:
                 break;
         }
 
@@ -222,8 +224,8 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + getOptHintServer() + "\"");
 
         // --- security
-        if (getOptAuthorize().length() > 0)
-            sb.append(" " + (glo ? "--authorize" : "-a") + " \"" + getOptAuthorize() + "\"");
+        if (getOptAuthorize().length > 0)
+            sb.append(" " + (glo ? "--authorize" : "-a") + " \"" + getOptAuthorize().toString() + "\"");
         if (getOptAuthKeys().length() > 0)
             sb.append(" " + (glo ? "--auth-keys" : "-A") + " \"" + getOptAuthorize() + "\"");
         if (getOptBlacklist().length() > 0)
@@ -238,7 +240,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             sb.append(" " + (glo ? "--export-items" : "-i") + " \"" + getOptExportItems() + "\"");
 
         // --- include/exclude libraries
-        // TODO add
+        // TODO add include/exclude libraries
 
         // --- differences
         if (getOptMismatches().length() > 0)
@@ -320,12 +322,22 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         return internalName;
     }
 
+    public Cards getCard()
+    {
+        return card;
+    }
+
+    public Configuration.Operations getOperation()
+    {
+        return operation;
+    }
+
     public String getOptAuthKeys()
     {
         return optAuthKeys;
     }
 
-    public String getOptAuthorize()
+    public char[] getOptAuthorize()
     {
         return optAuthorize;
     }
@@ -429,11 +441,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public String getSubsystem()
     {
         return SUBSYSTEM;
-    }
-
-    public int getOperation()
-    {
-        return operation;
     }
 
     @Override
@@ -588,14 +595,13 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                 }
             };
             guiContext.progress = new Progress(guiContext, guiContext.mainFrame.panelOperationTop, cancel, dryRun);
+            guiContext.progress.display();
         }
         else
         {
             JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.WARNING_MESSAGE);
             return null;
         }
-
-        guiContext.progress.display();
 
         // using currently-loaded repositories means there is no change in connection
         //if (willDisconnect(guiContext))
@@ -643,6 +649,11 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         this.configName = configName;
     }
 
+    public void setCard(Cards card)
+    {
+        this.card = card;
+    }
+
     public void setDataHasChanged()
     {
         dataHasChanged = true;
@@ -664,7 +675,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         this.optAuthKeys = optAuthKeys;
     }
 
-    public void setOptAuthorize(String optAuthorize)
+    public void setOptAuthorize(char[] optAuthorize)
     {
         this.optAuthorize = optAuthorize;
     }
@@ -839,9 +850,9 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         this.optWhatsNewAll = optWhatsNewAll;
     }
 
-    public void setOperation(int operation)
+    public void setOperation(Configuration.Operations operation)
     {
-        this.operation =operation;
+        this.operation = operation;
     }
 
     public void write() throws Exception

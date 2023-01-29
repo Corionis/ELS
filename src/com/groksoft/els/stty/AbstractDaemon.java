@@ -198,7 +198,7 @@ public abstract class AbstractDaemon
             response = Utils.readStream(in, myRepo.getLibraryData().libraries.key);
 
             if (response != null && response.startsWith("ping"))
-                logger.debug("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
+                logger.trace("heartbeat received" + ((theirRepo != null) ? " from " + theirRepo.getLibraryData().libraries.description : ""));
             else
                 break;
         }
@@ -211,7 +211,7 @@ public abstract class AbstractDaemon
     public void requestStop()
     {
         this.stop = true;
-        logger.debug("Requesting stop for stty session: " + Utils.formatAddresses(socket));
+        logger.debug("requesting stop for stty session: " + Utils.formatAddresses(socket));
     }
 
     /**

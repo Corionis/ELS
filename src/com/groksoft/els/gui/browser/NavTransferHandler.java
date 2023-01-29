@@ -1,7 +1,9 @@
 package com.groksoft.els.gui.browser;
 
+import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.repository.HintKeys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 /**
  * Handler for Drag 'n Drop (DnD) and Copy/Cut/Paste (CCP) for local and/or remote
  */
+@SuppressWarnings(value = "unchecked")
 public class NavTransferHandler extends TransferHandler
 {
     private final DataFlavor flavor = new ActivationDataFlavor(ArrayList.class, "application/x-java-object;class=java.util.ArrayList", "ArrayList of NavTreeUserObject");
@@ -160,11 +163,9 @@ public class NavTransferHandler extends TransferHandler
      */
     public synchronized void exportHint(String act, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
     {
-        if (guiContext.browser.trackingHints == true)
+        if (guiContext.browser.isHintTrackingEnabled())
         {
-            String hintPath = guiContext.context.transfer.writeHint(act, guiContext.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
-
-            // create a tree node if a new Hint file was created
+            String hintPath = guiContext.hints.writeHint(act, guiContext.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
             if (hintPath.length() > 0)
             {
                 if (hintPath.toLowerCase().equals("false"))
@@ -173,25 +174,41 @@ public class NavTransferHandler extends TransferHandler
                 }
                 else
                 {
-                    // make tuo and add node
-                    NavTreeUserObject createdTuo = null;
-                    NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyRepo(), sourceTuo.node.getMyTree());
-                    if (sourceTuo.isRemote)
+                    // make tuo and add node if it doesn't exist
+                    NavTreeNode ntn = ((NavTreeNode) sourceTuo.node.getParent()).findChildName(Utils.getRightPath(hintPath, null));
+                    if (ntn == null)
                     {
-                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
-                                hintPath, 0, LocalTime.now().toSecondOfDay(), false);
+                        NavTreeUserObject createdTuo = null;
+                        NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyRepo(), sourceTuo.node.getMyTree());
+                        if (sourceTuo.isRemote)
+                        {
+                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
+                                    hintPath, 0, LocalTime.now().toSecondOfDay(), false);
+                        }
+                        else
+                        {
+                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null), new File(hintPath));
+                        }
+
+                        createdNode.setNavTreeUserObject(createdTuo);
+                        createdNode.setAllowsChildren(false);
+                        createdNode.setVisible(!guiContext.preferences.isHideFilesInTree());
+                        ((NavTreeNode) sourceTuo.node.getParent()).add(createdNode);
                     }
-                    else
+
+                    // update status tracking
+                    if (!guiContext.preferences.isLastIsWorkstation() || sourceTuo.isSubscriber())
                     {
-                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null), new File(hintPath));
+                        NavTreeNode node = sourceTuo.getParentLibrary();
+                        if (node == null)
+                            throw new MungeException("logic fault: cannot find parent library of relevant item");
+                        String lib = node.getUserObject().name;
+                        String itemPath = sourceTuo.getItemPath(lib, hintPath);
+                        HintKeys.HintKey key = guiContext.context.hintKeys.findKey(sourceTuo.getRepo().getLibraryData().libraries.key);
+                        String backup = key.name;
+                        String status = "Done";
+                        guiContext.hints.updateStatusTracking(lib, itemPath, backup, status);
                     }
-                    createdNode.setNavTreeUserObject(createdTuo);
-                    createdNode.setAllowsChildren(false);
-                    if (guiContext.preferences.isHideFilesInTree())
-                        createdNode.setVisible(false);
-                    else
-                        createdNode.setVisible(true);
-                    ((NavTreeNode) sourceTuo.node.getParent()).add(createdNode);
                 }
             }
         }

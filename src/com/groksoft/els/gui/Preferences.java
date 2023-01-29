@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@SuppressWarnings(value = "unchecked")
 public class Preferences implements Serializable
 {
     private String accentColor = "2675BF";
@@ -51,6 +52,9 @@ public class Preferences implements Serializable
     private int jobsYpos = -1;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
+    private boolean lastHintTrackingIsRemote = true;
+    private String lastHintTrackingOpenFile = "";
+    private String lastHintTrackingOpenPath = "";
     private boolean lastIsRemote = true;
     private boolean lastIsWorkstation = false;
     private String lastPublisherOpenFile = "";
@@ -434,6 +438,16 @@ public class Preferences implements Serializable
         return lastHintKeysOpenPath;
     }
 
+    public String getLastHintTrackingOpenFile()
+    {
+        return lastHintTrackingOpenFile;
+    }
+
+    public String getLastHintTrackingOpenPath()
+    {
+        return lastHintTrackingOpenPath;
+    }
+
     public String getLastPublisherOpenFile()
     {
         return lastPublisherOpenFile;
@@ -732,6 +746,11 @@ public class Preferences implements Serializable
         return hideHiddenFiles;
     }
 
+    public boolean isLastHintTrackingIsRemote()
+    {
+        return lastHintTrackingIsRemote;
+    }
+
     public boolean isLastIsRemote()
     {
         return lastIsRemote;
@@ -955,6 +974,21 @@ public class Preferences implements Serializable
     public void setLastHintKeysOpenPath(String lastHintKeysOpenPath)
     {
         this.lastHintKeysOpenPath = lastHintKeysOpenPath;
+    }
+
+    public void setLastHintTrackingIsRemote(boolean lastHintTrackingIsRemote)
+    {
+        this.lastHintTrackingIsRemote = lastHintTrackingIsRemote;
+    }
+
+    public void setLastHintTrackingOpenFile(String lastHintTrackingOpenFile)
+    {
+        this.lastHintTrackingOpenFile = lastHintTrackingOpenFile;
+    }
+
+    public void setLastHintTrackingOpenPath(String lastHintTrackingOpenPath)
+    {
+        this.lastHintTrackingOpenPath = lastHintTrackingOpenPath;
     }
 
     public void setLastIsRemote(boolean lastIsRemote)

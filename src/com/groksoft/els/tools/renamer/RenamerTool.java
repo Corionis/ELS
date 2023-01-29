@@ -180,7 +180,7 @@ public class RenamerTool extends AbstractTool
                 int pc = StringUtils.countMatches(value, ".");
                 //  Which has more?
                 int m = (getSegment() == 2 ? 2 : 1);
-                String sep = (pc > m && pc > sc) ? "\\." : " ";
+                String sep = (pc > m && pc > sc) ? "\\." : " "; // ????
 
                 String[] split = value.split(sep);
                 value = "";
@@ -195,7 +195,7 @@ public class RenamerTool extends AbstractTool
                         fc = word.substring(0, 1);   // FIXME problem with multiple spaces????????????
                     fc = fc.toUpperCase(cfg.bundle().getLocale());
                     word = fc + ((word.length() > 1) ? word.substring(1) : "");
-                    value = value + (value.length() > 0 ? (sep != " " ? "." : " ") : "") + word;
+                    value = value + (value.length() > 0 ? (sep != " " ? "." : " ") : "") + word; // ????
                 }
                 break;
             case "upper":
@@ -566,14 +566,13 @@ public class RenamerTool extends AbstractTool
                     }
                 };
                 guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, isDryRun);
+                guiContext.progress.display();
             }
             else
             {
                 JOptionPane.showMessageDialog(guiContext.mainFrame, getCfg().gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                 return null;
             }
-
-            guiContext.progress.display();
         }
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()

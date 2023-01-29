@@ -14,7 +14,9 @@ the -r | --remote option for ELS runs.
 ELS Hints are optional. The Hint Tracker (-h option) is optional when using hints. 
 But the ELS Hint Status Server (HSS) is **required** when using hints and hint
 tracking with the -r | --remote option. The Hint Status Server is the remote
-variant of the Hint Tracker and is run as a separate stand-alone process.
+variant of the Hint Tracker and is run as a separate stand-alone process. There
+can be only one. All other systems using ELS use or connect to that single
+instance.
 
  * Hints are enabled with the -k | -K option, see [Hints](Hints).
  * Hint Tracker is enabled with the -h option.

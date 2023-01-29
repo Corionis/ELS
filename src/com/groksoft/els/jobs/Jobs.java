@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 
+@SuppressWarnings(value = "unchecked")
 public class Jobs
 {
     private GuiContext guiContext;

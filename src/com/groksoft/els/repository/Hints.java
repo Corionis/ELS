@@ -4,6 +4,7 @@ import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
+import com.groksoft.els.gui.browser.NavTreeUserObject;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,19 +12,21 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * Hints class to handle finding and executing ELS Hints and their commands.
+ * Hints class to handle writing, updating, finding and executing ELS Hints and their commands.
  */
 public class Hints
 {
-    private final transient Logger logger = LogManager.getLogger("applog");
     private final Marker SHORT = MarkerManager.getMarker("SHORT");
     private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
     private Configuration cfg;
@@ -37,6 +40,7 @@ public class Hints
     private int seenHints = 0;
     private int skippedHints = 0;
     private int validatedHints = 0;
+    private final transient Logger logger = LogManager.getLogger("applog");
 
     /**
      * Constructor
@@ -115,6 +119,7 @@ public class Hints
         for (String line : lines)
         {
             ++lineNo;
+            String lowLine = line.toLowerCase();
 
             // skip blank lines
             if (line.length() < 1)
@@ -127,13 +132,13 @@ public class Hints
                 continue;
             }
 
-            if (line.startsWith("for ") || line.startsWith("done ") || line.startsWith("seen ") || line.startsWith("deleted "))
+            if (lowLine.startsWith("for ") || lowLine.startsWith("done ") || lowLine.startsWith("seen ") || lowLine.startsWith("deleted "))
             {
                 continue;
             }
 
             // mv move
-            if (line.toLowerCase().startsWith("mv "))
+            if (lowLine.startsWith("mv "))
             {
                 String[] parts = parseCommand(line, lineNo, 3); // null never returned
                 //dumpTerms(parts);
@@ -157,7 +162,7 @@ public class Hints
                 if (toName.length() < 1)
                     throw new MungeException("Malformed to filename on line " + lineNo);
 
-                if (hintItemSubdirectory != null)
+                if (hintItemSubdirectory != null && Utils.isFileOnly(fromName))
                     toName = hintItemSubdirectory + "|" + toName;
 
                 context.localMode = true;
@@ -167,7 +172,7 @@ public class Hints
 
                 item.setHintExecuted(true);
             }
-            else if (line.toLowerCase().startsWith("rm ")) // rm remove
+            else if (lowLine.startsWith("rm ")) // rm remove
             {
                 String[] parts = parseCommand(line, lineNo, 2); // null never returned
                 //dumpTerms(parts);
@@ -180,7 +185,7 @@ public class Hints
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
 
-                if (hintItemSubdirectory != null)
+                if (hintItemSubdirectory != null && Utils.isFileOnly(fromName))
                     fromName = hintItemSubdirectory + "|" + fromName;
 
                 if (context.transfer.remove(repo, fromLib.trim(), fromName.trim()))
@@ -466,10 +471,10 @@ public class Hints
             // if processing all libraries, or this one was specified on the command line with -l,
             // and it has not been excluded with -L
             if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) 
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
             {
                 // if the subscriber has included and not excluded this library
-                if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) 
+                if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE))
                 {
                     String n = subLib.name.replaceFirst(context.subscriberRepo.SUB_EXCLUDE, "");
                     logger.info("Skipping subscriber library: " + n);
@@ -532,7 +537,7 @@ public class Hints
 
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
-                            context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, cfg.isRemoteSession(),true);
+                            context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, cfg.isRemoteSession(), true);
 
                             toItem = SerializationUtils.clone(item);
                             toItem.setFullPath(toPath);
@@ -544,22 +549,26 @@ public class Hints
                             boolean updatePubSide = false;
                             if (cfg.isRemoteSession())
                             {
-
-                                // Send command to merge & execute
-                                String msg = "* Executing " + item.getFullPath() + " remotely on " + context.subscriberRepo.getLibraryData().libraries.description;
-                                String response = context.clientStty.roundTrip("execute \"" +
-                                        toItem.getLibrary() + "\" \"" + toItem.getItemPath() + "\" \"" + toPath + "\"", msg, -1);
-                                if (response != null && response.length() > 0)
+                                if (context.clientStty.isConnected())
                                 {
-                                    logger.info("  > execute command returned: " + response);
-                                    updatePubSide = response.equalsIgnoreCase("true") ? true : false;
-                                    if (updatePubSide)
+                                    // Send command to merge & execute
+                                    String msg = "* Executing " + item.getFullPath() + " remotely on " + context.subscriberRepo.getLibraryData().libraries.description;
+                                    String response = context.clientStty.roundTrip("execute \"" +
+                                            toItem.getLibrary() + "\" \"" + toItem.getItemPath() + "\" \"" + toPath + "\"", msg, -1);
+                                    if (response != null && response.length() > 0)
                                     {
-                                        subLib.rescanNeeded = true;
+                                        logger.info("  > execute command returned: " + response);
+                                        updatePubSide = response.equalsIgnoreCase("true") ? true : false;
+                                        if (updatePubSide)
+                                        {
+                                            subLib.rescanNeeded = true;
+                                        }
                                     }
+                                    else
+                                        throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
                                 }
                                 else
-                                    throw new MungeException("Subscriber disconnected");
+                                    throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
                             }
                             else
                             {
@@ -651,18 +660,20 @@ public class Hints
     {
         if (cfg.isRemoteSession() && !context.localMode)
         {
-
-            // Send command to clean-up hints
-            String msg = "Sending hints cleanup command to remote: " + context.subscriberRepo.getLibraryData().libraries.description;
-            String response = context.clientStty.roundTrip("cleanup", msg, -1);
-            if (response != null && response.length() > 0)
+            if (context.clientStty.isConnected())
             {
-                logger.debug("  > cleanup command returned: " + response);
+                // Send command to clean-up hints
+                String msg = "Sending hints cleanup command to remote: " + context.subscriberRepo.getLibraryData().libraries.description;
+                String response = context.clientStty.roundTrip("cleanup", msg, -1);
+                if (response != null && response.length() > 0)
+                {
+                    logger.debug("  > cleanup command returned: " + response);
+                }
+                else
+                    throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
             }
             else
-            {
-                throw new MungeException("Subscriber disconnected");
-            }
+                throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
         }
         else
         {
@@ -761,7 +772,7 @@ public class Hints
     private List<String> mergeStatusServer(Item item, List<String> lines) throws Exception
     {
         // is a hint status server being used?
-        if (cfg.isUsingHintTracker())
+        if (cfg.isUsingHintTracking())
         {
             boolean changed = false;
             for (int i = 0; i < lines.size(); ++i)
@@ -776,19 +787,24 @@ public class Hints
                     int existingRank = statusToRank(existingStatus);
                     int mergeRank;
 
-                    if (cfg.isRemoteSession())
-                    //if (context.statusStty != null && context.statusStty.isConnected())
+                    if (context.statusStty != null)
                     {
-                        // get the status from the status server
-                        String command = "get \"" + item.getLibrary() + "\" " +
-                                "\"" + item.getItemPath() + "\" " +
-                                "\"" + existingName + "\" " +
-                                "\"" + existingStatus + "\"";
-
-                        String response = context.statusStty.roundTrip(command, "Merge status", 10000);
-                        if (response != null && !response.equalsIgnoreCase("false"))
+                        if (context.statusStty.isConnected())
                         {
-                            mergeRank = statusToRank(response);
+                            // get the status from the status server
+                            String command = "get \"" + item.getLibrary() + "\" " +
+                                    "\"" + item.getItemPath() + "\" " +
+                                    "\"" + existingName + "\" " +
+                                    "\"" + existingStatus + "\"";
+
+                            String response = context.statusStty.roundTrip(command, "", 10000);
+                            if (response != null && !response.equalsIgnoreCase("false"))
+                            {
+                                mergeRank = statusToRank(response);
+                            }
+                            else
+                                throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description +
+                                        " failure during get, line: " + i + " in: " + item.getFullPath());
                         }
                         else
                             throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description +
@@ -1045,7 +1061,7 @@ public class Hints
                             logger.info("  > Hint done and seen, deleted hint file: " + item.getFullPath());
                             ++deletedHints;
                             currentStat = "Deleted";
-                            updateStatusServer(item, itemHintKey.name, "Deleted");
+                            updateStatusTracking(item, itemHintKey.name, "Deleted");
                             repo.getLibrary(item.getLibrary()).rescanNeeded = true;
                         }
                     }
@@ -1130,6 +1146,49 @@ public class Hints
         return validate(item.getFullPath(), lines);
     }
 
+    public String reduceCollectionPath(NavTreeUserObject tuo)
+    {
+        String path = null;
+        if (tuo.node.getMyTree().getName().contains("Collection"))
+        {
+            Repository repo = tuo.getRepo();
+            if (repo != null)
+            {
+                String tuoPath = (repo.getLibraryData().libraries.case_sensitive) ? tuo.path : tuo.path.toLowerCase();
+                if (tuoPath.length() == 0)
+                {
+                    path = tuo.name + " | ";
+                }
+                else
+                {
+                    for (Library lib : repo.getLibraryData().libraries.bibliography)
+                    {
+                        for (String source : lib.sources)
+                        {
+                            String srcPath = source;
+                            if (!tuo.isRemote)
+                            {
+                                File srcDir = new File(source);
+                                srcPath = srcDir.getAbsolutePath();
+                            }
+                            srcPath = (repo.getLibraryData().libraries.case_sensitive) ? srcPath : srcPath.toLowerCase();
+                            if (tuoPath.startsWith(srcPath))
+                            {
+                                path = lib.name + " | " + tuo.path.substring(srcPath.length() + 1);
+                                break;
+                            }
+                        }
+                        if (path != null)
+                            break;
+                    }
+                }
+            }
+        }
+        if (path == null)
+            path = tuo.path;
+        return path;
+    }
+
     /**
      * Return the numeric rank of a status String value
      *
@@ -1168,10 +1227,10 @@ public class Hints
             // if processing all libraries, or this one was specified on the command line with -l,
             // and it has not been excluded with -L
             if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) 
+                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
             {
                 // if the subscriber has included and not excluded this library
-                if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) 
+                if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE))
                 {
                     String n = subLib.name.replaceFirst(context.subscriberRepo.SUB_EXCLUDE, "");
                     logger.info("Skipping subscriber library: " + n);
@@ -1262,13 +1321,15 @@ public class Hints
         if (changed)
         {
             Files.write(Paths.get(item.getFullPath()), lines, StandardOpenOption.CREATE);
-            updateStatusServer(item, backupName, status);
+            updateStatusTracking(item, backupName, status);
         }
         return status;
     }
 
     /**
      * Update the hint status tracker/server.
+     * <p>
+     * Used during postprocess.
      * <p>
      * If defined on the command line with -H | --hint-server the tracker
      * is updated either locally or remotely when the -r | --remote option
@@ -1282,16 +1343,36 @@ public class Hints
      * @param status     The desired status String
      * @throws Exception
      */
-    private void updateStatusServer(Item item, String backupName, String status) throws Exception
+    private void updateStatusTracking(Item item, String backupName, String status) throws Exception
     {
-        // is a hint status server being used?
-        if (cfg.isUsingHintTracker())
+        updateStatusTracking(item.getLibrary(), item.getItemPath(), backupName, status);
+    }
+
+    /**
+     * Update the hint status tracker/server.
+     * <p>
+     * If defined on the command line with -H | --hint-server the tracker
+     * is updated either locally or remotely when the -r | --remote option
+     * is used.
+     * <p>
+     * No further processing of the status is done by the tracker/server,
+     * i.e. the status is not changed.
+     *
+     * @param libraryName Name of library of Hint
+     * @param itemPath    The ItemPath of the hint
+     * @param backupName  The name of the back-up from the ELS Hint Keys file
+     * @param status      The desired status String
+     * @throws Exception
+     */
+    public void updateStatusTracking(String libraryName, String itemPath, String backupName, String status) throws Exception
+    {
+        if (context.statusStty != null) // remote?
         {
-            if (cfg.isRemoteSession())
+            if (context.statusStty.isConnected())
             {
                 // set the status on the status server
-                String command = "set \"" + item.getLibrary() + "\" " +
-                        "\"" + item.getItemPath() + "\" " +
+                String command = "set \"" + libraryName + "\" " +
+                        "\"" + itemPath + "\" " +
                         "\"" + backupName + "\" " +
                         "\"" + status + "\"";
 
@@ -1300,11 +1381,13 @@ public class Hints
                     throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
             }
             else
-            {
-                String result = context.datastore.setStatus(item.getLibrary(), item.getItemPath(), backupName, status);
-                if (result == null || !result.equalsIgnoreCase(status))
-                    throw new MungeException("Hint setStatus() for " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
-            }
+                throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
+        }
+        else // no, local
+        {
+            String result = context.datastore.setStatus(libraryName, itemPath, backupName, status);
+            if (result == null || !result.equalsIgnoreCase(status))
+                throw new MungeException("Hint setStatus() for " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
         }
     }
 
@@ -1415,6 +1498,104 @@ public class Hints
             throw new MungeException("Unknown keyword on malformed line " + lineNo + " in " + filename);
         }
         return lines;
+    }
+
+    public String writeHint(String action, boolean isWorkstation, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
+    {
+        String hintPath = "";
+
+        // if a workstation and source is publisher then it is local or a basic add and there is no hint
+        if (isWorkstation && !sourceTuo.isSubscriber())
+            return "";
+
+        boolean sourceIsCollection = sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection");
+        boolean targetIsCollection = (targetTuo != null) ? targetTuo.node.getMyTree().getName().toLowerCase().contains("collection") : false;
+
+        // if source is subscriber system tab this it is a basic add, no hint
+        if (sourceTuo.isSubscriber() && !sourceIsCollection)
+            return "";
+
+        // if either the source or target are not a collection there is no hint
+        if (sourceIsCollection || targetIsCollection)
+        {
+            String command = "";
+            String act = action.trim().toLowerCase();
+
+            if (act.equals("mv"))
+            {
+                String moveTo;
+                moveTo = reduceCollectionPath(targetTuo);
+                // do not append right-side target path if the nodes are the same
+                if (sourceTuo.node != targetTuo.node)
+                {
+                    if (!moveTo.trim().endsWith("|"))
+                        moveTo += targetTuo.getRepo().getSeparator();
+                    moveTo += Utils.getRightPath(sourceTuo.getPath(), targetTuo.getRepo().getSeparator());
+                }
+
+                command = "mv \"" + reduceCollectionPath(sourceTuo) + "\" \"" + moveTo + "\"";
+            }
+            else if (act.equals("rm"))
+            {
+                command = "rm \"" + reduceCollectionPath(sourceTuo) + "\"";
+            }
+            else
+                throw new MungeException("Action must be 'mv' or 'rm'");
+
+            hintPath = Utils.getLeftPath(sourceTuo.path, null);
+            String hintName = Utils.getRightPath(sourceTuo.path, null);
+            hintPath = hintPath + Utils.getSeparatorFromPath(hintPath) + hintName + ".els";
+
+            // do not write a Hint about the same Hint
+            if (Utils.getRightPath(sourceTuo.path, null).equals(hintName + ".els"))
+                return "";
+
+            if (!sourceTuo.isSubscriber())
+                context.localMode = true;
+
+            String sourceKey = sourceTuo.isSubscriber() ? context.subscriberRepo.getLibraryData().libraries.key : context.publisherRepo.getLibraryData().libraries.key;
+            hintPath = writeOrUpdateHint(hintPath, command, sourceKey);
+            context.localMode = false;
+        }
+        return hintPath;
+    }
+
+    public String writeOrUpdateHint(String hintPath, String command, String sourceKey) throws Exception
+    {
+        if (cfg.isRemoteSession() && !context.localMode)
+        {
+            String line = "hint \"" + hintPath + "\" " + command;
+            hintPath = context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
+        }
+        else // local operation
+        {
+            File hintFile = new File(hintPath);
+            command = command + "\n";
+
+            if (Files.exists(hintFile.toPath()))
+            {
+                Files.write(hintFile.toPath(), command.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
+                logger.info(cfg.gs("Transfer.updated.hint.file") + hintFile.getAbsolutePath());
+            }
+            else
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.append("# Created " + new Date().toString() + "\n");
+
+                ArrayList<HintKeys.HintKey> keys = context.hintKeys.get();
+                for (HintKeys.HintKey key : keys)
+                {
+                    if (key.uuid.equalsIgnoreCase(sourceKey))
+                        sb.append("Done " + key.name + "\n");
+                    else
+                        sb.append("For " + key.name + "\n");
+                }
+                sb.append(command);
+                Files.write(hintFile.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+                logger.info(cfg.gs("Transfer.created.hint.file") + hintFile.getAbsolutePath());
+            }
+        }
+        return hintPath;
     }
 
 }

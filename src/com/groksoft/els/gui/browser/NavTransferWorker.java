@@ -55,6 +55,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         boolean error = false;
 
         // create a fresh dialog
+        // TODO factors controlling whether to display the progress dialog may needed adjusting
         if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()
@@ -71,14 +72,13 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 }
             };
             guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, guiContext.cfg.isDryRun());
+            guiContext.progress.display();
         }
         else
         {
             JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return false;
         }
-
-        guiContext.progress.display();
 
         for (int i = 0; i < queue.size(); ++i)
         {
@@ -123,7 +123,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
             if (!error && !isCancelled())
             {
-                exportHints(transferData, targetTuo);
+                if (guiContext.browser.hintTrackingEnabled == true)
+                    exportHints(transferData, targetTuo);
                 removeTransferData(transferData);
             }
             else
@@ -145,6 +146,13 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         // reset the queue
         queue = new ArrayList<Batch>();
         filesToCopy = 0;
+        filesSize = 0L;
+
+        if (guiContext.preferences.isAutoRefresh())
+        {
+            guiContext.browser.refreshTree(sourceTree);
+            guiContext.browser.refreshTree(targetTree);
+        }
     }
 
     public void add(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree target, NavTreeUserObject tuo)

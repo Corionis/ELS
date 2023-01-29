@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="80-11 Navigator local hints" type="Application" factoryName="Application" folderName="80-00 Navigator">
+  <configuration default="false" name="80-11 Navigator local hints" type="Application" factoryName="Application" folderName="80-00 Navigator - Local Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="--navigator -c info -d debug -k test/test-hints.keys -P test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -F output/80-11_Navigator.log" />
+    <option name="PROGRAM_PARAMETERS" value="--navigator -c info -d debug -k test/test-hints.keys -P test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -F output/80-12_Navigator-local-hints.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />

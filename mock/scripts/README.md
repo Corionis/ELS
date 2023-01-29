@@ -15,7 +15,7 @@ ELS is composed of several different capabilities:
  * Networked hint processing
  * Local Hint Tracker
  * Networked Hint Status Server (Hint Status Server/HSS)
- * Desktop ELS Navigator GUI
+ * Desktop Navigator GUI application
 
 
 ## Test Organization
@@ -34,11 +34,15 @@ Tests are *generally* organized in increasing options and functionality.
 
  50-    Remote Hints
 
- 60-    Local Hint Tracker
+ 60-    Local Hint Tracker - Local Backup
 
- 70-    Remote Hint Server
+ 62-    Local Hint Tracker - Remote Backup
 
- 80-    Navigator
+ 70-    Remote Hint Server - Local Backup
+
+ 72-    Remote Hint Server - Remote Backup
+
+80-    Navigator
 
 
 ## Test Utility Scripts
@@ -96,11 +100,11 @@ At this point it's a manual and visual process.
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``20-21_Subscriber-listener.sh`` ; Separate terminal 1
+* ``20-21_Subscriber-listener.sh`` ; Separate terminal 1, stops when done
 
 * ``20-22_Publisher-dryrun.sh`` : Separate terminal 2
 
-* ``20-21_Subscriber-listener.sh`` : Separate terminal 1
+* ``20-21_Subscriber-listener.sh`` : Separate terminal 1, stops when done
 
 * ``20-23_Publisher-backup.sh`` : Separate terminal 2
 
@@ -158,20 +162,27 @@ Special command authorization use, with quotes:  auth "sharkbait"
 
 ### 40-00 Local Hints
 
+Local Hints are used when both the publisher and subscriber (back-up) drives are connected
+to the same system.
+
 Reminder: Hints must be Done on the publisher before publishing to a subscriber - so the
-two collections match during the backup operation. If not an exception is thrown.
+two collections match during the backup operation. If not an exception is thrown. Changes
+made with Hints, and optionally Hint Tracking, enabled are automatically marked as Done.
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``40-01_Hints-publisher.sh`` : Run Hints on publisher, once
+* ``40-01_Hints-publisher.sh`` : Run Hints on publisher, once, if not Done by Navigator
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``40-22_Publisher-dryrun.sh`` : Run once, results & copies will be wrong because hints not processed
+* ``40-22_Publisher-dryrun.sh`` : Run once, results & copies _will be wrong_ because hints not processed
 
 * ``40-23_Publisher-backup.sh`` : Run once
 
 ### 50-00 Remote Hints
+
+Remote Hints for networked back-ups are sent from publisher to a remote subscriber
+then executed on the subscriber.
 
 * ``reset.sh`` : Reset the test/ directory
 
@@ -193,13 +204,16 @@ two collections match during the backup operation. If not an exception is thrown
 
 * ``50-33_Publisher-Two-backup.sh`` : Separate terminal 2
 
-Note: This sequence results in orphaned .els files in Subscriber Two.
+Note: This sequence results in orphaned .els files on Subscriber Two. The "odd man out" problem.
 
-### 60-00 Local Hint Tracker
+### 60-00 Local Hint Tracker - Local Backup
+
+The Local Hint Tracker solves the "odd man out" problem for local back-ups by tracking the
+processing status of each Hint on each back-up locally.
 
 * ``reset.sh`` : Reset the test/ directory
 
-* ``60-01_Hints-publisher.sh`` : Run once, hints are tracked locally
+* ``60-01_Hints-publisher.sh`` : Run once, if not Done in Navigator
 
 * ``60-22_Publisher-One-dryrun.sh`` : Run once
 
@@ -209,13 +223,55 @@ Note: This sequence results in orphaned .els files in Subscriber Two.
 
 * ``60-33_Publisher-Two-backup.sh`` : Run once
 
+* One more time:
+
 * ``60-23_Publisher-One-backup.sh`` : Run once
 
 * ``60-33_Publisher-Two-backup.sh`` : Run once
 
 Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty.
 
-### 70-00 Remote Hint Server
+### 62-00 Local Hint Tracker - Remote Backup
+
+This permutation tests with a remote backup.
+
+* ``reset.sh`` : Reset the test/ directory
+
+* ``62-01_Hints-publisher.sh`` : Run once, if not done in Navigator
+
+* ``62-21_Subscriber-One-listener.sh`` : Run Once
+
+* ``62-22_Publisher-One-dryrun.sh`` : Run once
+
+* ``62-21_Subscriber-One-listener.sh`` : Run Once
+
+* ``62-23_Publisher-One-backup.sh`` : Run once
+
+* ``62-31_Subscriber-Two-listener.sh`` : Run Once
+
+* ``62-32_Publisher-Two-dryrun.sh`` : Run once
+
+* ``62-31_Subscriber-Two-listener.sh`` : Run Once
+
+* ``62-33_Publisher-Two-backup.sh`` : Run once
+
+* One more time:
+
+* ``62-21_Subscriber-One-listener.sh`` : Run Once
+
+* ``62-23_Publisher-One-backup.sh`` : Run once
+
+* ``62-31_Subscriber-Two-listener.sh`` : Run Once
+
+* ``62-33_Publisher-Two-backup.sh`` : Run once
+
+Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty.
+
+### 70-00 Remote Hint Server - Local Backup
+
+The Remote Hint Server solves the "odd man out" problem for networked back-ups by tracking the
+processing status of each Hint on each back-up using a separate ELS process the publisher and
+subscriber communicate with.
 
 * ``reset.sh`` : Reset the test/ directory
 
@@ -223,37 +279,154 @@ Note: All test/ directory .els files should be gone and the test/hints/datastore
 
 * ``70-10_Status-Server-listener.sh`` : Separate terminal 1.
 
-* ``70-21_Subscriber-One-listener-quit.sh`` : Separate terminal 2
+* ``70-22_Publisher-One-dryrun.sh`` ; Separate terminal 2
 
-* ``70-22_Publisher-One-dryrun.sh`` ; Separate terminal 3, all processes should stop when done
+* ``70-23_Publisher-One-backup.sh`` : Separate terminal 2
 
-* ``70-10_Status-Server-listener.sh`` : Separate terminal 1
+* ``70-32_Publisher-Two-dryrun.sh`` : Separate terminal 2
 
-* ``70-21_Subscriber-One-listener-quit.sh`` : Separate terminal 2
+* ``70-33_Publisher-Two-backup.sh`` : Separate terminal 2
 
-* ``70-23_Publisher-One-backup.sh`` : Separate terminal 3, all processes should stop when done
+* One more time:
 
-* ``70-10_Status-Server-listener.sh`` : Separate terminal 1
+* ``70-23_Publisher-One-backup.sh`` : Separate terminal 2
 
-* ``70-31_Subscriber-Two-listener.sh`` : Separate terminal 2
+* ``70-33_Publisher-Two-backup.sh`` : Separate terminal 2
 
-* ``70-32_Publisher-Two-dryrun.sh`` : Separate terminal 3, status server continues to run
-
-* ``70-31_Subscriber-Two-listener.sh`` : Separate terminal 2
-
-* ``70-33_Publisher-Two-backup.sh`` : Separate terminal 3, status server continues to run
-
-* ``70-21_Subscriber-One-listener-quit.sh`` : Separate terminal 2
-
-* ``70-23_Publisher-One-backup.sh`` : Separate terminal 3, all processes should stop when done
-
-* ``70-10_Status-Server-listener.sh`` : Separate terminal 1
-
-* ``70-31_Subscriber-Two-listener.sh`` : Separate terminal 2
-
-* ``70-33_Publisher-Two-backup.sh`` : Separate terminal 3, status server continues to run
+* ``70-99_Quit-Status-Server.sh`` : Separate terminal 2
 
 Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
 
-* ``70-90_Quit-Status-Server.sh`` : Separate terminal 2, stop the status server directly
 
+### 72-00 Remote Hint Server - Remote Backup
+
+This permutation tests with both a remote Hint Server and remote backup.
+
+* ``reset.sh`` : Reset the test/ directory
+
+* ``72-01_Hints-publisher.sh`` : Run once, hints are tracked locally
+
+* ``72-10_Status-Server-listener.sh`` : Separate terminal 1.
+
+* ``72-21_Subscriber-One-listener.sh`` : Separate terminal 2
+
+* ``72-22_Publisher-One-dryrun.sh`` ; Separate terminal 3
+
+* ``72-21_Subscriber-One-listener.sh`` : Separate terminal 2
+
+* ``72-23_Publisher-One-backup.sh`` : Separate terminal 3
+
+* ``72-31_Subscriber-Two-listener.sh`` : Separate terminal 2
+
+* ``72-32_Publisher-Two-dryrun.sh`` : Separate terminal 3
+
+* ``72-31_Subscriber-Two-listener.sh`` : Separate terminal 2
+
+* ``72-33_Publisher-Two-backup.sh`` : Separate terminal 3
+
+* One more time:
+
+* ``72-21_Subscriber-One-listener.sh`` : Separate terminal 2
+
+* ``72-23_Publisher-One-backup.sh`` : Separate terminal 3
+
+* ``72-31_Subscriber-Two-listener.sh`` : Separate terminal 2
+
+* ``72-33_Publisher-Two-backup.sh`` : Separate terminal 3
+
+* ``72-99_Quit-Status-Server.sh`` : Separate terminal 2 or 3
+
+Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
+
+
+### 80-00 Navigator - Local Backup
+
+Run one at a time for basic local Navigator funtionality.
+
+ * ``80-01_Navigator-no-args.sh`` : ELS with no arguments
+
+ * ``80-02_Navigator-navigator.sh`` : With --navigator option only
+ 
+ * ``80-03_Navigator-publisher-only.sh`` :: With a publisher
+
+ * ``80-23_Navigator-local.sh`` : With publisher as a Collection and local subscriber
+
+ * ``80-33_Navigator-workstation.sh`` : With publisher as a Workstation and local subscriber
+
+
+### 80-20 Navigator - Remote Backup
+
+ * ``82-21_Subscriber-One-listener.sh`` : Start a subscriber listener
+
+ * ``82-23_Navigator-remote.sh`` : Navigator with publisher as Collection and remove subscriber
+
+
+## Testing Navigator with Hints & Hint Tracking
+
+---
+
+### Manual test checks
+
+ * Check the [hint].els file:
+   * The local system is marked as Done
+   * The command is correct
+ * Check the Hint Tracker datastore hint tracking file:
+   * The local system is marked as Done
+
+### Manual tests
+
+ * M1 : Move root-level file
+ * M2 : Move root-level directory & subdirectories
+ * M3 : Move file in a subdirectory
+ * M4 : Move subdirectory in a subdirectory !
+ * M5 : Move root-level file cross-libraries
+ * M6 : Move root-level directory & subdirectories cross-libraries
+   <p><br></p>
+ * R1 : Rename root-level file
+ * R2 : Rename root-level directory
+ * R3 : Rename file in a subdirectory
+ * R4 : Rename subdirectory in a subdirectory
+   <p><br></p>
+ * D1 : Delete root-level file
+ * D2 : Delete root-level directory & subdirectories
+ * D3 : Delete file in a subdirectory
+ * D4 : Delete subdirectory in a subdirectory
+
+#### Test Hint processing on publisher
+
+ 1. Perform above tests on publisher
+ 2. Optional: Copy the mock/test directory for later comparison 
+ 3. Reset the test directory and Hint files
+    1. Run ``capture.sh -d -r`` that:
+        1. Captures the .els files
+        2. Changes Done to For
+        3. Resets the test directory with reset.sh -f
+        4. Restores the .els files
+ 4. Run ``60-01 Hints-publisher`` to process hints locally (--keys-only) along with
+    hint tracking to test basic local For processing
+ 5. Check hints executed correctly
+ 6. Check local system status updated in [hint].els to Done
+ 7. Check hint tracking files correct
+ 
+#### Test Hint processing on subscriber
+
+ 1. Perform above tests on subscriber
+
+
+    What if pub and sub do the same thing? What happens during a munge?
+
+    What if .els file name is changed?
+
+
+ * ``90-00 Navigator - Local Hint Track - Local Backup`` :
+
+ * ``92-00 Navigator - Local Hint Track - Remote Backup`` :
+
+ * ``100-00 Navigator - Remote Hint Server - Local Backup`` :
+
+ * ``102-00 Navigator - Remote Hint Server - Remote Backup`` :
+
+ * ``110-00 Jobs`` :
+
+
+end

@@ -11,10 +11,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
-import javax.swing.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @Plugin(name = "GuiLogAppender", category = "Core", elementType = "appender", printObject = true)
 public class GuiLogAppender extends AbstractAppender
@@ -43,7 +40,7 @@ public class GuiLogAppender extends AbstractAppender
 
     public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
     {
-        super(name, filter, layout);
+        super(name, filter, layout, ignoreExceptions, null);
     }
 
     @Override

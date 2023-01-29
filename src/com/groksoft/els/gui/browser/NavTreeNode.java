@@ -22,6 +22,7 @@ import java.util.List;
  * NavTreeNode class is a customized DefaultMutableTreeNode
  */
 
+@SuppressWarnings(value = "unchecked")
 public class NavTreeNode extends DefaultMutableTreeNode
 {
     private final boolean traceActions = false; // dev-debug
@@ -604,9 +605,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
             sorter.setSortKeys(sortKeys);
 
             ((BrowserTableModel) btm).setInitialized(true);
-        }
 
-        sorter.sort();
+            sorter.sort();
+        }
         btm.fireTableDataChanged();
 
         loadStatus(); // set the left or right status message & properties

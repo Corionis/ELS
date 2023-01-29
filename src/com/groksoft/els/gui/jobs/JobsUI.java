@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+@SuppressWarnings(value = "unchecked")
 public class JobsUI extends JDialog
 {
     // combobox element types
@@ -231,6 +232,7 @@ public class JobsUI extends JDialog
                     guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
+                job.setDataHasChanged();
                 deletedJobs.add(job);
                 configModel.removeRow(index);
                 if (index > configModel.getRowCount() - 1)
@@ -462,7 +464,7 @@ public class JobsUI extends JDialog
                 return; // should never happen
 
             JComboBox combo = new JComboBox();
-            JList<String> list = new JList<>();
+            JList<String> list = new JList<String>();
             int id = 0;
             DefaultListModel<String> listModel = new DefaultListModel<String>();
             int selectedCombo = -1;
@@ -485,7 +487,6 @@ public class JobsUI extends JDialog
                     if (cachedName.length() > 0)
                     {
                         combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.cached.task") + cachedName, CACHED_LAST_TASK));
-
                         if (currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
                             selectedCombo = id - 1;
                     }
@@ -909,8 +910,11 @@ public class JobsUI extends JDialog
 
     public boolean checkForChanges()
     {
-        if (deletedJobs.size() > 0)
-            return true;
+        for (int i = 0; i < deletedJobs.size(); ++i)
+        {
+            if (deletedJobs.get(i).isDataChanged())
+                return true;
+        }
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -1493,6 +1497,7 @@ public class JobsUI extends JDialog
                     file.delete();
                     changed = true;
                 }
+                job.setDataHasChanged(false);
             }
 
             if (changed)
@@ -1902,7 +1907,6 @@ public class JobsUI extends JDialog
                                         ((GridBagLayout)panelPubSub.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                                         //---- labelPub ----
-                                        labelPub.setText(guiContext.cfg.gs("JobsUI.labelPub.text"));
                                         labelPub.setMaximumSize(new Dimension(24, 18));
                                         labelPub.setMinimumSize(new Dimension(24, 18));
                                         labelPub.setPreferredSize(new Dimension(24, 18));
@@ -1927,7 +1931,6 @@ public class JobsUI extends JDialog
                                             new Insets(0, 0, 0, 0), 0, 0));
 
                                         //---- labelSub ----
-                                        labelSub.setText(guiContext.cfg.gs("JobsUI.labelSub.text"));
                                         labelSub.setMaximumSize(new Dimension(24, 18));
                                         labelSub.setMinimumSize(new Dimension(24, 18));
                                         labelSub.setPreferredSize(new Dimension(24, 18));

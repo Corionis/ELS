@@ -184,7 +184,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                             loginAttempts = 1;
                         }
                         loginAttemptAddress = serverSession.getClientAddress().toString();
-                        logger.warn("Sftp login attempt " + loginAttempts + " failed, user \"" + user + "\n/\"" + password + "\n from " + serverSession.getClientAddress());
+                        logger.warn("sftp login attempt " + loginAttempts + " failed, user \"" + user + "\n/\"" + password + "\n from " + serverSession.getClientAddress());
                         if (loginAttempts > 3)
                         {
                             try
@@ -235,7 +235,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
         {
             context.fault = true;
             e.printStackTrace();
-            logger.warn("Sftp server cannot start secure channel");
+            logger.warn("sftp server cannot start secure channel");
         }
     }
 
@@ -249,7 +249,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             if (sshd != null)
             {
                 String ips = getIps();
-                logger.debug("Stopping sftp server on: " + ips);
+                logger.debug("stopping sftp server on: " + ips);
                 List<AbstractSession> sessions = sshd.getActiveSessions();
                 if (sessions != null)
                 {

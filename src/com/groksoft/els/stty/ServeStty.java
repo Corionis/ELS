@@ -286,7 +286,7 @@ public class ServeStty extends Thread
             }
             catch (InterruptedException e)
             {
-                logger.debug("Stty interrupted, stop=" + ((_stop) ? "true" : "false"));
+                logger.debug("stty interrupted, stop=" + ((_stop) ? "true" : "false"));
                 _stop = true;
                 break;
             }
@@ -353,7 +353,7 @@ public class ServeStty extends Thread
     {
         if (allSessions != null)
         {
-            logger.debug("Stopping all stty listener threads");
+            logger.debug("stopping all stty listener threads");
             Collection<Listener> lc = allSessions.values();
             for (Listener listener : lc)
             {

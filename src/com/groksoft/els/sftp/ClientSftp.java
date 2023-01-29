@@ -265,7 +265,7 @@ public class ClientSftp
      */
     public void stopClient()
     {
-        logger.debug("Disconnecting sftp: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
+        logger.debug("disconnecting sftp: " + (hostname == null ? "localhost" : hostname) + ":" + hostport);
         if (jChannel != null)
             jChannel.disconnect();
 

@@ -34,6 +34,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
+@SuppressWarnings(value = "unchecked")
 public class RenamerUI extends JDialog
 {
     private String[] cardNames = {"cardCaseChange", "cardInsert", "cardNumbering", "cardRemove", "cardReplace"};
@@ -234,6 +235,7 @@ public class RenamerUI extends JDialog
                     guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
+                renamer.setDataHasChanged();
                 deletedTools.add(renamer);
                 configModel.removeRow(index);
                 if (index > 0)
@@ -464,8 +466,11 @@ public class RenamerUI extends JDialog
 
     public boolean checkForChanges()
     {
-        if (deletedTools.size() > 0)
-            return true;
+        for (int i = 0; i < deletedTools.size(); ++i)
+        {
+            if (deletedTools.get(i).isDataChanged())
+                return true;
+        }
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -911,6 +916,7 @@ public class RenamerUI extends JDialog
                 {
                     file.delete();
                 }
+                renamer.setDataHasChanged(false);
             }
         }
         catch (Exception e)
