@@ -24,6 +24,7 @@ import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
+import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -1077,8 +1078,10 @@ public class Navigator
                                     NavTreeNode createdNode = new NavTreeNode(guiContext, tuo.node.getMyRepo(), tree);
                                     if (tuo.isRemote)
                                     {
+                                        Thread.sleep(500L); // give the remote time to register new hint file
+                                        SftpATTRS attrs = guiContext.context.clientSftp.stat(path);
                                         createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null),
-                                                path, 0, LocalTime.now().toSecondOfDay(), true);
+                                                path, attrs.getSize(), attrs.getMTime(), true);
                                     }
                                     else
                                     {

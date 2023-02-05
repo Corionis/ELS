@@ -720,6 +720,8 @@ public class NavTreeNode extends DefaultMutableTreeNode
             setAllowsChildren(getUserObject().isDir);
             for (NavTreeNode ntn : children)
             {
+                if (!ntn.getUserObject().isDir)
+                    ntn.setLoaded(true);
                 add(ntn);
             }
         }

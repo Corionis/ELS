@@ -1554,18 +1554,18 @@ public class Hints
                 context.localMode = true;
 
             String sourceKey = sourceTuo.isSubscriber() ? context.subscriberRepo.getLibraryData().libraries.key : context.publisherRepo.getLibraryData().libraries.key;
-            hintPath = writeOrUpdateHint(hintPath, command, sourceKey);
+            writeOrUpdateHint(hintPath, command, sourceKey);
             context.localMode = false;
         }
         return hintPath;
     }
 
-    public String writeOrUpdateHint(String hintPath, String command, String sourceKey) throws Exception
+    public void writeOrUpdateHint(String hintPath, String command, String sourceKey) throws Exception
     {
         if (cfg.isRemoteSession() && !context.localMode)
         {
             String line = "hint \"" + hintPath + "\" " + command;
-            hintPath = context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
+            context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
         }
         else // local operation
         {
@@ -1595,7 +1595,6 @@ public class Hints
                 logger.info(cfg.gs("Transfer.created.hint.file") + hintFile.getAbsolutePath());
             }
         }
-        return hintPath;
     }
 
 }

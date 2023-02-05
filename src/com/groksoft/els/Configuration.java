@@ -1064,7 +1064,8 @@ public class Configuration
     public void parseCommandLine(String[] args) throws MungeException
     {
         // single option letters remaining, case-sensitive:  C J M O R U V X Y Z
-        // Reserved: C configuration directory; O start on-demand; R operation; M match dates
+        // Reserved: C configuration directory; O start on-demand; R operation; M match dates; U user authorization
+        // leaving single option letters, case-sensitive:  J M V X Y Z
 
         int index;
         originalArgs = args;

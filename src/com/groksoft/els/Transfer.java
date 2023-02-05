@@ -1034,19 +1034,19 @@ public class Transfer
 
     public long touch(String path, boolean isRemote) throws Exception
     {
-        long seconds = System.currentTimeMillis();
+        long millis = System.currentTimeMillis();
         if (isRemote)
         {
-            context.clientSftp.setDate(path, (int) (seconds / 1000l));
+            context.clientSftp.setDate(path, (int) (millis / 1000l));
         }
         else
         {
             Path file = Paths.get(path);
-            FileTime ft = FileTime.fromMillis(seconds);
+            FileTime ft = FileTime.fromMillis(millis);
             Files.setLastModifiedTime(file, ft);
         }
-        seconds = seconds / 1000l;
-        return seconds;
+        millis = millis / 1000l;
+        return millis;
     }
 
 }

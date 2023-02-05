@@ -17,6 +17,10 @@ goto Cancel
 
 :Execute
 rmdir /s /q .\test
+del .\*.log
+del .\*received*.json
+del .\*generated*.json
+del .\output\*
 
 :NoDir
 xcopy /I /E .\media-base_copy-only .\test

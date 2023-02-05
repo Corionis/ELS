@@ -104,7 +104,10 @@ public class NavTreeUserObject implements Comparable
         this.path = (path.startsWith("//") ? path.substring(1) : path);
         this.size = size;
         this.mtime = mtime;
-        this.fileTime = FileTime.from(mtime, TimeUnit.SECONDS);
+        if (mtime < 0)
+            this.fileTime = FileTime.fromMillis(System.currentTimeMillis());
+        else
+            this.fileTime = FileTime.from(mtime, TimeUnit.SECONDS);
         this.isDir = isDir;
         this.isHidden = name.startsWith(".");
         this.isRemote = true;
@@ -164,8 +167,14 @@ public class NavTreeUserObject implements Comparable
             {
                 for (String source : lib.sources)
                 {
-                    File sourceFile = new File(source);
-                    String sourcePath = sourceFile.getAbsolutePath();
+                    String sourcePath;
+                    if (Utils.isRelativePath(path))
+                        sourcePath = source;
+                    else
+                    {
+                        File sourceFile = new File(source);
+                        sourcePath = sourceFile.getAbsolutePath();
+                    }
                     if (path.startsWith(sourcePath))
                     {
                         itemPath = path.substring(sourcePath.length() + 1);

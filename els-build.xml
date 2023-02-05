@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="els" default="all">
-
+  
+  
   <property file="els-build.properties"/>
   <!-- Uncomment the following property if no tests compilation is needed -->
+  <!-- 
   <property name="skip.tests" value="true"/>
-
+   -->
+  
   <!-- Compiler options -->
-
+  
   <property name="compiler.debug" value="on"/>
   <property name="compiler.generate.no.warnings" value="off"/>
   <property name="compiler.args" value="-Xlint:unchecked"/>
   <property name="compiler.max.memory" value="700m"/>
-
   <patternset id="ignored.files">
     <exclude name="**/*.pyc/**"/>
     <exclude name="**/*.pyo/**"/>
@@ -29,17 +31,17 @@
     <exclude name="**/vssver2.scc/**"/>
   </patternset>
   <patternset id="library.patterns">
-    <include name="*.apk"/>
     <include name="*.egg"/>
-    <include name="*.zip"/>
-    <include name="*.war"/>
-    <include name="*.swc"/>
-    <include name="*.ear"/>
     <include name="*.jar"/>
+    <include name="*.apk"/>
+    <include name="*.zip"/>
+    <include name="*.ear"/>
+    <include name="*.swc"/>
     <include name="*.ane"/>
+    <include name="*.war"/>
   </patternset>
   <patternset id="compiler.resources">
-    <exclude name="?*/?*.java"/>
+    <exclude name="**/?*.java"/>
     <exclude name="**/?*.form"/>
     <exclude name="**/?*.class"/>
     <exclude name="**/?*.groovy"/>
@@ -79,8 +81,7 @@
   <property name="project.jdk.home" value="${jdk.home.1.8}"/>
   <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
   <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
-  <property name="artifact.output.els-complete.zip" value="${basedir}/deploy"/>
-
+  
   
   <!-- Project Libraries -->
   
@@ -97,6 +98,7 @@
     <pathelement location="${basedir}/lib/jsch-0.1.55.jar"/>
     <pathelement location="${basedir}/lib/log4j-api-2.19.0.jar"/>
     <pathelement location="${basedir}/lib/log4j-core-2.19.0.jar"/>
+    <pathelement location="${basedir}/lib/log4j-slf4j2-impl-2.19.0.jar"/>
     <pathelement location="${basedir}/lib/mina-core-2.0.21.jar"/>
     <pathelement location="${basedir}/lib/slf4j-api-1.7.9.jar"/>
     <pathelement location="${basedir}/lib/slf4j-simple-1.7.9.jar"/>
@@ -105,30 +107,21 @@
     <pathelement location="${basedir}/lib/sshd-mina-2.5.1.jar"/>
     <pathelement location="${basedir}/lib/sshd-sftp-2.5.1.jar"/>
   </path>
-  <!-- Register Custom Compiler Taskdefs -->
-  <property name="javac2.home" value="${idea.home}/lib"/>
-  <path id="javac2.classpath">
-    <fileset dir="${javac2.home}">
-      <include name="jdom.jar"/>
-      <include name="asm-all*.jar"/>
-      <include name="forms-*.jar"/>
-      <include name="forms_rt.jar"/>
-    </fileset>
-    <fileset dir="${idea.home}/plugins/java/lib">
-      <include name="javac2.jar"/>
-    </fileset>
-  </path>
-
+  
   <!-- Modules -->
   
   
   <!-- Module ELS -->
   
   <dirname property="module.els.basedir" file="${ant.file}"/>
+  
+  
   <property name="module.jdk.home.els" value="${project.jdk.home}"/>
   <property name="module.jdk.bin.els" value="${project.jdk.bin}"/>
   <property name="module.jdk.classpath.els" value="${project.jdk.classpath}"/>
+  
   <property name="compiler.args.els" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
   <property name="els.output.dir" value="${module.els.basedir}/out/production/ELS"/>
   <property name="els.testoutput.dir" value="${module.els.basedir}/out/test/ELS"/>
   
@@ -177,7 +170,8 @@
     <pathelement location="${idea.home}/plugins/junit/lib/junit-jupiter-api-5.0.0-M3.jar"/>
     <pathelement location="${idea.home}/plugins/junit/lib/opentest4j-1.0.0-M1.jar"/>
   </path>
-
+  
+  
   <patternset id="excluded.from.module.els">
     <patternset refid="ignored.files"/>
   </patternset>
@@ -188,27 +182,36 @@
   
   <path id="els.module.sourcepath">
     <dirset dir="${module.els.basedir}">
-      <include name="src/com/groksoft/els/resources"/>
       <include name="artifacts/images"/>
       <include name="src"/>
+      <include name="src/com/groksoft/els/resources"/>
       <include name="src/com/groksoft/els/locales"/>
     </dirset>
   </path>
-
+  
+  
   <target name="compile.module.els" depends="compile.module.els.production,compile.module.els.tests" description="Compile module ELS"/>
   
   <target name="compile.module.els.production" description="Compile module ELS; production classes">
     <mkdir dir="${els.output.dir}"/>
+    <javac destdir="${els.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.els}/javac">
+      <compilerarg line="${compiler.args.els}"/>
+      <bootclasspath refid="els.module.bootclasspath"/>
+      <classpath refid="els.module.production.classpath"/>
+      <src refid="els.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.els"/>
+    </javac>
+    
     <copy todir="${els.output.dir}">
-      <fileset dir="${module.els.basedir}/src/com/groksoft/els/resources">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
       <fileset dir="${module.els.basedir}/artifacts/images">
         <patternset refid="compiler.resources"/>
         <type type="file"/>
       </fileset>
       <fileset dir="${module.els.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.els.basedir}/src/com/groksoft/els/resources">
         <patternset refid="compiler.resources"/>
         <type type="file"/>
       </fileset>
@@ -279,40 +282,26 @@
     <ant antfile="els.xml" target="stamp" dir="${basedir}">
       <property name="artifact.output.path" value="${artifact.temp.output.els:jar}"/>
     </ant>
-    <copy todir="${els.output.dir}">
-      <fileset dir="${module.els.basedir}/src/com/groksoft/els/locales">
-        <type type="file"/>
-      </fileset>
-    </copy>
-    <copy todir="${els.output.dir}">
-      <fileset dir="${module.els.basedir}/src/com/groksoft/els/resources">
-        <type type="file"/>
-      </fileset>
-    </copy>
-    <jar destfile="${temp.jar.path.ELS.jar}" duplicate="preserve">
-      <manifest>
-        <attribute name="Main-Class"
-                   value="com.groksoft.els.Main"/>
-      </manifest>
+    <jar destfile="${temp.jar.path.ELS.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
       <zipfileset dir="${els.output.dir}"/>
       <zipfileset file="${basedir}/lib/log4j2.xml"/>
-      <zipfileset src="${basedir}/lib/commons-io-2.11.0.jar"/>
-      <zipfileset src="${basedir}/lib/commons-lang3-3.12.0.jar"/>
-      <zipfileset src="${basedir}/lib/flatlaf-3.0.jar"/>
-      <zipfileset src="${basedir}/lib/gson-2.10.jar"/>
       <zipfileset src="${basedir}/lib/guava-30.0-jre.jar"/>
-      <zipfileset src="${basedir}/lib/javax.activation-1.2.0.jar"/>
+      <zipfileset src="${basedir}/lib/mina-core-2.0.21.jar"/>
+      <zipfileset src="${basedir}/lib/sshd-core-2.5.1.jar"/>
+      <zipfileset src="${basedir}/lib/sshd-common-2.5.1.jar"/>
+      <zipfileset src="${basedir}/lib/sshd-mina-2.5.1.jar"/>
+      <zipfileset src="${basedir}/lib/sshd-sftp-2.5.1.jar"/>
       <zipfileset src="${basedir}/lib/jsch-0.1.55.jar"/>
+      <zipfileset src="${basedir}/lib/commons-lang3-3.12.0.jar"/>
+      <zipfileset src="${basedir}/lib/slf4j-api-1.7.9.jar"/>
+      <zipfileset src="${basedir}/lib/slf4j-simple-1.7.9.jar"/>
+      <zipfileset src="${basedir}/lib/commons-io-2.11.0.jar"/>
+      <zipfileset src="${basedir}/lib/javax.activation-1.2.0.jar"/>
       <zipfileset src="${basedir}/lib/log4j-api-2.19.0.jar"/>
       <zipfileset src="${basedir}/lib/log4j-core-2.19.0.jar"/>
       <zipfileset src="${basedir}/lib/log4j-slf4j2-impl-2.19.0.jar"/>
-      <zipfileset src="${basedir}/lib/mina-core-2.0.21.jar"/>
-      <zipfileset src="${basedir}/lib/slf4j-api-1.7.9.jar"/>
-      <zipfileset src="${basedir}/lib/slf4j-simple-1.7.9.jar"/>
-      <zipfileset src="${basedir}/lib/sshd-common-2.5.1.jar"/>
-      <zipfileset src="${basedir}/lib/sshd-core-2.5.1.jar"/>
-      <zipfileset src="${basedir}/lib/sshd-mina-2.5.1.jar"/>
-      <zipfileset src="${basedir}/lib/sshd-sftp-2.5.1.jar"/>
+      <zipfileset src="${basedir}/lib/gson-2.10.jar"/>
+      <zipfileset src="${basedir}/lib/flatlaf-3.0.jar"/>
     </jar>
     <copy file="${temp.jar.path.ELS.jar}" tofile="${artifact.temp.output.els:jar}/ELS.jar"/>
   </target>

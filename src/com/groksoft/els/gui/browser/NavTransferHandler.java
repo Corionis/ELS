@@ -4,6 +4,7 @@ import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.repository.HintKeys;
+import com.jcraft.jsch.SftpATTRS;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -182,8 +183,10 @@ public class NavTransferHandler extends TransferHandler
                         NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyRepo(), sourceTuo.node.getMyTree());
                         if (sourceTuo.isRemote)
                         {
+                            Thread.sleep(500L); // give the remote time to register new hint file
+                            SftpATTRS attrs = guiContext.context.clientSftp.stat(hintPath);
                             createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
-                                    hintPath, 0, LocalTime.now().toSecondOfDay(), false);
+                                    hintPath, attrs.getSize(), attrs.getMTime(), false);
                         }
                         else
                         {

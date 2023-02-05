@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -c debug -d debug -j "50 Any Renamer Tests" --remote J -p test/publisher/publisher.json -S rockplex-test.json -F output/90-60_Publisher-Rockplex-test-job.log
+java -jar ../deploy/ELS.jar -c debug -d debug -j "50 Any Renamer Tests" --remote J -p test/publisher/publisher.json -S test/subscriber-one/subscriber-one.json -F output/110-24_Publisher-any-publisher-job.log
 

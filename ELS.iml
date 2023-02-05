@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/com/groksoft/els/locales" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/mock/output" />
       <excludeFolder url="file://$MODULE_DIR$/mock/test" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/test (copy)" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
