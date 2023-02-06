@@ -260,11 +260,15 @@ public class Navigator
             GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
             appender.setGuiContext(guiContext);
 
-            // show banner in Navigator log tabs
-            if (guiContext.cfg.isRemoteSession())
-                logger.info("ELS: Remote Navigator, version " + guiContext.cfg.getVersionStamp());
+            if (guiContext.cfg.isUsingHintTracking())
+            {
+                if (guiContext.cfg.getHintsDaemonFilename().length() > 0)
+                    guiContext.mainFrame.menuItemQuitTerminate.setVisible(true);
+                else
+                    guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
+            }
             else
-                logger.info("ELS: Local Navigator, version " + guiContext.cfg.getVersionStamp());
+                guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
 
             // add any defined bookmarks to the menu
             bookmarks = new Bookmarks();
@@ -816,14 +820,6 @@ public class Navigator
             }
         };
         guiContext.mainFrame.menuItemOpenHintTracking.addActionListener(openHintTrackingAction);
-        if (guiContext.cfg.isUsingHintTracking())
-        {
-            guiContext.preferences.setLastHintTrackingIsRemote(guiContext.cfg.getHintsDaemonFilename().length() > 0);
-            if (guiContext.cfg.getHintsDaemonFilename().length() > 0)
-                guiContext.mainFrame.menuItemQuitTerminate.setVisible(true);
-            else
-                guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
-        }
 
         // Save Layout
         AbstractAction saveLayoutAction = new AbstractAction()
