@@ -31,13 +31,13 @@ public class Preferences implements Serializable
     private int collectionOneDividerLocation = 150;
     private int collectionOneNameWidth = 128;
     private int collectionOneSizeWidth = 80;
-    private int collectionOneSortColumn = -1;
+    private int collectionOneSortColumn = 1;
     private int collectionOneSortDirection = 0;
     private int collectionTwoDateWidth = 80;
     private int collectionTwoDividerLocation = 150;
     private int collectionTwoNameWidth = 128;
     private int collectionTwoSizeWidth = 80;
-    private int collectionTwoSortColumn = -1;
+    private int collectionTwoSortColumn = 1;
     private int collectionTwoSortDirection = 0;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
@@ -52,10 +52,10 @@ public class Preferences implements Serializable
     private int jobsYpos = -1;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
-    private boolean lastHintTrackingIsRemote = true;
+    private boolean lastHintTrackingIsRemote = false;
     private String lastHintTrackingOpenFile = "";
     private String lastHintTrackingOpenPath = "";
-    private boolean lastIsRemote = true;
+    private boolean lastIsRemote = false;
     private boolean lastIsWorkstation = false;
     private String lastPublisherOpenFile = "";
     private String lastPublisherOpenPath = "";
@@ -86,13 +86,13 @@ public class Preferences implements Serializable
     private int systemOneDividerLocation = 152;
     private int systemOneNameWidth = 128;
     private int systemOneSizeWidth = 80;
-    private int systemOneSortColumn = -1;
+    private int systemOneSortColumn = 1;
     private int systemOneSortDirection = 0;
     private int systemTwoDateWidth = 80;
     private int systemTwoDividerLocation = 152;
     private int systemTwoNameWidth = 128;
     private int systemTwoSizeWidth = 80;
-    private int systemTwoSortColumn = -1;
+    private int systemTwoSortColumn = 1;
     private int systemTwoSortDirection = 0;
     private int tabPlacement = JTabbedPane.LEFT;
     private int toolsDuplicateFinderHeight = 470;
@@ -115,6 +115,7 @@ public class Preferences implements Serializable
     private int toolsRenamerYpos = -1;
     private transient Configuration cfg;
     private transient Context context;
+
     /**
      * Constructor
      */

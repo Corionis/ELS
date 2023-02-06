@@ -12,11 +12,25 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 @Plugin(name = "GuiLogAppender", category = "Core", elementType = "appender", printObject = true)
 public class GuiLogAppender extends AbstractAppender
 {
     private GuiContext guiContext = null;
+    private static ArrayList<String> preBuffer = null;
+
+    public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
+    {
+        super(name, filter, layout, ignoreExceptions, null);
+    }
+
+    private void addPreBuffer(String line)
+    {
+        if (preBuffer == null)
+            preBuffer = new ArrayList<String>();
+        preBuffer.add(line);
+    }
 
     @PluginFactory
     public static GuiLogAppender createAppender(
@@ -38,23 +52,37 @@ public class GuiLogAppender extends AbstractAppender
         return appender;
     }
 
-    public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
+    private void dumpPreBuffer()
     {
-        super(name, filter, layout, ignoreExceptions, null);
+        if (preBuffer != null)
+        {
+            for (String line : preBuffer)
+            {
+                writeGuiLogs(line);
+            }
+        }
     }
 
     @Override
     public void append(LogEvent event)
     {
-        if (guiContext != null)
+        byte[] data = getLayout().toByteArray(event);
+        String line = new String(data).trim() + System.getProperty("line.separator");
+
+        if (guiContext == null)
+            addPreBuffer(line);
+        else
         {
-            byte[] data = getLayout().toByteArray(event);
-            guiContext.mainFrame.textAreaLog.append(new String(data).trim() + System.getProperty("line.separator"));
-            guiContext.mainFrame.textAreaOperationLog.append(new String(data).trim() + System.getProperty("line.separator"));
+            if (preBuffer != null)
+            {
+                dumpPreBuffer();
+                preBuffer = null;
+            }
+            writeGuiLogs(line);
         }
     }
 
-    public void setTextArea(GuiContext guiContext)
+    public void setGuiContext(GuiContext guiContext)
     {
         this.guiContext = guiContext;
     }
@@ -62,6 +90,12 @@ public class GuiLogAppender extends AbstractAppender
     @Override
     public void stop()
     {
+    }
+
+    private void writeGuiLogs(String line)
+    {
+        guiContext.mainFrame.textAreaLog.append(line);
+        guiContext.mainFrame.textAreaOperationLog.append(line);
     }
 
 }

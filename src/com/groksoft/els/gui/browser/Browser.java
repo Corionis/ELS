@@ -1426,6 +1426,7 @@ public class Browser
         else
             hintTrackingEnabled = true;
 
+        // toggle hint tracking
         guiContext.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
         {
             @Override
@@ -1433,20 +1434,20 @@ public class Browser
             {
                 if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
                 {
+                    // 1 hints, 2 tracker, 3 server
+                    int level = guiContext.cfg.getHintsDaemonFilename().length() > 0 ? 3 : (guiContext.cfg.getHintTrackerFilename().length() > 0 ? 2 : 1);
+
                     if (guiContext.mainFrame.panelHintTracking.isVisible())
                     {
-                        if (!hintTrackingEnabled) // toggle hint tacking
+                        if (!hintTrackingEnabled)
                         {
                             try
                             {
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-green.png");
                                 Image icon = ImageIO.read(url);
-                                guiContext.mainFrame.buttonHintTracking.setText(guiContext.cfg.gs("Navigator.button.HintTracking.text"));
-                                String tt = guiContext.context.statusStty != null ? guiContext.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
-                                        guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip");
-                                guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
                                 guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
                                 hintTrackingEnabled = true;
+                                setHintTrackingButton(true);
                             }
                             catch (Exception e)
                             {
@@ -1459,10 +1460,12 @@ public class Browser
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-red.png");
                                 Image icon = ImageIO.read(url);
                                 guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
-                                String tt = guiContext.context.statusStty != null ? guiContext.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
-                                        guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip");
+                                String tt = level == 3 ? guiContext.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
+                                        (level == 2 ? guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
+                                         guiContext.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
                                 guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
                                 hintTrackingEnabled = false;
+                                setHintTrackingButton(false);
                             }
                             catch (Exception e)
                             {
@@ -1473,10 +1476,7 @@ public class Browser
             }
         });
 
-        String tt = guiContext.context.statusStty != null ? guiContext.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
-                guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip");
-        guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
-
+        setHintTrackingButton(hintTrackingEnabled);
     }
 
     public boolean isHintTrackingEnabled()
@@ -1997,7 +1997,30 @@ public class Browser
             }
         }
     }
-    
+
+    public void setHintTrackingButton(boolean enabled)
+    {
+        String tt;
+        tt = guiContext.cfg.getHintsDaemonFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintServer.text") :
+                (guiContext.cfg.getHintTrackerFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintTracking.text") :
+                        guiContext.cfg.gs("Navigator.button.HintsKeys.text"));
+        guiContext.mainFrame.buttonHintTracking.setText(tt);
+
+        if (enabled)
+        {
+            tt = guiContext.cfg.getHintsDaemonFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
+                    (guiContext.cfg.getHintTrackerFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip") :
+                            guiContext.cfg.gs("Navigator.button.Hints.enabled.tooltip"));
+        }
+        else
+        {
+            tt = guiContext.cfg.getHintsDaemonFilename().length() > 0  ? guiContext.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
+                    (guiContext.cfg.getHintTrackerFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
+                            guiContext.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
+        }
+        guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
+    }
+
     private NavTreeNode setCollectionRoot(Repository repo, JTree tree, String title, boolean remote)
     {
         NavTreeNode root = new NavTreeNode(guiContext, repo, tree);

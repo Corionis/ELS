@@ -44,11 +44,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalTime;
 import java.util.*;
 
 public class Navigator
@@ -66,7 +64,8 @@ public class Navigator
     private int lastFindTab = -1;
     public boolean showHintTrackingButton = false;
     private int bottomSize;
-    private boolean quitRemote = false;
+    private boolean quitRemoteHintStatusServer = false;
+    private boolean quitRemoteSubscriber = false;
     private boolean remoteJobRunning = false;
     public RenamerUI dialogRenamer = null;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -194,6 +193,22 @@ public class Navigator
                     Utils.getSeparatorFromPath(guiContext.cfg.getSubscriberLibrariesFileName())));
         }
 
+        if (guiContext.cfg.isUsingHintTracking())
+        {
+            guiContext.preferences.setLastHintTrackingIsRemote(guiContext.cfg.getHintsDaemonFilename().length() > 0);
+            guiContext.preferences.setLastHintTrackingOpenFile(guiContext.cfg.getHintHandlerFilename());
+            guiContext.preferences.setLastHintTrackingOpenPath(Utils.getLeftPath(guiContext.cfg.getHintHandlerFilename(),
+                    Utils.getSeparatorFromPath(guiContext.cfg.getHintHandlerFilename())));
+        }
+        else
+        {
+            // might be null in existing preferences.json
+            if (guiContext.preferences.getLastHintTrackingOpenFile() == null)
+                guiContext.preferences.setLastHintTrackingOpenFile("");
+            if (guiContext.preferences.getLastHintTrackingOpenPath() == null)
+                guiContext.preferences.setLastHintTrackingOpenPath("");
+        }
+
         // setup the needed tools
         guiContext.context.transfer = new Transfer(guiContext.cfg, guiContext.context, guiContext);
         try
@@ -243,7 +258,7 @@ public class Navigator
             LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
             Map<String, Appender> appenders = loggerConfig.getAppenders();
             GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-            appender.setTextArea(guiContext);
+            appender.setGuiContext(guiContext);
 
             // show banner in Navigator log tabs
             if (guiContext.cfg.isRemoteSession())
@@ -271,10 +286,11 @@ public class Navigator
     private void initializeMainMenu()
     {
         // --- Main Menu ------------------------------------------
-        //
+
         // -- File Menu
-        // ---
-        // Open Publisher
+        // --------------------------------------------------------
+
+        // --- Open Publisher
         AbstractAction openPublisherAction = new AbstractAction()
         {
             @Override
@@ -399,8 +415,7 @@ public class Navigator
         };
         guiContext.mainFrame.menuItemOpenPublisher.addActionListener(openPublisherAction);
 
-        // ---
-        // Open Subscriber
+        // --- Open Subscriber
         AbstractAction openSubscriberAction = new AbstractAction()
         {
             @Override
@@ -525,9 +540,6 @@ public class Navigator
 
                             if (guiContext.preferences.isLastIsRemote())
                             {
-                                // connect to the hint status server if defined
-                                guiContext.context.main.connectHintServer(guiContext.context.publisherRepo);
-
                                 // start the serveStty client for automation
                                 guiContext.context.clientStty = new ClientStty(guiContext.cfg, guiContext.context, false, true);
                                 if (!guiContext.context.clientStty.connect(guiContext.context.publisherRepo, guiContext.context.subscriberRepo))
@@ -575,13 +587,18 @@ public class Navigator
         if (guiContext.context.subscriberRepo != null)
             guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
 
-        // ---
-        // Open Hint Keys
+        // --- Open Hint Keys
         AbstractAction openHintKeysAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                if (guiContext.context.publisherRepo == null)
+                {
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Open.subscriber.please.open.a.publisher.library.first"), guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
                 JFileChooser fc = new JFileChooser();
                 fc.setFileFilter(new FileFilter()
                 {
@@ -663,16 +680,15 @@ public class Navigator
         };
         guiContext.mainFrame.menuItemOpenHintKeys.addActionListener(openHintKeysAction);
 
-        // ---
-        // Open Hint Tracking
-        AbstractAction openHintTracking = new AbstractAction()
+        // --- Open Hint Tracking
+        AbstractAction openHintTrackingAction = new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
                 if (guiContext.cfg.getHintKeysFile() == null || guiContext.cfg.getHintKeysFile().length() == 0)
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Open.hint.tracking.please.open.a.publisher.library.first"), guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Open.hint.tracking.please.open.hints.keys.first"), guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                     return;
                 }
 
@@ -695,30 +711,30 @@ public class Navigator
                 });
                 fc.setDialogTitle(guiContext.cfg.gs("Navigator.menu.Open.hint.tracking"));
                 fc.setFileHidingEnabled(false);
-                if (guiContext.preferences.getLastSubscriberOpenPath().length() > 0)
+                if (guiContext.preferences.getLastHintTrackingOpenPath().length() > 0)
                 {
-                    File ld = new File(guiContext.preferences.getLastSubscriberOpenPath());
+                    File ld = new File(guiContext.preferences.getLastHintTrackingOpenPath());
                     if (ld.exists() && ld.isDirectory())
                         fc.setCurrentDirectory(ld);
                 }
-                if (guiContext.preferences.getLastSubscriberOpenFile().length() > 0)
+                if (guiContext.preferences.getLastHintTrackingOpenFile().length() > 0)
                 {
-                    File lf = new File(guiContext.preferences.getLastSubscriberOpenFile());
+                    File lf = new File(guiContext.preferences.getLastHintTrackingOpenFile());
                     if (lf.exists())
                         fc.setSelectedFile(lf);
                 }
 
-                // Remote Connection checkbox accessory
+                // Remote Hint Status Server checkbox accessory
                 JPanel jp = new JPanel();
                 GridBagLayout gb = new GridBagLayout();
                 jp.setLayout(gb);
                 jp.setBackground(UIManager.getColor("TextField.background"));
                 jp.setBorder(guiContext.mainFrame.textFieldLocation.getBorder());
                 JCheckBox cbIsRemote = new JCheckBox("<html><head><style>body{margin-left:4px;}</style></head><body>" +
-                        guiContext.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox") + "</body></html>");
+                        guiContext.cfg.gs("Navigator.menu.Open.hint.tracking.checkbox") + "</body></html>");
                 cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
-                cbIsRemote.setToolTipText(guiContext.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox.tooltip"));
-                cbIsRemote.setSelected(guiContext.preferences.isLastIsRemote());
+                cbIsRemote.setToolTipText(guiContext.cfg.gs("Navigator.menu.Open.hint.tracking.checkbox.tooltip"));
+                cbIsRemote.setSelected(guiContext.preferences.isLastHintTrackingIsRemote());
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(0, 0, 0, 8);
                 gb.setConstraints(cbIsRemote, gbc);
@@ -730,10 +746,10 @@ public class Navigator
                     int selection = fc.showOpenDialog(guiContext.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (guiContext.cfg.isRemoteSession() && guiContext.context.clientStty.isConnected())
+                        if (guiContext.cfg.isUsingHintTracking() && guiContext.context.statusStty != null && guiContext.context.statusStty.isConnected())
                         {
                             int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
-                                    guiContext.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
+                                    guiContext.cfg.gs("Navigator.menu.Open.hint.tracking.close.current.status.server"),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
 
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
@@ -741,18 +757,17 @@ public class Navigator
 
                             try
                             {
-                                guiContext.context.clientStty.send("bye", "Sending bye command to remote");
+                                guiContext.context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
                             }
                             catch (Exception e)
                             {
                             }
-                            guiContext.context.clientStty.disconnect();
-                            guiContext.context.clientSftp.stopClient();
+                            guiContext.context.statusStty.disconnect();
                         }
 
-                        guiContext.preferences.setLastIsRemote(cbIsRemote.isSelected());
+                        guiContext.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
                         File last = fc.getCurrentDirectory();
-                        guiContext.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
+                        guiContext.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
@@ -770,63 +785,28 @@ public class Navigator
                         }
                         try
                         {
-                            // this defines the value returned by guiContext.cfg.isRemoteSession()
-                            if (guiContext.preferences.isLastIsRemote())
+                            guiContext.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
+
+                            if (guiContext.preferences.isLastHintTrackingIsRemote())
                             {
-                                guiContext.cfg.setRemoteType("P"); // publisher to remote subscriber
+                                guiContext.cfg.setHintsDaemonFilename(file.getAbsolutePath());
+                                guiContext.cfg.setHintTrackerFilename("");
                                 guiContext.mainFrame.menuItemQuitTerminate.setVisible(true);
                             }
                             else
                             {
-                                guiContext.cfg.setRemoteType("-"); // not remote
+                                guiContext.cfg.setHintsDaemonFilename("");
+                                guiContext.cfg.setHintTrackerFilename(file.getAbsolutePath());
                                 guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
                             }
 
-                            guiContext.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
-                            guiContext.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
-                            guiContext.cfg.setSubscriberCollectionFilename("");
-                            guiContext.context.subscriberRepo = guiContext.context.main.readRepo(guiContext.cfg, Repository.SUBSCRIBER, !guiContext.preferences.isLastIsRemote());
-
-                            if (guiContext.preferences.isLastIsRemote())
-                            {
-                                // connect to the hint status server if defined
-                                guiContext.context.main.connectHintServer(guiContext.context.publisherRepo);
-
-                                // start the serveStty client for automation
-                                guiContext.context.clientStty = new ClientStty(guiContext.cfg, guiContext.context, false, true);
-                                if (!guiContext.context.clientStty.connect(guiContext.context.publisherRepo, guiContext.context.subscriberRepo))
-                                {
-                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                            guiContext.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
-                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                    guiContext.cfg.setRemoteType("-");
-                                    return;
-                                }
-                                if (guiContext.context.clientStty.checkBannerCommands())
-                                {
-                                    logger.info(guiContext.cfg.gs("Transfer.received.subscriber.commands") + (guiContext.cfg.isRequestCollection() ? "RequestCollection " : "") + (guiContext.cfg.isRequestTargets() ? "RequestTargets" : ""));
-                                }
-
-                                // start the serveSftp client
-                                guiContext.context.clientSftp = new ClientSftp(guiContext.cfg, guiContext.context.publisherRepo, guiContext.context.subscriberRepo, true);
-                                if (!guiContext.context.clientSftp.startClient())
-                                {
-                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                            guiContext.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
-                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                    guiContext.cfg.setRemoteType("-");
-                                    return;
-                                }
-                            }
-
-                            // load the subscriber library
-                            guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
-                            guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, guiContext.preferences.isLastIsRemote());
+                            // connect to the hint tracker or status server
+                            guiContext.context.main.connectHintServer(guiContext.context.publisherRepo);
+                            guiContext.browser.setHintTrackingButton(true);
                         }
                         catch (Exception e)
                         {
-                            JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                    guiContext.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
+                            JOptionPane.showMessageDialog(guiContext.mainFrame, e.getMessage(),
                                     guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
@@ -835,11 +815,9 @@ public class Navigator
                 }
             }
         };
-/*
-        guiContext.mainFrame.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
-        if (guiContext.context.subscriberRepo != null)
-            guiContext.preferences.setLastIsRemote(guiContext.cfg.isRemoteSession());
-*/
+        guiContext.mainFrame.menuItemOpenHintTracking.addActionListener(openHintTrackingAction);
+        if (guiContext.cfg.isUsingHintTracking())
+            guiContext.preferences.setLastHintTrackingIsRemote(guiContext.cfg.getHintsDaemonFilename().length() > 0);
 
         // Save Layout
         AbstractAction saveLayoutAction = new AbstractAction()
@@ -862,8 +840,7 @@ public class Navigator
         };
         guiContext.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
-        // ---
-        // Quit & Stop Remote
+        // --- Quit & Stop Remote(s)
         guiContext.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
         {
             @Override
@@ -871,13 +848,28 @@ public class Navigator
             {
                 if (guiContext.mainFrame.verifyClose())
                 {
-                    int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
-                            guiContext.cfg.gs("Navigator.menu.QuitTerminate.stop.remote"),
-                            guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
-                    if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
-                        quitRemote = false;
-                    else
-                        quitRemote = true;
+                    if (guiContext.context.clientStty != null)
+                    {
+                        int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
+                                guiContext.cfg.gs("Navigator.menu.QuitTerminate.stop.subscriber"),
+                                guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                        if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                            quitRemoteSubscriber = false;
+                        else
+                            quitRemoteSubscriber = true;
+                    }
+
+                    if (guiContext.cfg.getHintsDaemonFilename() != null && guiContext.cfg.getHintsDaemonFilename().length() > 0)
+                    {
+                        int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
+                                guiContext.cfg.gs("Navigator.menu.QuitTerminate.stop.hint.status.server"),
+                                guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                        if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
+                            quitRemoteHintStatusServer = false;
+                        else
+                            quitRemoteHintStatusServer = true;
+                    }
+
                     stop();
                 }
             }
@@ -885,14 +877,86 @@ public class Navigator
         if (!guiContext.cfg.isRemoteSession())
             guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
 
-        // ---
-        // Quit
+        // --- Quit
         // Handled in MainFrame.menuItemFileQuitActionPerformed()
 
-        //
         // -- Edit Menu
-        // ---
-        // Find in Log
+        // --------------------------------------------------------
+
+        // --- Copy
+        ActionListener copyAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.browser.lastComponent != null)
+                {
+                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "copy");
+                    guiContext.browser.lastComponent.requestFocus();
+                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                }
+            }
+        };
+        guiContext.mainFrame.menuItemCopy.addActionListener(copyAction);
+        guiContext.mainFrame.popupMenuItemCopy.addActionListener(copyAction);
+
+        // --- Cut
+        ActionListener cutAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.browser.lastComponent != null)
+                {
+                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "cut");
+                    guiContext.browser.lastComponent.requestFocus();
+                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                }
+            }
+        };
+        guiContext.mainFrame.menuItemCut.addActionListener(cutAction);
+        guiContext.mainFrame.popupMenuItemCut.addActionListener(cutAction);
+
+        // --- Paste
+        ActionListener pasteAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (guiContext.browser.lastComponent != null)
+                {
+                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "paste");
+                    guiContext.browser.lastComponent.requestFocus();
+                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                }
+            }
+        };
+        guiContext.mainFrame.menuItemPaste.addActionListener(pasteAction);
+        guiContext.mainFrame.popupMenuItemPaste.addActionListener(pasteAction);
+
+        // --- Delete
+        ActionListener deleteAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                Object object = guiContext.browser.lastComponent;
+                if (object instanceof JTree)
+                {
+                    JTree sourceTree = (JTree) object;
+                    guiContext.browser.deleteSelected(sourceTree);
+                }
+                else if (object instanceof JTable)
+                {
+                    JTable sourceTable = (JTable) object;
+                    guiContext.browser.deleteSelected(sourceTable);
+                }
+            }
+        };
+        guiContext.mainFrame.menuItemDelete.addActionListener(deleteAction);
+        guiContext.mainFrame.popupMenuItemDelete.addActionListener(deleteAction);
+
+        // --- Find in Log
         AbstractAction findAction = new AbstractAction()
         {
             @Override
@@ -948,8 +1012,7 @@ public class Navigator
         guiContext.mainFrame.popupMenuItemFind.addActionListener(findAction);
         guiContext.mainFrame.popupMenuItemOperationFind.addActionListener(findAction);
 
-        // ---
-        // Find Next
+        // --- Find Next
         AbstractAction findNextAction = new AbstractAction()
         {
             @Override
@@ -1008,8 +1071,7 @@ public class Navigator
         guiContext.mainFrame.popupMenuItemFindNext.addActionListener(findNextAction);
         guiContext.mainFrame.popupMenuItemOperationFindNext.addActionListener(findNextAction);
 
-        // ---
-        // New Folder
+        // --- New Folder
         AbstractAction newFolderAction = new AbstractAction()
         {
             @Override
@@ -1145,8 +1207,7 @@ public class Navigator
         guiContext.mainFrame.menuItemNewFolder.addActionListener(newFolderAction);
         guiContext.mainFrame.popupMenuItemNewFolder.addActionListener(newFolderAction);
 
-        // ---
-        // Rename
+        // --- Rename
         ActionListener renameAction = new AbstractAction()
         {
             @Override
@@ -1271,8 +1332,7 @@ public class Navigator
         guiContext.mainFrame.menuItemRename.addActionListener(renameAction);
         guiContext.mainFrame.popupMenuItemRename.addActionListener(renameAction);
 
-        // ---
-        // Touch Date/Time
+        // --- Touch Date/Time
         ActionListener touchAction = new AbstractAction()
         {
             @Override
@@ -1294,107 +1354,10 @@ public class Navigator
         guiContext.mainFrame.menuItemTouch.addActionListener(touchAction);
         guiContext.mainFrame.popupMenuItemTouch.addActionListener(touchAction);
 
-        // ---
-        // Copy
-        ActionListener copyAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                if (guiContext.browser.lastComponent != null)
-                {
-                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "copy");
-                    guiContext.browser.lastComponent.requestFocus();
-                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
-                }
-            }
-        };
-        guiContext.mainFrame.menuItemCopy.addActionListener(copyAction);
-        guiContext.mainFrame.popupMenuItemCopy.addActionListener(copyAction);
-
-        // ---
-        // Cut
-        ActionListener cutAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                if (guiContext.browser.lastComponent != null)
-                {
-                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "cut");
-                    guiContext.browser.lastComponent.requestFocus();
-                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
-                }
-            }
-        };
-        guiContext.mainFrame.menuItemCut.addActionListener(cutAction);
-        guiContext.mainFrame.popupMenuItemCut.addActionListener(cutAction);
-
-        // ---
-        // Paste
-        ActionListener pasteAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                if (guiContext.browser.lastComponent != null)
-                {
-                    ActionEvent ev = new ActionEvent(guiContext.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "paste");
-                    guiContext.browser.lastComponent.requestFocus();
-                    guiContext.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
-                }
-            }
-        };
-        guiContext.mainFrame.menuItemPaste.addActionListener(pasteAction);
-        guiContext.mainFrame.popupMenuItemPaste.addActionListener(pasteAction);
-
-        // ---
-        // Delete
-        ActionListener deleteAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                Object object = guiContext.browser.lastComponent;
-                if (object instanceof JTree)
-                {
-                    JTree sourceTree = (JTree) object;
-                    guiContext.browser.deleteSelected(sourceTree);
-                }
-                else if (object instanceof JTable)
-                {
-                    JTable sourceTable = (JTable) object;
-                    guiContext.browser.deleteSelected(sourceTable);
-                }
-            }
-        };
-        guiContext.mainFrame.menuItemDelete.addActionListener(deleteAction);
-        guiContext.mainFrame.popupMenuItemDelete.addActionListener(deleteAction);
-
-        //
-        // Settings
-        guiContext.mainFrame.menuItemSettings.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                if (dialogSettings == null || !dialogSettings.isShowing())
-                {
-                    dialogSettings = new Settings(guiContext.mainFrame, guiContext);
-                    dialogSettings.setVisible(true);
-                }
-                else
-                {
-                    dialogSettings.toFront();
-                    dialogSettings.requestFocus();
-                }
-            }
-        });
-
-        //
         // -- View Menu
-        // ---
-        // Refresh
+        // --------------------------------------------------------
+
+        // --- Refresh
         ActionListener refreshAction = new AbstractAction()
         {
             @Override
@@ -1406,8 +1369,7 @@ public class Navigator
         guiContext.mainFrame.menuItemRefresh.addActionListener(refreshAction);
         guiContext.mainFrame.popupMenuItemRefresh.addActionListener(refreshAction);
 
-        // ---
-        // Progress
+        // --- Progress
         guiContext.mainFrame.menuItemProgress.addActionListener(new AbstractAction()
         {
             @Override
@@ -1429,8 +1391,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Auto-Refresh
+        // --- Auto-Refresh
         guiContext.mainFrame.menuItemAutoRefresh.addActionListener(new AbstractAction()
         {
             @Override
@@ -1449,8 +1410,7 @@ public class Navigator
         else
             guiContext.mainFrame.menuItemAutoRefresh.setSelected(false);
 
-        // ---
-        // Show Hidden
+        // --- Show Hidden
         guiContext.mainFrame.menuItemShowHidden.addActionListener(new AbstractAction()
         {
             @Override
@@ -1465,8 +1425,7 @@ public class Navigator
         else
             guiContext.mainFrame.menuItemShowHidden.setSelected(true);
 
-        // ---
-        // Word Wrap Log
+        // --- Word Wrap Log
         ActionListener wordWrapAction = new AbstractAction()
         {
             @Override
@@ -1495,9 +1454,9 @@ public class Navigator
         guiContext.mainFrame.popupCheckBoxMenuItemOperationWordWrap.addActionListener(wordWrapAction);
 
         // -- Bookmarks Menu
-        //
-        // ---
-        // Add Current Location
+        // --------------------------------------------------------
+
+        // --- Bookmark Add Current Location
         guiContext.mainFrame.menuItemAddBookmark.addActionListener(new AbstractAction()
         {
             @Override
@@ -1517,8 +1476,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Bookmarks Delete
+        // --- Bookmarks Delete
         guiContext.mainFrame.menuItemBookmarksDelete.addActionListener(new AbstractAction()
         {
             @Override
@@ -1569,11 +1527,10 @@ public class Navigator
             }
         });
 
-        //
         // -- Tools Menu
-        //
-        // ---
-        // Duplicate Finder
+        // --------------------------------------------------------
+
+        // --- Duplicate Finder
         guiContext.mainFrame.menuItemDuplicates.addActionListener(new AbstractAction()
         {
             @Override
@@ -1592,8 +1549,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Empty Directory Finder
+        // --- Empty Directory Finder
         guiContext.mainFrame.menuItemEmptyFinder.addActionListener(new AbstractAction()
         {
             @Override
@@ -1612,8 +1568,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Junk Remover Tool
+        // --- Junk Remover Tool
         guiContext.mainFrame.menuItemJunk.addActionListener(new AbstractAction()
         {
             @Override
@@ -1632,8 +1587,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Renamer Tool
+        // --- Renamer Tool
         guiContext.mainFrame.menuItemRenamer.addActionListener(new AbstractAction()
         {
             @Override
@@ -1652,8 +1606,10 @@ public class Navigator
             }
         });
 
-        //
         // -- Jobs Menu
+        // --------------------------------------------------------
+
+        // --- Manage
         guiContext.mainFrame.menuItemJobsManage.addActionListener(new AbstractAction()
         {
             @Override
@@ -1672,10 +1628,32 @@ public class Navigator
             }
         });
 
-        //
+        // -- System Menu
+        // --------------------------------------------------------
+
+        // --- Settings
+        guiContext.mainFrame.menuItemSettings.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogSettings == null || !dialogSettings.isShowing())
+                {
+                    dialogSettings = new Settings(guiContext.mainFrame, guiContext);
+                    dialogSettings.setVisible(true);
+                }
+                else
+                {
+                    dialogSettings.toFront();
+                    dialogSettings.requestFocus();
+                }
+            }
+        });
+
         // -- Window Menu
-        // ---
-        // Maximize
+        // --------------------------------------------------------
+
+        // --- Maximize
         guiContext.mainFrame.menuItemMaximize.addActionListener(new AbstractAction()
         {
             @Override
@@ -1685,8 +1663,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Minimize
+        // --- Minimize
         guiContext.mainFrame.menuItemMinimize.addActionListener(new AbstractAction()
         {
             @Override
@@ -1696,8 +1673,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Restore
+        // --- Restore
         guiContext.mainFrame.menuItemRestore.addActionListener(new AbstractAction()
         {
             @Override
@@ -1707,8 +1683,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Split Horizontal
+        // --- Split Horizontal
         guiContext.mainFrame.menuItemSplitHorizontal.addActionListener(new AbstractAction()
         {
             @Override
@@ -1722,8 +1697,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Split Vertical
+        // --- Split Vertical
         guiContext.mainFrame.menuItemSplitVertical.addActionListener(new AbstractAction()
         {
             @Override
@@ -1738,8 +1712,9 @@ public class Navigator
         });
 
         // -- Help Menu
-        // ---
-        // Controls
+        // --------------------------------------------------------
+
+        // --- Controls
         guiContext.mainFrame.menuItemControls.addActionListener(new AbstractAction()
         {
             @Override
@@ -1751,8 +1726,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // Documentation
+        // --- Documentation
         guiContext.mainFrame.menuItemDocumentation.addActionListener(new AbstractAction()
         {
             @Override
@@ -1770,8 +1744,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // GitHub Project
+        // --- GitHub Project
         guiContext.mainFrame.menuItemGitHubProject.addActionListener(new AbstractAction()
         {
             @Override
@@ -1789,8 +1762,7 @@ public class Navigator
             }
         });
 
-        // ---
-        // About
+        // --- About
         guiContext.mainFrame.menuItemAbout.addActionListener(new AbstractAction()
         {
             @Override
@@ -1801,9 +1773,10 @@ public class Navigator
             }
         });
 
-        // popup menu log
-        // ---
-        // Bottom
+        // -- popup menu browser log tab
+        // --------------------------------------------------------
+
+        // --- Bottom
         guiContext.mainFrame.popupMenuItemBottom.addActionListener(new AbstractAction()
         {
             @Override
@@ -1813,8 +1786,8 @@ public class Navigator
                 vertical.setValue(vertical.getMaximum());
             }
         });
-        // ---
-        // Clear
+
+        // --- Clear
         guiContext.mainFrame.popupMenuItemClear.addActionListener(new AbstractAction()
         {
             @Override
@@ -1823,8 +1796,8 @@ public class Navigator
                 guiContext.mainFrame.textAreaLog.setText("");
             }
         });
-        // ---
-        // Top
+
+        // --- Top
         guiContext.mainFrame.popupMenuItemTop.addActionListener(new AbstractAction()
         {
             @Override
@@ -1835,9 +1808,10 @@ public class Navigator
             }
         });
 
-        // popup menu operation log
-        // ---
-        // Bottom
+        // -- popup menu operations log tab
+        // --------------------------------------------------------
+
+        // --- Bottom
         guiContext.mainFrame.popupMenuItemOperationBottom.addActionListener(new AbstractAction()
         {
             @Override
@@ -1847,8 +1821,8 @@ public class Navigator
                 vertical.setValue(vertical.getMaximum());
             }
         });
-        // ---
-        // Clear
+
+        // --- Clear
         guiContext.mainFrame.popupMenuItemOperationClear.addActionListener(new AbstractAction()
         {
             @Override
@@ -1857,8 +1831,8 @@ public class Navigator
                 guiContext.mainFrame.textAreaOperationLog.setText("");
             }
         });
-        // ---
-        // Top
+
+        // --- Top
         guiContext.mainFrame.popupMenuItemOperationTop.addActionListener(new AbstractAction()
         {
             @Override
@@ -2293,10 +2267,10 @@ public class Navigator
                             resp = null;
                         }
                     }
-                    else if (quitRemote)
-                        guiContext.context.clientStty.send("quit", "Sending quit command to remote");
+                    else if (quitRemoteSubscriber)
+                        guiContext.context.clientStty.send("quit", "Sending quit command to subscriber");
                     else
-                        guiContext.context.clientStty.send("bye", "Sending bye command to remote");
+                        guiContext.context.clientStty.send("bye", "Sending bye command to subscriber");
                 }
             }
             catch (Exception e)
@@ -2304,6 +2278,19 @@ public class Navigator
                 guiContext.context.fault = true;
                 logger.error(Utils.getStackTrace(e));
             }
+        }
+
+        try
+        {
+            if (quitRemoteHintStatusServer)
+                guiContext.context.statusStty.send("quit", "Sending quit command to Hint Status Server");
+            else
+                guiContext.context.statusStty.send("bye", "Sending bye command to Hint Status Server");
+        }
+        catch (Exception e)
+        {
+            guiContext.context.fault = true;
+            logger.error(Utils.getStackTrace(e));
         }
 
         if (guiContext.mainFrame != null)

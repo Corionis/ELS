@@ -2672,7 +2672,7 @@ new FormModel {
 				name: "popupCheckBoxMenuItemWordWrap"
 				"text": new FormMessage( null, "Navigator.popupCheckBoxMenuItemWordWrap.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupCheckBoxMenuItemWordWrap.mnemonic" )
-				"accelerator": static javax.swing.KeyStroke getKeyStroke( 87, 130, false )
+				"accelerator": #KeyStroke9
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 1045, 330 )

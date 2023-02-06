@@ -3496,7 +3496,7 @@ public class MainFrame extends JFrame
             //---- popupCheckBoxMenuItemWordWrap ----
             popupCheckBoxMenuItemWordWrap.setText(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.text"));
             popupCheckBoxMenuItemWordWrap.setMnemonic(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.mnemonic").charAt(0));
-            popupCheckBoxMenuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.CTRL_DOWN_MASK));
+            popupCheckBoxMenuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK));
             popupMenuLog.add(popupCheckBoxMenuItemWordWrap);
         }
 

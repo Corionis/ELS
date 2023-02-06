@@ -222,7 +222,7 @@ public class Main
             {
                 Map<String, Appender> appenders = loggerConfig.getAppenders();
                 GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-                appender.setTextArea(guiContext);
+                appender.setGuiContext(guiContext);
             }
             loggerContext.updateLoggers();
 
