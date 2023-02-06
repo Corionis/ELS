@@ -817,7 +817,13 @@ public class Navigator
         };
         guiContext.mainFrame.menuItemOpenHintTracking.addActionListener(openHintTrackingAction);
         if (guiContext.cfg.isUsingHintTracking())
+        {
             guiContext.preferences.setLastHintTrackingIsRemote(guiContext.cfg.getHintsDaemonFilename().length() > 0);
+            if (guiContext.cfg.getHintsDaemonFilename().length() > 0)
+                guiContext.mainFrame.menuItemQuitTerminate.setVisible(true);
+            else
+                guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
+        }
 
         // Save Layout
         AbstractAction saveLayoutAction = new AbstractAction()
@@ -874,8 +880,6 @@ public class Navigator
                 }
             }
         });
-        if (!guiContext.cfg.isRemoteSession())
-            guiContext.mainFrame.menuItemQuitTerminate.setVisible(false);
 
         // --- Quit
         // Handled in MainFrame.menuItemFileQuitActionPerformed()
@@ -2282,10 +2286,13 @@ public class Navigator
 
         try
         {
-            if (quitRemoteHintStatusServer)
-                guiContext.context.statusStty.send("quit", "Sending quit command to Hint Status Server");
-            else
-                guiContext.context.statusStty.send("bye", "Sending bye command to Hint Status Server");
+            if (guiContext.context.statusStty != null && guiContext.context.statusStty.isConnected())
+            {
+                if (quitRemoteHintStatusServer)
+                    guiContext.context.statusStty.send("quit", "Sending quit command to Hint Status Server");
+                else
+                    guiContext.context.statusStty.send("bye", "Sending bye command to Hint Status Server");
+            }
         }
         catch (Exception e)
         {
