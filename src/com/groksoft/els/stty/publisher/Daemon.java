@@ -453,7 +453,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                 else
                                 {
                                     response += "  Total size: ";
-                                    response += Utils.formatLong(totalSize, true) + "\r\n";
+                                    response += Utils.formatLong(totalSize, true, cfg.getLongScale()) + "\r\n";
                                     response += "Copy listed items (y/N)? ";
                                     send(response, "");
 
@@ -537,10 +537,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             {
                                 location = t.nextToken();
                                 long space = Utils.availableSpace(location);
-                                logger.info("  space: " + Utils.formatLong(space, true) + " at " + location);
+                                logger.info("  space: " + Utils.formatLong(space, true, cfg.getLongScale()) + " at " + location);
                                 if (isTerminal)
                                 {
-                                    response = Utils.formatLong(space, true);
+                                    response = Utils.formatLong(space, true, cfg.getLongScale());
                                 }
                                 else
                                 {

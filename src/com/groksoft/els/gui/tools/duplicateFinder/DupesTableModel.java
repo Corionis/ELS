@@ -91,7 +91,7 @@ public class DupesTableModel extends DefaultTableModel
             if (column == 1)
             {
                 if (!dupe.isTop && !item.isDirectory())
-                    return new SizeColumn(item.getSize());
+                    return new SizeColumn(item.getSize(), cfg.getLongScale());
             }
             if (column == 2)
             {

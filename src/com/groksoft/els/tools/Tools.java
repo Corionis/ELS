@@ -55,7 +55,7 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals("OperationsUI"))
+        if (internalName.equals("Operations"))
         {
             // begin OperationsUI
             OperationsTool tmpTool = new OperationsTool(null, config, ctxt);
@@ -241,7 +241,7 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Configuration config, Context ctxt)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals("OperationsUI"))
+        if (internalName.equals("Operations"))
         {
             tmpTool = new OperationsTool(null, config, ctxt);
         }

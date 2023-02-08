@@ -26,7 +26,7 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-        if (value instanceof NavTreeNode)
+        if (tree.isEnabled() && value instanceof NavTreeNode)
         {
             NavTreeNode node = (NavTreeNode) value;
             if (node.getUserObject() instanceof NavTreeUserObject)

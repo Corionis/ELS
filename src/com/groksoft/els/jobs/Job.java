@@ -8,10 +8,16 @@ import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
+import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.AbstractConfiguration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -24,6 +30,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Job extends AbstractTool implements Comparable, Serializable
 {
@@ -48,6 +55,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
         this.cfg = cfg;
         this.context = context;
         this.configName = name;
+//        this.logger = context.logger;
         this.tasks = new ArrayList<Task>();
         this.dataHasChanged = false;
     }
@@ -187,7 +195,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                     if (json != null && json.length() > 0)
                     {
                         Job tmpJob = builder.create().fromJson(json, Job.class);
-                        if (tmpJob.getConfigName().equalsIgnoreCase(jobName))
+                        if (tmpJob.getConfigName().equals(jobName))
                         {
                             job = tmpJob;
                             break;
@@ -241,6 +249,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 }
             };
             guiContext.progress = new Progress(guiContext, comp, cancel, isDryRun);
+            guiContext.context.progress = guiContext.progress;
             guiContext.progress.display();
         }
         else
@@ -315,6 +324,31 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
                     if (currentTask.isCachedLastTask(cfg, context))
                         lastTask = currentTask;
+
+/*
+                    // reconfigure logging back to current context
+                    System.setProperty("logFilename", cfg.getLogFilename());
+                    System.setProperty("consoleLevel", cfg.getConsoleLevel());
+                    System.setProperty("debugLevel", cfg.getDebugLevel());
+                    System.setProperty("pattern", cfg.getPattern());
+                    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(true); //guiContext == null ? true : false);  //(LogManager.class.getClassLoader(), false);
+                    loggerContext.reconfigure();
+                    AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+                    LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
+                    loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
+                    loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+                    loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
+                    if (guiContext != null)
+                    {
+                        Map<String, Appender> appenders = loggerConfig.getAppenders();
+                        GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                        appender.setGuiContext(guiContext);
+                    }
+                    loggerContext.updateLoggers();
+
+                    // get the named logger
+                    logger = LogManager.getLogger("applog");
+*/
                 }
             }
             context.main.savedEnvironment.restore(currentTask);

@@ -32,7 +32,7 @@ public class Settings extends JDialog
          General
             + Default dry run
          Apperance
-            + Show mnemonic
+            + Show mnemonics
          OperationsUI
             + Generate short or long options
             + Default console and debug levels

@@ -38,9 +38,9 @@ public class Connection extends Thread
      * @param aSocket  Socket for connection
      * @param aService Service for connection
      */
-    public Connection(Socket aSocket, AbstractDaemon aService)
+    public Connection(Socket aSocket, String name, AbstractDaemon aService)
     {
-        super("Daemon.Connection:" + Utils.formatAddresses(aSocket));
+        super("stty." + name + (aService.context.trace ? ":" + Utils.formatAddresses(aSocket) : ""));
         this.socket = aSocket;
         this.service = aService;
     } // constructor

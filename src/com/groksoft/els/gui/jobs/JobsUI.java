@@ -240,7 +240,7 @@ public class JobsUI extends JDialog
                 configModel.fireTableDataChanged();
                 if (index >= 0)
                 {
-                    configItems.changeSelection(index, 0, true, false);
+                    configItems.changeSelection(index, 0, false, false);
                     loadTasks(index);
                 }
                 configItems.requestFocus();
@@ -257,13 +257,18 @@ public class JobsUI extends JDialog
             String generated = "java -jar " + jar + " -c debug -d debug -j \"" + currentJob.getConfigName() + "\" -F \"" + currentJob.getConfigName() + ".log\"";
 
             JOptionPane.showInputDialog(this,
-                    guiContext.cfg.gs("Z.generated") + currentJob.getConfigName() +
-                            "                                                                                    ",
+                    "<html><body>" + guiContext.cfg.gs("Z.generated") + currentJob.getConfigName() +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</body></html>",
                     guiContext.cfg.gs("JobsUI.title"), JOptionPane.PLAIN_MESSAGE,
                     null, null, generated);
         }
         catch (Exception e)
         {
+            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            logger.error(msg);
+            JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -306,8 +311,6 @@ public class JobsUI extends JDialog
                 buttonTaskDown.setEnabled(true);
                 buttonAddTask.setEnabled(true);
                 buttonRemoveTask.setEnabled(true);
-                buttonAddOrigin.setEnabled(true);
-                buttonRemoveOrigin.setEnabled(true);
             }
 
             configItems.editCellAt(configModel.getRowCount() - 1, 0);
@@ -319,15 +322,6 @@ public class JobsUI extends JDialog
         {
             JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
                     guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void actionSaveClicked(ActionEvent e)
-    {
-        if (saveConfigurations())
-        {
-            savePreferences();
-            setVisible(false);
         }
     }
 
@@ -739,6 +733,15 @@ public class JobsUI extends JDialog
         }
     }
 
+    private void actionSaveClicked(ActionEvent e)
+    {
+        if (saveConfigurations())
+        {
+            savePreferences();
+            setVisible(false);
+        }
+    }
+
     private void actionTaskAddClicked(ActionEvent evt)
     {
         if (currentJob != null)
@@ -940,6 +943,14 @@ public class JobsUI extends JDialog
                     listTasks.setSelectedIndex(0);
             }
         }
+    }
+
+    private void enableDisableOrigins(boolean sense)
+    {
+        buttonAddOrigin.setEnabled(sense);
+        buttonOriginUp.setEnabled(sense);
+        buttonOriginDown.setEnabled(sense);
+        buttonRemoveOrigin.setEnabled(sense);
     }
 
     private String findCachedLastTask(Job job, int index)
@@ -1187,8 +1198,7 @@ public class JobsUI extends JDialog
             buttonTaskDown.setEnabled(false);
             buttonAddTask.setEnabled(false);
             buttonRemoveTask.setEnabled(false);
-            buttonAddOrigin.setEnabled(false);
-            buttonRemoveOrigin.setEnabled(false);
+            enableDisableOrigins(false);
         }
         else
         {
@@ -1246,30 +1256,21 @@ public class JobsUI extends JDialog
             loadPubSubs(currentTask);
             labelOrigins.setEnabled(true);
             buttonPub.setEnabled(true);
-            buttonAddOrigin.setEnabled(false);
-            buttonOriginUp.setEnabled(false);
-            buttonOriginDown.setEnabled(false);
-            buttonRemoveOrigin.setEnabled(false);
+            enableDisableOrigins(false);
         }
         else if (currentTask.getInternalName().equals(Job.INTERNAL_NAME))
         {
             loadPubSubs(null);
             labelOrigins.setEnabled(false);
             buttonPub.setEnabled(false);
-            buttonAddOrigin.setEnabled(false);
-            buttonOriginUp.setEnabled(false);
-            buttonOriginDown.setEnabled(false);
-            buttonRemoveOrigin.setEnabled(false);
+            enableDisableOrigins(false);
         }
         else
         {
             loadPubSubs(currentTask);
             buttonPub.setEnabled(true);
             labelOrigins.setEnabled(true);
-            buttonAddOrigin.setEnabled(true);
-            buttonOriginUp.setEnabled(true);
-            buttonOriginDown.setEnabled(true);
-            buttonRemoveOrigin.setEnabled(true);
+            enableDisableOrigins(true);
 
             if (currentTask.getOrigins().size() > 0)
             {
@@ -1285,6 +1286,7 @@ public class JobsUI extends JDialog
             }
         }
         listOrigins.setModel(model);
+        enableDisableOrigins(currentTask.isOriginPathsAllowed(guiContext.cfg, guiContext.context));
     }
 
     private void loadPubSubs(Task task)

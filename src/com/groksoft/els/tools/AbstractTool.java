@@ -22,9 +22,10 @@ public abstract class AbstractTool implements Comparable, Serializable
 {
     transient protected Configuration cfg;
     transient protected Context context;
+    transient protected String displayName; // GUI i18n display name
     transient protected boolean includeInToolsList = true; // set by tool at runtime
     transient private boolean isRemote;
-    transient protected String displayName; // GUI i18n display name
+    transient protected boolean originPathsAllowed = true; // set by tool at runtime
     transient private boolean stop = false;
 
     private AbstractTool()
@@ -94,6 +95,11 @@ public abstract class AbstractTool implements Comparable, Serializable
     public boolean isIncludeInToolsList()
     {
         return includeInToolsList;
+    }
+
+    public boolean isOriginPathsAllowed()
+    {
+        return originPathsAllowed;
     }
 
     abstract public boolean isRealOnly();

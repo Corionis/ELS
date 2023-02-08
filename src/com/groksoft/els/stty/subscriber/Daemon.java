@@ -637,10 +637,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             {
                                 location = t.nextToken();
                                 long space = Utils.availableSpace(location);
-                                logger.info("  space: " + Utils.formatLong(space, true) + " at " + location);
+                                logger.info("  space: " + Utils.formatLong(space, true, cfg.getLongScale()) + " at " + location);
                                 if (isTerminal)
                                 {
-                                    response = Utils.formatLong(space, true);
+                                    response = Utils.formatLong(space, true, cfg.getLongScale());
                                 }
                                 else
                                 {

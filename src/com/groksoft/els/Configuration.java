@@ -16,7 +16,6 @@ public class Configuration
 {
     public static final int JOB_PROCESS = 8;
     public static final int NOT_REMOTE = 0;
-    // operations
     public static final int NOT_SET = -1;
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
@@ -151,7 +150,7 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -a Authorize mode password has been specified");
         }
-        log(logger, SHORT, "  cfg: -b No back fill = ", noBackFill);
+        indicator(logger, SHORT, "  cfg: -b No back fill = ", noBackFill);
         if (blacklist.length() > 0)
         {
             logger.info(SHORT, "  cfg: -B Blacklist filename = " + blacklist);
@@ -164,23 +163,23 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
         }
-        log(logger, SHORT, "  cfg: -D Dry run = ", dryRun);
+        indicator(logger, SHORT, "  cfg: -D Dry run = ", dryRun);
         if (getExportTextFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
-        log(logger, SHORT, "  cfg: -E Empty directories = ", emptyDirectoryCheck);
+        indicator(logger, SHORT, "  cfg: -E Empty directories = ", emptyDirectoryCheck);
         logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFilename());
-        log(logger, SHORT, "  cfg: -g Listener keep going = ", keepGoing);
+        indicator(logger, SHORT, "  cfg: -g Listener keep going = ", keepGoing);
         if (isQuitSubscriberListener())
             logger.info(SHORT, "  cfg: -G Subscriber listener FORCE QUIT now");
         if (hintTrackerFilename != null && hintTrackerFilename.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -h Hint status tracker: " + getHintTrackerFilename());
+            logger.info(SHORT, "  cfg: -h Hint Tracker: " + getHintTrackerFilename());
         }
         if (hintsDaemonFilename != null && hintsDaemonFilename.length() > 0)
         {
-            logger.info(SHORT, "  cfg: -H Hints status server: " + getHintsDaemonFilename());
+            logger.info(SHORT, "  cfg: -H Hint Status Server: " + getHintsDaemonFilename());
         }
         if (getExportCollectionFilename().length() > 0)
         {
@@ -218,9 +217,9 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -m Mismatches output filename = " + getMismatchFilename());
         }
-        log(logger, SHORT, "  cfg: -n Navigator = ", navigator);
-        log(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
-        log(logger, SHORT, "  cfg: -o Overwrite = ", overwrite);
+        indicator(logger, SHORT, "  cfg: -n Navigator = ", navigator);
+        indicator(logger, SHORT, "  cfg: -N Ignored files reported = ", ignoredReported);
+        indicator(logger, SHORT, "  cfg: -o Overwrite = ", overwrite);
         if (getPublisherLibrariesFileName().length() > 0)
         {
             logger.info(SHORT, "  cfg: -p Publisher Library filename = " + getPublisherLibrariesFileName());
@@ -252,15 +251,15 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -" + ((isForceTargets()) ? "T" : "t") + " Targets filename = " + getTargetsFilename());
         }
-        log(logger, SHORT, "  cfg: -u Duplicates = ", duplicateCheck);
-        log(logger, SHORT, "  cfg: -v Validate = ", validation);
+        indicator(logger, SHORT, "  cfg: -u Duplicates = ", duplicateCheck);
+        indicator(logger, SHORT, "  cfg: -v Validate = ", validation);
         if (getWhatsNewFilename().length() > 0)
         {
             logger.info(SHORT, "  cfg: -" + (isWhatsNewAll() ? "W" : "w") + " What's New output filename = " + getWhatsNewFilename() + (isWhatsNewAll() ? ", show all items" : ""));
         }
-        log(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
-        log(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
-        log(logger, SHORT, "  cfg: -z Numeric scale = ", getLongScale() == 1024 ? -1 : 1);
+        indicator(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
+        indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
+        indicator(logger, SHORT, "  cfg: -z Numeric scale = ", getLongScale() == 1024 ? -1 : 1);
     }
 
     /**
@@ -555,9 +554,9 @@ public class Configuration
         String op = "-";
         switch (operation)
         {
-            case JOB_PROCESS: // 8
-                op = "J";
-                break;
+//            case JOB_PROCESS: // 8
+//                op = "J";
+// TODO correct?               break;
             case NOT_REMOTE: // 0
                 op = "-";
                 break;
@@ -682,6 +681,15 @@ public class Configuration
             value = key;
         }
         return value;
+    }
+
+    private void indicator(Logger logger, Marker SHORT, String message, int indicator)
+    {
+        if (indicator >= 0)
+        {
+            String value = indicator == 0 ? "false" : "true";
+            logger.info(SHORT, message + value);
+        }
     }
 
     /**
@@ -1044,15 +1052,6 @@ public class Configuration
         return this.whatsNewAll == 1 ? true : false;
     }
 
-    private void log(Logger logger, Marker SHORT, String message, int indicator)
-    {
-        if (indicator >= 0)
-        {
-            String value = indicator == 0 ? "false" : "true";
-            logger.info(SHORT, message + value);
-        }
-    }
-
     /**
      * Parse command line
      * <p>
@@ -1064,7 +1063,7 @@ public class Configuration
     public void parseCommandLine(String[] args) throws MungeException
     {
         // single option letters remaining, case-sensitive:  C J M O R U V X Y Z
-        // Reserved: C configuration directory; O start on-demand; R operation; M match dates; U user authorization
+        // Reserved: C configuration directory; O start on-demand; R operation???; M match dates; U user authorization
         // leaving single option letters, case-sensitive:  J M V X Y Z
 
         int index;

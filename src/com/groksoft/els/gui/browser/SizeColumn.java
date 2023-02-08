@@ -6,21 +6,24 @@ public class SizeColumn implements Comparable
 {
     private boolean raw = false;
     private long size;
+    private double scale;
 
     private SizeColumn()
     {
         // hide default constructor
     }
 
-    public SizeColumn(long sz)
+    public SizeColumn(long size, double scale)
     {
-        size = sz;
+        this.size = size;
+        this.scale = scale;
     }
 
-    public SizeColumn(long sz, boolean r)
+    public SizeColumn(long size, double scale, boolean raw)
     {
-        size = sz;
-        raw = r;
+        this.size = size;
+        this.scale = scale;
+        this.raw = raw;
     }
 
     @Override
@@ -44,7 +47,7 @@ public class SizeColumn implements Comparable
     {
         if (raw)
             return Long.toString(size);
-        return Utils.formatLong(size, false);
+        return Utils.formatLong(size, false, scale);
     }
 
 }

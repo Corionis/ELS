@@ -78,6 +78,7 @@ public class Navigator
         guiContext.cfg = config;
         guiContext.context = ctx;
         guiContext.navigator = this;
+        guiContext.context.navigator = this;
     }
 
     public void disableGui(boolean disable)
@@ -238,12 +239,16 @@ public class Navigator
 
         // setup the GUI
         guiContext.operationsUI = new OperationsUI(guiContext);
+        guiContext.context.operationsUI = guiContext.operationsUI;
+
         guiContext.mainFrame = new MainFrame(guiContext);
+        guiContext.context.mainFrame = guiContext.mainFrame;
         if (!guiContext.context.fault)
         {
             // setup the Main Menu and primary tabs
             initializeMainMenu();
             guiContext.browser = new Browser(guiContext);
+            guiContext.context.browser = guiContext.browser;
             guiContext.operationsUI.initialize();
             // TODO Add Library tab content creation here
 
@@ -1386,6 +1391,7 @@ public class Navigator
                         }
                     };
                     guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, false);
+                    guiContext.context.progress = guiContext.progress;
                 }
                 guiContext.progress.view();
             }
@@ -2168,6 +2174,7 @@ public class Navigator
             public void run()
             {
                 guiContext.preferences = new Preferences(guiContext.cfg, guiContext.context);
+                guiContext.context.preferences = guiContext.preferences;
                 readPreferences();
 
                 // TODO Add as needed: Set command line overrides on Navigator Preferences

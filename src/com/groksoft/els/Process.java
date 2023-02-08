@@ -408,7 +408,7 @@ public class Process
             {
                 mismatchFile.println("----------------------------------------------------");
                 mismatchFile.println("Total items: " + context.transfer.getGrandTotalItems());
-                mismatchFile.println("Total size : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true));
+                mismatchFile.println("Total size : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, cfg.getLongScale()));
                 mismatchFile.close();
             }
             if (whatsNewFile != null)
@@ -462,7 +462,7 @@ public class Process
         logger.info(SHORT, "# Copies           : " + context.transfer.getCopyCount() + ((!cfg.isDryRun() && context.transfer.getCopyCount() > 0) ? ", " + context.transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : "") + (cfg.isDryRun() ? " (--dry-run)" : ""));
         logger.info(SHORT, "# Errors           : " + errorCount);
         logger.info(SHORT, "# Items processed  : " + context.transfer.getGrandTotalItems());
-        logger.info(SHORT, "# Total size       : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true));
+        logger.info(SHORT, "# Total size       : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, cfg.getLongScale()));
     }
 
     /**

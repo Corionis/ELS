@@ -67,7 +67,7 @@ public class ConfigModel extends DefaultTableModel
                 {
                     JOptionPane.showMessageDialog(myDialog,
                             guiContext.cfg.gs(("Z.that.configuration.already.exists")),
-                            guiContext.cfg.gs("OperationsUI.title"), JOptionPane.WARNING_MESSAGE);
+                            guiContext.cfg.gs("Operations.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
                 {

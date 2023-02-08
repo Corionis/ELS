@@ -1,7 +1,13 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.Navigator;
+import com.groksoft.els.gui.Preferences;
+import com.groksoft.els.gui.Progress;
+import com.groksoft.els.gui.browser.Browser;
+import com.groksoft.els.gui.operations.OperationsUI;
 import com.groksoft.els.repository.HintKeys;
+import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.sftp.ServeSftp;
@@ -10,27 +16,41 @@ import com.groksoft.els.stty.ServeStty;
 import com.groksoft.els.stty.hintServer.Datastore;
 
 /**
- * Context class to make passing these data easier.
+ * Runtime Context
+ * <br/>
+ * Public data members of ELS configuration, components, protocols and data
  */
 public class Context
 {
-    // some of these will be null at runtime depending on configuration
-    public HintKeys authKeys;
-    public ClientSftp clientSftp;
-    public ClientStty clientStty;
-    public Configuration cfg;
-    public Datastore datastore;
+    // which members are non-null depends on the runtime or task configuration
+
+    // ELS core
+    public HintKeys authKeys = null;
+    public ClientSftp clientSftp = null;
+    public ClientStty clientStty = null;
+    public Configuration cfg = null;
+    public Datastore datastore = null;
     public boolean fault = false; // process fault indicator
-    public HintKeys hintKeys;
-    public boolean localMode = false;
-    public Main main;
-    public Navigator navigator;
-    public Repository publisherRepo;
-    public ServeSftp serveSftp;
-    public ServeStty serveStty;
-    public Repository statusRepo;
-    public ClientStty statusStty;
-    public Repository subscriberRepo;
+    public Hints hints = null;
+    public HintKeys hintKeys = null;
+    public boolean localMode = false; // operation intended for local execution
+    public Main main = null;
+    public Navigator navigator = null;
+    public boolean nestedProcesses = false; // nested processes are running
+    public Repository publisherRepo = null;
+    public ServeSftp serveSftp = null;
+    public ServeStty serveStty = null;
+    public Repository statusRepo = null;
+    public ClientStty statusStty = null;
+    public Repository subscriberRepo = null;
     public boolean timeout = false; // time-out indicator
-    public Transfer transfer;
+    public boolean trace = false; // trace logging
+    public Transfer transfer = null;
+
+    // Navigator
+    public Browser browser = null;
+    public MainFrame mainFrame = null;
+    public OperationsUI operationsUI = null;
+    public Preferences preferences = null;
+    public Progress progress = null;
 }

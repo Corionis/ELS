@@ -227,12 +227,12 @@ public class JunkRemoverUI extends JDialog
                 jrt.setDataHasChanged();
                 deletedTools.add(jrt);
                 configModel.removeRow(index);
-                if (index > 0)
+                if (index > configModel.getRowCount() - 1)
                     index = configModel.getRowCount() - 1;
                 configModel.fireTableDataChanged();
                 if (index >= 0)
                 {
-                    configItems.changeSelection(index, 0, true, false);
+                    configItems.changeSelection(index, 0, false, false);
                     loadJunkTable(index);
                 }
                 configItems.requestFocus();

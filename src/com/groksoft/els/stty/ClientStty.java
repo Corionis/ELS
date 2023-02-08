@@ -172,15 +172,10 @@ public class ClientStty
                 out = new DataOutputStream(socket.getOutputStream());
 
                 logger.info("Successfully connected stty to: " + Utils.formatAddresses(this.socket));
-
-                // start a heartbeat thread if defined, initially disabled
-//                if (theirRepo.getLibraryData().libraries.heartbeat > 0)
-//                {
-//                    context.main.createHeartBeat(theirRepo.getLibraryData().libraries.heartbeat * 60 * 1000);
-//                }
             }
             catch (Exception e)
             {
+                context.fault = true;
                 logger.error(Utils.getStackTrace(e));
             }
 
@@ -513,6 +508,7 @@ public class ClientStty
             }
             catch (FileNotFoundException fnf)
             {
+                context.fault = true;
                 throw new MungeException("Exception while writing " + message + " file " + location + " trace: " + Utils.getStackTrace(fnf));
             }
         }

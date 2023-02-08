@@ -50,7 +50,7 @@ public class Listener extends Thread
      */
     public Listener(ThreadGroup group, String host, int aPort, Configuration config, Context ctxt) throws Exception
     {
-        super(group, "Listener:" + host + ":" + aPort);
+        super(group, "listener:" + host + ":" + aPort);
 
         // setup this listener
         this.cfg = config;

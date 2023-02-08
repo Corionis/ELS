@@ -872,6 +872,7 @@ public class MainFrame extends JFrame
                 menuItemOpenHintTracking.setText(guiContext.cfg.gs("Navigator.menuItemOpenHintTracking.text"));
                 menuItemOpenHintTracking.setSelected(true);
                 menuItemOpenHintTracking.setMnemonic(guiContext.cfg.gs("Navigator.menuItemOpenHintTracking.mnemonic_2").charAt(0));
+                menuItemOpenHintTracking.setDisplayedMnemonicIndex(Integer.parseInt(guiContext.cfg.gs("Navigator.menuItemOpenHintTracking.displayedMnemonicIndex")));
                 menuFile.add(menuItemOpenHintTracking);
                 menuFile.addSeparator();
 
@@ -972,7 +973,6 @@ public class MainFrame extends JFrame
                 //---- menuItemProgress ----
                 menuItemProgress.setText(guiContext.cfg.gs("Navigator.menu.Progress.text"));
                 menuItemProgress.setMnemonic(guiContext.cfg.gs("Navigator.menu.Progress.mnemonic").charAt(0));
-                menuItemProgress.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
                 menuView.add(menuItemProgress);
                 menuView.addSeparator();
 

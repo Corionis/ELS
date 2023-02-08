@@ -32,6 +32,10 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings(value = "unchecked")
+
+/**
+ * Operations tab and Tool
+ */
 public class OperationsUI
 {
     private JComboBox comboBoxMode;
@@ -139,14 +143,26 @@ public class OperationsUI
                 tool.setDataHasChanged();
                 deletedTools.add(tool);
                 configModel.removeRow(index);
-                if (index > 0)
+                if (index > configModel.getRowCount() - 1)
                     index = configModel.getRowCount() - 1;
                 currentConfigIndex = index;
                 configModel.fireTableDataChanged();
-                if (index >= 0)
+                if (configModel.getRowCount() > 0)
                 {
-                    configItems.changeSelection(index, 0, true, false);
+                    configItems.changeSelection(index, 0, false, false);
                     loadOptions(index);
+                }
+                else
+                {
+                    ((CardLayout) guiContext.mainFrame.panelOperationCards.getLayout()).show(guiContext.mainFrame.panelOperationCards, "gettingStarted");
+                    guiContext.mainFrame.labelOperationMode.setText("");
+                    guiContext.mainFrame.buttonCopyOperation.setEnabled(false);
+                    guiContext.mainFrame.buttonDeleteOperation.setEnabled(false);
+                    guiContext.mainFrame.buttonRunOperation.setEnabled(false);
+                    guiContext.mainFrame.buttonGenerateOperation.setEnabled(false);
+                    guiContext.mainFrame.buttonOperationSave.setEnabled(false);
+                    guiContext.mainFrame.buttonOperationCancel.setEnabled(false);
+                    currentConfigIndex = 0;
                 }
                 configItems.requestFocus();
             }
@@ -163,12 +179,17 @@ public class OperationsUI
 
             Object[] opts = {guiContext.cfg.gs("Z.ok")};
             JOptionPane.showInputDialog(guiContext.mainFrame,
-                    guiContext.cfg.gs("Z.generated") + currentTool.getConfigName() +
-                            "                                                                                    ",
+                    "<html><body>" + guiContext.cfg.gs("Z.generated") + currentTool.getConfigName() +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</body></html>",
                     displayName, JOptionPane.PLAIN_MESSAGE, null, null, generated);
         }
         catch (Exception e)
         {
+            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            logger.error(msg);
+            JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -267,9 +288,9 @@ public class OperationsUI
                     cardVar = 2;
 
                 int indices[] = {};
-                if (cardVar == 1)
+                if (cardVar == 1 && guiContext.mainFrame.listOperationIncludeExclude.getModel().getSize() > 0)
                     indices = guiContext.mainFrame.listOperationIncludeExclude.getSelectedIndices();
-                else if (cardVar == 2)
+                else if (cardVar == 2 && guiContext.mainFrame.listOperationExclude.getModel().getSize() > 0)
                     indices = guiContext.mainFrame.listOperationExclude.getSelectedIndices();
                 if (indices.length > 0)
                 {
@@ -634,7 +655,7 @@ public class OperationsUI
     /**
      * Generic ActionEvent handler
      * <b/>
-     * guiContext.operationsUI.genericAction
+     * guiContext.operations.genericAction
      *
      * @param e ActionEvent
      */
@@ -659,7 +680,7 @@ public class OperationsUI
     /**
      * Generic TextField focus handler
      * <b/>
-     * guiContext.operationsUI.genericTextFieldFocusLost
+     * guiContext.operations.genericTextFieldFocusLost
      *
      * @param e ActionEvent
      */
@@ -763,6 +784,7 @@ public class OperationsUI
         // make Mode objects
         //  * publisher has base objects
         //  * listener has objects2
+// LEFTOFF Jobs should not be here or in Operations - Jobs are Jobs, this would allow infinite loops
         modes = new Mode[11];
         modes[0] = new Mode(guiContext.cfg.gs("Operations.mode.localPublish"), OperationsTool.Cards.Publisher, Configuration.Operations.NotRemote);
         modes[1] = new Mode(guiContext.cfg.gs("Operations.mode.remotePublish"), OperationsTool.Cards.Publisher, Configuration.Operations.PublishRemote);
@@ -1304,7 +1326,7 @@ public class OperationsUI
             mf.passwordFieldOperationsAuthorize.setText(new String(currentTool.getOptAuthorize()));
         else
             mf.passwordFieldOperationsAuthorize.setText("");
-        mf.passwordFieldOperationsAuthorize.setEchoChar((char)0);
+        mf.passwordFieldOperationsAuthorize.setEchoChar((char)0); // do not hide password
         mf.textFieldOperationAuthKeys.setText(currentTool.getOptAuthKeys());
         mf.textFieldOperationBlacklist.setText(currentTool.getOptBlacklist());
         mf.textFieldOperationIpWhitelist.setText(currentTool.getOptIpWhitelist());

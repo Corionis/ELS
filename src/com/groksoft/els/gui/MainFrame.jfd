@@ -2238,6 +2238,7 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemOpenHintTracking.text" )
 						"selected": true
 						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintTracking.mnemonic_2" )
+						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemOpenHintTracking.displayedMnemonicIndex" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator2"
@@ -2344,7 +2345,6 @@ new FormModel {
 						name: "menuItemProgress"
 						"text": new FormMessage( null, "Navigator.menu.Progress.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Progress.mnemonic" )
-						"accelerator": static javax.swing.KeyStroke getKeyStroke( 117, 0, false )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator3"

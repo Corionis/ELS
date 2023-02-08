@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="110-21 Subscriber listener job" type="Application" factoryName="Application" folderName="110-00 Jobs">
+    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-c debug -d debug -j &quot;500 Subscribe One Listener&quot; -F &quot;output/110-21_Subscriber-listener-job.log&quot;" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

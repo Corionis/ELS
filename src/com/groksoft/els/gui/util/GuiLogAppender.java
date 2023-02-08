@@ -1,6 +1,7 @@
 package com.groksoft.els.gui.util;
 
 import com.groksoft.els.gui.GuiContext;
+
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;

@@ -16,7 +16,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.text.MessageFormat;
-import java.time.LocalTime;
 import java.util.ArrayList;
 
 /**
@@ -426,7 +425,7 @@ public class NavTransferHandler extends TransferHandler
             if (confirm)
             {
                 String msg = MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.are.you.sure.you.want.to"),
-                        getOperation(action,true), Utils.formatLong(size, false),
+                        getOperation(action,true), Utils.formatLong(size, false, guiContext.cfg.getLongScale()),
                         Utils.formatInteger(count), count > 1 ? 0 : 1, targetTuo.name);
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg, guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);

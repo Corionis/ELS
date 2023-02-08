@@ -71,7 +71,7 @@ public class ServeStty extends Thread
     {
         // instantiate this object in the specified thread group to
         // enforce the specified maximum connections limitation.
-        super(aGroup, "ServeStty");
+        super(aGroup, "stty." + aGroup.getName());
         instance = this;
         instance.cfg = config;
         instance.context = ctxt;
@@ -131,15 +131,15 @@ public class ServeStty extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.els.stty.publisher.Daemon(cfg, context, context.publisherRepo, context.subscriberRepo));
+                theConnection = new Connection(aSocket, "publisher", new com.groksoft.els.stty.publisher.Daemon(cfg, context, context.publisherRepo, context.subscriberRepo));
             }
             else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
+                theConnection = new Connection(aSocket, "subscriber", new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
             }
             else if (cfg.isStatusServer())
             {
-                theConnection = new Connection(aSocket, new com.groksoft.els.stty.hintServer.Daemon(cfg, context, context.statusRepo, null));
+                theConnection = new Connection(aSocket, "hintserver", new com.groksoft.els.stty.hintServer.Daemon(cfg, context, context.statusRepo, null));
             }
             else
             {
@@ -168,14 +168,14 @@ public class ServeStty extends Thread
         //Integer key = new Integer(aPort);   // hashtable key
 
         // do not allow duplicate port assignments
-        if (allSessions.get("Listener:" + host + ":" + aPort) != null)
+        if (allSessions.get("listener:" + host + ":" + aPort) != null)
             throw new IllegalArgumentException("Port " + aPort + " already in use");
 
         // create a listener on the port
         Listener listener = new Listener(allSessionThreads, host, aPort, cfg, context);
 
         // put it in the hashtable
-        allSessions.put("Listener:" + host + ":" + aPort, listener);
+        allSessions.put("listener:" + host + ":" + aPort, listener);
 
         // log it
         logger.info("Stty server is listening on: " + (host == null ? "localhost" : listener.getInetAddr()) + ":" + aPort);

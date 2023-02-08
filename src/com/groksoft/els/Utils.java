@@ -34,7 +34,6 @@ import java.util.regex.Pattern;
 public class Utils
 {
     private static Logger logger = LogManager.getLogger("applog");
-    private static Context context;
 
     /**
      * Static methods - do not instantiate
@@ -203,16 +202,15 @@ public class Utils
      * Format a long number with byte, MB, GB and TB as applicable
      *
      * @param value Long value to format
+     * @param scale
      * @return String Formatting text
      */
-    public static synchronized String formatLong(long value, boolean isFull)
+    public static synchronized String formatLong(long value, boolean isFull, double scale)
     {
         String full;
         String brief;
         DecimalFormat longForm = new DecimalFormat("###,###,###,###,###,###,###,###.###");
         DecimalFormat shortForm = new DecimalFormat("###,###,###,###,###,###,###,###.#");
-
-        double scale = context.cfg.getLongScale();
 
         brief = shortForm.format(value) + " B";
         full = brief;
@@ -237,16 +235,6 @@ public class Utils
             full += ", " + brief;
         }
         return (isFull ? full : brief);
-    }
-
-    /**
-     * Get the application Context class
-     *
-     * @return Context runtime class
-     */
-    public static Context getContext()
-    {
-        return context;
     }
 
     /**
@@ -889,15 +877,6 @@ public class Utils
     {
         String scubbed = name.replaceAll("[\\\\/:*?\"<>|]", "");
         return scubbed;
-    }
-
-    /**
-     * Set Utils Context
-     * @param ctxt
-     */
-    public static void setContext(Context ctxt)
-    {
-        Utils.context = ctxt;
     }
 
     /**

@@ -129,7 +129,7 @@ public class Transfer
                     ++copyCount;
                     grandTotalItems = grandTotalItems + 1;
                     grandTotalSize = grandTotalSize + groupItem.getSize();
-                    logger.info("  > " + cfg.gs("Transfer.would.copy") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) + ", " + groupItem.getFullPath());
+                    logger.info("  > " + cfg.gs("Transfer.would.copy") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false, cfg.getLongScale()) + ", " + groupItem.getFullPath());
                 }
                 else
                 {
@@ -143,7 +143,7 @@ public class Transfer
                         String to = targetPath + context.subscriberRepo.getWriteSeparator();
                         to += context.publisherRepo.normalizePath(context.subscriberRepo.getLibraryData().libraries.flavor, groupItem.getItemPath());
 
-                        String msg = "  > " + cfg.gs("Transfer.copying") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false) +
+                        String msg = "  > " + cfg.gs("Transfer.copying") + " #" + copyCount + ", " + Utils.formatLong(groupItem.getSize(), false, cfg.getLongScale()) +
                                 ", " + groupItem.getFullPath() + cfg.gs("NavTransferHandler.transfer.file.to") + to;
                         logger.info(msg);
                         response += (msg + "\r\n");
@@ -156,7 +156,7 @@ public class Transfer
                     else
                     {
                         throw new MungeException(MessageFormat.format(cfg.gs("Transfer.no.space.on.any.target.location"),
-                                group.get(0).getLibrary(), lastGroupName, Utils.formatLong(totalSize, false)));
+                                group.get(0).getLibrary(), lastGroupName, Utils.formatLong(totalSize, false, cfg.getLongScale())));
                     }
                 }
             }
@@ -424,7 +424,7 @@ public class Transfer
                     ++grandTotalOriginalLocation;
                     return path;
                 }
-                logger.info(MessageFormat.format(cfg.gs("Transfer.original.storage.location.too.full"), itemPath, Utils.formatLong(totalSize, false), path));
+                logger.info(MessageFormat.format(cfg.gs("Transfer.original.storage.location.too.full"), itemPath, Utils.formatLong(totalSize, false, cfg.getLongScale()), path));
                 path = null;
             }
         }
@@ -584,8 +584,8 @@ public class Transfer
             }
         }
 
-        logger.info(MessageFormat.format(cfg.gs("Transfer.checking"), hasTarget ? 0 : 1, Utils.formatLong(totalSize, false),
-                Utils.formatLong(minimum, false), cfg.isRemoteSession() ? 0 : 1, path) + (Utils.formatLong(space, false)));
+        logger.info(MessageFormat.format(cfg.gs("Transfer.checking"), hasTarget ? 0 : 1, Utils.formatLong(totalSize, false, cfg.getLongScale()),
+                Utils.formatLong(minimum, false, cfg.getLongScale()), cfg.isRemoteSession() ? 0 : 1, path) + (Utils.formatLong(space, false, cfg.getLongScale())));
 
         if (space > (totalSize + minimum))
         {

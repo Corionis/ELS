@@ -72,6 +72,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 }
             };
             guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, guiContext.cfg.isDryRun());
+            guiContext.context.progress = guiContext.progress;
             guiContext.progress.display();
         }
         else
@@ -211,7 +212,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             else
             {
                 throw new MungeException(MessageFormat.format(guiContext.cfg.gs("Transfer.no.space.on.any.target.location"),
-                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(targetTuo.size, false)));
+                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(targetTuo.size, false, guiContext.cfg.getLongScale())));
             }
         }
         else if (targetTuo.type == NavTreeUserObject.DRIVE || targetTuo.type == NavTreeUserObject.HOME)
@@ -366,7 +367,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         {
             ++fileNumber;
             String status = " " + fileNumber + guiContext.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
-                    ", " + Utils.formatLong(sourceTuo.size, false) + ", " + sourceTuo.name + " ";
+                    ", " + Utils.formatLong(sourceTuo.size, false, guiContext.cfg.getLongScale()) + ", " + sourceTuo.name + " ";
             guiContext.progress.update(status);
             //guiContext.progress.update(fileNumber, sourceTuo.size, sourceTuo.name);
 

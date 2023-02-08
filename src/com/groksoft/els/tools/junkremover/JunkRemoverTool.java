@@ -305,6 +305,7 @@ public class JunkRemoverTool extends AbstractTool
                     }
                 };
                 guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, isDryRun);
+                guiContext.context.progress = guiContext.progress;
                 guiContext.progress.display();
             }
             else

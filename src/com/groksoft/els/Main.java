@@ -43,18 +43,17 @@ public class Main
     public Logger logger = null;
     public Date stamp = new Date();
     public SavedEnvironment savedEnvironment;
+    public boolean secondaryInvocation = false;
     public boolean trace;
 
     // add new locales here
     public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO EXTEND+ Update locales here
 
     /**
-     * Main application default constructor
+     * Hide default constructor
      */
-    public Main()
+    private Main()
     {
-        main = this;
-        context.main = this;
     }
 
     /**
@@ -64,17 +63,19 @@ public class Main
     {
         main = this;
         context.main = this;
+        secondaryInvocation = false;
         main.process(args);          // ELS Processor
     }
 
     /**
-     * Main application Operation constructor
+     * Main application Operations constructor
      */
     public Main(String[] args, GuiContext guiContext)
     {
         main = this;
         context.main = this;
         this.guiContext = guiContext;
+        secondaryInvocation = true;
         main.process(args);          // ELS Processor
     }
 
@@ -200,31 +201,34 @@ public class Main
             }
 
             // setup the logger
-            if (cfg.getLogFilename().length() < 1)
-                cfg.setLogFilename("els.log"); // make sure there's a filename
-            if (cfg.isLogOverwrite()) // optionally delete any existing log
+            if (!secondaryInvocation)
             {
-                File aLog = new File(cfg.getLogFilename());
-                aLog.delete();
+                if (cfg.getLogFilename().length() < 1)
+                    cfg.setLogFilename("els.log"); // make sure there's a filename
+                if (cfg.isLogOverwrite()) // optionally delete any existing log
+                {
+                    File aLog = new File(cfg.getLogFilename());
+                    aLog.delete();
+                }
+                System.setProperty("logFilename", cfg.getLogFilename());
+                System.setProperty("consoleLevel", cfg.getConsoleLevel());
+                System.setProperty("debugLevel", cfg.getDebugLevel());
+                System.setProperty("pattern", cfg.getPattern());
+                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(guiContext == null ? true : false);
+                loggerContext.reconfigure();
+                AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+                LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
+                loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
+                loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+                loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
+                if (guiContext != null)
+                {
+                    Map<String, Appender> appenders = loggerConfig.getAppenders();
+                    GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                    appender.setGuiContext(guiContext);
+                }
+                loggerContext.updateLoggers();
             }
-            System.setProperty("logFilename", cfg.getLogFilename());
-            System.setProperty("consoleLevel", cfg.getConsoleLevel());
-            System.setProperty("debugLevel", cfg.getDebugLevel());
-            System.setProperty("pattern", cfg.getPattern());
-            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(guiContext == null ? true : false);
-            loggerContext.reconfigure();
-            AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-            LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
-            loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
-            loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-            loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
-            if (guiContext != null)
-            {
-                Map<String, Appender> appenders = loggerConfig.getAppenders();
-                GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-                appender.setGuiContext(guiContext);
-            }
-            loggerContext.updateLoggers();
 
             // get the named logger
             logger = LogManager.getLogger("applog");
@@ -233,6 +237,7 @@ public class Main
                 throw cfgException;
 
             trace = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
+            context.trace = trace;
 
             // Hack for viewing all system properties
             if (cfg.isDumpSystem())
@@ -256,8 +261,6 @@ public class Main
             //else
                 //logger.debug("loaded locale: " + filePart);
             currentFilePart = filePart;
-
-            Utils.setContext(context);
 
             //
             // an execution of this program can only be configured as one of these
@@ -339,7 +342,7 @@ public class Main
                         connectHintServer(context.publisherRepo);
 
                         // start serveStty server
-                        sessionThreads = new ThreadGroup("PServer");
+                        sessionThreads = new ThreadGroup("publisher.listener");
                         context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
                         context.serveStty.startListening(context.publisherRepo);
                         isListening = true;
@@ -460,7 +463,7 @@ public class Main
                         connectHintServer(context.subscriberRepo);
 
                         // start serveStty server
-                        sessionThreads = new ThreadGroup("SServer");
+                        sessionThreads = new ThreadGroup("subscriber.listener");
                         context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
                         context.serveStty.startListening(context.subscriberRepo);
                         isListening = true;
@@ -512,7 +515,7 @@ public class Main
                         }
 
                         // start serveStty server
-                        sessionThreads = new ThreadGroup("SServer");
+                        sessionThreads = new ThreadGroup("subscriber.terminal");
                         context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, false);
                         context.serveStty.startListening(context.subscriberRepo);
                         isListening = true;
@@ -560,7 +563,7 @@ public class Main
                     if (context.statusRepo.isInitialized())
                     {
                         // start serveStty server
-                        sessionThreads = new ThreadGroup("SServer");
+                        sessionThreads = new ThreadGroup("hint.status.server");
                         context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
                         context.serveStty.startListening(context.statusRepo);
                         isListening = true;
@@ -622,10 +625,7 @@ public class Main
 
                 // --- handle -j|--job to execute a Job
                 case JOB_PROCESS:
-                    if (cfg.getRemoteType().equals("J"))
-                        logger.info("ELS: Remote Job, version " + cfg.getVersionStamp());
-                    else
-                        logger.info("ELS: Local Job, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Job, version " + cfg.getVersionStamp());
 
                     cfg.dump();
 
@@ -694,7 +694,7 @@ public class Main
         finally
         {
             // stop stuff
-            if (!isListening && !cfg.isNavigator()) // clients
+            if (!isListening && !cfg.isNavigator() && !context.nestedProcesses) // clients
             {
                 // if a fault occurred tell any listener
                 if (main.context.fault && main.context.clientStty != null && main.context.clientStty.isConnected())

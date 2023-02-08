@@ -10,6 +10,7 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
+import com.groksoft.els.tools.operations.OperationsTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -262,6 +263,20 @@ public class Task implements Comparable, Serializable
         return false;
     }
 
+    public boolean isOriginPathsAllowed(Configuration config, Context ctxt)
+    {
+        AbstractTool tool;
+        if (currentTool == null)
+        {
+            if (tools == null)
+                this.tools = new Tools();
+            tool = tools.makeTempTool(getInternalName(), config, ctxt);
+        }
+        else
+            tool = currentTool;
+        return tool.isOriginPathsAllowed();
+    }
+
     public boolean isSubscriberRemote()
     {
         return subscriberRemote;
@@ -295,7 +310,7 @@ public class Task implements Comparable, Serializable
         currentTool = tools.loadTool(guiContext, config, ctxt, getInternalName(), getConfigName());
         if (currentTool != null)
         {
-            if ((origins == null || origins.size() == 0) && !useCachedLastTask(config, ctxt))
+            if ((origins == null || origins.size() == 0) && !useCachedLastTask(config, ctxt) && currentTool.isOriginPathsAllowed())
             {
                 if (guiContext != null)
                 {
@@ -324,18 +339,23 @@ public class Task implements Comparable, Serializable
             if (pubRepo == null && subRepo == null)
                 throw new MungeException((config.gs("Task.no.repository.is.loaded")));
 
-            type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
-            config.setRemoteType(type);
-            config.setPublishOperation(false);  // TODO Change when OperationsUI tool added
-
-            if (isSubscriberRemote())
+            if (!(currentTool instanceof OperationsTool))
             {
-                Repository me = pubRepo;
-                if (me == null)
-                    me = ctxt.publisherRepo;
-                if (!connectRemote(config, ctxt, me, subRepo))
-                    return false;
+                type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
+                config.setRemoteType(type);
+                config.setPublishOperation(false);  // TODO Change when OperationsUI tool added
+
+                if (isSubscriberRemote())
+                {
+                    Repository me = pubRepo;
+                    if (me == null)
+                        me = ctxt.publisherRepo;
+                    if (!connectRemote(config, ctxt, me, subRepo))
+                        return false;
+                }
             }
+            else
+                ctxt.nestedProcesses = true;
 
             currentTool.processTool(guiContext, pubRepo, subRepo, origins, dryRun, useCachedLastTask(config, ctxt) ? lastTask : null);
         }
@@ -363,7 +383,7 @@ public class Task implements Comparable, Serializable
             this.guiContext = guiContext;
             currentTool = tool;
 
-            if ((origins == null || origins.size() == 0) && !useCachedLastTask(guiContext.cfg, guiContext.context))
+            if ((origins == null || origins.size() == 0) && !useCachedLastTask(guiContext.cfg, guiContext.context) && currentTool.isOriginPathsAllowed())
             {
                 if (guiContext != null)
                 {

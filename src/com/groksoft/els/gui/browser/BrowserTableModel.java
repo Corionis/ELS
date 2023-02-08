@@ -131,13 +131,13 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
                     case NavTreeUserObject.LIBRARY:
-                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), true);
+                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), cfg.getLongScale(), true);
                     case NavTreeUserObject.DRIVE:
                         return null; // with lazy loading there are no children
                     case NavTreeUserObject.REAL:
                         if (tuo.isDir)
                             return null; // with lazy loading there are no children
-                        return new SizeColumn(tuo.size);
+                        return new SizeColumn(tuo.size, cfg.getLongScale());
                     case NavTreeUserObject.SYSTEM:
                         return null;
                 }

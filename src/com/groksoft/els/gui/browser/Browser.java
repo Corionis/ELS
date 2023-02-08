@@ -30,6 +30,10 @@ import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings(value = "unchecked")
+
+/**
+ * Browser tab
+ */
 public class Browser
 {
     // style definitions of tree display
@@ -602,7 +606,7 @@ public class Browser
             {
                 String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
@@ -712,7 +716,7 @@ public class Browser
             {
                 String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
@@ -1662,10 +1666,10 @@ public class Browser
                         msg += guiContext.cfg.gs("Properties.drives") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.DRIVE:
-                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
+                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true, guiContext.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.HOME:
-                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true) + "<br/>" + System.getProperty("line.separator");
+                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true, guiContext.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.LIBRARY:
                         msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
@@ -1675,7 +1679,7 @@ public class Browser
                             guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                         for (String source : tuo.sources)
                         {
-                            String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true);
+                            String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true, guiContext.cfg.getLongScale());
                             msg += "<tr><td>" + source + "</td> <td><div>&nbsp;&nbsp;&nbsp;&nbsp;</div></td> <td>" + free + "</td></tr>";
                         }
                         guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1685,7 +1689,7 @@ public class Browser
                     case NavTreeUserObject.REAL:
                         msg += guiContext.cfg.gs("Properties.path") + tuo.path + "<br/>" + System.getProperty("line.separator");
                         if (!tuo.isDir)
-                            msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true) + "<br/>" + System.getProperty("line.separator");
+                            msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true, guiContext.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
                         if (tuo.path.endsWith(".els"))
                         {
                             String content = guiContext.context.transfer.readTextFile(tuo);
@@ -2188,7 +2192,7 @@ public class Browser
             {
                 String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
@@ -2271,7 +2275,7 @@ public class Browser
             {
                 String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false));
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
                 msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
                 msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,

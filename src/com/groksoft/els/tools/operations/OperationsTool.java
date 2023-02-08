@@ -6,18 +6,12 @@ import com.groksoft.els.*;
 import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.util.ArgumentTokenizer;
-import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.AbstractConfiguration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -28,7 +22,6 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class OperationsTool extends AbstractTool implements Comparable, Serializable
 {
@@ -91,6 +84,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         super(config, ctxt);
         setDisplayName(getCfg().gs("Navigator.splitPane.Operations.tab.title"));
         this.guiContext = guiContext;
+        this.originPathsAllowed = false;
     }
 
     public OperationsTool clone()
@@ -144,8 +138,14 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public String generateCommandLine()
     {
         Configuration defCfg = new Configuration(context);
-        boolean glo = guiContext.preferences.isGenerateLongOptions();
+        boolean glo = guiContext != null ? guiContext.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
+
+        // --- log levels
+        if (!getOptConsoleLevel().equals(defCfg.getConsoleLevel()))
+            sb.append(" " + (glo ? "--console-level" : "-c") + " " + getOptConsoleLevel());
+        if (!getOptDebugLevel().equals(defCfg.getDebugLevel()))
+            sb.append(" " + (glo ? "--debug-level" : "-d") + " " + getOptDebugLevel());
 
         // --- non-munging actions
         if (isOptNavigator() != defCfg.isNavigator())
@@ -224,10 +224,10 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + getOptHintServer() + "\"");
 
         // --- security
-        if (getOptAuthorize().length > 0)
-            sb.append(" " + (glo ? "--authorize" : "-a") + " \"" + getOptAuthorize().toString() + "\"");
+        if (getOptAuthorize() != null && getOptAuthorize().length > 0)
+            sb.append(" " + (glo ? "--authorize" : "-a") + " \"" + getOptAuthorizeString() + "\"");
         if (getOptAuthKeys().length() > 0)
-            sb.append(" " + (glo ? "--auth-keys" : "-A") + " \"" + getOptAuthorize() + "\"");
+            sb.append(" " + (glo ? "--auth-keys" : "-A") + " \"" + getOptAuthKeys() + "\"");
         if (getOptBlacklist().length() > 0)
             sb.append(" " + (glo ? "--blacklist" : "-B") + " \"" + getOptBlacklist() + "\"");
         if (getOptIpWhitelist().length() > 0)
@@ -276,17 +276,11 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         if (isOptValidate() != defCfg.isValidation())
             sb.append(" " + (glo ? "--validate" : "-v"));
 
-        // --- log levels
-        if (!getOptConsoleLevel().equals(defCfg.getConsoleLevel()))
-            sb.append(" " + (glo ? "--console-level" : "-c") + " " + getOptConsoleLevel());
-        if (!getOptDebugLevel().equals(defCfg.getDebugLevel()))
-            sb.append(" " + (glo ? "--debug-level" : "-d") + " " + getOptDebugLevel());
-
         // -- logging
         if (getOptLogFile().length() > 0)
             sb.append(" " + (glo ? "--log-file" : "-f") + " \"" + getOptLogFile() + "\"");
         if (getOptLogFileOverwrite().length() > 0)
-            sb.append(" " + (glo ? "--log-overwrite" : "-f") + " \"" + getOptLogFileOverwrite() + "\"");
+            sb.append(" " + (glo ? "--log-overwrite" : "-F") + " \"" + getOptLogFileOverwrite() + "\"");
 
         return sb.toString().trim();
     }
@@ -340,6 +334,11 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public char[] getOptAuthorize()
     {
         return optAuthorize;
+    }
+
+    public String getOptAuthorizeString()
+    {
+        return new String(optAuthorize);
     }
 
     public String getOptBlacklist()
@@ -554,30 +553,8 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         String[] args = list.toArray(new String[0]);
 
         // run the Operation
+        logger.info(cfg.gs("Operations.launching") + getConfigName());
         Main main = new Main(args, guiContext);
-
-        // reconfigure logging for current context
-        System.setProperty("logFilename", cfg.getLogFilename());
-        System.setProperty("consoleLevel", cfg.getConsoleLevel());
-        System.setProperty("debugLevel", cfg.getDebugLevel());
-        System.setProperty("pattern", cfg.getPattern());
-        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(guiContext == null ? true : false);  //(LogManager.class.getClassLoader(), false);
-        loggerContext.reconfigure();
-        AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-        LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
-        loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
-        loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-        loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
-        if (guiContext != null)
-        {
-            Map<String, Appender> appenders = loggerConfig.getAppenders();
-            GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-            appender.setGuiContext(guiContext);
-        }
-        loggerContext.updateLoggers();
-
-        // get the named logger
-        logger = LogManager.getLogger("applog");
     }
 
     @Override
@@ -595,6 +572,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                 }
             };
             guiContext.progress = new Progress(guiContext, guiContext.mainFrame.panelOperationTop, cancel, dryRun);
+            guiContext.context.progress = guiContext.progress;
             guiContext.progress.display();
         }
         else
@@ -622,10 +600,10 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                 }
                 catch (Exception e)
                 {
-                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                    String msg = cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
                     logger.error(msg);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
-                            guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.ERROR_MESSAGE);
+                    if (guiContext != null)
+                        JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 return null;
             }
