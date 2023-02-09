@@ -1,7 +1,7 @@
 package com.groksoft.els.gui.browser;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 
@@ -24,6 +24,7 @@ public class NavTreeUserObject implements Comparable
     public static final int REAL = 6; // physical file or directory
     public static final int SYSTEM = 7; // hidden; holds System tab Computer, Bookmarks, etc.
 
+    private Context context;
     public String name = "";
     public String path = "";
     public int type = REAL;
@@ -50,6 +51,7 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = type;
+        this.context = ntn.context;
     }
 
     // A local file or directory
@@ -72,6 +74,7 @@ public class NavTreeUserObject implements Comparable
         {
             this.size = -1L;
         }
+        this.context = ntn.context;
     }
 
     // A collection of libraries
@@ -83,6 +86,7 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = LIBRARY;
+        this.context = ntn.context;
     }
 
     // A DRIVE or HOME
@@ -94,6 +98,7 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = type;
+        this.context = ntn.context;
     }
 
     // A remote file or directory
@@ -112,21 +117,22 @@ public class NavTreeUserObject implements Comparable
         this.isHidden = name.startsWith(".");
         this.isRemote = true;
         this.type = REAL;
+        this.context = ntn.context;
     }
 
     @Override
     public int compareTo(Object o)
     {
-        boolean fbf = Navigator.guiContext.preferences.isSortFoldersBeforeFiles();
+        boolean fbf = context.preferences.isSortFoldersBeforeFiles();
         boolean thatDir = ((NavTreeUserObject) o).isDir;
-        if (Navigator.guiContext.preferences.isSortFoldersBeforeFiles())
+        if (context.preferences.isSortFoldersBeforeFiles())
         {
             if (isDir && !thatDir)
                 return -1;
             if (thatDir && !isDir)
                 return 1;
         }
-        if (Navigator.guiContext.preferences.isSortCaseInsensitive())
+        if (context.preferences.isSortCaseInsensitive())
         {
             return name.compareToIgnoreCase(((NavTreeUserObject) o).name);
         }
@@ -234,7 +240,7 @@ public class NavTreeUserObject implements Comparable
                 return this.name;
             default:
         }
-        return node.guiContext.cfg.gs("NavTreeNode.unknown");
+        return node.context.cfg.gs("NavTreeNode.unknown");
     }
 
     public synchronized Repository getRepo()
@@ -246,11 +252,11 @@ public class NavTreeUserObject implements Comparable
             {
                 case "treeCollectionOne":
                 case "treeSystemOne":
-                    repo = node.guiContext.context.publisherRepo;
+                    repo = node.context.publisherRepo;
                     break;
                 case "treeCollectionTwo":
                 case "treeSystemTwo":
-                    repo = node.guiContext.context.subscriberRepo;
+                    repo = node.context.subscriberRepo;
                     break;
             }
         }
@@ -259,27 +265,27 @@ public class NavTreeUserObject implements Comparable
 
     public String getType()
     {
-        String label = (isRemote ? node.guiContext.cfg.gs("Z.remote.uppercase") : node.guiContext.cfg.gs("NavTreeNode.local"));
+        String label = (isRemote ? node.context.cfg.gs("Z.remote.uppercase") : node.context.cfg.gs("NavTreeNode.local"));
         switch (type)
         {
             case BOOKMARKS:
-                return label + node.guiContext.cfg.gs("NavTreeNode.bookmark");
+                return label + node.context.cfg.gs("NavTreeNode.bookmark");
             case COLLECTION:
-                return label + node.guiContext.cfg.gs("NavTreeNode.collection");
+                return label + node.context.cfg.gs("NavTreeNode.collection");
             case COMPUTER:
-                return label + node.guiContext.cfg.gs("NavTreeNode.computer");
+                return label + node.context.cfg.gs("NavTreeNode.computer");
             case DRIVE:
-                return label + node.guiContext.cfg.gs("NavTreeNode.drive");
+                return label + node.context.cfg.gs("NavTreeNode.drive");
             case HOME:
-                return label + node.guiContext.cfg.gs("NavTreeNode.home");
+                return label + node.context.cfg.gs("NavTreeNode.home");
             case LIBRARY:
-                return label + node.guiContext.cfg.gs("NavTreeNode.library");
+                return label + node.context.cfg.gs("NavTreeNode.library");
             case REAL:
-                return label + (isDir ? node.guiContext.cfg.gs("NavTreeNode.directory") : node.guiContext.cfg.gs("NavTreeNode.file"));
+                return label + (isDir ? node.context.cfg.gs("NavTreeNode.directory") : node.context.cfg.gs("NavTreeNode.file"));
             case SYSTEM:
-                return label + node.guiContext.cfg.gs("NavTreeNode.system");
+                return label + node.context.cfg.gs("NavTreeNode.system");
             default:
-                return label + node.guiContext.cfg.gs("NavTreeNode.unknown");
+                return label + node.context.cfg.gs("NavTreeNode.unknown");
         }
     }
 

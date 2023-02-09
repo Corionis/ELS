@@ -2,11 +2,9 @@ package com.groksoft.els.tools.junkremover;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.Origin;
@@ -45,7 +43,6 @@ public class JunkRemoverTool extends AbstractTool
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int deleteCount = 0;
     transient private boolean dualRepositories = false; // used by GUI, always false for this tool
-    transient private GuiContext guiContext = null;
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private final boolean realOnly = false;
@@ -56,14 +53,13 @@ public class JunkRemoverTool extends AbstractTool
     /**
      * Constructor when used from the command line
      *
-     * @param config Configuration
-     * @param ctxt   Context
+     * @param context   Context
      */
-    public JunkRemoverTool(GuiContext guiContext, Configuration config, Context ctxt)
+    public JunkRemoverTool(Context context)
     {
-        super(config, ctxt);
+        super(context);
         setDisplayName(getCfg().gs("JunkRemover.displayName"));
-        this.guiContext = guiContext;
+        this.context = context;
         this.junkList = new ArrayList<JunkItem>();
         this.dataHasChanged = false;
     }
@@ -91,7 +87,7 @@ public class JunkRemoverTool extends AbstractTool
                 if (origin.getName().length() > 0)
                 {
                     if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getName()))
-                        throw new MungeException((cfg.gs("JunkRemover.task.definition.and.loaded.repository.do.not.match")));
+                        throw new MungeException((context.cfg.gs("JunkRemover.task.definition.and.loaded.repository.do.not.match")));
                 }
                 // process in the order defined in the JSON
                 for (Library lib : repo.getLibraryData().libraries.bibliography)
@@ -129,8 +125,8 @@ public class JunkRemoverTool extends AbstractTool
 
     public JunkRemoverTool clone()
     {
-        assert guiContext != null;
-        JunkRemoverTool jrt = new JunkRemoverTool(guiContext, guiContext.cfg, guiContext.context);
+        assert context != null;
+        JunkRemoverTool jrt = new JunkRemoverTool(context);
         jrt.setConfigName(getConfigName());
         jrt.setDisplayName(getDisplayName());
         jrt.setDataHasChanged();
@@ -201,9 +197,9 @@ public class JunkRemoverTool extends AbstractTool
     {
         String msg = "";
         if (!isDryRun)
-            msg = "  - " + cfg.gs("Z.deleted") + fullpath;
+            msg = "  - " + context.cfg.gs("Z.deleted") + fullpath;
         else
-            msg = "  > " + cfg.gs("Z.would.delete") + fullpath;
+            msg = "  > " + context.cfg.gs("Z.would.delete") + fullpath;
 
         logger.info(msg);
     }
@@ -226,13 +222,13 @@ public class JunkRemoverTool extends AbstractTool
      * Used by a Job & the Run button of the tool
      */
     @Override
-    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         reset();
         isDryRun = dryRun;
 
         if (publisherRepo != null && subscriberRepo != null)
-            throw new MungeException(java.text.MessageFormat.format(cfg.gs("JunkRemover.uses.only.one.repository"), getInternalName()));
+            throw new MungeException(java.text.MessageFormat.format(context.cfg.gs("JunkRemover.uses.only.one.repository"), getInternalName()));
 
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
@@ -250,27 +246,27 @@ public class JunkRemoverTool extends AbstractTool
         {
             if (isRequestStop())
                 break;
-            String rem = isRemote() ? cfg.gs("Z.remote.uppercase") : "";
+            String rem = isRemote() ? context.cfg.gs("Z.remote.uppercase") : "";
             logger.info(getDisplayName() + ", " + getConfigName() + ": " + rem + path);
 
             scanForJunk(path);
         }
 
         logger.info(getDisplayName() + ", " + getConfigName() + ": " + deleteCount + (isDryRun ? " (dry-run)" : ""));
-        if (guiContext != null)
+        if (context != null)
         {
             // reset and reload relevant trees
             if (!isDryRun && deleteCount > 0)
             {
                 if (!repo.isSubscriber())
                 {
-                    guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
-                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemOne, guiContext.context.publisherRepo, false);
+                    context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
+                    context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
                 }
                 else
                 {
-                    guiContext.browser.loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, isRemote());
-                    guiContext.browser.loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, isRemote());
+                    context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, isRemote());
+                    context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, isRemote());
                 }
             }
         }
@@ -281,7 +277,7 @@ public class JunkRemoverTool extends AbstractTool
      * <br/>
      * Used by the Run button of the tool
      *
-     * @param guiContext     The GuiContext
+     * @param context     The context
      * @param publisherRepo  Publisher repo, or null
      * @param subscriberRepo Subscriber repo, or null
      * @param origins        List of origins to process
@@ -289,12 +285,12 @@ public class JunkRemoverTool extends AbstractTool
      * @return SwingWorker<Void, Void> of thread
      */
     @Override
-    public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
         // create a fresh dialog
-        if (guiContext != null)
+        if (context != null)
         {
-            if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+            if (context.progress == null || !context.progress.isBeingUsed())
             {
                 ActionListener cancel = new ActionListener()
                 {
@@ -304,13 +300,13 @@ public class JunkRemoverTool extends AbstractTool
                         requestStop();
                     }
                 };
-                guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, isDryRun);
-                guiContext.context.progress = guiContext.progress;
-                guiContext.progress.display();
+                context.progress = new Progress(context, context.mainFrame, cancel, isDryRun);
+                context.progress = context.progress;
+                context.progress.display();
             }
             else
             {
-                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                 return null;
             }
         }
@@ -322,15 +318,15 @@ public class JunkRemoverTool extends AbstractTool
             {
                 try
                 {
-                    processTool(guiContext, publisherRepo, subscriberRepo, origins, dryRun, null);
+                    processTool(context, publisherRepo, subscriberRepo, origins, dryRun, null);
                 }
                 catch (Exception e)
                 {
-                    String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (guiContext != null)
+                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                    if (context != null)
                     {
                         logger.error(msg);
-                        JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
                         logger.error(msg);
@@ -370,9 +366,9 @@ public class JunkRemoverTool extends AbstractTool
                         SftpATTRS attrs = entry.getAttrs();
                         String filename = entry.getFilename();
                         String fullpath = path + repo.getSeparator() + entry.getFilename();
-                        if (guiContext != null && guiContext.progress != null)
+                        if (context != null && context.progress != null)
                         {
-                            guiContext.progress.update(" " + fullpath);
+                            context.progress.update(" " + fullpath);
                         }
                         if (attrs.isDir())
                         {
@@ -387,10 +383,10 @@ public class JunkRemoverTool extends AbstractTool
                                 if (match(filename, fullpath, ji))
                                 {
                                     ++deleteCount;
-                                    if (guiContext != null)
+                                    if (context != null)
                                     {
-                                        guiContext.mainFrame.labelStatusMiddle.setText(cfg.gs("Z.count") + deleteCount);
-                                        guiContext.mainFrame.labelStatusMiddle.updateUI();
+                                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.count") + deleteCount);
+                                        context.mainFrame.labelStatusMiddle.updateUI();
                                     }
                                     if (!isDryRun)
                                         getContext().transfer.remove(fullpath, attrs.isDir(), isRemote());
@@ -403,11 +399,11 @@ public class JunkRemoverTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                if (guiContext != null)
+                String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                if (context != null)
                 {
                     logger.error(msg);
-                    int reply = JOptionPane.showConfirmDialog(guiContext.navigator.dialogJunkRemover, guiContext.cfg.gs("JunkRemover.title"),
+                    int reply = JOptionPane.showConfirmDialog(context.navigator.dialogJunkRemover, context.cfg.gs("JunkRemover.title"),
                             "Z.cancel.run", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
                         requestStop();
@@ -436,9 +432,9 @@ public class JunkRemoverTool extends AbstractTool
                     if (isRequestStop())
                         break;
                     String filename = entry.getName();
-                    if (guiContext != null && guiContext.progress != null)
+                    if (context != null && context.progress != null)
                     {
-                        guiContext.progress.update(" " + filename);
+                        context.progress.update(" " + filename);
                     }
                     String fullpath = entry.getAbsolutePath();
                     if (entry.isDirectory())
@@ -454,8 +450,8 @@ public class JunkRemoverTool extends AbstractTool
                             if (match(filename, fullpath, ji))
                             {
                                 ++deleteCount;
-                                if (guiContext != null)
-                                    guiContext.mainFrame.labelStatusMiddle.setText(cfg.gs("Z.count") + deleteCount);
+                                if (context != null)
+                                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.count") + deleteCount);
                                 if (!isDryRun)
                                     getContext().transfer.remove(fullpath, entry.isDirectory(), isRemote());
                                 logDeletion(fullpath);
@@ -466,11 +462,11 @@ public class JunkRemoverTool extends AbstractTool
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                if (guiContext != null)
+                String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                if (context != null)
                 {
                     logger.error(msg);
-                    int reply = JOptionPane.showConfirmDialog(guiContext.navigator.dialogJunkRemover, guiContext.cfg.gs("JunkRemover.title"),
+                    int reply = JOptionPane.showConfirmDialog(context.navigator.dialogJunkRemover, context.cfg.gs("JunkRemover.title"),
                             "Z.cancel.run", JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
                         requestStop();

@@ -1,5 +1,6 @@
 package com.groksoft.els.gui;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,17 +20,18 @@ public class Progress extends JFrame
     private boolean dryRun;
     private int fixedHeight;
     private boolean forcedState = false;
-    private GuiContext guiContext;
+    private Context context;
     private String lastStatus = "";
     private boolean noIcon = false;
     private Component owner;
 
-    public Progress(GuiContext context, Component owner, ActionListener cancelAction, boolean dryRun)
+    public Progress(Context context, Component owner, ActionListener cancelAction, boolean dryRun)
     {
-        this.guiContext = context;
+        this.context = context;
         this.owner = owner;
         this.cancelAction = cancelAction;
         this.dryRun = dryRun;
+        this.context.progress = this;
 
         initComponents();
         loadIcon();
@@ -37,16 +39,16 @@ public class Progress extends JFrame
         setLocationByPlatform(false);
         setLocationRelativeTo(null);
 
-        guiContext.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("");
     }
 
     private void cancelClicked(ActionEvent e)
     {
         if (isBeingUsed())
         {
-            Object[] opts = {guiContext.cfg.gs("Z.yes"), guiContext.cfg.gs("Z.no")};
+            Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no")};
             int r = JOptionPane.showOptionDialog(this,
-                    guiContext.cfg.gs("Z.cancel.the.current.operation"),
+                    context.cfg.gs("Z.cancel.the.current.operation"),
                     getTitle(), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
                     null, opts, opts[1]);
             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
@@ -60,26 +62,26 @@ public class Progress extends JFrame
     {
         beingUsed = true;
 
-        if (guiContext.preferences.getProgressXpos() > 0)
+        if (context.preferences.getProgressXpos() > 0)
         {
-            setLocation(guiContext.preferences.getProgressXpos(), guiContext.preferences.getProgressYpos());
+            setLocation(context.preferences.getProgressXpos(), context.preferences.getProgressYpos());
         }
         else
         {
-            int x = guiContext.mainFrame.getX() + (guiContext.mainFrame.getWidth() / 2) - (getWidth() / 2);
-            int y = guiContext.mainFrame.getY() + (guiContext.mainFrame.getHeight() / 2) - (getHeight() / 2);
+            int x = context.mainFrame.getX() + (context.mainFrame.getWidth() / 2) - (getWidth() / 2);
+            int y = context.mainFrame.getY() + (context.mainFrame.getHeight() / 2) - (getHeight() / 2);
             setLocation(x, y);
         }
 
-        if (guiContext.preferences.getProgressWidth() > 0)
+        if (context.preferences.getProgressWidth() > 0)
         {
-            setSize(guiContext.preferences.getProgressWidth(), guiContext.preferences.getProgressHeight());
+            setSize(context.preferences.getProgressWidth(), context.preferences.getProgressHeight());
         }
 
         if (!dryRun)
-            setTitle(guiContext.cfg.gs("Progress.title"));
+            setTitle(context.cfg.gs("Progress.title"));
         else
-            setTitle(guiContext.cfg.gs("Progress.title.dryrun"));
+            setTitle(context.cfg.gs("Progress.title.dryrun"));
 
         if (!noIcon)
             this.labelForIcon.setVisible(true);
@@ -87,9 +89,9 @@ public class Progress extends JFrame
         setVisible(true);
 
         setState(JFrame.NORMAL);
-        guiContext.progress.toFront();
+        context.progress.toFront();
 
-        update(guiContext.cfg.gs("Progress.not.active"));
+        update(context.cfg.gs("Progress.not.active"));
 
         fixedHeight = this.getHeight();
         currentWidth = this.getWidth();
@@ -103,7 +105,7 @@ public class Progress extends JFrame
 
             // clear the progress content
             labelForIcon.setVisible(false);
-            progressTextField.setText(guiContext.cfg.gs("Progress.not.active"));
+            progressTextField.setText(context.cfg.gs("Progress.not.active"));
             redraw();
         }
         beingUsed = false;
@@ -144,10 +146,10 @@ public class Progress extends JFrame
 
     private void savePreferences()
     {
-        guiContext.preferences.setProgressWidth(getWidth());
-        guiContext.preferences.setProgressHeight(getHeight());
-        guiContext.preferences.setProgressXpos(getX());
-        guiContext.preferences.setProgressYpos(getY());
+        context.preferences.setProgressWidth(getWidth());
+        context.preferences.setProgressHeight(getHeight());
+        context.preferences.setProgressXpos(getX());
+        context.preferences.setProgressYpos(getY());
     }
 
     private void thisComponentResized(ComponentEvent e)
@@ -227,7 +229,7 @@ public class Progress extends JFrame
 
         //======== this ========
         setMinimumSize(new Dimension(184, 75));
-        setTitle(guiContext.cfg.gs("Progress.title"));
+        setTitle(context.cfg.gs("Progress.title"));
         setName("ProgressBox");
         addWindowListener(new WindowAdapter() {
             @Override
@@ -295,7 +297,7 @@ public class Progress extends JFrame
             panel1.add(vSpacer1, BorderLayout.NORTH);
 
             //---- buttonCancel ----
-            buttonCancel.setText(guiContext.cfg.gs("Progress.buttonCancel.text_2"));
+            buttonCancel.setText(context.cfg.gs("Progress.buttonCancel.text_2"));
             buttonCancel.addActionListener(e -> cancelClicked(e));
             panel1.add(buttonCancel, BorderLayout.CENTER);
 

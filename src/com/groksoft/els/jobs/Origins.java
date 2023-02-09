@@ -1,7 +1,7 @@
 package com.groksoft.els.jobs;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import org.apache.logging.log4j.LogManager;
@@ -12,11 +12,9 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.util.ArrayList;
 
-import static com.groksoft.els.gui.Navigator.guiContext;
-
 public class Origins
 {
-    private transient static Logger logger = LogManager.getLogger("applog");
+    transient private static Logger logger = LogManager.getLogger("applog");
 
     /**
      * Determine if NavTreeUserObject is a valid selection
@@ -46,10 +44,10 @@ public class Origins
      * @return ArrayList of Origins, or null if any selection is not valid
      * @throws MungeException with message "HANDLED_INTERNALLY" if a selection is not valid
      */
-    public static boolean makeOriginsFromSelected(Component component, ArrayList<Origin> origins, boolean realOnly) throws MungeException
+    public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins, boolean realOnly) throws MungeException
     {
         boolean isSubscriber = false;
-        Object object = guiContext.browser.lastComponent;
+        Object object = context.browser.lastComponent;
         if (object instanceof JTree)
         {
             JTree sourceTree = (JTree) object;
@@ -67,7 +65,7 @@ public class Origins
                         NavTreeNode ntn = (NavTreeNode) sp.getLastPathComponent();
                         if (ntn != ctn && ntn.isNodeChild(ctn))
                         {
-                            logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Z.skipping.child"),
+                            logger.info(java.text.MessageFormat.format(context.cfg.gs("Z.skipping.child"),
                                 ctn.getUserObject().name, ntn.getUserObject().name));
                             child = true;
                         }
@@ -78,8 +76,8 @@ public class Origins
                     NavTreeUserObject tuo = ctn.getUserObject();
                     if (!isValidOrigin(tuo, realOnly))
                     {
-                        JOptionPane.showMessageDialog(component, guiContext.cfg.gs("Z.invalid.selection") + tuo.name,
-                                guiContext.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(component, context.cfg.gs("Z.invalid.selection") + tuo.name,
+                                context.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
                         origins = null;
                         throw new MungeException("HANDLED_INTERNALLY");
                     }
@@ -100,8 +98,8 @@ public class Origins
                     NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                     if (!isValidOrigin(tuo, realOnly))
                     {
-                        JOptionPane.showMessageDialog(component, guiContext.cfg.gs("Z.invalid.selection") + tuo.name,
-                                guiContext.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(component, context.cfg.gs("Z.invalid.selection") + tuo.name,
+                                context.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
                         origins = null;
                         throw new MungeException("HANDLED_INTERNALLY");
                     }
@@ -118,11 +116,11 @@ public class Origins
     /**
      * Restore previous selected items based on an ArrayList of Origins
      *
-     * @param guiContext The GUI operating context
+     * @param context The Context
      * @param component The component calling this method, for message dialogs
      * @param origins An existing ArrayList of Origins created by makeOriginsFromSelected()
      */
-    public static void setSelectedFromOrigins(GuiContext guiContext, Component component, ArrayList<Origin> origins)
+    public static void setSelectedFromOrigins(Context context, Component component, ArrayList<Origin> origins)
     {
         if (origins != null && origins.size() > 0)
         {
@@ -148,13 +146,13 @@ public class Origins
                     String panel = origin.sourceTree.getName().toLowerCase();
                     if (panel.length() > 0)
                     {
-                        paths[i] = guiContext.browser.scanSelectPath(panel, pathElements, false); // scan
+                        paths[i] = context.browser.scanSelectPath(panel, pathElements, false); // scan
                     }
                 }
                 // select all tree path(s)
                 tree.setSelectionPaths(paths);
                 tree.scrollPathToVisible(origins.get(origins.size() - 1).treePath);
-                guiContext.browser.refreshTree(tree);
+                context.browser.refreshTree(tree);
             }
             else if (origins.get(0).sourceTable != null) // table
             {
@@ -173,8 +171,8 @@ public class Origins
                 }
                 String panel = origin.sourceTable.getName().toLowerCase();
                 if (panel.length() > 0)
-                    guiContext.browser.scanSelectPath(panel, pathElements, false); // scan
-                guiContext.browser.refreshTree(tree);
+                    context.browser.scanSelectPath(panel, pathElements, false); // scan
+                context.browser.refreshTree(tree);
 
                 // select matching items in table
                 JTable table = origin.sourceTable;

@@ -1,6 +1,6 @@
 package com.groksoft.els.gui.operations;
 
-import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.Context;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.tools.operations.OperationsTool;
 
@@ -11,15 +11,15 @@ import java.io.File;
 public class ConfigModel extends DefaultTableModel
 {
     private MainFrame myDialog;
-    private GuiContext guiContext;
+    private Context context;
     private OperationsUI ui;
 
-    public ConfigModel(GuiContext guiContext, OperationsUI ui)
+    public ConfigModel(Context context, OperationsUI ui)
     {
         super();
-        this.guiContext = guiContext;
+        this.context = context;
         this.ui = ui;
-        this.myDialog = guiContext.mainFrame;
+        this.myDialog = context.mainFrame;
     }
 
     /**
@@ -66,8 +66,8 @@ public class ConfigModel extends DefaultTableModel
                 if (tmp != null)
                 {
                     JOptionPane.showMessageDialog(myDialog,
-                            guiContext.cfg.gs(("Z.that.configuration.already.exists")),
-                            guiContext.cfg.gs("Operations.title"), JOptionPane.WARNING_MESSAGE);
+                            context.cfg.gs(("Z.that.configuration.already.exists")),
+                            context.cfg.gs("Operations.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
                 {

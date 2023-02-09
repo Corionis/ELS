@@ -1,7 +1,7 @@
 package com.groksoft.els.gui.tools.emptyDirectoryFinder;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
@@ -21,8 +21,8 @@ import javax.swing.table.TableColumn;
 
 public class EmptyDirectoryFinderUI extends JDialog
 {
+    private Context context;
     private ArrayList<Empty> empties;
-    private GuiContext guiContext;
     private boolean isPublisher = false;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
@@ -35,10 +35,10 @@ public class EmptyDirectoryFinderUI extends JDialog
         // hide default constructor
     }
 
-    public EmptyDirectoryFinderUI(Window owner, GuiContext guiContext)
+    public EmptyDirectoryFinderUI(Window owner, Context context)
     {
         super(owner);
-        this.guiContext = guiContext;
+        this.context = context;
 
         initComponents();
 
@@ -50,10 +50,10 @@ public class EmptyDirectoryFinderUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (guiContext.preferences.getToolsEmptyDirectoryFinderXpos() > 0)
+        if (context.preferences.getToolsEmptyDirectoryFinderXpos() > 0)
         {
-            this.setLocation(guiContext.preferences.getToolsEmptyDirectoryFinderXpos(), guiContext.preferences.getToolsEmptyDirectoryFinderYpos());
-            Dimension dim = new Dimension(guiContext.preferences.getToolsEmptyDirectoryFinderWidth(), guiContext.preferences.getToolsEmptyDirectoryFinderHeight());
+            this.setLocation(context.preferences.getToolsEmptyDirectoryFinderXpos(), context.preferences.getToolsEmptyDirectoryFinderYpos());
+            Dimension dim = new Dimension(context.preferences.getToolsEmptyDirectoryFinderWidth(), context.preferences.getToolsEmptyDirectoryFinderHeight());
             this.setSize(dim);
         }
         else
@@ -97,12 +97,12 @@ public class EmptyDirectoryFinderUI extends JDialog
     {
         if (workerRunning)
         {
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.stop.run.after.scan"),
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.stop.run.after.scan"),
                     "Z.cancel.run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 requestStop = true;
-                logger.info(guiContext.cfg.gs("Z.run.cancelled"));
+                logger.info(context.cfg.gs("Z.run.cancelled"));
             }
             else
                 return;
@@ -113,7 +113,7 @@ public class EmptyDirectoryFinderUI extends JDialog
 
     private void actionDeleteClicked(ActionEvent e)
     {
-        int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.delete.the.selected.empties"),
+        int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("EmptyDirectoryFinder.delete.the.selected.empties"),
                 this.getTitle(), JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION)
         {
@@ -122,24 +122,24 @@ public class EmptyDirectoryFinderUI extends JDialog
                 Empty empty = empties.get(i);
                 if (empty.isSelected)
                 {
-                    if (guiContext.context.transfer != null)
+                    if (context.transfer != null)
                     {
                         try
                         {
-                            logger.info(guiContext.cfg.gs("EmptyDirectoryFinder.removing") + empty.path);
-                            guiContext.context.transfer.remove(empty.path, true, guiContext.cfg.isRemoteSession());
+                            logger.info(context.cfg.gs("EmptyDirectoryFinder.removing") + empty.path);
+                            context.transfer.remove(empty.path, true, context.cfg.isRemoteSession());
                         }
                         catch (Exception ex)
                         {
-                            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
+                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
                             logger.error(msg, true);
                             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
             }
-            Object[] opts = { guiContext.cfg.gs("Z.ok") };
-            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
+            Object[] opts = { context.cfg.gs("Z.ok") };
+            JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
                     null, opts, opts[0]);
         }
@@ -149,7 +149,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, guiContext, guiContext.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + guiContext.preferences.getLocale() + ".html");
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("EmptyDirectoryFinder.help"), "emptydirectoryfinder_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.isVisible())
         {
@@ -184,7 +184,7 @@ public class EmptyDirectoryFinderUI extends JDialog
         String name = "";
 
         // publisher or subscriber?
-        Object object = guiContext.browser.lastComponent;
+        Object object = context.browser.lastComponent;
         if (object instanceof JTree)
         {
             JTree sourceTree = (JTree) object;
@@ -198,8 +198,8 @@ public class EmptyDirectoryFinderUI extends JDialog
         // do not allow system origin
         if (name.toLowerCase().contains("system"))
         {
-            Object[] opts = { guiContext.cfg.gs("Z.ok") };
-            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.please.select.a.collection.for.run"),
+            Object[] opts = { context.cfg.gs("Z.ok") };
+            JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.please.select.a.collection.for.run"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                     null, opts, opts[0]);
             return;
@@ -209,13 +209,13 @@ public class EmptyDirectoryFinderUI extends JDialog
         if (name.toLowerCase().endsWith("one"))
         {
             isPublisher = true;
-            which = guiContext.cfg.gs("Z.publisher");
+            which = context.cfg.gs("Z.publisher");
         }
         else
-            which = guiContext.cfg.gs("Z.subscriber");
+            which = context.cfg.gs("Z.subscriber");
 
         // prompt and process
-        int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(guiContext.cfg.gs("EmptyDirectoryFinder.run.tool.on.collection"), which), this.getTitle(), JOptionPane.YES_NO_OPTION);
+        int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(context.cfg.gs("EmptyDirectoryFinder.run.tool.on.collection"), which), this.getTitle(), JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION)
         {
             process();
@@ -225,7 +225,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     private void adjustEmptiesTable()
     {
         empties = new ArrayList<Empty>();
-        tableEmpties.setModel(new EmptiesTableModel(guiContext.cfg, empties));
+        tableEmpties.setModel(new EmptiesTableModel(context, empties));
 
         DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer();
 
@@ -249,7 +249,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     {
         try
         {
-            final Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+            final Repository repo = (isPublisher) ? context.publisherRepo : context.subscriberRepo;
             if (repo != null)
             {
                 buttonDelete.setEnabled(false);
@@ -260,7 +260,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                 etm.setEmpties(empties);
                 etm.fireTableDataChanged();
 
-                logger.info(guiContext.cfg.gs("EmptyDirectoryFinder.running"));
+                logger.info(context.cfg.gs("EmptyDirectoryFinder.running"));
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void >()
@@ -277,48 +277,48 @@ public class EmptyDirectoryFinderUI extends JDialog
                         // get content
                         if (isPublisher)
                         {
-                            labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
+                            labelStatus.setText(context.cfg.gs("Z.scanning"));
                             repo.scan();
                         }
                         else
                         {
-                            if (guiContext.cfg.isRemoteSession())
+                            if (context.cfg.isRemoteSession())
                             {
-                                if (!guiContext.context.clientStty.isConnected())
+                                if (!context.clientStty.isConnected())
                                 {
-                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
-                                    JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Browser.connection.lost"),
+                                    Object[] opts = { context.cfg.gs("Z.ok") };
+                                    JOptionPane.showOptionDialog(thisDialog, context.cfg.gs("Browser.connection.lost"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
                                 }
 
-                                if (guiContext.context.transfer != null)
+                                if (context.transfer != null)
                                 {
-                                    labelStatus.setText(guiContext.cfg.gs("Z.requesting.collection.data.from.remote"));
-                                    guiContext.context.transfer.requestCollection();
+                                    labelStatus.setText(context.cfg.gs("Z.requesting.collection.data.from.remote"));
+                                    context.transfer.requestCollection();
                                 }
                                 else
                                 {
-                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
-                                    JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
+                                    Object[] opts = { context.cfg.gs("Z.ok") };
+                                    JOptionPane.showOptionDialog(thisDialog, context.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
                                 }
                             }
                             else
                             {
-                                labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
+                                labelStatus.setText(context.cfg.gs("Z.scanning"));
                                 repo.scan();
                             }
                         }
-                        final Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+                        final Repository repo = (isPublisher) ? context.publisherRepo : context.subscriberRepo;
 
                         // scan for empties
                         for (Library lib : repo.getLibraryData().libraries.bibliography)
                         {
                             if (requestStop)
                                 break;
-                            String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
+                            String msg = context.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
                             labelStatus.setText(msg);
                             for (Item item : lib.items)
                             {
@@ -337,11 +337,11 @@ public class EmptyDirectoryFinderUI extends JDialog
                             }
                         }
 
-                        labelStatus.setText("  " + java.text.MessageFormat.format(guiContext.cfg.gs("EmptyDirectoryFinder.empty.items.directories"),
+                        labelStatus.setText("  " + java.text.MessageFormat.format(context.cfg.gs("EmptyDirectoryFinder.empty.items.directories"),
                                 emptyCount, totalItems, totalDirectories));
 
                         etm.fireTableDataChanged();
-                        guiContext.mainFrame.labelStatusMiddle.setText(emptyCount + guiContext.cfg.gs("EmptyDirectoryFinder.empty.directories"));
+                        context.mainFrame.labelStatusMiddle.setText(emptyCount + context.cfg.gs("EmptyDirectoryFinder.empty.directories"));
 
                         return null;
                     };
@@ -374,15 +374,15 @@ public class EmptyDirectoryFinderUI extends JDialog
             }
             else
             {
-                Object[] opts = { guiContext.cfg.gs("Z.ok") };
-                JOptionPane.showOptionDialog(this, guiContext.cfg.gs("EmptyDirectoryFinder.collection.not.loaded"),
+                Object[] opts = { context.cfg.gs("Z.ok") };
+                JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.collection.not.loaded"),
                         this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                         null, opts, opts[0]);
             }
         }
         catch (Exception ex)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
             logger.error(msg);
             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
         }
@@ -390,11 +390,11 @@ public class EmptyDirectoryFinderUI extends JDialog
 
     private void savePreferences()
     {
-        guiContext.preferences.setToolsEmptyDirectoryFinderHeight(this.getHeight());
-        guiContext.preferences.setToolsEmptyDirectoryFinderWidth(this.getWidth());
+        context.preferences.setToolsEmptyDirectoryFinderHeight(this.getHeight());
+        context.preferences.setToolsEmptyDirectoryFinderWidth(this.getWidth());
         Point location = this.getLocation();
-        guiContext.preferences.setToolsEmptyDirectoryFinderXpos(location.x);
-        guiContext.preferences.setToolsEmptyDirectoryFinderYpos(location.y);
+        context.preferences.setToolsEmptyDirectoryFinderXpos(location.x);
+        context.preferences.setToolsEmptyDirectoryFinderYpos(location.y);
     }
 
     private void windowClosing(WindowEvent e)
@@ -444,7 +444,7 @@ public class EmptyDirectoryFinderUI extends JDialog
 
         //======== this ========
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle(guiContext.cfg.gs("EmptyDirectoryFinder.this.title"));
+        setTitle(context.cfg.gs("EmptyDirectoryFinder.this.title"));
         setMinimumSize(new Dimension(150, 126));
         setName("dialogEmptyDirectoryUI");
         addWindowListener(new WindowAdapter() {
@@ -477,9 +477,9 @@ public class EmptyDirectoryFinderUI extends JDialog
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                         //---- buttonRun ----
-                        buttonRun.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonRun.text"));
-                        buttonRun.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonRun.mnemonic").charAt(0));
-                        buttonRun.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonRun.toolTipText"));
+                        buttonRun.setText(context.cfg.gs("EmptyDirectoryFinder.buttonRun.text"));
+                        buttonRun.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonRun.mnemonic").charAt(0));
+                        buttonRun.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonRun.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
                         panelTopButtons.add(buttonRun);
 
@@ -489,9 +489,9 @@ public class EmptyDirectoryFinderUI extends JDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonDelete.text"));
-                        buttonDelete.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonDelete.mnemonic_2").charAt(0));
-                        buttonDelete.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonDelete.toolTipText"));
+                        buttonDelete.setText(context.cfg.gs("EmptyDirectoryFinder.buttonDelete.text"));
+                        buttonDelete.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonDelete.mnemonic_2").charAt(0));
+                        buttonDelete.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonDelete.toolTipText"));
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
                     }
@@ -508,7 +508,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.labelHelp.toolTipText"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {
@@ -538,24 +538,24 @@ public class EmptyDirectoryFinderUI extends JDialog
                     panelOptionsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                     //---- buttonAll ----
-                    buttonAll.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonAll.text"));
+                    buttonAll.setText(context.cfg.gs("EmptyDirectoryFinder.buttonAll.text"));
                     buttonAll.setFont(buttonAll.getFont().deriveFont(buttonAll.getFont().getSize() - 2f));
                     buttonAll.setPreferredSize(new Dimension(78, 24));
                     buttonAll.setMinimumSize(new Dimension(78, 24));
                     buttonAll.setMaximumSize(new Dimension(78, 24));
-                    buttonAll.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonAll.mnemonic").charAt(0));
-                    buttonAll.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonAll.toolTipText"));
+                    buttonAll.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonAll.mnemonic").charAt(0));
+                    buttonAll.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonAll.toolTipText"));
                     buttonAll.addActionListener(e -> actionAllClicked(e));
                     panelOptionsButtons.add(buttonAll);
 
                     //---- buttonNone ----
-                    buttonNone.setText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonNone.text"));
+                    buttonNone.setText(context.cfg.gs("EmptyDirectoryFinder.buttonNone.text"));
                     buttonNone.setFont(buttonNone.getFont().deriveFont(buttonNone.getFont().getSize() - 2f));
                     buttonNone.setPreferredSize(new Dimension(78, 24));
                     buttonNone.setMinimumSize(new Dimension(78, 24));
                     buttonNone.setMaximumSize(new Dimension(78, 24));
-                    buttonNone.setMnemonic(guiContext.cfg.gs("EmptyDirectoryFinder.buttonNone.mnemonic_2").charAt(0));
-                    buttonNone.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.buttonNone.toolTipText"));
+                    buttonNone.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonNone.mnemonic_2").charAt(0));
+                    buttonNone.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonNone.toolTipText"));
                     buttonNone.addActionListener(e -> actionNoneClicked(e));
                     panelOptionsButtons.add(buttonNone);
                 }
@@ -576,8 +576,8 @@ public class EmptyDirectoryFinderUI extends JDialog
                     ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                     //---- closeButton ----
-                    closeButton.setText(guiContext.cfg.gs("EmptyDirectoryFinder.closeButton.text"));
-                    closeButton.setToolTipText(guiContext.cfg.gs("EmptyDirectoryFinder.closeButton.toolTipText"));
+                    closeButton.setText(context.cfg.gs("EmptyDirectoryFinder.closeButton.text"));
+                    closeButton.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.closeButton.toolTipText"));
                     closeButton.addActionListener(e -> actionCloseClicked(e));
                     buttonBar.add(closeButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,

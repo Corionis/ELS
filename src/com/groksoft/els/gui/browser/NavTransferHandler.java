@@ -1,8 +1,8 @@
 package com.groksoft.els.gui.browser;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.repository.HintKeys;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.logging.log4j.LogManager;
@@ -26,10 +26,10 @@ public class NavTransferHandler extends TransferHandler
 {
     private final DataFlavor flavor = new ActivationDataFlavor(ArrayList.class, "application/x-java-object;class=java.util.ArrayList", "ArrayList of NavTreeUserObject");
     private final boolean traceActions = false; // dev-debug
+    private Context context;
     public int fileNumber = 0;
     public int filesToCopy = 0;
     private int action = TransferHandler.NONE;
-    private GuiContext guiContext;
     private boolean isDrop = false;
     private transient Logger logger = LogManager.getLogger("applog");
     private JTable sourceTable;
@@ -43,16 +43,16 @@ public class NavTransferHandler extends TransferHandler
         return transferWorker;
     }
 
-    public NavTransferHandler(GuiContext gctxt)
+    public NavTransferHandler(Context context)
     {
-        this.guiContext = gctxt;
+        this.context = context;
     }
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport info)
     {
-        guiContext.context.fault = false;
-        guiContext.mainFrame.labelStatusMiddle.setText("");
+        context.fault = false;
+        context.mainFrame.labelStatusMiddle.setText("");
         if (info.getComponent() instanceof JTable)
         {
             JTable targetTable = (JTable) info.getComponent();
@@ -75,7 +75,7 @@ public class NavTransferHandler extends TransferHandler
     @Override
     protected Transferable createTransferable(JComponent c)
     {
-        guiContext.context.fault = false;
+        context.fault = false;
         ArrayList<NavTreeUserObject> rowList = new ArrayList<NavTreeUserObject>();
 
         if (c instanceof JTable)
@@ -163,14 +163,14 @@ public class NavTransferHandler extends TransferHandler
      */
     public synchronized void exportHint(String act, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
     {
-        if (guiContext.browser.isHintTrackingEnabled())
+        if (context.browser.isHintTrackingEnabled())
         {
-            String hintPath = guiContext.hints.writeHint(act, guiContext.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
+            String hintPath = context.hints.writeHint(act, context.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
             if (hintPath.length() > 0)
             {
                 if (hintPath.toLowerCase().equals("false"))
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.hint.could.not.be.created"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.hint.could.not.be.created"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 }
                 else
                 {
@@ -179,11 +179,11 @@ public class NavTransferHandler extends TransferHandler
                     if (ntn == null)
                     {
                         NavTreeUserObject createdTuo = null;
-                        NavTreeNode createdNode = new NavTreeNode(guiContext, sourceTuo.node.getMyRepo(), sourceTuo.node.getMyTree());
+                        NavTreeNode createdNode = new NavTreeNode(context, sourceTuo.node.getMyRepo(), sourceTuo.node.getMyTree());
                         if (sourceTuo.isRemote)
                         {
                             Thread.sleep(500L); // give the remote time to register new hint file
-                            SftpATTRS attrs = guiContext.context.clientSftp.stat(hintPath);
+                            SftpATTRS attrs = context.clientSftp.stat(hintPath);
                             createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(hintPath, null),
                                     hintPath, attrs.getSize(), attrs.getMTime(), false);
                         }
@@ -194,22 +194,22 @@ public class NavTransferHandler extends TransferHandler
 
                         createdNode.setNavTreeUserObject(createdTuo);
                         createdNode.setAllowsChildren(false);
-                        createdNode.setVisible(!guiContext.preferences.isHideFilesInTree());
+                        createdNode.setVisible(!context.preferences.isHideFilesInTree());
                         ((NavTreeNode) sourceTuo.node.getParent()).add(createdNode);
                     }
 
                     // update status tracking
-                    if (!guiContext.preferences.isLastIsWorkstation() || sourceTuo.isSubscriber())
+                    if (!context.preferences.isLastIsWorkstation() || sourceTuo.isSubscriber())
                     {
                         NavTreeNode node = sourceTuo.getParentLibrary();
                         if (node == null)
                             throw new MungeException("logic fault: cannot find parent library of relevant item");
                         String lib = node.getUserObject().name;
                         String itemPath = sourceTuo.getItemPath(lib, hintPath);
-                        HintKeys.HintKey key = guiContext.context.hintKeys.findKey(sourceTuo.getRepo().getLibraryData().libraries.key);
+                        HintKeys.HintKey key = context.hintKeys.findKey(sourceTuo.getRepo().getLibraryData().libraries.key);
                         String backup = key.name;
                         String status = "Done";
-                        guiContext.hints.updateStatusTracking(lib, itemPath, backup, status);
+                        context.hints.updateStatusTracking(lib, itemPath, backup, status);
                     }
                 }
             }
@@ -221,11 +221,11 @@ public class NavTransferHandler extends TransferHandler
         String op = "";
         if (actionValue == TransferHandler.COPY)
         {
-            op = (currentTense ? guiContext.cfg.gs("NavTransferHandler.copy") : guiContext.cfg.gs("NavTransferHandler.copied"));
+            op = (currentTense ? context.cfg.gs("NavTransferHandler.copy") : context.cfg.gs("NavTransferHandler.copied"));
         }
         else if (actionValue == TransferHandler.MOVE)
         {
-            op = (currentTense ? guiContext.cfg.gs("NavTransferHandler.move") : guiContext.cfg.gs("NavTransferHandler.moved"));
+            op = (currentTense ? context.cfg.gs("NavTransferHandler.move") : context.cfg.gs("NavTransferHandler.moved"));
         }
         else if (actionValue == TransferHandler.COPY_OR_MOVE)
         {
@@ -295,16 +295,16 @@ public class NavTransferHandler extends TransferHandler
         switch (tree.getName())
         {
             case "treeCollectionOne":
-                targetTable = guiContext.mainFrame.tableCollectionOne;
+                targetTable = context.mainFrame.tableCollectionOne;
                 break;
             case "treeSystemOne":
-                targetTable = guiContext.mainFrame.tableSystemOne;
+                targetTable = context.mainFrame.tableSystemOne;
                 break;
             case "treeCollectionTwo":
-                targetTable = guiContext.mainFrame.tableCollectionTwo;
+                targetTable = context.mainFrame.tableCollectionTwo;
                 break;
             case "treeSystemTwo":
-                targetTable = guiContext.mainFrame.tableSystemTwo;
+                targetTable = context.mainFrame.tableSystemTwo;
         }
         assert (targetTable != null);
         return targetTable;
@@ -316,16 +316,16 @@ public class NavTransferHandler extends TransferHandler
         switch (table.getName())
         {
             case "tableCollectionOne":
-                targetTree = guiContext.mainFrame.treeCollectionOne;
+                targetTree = context.mainFrame.treeCollectionOne;
                 break;
             case "tableSystemOne":
-                targetTree = guiContext.mainFrame.treeSystemOne;
+                targetTree = context.mainFrame.treeSystemOne;
                 break;
             case "tableCollectionTwo":
-                targetTree = guiContext.mainFrame.treeCollectionTwo;
+                targetTree = context.mainFrame.treeCollectionTwo;
                 break;
             case "tableSystemTwo":
-                targetTree = guiContext.mainFrame.treeSystemTwo;
+                targetTree = context.mainFrame.treeSystemTwo;
                 break;
         }
         assert (targetTree != null);
@@ -336,7 +336,7 @@ public class NavTransferHandler extends TransferHandler
     public boolean importData(TransferHandler.TransferSupport info)
     {
         fileNumber = 0;
-        guiContext.context.fault = false;
+        context.fault = false;
 
         isDrop = info.isDrop();
         if (isDrop)
@@ -345,8 +345,8 @@ public class NavTransferHandler extends TransferHandler
         }
         if (action == TransferHandler.NONE)
         {
-            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
-            logger.info(guiContext.cfg.gs("NavTransferHandler.nothing.to.do"));
+            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.nothing.to.do"));
+            logger.info(context.cfg.gs("NavTransferHandler.nothing.to.do"));
             isDrop = false;
             return false;
         }
@@ -368,7 +368,7 @@ public class NavTransferHandler extends TransferHandler
 
         if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.cannot.transfer.to.currently.selected.location"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.cannot.transfer.to.currently.selected.location"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -388,9 +388,9 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeNode parent = (NavTreeNode) sourceNode.getParent();
                 if (parent == targetNode)
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.source.target.are.the.same"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
-                    logger.info(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.source.target.are.the.same"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
+                    logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
                     action = TransferHandler.NONE;
                     return false;
                 }
@@ -412,23 +412,23 @@ public class NavTransferHandler extends TransferHandler
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
-                    logger.info(guiContext.cfg.gs("NavTransferHandler.action.cancelled"));
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
+                    logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
                     action = TransferHandler.NONE;
                     return false;
                 }
             }
 
             int reply = JOptionPane.YES_OPTION;
-            boolean confirm = (isDrop ? guiContext.preferences.isShowDnDConfirmation() : guiContext.preferences.isShowCcpConfirmation());
+            boolean confirm = (isDrop ? context.preferences.isShowDnDConfirmation() : context.preferences.isShowCcpConfirmation());
             if (confirm)
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.are.you.sure.you.want.to"),
-                        getOperation(action,true), Utils.formatLong(size, false, guiContext.cfg.getLongScale()),
+                String msg = MessageFormat.format(context.cfg.gs("NavTransferHandler.are.you.sure.you.want.to"),
+                        getOperation(action,true), Utils.formatLong(size, false, context.cfg.getLongScale()),
                         Utils.formatInteger(count), count > 1 ? 0 : 1, targetTuo.name);
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
-                reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg, guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                msg += (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
             // process the selections
@@ -465,7 +465,7 @@ public class NavTransferHandler extends TransferHandler
             }
 
             action = TransferHandler.NONE;
-            boolean indicator = (reply == JOptionPane.YES_OPTION && !guiContext.context.fault);
+            boolean indicator = (reply == JOptionPane.YES_OPTION && !context.fault);
             if (traceActions)
                 logger.trace("Returning " + indicator);
 
@@ -474,8 +474,8 @@ public class NavTransferHandler extends TransferHandler
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") + e.toString(),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+            int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.toString(),
+                    context.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
         }
 
         action = TransferHandler.NONE;
@@ -500,7 +500,7 @@ public class NavTransferHandler extends TransferHandler
         if (transferWorker == null || transferWorker.isDone())
         {
             transferWorker = null; // suggest clean-up
-            transferWorker = new NavTransferWorker(guiContext);
+            transferWorker = new NavTransferWorker(context);
         }
         transferWorker.add(action, count, size, transferData, targetTree, targetTuo);
         transferWorker.execute();
@@ -540,26 +540,26 @@ public class NavTransferHandler extends TransferHandler
             {
                 String msg;
                 if (sourceTuo.isRemote)
-                    msg = guiContext.cfg.gs("Z.remote.uppercase");
+                    msg = context.cfg.gs("Z.remote.uppercase");
                 else
-                    msg = guiContext.cfg.gs("NavTreeNode.local");
-                msg += MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.delete.directory.message"), guiContext.cfg.isDryRun() ? 0 : 1, sourceTuo.path);
+                    msg = context.cfg.gs("NavTreeNode.local");
+                msg += MessageFormat.format(context.cfg.gs("NavTransferHandler.delete.directory.message"), context.cfg.isDryRun() ? 0 : 1, sourceTuo.path);
                 logger.info(msg);
 
                 // remove directory itself
-                if (!guiContext.cfg.isDryRun())
+                if (!context.cfg.isDryRun())
                 {
-                    guiContext.context.transfer.remove(sourceTuo.path, true, sourceTuo.isRemote);
+                    context.transfer.remove(sourceTuo.path, true, sourceTuo.isRemote);
                 }
             }
         }
         catch (Exception e)
         {
-            //guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            //context.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             logger.error(Utils.getStackTrace(e));
-            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.delete.directory.error") +
-                            e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+            int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.directory.error") +
+                            e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
+                    context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
                 error = true;
         }
@@ -573,14 +573,14 @@ public class NavTransferHandler extends TransferHandler
         {
             String msg;
             if (sourceTuo.isRemote)
-                msg = guiContext.cfg.gs("Z.remote.uppercase");
+                msg = context.cfg.gs("Z.remote.uppercase");
             else
-                msg = guiContext.cfg.gs("NavTreeNode.local");
-            msg += MessageFormat.format(guiContext.cfg.gs("NavTransferHandler.delete.file.message"), guiContext.cfg.isDryRun() ? 0 : 1,sourceTuo.path);
+                msg = context.cfg.gs("NavTreeNode.local");
+            msg += MessageFormat.format(context.cfg.gs("NavTransferHandler.delete.file.message"), context.cfg.isDryRun() ? 0 : 1,sourceTuo.path);
 
-            if (!guiContext.cfg.isDryRun())
+            if (!context.cfg.isDryRun())
             {
-                guiContext.context.transfer.remove(sourceTuo.path, false, sourceTuo.isRemote);
+                context.transfer.remove(sourceTuo.path, false, sourceTuo.isRemote);
                 logger.info(msg); // not printed if file is missing
             }
         }
@@ -595,11 +595,11 @@ public class NavTransferHandler extends TransferHandler
                 skip = true;
             if (!skip)
             {
-                //guiContext.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                //context.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 logger.error(Utils.getStackTrace(e), true);
-                int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("NavTransferHandler.delete.file.error") +
-                                e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
-                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+                int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.file.error") +
+                                e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                 if (reply == JOptionPane.NO_OPTION)
                     error = true;
             }

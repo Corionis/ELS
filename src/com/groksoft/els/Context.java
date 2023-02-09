@@ -1,9 +1,6 @@
 package com.groksoft.els;
 
-import com.groksoft.els.gui.MainFrame;
-import com.groksoft.els.gui.Navigator;
-import com.groksoft.els.gui.Preferences;
-import com.groksoft.els.gui.Progress;
+import com.groksoft.els.gui.*;
 import com.groksoft.els.gui.browser.Browser;
 import com.groksoft.els.gui.operations.OperationsUI;
 import com.groksoft.els.repository.HintKeys;
@@ -53,4 +50,5 @@ public class Context
     public OperationsUI operationsUI = null;
     public Preferences preferences = null;
     public Progress progress = null;
+    public SavedEnvironment savedEnvironment;
 }

@@ -1,6 +1,6 @@
 package com.groksoft.els.gui.jobs;
 
-import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.Context;
 import com.groksoft.els.jobs.Job;
 
 import javax.swing.*;
@@ -9,13 +9,13 @@ import java.io.File;
 
 public class ConfigModel extends DefaultTableModel
 {
-    private GuiContext guiContext;
+    private Context context;
     private JobsUI myDialog;
 
-    public ConfigModel(GuiContext guiContext, JobsUI ui)
+    public ConfigModel(Context context, JobsUI ui)
     {
         super();
-        this.guiContext = guiContext;
+        this.context = context;
         this.myDialog = ui;
     }
 
@@ -61,8 +61,8 @@ public class ConfigModel extends DefaultTableModel
                 if (tmp != null)
                 {
                     JOptionPane.showMessageDialog(myDialog,
-                            guiContext.cfg.gs(("Z.that.configuration.already.exists")),
-                            guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                            context.cfg.gs(("Z.that.configuration.already.exists")),
+                            context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
                 {

@@ -1,17 +1,17 @@
 package com.groksoft.els.gui.tools.renamer;
 
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 
 import javax.swing.table.DefaultTableModel;
 
 public class ChangesTableModel extends DefaultTableModel
 {
-    private Configuration cfg;
+    private Context context;
 
-    public ChangesTableModel(Configuration config)
+    public ChangesTableModel(Context context)
     {
         super();
-        cfg = config;
+        this.context = context;
     }
 
     @Override
@@ -26,11 +26,11 @@ public class ChangesTableModel extends DefaultTableModel
         switch (column)
         {
             case 0:
-                return cfg.gs("Renamer.old.name");
+                return context.cfg.gs("Renamer.old.name");
             case 1:
-                return cfg.gs("Renamer.new.name");
+                return context.cfg.gs("Renamer.new.name");
         }
-        return cfg.gs("NavTreeNode.unknown");
+        return context.cfg.gs("NavTreeNode.unknown");
     }
 
 }

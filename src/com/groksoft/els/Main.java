@@ -1,6 +1,5 @@
 package com.groksoft.els;
 
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.gui.SavedEnvironment;
 import com.groksoft.els.gui.util.GuiLogAppender;
@@ -35,14 +34,12 @@ import static com.groksoft.els.Configuration.*;
 public class Main
 {
     public Main main;
-    public final Context context = new Context();
+    public Context context = new Context();
     public Configuration cfg;
     public String currentFilePart;
-    public GuiContext guiContext; // used only when executing an Operation
     private boolean isListening = false;
     public Logger logger = null;
     public Date stamp = new Date();
-    public SavedEnvironment savedEnvironment;
     public boolean secondaryInvocation = false;
     public boolean trace;
 
@@ -62,20 +59,20 @@ public class Main
     public Main(String[] args)
     {
         main = this;
-        context.main = this;
-        secondaryInvocation = false;
+        this.context.main = this;
+        this.secondaryInvocation = false;
         main.process(args);          // ELS Processor
     }
 
     /**
      * Main application Operations constructor
      */
-    public Main(String[] args, GuiContext guiContext)
+    public Main(String[] args, Context context)
     {
         main = this;
-        context.main = this;
-        this.guiContext = guiContext;
-        secondaryInvocation = true;
+        this.context = context;
+        this.context.main = this;
+        this.secondaryInvocation = true;
         main.process(args);          // ELS Processor
     }
 
@@ -99,13 +96,13 @@ public class Main
     {
         if (cfg.isUsingHintTracking() && repo != null)
         {
-            context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
+            context.statusRepo = new Repository(context, Repository.HINT_SERVER);
             if (cfg.getHintsDaemonFilename().length() > 0)
             {
                 context.statusRepo.read(cfg.getHintsDaemonFilename(), true);
 
                 // start the serveStty client to the hints status server
-                context.statusStty = new ClientStty(cfg, context, false, true);
+                context.statusStty = new ClientStty(context, false, true);
                 if (!context.statusStty.connect(repo, context.statusRepo))
                 {
                     throw new MungeException("Hint Status Server " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
@@ -119,7 +116,7 @@ public class Main
                 context.statusRepo.read(cfg.getHintTrackerFilename(), true);
 
                 // Setup the hint status store, single instance
-                context.datastore = new Datastore(cfg, context);
+                context.datastore = new Datastore(context);
                 context.datastore.initialize();
             }
         }
@@ -127,7 +124,7 @@ public class Main
             // Validate ELS hints keys if specified
             if (cfg.getHintKeysFile().length() > 0) 
             {
-                context.hintKeys = new HintKeys(cfg, context);
+                context.hintKeys = new HintKeys(context);
                 context.hintKeys.read(cfg.getHintKeysFile());
             }
     }
@@ -214,18 +211,18 @@ public class Main
                 System.setProperty("consoleLevel", cfg.getConsoleLevel());
                 System.setProperty("debugLevel", cfg.getDebugLevel());
                 System.setProperty("pattern", cfg.getPattern());
-                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(guiContext == null ? true : false);
+                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(context.navigator == null ? true : false);
                 loggerContext.reconfigure();
                 AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
                 LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
                 loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
                 loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
                 loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
-                if (guiContext != null)
+                if (context.navigator != null)
                 {
                     Map<String, Appender> appenders = loggerConfig.getAppenders();
                     GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-                    appender.setGuiContext(guiContext);
+                    appender.setContext(context);
                 }
                 loggerContext.updateLoggers();
             }
@@ -282,12 +279,12 @@ public class Main
 
                         if (cfg.getPublisherFilename().length() > 0)
                         {
-                            context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                            context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                         }
 
                         if (cfg.getSubscriberFilename().length() > 0)
                         {
-                            context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                            context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
 
                         if (defaultNavigator && !cfg.isNavigator())
@@ -299,7 +296,7 @@ public class Main
                         // setup the hint status server if defined
                         connectHintServer(context.publisherRepo);
 
-                        context.navigator = new Navigator(this, cfg, context);
+                        context.navigator = new Navigator(main, context);
                         if (!context.fault)
                             context.navigator.run();
                     }
@@ -308,10 +305,10 @@ public class Main
                         logger.info("ELS: Local Publish, version " + cfg.getVersionStamp());
                         cfg.dump();
 
-                        context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                        context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                         if (!cfg.isValidation() && (cfg.getSubscriberFilename().length() > 0))
                         {
-                            context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                            context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
                         else if (cfg.isTargetsEnabled())
                         {
@@ -322,7 +319,7 @@ public class Main
                         connectHintServer(context.publisherRepo);
 
                         // the Process class handles the ELS process
-                        proc = new Process(cfg, context);
+                        proc = new Process(context);
                         proc.process();
                     }
                     break;
@@ -332,8 +329,8 @@ public class Main
                     logger.info("ELS: Publisher Listener, version " + cfg.getVersionStamp());
                     cfg.dump();
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
                     // start servers for -r T & clients for get command in stty.publisher.Daemon
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
@@ -362,8 +359,8 @@ public class Main
                     logger.info("ELS: Publisher Terminal, version " + cfg.getVersionStamp());
                     cfg.dump();
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
                     // start clients
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
@@ -372,7 +369,7 @@ public class Main
                         connectHintServer(context.publisherRepo);
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(cfg, context, true, true);
+                        context.clientStty = new ClientStty(context, true, true);
                         if (context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             context.clientStty.guiSession();
@@ -384,7 +381,7 @@ public class Main
                         }
 
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(cfg, context.publisherRepo, context.subscriberRepo, true);
+                        context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
                             throw new MungeException("Publisher sftp client to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
@@ -402,8 +399,8 @@ public class Main
 
                     cfg.dump();
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
                     // start clients
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
@@ -412,14 +409,14 @@ public class Main
                         connectHintServer(context.publisherRepo);
 
                         // start the serveStty client for automation
-                        context.clientStty = new ClientStty(cfg, context, false, true);
+                        context.clientStty = new ClientStty(context, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             throw new MungeException("Remote subscriber " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
                         }
 
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(cfg, context.publisherRepo, context.subscriberRepo, true);
+                        context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                         if (!context.clientSftp.startClient())
                         {
                             throw new MungeException("Subscriber sftp to " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
@@ -428,14 +425,14 @@ public class Main
                         // handle -n|--navigator to display the Navigator
                         if (cfg.isNavigator())
                         {
-                            context.navigator = new Navigator(this, cfg, context);
+                            context.navigator = new Navigator(main, context);
                             if (!context.fault)
                                 context.navigator.run();
                         }
                         else
                         {
                             // the Process class handles the ELS process
-                            proc = new Process(cfg, context);
+                            proc = new Process(context);
                             proc.process();
                         }
                     }
@@ -453,8 +450,8 @@ public class Main
                     if (!cfg.isTargetsEnabled())
                         throw new MungeException("Targets -t|-T required");
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
+                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
 
                     // start servers
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
@@ -486,8 +483,8 @@ public class Main
                     if (!cfg.isTargetsEnabled())
                         throw new MungeException("Targets -t|-T required");
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE);
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.VALIDATE);
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
+                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
 
                     // start clients & servers for -r L for get command
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
@@ -496,7 +493,7 @@ public class Main
                         connectHintServer(context.subscriberRepo);
 
                         // start the serveStty client interactively
-                        context.clientStty = new ClientStty(cfg, context, true, true);
+                        context.clientStty = new ClientStty(context, true, true);
                         if (context.clientStty.connect(context.subscriberRepo, context.publisherRepo))
                         {
                             context.clientStty.guiSession();
@@ -508,7 +505,7 @@ public class Main
                         }
 
                         // start the serveSftp client
-                        context.clientSftp = new ClientSftp(cfg, context.subscriberRepo, context.publisherRepo, true);
+                        context.clientSftp = new ClientSftp(context, context.subscriberRepo, context.publisherRepo, true);
                         if (!context.clientSftp.startClient())
                         {
                             throw new MungeException("Publisher sftp to " + context.publisherRepo.getLibraryData().libraries.description + " failed to connect");
@@ -548,15 +545,15 @@ public class Main
                         throw new MungeException("-H|--status-server does not use targets");
 
                     // Get the hint status server repo
-                    context.statusRepo = new Repository(cfg, Repository.HINT_SERVER);
+                    context.statusRepo = new Repository(context, Repository.HINT_SERVER);
                     context.statusRepo.read(cfg.getHintsDaemonFilename(), true);
 
                     // Get ELS hints keys
-                    context.hintKeys = new HintKeys(cfg, context);
+                    context.hintKeys = new HintKeys(context);
                     context.hintKeys.read(cfg.getHintKeysFile());
 
                     // Setup the hint status store, single instance
-                    context.datastore = new Datastore(cfg, context);
+                    context.datastore = new Datastore(context);
                     context.datastore.initialize();
 
                     // start server
@@ -582,7 +579,7 @@ public class Main
                     if (cfg.getHintHandlerFilename() == null || cfg.getHintHandlerFilename().length() == 0)
                         throw new MungeException("-Q|--force-quit requires a either -h|--hints or -H|--hint-server");
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
 
                     connectHintServer(context.publisherRepo);
 
@@ -599,14 +596,14 @@ public class Main
                     if (cfg.getSubscriberFilename() == null || cfg.getSubscriberFilename().length() == 0)
                         throw new MungeException("-G|--listener-quit requires a -s|-S subscriber JSON file");
 
-                    context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
-                    context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
+                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
                     // start client
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
                     {
                         // start the serveStty client
-                        context.clientStty = new ClientStty(cfg, context, false, true);
+                        context.clientStty = new ClientStty(context, false, true);
                         if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
                             throw new MungeException("Remote subscriber " + context.subscriberRepo.getLibraryData().libraries.description + " failed to connect");
@@ -634,27 +631,27 @@ public class Main
 
                     if (cfg.getPublisherFilename().length() > 0)
                     {
-                        context.publisherRepo = readRepo(cfg, Repository.PUBLISHER, Repository.VALIDATE);
+                        context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                     }
 
                     if (cfg.getSubscriberFilename().length() > 0)
                     {
-                        context.subscriberRepo = readRepo(cfg, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                        context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
 
                     // setup the hint status server if defined
                     connectHintServer(context.publisherRepo);
 
-                    savedEnvironment = new SavedEnvironment(null, cfg, context);
-                    context.transfer = new Transfer(cfg, context);
+                    context.savedEnvironment = new SavedEnvironment(context);
+                    context.transfer = new Transfer(context);
                     context.transfer.initialize();
 
                     // run the Job
-                    Job tmpJob = new Job(cfg, context, "temp");
+                    Job tmpJob = new Job(context, "temp");
                     Job job = tmpJob.load(cfg.getJobName());
                     if (job == null)
                         throw new MungeException("Job \"" + cfg.getJobName() + "\" could not be loaded");
-                    job.process(cfg, context);
+                    job.process(context);
                     break;
 
                 default:
@@ -663,7 +660,7 @@ public class Main
         }
         catch (Exception e)
         {
-            if (guiContext == null) // if not running as an Operation
+            if (context.navigator== null) // if not running as an Operation
                 context.fault = true;
 
             if (logger != null)
@@ -686,7 +683,7 @@ public class Main
                     {
                     }
                 }
-                JOptionPane.showMessageDialog(guiContext != null ? guiContext.mainFrame : null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context != null ? context.mainFrame : null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
 
             isListening = false; // force stop
@@ -769,15 +766,15 @@ public class Main
     /**
      * Read either a publisher or subscriber repository
      *
-     * @param cfg         Loaded configuration
+     * @param context     The Context
      * @param purpose     Is this the PUBLISHER, SUBSCRIBER or HINT_SERVER
      * @param validate    Validate repository against actual directories and files true/false
      * @return Repository object
      * @throws Exception
      */
-    public Repository readRepo(Configuration cfg, int purpose, boolean validate) throws Exception
+    public Repository readRepo(Context context, int purpose, boolean validate) throws Exception
     {
-        Repository repo = new Repository(cfg, purpose);
+        Repository repo = new Repository(context, purpose);
         if (purpose == Repository.PUBLISHER)
         {
             if (cfg.getPublisherLibrariesFileName().length() > 0 &&                     // both

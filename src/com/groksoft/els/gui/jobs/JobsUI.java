@@ -3,9 +3,9 @@ package com.groksoft.els.gui.jobs;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
@@ -49,10 +49,10 @@ public class JobsUI extends JDialog
     private static final int REMOTE_SUBSCRIBER = 5;
 
     private ConfigModel configModel;
+    private Context context;
     private Job currentJob = null;
     private Task currentTask = null;
     private ArrayList<Job> deletedJobs;
-    private GuiContext guiContext;
     private boolean loadingCombo = false;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
@@ -68,10 +68,10 @@ public class JobsUI extends JDialog
         // hide default constructor
     }
 
-    public JobsUI(Window owner, GuiContext guiContext)
+    public JobsUI(Window owner, Context context)
     {
         super(owner);
-        this.guiContext = guiContext;
+        this.context = context;
         initComponents();
 
         // scale the help icon
@@ -105,13 +105,13 @@ public class JobsUI extends JDialog
         buttonOriginDown.setIcon(r1);
 
         // position, size & dividers
-        if (guiContext.preferences.getJobsXpos() > 0)
+        if (context.preferences.getJobsXpos() > 0)
         {
-            this.setLocation(guiContext.preferences.getJobsXpos(), guiContext.preferences.getJobsYpos());
-            Dimension dim = new Dimension(guiContext.preferences.getJobsWidth(), guiContext.preferences.getJobsHeight());
+            this.setLocation(context.preferences.getJobsXpos(), context.preferences.getJobsYpos());
+            Dimension dim = new Dimension(context.preferences.getJobsWidth(), context.preferences.getJobsHeight());
             this.setSize(dim);
-            this.splitPaneContent.setDividerLocation(guiContext.preferences.getJobsTaskDividerLocation());
-            this.splitPaneToolsOrigin.setDividerLocation(guiContext.preferences.getJobsOriginDividerLocation());
+            this.splitPaneContent.setDividerLocation(context.preferences.getJobsTaskDividerLocation());
+            this.splitPaneToolsOrigin.setDividerLocation(context.preferences.getJobsOriginDividerLocation());
         }
         else
         {
@@ -135,7 +135,7 @@ public class JobsUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // setup the left-side list of configurations
-        configModel = new ConfigModel(guiContext, this);
+        configModel = new ConfigModel(context, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -156,7 +156,7 @@ public class JobsUI extends JDialog
         });
 
         // setup the publisher/subscriber Task Origins table
-        Border border = buttonPub.getBorder(); // guiContext.mainFrame.textFieldLocation.getBorder();
+        Border border = buttonPub.getBorder(); // context.mainFrame.textFieldLocation.getBorder();
         panelPubSub.setBorder(border);
 
         loadConfigurations();
@@ -168,20 +168,20 @@ public class JobsUI extends JDialog
     {
         if (workerRunning && currentJob != null)
         {
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JobsUI.stop.currently.running.job"),
-                    guiContext.cfg.gs("Z.cancel.run"), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("JobsUI.stop.currently.running.job"),
+                    context.cfg.gs("Z.cancel.run"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 currentJob.requestStop();
-                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Job.config.cancelled"), currentJob.getConfigName()));
+                logger.info(java.text.MessageFormat.format(context.cfg.gs("Job.config.cancelled"), currentJob.getConfigName()));
             }
         }
         else
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
-                        guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
+                        context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
@@ -199,7 +199,7 @@ public class JobsUI extends JDialog
         if (index >= 0)
         {
             Job origJob = (Job) configModel.getValueAt(index, 0);
-            String rename = origJob.getConfigName() + guiContext.cfg.gs("Z.copy");
+            String rename = origJob.getConfigName() + context.cfg.gs("Z.copy");
             if (configModel.find(rename, null) == null)
             {
                 Job job = origJob.clone();
@@ -215,8 +215,8 @@ public class JobsUI extends JDialog
             }
             else
             {
-                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                        rename, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
+                        rename, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -228,8 +228,8 @@ public class JobsUI extends JDialog
         {
             Job job = (Job) configModel.getValueAt(index, 0);
 
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + job.getConfigName(),
-                    guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + job.getConfigName(),
+                    context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 job.setDataHasChanged();
@@ -257,18 +257,18 @@ public class JobsUI extends JDialog
             String generated = "java -jar " + jar + " -c debug -d debug -j \"" + currentJob.getConfigName() + "\" -F \"" + currentJob.getConfigName() + ".log\"";
 
             JOptionPane.showInputDialog(this,
-                    "<html><body>" + guiContext.cfg.gs("Z.generated") + currentJob.getConfigName() +
+                    "<html><body>" + context.cfg.gs("Z.generated") + currentJob.getConfigName() +
                             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</body></html>",
-                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.PLAIN_MESSAGE,
+                    context.cfg.gs("JobsUI.title"), JOptionPane.PLAIN_MESSAGE,
                     null, null, generated);
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
             logger.error(msg);
-            JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -276,7 +276,7 @@ public class JobsUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, guiContext, guiContext.cfg.gs("JobsUI.help"), "jobs_" + guiContext.preferences.getLocale() + ".html");
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.isVisible())
         {
@@ -295,9 +295,9 @@ public class JobsUI extends JDialog
 
     private void actionNewClicked(ActionEvent evt)
     {
-        if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
+        if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
         {
-            Job job = new Job(guiContext.cfg, guiContext.context, guiContext.cfg.gs("Z.untitled"));
+            Job job = new Job(context, context.cfg.gs("Z.untitled"));
             configModel.addRow(new Object[]{job});
             this.currentJob = job;
             loadTasks(-1);
@@ -320,8 +320,8 @@ public class JobsUI extends JDialog
         }
         else
         {
-            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                    guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
+                    context.cfg.gs("Z.untitled"), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -333,18 +333,18 @@ public class JobsUI extends JDialog
             // TODO match pub/sub combo for source ;; OR show warning when selection does not match
             try
             {
-                boolean isSubscriber = Origins.makeOriginsFromSelected(this, origins, currentTask.isRealOnly()); // can return null
+                boolean isSubscriber = Origins.makeOriginsFromSelected(context, this, origins, currentTask.isRealOnly()); // can return null
                 if (origins != null && origins.size() > 0)
                 {
                     listOrigins.requestFocus();
                     int count = origins.size();
 
                     // make dialog pieces
-                    String which = (isSubscriber) ? guiContext.cfg.gs("Z.subscriber") : guiContext.cfg.gs("Z.publisher");
-                    String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.add.N.origins"), count, which);
+                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                    String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.add.N.origins"), count, which);
 
                     // confirm adds
-                    int reply = JOptionPane.showConfirmDialog(this, message, guiContext.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                    int reply = JOptionPane.showConfirmDialog(this, message, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
                     {
                         currentTask.addOrigins(origins);
@@ -394,10 +394,10 @@ public class JobsUI extends JDialog
                 int count = indices.length;
 
                 // make dialog pieces
-                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.remove.N.origins"), count);
+                String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.remove.N.origins"), count);
 
                 // confirm deletions
-                int reply = JOptionPane.showConfirmDialog(this, message, guiContext.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, message, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     Arrays.sort(indices);
@@ -472,7 +472,7 @@ public class JobsUI extends JDialog
             // make dialog pieces
 
             // Cached last task
-            if (currentTask.isCachedLastTask(guiContext.cfg, guiContext.context))
+            if (currentTask.isCachedLastTask(context))
             {
                 int taskIndex = findTaskIndex(currentTask.getConfigName());
                 if (taskIndex >= 0)
@@ -480,25 +480,25 @@ public class JobsUI extends JDialog
                     cachedName = findCachedLastTask(currentJob, taskIndex);
                     if (cachedName.length() > 0)
                     {
-                        combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.cached.task") + cachedName, CACHED_LAST_TASK));
+                        combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.cached.task") + cachedName, CACHED_LAST_TASK));
                         if (currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
                             selectedCombo = id - 1;
                     }
                 }
             }
 
-            title = (which == 0) ? guiContext.cfg.gs("JobsUI.combo.select.publisher") : guiContext.cfg.gs("JobsUI.combo.select.subscriber");
+            title = (which == 0) ? context.cfg.gs("JobsUI.combo.select.publisher") : context.cfg.gs("JobsUI.combo.select.subscriber");
 
             if (which == 0 || which == 99) // publisher or both
             {
-                title = guiContext.cfg.gs("JobsUI.combo.select.publisher");
-                tip = guiContext.cfg.gs("JobsUI.select.publisher.tooltip");
+                title = context.cfg.gs("JobsUI.combo.select.publisher");
+                tip = context.cfg.gs("JobsUI.select.publisher.tooltip");
 
-                combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.publisher"), ANY_PUBLISHER));
+                combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.any.publisher"), ANY_PUBLISHER));
                 if (currentTask.getPublisherKey().equals(Task.ANY_SERVER))
                     selectedCombo = id - 1;
 
-                combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.publisher.specific"), SPECIFIC_PUBLISHER));
+                combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.publisher.specific"), SPECIFIC_PUBLISHER));
                 if (currentTask.getPublisherKey().length() > 0 &&
                         !currentTask.getPublisherKey().equals(Task.ANY_SERVER) &&
                         !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
@@ -512,17 +512,17 @@ public class JobsUI extends JDialog
 
             if (which == 1 || which == 99) // subscriber or both
             {
-                title = guiContext.cfg.gs("JobsUI.combo.select.subscriber");
-                tip = guiContext.cfg.gs("JobsUI.select.subscriber.tooltip");
+                title = context.cfg.gs("JobsUI.combo.select.subscriber");
+                tip = context.cfg.gs("JobsUI.select.subscriber.tooltip");
 
-                combo.addItem(new ComboItem(id++, guiContext.cfg.gs("JobsUI.any.subscriber"), ANY_SUBSCRIBER));
+                combo.addItem(new ComboItem(id++, context.cfg.gs("JobsUI.any.subscriber"), ANY_SUBSCRIBER));
                 if (currentTask.getSubscriberKey().equals(Task.ANY_SERVER))
                     selectedCombo = id - 1;
 
-                text = guiContext.cfg.gs("JobsUI.subscriber.local");
+                text = context.cfg.gs("JobsUI.subscriber.local");
                 combo.addItem(new ComboItem(id++, text, LOCAL_SUBSCRIBER));
 
-                text = guiContext.cfg.gs("JobsUI.subscriber.remote");
+                text = context.cfg.gs("JobsUI.subscriber.remote");
                 combo.addItem(new ComboItem(id++, text, REMOTE_SUBSCRIBER));
 
                 if (currentTask.getSubscriberKey().length() > 0 &&
@@ -542,8 +542,8 @@ public class JobsUI extends JDialog
 
             if (which == 99)
             {
-                title = guiContext.cfg.gs("JobsUI.combo.select.publisher.or.subscriber");
-                tip = guiContext.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
+                title = context.cfg.gs("JobsUI.combo.select.publisher.or.subscriber");
+                tip = context.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
             }
 
             if (selectedCombo < 0)
@@ -592,7 +592,7 @@ public class JobsUI extends JDialog
             Object[] params = {title, combo, pane};
 
             // prompt user
-            int opt = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JobsUI.title"), JOptionPane.OK_CANCEL_OPTION);
+            int opt = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JobsUI.title"), JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
                 String key;
@@ -623,11 +623,11 @@ public class JobsUI extends JDialog
                     int index = list.getSelectedIndex();
                     if (index < 0)
                     {
-                        String msg = (which == 0 ? guiContext.cfg.gs("JobsUI.combo.select.publisher") :
-                                     (which == 1 ? guiContext.cfg.gs("JobsUI.combo.select.subscriber") :
-                                        guiContext.cfg.gs("JobsUI.combo.select.publisher.or.subscriber")));
+                        String msg = (which == 0 ? context.cfg.gs("JobsUI.combo.select.publisher") :
+                                     (which == 1 ? context.cfg.gs("JobsUI.combo.select.subscriber") :
+                                        context.cfg.gs("JobsUI.combo.select.publisher.or.subscriber")));
                         JOptionPane.showMessageDialog(this, msg,
-                                guiContext.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE);
+                                context.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
 
@@ -710,18 +710,18 @@ public class JobsUI extends JDialog
         if (index >= 0)
         {
             Job job = (Job) configModel.getValueAt(index, 0);
-            String status = job.validate(guiContext.cfg);
+            String status = job.validate(context.cfg);
             if (status.length() == 0)
             {
                 // make dialog pieces
-                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
-                JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
-                checkbox.setToolTipText(guiContext.cfg.gs("Navigator.dryrun.tooltip"));
+                String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
+                JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+                checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
                 checkbox.setSelected(true);
                 Object[] params = {message, checkbox};
 
                 // confirm run of job
-                int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
                 isDryRun = checkbox.isSelected();
                 if (reply == JOptionPane.YES_OPTION)
                 {
@@ -729,7 +729,7 @@ public class JobsUI extends JDialog
                 }
             }
             else
-                JOptionPane.showMessageDialog(this, status, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, status, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -749,7 +749,7 @@ public class JobsUI extends JDialog
             listTasks.requestFocus();
 
             // make dialog pieces
-            String message = guiContext.cfg.gs("JobsUI.select.tool");
+            String message = context.cfg.gs("JobsUI.select.tool");
 
             JList<String> toolJList = new JList<String>();
             ArrayList<AbstractTool> toolList = null;
@@ -757,12 +757,12 @@ public class JobsUI extends JDialog
             try
             {
                 // load Job tools first
-                Jobs jobsHandler = new Jobs(guiContext);
+                Jobs jobsHandler = new Jobs(context);
                 toolList = jobsHandler.loadAllJobs(); // creates the ArrayList
 
                 // then add all the other tools
                 Tools toolsHandler = new Tools();
-                toolList = toolsHandler.loadAllTools(guiContext, null, toolList);
+                toolList = toolsHandler.loadAllTools(context, null, toolList);
 
                 // make the String list for display
                 ArrayList<String> toolNames = new ArrayList<>();
@@ -784,10 +784,10 @@ public class JobsUI extends JDialog
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
                 logger.error(msg);
                 JOptionPane.showMessageDialog(this, msg,
-                        guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                        context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
 
             JScrollPane pane = new JScrollPane();
@@ -795,7 +795,7 @@ public class JobsUI extends JDialog
             toolJList.requestFocus();
             Object[] params = {message, pane};
 
-            int opt = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JobsUI.title"), JOptionPane.OK_CANCEL_OPTION);
+            int opt = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JobsUI.title"), JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
                 String name = toolJList.getSelectedValue();
@@ -856,10 +856,10 @@ public class JobsUI extends JDialog
                 int count = indices.length;
 
                 // make dialog
-                String message = java.text.MessageFormat.format(guiContext.cfg.gs("JobsUI.remove.N.tasks"), count);
+                String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.remove.N.tasks"), count);
 
                 // confirm deletions
-                int reply = JOptionPane.showConfirmDialog(this, message, guiContext.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, message, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     Arrays.sort(indices);
@@ -971,7 +971,7 @@ public class JobsUI extends JDialog
                     if (name.length() > 0)
                         break;
                 }
-                else if (task.isCachedLastTask(guiContext.cfg, guiContext.context) && task != currentTask)
+                else if (task.isCachedLastTask(context) && task != currentTask)
                 {
                     name = task.getConfigName(); // qualifies for cached last task
                     break;
@@ -1048,14 +1048,14 @@ public class JobsUI extends JDialog
         try
         {
             repositories = new Repositories();
-            repositories.loadList(guiContext.cfg);
+            repositories.loadList(context);
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
             logger.error(msg);
             JOptionPane.showMessageDialog(this, msg,
-                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                    context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
         }
         return repositories;
     }
@@ -1065,23 +1065,23 @@ public class JobsUI extends JDialog
         switch (type)
         {
             case NavTreeUserObject.BOOKMARKS:
-                return guiContext.cfg.gs("NavTreeNode.bookmark");
+                return context.cfg.gs("NavTreeNode.bookmark");
             case NavTreeUserObject.COLLECTION:
-                return guiContext.cfg.gs("NavTreeNode.collection");
+                return context.cfg.gs("NavTreeNode.collection");
             case NavTreeUserObject.COMPUTER:
-                return guiContext.cfg.gs("NavTreeNode.computer");
+                return context.cfg.gs("NavTreeNode.computer");
             case NavTreeUserObject.DRIVE:
-                return guiContext.cfg.gs("NavTreeNode.drive");
+                return context.cfg.gs("NavTreeNode.drive");
             case NavTreeUserObject.HOME:
-                return guiContext.cfg.gs("NavTreeNode.home");
+                return context.cfg.gs("NavTreeNode.home");
             case NavTreeUserObject.LIBRARY:
-                return guiContext.cfg.gs("NavTreeNode.library");
+                return context.cfg.gs("NavTreeNode.library");
             case NavTreeUserObject.REAL:
                 return "";
             case NavTreeUserObject.SYSTEM:
-                return guiContext.cfg.gs("NavTreeNode.system");
+                return context.cfg.gs("NavTreeNode.system");
             default:
-                return guiContext.cfg.gs("NavTreeNode.unknown");
+                return context.cfg.gs("NavTreeNode.unknown");
         }
 
     }
@@ -1112,7 +1112,7 @@ public class JobsUI extends JDialog
 
     private void loadConfigurations()
     {
-        Job tmpJob = new Job(guiContext.cfg, guiContext.context, "temp");
+        Job tmpJob = new Job(context, "temp");
         File jobsDir = new File(tmpJob.getDirectoryPath());
         if (jobsDir.exists())
         {
@@ -1120,14 +1120,14 @@ public class JobsUI extends JDialog
             toolList = null;
             try
             {
-                toolList = toolsHandler.loadAllTools(guiContext, null);
+                toolList = toolsHandler.loadAllTools(context, null);
             }
             catch (Exception e)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
                 logger.error(msg);
                 JOptionPane.showMessageDialog(this, msg,
-                        guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                        context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
 
             class objInstanceCreator implements InstanceCreator
@@ -1135,7 +1135,7 @@ public class JobsUI extends JDialog
                 @Override
                 public Object createInstance(java.lang.reflect.Type type)
                 {
-                    return new Job(guiContext.cfg, guiContext.context, "");
+                    return new Job(context, "");
                 }
             }
             GsonBuilder builder = new GsonBuilder();
@@ -1176,10 +1176,10 @@ public class JobsUI extends JDialog
                     }
                     catch (Exception e)
                     {
-                        String msg = guiContext.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
+                        String msg = context.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
                         logger.error(msg);
                         JOptionPane.showMessageDialog(this, msg,
-                                guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                                context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -1225,7 +1225,7 @@ public class JobsUI extends JDialog
                 {
                     Task task = currentJob.getTasks().get(i);
                     String i18n = task.getInternalName() + ".displayName";
-                    i18n = guiContext.cfg.gs(i18n);
+                    i18n = context.cfg.gs(i18n);
                     if (i18n.length() == 0)
                         i18n = task.getInternalName();
                     String id = i18n + ": " + task.getConfigName();
@@ -1286,7 +1286,7 @@ public class JobsUI extends JDialog
             }
         }
         listOrigins.setModel(model);
-        enableDisableOrigins(currentTask.isOriginPathsAllowed(guiContext.cfg, guiContext.context));
+        enableDisableOrigins(currentTask.isOriginPathsAllowed(context));
     }
 
     private void loadPubSubs(Task task)
@@ -1318,16 +1318,16 @@ public class JobsUI extends JDialog
             if (task.isDual())
             {
                 if (isPublisher)
-                    desc = guiContext.cfg.gs("JobsUI.select.publisher");
+                    desc = context.cfg.gs("JobsUI.select.publisher");
                 else
-                    desc = guiContext.cfg.gs("JobsUI.select.subscriber");
+                    desc = context.cfg.gs("JobsUI.select.subscriber");
             }
             else
-                desc = guiContext.cfg.gs("JobsUI.select.publisher.or.subscriber");
+                desc = context.cfg.gs("JobsUI.select.publisher.or.subscriber");
         }
         else if (key.equals(Task.CACHEDLASTTASK))
         {
-            String name = guiContext.cfg.gs("Z.not.found");
+            String name = context.cfg.gs("Z.not.found");
             int taskIndex = findTaskIndex(task.getConfigName());
             if (taskIndex >= 0)
             {
@@ -1337,14 +1337,14 @@ public class JobsUI extends JDialog
                     name = cachedName;
                 }
             }
-            desc = guiContext.cfg.gs("JobsUI.cached.task") + name;
+            desc = context.cfg.gs("JobsUI.cached.task") + name;
         }
         else if (key.equals(Task.ANY_SERVER))
         {
             if (isPublisher)
-                desc = guiContext.cfg.gs("JobsUI.any.publisher");
+                desc = context.cfg.gs("JobsUI.any.publisher");
             else
-                desc = guiContext.cfg.gs("JobsUI.any.subscriber");
+                desc = context.cfg.gs("JobsUI.any.subscriber");
         }
         else
         {
@@ -1352,16 +1352,16 @@ public class JobsUI extends JDialog
             if (meta != null)
             {
                 if (isRemote)
-                    desc = guiContext.cfg.gs("Z.remote.uppercase");
+                    desc = context.cfg.gs("Z.remote.uppercase");
                 else
                 {
                     if (!isPublisher)
-                        desc = guiContext.cfg.gs("Z.local.uppercase");
+                        desc = context.cfg.gs("Z.local.uppercase");
                 }
-                desc += (isPublisher ? guiContext.cfg.gs("Z.publisher") : guiContext.cfg.gs("Z.subscriber")) + ": " + meta.description;
+                desc += (isPublisher ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) + ": " + meta.description;
             }
             else
-                desc = guiContext.cfg.gs("Z.cannot.find") + key;
+                desc = context.cfg.gs("Z.cannot.find") + key;
         }
         return desc;
     }
@@ -1397,13 +1397,13 @@ public class JobsUI extends JDialog
             {
                 String toolTip = "";
                 if (!task.isDual())
-                    toolTip = guiContext.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
+                    toolTip = context.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
                 else
                 {
                     if (row == 0)
-                        toolTip = guiContext.cfg.gs("JobsUI.select.publisher.tooltip");
+                        toolTip = context.cfg.gs("JobsUI.select.publisher.tooltip");
                     else
-                        toolTip = guiContext.cfg.gs("JobsUI.select.subscriber.tooltip");
+                        toolTip = context.cfg.gs("JobsUI.select.subscriber.tooltip");
                 }
                 return toolTip;
             }
@@ -1423,11 +1423,11 @@ public class JobsUI extends JDialog
             labelHelp.setEnabled(true);
             labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-            worker = job.process(guiContext, this, this.getTitle(), job, isDryRun);
+            worker = job.process(context, this, this.getTitle(), job, isDryRun);
             if (worker != null)
             {
                 workerRunning = true;
-                guiContext.navigator.disableGui(true);
+                context.navigator.disableGui(true);
                 worker.addPropertyChangeListener(new PropertyChangeListener()
                 {
                     @Override
@@ -1449,23 +1449,23 @@ public class JobsUI extends JDialog
 
     private void processTerminated(Job job)
     {
-        if (guiContext.progress != null)
-            guiContext.progress.done();
+        if (context.progress != null)
+            context.progress.done();
 
-        guiContext.navigator.disableGui(false);
+        context.navigator.disableGui(false);
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
 
         if (job.isRequestStop())
         {
-            logger.info(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
-            guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(job.getConfigName() + context.cfg.gs("Z.cancelled"));
+            context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
         else
         {
-            logger.info(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
-            guiContext.mainFrame.labelStatusMiddle.setText(job.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
+            context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }
 
@@ -1503,33 +1503,33 @@ public class JobsUI extends JDialog
             }
 
             if (changed)
-                guiContext.navigator.loadJobsMenu();
+                context.navigator.loadJobsMenu();
         }
         catch (Exception e)
         {
             String name = (job != null) ? job.getConfigName() + " " : " ";
             logger.error(Utils.getStackTrace(e));
             JOptionPane.showMessageDialog(this,
-                    guiContext.cfg.gs("Z.error.writing") + name + e.getMessage(),
-                    guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                    context.cfg.gs("Z.error.writing") + name + e.getMessage(),
+                    context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
         }
         return true;
     }
 
     private void savePreferences()
     {
-        guiContext.preferences.setJobsHeight(this.getHeight());
-        guiContext.preferences.setJobsWidth(this.getWidth());
+        context.preferences.setJobsHeight(this.getHeight());
+        context.preferences.setJobsWidth(this.getWidth());
         Point location = this.getLocation();
-        guiContext.preferences.setJobsXpos(location.x);
-        guiContext.preferences.setJobsYpos(location.y);
-        guiContext.preferences.setJobsTaskDividerLocation(splitPaneContent.getDividerLocation());
-        guiContext.preferences.setJobsOriginDividerLocation(splitPaneToolsOrigin.getDividerLocation());
+        context.preferences.setJobsXpos(location.x);
+        context.preferences.setJobsYpos(location.y);
+        context.preferences.setJobsTaskDividerLocation(splitPaneContent.getDividerLocation());
+        context.preferences.setJobsOriginDividerLocation(splitPaneToolsOrigin.getDividerLocation());
     }
 
     public void setComponentEnabled(boolean enabled)
     {
-        guiContext.navigator.setComponentEnabled(enabled, getContentPane());
+        context.navigator.setComponentEnabled(enabled, getContentPane());
     }
 
     private boolean validateJob(Job job, boolean onlyFound) throws Exception
@@ -1538,7 +1538,7 @@ public class JobsUI extends JDialog
         boolean sense = true;
 
         // reload tools from disk if they've changed while Jobs were shown
-        toolList = toolsHandler.loadAllTools(guiContext, null);
+        toolList = toolsHandler.loadAllTools(context, null);
 
         for (int i = 0; i < job.getTasks().size(); ++i)
         {
@@ -1557,8 +1557,8 @@ public class JobsUI extends JDialog
                                 if (!cachedFound)
                                 {
                                     sense = false;
-                                    JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.task.has.no.origins") +
-                                            job.getConfigName() + ", " + task.getConfigName(), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                                    JOptionPane.showMessageDialog(this, context.cfg.gs("JobsUI.task.has.no.origins") +
+                                            job.getConfigName() + ", " + task.getConfigName(), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                                 }
                             }
                         }
@@ -1569,8 +1569,8 @@ public class JobsUI extends JDialog
                 else
                 {
                     sense = false;
-                    JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JobsUI.tool.not.found") +
-                            job.getConfigName() + ", " + task.getConfigName(), guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, context.cfg.gs("JobsUI.tool.not.found") +
+                            job.getConfigName() + ", " + task.getConfigName(), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
             }
             else
@@ -1599,7 +1599,7 @@ public class JobsUI extends JDialog
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException(guiContext.cfg.gs("Z.error.writing") + getFullPath(job) + ": " + Utils.getStackTrace(fnf));
+            throw new MungeException(context.cfg.gs("Z.error.writing") + getFullPath(job) + ": " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -1686,7 +1686,7 @@ public class JobsUI extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
-        setTitle(guiContext.cfg.gs("JobsUI.title"));
+        setTitle(context.cfg.gs("JobsUI.title"));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
             @Override
@@ -1719,23 +1719,23 @@ public class JobsUI extends JDialog
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                         //---- buttonNew ----
-                        buttonNew.setText(guiContext.cfg.gs("JobsUI.buttonNew.text"));
-                        buttonNew.setMnemonic(guiContext.cfg.gs("JobsUI.buttonNew.mnemonic").charAt(0));
-                        buttonNew.setToolTipText(guiContext.cfg.gs("JobsUI.buttonNew.toolTipText"));
+                        buttonNew.setText(context.cfg.gs("JobsUI.buttonNew.text"));
+                        buttonNew.setMnemonic(context.cfg.gs("JobsUI.buttonNew.mnemonic").charAt(0));
+                        buttonNew.setToolTipText(context.cfg.gs("JobsUI.buttonNew.toolTipText"));
                         buttonNew.addActionListener(e -> actionNewClicked(e));
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
-                        buttonCopy.setText(guiContext.cfg.gs("JobsUI.buttonCopy.text"));
-                        buttonCopy.setMnemonic(guiContext.cfg.gs("JobsUI.buttonCopy.mnemonic").charAt(0));
-                        buttonCopy.setToolTipText(guiContext.cfg.gs("JobsUI.buttonCopy.toolTipText"));
+                        buttonCopy.setText(context.cfg.gs("JobsUI.buttonCopy.text"));
+                        buttonCopy.setMnemonic(context.cfg.gs("JobsUI.buttonCopy.mnemonic").charAt(0));
+                        buttonCopy.setToolTipText(context.cfg.gs("JobsUI.buttonCopy.toolTipText"));
                         buttonCopy.addActionListener(e -> actionCopyClicked(e));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText(guiContext.cfg.gs("JobsUI.buttonDelete.text"));
-                        buttonDelete.setMnemonic(guiContext.cfg.gs("JobsUI.buttonDelete.mnemonic").charAt(0));
-                        buttonDelete.setToolTipText(guiContext.cfg.gs("JobsUI.buttonDelete.toolTipText"));
+                        buttonDelete.setText(context.cfg.gs("JobsUI.buttonDelete.text"));
+                        buttonDelete.setMnemonic(context.cfg.gs("JobsUI.buttonDelete.mnemonic").charAt(0));
+                        buttonDelete.setToolTipText(context.cfg.gs("JobsUI.buttonDelete.toolTipText"));
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
 
@@ -1745,9 +1745,9 @@ public class JobsUI extends JDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonRun ----
-                        buttonRun.setText(guiContext.cfg.gs("JobsUI.buttonRun.text"));
-                        buttonRun.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRun.mnemonic").charAt(0));
-                        buttonRun.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRun.toolTipText"));
+                        buttonRun.setText(context.cfg.gs("JobsUI.buttonRun.text"));
+                        buttonRun.setMnemonic(context.cfg.gs("JobsUI.buttonRun.mnemonic").charAt(0));
+                        buttonRun.setToolTipText(context.cfg.gs("JobsUI.buttonRun.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
                         panelTopButtons.add(buttonRun);
 
@@ -1757,9 +1757,9 @@ public class JobsUI extends JDialog
                         panelTopButtons.add(hSpacerBeforeGenerate);
 
                         //---- buttonGenerate ----
-                        buttonGenerate.setText(guiContext.cfg.gs("JobsUI.buttonGenerate.text"));
-                        buttonGenerate.setMnemonic(guiContext.cfg.gs("JobsUI.buttonGenerate.mnemonic_2").charAt(0));
-                        buttonGenerate.setToolTipText(guiContext.cfg.gs("JobsUI.buttonGenerate.toolTipText"));
+                        buttonGenerate.setText(context.cfg.gs("JobsUI.buttonGenerate.text"));
+                        buttonGenerate.setMnemonic(context.cfg.gs("JobsUI.buttonGenerate.mnemonic_2").charAt(0));
+                        buttonGenerate.setToolTipText(context.cfg.gs("JobsUI.buttonGenerate.toolTipText"));
                         buttonGenerate.addActionListener(e -> actionGenerateClicked(e));
                         panelTopButtons.add(buttonGenerate);
                     }
@@ -1776,7 +1776,7 @@ public class JobsUI extends JDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(guiContext.cfg.gs("JobsUI.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("JobsUI.labelHelp.toolTipText"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {
@@ -1833,7 +1833,7 @@ public class JobsUI extends JDialog
                                 ((GridBagLayout)panelTasks.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                                 //---- labelTasks ----
-                                labelTasks.setText(guiContext.cfg.gs("JobsUI.labelTasks.text"));
+                                labelTasks.setText(context.cfg.gs("JobsUI.labelTasks.text"));
                                 labelTasks.setHorizontalAlignment(SwingConstants.LEFT);
                                 labelTasks.setHorizontalTextPosition(SwingConstants.LEFT);
                                 labelTasks.setFont(labelTasks.getFont().deriveFont(labelTasks.getFont().getStyle() | Font.BOLD, labelTasks.getFont().getSize() + 1f));
@@ -1884,7 +1884,7 @@ public class JobsUI extends JDialog
                                     new Insets(0, 4, 0, 0), 0, 0));
 
                                 //---- labelOrigins ----
-                                labelOrigins.setText(guiContext.cfg.gs("JobsUI.labelOrigins.text"));
+                                labelOrigins.setText(context.cfg.gs("JobsUI.labelOrigins.text"));
                                 labelOrigins.setFont(labelOrigins.getFont().deriveFont(labelOrigins.getFont().getStyle() | Font.BOLD, labelOrigins.getFont().getSize() + 1f));
                                 labelOrigins.setHorizontalAlignment(SwingConstants.LEFT);
                                 labelOrigins.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -1970,13 +1970,13 @@ public class JobsUI extends JDialog
                                         panelOriginsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                                         //---- buttonAddOrigin ----
-                                        buttonAddOrigin.setText(guiContext.cfg.gs("JobsUI.buttonAddOrigin.text"));
+                                        buttonAddOrigin.setText(context.cfg.gs("JobsUI.buttonAddOrigin.text"));
                                         buttonAddOrigin.setFont(buttonAddOrigin.getFont().deriveFont(buttonAddOrigin.getFont().getSize() - 2f));
                                         buttonAddOrigin.setPreferredSize(new Dimension(78, 24));
                                         buttonAddOrigin.setMinimumSize(new Dimension(78, 24));
                                         buttonAddOrigin.setMaximumSize(new Dimension(78, 24));
-                                        buttonAddOrigin.setMnemonic(guiContext.cfg.gs("JobsUI.buttonAddOrigin.mnemonic").charAt(0));
-                                        buttonAddOrigin.setToolTipText(guiContext.cfg.gs("JobsUI.buttonAddOrigin.toolTipText"));
+                                        buttonAddOrigin.setMnemonic(context.cfg.gs("JobsUI.buttonAddOrigin.mnemonic").charAt(0));
+                                        buttonAddOrigin.setToolTipText(context.cfg.gs("JobsUI.buttonAddOrigin.toolTipText"));
                                         buttonAddOrigin.addActionListener(e -> actionOriginAddClicked(e));
                                         panelOriginsButtons.add(buttonAddOrigin);
 
@@ -1986,7 +1986,7 @@ public class JobsUI extends JDialog
                                         buttonOriginUp.setMinimumSize(new Dimension(24, 24));
                                         buttonOriginUp.setPreferredSize(new Dimension(24, 24));
                                         buttonOriginUp.setFont(buttonOriginUp.getFont().deriveFont(buttonOriginUp.getFont().getSize() - 2f));
-                                        buttonOriginUp.setToolTipText(guiContext.cfg.gs("JobsUI.buttonOriginUp.toolTipText"));
+                                        buttonOriginUp.setToolTipText(context.cfg.gs("JobsUI.buttonOriginUp.toolTipText"));
                                         buttonOriginUp.addActionListener(e -> actionOriginUpClicked(e));
                                         panelOriginsButtons.add(buttonOriginUp);
 
@@ -1996,18 +1996,18 @@ public class JobsUI extends JDialog
                                         buttonOriginDown.setMaximumSize(new Dimension(24, 24));
                                         buttonOriginDown.setMinimumSize(new Dimension(24, 24));
                                         buttonOriginDown.setPreferredSize(new Dimension(24, 24));
-                                        buttonOriginDown.setToolTipText(guiContext.cfg.gs("JobsUI.buttonOriginDown.toolTipText"));
+                                        buttonOriginDown.setToolTipText(context.cfg.gs("JobsUI.buttonOriginDown.toolTipText"));
                                         buttonOriginDown.addActionListener(e -> actionOriginDownClicked(e));
                                         panelOriginsButtons.add(buttonOriginDown);
 
                                         //---- buttonRemoveOrigin ----
-                                        buttonRemoveOrigin.setText(guiContext.cfg.gs("JobsUI.buttonRemoveOrigin.text"));
+                                        buttonRemoveOrigin.setText(context.cfg.gs("JobsUI.buttonRemoveOrigin.text"));
                                         buttonRemoveOrigin.setFont(buttonRemoveOrigin.getFont().deriveFont(buttonRemoveOrigin.getFont().getSize() - 2f));
                                         buttonRemoveOrigin.setPreferredSize(new Dimension(78, 24));
                                         buttonRemoveOrigin.setMinimumSize(new Dimension(78, 24));
                                         buttonRemoveOrigin.setMaximumSize(new Dimension(78, 24));
-                                        buttonRemoveOrigin.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRemoveOrigin.mnemonic_2").charAt(0));
-                                        buttonRemoveOrigin.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRemoveOrigin.toolTipText"));
+                                        buttonRemoveOrigin.setMnemonic(context.cfg.gs("JobsUI.buttonRemoveOrigin.mnemonic_2").charAt(0));
+                                        buttonRemoveOrigin.setToolTipText(context.cfg.gs("JobsUI.buttonRemoveOrigin.toolTipText"));
                                         buttonRemoveOrigin.addActionListener(e -> actionOriginRemoveClicked(e));
                                         panelOriginsButtons.add(buttonRemoveOrigin);
                                     }
@@ -2026,13 +2026,13 @@ public class JobsUI extends JDialog
                             panelToolButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                             //---- buttonAddTask ----
-                            buttonAddTask.setText(guiContext.cfg.gs("JobsUI.buttonAddTask.text"));
+                            buttonAddTask.setText(context.cfg.gs("JobsUI.buttonAddTask.text"));
                             buttonAddTask.setFont(buttonAddTask.getFont().deriveFont(buttonAddTask.getFont().getSize() - 2f));
                             buttonAddTask.setPreferredSize(new Dimension(78, 24));
                             buttonAddTask.setMinimumSize(new Dimension(78, 24));
                             buttonAddTask.setMaximumSize(new Dimension(78, 24));
-                            buttonAddTask.setMnemonic(guiContext.cfg.gs("JobsUI.buttonAddTask.mnemonic").charAt(0));
-                            buttonAddTask.setToolTipText(guiContext.cfg.gs("JobsUI.buttonAddTask.toolTipText"));
+                            buttonAddTask.setMnemonic(context.cfg.gs("JobsUI.buttonAddTask.mnemonic").charAt(0));
+                            buttonAddTask.setToolTipText(context.cfg.gs("JobsUI.buttonAddTask.toolTipText"));
                             buttonAddTask.addActionListener(e -> actionTaskAddClicked(e));
                             panelToolButtons.add(buttonAddTask);
 
@@ -2042,7 +2042,7 @@ public class JobsUI extends JDialog
                             buttonTaskUp.setMinimumSize(new Dimension(24, 24));
                             buttonTaskUp.setPreferredSize(new Dimension(24, 24));
                             buttonTaskUp.setFont(buttonTaskUp.getFont().deriveFont(buttonTaskUp.getFont().getSize() - 2f));
-                            buttonTaskUp.setToolTipText(guiContext.cfg.gs("JobsUI.buttonTaskUp.toolTipText"));
+                            buttonTaskUp.setToolTipText(context.cfg.gs("JobsUI.buttonTaskUp.toolTipText"));
                             buttonTaskUp.addActionListener(e -> actionTaskUpClicked(e));
                             panelToolButtons.add(buttonTaskUp);
 
@@ -2052,18 +2052,18 @@ public class JobsUI extends JDialog
                             buttonTaskDown.setMaximumSize(new Dimension(24, 24));
                             buttonTaskDown.setMinimumSize(new Dimension(24, 24));
                             buttonTaskDown.setPreferredSize(new Dimension(24, 24));
-                            buttonTaskDown.setToolTipText(guiContext.cfg.gs("JobsUI.buttonTaskDown.toolTipText"));
+                            buttonTaskDown.setToolTipText(context.cfg.gs("JobsUI.buttonTaskDown.toolTipText"));
                             buttonTaskDown.addActionListener(e -> actionTaskDownClicked(e));
                             panelToolButtons.add(buttonTaskDown);
 
                             //---- buttonRemoveTask ----
-                            buttonRemoveTask.setText(guiContext.cfg.gs("JobsUI.buttonRemoveTask.text"));
+                            buttonRemoveTask.setText(context.cfg.gs("JobsUI.buttonRemoveTask.text"));
                             buttonRemoveTask.setFont(buttonRemoveTask.getFont().deriveFont(buttonRemoveTask.getFont().getSize() - 2f));
                             buttonRemoveTask.setPreferredSize(new Dimension(78, 24));
                             buttonRemoveTask.setMinimumSize(new Dimension(78, 24));
                             buttonRemoveTask.setMaximumSize(new Dimension(78, 24));
-                            buttonRemoveTask.setMnemonic(guiContext.cfg.gs("JobsUI.buttonRemoveTask.mnemonic").charAt(0));
-                            buttonRemoveTask.setToolTipText(guiContext.cfg.gs("JobsUI.buttonRemoveTask.toolTipText"));
+                            buttonRemoveTask.setMnemonic(context.cfg.gs("JobsUI.buttonRemoveTask.mnemonic").charAt(0));
+                            buttonRemoveTask.setToolTipText(context.cfg.gs("JobsUI.buttonRemoveTask.toolTipText"));
                             buttonRemoveTask.addActionListener(e -> actionTaskRemoveClicked(e));
                             panelToolButtons.add(buttonRemoveTask);
                         }
@@ -2083,17 +2083,17 @@ public class JobsUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- saveButton ----
-                saveButton.setText(guiContext.cfg.gs("Z.save"));
-                saveButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
-                saveButton.setActionCommand(guiContext.cfg.gs("Z.save"));
+                saveButton.setText(context.cfg.gs("Z.save"));
+                saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                saveButton.setActionCommand(context.cfg.gs("Z.save"));
                 saveButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
-                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setText(context.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

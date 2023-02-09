@@ -1,6 +1,6 @@
 package com.groksoft.els.gui.tools.junkRemover;
 
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 
 import javax.swing.*;
@@ -8,13 +8,13 @@ import javax.swing.table.DefaultTableModel;
 
 public class JunkTableModel extends DefaultTableModel
 {
-    private Configuration cfg;
+    private Context context;
     private JunkRemoverTool tool;
 
-    public JunkTableModel(Configuration config)
+    public JunkTableModel(Context context)
     {
         super();
-        cfg = config;
+        this.context = context;
     }
 
     public int find(String pattern)
@@ -53,11 +53,11 @@ public class JunkTableModel extends DefaultTableModel
         switch (column)
         {
             case 0:
-                return cfg.gs("JunkRemover.junk.pattern");
+                return context.cfg.gs("JunkRemover.junk.pattern");
             case 1:
-                return cfg.gs("JunkRemover.case");
+                return context.cfg.gs("JunkRemover.case");
         }
-        return cfg.gs("NavTreeNode.unknown");
+        return context.cfg.gs("NavTreeNode.unknown");
     }
 
     @Override

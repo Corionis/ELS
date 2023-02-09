@@ -1,6 +1,8 @@
 package com.groksoft.els.gui;
 
 import java.awt.event.*;
+
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,13 +23,13 @@ import javax.swing.border.*;
 public class NavHelp extends JDialog
 {
     private transient Logger logger = LogManager.getLogger("applog");
-    GuiContext guiContext;
+    Context context;
     Component previous;
 
-    public NavHelp(Window owner, Component prev, GuiContext ctxt, String title, String resourceFilename) {
+    public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename) {
         super(owner);
         previous = prev;
-        guiContext = ctxt;
+        this.context = context;
 
         initComponents();
         this.setTitle(title);
@@ -98,7 +100,7 @@ public class NavHelp extends JDialog
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(this.getOwner(), guiContext.cfg.gs("NavHelp.error.opening.help.file") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getOwner(), context.cfg.gs("NavHelp.error.opening.help.file") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -132,8 +134,8 @@ public class NavHelp extends JDialog
         okButton = new JButton();
 
         //======== this ========
-        setName(guiContext.cfg.gs("NavHelp.name"));
-        setTitle(guiContext.cfg.gs("NavHelp.title"));
+        setName(context.cfg.gs("NavHelp.name"));
+        setTitle(context.cfg.gs("NavHelp.title"));
         setMinimumSize(new Dimension(100, 50));
         addWindowListener(new WindowAdapter() {
             @Override
@@ -182,8 +184,8 @@ public class NavHelp extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.ok"));
-                okButton.setActionCommand(guiContext.cfg.gs("Z.ok"));
+                okButton.setText(context.cfg.gs("Z.ok"));
+                okButton.setActionCommand(context.cfg.gs("Z.ok"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

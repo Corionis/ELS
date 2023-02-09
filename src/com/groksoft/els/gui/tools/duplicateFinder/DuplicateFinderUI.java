@@ -1,7 +1,7 @@
 package com.groksoft.els.gui.tools.duplicateFinder;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.repository.Item;
@@ -23,7 +23,7 @@ import javax.swing.table.TableColumn;
 public class DuplicateFinderUI extends JDialog
 {
     private ArrayList<Dupe> dupes;
-    private GuiContext guiContext;
+    private Context context;
     private boolean isPublisher = false;
     private NavHelp helpDialog;
     private Logger logger = LogManager.getLogger("applog");
@@ -36,10 +36,10 @@ public class DuplicateFinderUI extends JDialog
         // hide default constructor
     }
 
-    public DuplicateFinderUI(Window owner, GuiContext guiContext)
+    public DuplicateFinderUI(Window owner, Context context)
     {
         super(owner);
-        this.guiContext = guiContext;
+        this.context = context;
         
         initComponents();
 
@@ -51,10 +51,10 @@ public class DuplicateFinderUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (guiContext.preferences.getToolsDuplicateFinderXpos() > 0)
+        if (context.preferences.getToolsDuplicateFinderXpos() > 0)
         {
-            this.setLocation(guiContext.preferences.getToolsDuplicateFinderXpos(), guiContext.preferences.getToolsDuplicateFinderYpos());
-            Dimension dim = new Dimension(guiContext.preferences.getToolsDuplicateFinderWidth(), guiContext.preferences.getToolsDuplicateFinderHeight());
+            this.setLocation(context.preferences.getToolsDuplicateFinderXpos(), context.preferences.getToolsDuplicateFinderYpos());
+            Dimension dim = new Dimension(context.preferences.getToolsDuplicateFinderWidth(), context.preferences.getToolsDuplicateFinderHeight());
             this.setSize(dim);
         }
         else
@@ -85,12 +85,12 @@ public class DuplicateFinderUI extends JDialog
     {
         if (workerRunning)
         {
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.stop.run.after.scan"),
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.stop.run.after.scan"),
                     "Z.cancel.run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 requestStop = true;
-                logger.info(guiContext.cfg.gs("Z.run.cancelled"));
+                logger.info(context.cfg.gs("Z.run.cancelled"));
             }
             else
                 return;
@@ -113,7 +113,7 @@ public class DuplicateFinderUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, guiContext, guiContext.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + guiContext.preferences.getLocale() + ".html");
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.isVisible())
         {
@@ -135,7 +135,7 @@ public class DuplicateFinderUI extends JDialog
         String name = "";
 
         // publisher or subscriber?
-        Object object = guiContext.browser.lastComponent;
+        Object object = context.browser.lastComponent;
         if (object instanceof JTree)
         {
             JTree sourceTree = (JTree) object;
@@ -149,8 +149,8 @@ public class DuplicateFinderUI extends JDialog
         // do not allow system origin
         if (name.toLowerCase().contains("system"))
         {
-            Object[] opts = { guiContext.cfg.gs("Z.ok") };
-            JOptionPane.showOptionDialog(this, guiContext.cfg.gs("DuplicateFinder.please.select.a.collection.for.run"),
+            Object[] opts = { context.cfg.gs("Z.ok") };
+            JOptionPane.showOptionDialog(this, context.cfg.gs("DuplicateFinder.please.select.a.collection.for.run"),
                     this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                     null, opts, opts[0]);
             return;
@@ -160,16 +160,16 @@ public class DuplicateFinderUI extends JDialog
         if (name.toLowerCase().endsWith("one"))
         {
             isPublisher = true;
-            which = guiContext.cfg.gs("Z.publisher");
+            which = context.cfg.gs("Z.publisher");
         }
         else
         {
             isPublisher = false;
-            which = guiContext.cfg.gs("Z.subscriber");
+            which = context.cfg.gs("Z.subscriber");
         }
 
         // prompt and process
-        int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(guiContext.cfg.gs("DuplicateFinder.run.tool.on.collection"), which), this.getTitle(), JOptionPane.YES_NO_OPTION);
+        int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(context.cfg.gs("DuplicateFinder.run.tool.on.collection"), which), this.getTitle(), JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION)
         {
             process();
@@ -186,7 +186,7 @@ public class DuplicateFinderUI extends JDialog
         tableDupes.setRowHeight(24);
 
         dupes = new ArrayList<Dupe>();
-        tableDupes.setModel(new DupesTableModel(guiContext.cfg, dupes));
+        tableDupes.setModel(new DupesTableModel(context, dupes));
 
         // path
         TableColumn column = tableDupes.getColumnModel().getColumn(0);
@@ -220,7 +220,7 @@ public class DuplicateFinderUI extends JDialog
 
         // goto
         column = tableDupes.getColumnModel().getColumn(3);
-        ActionsCell actionsCell = new ActionsCell(guiContext, this);
+        ActionsCell actionsCell = new ActionsCell(context, this);
         column.setMinWidth(68);
         column.setMaxWidth(68);
         column.setWidth(68);
@@ -242,8 +242,8 @@ public class DuplicateFinderUI extends JDialog
                 if (selected > 0)
                 {
                     Dupe dupe = (Dupe) tableDupes.getValueAt(selected, 3);
-                    Bookmark bm = guiContext.browser.bookmarkCreate(dupe.item, "goto-dupe", isPublisher);
-                    guiContext.browser.bookmarkGoto(bm);
+                    Bookmark bm = context.browser.bookmarkCreate(dupe.item, "goto-dupe", isPublisher);
+                    context.browser.bookmarkGoto(bm);
                 }
             }
         }
@@ -253,7 +253,7 @@ public class DuplicateFinderUI extends JDialog
     {
         try
         {
-            final Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+            final Repository repo = (isPublisher) ? context.publisherRepo : context.subscriberRepo;
             if (repo != null)
             {
                 checkBoxCrossLibrary.setEnabled(false);
@@ -263,10 +263,10 @@ public class DuplicateFinderUI extends JDialog
                 dtm.setDupes(dupes);
                 dtm.fireTableDataChanged();
 
-                logger.info(guiContext.cfg.gs("DuplicateFinder.running"));
+                logger.info(context.cfg.gs("DuplicateFinder.running"));
                 setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-                guiContext.cfg.setCrossCheck(checkBoxCrossLibrary.isSelected());
+                context.cfg.setCrossCheck(checkBoxCrossLibrary.isSelected());
 
                 SwingWorker<Void, Void> worker = new SwingWorker<Void, Void >()
                 {
@@ -282,49 +282,49 @@ public class DuplicateFinderUI extends JDialog
                         // get content
                         if (isPublisher)
                         {
-                            labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
+                            labelStatus.setText(context.cfg.gs("Z.scanning"));
                             repo.scan();
                         }
                         else
                         {
-                            if (guiContext.cfg.isRemoteSession())
+                            if (context.cfg.isRemoteSession())
                             {
-                                if (!guiContext.context.clientStty.isConnected())
+                                if (!context.clientStty.isConnected())
                                 {
-                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
-                                    JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Browser.connection.lost"),
+                                    Object[] opts = { context.cfg.gs("Z.ok") };
+                                    JOptionPane.showOptionDialog(thisDialog, context.cfg.gs("Browser.connection.lost"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
                                 }
 
-                                if (guiContext.context.transfer != null)
+                                if (context.transfer != null)
                                 {
-                                    labelStatus.setText(guiContext.cfg.gs("Z.requesting.collection.data.from.remote"));
-                                    guiContext.context.transfer.requestCollection();
+                                    labelStatus.setText(context.cfg.gs("Z.requesting.collection.data.from.remote"));
+                                    context.transfer.requestCollection();
                                 }
                                 else
                                 {
-                                    Object[] opts = { guiContext.cfg.gs("Z.ok") };
-                                    JOptionPane.showOptionDialog(thisDialog, guiContext.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
+                                    Object[] opts = { context.cfg.gs("Z.ok") };
+                                    JOptionPane.showOptionDialog(thisDialog, context.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"),
                                             thisDialog.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                                             null, opts, opts[0]);
                                 }
                             }
                             else
                             {
-                                labelStatus.setText(guiContext.cfg.gs("Z.scanning"));
+                                labelStatus.setText(context.cfg.gs("Z.scanning"));
                                 repo.scan();
                             }
 
                         }
-                        final Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+                        final Repository repo = (isPublisher) ? context.publisherRepo : context.subscriberRepo;
 
                         // analyze the collection items
                         for (Library lib : repo.getLibraryData().libraries.bibliography)
                         {
                             if (requestStop)
                                 break;
-                            String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
+                            String msg = context.cfg.gs("DuplicateFinder.analyzing.library") + "'" + lib.name + "'";
                             labelStatus.setText(msg);
                             logger.info(msg);
                             for (Item item : lib.items)
@@ -343,7 +343,7 @@ public class DuplicateFinderUI extends JDialog
                         {
                             if (requestStop)
                                 break;
-                            String msg = guiContext.cfg.gs("DuplicateFinder.analyzing.library") + "'" + pubLib.name + "'";
+                            String msg = context.cfg.gs("DuplicateFinder.analyzing.library") + "'" + pubLib.name + "'";
                             labelStatus.setText(msg);
                             for (Item item : pubLib.items)
                             {
@@ -354,7 +354,7 @@ public class DuplicateFinderUI extends JDialog
                             }
                         }
 
-                        labelStatus.setText("  " + java.text.MessageFormat.format(guiContext.cfg.gs("DuplicateFinder.duplicates.items.directories"),
+                        labelStatus.setText("  " + java.text.MessageFormat.format(context.cfg.gs("DuplicateFinder.duplicates.items.directories"),
                                 duplicates, totalItems, totalDirectories));
 
                         return null;
@@ -388,8 +388,8 @@ public class DuplicateFinderUI extends JDialog
             }
             else
             {
-                Object[] opts = { guiContext.cfg.gs("Z.ok") };
-                JOptionPane.showOptionDialog(this, guiContext.cfg.gs("DuplicateFinder.collection.not.loaded"),
+                Object[] opts = { context.cfg.gs("Z.ok") };
+                JOptionPane.showOptionDialog(this, context.cfg.gs("DuplicateFinder.collection.not.loaded"),
                         this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.WARNING_MESSAGE,
                         null, opts, opts[0]);
             }
@@ -397,7 +397,7 @@ public class DuplicateFinderUI extends JDialog
         catch (Exception ex)
         {
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
             logger.error(msg);
             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
         }
@@ -427,11 +427,11 @@ public class DuplicateFinderUI extends JDialog
 
     private void savePreferences()
     {
-        guiContext.preferences.setToolsDuplicateFinderHeight(this.getHeight());
-        guiContext.preferences.setToolsDuplicateFinderWidth(this.getWidth());
+        context.preferences.setToolsDuplicateFinderHeight(this.getHeight());
+        context.preferences.setToolsDuplicateFinderWidth(this.getWidth());
         Point location = this.getLocation();
-        guiContext.preferences.setToolsDuplicateFinderXpos(location.x);
-        guiContext.preferences.setToolsDuplicateFinderYpos(location.y);
+        context.preferences.setToolsDuplicateFinderXpos(location.x);
+        context.preferences.setToolsDuplicateFinderYpos(location.y);
     }
 
     private void windowClosing(WindowEvent e)
@@ -462,7 +462,7 @@ public class DuplicateFinderUI extends JDialog
 
         //======== this ========
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle(guiContext.cfg.gs("DuplicateFinder.this.title"));
+        setTitle(context.cfg.gs("DuplicateFinder.this.title"));
         setName("dialogDuplicateFinderUI");
         setMinimumSize(new Dimension(150, 126));
         addWindowListener(new WindowAdapter() {
@@ -496,10 +496,10 @@ public class DuplicateFinderUI extends JDialog
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                         //---- checkBoxCrossLibrary ----
-                        checkBoxCrossLibrary.setText(guiContext.cfg.gs("DuplicateFinder.checkBoxCrossLibrary.text"));
+                        checkBoxCrossLibrary.setText(context.cfg.gs("DuplicateFinder.checkBoxCrossLibrary.text"));
                         checkBoxCrossLibrary.setActionCommand("crossLibraryChanged");
-                        checkBoxCrossLibrary.setToolTipText(guiContext.cfg.gs("DuplicateFinder.checkBoxCrossLibrary.toolTipText"));
-                        checkBoxCrossLibrary.setMnemonic(guiContext.cfg.gs("DuplicateFinder.checkBoxCrossLibrary.mnemonic").charAt(0));
+                        checkBoxCrossLibrary.setToolTipText(context.cfg.gs("DuplicateFinder.checkBoxCrossLibrary.toolTipText"));
+                        checkBoxCrossLibrary.setMnemonic(context.cfg.gs("DuplicateFinder.checkBoxCrossLibrary.mnemonic").charAt(0));
                         checkBoxCrossLibrary.addActionListener(e -> actionCrossLibraryClicked(e));
                         panelTopButtons.add(checkBoxCrossLibrary);
 
@@ -509,9 +509,9 @@ public class DuplicateFinderUI extends JDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonRun ----
-                        buttonRun.setText(guiContext.cfg.gs("DuplicateFinder.buttonRun.text"));
-                        buttonRun.setMnemonic(guiContext.cfg.gs("DuplicateFinder.buttonRun.mnemonic").charAt(0));
-                        buttonRun.setToolTipText(guiContext.cfg.gs("DuplicateFinder.buttonRun.toolTipText"));
+                        buttonRun.setText(context.cfg.gs("DuplicateFinder.buttonRun.text"));
+                        buttonRun.setMnemonic(context.cfg.gs("DuplicateFinder.buttonRun.mnemonic").charAt(0));
+                        buttonRun.setToolTipText(context.cfg.gs("DuplicateFinder.buttonRun.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
                         panelTopButtons.add(buttonRun);
                     }
@@ -528,7 +528,7 @@ public class DuplicateFinderUI extends JDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(guiContext.cfg.gs("DuplicateFinder.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("DuplicateFinder.labelHelp.toolTipText"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {
@@ -566,8 +566,8 @@ public class DuplicateFinderUI extends JDialog
                         ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                         //---- closeButton ----
-                        closeButton.setText(guiContext.cfg.gs("Z.done"));
-                        closeButton.setToolTipText(guiContext.cfg.gs("Z.done.toolTipText"));
+                        closeButton.setText(context.cfg.gs("Z.done"));
+                        closeButton.setToolTipText(context.cfg.gs("Z.done.toolTipText"));
                         closeButton.addActionListener(e -> actionCloseClicked(e));
                         buttonBar.add(closeButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,

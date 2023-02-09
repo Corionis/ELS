@@ -1,6 +1,6 @@
 package com.groksoft.els.gui.tools.emptyDirectoryFinder;
 
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -8,13 +8,13 @@ import java.util.ArrayList;
 
 public class EmptiesTableModel extends DefaultTableModel
 {
-    private Configuration cfg;
+    private Context context;
     private ArrayList<EmptyDirectoryFinderUI.Empty> empties;
 
-    public EmptiesTableModel(Configuration cfg, ArrayList<EmptyDirectoryFinderUI.Empty> empties)
+    public EmptiesTableModel(Context context, ArrayList<EmptyDirectoryFinderUI.Empty> empties)
     {
         super();
-        this.cfg = cfg;
+        this.context = context;
         this.empties = empties;
     }
 
@@ -45,9 +45,9 @@ public class EmptiesTableModel extends DefaultTableModel
             case 0:
                 return "";
             case 1:
-                return cfg.gs("EmptyDirectoryFinder.directories");
+                return context.cfg.gs("EmptyDirectoryFinder.directories");
         }
-        return cfg.gs("NavTreeNode.unknown");
+        return context.cfg.gs("NavTreeNode.unknown");
     }
 
     @Override

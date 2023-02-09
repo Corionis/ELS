@@ -6,18 +6,11 @@ import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
-import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.AbstractConfiguration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
@@ -30,7 +23,6 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class Job extends AbstractTool implements Comparable, Serializable
 {
@@ -39,7 +31,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
     private String configName; // user name for this instance
     private ArrayList<Task> tasks;
 
-    transient Configuration cfg;
     transient Context context;
     transient Task currentTask = null;
     transient private boolean dataHasChanged = false;
@@ -49,10 +40,9 @@ public class Job extends AbstractTool implements Comparable, Serializable
     transient private final boolean realOnly = false;
     transient private boolean stop = false;
 
-    public Job(Configuration cfg, Context context, String name)
+    public Job(Context context, String name)
     {
-        super(cfg, context);
-        this.cfg = cfg;
+        super(context);
         this.context = context;
         this.configName = name;
 //        this.logger = context.logger;
@@ -62,7 +52,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
     public Job clone()
     {
-        Job job = new Job(this.cfg, context, this.getConfigName());
+        Job job = new Job(context, this.getConfigName());
         ArrayList<Task> tasks = new ArrayList<Task>();
         for (Task task : this.getTasks())
         {
@@ -86,7 +76,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
     public String getDisplayName()
     {
-        return cfg.gs("jobs.displayName");
+        return context.cfg.gs("jobs.displayName");
     }
 
     public String getFullPath()
@@ -145,13 +135,13 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     @Override
-    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         // to satisfy AbstractTool, not used
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
         // to satisfy AbstractTool, not used
         return null;
@@ -179,7 +169,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 @Override
                 public Object createInstance(Type type)
                 {
-                    return new Job(cfg, context, "");
+                    return new Job(context, "");
                 }
             }
             GsonBuilder builder = new GsonBuilder();
@@ -212,14 +202,12 @@ public class Job extends AbstractTool implements Comparable, Serializable
      * <br/>
      * Used by Main() with the -j | --job command line option
      *
-     * @param cfg
      * @param context
-     * @return
      * @throws Exception
      */
-    public void process(Configuration cfg, Context context) throws Exception
+    public void process(Context context) throws Exception
     {
-        processJob(null, cfg, context, this, cfg.isDryRun());
+        processJob(context, this, context.cfg.isDryRun());
     }
 
     /**
@@ -227,18 +215,18 @@ public class Job extends AbstractTool implements Comparable, Serializable
      * <br/>
      * Used by the Jobs GUI and Navigator Jobs menu run
      *
-     * @param guiContext The GuiContext
+     * @param context The Context
      * @param comp       The owning component
      * @param title      The title for any dialogs
      * @param job        The Job to run
      * @param isDryRun   True for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
-    public SwingWorker<Void, Void> process(GuiContext guiContext, Component comp, String title, Job job, boolean isDryRun)
+    public SwingWorker<Void, Void> process(Context context, Component comp, String title, Job job, boolean isDryRun)
     {
         // create a fresh dialog
         // TODO factors controlling whether to display the progress dialog may needed adjusting
-        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+        if (context.progress == null || !context.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()
             {
@@ -248,19 +236,19 @@ public class Job extends AbstractTool implements Comparable, Serializable
                     requestStop();
                 }
             };
-            guiContext.progress = new Progress(guiContext, comp, cancel, isDryRun);
-            guiContext.context.progress = guiContext.progress;
-            guiContext.progress.display();
+            context.progress = new Progress(context, comp, cancel, isDryRun);
+            context.progress = context.progress;
+            context.progress.display();
         }
         else
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return null;
         }
 
-        if (willDisconnect(guiContext))
+        if (willDisconnect(context))
         {
-            int reply = JOptionPane.showConfirmDialog(comp, guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), title, JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(comp, context.cfg.gs("Job.this.job.contains.remote.subscriber"), title, JOptionPane.YES_NO_OPTION);
             if (reply != JOptionPane.YES_OPTION)
                 return null;
         }
@@ -272,14 +260,14 @@ public class Job extends AbstractTool implements Comparable, Serializable
             {
                 try
                 {
-                    processJob(guiContext, guiContext.cfg, guiContext.context, job, isDryRun);
+                    processJob(context, job, isDryRun);
                 }
                 catch (Exception e)
                 {
-                    String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                    String msg = context.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
                     logger.error(msg);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
-                            guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, msg,
+                            context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
 
                 }
                 return null;
@@ -288,7 +276,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
         return worker;
     }
 
-    public void processJob(GuiContext guiContext, Configuration cfg, Context context, Job job, boolean isDryRun) throws Exception
+    public void processJob(Context context, Job job, boolean isDryRun) throws Exception
     {
         int result = 0;
         stop = false;
@@ -296,7 +284,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
-            logger.info(cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+            logger.info(context.cfg.gs("Job.executing.job") + job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
             for (Task task : job.getTasks())
             {
                 if (isRequestStop())
@@ -308,21 +296,21 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 if (currentTask.isJob())
                 {
                     Job subJob = load(currentTask.getConfigName());
-                    subJob.processJob(guiContext, cfg, context, subJob, isDryRun);
+                    subJob.processJob(context, subJob, isDryRun);
                     if (subJob.lastTask != null)
                         lastTask = subJob.lastTask;
 
-                    logger.info(cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? cfg.gs("Z.dry.run") : ""));
+                    logger.info(context.cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
                 }
                 else // regular task
                 {
-                    if (lastTask != null && currentTask.isCachedLastTask(cfg, context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
+                    if (lastTask != null && currentTask.isCachedLastTask(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
                         currentTask.setLastTask(lastTask);
 
-                    if (!currentTask.process(guiContext, cfg, context, isDryRun))
+                    if (!currentTask.process(context, isDryRun))
                         requestStop();
 
-                    if (currentTask.isCachedLastTask(cfg, context))
+                    if (currentTask.isCachedLastTask(context))
                         lastTask = currentTask;
 
 /*
@@ -331,18 +319,18 @@ public class Job extends AbstractTool implements Comparable, Serializable
                     System.setProperty("consoleLevel", cfg.getConsoleLevel());
                     System.setProperty("debugLevel", cfg.getDebugLevel());
                     System.setProperty("pattern", cfg.getPattern());
-                    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(true); //guiContext == null ? true : false);  //(LogManager.class.getClassLoader(), false);
+                    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(true); //context.navigator == null ? true : false);  //(LogManager.class.getClassLoader(), false);
                     loggerContext.reconfigure();
                     AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
                     LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
                     loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
                     loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
                     loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
-                    if (guiContext != null)
+                    if (context.navigator != null)
                     {
                         Map<String, Appender> appenders = loggerConfig.getAppenders();
                         GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-                        appender.setGuiContext(guiContext);
+                        appender.setContext(context);
                     }
                     loggerContext.updateLoggers();
 
@@ -351,10 +339,10 @@ public class Job extends AbstractTool implements Comparable, Serializable
 */
                 }
             }
-            context.main.savedEnvironment.restore(currentTask);
+            context.savedEnvironment.restore(currentTask);
         }
         else
-            throw new MungeException(cfg.gs("JobsUI.job.has.no.tasks") + ": " + job.getConfigName());
+            throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + ": " + job.getConfigName());
     }
 
     public void requestStop()
@@ -426,13 +414,13 @@ public class Job extends AbstractTool implements Comparable, Serializable
         return status;
     }
 
-    private boolean willDisconnect(GuiContext guiContext)
+    private boolean willDisconnect(Context context)
     {
-        if (guiContext.cfg.isRemoteSession())
+        if (context.cfg.isRemoteSession())
         {
             for (Task task : getTasks())
             {
-                if (task.isSubscriberRemote() && !guiContext.context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
+                if (task.isSubscriberRemote() && !context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
                     return true;
             }
         }

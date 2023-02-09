@@ -1,6 +1,6 @@
 package com.groksoft.els.gui.tools.renamer;
 
-import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.Context;
 import com.groksoft.els.tools.renamer.RenamerTool;
 
 import javax.swing.*;
@@ -10,12 +10,12 @@ import java.io.File;
 public class ConfigModel extends DefaultTableModel
 {
     private RenamerUI myDialog;
-    private GuiContext guiContext;
+    private Context context;
 
-    public ConfigModel(GuiContext guiContext, RenamerUI ui)
+    public ConfigModel(Context context, RenamerUI ui)
     {
         super();
-        this.guiContext = guiContext;
+        this.context = context;
         this.myDialog = ui;
     }
 
@@ -64,8 +64,8 @@ public class ConfigModel extends DefaultTableModel
                 if (tmp != null)
                 {
                     JOptionPane.showMessageDialog(myDialog,
-                            guiContext.cfg.gs(("Z.that.configuration.already.exists")),
-                            guiContext.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+                            context.cfg.gs(("Z.that.configuration.already.exists")),
+                            context.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
                 {

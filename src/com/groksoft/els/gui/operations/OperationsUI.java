@@ -1,8 +1,8 @@
 package com.groksoft.els.gui.operations;
 
 import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.libraries.LibrariesUI;
@@ -40,6 +40,7 @@ public class OperationsUI
 {
     private JComboBox comboBoxMode;
     private JTable configItems;
+    private Context context;
     private ConfigModel configModel;
     private int currentConfigIndex = -1;
     private OperationsTool currentTool;
@@ -48,7 +49,6 @@ public class OperationsUI
     private boolean fileAny = false;
     private boolean fileKeys = false;
     private boolean fileMustExist = false;
-    private GuiContext guiContext;
     private File lastFile;
     private boolean lastIncluded = true;
     private JList<String> libJList = null;
@@ -66,30 +66,31 @@ public class OperationsUI
         // hide default constructor
     }
 
-    public OperationsUI(GuiContext guiContext)
+    public OperationsUI(Context context)
     {
-        this.guiContext = guiContext;
-        this.displayName = guiContext.cfg.gs("Operations.displayName");
+        this.context = context;
+        this.context.operationsUI = this;
+        this.displayName = context.cfg.gs("Operations.displayName");
     }
 
     private void actionCancelClicked(ActionEvent e)
     {
         if (workerRunning && worker != null)
         {
-            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Operations.stop.running.operation"),
+            int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Operations.stop.running.operation"),
                     "Z.cancel.run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerOperation.requestStop();
-                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Operations.config.cancelled"), workerOperation.getConfigName()));
+                logger.info(java.text.MessageFormat.format(context.cfg.gs("Operations.config.cancelled"), workerOperation.getConfigName()));
             }
         }
         else
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.cancel.all.changes"),
-                        guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Z.cancel.all.changes"),
+                        context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
@@ -104,7 +105,7 @@ public class OperationsUI
         if (index >= 0)
         {
             OperationsTool original = (OperationsTool) configModel.getValueAt(index, 0);
-            String rename = original.getConfigName() + guiContext.cfg.gs("Z.copy");
+            String rename = original.getConfigName() + context.cfg.gs("Z.copy");
             if (configModel.find(rename, null) == null)
             {
                 OperationsTool copy = original.clone();
@@ -121,7 +122,7 @@ public class OperationsUI
             }
             else
             {
-                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.rename.the.existing") +
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.rename.the.existing") +
                         rename, displayName, JOptionPane.WARNING_MESSAGE);
             }
         }
@@ -136,8 +137,8 @@ public class OperationsUI
 
             // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
 
-            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
-                    guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
+                    context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 tool.setDataHasChanged();
@@ -154,14 +155,14 @@ public class OperationsUI
                 }
                 else
                 {
-                    ((CardLayout) guiContext.mainFrame.panelOperationCards.getLayout()).show(guiContext.mainFrame.panelOperationCards, "gettingStarted");
-                    guiContext.mainFrame.labelOperationMode.setText("");
-                    guiContext.mainFrame.buttonCopyOperation.setEnabled(false);
-                    guiContext.mainFrame.buttonDeleteOperation.setEnabled(false);
-                    guiContext.mainFrame.buttonRunOperation.setEnabled(false);
-                    guiContext.mainFrame.buttonGenerateOperation.setEnabled(false);
-                    guiContext.mainFrame.buttonOperationSave.setEnabled(false);
-                    guiContext.mainFrame.buttonOperationCancel.setEnabled(false);
+                    ((CardLayout) context.mainFrame.panelOperationCards.getLayout()).show(context.mainFrame.panelOperationCards, "gettingStarted");
+                    context.mainFrame.labelOperationMode.setText("");
+                    context.mainFrame.buttonCopyOperation.setEnabled(false);
+                    context.mainFrame.buttonDeleteOperation.setEnabled(false);
+                    context.mainFrame.buttonRunOperation.setEnabled(false);
+                    context.mainFrame.buttonGenerateOperation.setEnabled(false);
+                    context.mainFrame.buttonOperationSave.setEnabled(false);
+                    context.mainFrame.buttonOperationCancel.setEnabled(false);
                     currentConfigIndex = 0;
                 }
                 configItems.requestFocus();
@@ -175,11 +176,11 @@ public class OperationsUI
         {
             // TODO change when JRE is embedded in ELS distro
             String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-            String generated = "java -jar " + jar + " " + currentTool.generateCommandLine(guiContext.context.publisherRepo, guiContext.context.subscriberRepo);
+            String generated = "java -jar " + jar + " " + currentTool.generateCommandLine(context.publisherRepo, context.subscriberRepo);
 
-            Object[] opts = {guiContext.cfg.gs("Z.ok")};
-            JOptionPane.showInputDialog(guiContext.mainFrame,
-                    "<html><body>" + guiContext.cfg.gs("Z.generated") + currentTool.getConfigName() +
+            Object[] opts = {context.cfg.gs("Z.ok")};
+            JOptionPane.showInputDialog(context.mainFrame,
+                    "<html><body>" + context.cfg.gs("Z.generated") + currentTool.getConfigName() +
                             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                             "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</body></html>",
@@ -187,9 +188,9 @@ public class OperationsUI
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
             logger.error(msg);
-            JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -197,14 +198,14 @@ public class OperationsUI
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(guiContext.mainFrame, guiContext.mainFrame, guiContext,
-                    guiContext.cfg.gs("Operations.help"), "operations_" + guiContext.preferences.getLocale() + ".html");
+            helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
+                    context.cfg.gs("Operations.help"), "operations_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.isVisible())
         {
             helpDialog.setVisible(true);
             // offset the help dialog from the parent dialog
-            Point loc = guiContext.mainFrame.getLocation();
+            Point loc = context.mainFrame.getLocation();
             loc.x = loc.x + 32;
             loc.y = loc.y + 32;
             helpDialog.setLocation(loc);
@@ -217,31 +218,31 @@ public class OperationsUI
 
     private void actionNewClicked(ActionEvent e)
     {
-        if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
+        if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
         {
-            String message = guiContext.cfg.gs("Operations.mode.select.type");
-            String line = guiContext.cfg.gs("Use Local/Remote publish for Navigator. ");
+            String message = context.cfg.gs("Operations.mode.select.type");
+            String line = context.cfg.gs("Use Local/Remote publish for Navigator. ");
             Object[] params = {message, line, comboBoxMode};
             comboBoxMode.setSelectedIndex(0);
 
             // get ELS operationsUI/mode
-            int opt = JOptionPane.showConfirmDialog(guiContext.mainFrame, params, displayName, JOptionPane.OK_CANCEL_OPTION);
+            int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, displayName, JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
-                currentTool = new OperationsTool(guiContext, guiContext.cfg, guiContext.context);
+                currentTool = new OperationsTool(context);
                 Mode mode = modes[comboBoxMode.getSelectedIndex()];
-                currentTool.setConfigName(guiContext.cfg.gs("Z.untitled"));
+                currentTool.setConfigName(context.cfg.gs("Z.untitled"));
                 currentTool.setOperation(mode.operation);
                 currentTool.setCard(mode.card);
                 currentTool.setDataHasChanged();
                 initNewCard();
 
-                guiContext.mainFrame.buttonCopyOperation.setEnabled(true);
-                guiContext.mainFrame.buttonDeleteOperation.setEnabled(true);
-                guiContext.mainFrame.buttonRunOperation.setEnabled(true);
-                guiContext.mainFrame.buttonGenerateOperation.setEnabled(true);
-                guiContext.mainFrame.buttonOperationSave.setEnabled(true);
-                guiContext.mainFrame.buttonOperationCancel.setEnabled(true);
+                context.mainFrame.buttonCopyOperation.setEnabled(true);
+                context.mainFrame.buttonDeleteOperation.setEnabled(true);
+                context.mainFrame.buttonRunOperation.setEnabled(true);
+                context.mainFrame.buttonGenerateOperation.setEnabled(true);
+                context.mainFrame.buttonOperationSave.setEnabled(true);
+                context.mainFrame.buttonOperationCancel.setEnabled(true);
 
                 configModel.addRow(new Object[]{currentTool});
                 currentConfigIndex = configModel.getRowCount() - 1;
@@ -257,8 +258,8 @@ public class OperationsUI
         }
         else
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                    guiContext.cfg.gs("Z.untitled"), displayName, JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.rename.the.existing") +
+                    context.cfg.gs("Z.untitled"), displayName, JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -288,25 +289,25 @@ public class OperationsUI
                     cardVar = 2;
 
                 int indices[] = {};
-                if (cardVar == 1 && guiContext.mainFrame.listOperationIncludeExclude.getModel().getSize() > 0)
-                    indices = guiContext.mainFrame.listOperationIncludeExclude.getSelectedIndices();
-                else if (cardVar == 2 && guiContext.mainFrame.listOperationExclude.getModel().getSize() > 0)
-                    indices = guiContext.mainFrame.listOperationExclude.getSelectedIndices();
+                if (cardVar == 1 && context.mainFrame.listOperationIncludeExclude.getModel().getSize() > 0)
+                    indices = context.mainFrame.listOperationIncludeExclude.getSelectedIndices();
+                else if (cardVar == 2 && context.mainFrame.listOperationExclude.getModel().getSize() > 0)
+                    indices = context.mainFrame.listOperationExclude.getSelectedIndices();
                 if (indices.length > 0)
                 {
                     if (cardVar == 1)
-                        guiContext.mainFrame.listOperationIncludeExclude.requestFocus();
+                        context.mainFrame.listOperationIncludeExclude.requestFocus();
                     else if (cardVar == 2)
-                        guiContext.mainFrame.listOperationExclude.requestFocus();
+                        context.mainFrame.listOperationExclude.requestFocus();
                     int count = indices.length;
 
                     // confirm deletions
-                    int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame,
-                            MessageFormat.format(guiContext.cfg.gs("Operations.are.you.sure.you.want.delete.entries"), count), displayName,
+                    int reply = JOptionPane.showConfirmDialog(context.mainFrame,
+                            MessageFormat.format(context.cfg.gs("Operations.are.you.sure.you.want.delete.entries"), count), displayName,
                             JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
                     {
-                        List<String> selections = guiContext.mainFrame.listOperationIncludeExclude.getSelectedValuesList();
+                        List<String> selections = context.mainFrame.listOperationIncludeExclude.getSelectedValuesList();
                         Arrays.sort(indices);
 
                         // remove in reverse sorted order so indices do not change
@@ -335,8 +336,8 @@ public class OperationsUI
         if (currentTool != null)
         {
             // confirm run of job
-            String message = java.text.MessageFormat.format(guiContext.cfg.gs("Operations.run.as.defined"), currentTool.getConfigName());
-            int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, message, guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.YES_NO_OPTION);
+            String message = java.text.MessageFormat.format(context.cfg.gs("Operations.run.as.defined"), currentTool.getConfigName());
+            int reply = JOptionPane.showConfirmDialog(context.mainFrame, message, context.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerOperation = currentTool.clone();
@@ -406,63 +407,63 @@ public class OperationsUI
                 switch(button.getName().toLowerCase())
                 {
                     case "authkeys":
-                        desc = guiContext.cfg.gs("Operations.els.authkeys.file");
+                        desc = context.cfg.gs("Operations.els.authkeys.file");
                         fileAny = false;
                         fileMustExist = true;
                         fileKeys = true;
                         break;
                     case "blacklist":
-                        desc = guiContext.cfg.gs("Operations.els.blacklist.file");
+                        desc = context.cfg.gs("Operations.els.blacklist.file");
                         fileAny = true;
                         fileMustExist = true;
                         break;
                     case "ipwhitelist":
-                        desc = guiContext.cfg.gs("Operations.els.ipwhitelist.file");
+                        desc = context.cfg.gs("Operations.els.ipwhitelist.file");
                         fileAny = true;
                         fileMustExist = true;
                         break;
                     case "targets":
                     case "targets2":
-                        desc = guiContext.cfg.gs("Operations.els.targets.file.json");
+                        desc = context.cfg.gs("Operations.els.targets.file.json");
                         fileAny = false;
                         fileMustExist = true;
                         break;
                     case "mismatches":
-                        desc = guiContext.cfg.gs("Operations.els.mismatches.file");
+                        desc = context.cfg.gs("Operations.els.mismatches.file");
                         fileAny = true;
                         fileMustExist = false;
                         break;
                     case "whatsnew":
-                        desc = guiContext.cfg.gs("Operations.els.what.s.new.file");
+                        desc = context.cfg.gs("Operations.els.what.s.new.file");
                         fileAny = true;
                         fileMustExist = false;
                         break;
                     case "exporttext":
-                        desc = guiContext.cfg.gs("Operations.els.export.text.file");
+                        desc = context.cfg.gs("Operations.els.export.text.file");
                         fileAny = true;
                         fileMustExist = false;
                         break;
                     case "exportitems":
-                        desc = guiContext.cfg.gs("Operations.els.export.items.file");
+                        desc = context.cfg.gs("Operations.els.export.items.file");
                         fileAny = true;
                         fileMustExist = false;
                         break;
                     case "hintkeys":
                     case "hintkeys2":
-                        desc = guiContext.cfg.gs("Operations.els.hint.keys.file");
+                        desc = context.cfg.gs("Operations.els.hint.keys.file");
                         fileAny = true;
                         fileMustExist = true;
                         fileKeys = true;
                         break;
                     case "hints":
                     case "hints2":
-                        desc = guiContext.cfg.gs("Operations.els.hints.server.file");
+                        desc = context.cfg.gs("Operations.els.hints.server.file");
                         fileAny = true;
                         fileMustExist = true;
                         break;
                     case "log":
                     case "log2":
-                        desc = guiContext.cfg.gs("Operations.els.log.file");
+                        desc = context.cfg.gs("Operations.els.log.file");
                         fileAny = true;
                         fileMustExist = false;
                         break;
@@ -475,49 +476,49 @@ public class OperationsUI
         switch(button.getName().toLowerCase())
         {
             case "authkeys":
-                fileName = guiContext.mainFrame.textFieldOperationAuthKeys.getText();
+                fileName = context.mainFrame.textFieldOperationAuthKeys.getText();
                 break;
             case "blacklist":
-                fileName = guiContext.mainFrame.textFieldOperationBlacklist.getText();
+                fileName = context.mainFrame.textFieldOperationBlacklist.getText();
                 break;
             case "ipwhitelist":
-                fileName = guiContext.mainFrame.textFieldOperationIpWhitelist.getText();
+                fileName = context.mainFrame.textFieldOperationIpWhitelist.getText();
                 break;
             case "targets":
-                fileName = guiContext.mainFrame.textFieldOperationTargets.getText();
+                fileName = context.mainFrame.textFieldOperationTargets.getText();
                 break;
             case "targets2":
-                fileName = guiContext.mainFrame.textFieldOperationTargets2.getText();
+                fileName = context.mainFrame.textFieldOperationTargets2.getText();
                 break;
             case "mismatches":
-                fileName = guiContext.mainFrame.textFieldOperationMismatches.getText();
+                fileName = context.mainFrame.textFieldOperationMismatches.getText();
                 break;
             case "whatsnew":
-                fileName = guiContext.mainFrame.textFieldOperationWhatsNew.getText();
+                fileName = context.mainFrame.textFieldOperationWhatsNew.getText();
                 break;
             case "exporttext":
-                fileName = guiContext.mainFrame.textFieldOperationExportText.getText();
+                fileName = context.mainFrame.textFieldOperationExportText.getText();
                 break;
             case "exportitems":
-                fileName = guiContext.mainFrame.textFieldOperationExportItems.getText();
+                fileName = context.mainFrame.textFieldOperationExportItems.getText();
                 break;
             case "hintkeys":
-                fileName = guiContext.mainFrame.textFieldOperationHintKeys.getText();
+                fileName = context.mainFrame.textFieldOperationHintKeys.getText();
                 break;
             case "hintkeys2":
-                fileName = guiContext.mainFrame.textFieldOperationHintKeys2.getText();
+                fileName = context.mainFrame.textFieldOperationHintKeys2.getText();
                 break;
             case "hints":
-                fileName = guiContext.mainFrame.textFieldOperationHints.getText();
+                fileName = context.mainFrame.textFieldOperationHints.getText();
                 break;
             case "hints2":
-                fileName = guiContext.mainFrame.textFieldOperationHints2.getText();
+                fileName = context.mainFrame.textFieldOperationHints2.getText();
                 break;
             case "log":
-                fileName = guiContext.mainFrame.textFieldOperationLog.getText();
+                fileName = context.mainFrame.textFieldOperationLog.getText();
                 break;
             case "log2":
-                fileName = guiContext.mainFrame.textFieldOperationLog2.getText();
+                fileName = context.mainFrame.textFieldOperationLog2.getText();
                 break;
         }
 
@@ -545,7 +546,7 @@ public class OperationsUI
 
         while (true)
         {
-            int selection = fc.showOpenDialog(guiContext.mainFrame);
+            int selection = fc.showOpenDialog(context.mainFrame);
             if (selection == JFileChooser.APPROVE_OPTION)
             {
 
@@ -555,16 +556,16 @@ public class OperationsUI
                 // sanity checks
                 if (fileMustExist && !file.exists())
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                            guiContext.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
                             displayName, JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
                 if (file.isDirectory())
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                            guiContext.cfg.gs("Navigator.open.error.select.a.file.only"),
-                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.open.error.select.a.file.only"),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
 
@@ -578,66 +579,66 @@ public class OperationsUI
                 // save value & fire updateOnChange()
                 switch (button.getName().toLowerCase())
                 {
-                    // guiContext.mainFrame.textFieldOperation
+                    // context.mainFrame.textFieldOperation
                     case "authkeys":
-                        guiContext.mainFrame.textFieldOperationAuthKeys.setText(path);
-                        guiContext.mainFrame.textFieldOperationAuthKeys.postActionEvent();
+                        context.mainFrame.textFieldOperationAuthKeys.setText(path);
+                        context.mainFrame.textFieldOperationAuthKeys.postActionEvent();
                         break;
                     case "blacklist":
-                        guiContext.mainFrame.textFieldOperationBlacklist.setText(path);
-                        guiContext.mainFrame.textFieldOperationBlacklist.postActionEvent();
+                        context.mainFrame.textFieldOperationBlacklist.setText(path);
+                        context.mainFrame.textFieldOperationBlacklist.postActionEvent();
                         break;
                     case "ipwhitelist":
-                        guiContext.mainFrame.textFieldOperationIpWhitelist.setText(path);
-                        guiContext.mainFrame.textFieldOperationIpWhitelist.postActionEvent();
+                        context.mainFrame.textFieldOperationIpWhitelist.setText(path);
+                        context.mainFrame.textFieldOperationIpWhitelist.postActionEvent();
                         break;
                     case "targets":
-                        guiContext.mainFrame.textFieldOperationTargets.setText(path);
-                        guiContext.mainFrame.textFieldOperationTargets.postActionEvent();
+                        context.mainFrame.textFieldOperationTargets.setText(path);
+                        context.mainFrame.textFieldOperationTargets.postActionEvent();
                         break;
                     case "targets2":
-                        guiContext.mainFrame.textFieldOperationTargets2.setText(path);
-                        guiContext.mainFrame.textFieldOperationTargets2.postActionEvent();
+                        context.mainFrame.textFieldOperationTargets2.setText(path);
+                        context.mainFrame.textFieldOperationTargets2.postActionEvent();
                         break;
                     case "mismatches":
-                        guiContext.mainFrame.textFieldOperationMismatches.setText(path);
-                        guiContext.mainFrame.textFieldOperationMismatches.postActionEvent();
+                        context.mainFrame.textFieldOperationMismatches.setText(path);
+                        context.mainFrame.textFieldOperationMismatches.postActionEvent();
                         break;
                     case "whatsnew":
-                        guiContext.mainFrame.textFieldOperationWhatsNew.setText(path);
-                        guiContext.mainFrame.textFieldOperationWhatsNew.postActionEvent();
+                        context.mainFrame.textFieldOperationWhatsNew.setText(path);
+                        context.mainFrame.textFieldOperationWhatsNew.postActionEvent();
                         break;
                     case "exporttext":
-                        guiContext.mainFrame.textFieldOperationExportText.setText(path);
-                        guiContext.mainFrame.textFieldOperationExportText.postActionEvent();
+                        context.mainFrame.textFieldOperationExportText.setText(path);
+                        context.mainFrame.textFieldOperationExportText.postActionEvent();
                         break;
                     case "exportitems":
-                        guiContext.mainFrame.textFieldOperationExportItems.setText(path);
-                        guiContext.mainFrame.textFieldOperationExportItems.postActionEvent();
+                        context.mainFrame.textFieldOperationExportItems.setText(path);
+                        context.mainFrame.textFieldOperationExportItems.postActionEvent();
                         break;
                     case "hintkeys":
-                        guiContext.mainFrame.textFieldOperationHintKeys.setText(path);
-                        guiContext.mainFrame.textFieldOperationHintKeys.postActionEvent();
+                        context.mainFrame.textFieldOperationHintKeys.setText(path);
+                        context.mainFrame.textFieldOperationHintKeys.postActionEvent();
                         break;
                     case "hintkeys2":
-                        guiContext.mainFrame.textFieldOperationHintKeys2.setText(path);
-                        guiContext.mainFrame.textFieldOperationHintKeys2.postActionEvent();
+                        context.mainFrame.textFieldOperationHintKeys2.setText(path);
+                        context.mainFrame.textFieldOperationHintKeys2.postActionEvent();
                         break;
                     case "hints":
-                        guiContext.mainFrame.textFieldOperationHints.setText(path);
-                        guiContext.mainFrame.textFieldOperationHints.postActionEvent();
+                        context.mainFrame.textFieldOperationHints.setText(path);
+                        context.mainFrame.textFieldOperationHints.postActionEvent();
                         break;
                     case "hints2":
-                        guiContext.mainFrame.textFieldOperationHints2.setText(path);
-                        guiContext.mainFrame.textFieldOperationHints2.postActionEvent();
+                        context.mainFrame.textFieldOperationHints2.setText(path);
+                        context.mainFrame.textFieldOperationHints2.postActionEvent();
                         break;
                     case "log":
-                        guiContext.mainFrame.textFieldOperationLog.setText(path);
-                        guiContext.mainFrame.textFieldOperationLog.postActionEvent();
+                        context.mainFrame.textFieldOperationLog.setText(path);
+                        context.mainFrame.textFieldOperationLog.postActionEvent();
                         break;
                     case "log2":
-                        guiContext.mainFrame.textFieldOperationLog2.setText(path);
-                        guiContext.mainFrame.textFieldOperationLog2.postActionEvent();
+                        context.mainFrame.textFieldOperationLog2.setText(path);
+                        context.mainFrame.textFieldOperationLog2.postActionEvent();
                         break;
                 }
             }
@@ -655,7 +656,7 @@ public class OperationsUI
     /**
      * Generic ActionEvent handler
      * <b/>
-     * guiContext.operations.genericAction
+     * context.operations.genericAction
      *
      * @param e ActionEvent
      */
@@ -680,7 +681,7 @@ public class OperationsUI
     /**
      * Generic TextField focus handler
      * <b/>
-     * guiContext.operations.genericTextFieldFocusLost
+     * context.operations.genericTextFieldFocusLost
      *
      * @param e ActionEvent
      */
@@ -702,7 +703,7 @@ public class OperationsUI
     private int getLogLevelIndex(String level)
     {
         int index = -1;
-        ComboBoxModel<String> model = guiContext.mainFrame.comboBoxOperationConsoleLevel.getModel();
+        ComboBoxModel<String> model = context.mainFrame.comboBoxOperationConsoleLevel.getModel();
         for (int i = 0; i < model.getSize(); ++i)
         {
             if (level.equals(model.getElementAt(i)))
@@ -736,27 +737,27 @@ public class OperationsUI
 
     public void initialize()
     {
-        this.configItems = guiContext.mainFrame.operationConfigItems;
+        this.configItems = context.mainFrame.operationConfigItems;
 
         // scale the help icon
-        Icon icon = guiContext.mainFrame.labelOperationHelp.getIcon();
+        Icon icon = context.mainFrame.labelOperationHelp.getIcon();
         Image image = Utils.iconToImage(icon);
         Image scaled = image.getScaledInstance(30, 30, Image.SCALE_SMOOTH);
         Icon replacement = new ImageIcon(scaled);
-        guiContext.mainFrame.labelOperationHelp.setIcon(replacement);
+        context.mainFrame.labelOperationHelp.setIcon(replacement);
 
         // dividers
-        if (guiContext.preferences.getOperationDividerLocation() > 0)
+        if (context.preferences.getOperationDividerLocation() > 0)
         {
-            guiContext.mainFrame.splitPaneOperation.setDividerLocation(guiContext.preferences.getOperationDividerLocation());
+            context.mainFrame.splitPaneOperation.setDividerLocation(context.preferences.getOperationDividerLocation());
         }
-        if (guiContext.preferences.getOperationDividerConfigLocation() > 0)
+        if (context.preferences.getOperationDividerConfigLocation() > 0)
         {
-            guiContext.mainFrame.splitPaneOperationContent.setDividerLocation(guiContext.preferences.getOperationDividerConfigLocation());
+            context.mainFrame.splitPaneOperationContent.setDividerLocation(context.preferences.getOperationDividerConfigLocation());
         }
 
         // setup the left-side list of configurations
-        configModel = new ConfigModel(guiContext, this);
+        configModel = new ConfigModel(context, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -786,17 +787,17 @@ public class OperationsUI
         //  * listener has objects2
 // LEFTOFF Jobs should not be here or in Operations - Jobs are Jobs, this would allow infinite loops
         modes = new Mode[11];
-        modes[0] = new Mode(guiContext.cfg.gs("Operations.mode.localPublish"), OperationsTool.Cards.Publisher, Configuration.Operations.NotRemote);
-        modes[1] = new Mode(guiContext.cfg.gs("Operations.mode.remotePublish"), OperationsTool.Cards.Publisher, Configuration.Operations.PublishRemote);
-        modes[2] = new Mode(guiContext.cfg.gs("Operations.mode.subscriberListener"), OperationsTool.Cards.Listener, Configuration.Operations.SubscriberListener);
-        modes[3] = new Mode(guiContext.cfg.gs("Operations.mode.job.publisher"), OperationsTool.Cards.Publisher, Configuration.Operations.JobProcess);
-        modes[4] = new Mode(guiContext.cfg.gs("Operations.mode.job.subscriber"), OperationsTool.Cards.Listener, Configuration.Operations.JobProcess);
-        modes[5] = new Mode(guiContext.cfg.gs("Operations.mode.hintServer"), OperationsTool.Cards.HintServer, Configuration.Operations.StatusServer);
-        modes[6] = new Mode(guiContext.cfg.gs("Operations.mode.publisherTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.PublisherManual);
-        modes[7] = new Mode(guiContext.cfg.gs("Operations.mode.publisherListener"), OperationsTool.Cards.Listener, Configuration.Operations.PublisherListener);
-        modes[8] = new Mode(guiContext.cfg.gs("Operations.mode.subscriberTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.SubscriberTerminal);
-        modes[9] = new Mode(guiContext.cfg.gs("Operations.mode.hintForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.StatusServerForceQuit);
-        modes[10] = new Mode(guiContext.cfg.gs("Operations.mode.subscriberForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.SubscriberListenerForceQuit);
+        modes[0] = new Mode(context.cfg.gs("Operations.mode.localPublish"), OperationsTool.Cards.Publisher, Configuration.Operations.NotRemote);
+        modes[1] = new Mode(context.cfg.gs("Operations.mode.remotePublish"), OperationsTool.Cards.Publisher, Configuration.Operations.PublishRemote);
+        modes[2] = new Mode(context.cfg.gs("Operations.mode.subscriberListener"), OperationsTool.Cards.Listener, Configuration.Operations.SubscriberListener);
+        modes[3] = new Mode(context.cfg.gs("Operations.mode.job.publisher"), OperationsTool.Cards.Publisher, Configuration.Operations.JobProcess);
+        modes[4] = new Mode(context.cfg.gs("Operations.mode.job.subscriber"), OperationsTool.Cards.Listener, Configuration.Operations.JobProcess);
+        modes[5] = new Mode(context.cfg.gs("Operations.mode.hintServer"), OperationsTool.Cards.HintServer, Configuration.Operations.StatusServer);
+        modes[6] = new Mode(context.cfg.gs("Operations.mode.publisherTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.PublisherManual);
+        modes[7] = new Mode(context.cfg.gs("Operations.mode.publisherListener"), OperationsTool.Cards.Listener, Configuration.Operations.PublisherListener);
+        modes[8] = new Mode(context.cfg.gs("Operations.mode.subscriberTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.SubscriberTerminal);
+        modes[9] = new Mode(context.cfg.gs("Operations.mode.hintForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.StatusServerForceQuit);
+        modes[10] = new Mode(context.cfg.gs("Operations.mode.subscriberForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.SubscriberListenerForceQuit);
 
         // make New combobox
         comboBoxMode = new JComboBox<>();
@@ -807,12 +808,12 @@ public class OperationsUI
             comboBoxMode.addItem(m);
         }
 
-        guiContext.mainFrame.buttonNewOperation.addActionListener(e -> actionNewClicked(e));
-        guiContext.mainFrame.buttonCopyOperation.addActionListener(e -> actionCopyClicked(e));
-        guiContext.mainFrame.buttonDeleteOperation.addActionListener(e -> actionDeleteClicked(e));
-        guiContext.mainFrame.buttonRunOperation.addActionListener(e -> actionRunClicked(e));
-        guiContext.mainFrame.buttonGenerateOperation.addActionListener(e -> actionGenerateClicked(e));
-        guiContext.mainFrame.labelOperationHelp.addMouseListener(new MouseAdapter()
+        context.mainFrame.buttonNewOperation.addActionListener(e -> actionNewClicked(e));
+        context.mainFrame.buttonCopyOperation.addActionListener(e -> actionCopyClicked(e));
+        context.mainFrame.buttonDeleteOperation.addActionListener(e -> actionDeleteClicked(e));
+        context.mainFrame.buttonRunOperation.addActionListener(e -> actionRunClicked(e));
+        context.mainFrame.buttonGenerateOperation.addActionListener(e -> actionGenerateClicked(e));
+        context.mainFrame.labelOperationHelp.addMouseListener(new MouseAdapter()
         {
             @Override
             public void mouseClicked(MouseEvent e)
@@ -820,10 +821,10 @@ public class OperationsUI
                 actionHelpClicked(e);
             }
         });
-        guiContext.mainFrame.buttonOperationSave.addActionListener(e -> actionSaveClicked(e));
-        guiContext.mainFrame.buttonOperationCancel.addActionListener(e -> actionCancelClicked(e));
+        context.mainFrame.buttonOperationSave.addActionListener(e -> actionSaveClicked(e));
+        context.mainFrame.buttonOperationCancel.addActionListener(e -> actionCancelClicked(e));
 
-        librariesUI = new LibrariesUI(guiContext);
+        librariesUI = new LibrariesUI(context);
 
         initializeComboBoxes();
         loadConfigurations();
@@ -832,26 +833,26 @@ public class OperationsUI
 
     private void initializeComboBoxes()
     {
-        guiContext.mainFrame.comboBoxOperationWhatsNew.removeAllItems();
-        guiContext.mainFrame.comboBoxOperationWhatsNew.addItem(guiContext.cfg.gs("Operations.comboBoxOperationWhatsNew.0.whatsNew"));
-        guiContext.mainFrame.comboBoxOperationWhatsNew.addItem(guiContext.cfg.gs("Operations.comboBoxOperationWhatsNew.1.whatsNewAll"));
+        context.mainFrame.comboBoxOperationWhatsNew.removeAllItems();
+        context.mainFrame.comboBoxOperationWhatsNew.addItem(context.cfg.gs("Operations.comboBoxOperationWhatsNew.0.whatsNew"));
+        context.mainFrame.comboBoxOperationWhatsNew.addItem(context.cfg.gs("Operations.comboBoxOperationWhatsNew.1.whatsNewAll"));
 
-        guiContext.mainFrame.comboBoxOperationHintKeys.removeAllItems();
-        guiContext.mainFrame.comboBoxOperationHintKeys.addItem(guiContext.cfg.gs("Operations.comboBoxOperationHintKeys.0.keys"));
-        guiContext.mainFrame.comboBoxOperationHintKeys.addItem(guiContext.cfg.gs("Operations.comboBoxOperationHintKeys.1.keysOnly"));
+        context.mainFrame.comboBoxOperationHintKeys.removeAllItems();
+        context.mainFrame.comboBoxOperationHintKeys.addItem(context.cfg.gs("Operations.comboBoxOperationHintKeys.0.keys"));
+        context.mainFrame.comboBoxOperationHintKeys.addItem(context.cfg.gs("Operations.comboBoxOperationHintKeys.1.keysOnly"));
 
-        guiContext.mainFrame.comboBoxOperationHintsAndServer.removeAllItems();
-        guiContext.mainFrame.comboBoxOperationHintsAndServer.addItem(guiContext.cfg.gs("Operations.comboBoxOperationHintsAndServer.0.hints"));
-        guiContext.mainFrame.comboBoxOperationHintsAndServer.addItem(guiContext.cfg.gs("Operations.comboBoxOperationHintsAndServer.1.hintServer"));
+        context.mainFrame.comboBoxOperationHintsAndServer.removeAllItems();
+        context.mainFrame.comboBoxOperationHintsAndServer.addItem(context.cfg.gs("Operations.comboBoxOperationHintsAndServer.0.hints"));
+        context.mainFrame.comboBoxOperationHintsAndServer.addItem(context.cfg.gs("Operations.comboBoxOperationHintsAndServer.1.hintServer"));
 
-        guiContext.mainFrame.comboBoxOperationLog.removeAllItems();
-        guiContext.mainFrame.comboBoxOperationLog.addItem(guiContext.cfg.gs("Operations.comboBoxOperationLog.0.log"));
-        guiContext.mainFrame.comboBoxOperationLog.addItem(guiContext.cfg.gs("Operations.comboBoxOperationLog.1.logOverwrite"));
+        context.mainFrame.comboBoxOperationLog.removeAllItems();
+        context.mainFrame.comboBoxOperationLog.addItem(context.cfg.gs("Operations.comboBoxOperationLog.0.log"));
+        context.mainFrame.comboBoxOperationLog.addItem(context.cfg.gs("Operations.comboBoxOperationLog.1.logOverwrite"));
     }
 
     private void jobPicker(JButton button)
     {
-        Jobs jobsHandler = new Jobs(guiContext);
+        Jobs jobsHandler = new Jobs(context);
         try
         {
             class JobItem implements Comparable
@@ -910,9 +911,9 @@ public class OperationsUI
             toolJList.requestFocus();
             toolJList.setSelectedIndex(selected);
             toolJList.ensureIndexIsVisible(selected);
-            Object[] params = {guiContext.cfg.gs("Operations.select.job"), pane};
+            Object[] params = {context.cfg.gs("Operations.select.job"), pane};
 
-            int opt = JOptionPane.showConfirmDialog(guiContext.mainFrame, params, displayName, JOptionPane.OK_CANCEL_OPTION);
+            int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, displayName, JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
                 String name = toolJList.getSelectedValue();
@@ -928,21 +929,21 @@ public class OperationsUI
                 switch (button.getName().toLowerCase())
                 {
                     case "job":
-                        guiContext.mainFrame.textFieldOperationJob.setText(tool.getConfigName());
-                        guiContext.mainFrame.textFieldOperationJob.postActionEvent();
+                        context.mainFrame.textFieldOperationJob.setText(tool.getConfigName());
+                        context.mainFrame.textFieldOperationJob.postActionEvent();
                         break;
                     case "job2":
-                        guiContext.mainFrame.textFieldOperationJob2.setText(tool.getConfigName());
-                        guiContext.mainFrame.textFieldOperationJob2.postActionEvent();
+                        context.mainFrame.textFieldOperationJob2.setText(tool.getConfigName());
+                        context.mainFrame.textFieldOperationJob2.postActionEvent();
                         break;
                 }
             }
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
             logger.error(msg);
-            JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -953,9 +954,9 @@ public class OperationsUI
 
         Repository repo;
         if (which == 0) // publisher
-            repo = guiContext.context.publisherRepo;
+            repo = context.publisherRepo;
         else
-            repo = guiContext.context.subscriberRepo;
+            repo = context.subscriberRepo;
 
         if (repo != null)
         {
@@ -980,15 +981,15 @@ public class OperationsUI
     {
         try
         {
-            JCheckBox checkBox = new JCheckBox(guiContext.cfg.gs("Operations.include.selections"));
-            checkBox.setToolTipText(guiContext.cfg.gs("Operations.uncheck.to.exclude.selections"));
+            JCheckBox checkBox = new JCheckBox(context.cfg.gs("Operations.include.selections"));
+            checkBox.setToolTipText(context.cfg.gs("Operations.uncheck.to.exclude.selections"));
             checkBox.setSelected(true);
             if (button.getName().toLowerCase().equals("addexc"))
                 checkBox.setSelected(false);
 
             JComboBox combo = new JComboBox();
-            combo.addItem(guiContext.cfg.gs("Operations.publisher.libraries"));
-            combo.addItem(guiContext.cfg.gs("Operations.subscriber.libraries"));
+            combo.addItem(context.cfg.gs("Operations.publisher.libraries"));
+            combo.addItem(context.cfg.gs("Operations.subscriber.libraries"));
             combo.addActionListener(new ActionListener()
             {
                 @Override
@@ -1008,14 +1009,14 @@ public class OperationsUI
             JScrollPane pane = new JScrollPane();
             pane.setViewportView(libJList);
             libJList.requestFocus();
-            Object[] params1 = {guiContext.cfg.gs("Operations.select.included.excluded.libraries"), combo, checkBox, pane};
-            Object[] params2 = {guiContext.cfg.gs("Operations.select.excluded.libraries"), combo, pane};
+            Object[] params1 = {context.cfg.gs("Operations.select.included.excluded.libraries"), combo, checkBox, pane};
+            Object[] params2 = {context.cfg.gs("Operations.select.excluded.libraries"), combo, pane};
 
             int opt = 0;
             if (button.getName().toLowerCase().equals("addincexc"))
-                opt = JOptionPane.showConfirmDialog(guiContext.mainFrame, params1, displayName, JOptionPane.OK_CANCEL_OPTION);
+                opt = JOptionPane.showConfirmDialog(context.mainFrame, params1, displayName, JOptionPane.OK_CANCEL_OPTION);
             else if (button.getName().toLowerCase().equals("addexc"))
-                opt = JOptionPane.showConfirmDialog(guiContext.mainFrame, params2, displayName, JOptionPane.OK_CANCEL_OPTION);
+                opt = JOptionPane.showConfirmDialog(context.mainFrame, params2, displayName, JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
                 List<String> selections = libJList.getSelectedValuesList();
@@ -1056,8 +1057,8 @@ public class OperationsUI
                         }
                         if (duplicate)
                         {
-                            JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                    name + guiContext.cfg.gs("Operations.is.a.duplicate"),
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    name + context.cfg.gs("Operations.is.a.duplicate"),
                                     displayName, JOptionPane.WARNING_MESSAGE);
                             continue;
                         }
@@ -1084,30 +1085,30 @@ public class OperationsUI
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
             logger.error(msg);
-            JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private boolean libraryRemover(int cardVar, boolean includes, int[] indices)
     {
         boolean changed = false;
-        List<String> selections = (cardVar == 1) ? guiContext.mainFrame.listOperationIncludeExclude.getSelectedValuesList() :
-                guiContext.mainFrame.listOperationExclude.getSelectedValuesList();
+        List<String> selections = (cardVar == 1) ? context.mainFrame.listOperationIncludeExclude.getSelectedValuesList() :
+                context.mainFrame.listOperationExclude.getSelectedValuesList();
         for (int i = indices.length - 1; i >= 0; --i)
         {
             String dn = selections.get(i);
-            if (dn.startsWith(guiContext.cfg.gs("Operations.include")) && !includes)
+            if (dn.startsWith(context.cfg.gs("Operations.include")) && !includes)
                 continue;
-            if (dn.startsWith(guiContext.cfg.gs("Operations.exclude")) && includes)
+            if (dn.startsWith(context.cfg.gs("Operations.exclude")) && includes)
                 continue;
 
             String cn = "";
             if (includes)
-                cn = dn.substring(guiContext.cfg.gs("Operations.include").length());
+                cn = dn.substring(context.cfg.gs("Operations.include").length());
             else
-                cn = dn.substring(guiContext.cfg.gs("Operations.exclude").length());
+                cn = dn.substring(context.cfg.gs("Operations.exclude").length());
 
             int removed = 0;
             String[] libs = (includes) ? currentTool.getOptLibrary() : currentTool.getOptExclude();
@@ -1155,7 +1156,7 @@ public class OperationsUI
         try
         {
             Tools tools = new Tools();
-            ArrayList<AbstractTool> toolList = tools.loadAllTools(guiContext, OperationsTool.INTERNAL_NAME);
+            ArrayList<AbstractTool> toolList = tools.loadAllTools(context, OperationsTool.INTERNAL_NAME);
             for (AbstractTool tool : toolList)
             {
                 OperationsTool operation = (OperationsTool) tool;
@@ -1164,11 +1165,11 @@ public class OperationsUI
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-            if (guiContext != null)
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (context != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -1176,12 +1177,12 @@ public class OperationsUI
 
         if (configModel.getRowCount() == 0)
         {
-            guiContext.mainFrame.buttonCopyOperation.setEnabled(false);
-            guiContext.mainFrame.buttonDeleteOperation.setEnabled(false);
-            guiContext.mainFrame.buttonRunOperation.setEnabled(false);
-            guiContext.mainFrame.buttonGenerateOperation.setEnabled(false);
-            guiContext.mainFrame.buttonOperationSave.setEnabled(false);
-            guiContext.mainFrame.buttonOperationCancel.setEnabled(false);
+            context.mainFrame.buttonCopyOperation.setEnabled(false);
+            context.mainFrame.buttonDeleteOperation.setEnabled(false);
+            context.mainFrame.buttonRunOperation.setEnabled(false);
+            context.mainFrame.buttonGenerateOperation.setEnabled(false);
+            context.mainFrame.buttonOperationSave.setEnabled(false);
+            context.mainFrame.buttonOperationCancel.setEnabled(false);
         }
         else
         {
@@ -1199,7 +1200,7 @@ public class OperationsUI
         {
             for (int i = 0; i < currentTool.getOptExclude().length; ++i)
             {
-                exc.add(guiContext.cfg.gs("Operations.exclude") + currentTool.getOptExclude()[i]);
+                exc.add(context.cfg.gs("Operations.exclude") + currentTool.getOptExclude()[i]);
             }
         }
         DefaultListModel<String> model = new DefaultListModel<String>();
@@ -1211,9 +1212,9 @@ public class OperationsUI
                 model.addElement(element);
             }
         }
-        guiContext.mainFrame.listOperationExclude.setModel(model);
-        guiContext.mainFrame.scrollPaneOperationExclude.setViewportView(guiContext.mainFrame.listOperationExclude);
-        guiContext.mainFrame.listOperationExclude.setSelectionInterval(0, 0);
+        context.mainFrame.listOperationExclude.setModel(model);
+        context.mainFrame.scrollPaneOperationExclude.setViewportView(context.mainFrame.listOperationExclude);
+        context.mainFrame.listOperationExclude.setSelectionInterval(0, 0);
     }
 
     private void loadIncludeExcludeList()
@@ -1223,14 +1224,14 @@ public class OperationsUI
         {
             for (int i = 0; i < currentTool.getOptExclude().length; ++i)
             {
-                incExc.add(guiContext.cfg.gs("Operations.exclude") + currentTool.getOptExclude()[i]);
+                incExc.add(context.cfg.gs("Operations.exclude") + currentTool.getOptExclude()[i]);
             }
         }
         if (currentTool.getOptLibrary() != null)
         {
             for (int i = 0; i < currentTool.getOptLibrary().length; ++i)
             {
-                incExc.add(guiContext.cfg.gs("Operations.include") + currentTool.getOptLibrary()[i]);
+                incExc.add(context.cfg.gs("Operations.include") + currentTool.getOptLibrary()[i]);
             }
         }
         DefaultListModel<String> model = new DefaultListModel<String>();
@@ -1244,13 +1245,13 @@ public class OperationsUI
         }
         else
         {
-            guiContext.mainFrame.listOperationIncludeExclude.removeAll();
+            context.mainFrame.listOperationIncludeExclude.removeAll();
             model.removeAllElements();
             model.clear();
         }
-        guiContext.mainFrame.listOperationIncludeExclude.setModel(model);
-        guiContext.mainFrame.scrollPaneOperationIncludeExclude.setViewportView(guiContext.mainFrame.listOperationIncludeExclude);
-        guiContext.mainFrame.listOperationIncludeExclude.setSelectionInterval(0, 0);
+        context.mainFrame.listOperationIncludeExclude.setModel(model);
+        context.mainFrame.scrollPaneOperationIncludeExclude.setViewportView(context.mainFrame.listOperationIncludeExclude);
+        context.mainFrame.listOperationIncludeExclude.setSelectionInterval(0, 0);
     }
 
     private void loadOptions(int index)
@@ -1267,8 +1268,8 @@ public class OperationsUI
             loading = true;
             int cardVar = 1;
             //OperationsTool.Cards cardName = modes[getModeOperationIndex()].card;
-            ((CardLayout) guiContext.mainFrame.panelOperationCards.getLayout()).show(guiContext.mainFrame.panelOperationCards, currentTool.getCard().name().toLowerCase());
-            guiContext.mainFrame.labelOperationMode.setText(modes[getModeOperationIndex()].name);
+            ((CardLayout) context.mainFrame.panelOperationCards.getLayout()).show(context.mainFrame.panelOperationCards, currentTool.getCard().name().toLowerCase());
+            context.mainFrame.labelOperationMode.setText(modes[getModeOperationIndex()].name);
 
             // populate card
             switch (currentTool.getOperation())
@@ -1309,7 +1310,7 @@ public class OperationsUI
 
     private void loadOptionsListener()
     {
-        MainFrame mf = guiContext.mainFrame;
+        MainFrame mf = context.mainFrame;
 
         // ### LEFT SIDE
         // --- General
@@ -1389,7 +1390,7 @@ public class OperationsUI
 
     private void loadOptionsPublisher()
     {
-        MainFrame mf = guiContext.mainFrame;
+        MainFrame mf = context.mainFrame;
 
         // ### LEFT SIDE
         // --- General
@@ -1497,21 +1498,21 @@ public class OperationsUI
 
     private void process()
     {
-        guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        guiContext.navigator.setComponentEnabled(false, guiContext.mainFrame.panelOperationTop);
-        guiContext.mainFrame.buttonOperationCancel.setEnabled(true);
-        guiContext.mainFrame.buttonOperationCancel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        guiContext.mainFrame.labelOperationHelp.setEnabled(true);
-        guiContext.mainFrame.labelOperationHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        context.navigator.setComponentEnabled(false, context.mainFrame.panelOperationTop);
+        context.mainFrame.buttonOperationCancel.setEnabled(true);
+        context.mainFrame.buttonOperationCancel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        context.mainFrame.labelOperationHelp.setEnabled(true);
+        context.mainFrame.labelOperationHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        Repository pubRepo = guiContext.context.publisherRepo;
-        Repository subRepo = guiContext.context.subscriberRepo;
+        Repository pubRepo = context.publisherRepo;
+        Repository subRepo = context.subscriberRepo;
 
-        worker = workerOperation.processToolThread(guiContext, pubRepo, subRepo, null, false);
+        worker = workerOperation.processToolThread(context, pubRepo, subRepo, null, false);
         if (worker != null)
         {
             workerRunning = true;
-            guiContext.navigator.disableGui(true);
+            context.navigator.disableGui(true);
             worker.addPropertyChangeListener(new PropertyChangeListener()
             {
                 @Override
@@ -1525,8 +1526,8 @@ public class OperationsUI
                 }
             });
 
-            logger.info(guiContext.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
-            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
+            logger.info(context.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
+            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
             worker.execute();
         }
         else
@@ -1535,23 +1536,23 @@ public class OperationsUI
 
     private void processTerminated(OperationsTool operation)
     {
-        if (guiContext.progress != null)
-            guiContext.progress.done();
+        if (context.progress != null)
+            context.progress.done();
 
-        guiContext.navigator.disableGui(false);
-        guiContext.navigator.setComponentEnabled(true, guiContext.mainFrame.panelOperationTop);
-        guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        context.navigator.disableGui(false);
+        context.navigator.setComponentEnabled(true, context.mainFrame.panelOperationTop);
+        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
 
         if (operation.isRequestStop())
         {
-            logger.info(operation.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
-            guiContext.mainFrame.labelStatusMiddle.setText(operation.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(operation.getConfigName() + context.cfg.gs("Z.cancelled"));
+            context.mainFrame.labelStatusMiddle.setText(operation.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
         else
         {
-            logger.info(guiContext.cfg.gs("Operations.operation") + operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
-            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Operations.operation") + operation.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(context.cfg.gs("Operations.operation") + operation.getConfigName() + context.cfg.gs("Z.completed"));
+            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Operations.operation") + operation.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }
 
@@ -1583,11 +1584,11 @@ public class OperationsUI
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-            if (guiContext != null)
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (context != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(guiContext.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -1596,8 +1597,8 @@ public class OperationsUI
 
     public void savePreferences()
     {
-        guiContext.preferences.setOperationDividerLocation(guiContext.mainFrame.splitPaneOperation.getDividerLocation());
-        guiContext.preferences.setOperationDividerConfigLocation(guiContext.mainFrame.splitPaneOperationContent.getDividerLocation());
+        context.preferences.setOperationDividerLocation(context.mainFrame.splitPaneOperation.getDividerLocation());
+        context.preferences.setOperationDividerConfigLocation(context.mainFrame.splitPaneOperationContent.getDividerLocation());
     }
 
     private void updateOnChange(Object source)
@@ -1634,8 +1635,8 @@ public class OperationsUI
                     case "hints2":
                         cardVar = 2;
                     case "hints":
-                        selection = (cardVar == 2) ? guiContext.mainFrame.comboBoxOperationHintsAndServer2.getSelectedIndex() :
-                                guiContext.mainFrame.comboBoxOperationHintsAndServer.getSelectedIndex();
+                        selection = (cardVar == 2) ? context.mainFrame.comboBoxOperationHintsAndServer2.getSelectedIndex() :
+                                context.mainFrame.comboBoxOperationHintsAndServer.getSelectedIndex();
                         if (selection == 0)
                         {
                             current = currentTool.getOptHints();
@@ -1650,7 +1651,7 @@ public class OperationsUI
                     case "hintkeys2":
                         cardVar = 2;
                     case "hintkeys":
-                        selection = (cardVar == 2) ? 0 : guiContext.mainFrame.comboBoxOperationHintKeys.getSelectedIndex();
+                        selection = (cardVar == 2) ? 0 : context.mainFrame.comboBoxOperationHintKeys.getSelectedIndex();
                         if (selection == 0)
                         {
                             current = currentTool.getOptKeys();
@@ -1674,8 +1675,8 @@ public class OperationsUI
                     case "log2":
                         cardVar = 2;
                     case "log":
-                        selection = (cardVar == 2) ? guiContext.mainFrame.comboBoxOperationLog2.getSelectedIndex() :
-                                guiContext.mainFrame.comboBoxOperationLog.getSelectedIndex();
+                        selection = (cardVar == 2) ? context.mainFrame.comboBoxOperationLog2.getSelectedIndex() :
+                                context.mainFrame.comboBoxOperationLog.getSelectedIndex();
                         if (selection == 0)
                         {
                             current = currentTool.getOptLogFile();
@@ -1697,12 +1698,12 @@ public class OperationsUI
                         currentTool.setOptTargets(tf.getText());
                         break;
                     case "whatsnew":
-                        if (guiContext.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 0)
+                        if (context.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 0)
                         {
                             current = currentTool.getOptWhatsNew();
                             currentTool.setOptWhatsNew(tf.getText());
                         }
-                        else if (guiContext.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 1)
+                        else if (context.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 1)
                         {
                             current = currentTool.getOptWhatsNewAll();
                             currentTool.setOptWhatsNewAll(tf.getText());
@@ -1824,15 +1825,15 @@ public class OperationsUI
                             current = 1;
                         if (index == 0)
                         {
-                            value = (cardVar == 2) ? guiContext.mainFrame.textFieldOperationHints2.getText() :
-                                    guiContext.mainFrame.textFieldOperationHints.getText();
+                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationHints2.getText() :
+                                    context.mainFrame.textFieldOperationHints.getText();
                             currentTool.setOptHints(value);
                             currentTool.setOptHintServer("");
                         }
                         else if (index == 1)
                         {
-                            value = (cardVar == 2) ? guiContext.mainFrame.textFieldOperationHints2.getText() :
-                                    guiContext.mainFrame.textFieldOperationHints.getText();
+                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationHints2.getText() :
+                                    context.mainFrame.textFieldOperationHints.getText();
                             currentTool.setOptHintServer(value);
                             currentTool.setOptHints("");
                         }
@@ -1846,15 +1847,15 @@ public class OperationsUI
                             current = 1;
                         if (index == 0)
                         {
-                            value = (cardVar == 2) ? guiContext.mainFrame.textFieldOperationHintKeys2.getText() :
-                                    guiContext.mainFrame.textFieldOperationHintKeys.getText();
+                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationHintKeys2.getText() :
+                                    context.mainFrame.textFieldOperationHintKeys.getText();
                             currentTool.setOptKeys(value);
                             currentTool.setOptKeysOnly("");
                         }
                         else if (index == 1)
                         {
-                            value = (cardVar == 2) ? guiContext.mainFrame.textFieldOperationHintKeys2.getText() :
-                                    guiContext.mainFrame.textFieldOperationHintKeys.getText();
+                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationHintKeys2.getText() :
+                                    context.mainFrame.textFieldOperationHintKeys.getText();
                             currentTool.setOptKeysOnly(value);
                             currentTool.setOptKeys("");
                         }
@@ -1868,15 +1869,15 @@ public class OperationsUI
                             current = 1;
                         if (index == 0)
                         {
-                            value = (cardVar == 2) ? guiContext.mainFrame.textFieldOperationLog2.getText() :
-                                    guiContext.mainFrame.textFieldOperationLog.getText();
+                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationLog2.getText() :
+                                    context.mainFrame.textFieldOperationLog.getText();
                             currentTool.setOptLogFile(value);
                             currentTool.setOptLogFileOverwrite("");
                         }
                         else if (index == 1)
                         {
-                            value = (cardVar == 2) ? guiContext.mainFrame.textFieldOperationLog2.getText() :
-                                    guiContext.mainFrame.textFieldOperationLog.getText();
+                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationLog2.getText() :
+                                    context.mainFrame.textFieldOperationLog.getText();
                             currentTool.setOptLogFileOverwrite(value);
                             currentTool.setOptLogFile("");
                         }
@@ -1888,12 +1889,12 @@ public class OperationsUI
                             current = 1;
                         if (index == 0)
                         {
-                            currentTool.setOptWhatsNew(guiContext.mainFrame.textFieldOperationWhatsNew.getText());
+                            currentTool.setOptWhatsNew(context.mainFrame.textFieldOperationWhatsNew.getText());
                             currentTool.setOptWhatsNewAll("");
                         }
                         else if (index == 1)
                         {
-                            currentTool.setOptWhatsNewAll(guiContext.mainFrame.textFieldOperationWhatsNew.getText());
+                            currentTool.setOptWhatsNewAll(context.mainFrame.textFieldOperationWhatsNew.getText());
                             currentTool.setOptWhatsNew("");
                         }
                         break;
@@ -1918,49 +1919,49 @@ public class OperationsUI
         if (carVar == 1)
         {
             current = currentTool.getOptExportItems();
-            guiContext.mainFrame.textFieldOperationExportItems.setToolTipText(current);
+            context.mainFrame.textFieldOperationExportItems.setToolTipText(current);
 
             current = currentTool.getOptExportText();
-            guiContext.mainFrame.textFieldOperationExportText.setToolTipText(current);
+            context.mainFrame.textFieldOperationExportText.setToolTipText(current);
 
             current = currentTool.getOptMismatches();
-            guiContext.mainFrame.textFieldOperationMismatches.setToolTipText(current);
+            context.mainFrame.textFieldOperationMismatches.setToolTipText(current);
 
             current = "";
-            if (guiContext.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 0)
+            if (context.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 0)
                 current = currentTool.getOptWhatsNew();
-            else if (guiContext.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 1)
+            else if (context.mainFrame.comboBoxOperationWhatsNew.getSelectedIndex() == 1)
                 current = currentTool.getOptWhatsNewAll();
-            guiContext.mainFrame.textFieldOperationWhatsNew.setToolTipText(current);
+            context.mainFrame.textFieldOperationWhatsNew.setToolTipText(current);
         }
 
         if (carVar == 2)
         {
             current = currentTool.getOptAuthKeys();
-            guiContext.mainFrame.textFieldOperationAuthKeys.setToolTipText(current);
+            context.mainFrame.textFieldOperationAuthKeys.setToolTipText(current);
 
             current = currentTool.getOptBlacklist();
-            guiContext.mainFrame.textFieldOperationBlacklist.setToolTipText(current);
+            context.mainFrame.textFieldOperationBlacklist.setToolTipText(current);
 
             current = currentTool.getOptIpWhitelist();
-            guiContext.mainFrame.textFieldOperationIpWhitelist.setToolTipText(current);
+            context.mainFrame.textFieldOperationIpWhitelist.setToolTipText(current);
         }
 
         current = currentTool.getOptJob();
         if (carVar == 1)
-            guiContext.mainFrame.textFieldOperationJob.setToolTipText(current);
+            context.mainFrame.textFieldOperationJob.setToolTipText(current);
         else
-            guiContext.mainFrame.textFieldOperationJob2.setToolTipText(current);
+            context.mainFrame.textFieldOperationJob2.setToolTipText(current);
 
         current = currentTool.getOptTargets();
         if (carVar == 1)
-            guiContext.mainFrame.textFieldOperationTargets.setToolTipText(current);
+            context.mainFrame.textFieldOperationTargets.setToolTipText(current);
         else
-            guiContext.mainFrame.textFieldOperationTargets2.setToolTipText(current);
+            context.mainFrame.textFieldOperationTargets2.setToolTipText(current);
 
         current = "";
         if (carVar == 1)
-            selected = guiContext.mainFrame.comboBoxOperationHintKeys.getSelectedIndex();
+            selected = context.mainFrame.comboBoxOperationHintKeys.getSelectedIndex();
         else
             selected = 0;
         if (selected == 0)
@@ -1968,37 +1969,37 @@ public class OperationsUI
         else if (selected == 1)
             current = currentTool.getOptKeysOnly();
         if (carVar == 1)
-            guiContext.mainFrame.textFieldOperationHintKeys.setToolTipText(current);
+            context.mainFrame.textFieldOperationHintKeys.setToolTipText(current);
         else
-            guiContext.mainFrame.textFieldOperationHintKeys2.setToolTipText(current);
+            context.mainFrame.textFieldOperationHintKeys2.setToolTipText(current);
 
         current = "";
         if (carVar == 1)
-            selected = guiContext.mainFrame.comboBoxOperationHintsAndServer.getSelectedIndex();
+            selected = context.mainFrame.comboBoxOperationHintsAndServer.getSelectedIndex();
         else
-            selected = guiContext.mainFrame.comboBoxOperationHintsAndServer2.getSelectedIndex();
+            selected = context.mainFrame.comboBoxOperationHintsAndServer2.getSelectedIndex();
         if (selected == 0)
             current = currentTool.getOptHints();
         else if (selected == 1)
             current = currentTool.getOptHintServer();
         if (carVar == 1)
-            guiContext.mainFrame.textFieldOperationHints.setToolTipText(current);
+            context.mainFrame.textFieldOperationHints.setToolTipText(current);
         else
-            guiContext.mainFrame.textFieldOperationHints2.setToolTipText(current);
+            context.mainFrame.textFieldOperationHints2.setToolTipText(current);
 
         current = "";
         if (carVar == 1)
-            selected = guiContext.mainFrame.comboBoxOperationLog.getSelectedIndex();
+            selected = context.mainFrame.comboBoxOperationLog.getSelectedIndex();
         else
-            selected = guiContext.mainFrame.comboBoxOperationLog2.getSelectedIndex();
+            selected = context.mainFrame.comboBoxOperationLog2.getSelectedIndex();
         if (selected == 0)
             current = currentTool.getOptLogFile();
         else if (selected == 1)
             current = currentTool.getOptLogFileOverwrite();
         if (carVar == 1)
-            guiContext.mainFrame.textFieldOperationLog.setToolTipText(current);
+            context.mainFrame.textFieldOperationLog.setToolTipText(current);
         else
-            guiContext.mainFrame.textFieldOperationLog2.setToolTipText(current);
+            context.mainFrame.textFieldOperationLog2.setToolTipText(current);
     }
 
     private void updateState()

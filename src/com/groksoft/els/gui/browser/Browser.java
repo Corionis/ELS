@@ -1,7 +1,7 @@
 package com.groksoft.els.gui.browser;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.*;
 import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
@@ -46,10 +46,10 @@ public class Browser
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
     //
+    private Context context;
     public JComponent lastComponent = null;
     public int lastTab = 0;
     public boolean hintTrackingEnabled = false;
-    private GuiContext guiContext;
     private String keyBuffer = "";
     private long keyTime = 0L;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -60,10 +60,10 @@ public class Browser
     private int tabStop = 0;
     private int[] tabStops = {0, 1, 4, 5};
 
-    public Browser(GuiContext gctx)
+    public Browser(Context context)
     {
-        this.guiContext = gctx;
-        this.guiContext.browser = this;
+        this.context = context;
+        this.context.browser = this;
         initialize();
     }
 
@@ -84,49 +84,49 @@ public class Browser
                     {
                         case "treeCollectionOne":
                             lastTab = 0;
-                            lastComponent = guiContext.mainFrame.treeCollectionOne;
+                            lastComponent = context.mainFrame.treeCollectionOne;
                             tabStops[0] = 0;
                             tabStops[1] = 1;
                             break;
                         case "tableCollectionOne":
                             lastTab = 1;
-                            lastComponent = guiContext.mainFrame.tableCollectionOne;
+                            lastComponent = context.mainFrame.tableCollectionOne;
                             tabStops[0] = 0;
                             tabStops[1] = 1;
                             break;
                         case "treeSystemOne":
                             lastTab = 0;
-                            lastComponent = guiContext.mainFrame.treeSystemOne;
+                            lastComponent = context.mainFrame.treeSystemOne;
                             tabStops[0] = 2;
                             tabStops[1] = 3;
                             break;
                         case "tableSystemOne":
                             lastTab = 1;
-                            lastComponent = guiContext.mainFrame.tableSystemOne;
+                            lastComponent = context.mainFrame.tableSystemOne;
                             tabStops[0] = 2;
                             tabStops[1] = 3;
                             break;
                         case "treeCollectionTwo":
                             lastTab = 2;
-                            lastComponent = guiContext.mainFrame.treeCollectionTwo;
+                            lastComponent = context.mainFrame.treeCollectionTwo;
                             tabStops[2] = 4;
                             tabStops[3] = 5;
                             break;
                         case "tableCollectionTwo":
                             lastTab = 3;
-                            lastComponent = guiContext.mainFrame.tableCollectionTwo;
+                            lastComponent = context.mainFrame.tableCollectionTwo;
                             tabStops[2] = 4;
                             tabStops[3] = 5;
                             break;
                         case "treeSystemTwo":
                             lastTab = 2;
-                            lastComponent = guiContext.mainFrame.treeSystemTwo;
+                            lastComponent = context.mainFrame.treeSystemTwo;
                             tabStops[2] = 6;
                             tabStops[3] = 7;
                             break;
                         case "tableSystemTwo":
                             lastTab = 3;
-                            lastComponent = guiContext.mainFrame.tableSystemTwo;
+                            lastComponent = context.mainFrame.tableSystemTwo;
                             tabStops[2] = 6;
                             tabStops[3] = 7;
                             break;
@@ -135,7 +135,7 @@ public class Browser
                     NavTreeUserObject tuo = getSelectedUserObject(active);
                     if (tuo != null)
                     {
-                        guiContext.mainFrame.textFieldLocation.setText(tuo.getPath());
+                        context.mainFrame.textFieldLocation.setText(tuo.getPath());
                         printProperties(tuo);
                     }
                 }
@@ -156,23 +156,23 @@ public class Browser
         {
             synchronized public void mouseClicked(MouseEvent mouseEvent)
             {
-                guiContext.mainFrame.labelStatusMiddle.setText("");
+                context.mainFrame.labelStatusMiddle.setText("");
                 JTable target = (JTable) mouseEvent.getSource();
                 target.requestFocus();
                 JTree eventTree = null;
                 switch (target.getName())
                 {
                     case "tableCollectionOne":
-                        eventTree = guiContext.mainFrame.treeCollectionOne;
+                        eventTree = context.mainFrame.treeCollectionOne;
                         break;
                     case "tableSystemOne":
-                        eventTree = guiContext.mainFrame.treeSystemOne;
+                        eventTree = context.mainFrame.treeSystemOne;
                         break;
                     case "tableCollectionTwo":
-                        eventTree = guiContext.mainFrame.treeCollectionTwo;
+                        eventTree = context.mainFrame.treeCollectionTwo;
                         break;
                     case "tableSystemTwo":
-                        eventTree = guiContext.mainFrame.treeSystemTwo;
+                        eventTree = context.mainFrame.treeSystemTwo;
                         break;
                 }
                 int row = target.getSelectedRow();
@@ -182,7 +182,7 @@ public class Browser
                     if (tuo != null)
                     {
                         boolean doubleClick = (mouseEvent.getClickCount() == 2);
-                        guiContext.mainFrame.textFieldLocation.setText(tuo.getPath());
+                        context.mainFrame.textFieldLocation.setText(tuo.getPath());
                         printProperties(tuo);
                         if (doubleClick)
                         {
@@ -203,18 +203,18 @@ public class Browser
                                     }
                                     catch (Exception e)
                                     {
-                                        JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                                guiContext.cfg.gs("Browser.error.launching.item"),
-                                                guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                        JOptionPane.showMessageDialog(context.mainFrame,
+                                                context.cfg.gs("Browser.error.launching.item"),
+                                                context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     }
                                 }
                                 else
                                 {
-                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                            guiContext.cfg.gs("Browser.launch.of") +
-                                                    (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") : "") +
-                                                    guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
-                                            guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                                    JOptionPane.showMessageDialog(context.mainFrame,
+                                            context.cfg.gs("Browser.launch.of") +
+                                                    (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") : "") +
+                                                    context.cfg.gs("Browser.launch.of.items.not.supported"),
+                                            context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                                 }
                             }
                         }
@@ -237,7 +237,7 @@ public class Browser
                     if (object instanceof JTable)
                     {
                         int[] rows = {0};
-                        tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+                        tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
                         rows = ((JTable) object).getSelectedRows();
                         if (rows.length > 0)
                         {
@@ -281,7 +281,7 @@ public class Browser
                 // handle F2 Rename
                 if (keyEvent.getKeyCode() == KeyEvent.VK_F2 && keyEvent.getModifiers() == 0)
                 {
-                    for (ActionListener listener : guiContext.mainFrame.menuItemRename.getActionListeners())
+                    for (ActionListener listener : context.mainFrame.menuItemRename.getActionListeners())
                     {
                         listener.actionPerformed(new ActionEvent(keyEvent.getSource(), ActionEvent.ACTION_PERFORMED, null));
                     }
@@ -330,9 +330,9 @@ public class Browser
 //                        JTextField field = (JTextField) object;
 //                        if (field.getName() != null && field.getName().equals("location"))
 //                        {
-//                            JOptionPane.showMessageDialog(guiContext.form,
+//                            JOptionPane.showMessageDialog(context.form,
 //                                    "change location",
-//                                    guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+//                                    context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
 //                        }
                     }
                     else
@@ -352,7 +352,7 @@ public class Browser
                         else if (object instanceof JTable)
                         {
                             int[] rows = {0};
-                            tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+                            tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
                             rows = ((JTable) object).getSelectedRows();
                             if (rows.length > 0)
                             {
@@ -377,18 +377,18 @@ public class Browser
                                 }
                                 catch (Exception e)
                                 {
-                                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                            guiContext.cfg.gs("Browser.error.launching.item"),
-                                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(context.mainFrame,
+                                            context.cfg.gs("Browser.error.launching.item"),
+                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 }
                             }
                             else
                             {
-                                JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                        guiContext.cfg.gs("Browser.launch.of") +
-                                                (tuo.isRemote ? guiContext.cfg.gs("Z.remote.lowercase") : "") +
-                                                guiContext.cfg.gs("Browser.launch.of.items.not.supported"),
-                                        guiContext.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.showMessageDialog(context.mainFrame,
+                                        context.cfg.gs("Browser.launch.of") +
+                                                (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") : "") +
+                                                context.cfg.gs("Browser.launch.of.items.not.supported"),
+                                        context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
                             }
                         }
                     }
@@ -423,14 +423,14 @@ public class Browser
                 }
             }
         };
-        guiContext.mainFrame.treeCollectionOne.addKeyListener(browserKeyListener);
-        guiContext.mainFrame.tableCollectionOne.addKeyListener(browserKeyListener);
-        guiContext.mainFrame.treeSystemOne.addKeyListener(browserKeyListener);
-        guiContext.mainFrame.tableSystemOne.addKeyListener(browserKeyListener);
-        guiContext.mainFrame.treeCollectionTwo.addKeyListener(browserKeyListener);
-        guiContext.mainFrame.tableCollectionTwo.addKeyListener(browserKeyListener);
-        guiContext.mainFrame.treeSystemTwo.addKeyListener(browserKeyListener);
-        guiContext.mainFrame.tableSystemTwo.addKeyListener(browserKeyListener);
+        context.mainFrame.treeCollectionOne.addKeyListener(browserKeyListener);
+        context.mainFrame.tableCollectionOne.addKeyListener(browserKeyListener);
+        context.mainFrame.treeSystemOne.addKeyListener(browserKeyListener);
+        context.mainFrame.tableSystemOne.addKeyListener(browserKeyListener);
+        context.mainFrame.treeCollectionTwo.addKeyListener(browserKeyListener);
+        context.mainFrame.tableCollectionTwo.addKeyListener(browserKeyListener);
+        context.mainFrame.treeSystemTwo.addKeyListener(browserKeyListener);
+        context.mainFrame.tableSystemTwo.addKeyListener(browserKeyListener);
     }
 
     private void bookmarkCreate(NavTreeNode node, String name, String panelName)
@@ -438,9 +438,9 @@ public class Browser
         Repository repo = node.getUserObject().getRepo();
         if (repo != null)
         {
-            Object obj = JOptionPane.showInputDialog(guiContext.mainFrame,
-                    repo.getLibraryData().libraries.description + " " + guiContext.cfg.gs(("Browser.bookmark.name")),
-                    guiContext.cfg.gs("Browser.add.bookmark"), JOptionPane.QUESTION_MESSAGE,
+            Object obj = JOptionPane.showInputDialog(context.mainFrame,
+                    repo.getLibraryData().libraries.description + " " + context.cfg.gs(("Browser.bookmark.name")),
+                    context.cfg.gs("Browser.add.bookmark"), JOptionPane.QUESTION_MESSAGE,
                     null, null, name);
             name = (String) obj;
             if (name != null && name.length() > 0)
@@ -458,18 +458,18 @@ public class Browser
                         node = (NavTreeNode) objs[i];
                         bm.pathElements[i] = node.getUserObject().name;
                     }
-                    guiContext.navigator.bookmarks.add(bm);
+                    context.navigator.bookmarks.add(bm);
                     try
                     {
-                        guiContext.navigator.bookmarks.write();
-                        guiContext.navigator.loadBookmarksMenu();
+                        context.navigator.bookmarks.write();
+                        context.navigator.loadBookmarksMenu();
                     }
                     catch (Exception e)
                     {
                         logger.error(Utils.getStackTrace(e));
-                        JOptionPane.showMessageDialog(guiContext.mainFrame,
-                                guiContext.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
-                                guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(context.mainFrame,
+                                context.cfg.gs("Browser.error.saving.bookmarks") + e.getMessage(),
+                                context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -481,7 +481,7 @@ public class Browser
         Bookmark bm = new Bookmark();
         bm.name = name;
         bm.panel = (isPublisher) ? "tableCollectionOne" : "tableCollectionTwo";
-        Repository repo = (isPublisher) ? guiContext.context.publisherRepo : guiContext.context.subscriberRepo;
+        Repository repo = (isPublisher) ? context.publisherRepo : context.subscriberRepo;
 
         String sep = Utils.getSeparatorFromPath(item.getFullPath());
         String[] split = item.getItemPath().split(sep);
@@ -508,25 +508,25 @@ public class Browser
         // determine which
         JTree tree;
         if (panelName.endsWith("one")) // publisher
-            tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionOne : guiContext.mainFrame.treeSystemOne;
+            tree = panelName.contains("collection") ? context.mainFrame.treeCollectionOne : context.mainFrame.treeSystemOne;
         else // subscriber
-            tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionTwo : guiContext.mainFrame.treeSystemTwo;
+            tree = panelName.contains("collection") ? context.mainFrame.treeCollectionTwo : context.mainFrame.treeSystemTwo;
 
         NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
         // root should be first path element
         if (node.getUserObject().name.equals(bookmark.pathElements[0]))
         {
             // select the Browser tab and one of it's 8 panels
-            guiContext.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-            int panelNo = guiContext.browser.getPanelNumber(bookmark.panel);
-            guiContext.browser.selectPanelNumber(panelNo);
+            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+            int panelNo = context.browser.getPanelNumber(bookmark.panel);
+            context.browser.selectPanelNumber(panelNo);
             scanSelectPath(panelName, bookmark.pathElements, true);
         }
         else
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame,
-                    java.text.MessageFormat.format(guiContext.cfg.gs("Browser.library.is.not.loaded"), bookmark.pathElements[0]),
-                    guiContext.cfg.gs("Navigator.menu.Bookmarks.text"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame,
+                    java.text.MessageFormat.format(context.cfg.gs("Browser.library.is.not.loaded"), bookmark.pathElements[0]),
+                    context.cfg.gs("Navigator.menu.Bookmarks.text"), JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -535,9 +535,9 @@ public class Browser
         int[] rows = sourceTable.getSelectedRows();
         if (rows != null && rows.length != 1)
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame,
-                    guiContext.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
-                    guiContext.cfg.gs("Browser.add.bookmark"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame,
+                    context.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
+                    context.cfg.gs("Browser.add.bookmark"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -554,9 +554,9 @@ public class Browser
         TreePath[] paths = sourceTree.getSelectionPaths();
         if ((paths != null && paths.length != 1) || paths == null)
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame,
-                    guiContext.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
-                    guiContext.cfg.gs("Browser.add.bookmark"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame,
+                    context.cfg.gs(("Browser.please.select.a.single.item.to.bookmark")),
+                    context.cfg.gs("Browser.add.bookmark"), JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -581,9 +581,9 @@ public class Browser
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                            guiContext.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name,
-                            guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name,
+                            context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -602,15 +602,15 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowDeleteConfirmation())
+            if (context.preferences.isShowDeleteConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
+                String msg = MessageFormat.format(context.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
-                reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
-                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, context.cfg.getLongScale()));
+                msg += (dirCount > 0 ? MessageFormat.format(context.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(context.mainFrame, msg,
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
             boolean error = false;
@@ -646,13 +646,13 @@ public class Browser
                             catch (Exception e)
                             {
                                 logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
                     else
                     {
-                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(context.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
                 if (!error)
@@ -693,7 +693,7 @@ public class Browser
                 NavTreeUserObject tuo = ntn.getUserObject();
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Delete.cannot") + tuo.name, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -712,15 +712,15 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowDeleteConfirmation())
+            if (context.preferences.isShowDeleteConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
+                String msg = MessageFormat.format(context.cfg.gs("Navigator.menu.Delete.are.you.sure1"),
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
-                reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
-                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, context.cfg.getLongScale()));
+                msg += (dirCount > 0 ? MessageFormat.format(context.cfg.gs("Navigator.menu.Delete.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(context.mainFrame, msg,
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
             boolean error = false;
@@ -757,13 +757,13 @@ public class Browser
                             catch (Exception e)
                             {
                                 logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.writing.hint") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
                     else
                     {
-                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(context.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
                 if (!error)
@@ -817,7 +817,7 @@ public class Browser
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            guiContext.context.fault = true;
+            context.fault = true;
         }
     }
 
@@ -840,7 +840,7 @@ public class Browser
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            guiContext.context.fault = true;
+            context.fault = true;
         }
     }
 
@@ -894,23 +894,23 @@ public class Browser
     public long getFreespace(String path, boolean isRemote) throws Exception
     {
         long space = 0L;
-        if (isRemote && guiContext.cfg.isRemoteSession())
+        if (isRemote && context.cfg.isRemoteSession())
         {
             try
             {
                 // remote subscriber
-                space = guiContext.context.clientStty.availableSpace(path);
+                space = context.clientStty.availableSpace(path);
             }
             catch (Exception e)
             {
                 if (e instanceof SocketException && e.toString().contains("broken pipe"))
-                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                            guiContext.cfg.gs("Browser.connection.lost"),
-                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Browser.connection.lost"),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 else
-                    JOptionPane.showMessageDialog(guiContext.mainFrame,
-                            guiContext.cfg.gs("Z.exception"),
-                            guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Z.exception"),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
         }
         else
@@ -965,7 +965,7 @@ public class Browser
         NavTreeUserObject tuo = null;
         if (object instanceof JTable)
         {
-            tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+            tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
             rows = ((JTable) object).getSelectedRows();
             if (rows.length > 0)
             {
@@ -992,28 +992,28 @@ public class Browser
         switch (index)
         {
             case 0:
-                nextComponent = guiContext.mainFrame.treeCollectionOne;
+                nextComponent = context.mainFrame.treeCollectionOne;
                 break;
             case 1:
-                nextComponent = guiContext.mainFrame.tableCollectionOne;
+                nextComponent = context.mainFrame.tableCollectionOne;
                 break;
             case 2:
-                nextComponent = guiContext.mainFrame.treeSystemOne;
+                nextComponent = context.mainFrame.treeSystemOne;
                 break;
             case 3:
-                nextComponent = guiContext.mainFrame.tableSystemOne;
+                nextComponent = context.mainFrame.tableSystemOne;
                 break;
             case 4:
-                nextComponent = guiContext.mainFrame.treeCollectionTwo;
+                nextComponent = context.mainFrame.treeCollectionTwo;
                 break;
             case 5:
-                nextComponent = guiContext.mainFrame.tableCollectionTwo;
+                nextComponent = context.mainFrame.tableCollectionTwo;
                 break;
             case 6:
-                nextComponent = guiContext.mainFrame.treeSystemTwo;
+                nextComponent = context.mainFrame.treeSystemTwo;
                 break;
             case 7:
-                nextComponent = guiContext.mainFrame.tableSystemTwo;
+                nextComponent = context.mainFrame.tableSystemTwo;
                 break;
         }
         assert (nextComponent != null);
@@ -1022,13 +1022,13 @@ public class Browser
 
     private boolean initialize()
     {
-        navTransferHandler = new NavTransferHandler(guiContext);  // single instance
+        navTransferHandler = new NavTransferHandler(context);  // single instance
 
         // four individual NavStacks for the four browser tabs
         for (int i = 0; i < navStack.length; ++i)
             navStack[i] = new Stack<NavItem>();
 
-        //logger.info(guiContext.cfg.getNavigatorName() + " " + guiContext.cfg.getVersionStamp());
+        //logger.info(context.cfg.getNavigatorName() + " " + context.cfg.getVersionStamp());
         initializeToolbar();
         initializeNavigation();
         initializeBrowserOne();
@@ -1039,7 +1039,7 @@ public class Browser
         if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled() && MouseInfo.getNumberOfButtons() > 3)
         {
             Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
-                if (guiContext.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
                     if (event instanceof MouseEvent && MouseInfo.getNumberOfButtons() > 3)
                     {
@@ -1063,41 +1063,41 @@ public class Browser
         }
 
         // handle setting the size of the Browser bottom window using the divider location
-        guiContext.mainFrame.addComponentListener(new ComponentAdapter()
+        context.mainFrame.addComponentListener(new ComponentAdapter()
         {
             @Override
             public void componentResized(ComponentEvent componentEvent)
             {
                 super.componentResized(componentEvent);
-                guiContext.preferences.fixBrowserDivider(guiContext, -1);
-                guiContext.preferences.fixOperationsDivider(guiContext, -1);
+                context.preferences.fixBrowserDivider(context, -1);
+                context.preferences.fixOperationsDivider(context, -1);
             }
         });
         //
-        guiContext.mainFrame.tabbedPaneNavigatorBottom.addComponentListener(new ComponentAdapter()
+        context.mainFrame.tabbedPaneNavigatorBottom.addComponentListener(new ComponentAdapter()
         {
             @Override
             public void componentResized(ComponentEvent componentEvent)
             {
                 super.componentResized(componentEvent);
-                guiContext.preferences.setBrowserBottomSize(componentEvent.getComponent().getHeight());
+                context.preferences.setBrowserBottomSize(componentEvent.getComponent().getHeight());
             }
         });
 
         // handle setting the size of the Operations bottom window using the divider location
-        guiContext.mainFrame.tabbedPaneOperationBottom.addComponentListener(new ComponentAdapter()
+        context.mainFrame.tabbedPaneOperationBottom.addComponentListener(new ComponentAdapter()
         {
             @Override
             public void componentResized(ComponentEvent componentEvent)
             {
                 super.componentResized(componentEvent);
-                guiContext.preferences.setOperationDividerBottomSize(componentEvent.getComponent().getHeight());
+                context.preferences.setOperationDividerBottomSize(componentEvent.getComponent().getHeight());
             }
         });
 
         // set default start location and related data
-        initializeStatus(guiContext.mainFrame.treeCollectionTwo);
-        initializeStatus(guiContext.mainFrame.treeCollectionOne); // do One last for focus
+        initializeStatus(context.mainFrame.treeCollectionTwo);
+        initializeStatus(context.mainFrame.treeCollectionOne); // do One last for focus
 
         return true;
     }
@@ -1107,7 +1107,7 @@ public class Browser
         // --- BrowserOne ------------------------------------------
         //
         // --- tab selection handler
-        guiContext.mainFrame.tabbedPaneBrowserOne.addChangeListener(new ChangeListener()
+        context.mainFrame.tabbedPaneBrowserOne.addChangeListener(new ChangeListener()
         {
             @Override
             public void stateChanged(ChangeEvent changeEvent)
@@ -1118,16 +1118,16 @@ public class Browser
                 switch (pane.getSelectedIndex())
                 {
                     case 0:
-                        lastComponent = guiContext.mainFrame.treeCollectionOne;
-                        model = guiContext.mainFrame.treeCollectionOne.getModel();
-                        node = (NavTreeNode) guiContext.mainFrame.treeCollectionOne.getLastSelectedPathComponent();
+                        lastComponent = context.mainFrame.treeCollectionOne;
+                        model = context.mainFrame.treeCollectionOne.getModel();
+                        node = (NavTreeNode) context.mainFrame.treeCollectionOne.getLastSelectedPathComponent();
                         tabStops[0] = 0;
                         tabStops[1] = 1;
                         break;
                     case 1:
-                        lastComponent = guiContext.mainFrame.treeSystemOne;
-                        model = guiContext.mainFrame.treeSystemOne.getModel();
-                        node = (NavTreeNode) guiContext.mainFrame.treeSystemOne.getLastSelectedPathComponent();
+                        lastComponent = context.mainFrame.treeSystemOne;
+                        model = context.mainFrame.treeSystemOne.getModel();
+                        node = (NavTreeNode) context.mainFrame.treeSystemOne.getLastSelectedPathComponent();
                         tabStops[0] = 2;
                         tabStops[1] = 3;
                         break;
@@ -1139,23 +1139,23 @@ public class Browser
         });
 
         // --- treeCollectionOne
-        guiContext.mainFrame.treeCollectionOne.setName("treeCollectionOne");
-        if (guiContext.context.publisherRepo != null && guiContext.context.publisherRepo.isInitialized())
+        context.mainFrame.treeCollectionOne.setName("treeCollectionOne");
+        if (context.publisherRepo != null && context.publisherRepo.isInitialized())
         {
-            File json = new File(guiContext.context.publisherRepo.getJsonFilename());
+            File json = new File(context.publisherRepo.getJsonFilename());
             String path = json.getAbsolutePath();
-            guiContext.preferences.setLastPublisherOpenFile(path);
-            guiContext.preferences.setLastPublisherOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
+            context.preferences.setLastPublisherOpenFile(path);
+            context.preferences.setLastPublisherOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
 
-            loadCollectionTree(guiContext.mainFrame.treeCollectionOne, guiContext.context.publisherRepo, false);
+            loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
         }
         else
         {
-            setCollectionRoot(null, guiContext.mainFrame.treeCollectionOne, guiContext.cfg.gs("Browser.open.a.publisher"), false);
+            setCollectionRoot(null, context.mainFrame.treeCollectionOne, context.cfg.gs("Browser.open.a.publisher"), false);
         }
         //
         // treeCollectionOne tree expansion event handler
-        guiContext.mainFrame.treeCollectionOne.addTreeWillExpandListener(new TreeWillExpandListener()
+        context.mainFrame.treeCollectionOne.addTreeWillExpandListener(new TreeWillExpandListener()
         {
             @Override
             public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
@@ -1172,7 +1172,7 @@ public class Browser
         });
         //
         // treeCollectionOne tree selection event handler
-        guiContext.mainFrame.treeCollectionOne.addTreeSelectionListener(new TreeSelectionListener()
+        context.mainFrame.treeCollectionOne.addTreeSelectionListener(new TreeSelectionListener()
         {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent)
@@ -1186,25 +1186,25 @@ public class Browser
                     node.loadTable();
             }
         });
-        guiContext.mainFrame.treeCollectionOne.setTransferHandler(navTransferHandler);
-        addFocusListener(guiContext.mainFrame.treeCollectionOne);
-        addHandlersToTable(guiContext.mainFrame.tableCollectionOne);
-        addFocusListener(guiContext.mainFrame.tableCollectionOne);
-        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.mainFrame.treeCollectionOne);
+        context.mainFrame.treeCollectionOne.setTransferHandler(navTransferHandler);
+        addFocusListener(context.mainFrame.treeCollectionOne);
+        addHandlersToTable(context.mainFrame.tableCollectionOne);
+        addFocusListener(context.mainFrame.tableCollectionOne);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeCollectionOne);
 
         // --- treeSystemOne
-        guiContext.mainFrame.treeSystemOne.setName("treeSystemOne");
-        if (guiContext.context.publisherRepo != null && guiContext.context.publisherRepo.isInitialized())
+        context.mainFrame.treeSystemOne.setName("treeSystemOne");
+        if (context.publisherRepo != null && context.publisherRepo.isInitialized())
         {
-            loadSystemTree(guiContext.mainFrame.treeSystemOne, guiContext.context.publisherRepo, false);
+            loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
         }
         else
         {
-            setCollectionRoot(null, guiContext.mainFrame.treeSystemOne, guiContext.cfg.gs("Browser.open.a.publisher"), false);
+            setCollectionRoot(null, context.mainFrame.treeSystemOne, context.cfg.gs("Browser.open.a.publisher"), false);
         }
         //
         // treeSystemOne tree expansion event handler
-        guiContext.mainFrame.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
+        context.mainFrame.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
         {
             @Override
             public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
@@ -1221,7 +1221,7 @@ public class Browser
         });
         //
         // treeSystemOne tree selection event handler
-        guiContext.mainFrame.treeSystemOne.addTreeSelectionListener(new TreeSelectionListener()
+        context.mainFrame.treeSystemOne.addTreeSelectionListener(new TreeSelectionListener()
         {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent)
@@ -1235,11 +1235,11 @@ public class Browser
                     node.loadTable();
             }
         });
-        guiContext.mainFrame.treeSystemOne.setTransferHandler(navTransferHandler);
-        addFocusListener(guiContext.mainFrame.treeSystemOne);
-        addHandlersToTable(guiContext.mainFrame.tableSystemOne);
-        addFocusListener(guiContext.mainFrame.tableSystemOne);
-        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.mainFrame.treeSystemOne);
+        context.mainFrame.treeSystemOne.setTransferHandler(navTransferHandler);
+        addFocusListener(context.mainFrame.treeSystemOne);
+        addHandlersToTable(context.mainFrame.tableSystemOne);
+        addFocusListener(context.mainFrame.tableSystemOne);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeSystemOne);
     }
 
     private void initializeBrowserTwo()
@@ -1247,7 +1247,7 @@ public class Browser
         // --- BrowserTwo ------------------------------------------
         //
         // --- tab selection handler
-        guiContext.mainFrame.tabbedPaneBrowserTwo.addChangeListener(new ChangeListener()
+        context.mainFrame.tabbedPaneBrowserTwo.addChangeListener(new ChangeListener()
         {
             @Override
             public void stateChanged(ChangeEvent changeEvent)
@@ -1258,16 +1258,16 @@ public class Browser
                 switch (pane.getSelectedIndex())
                 {
                     case 0:
-                        lastComponent = guiContext.mainFrame.treeCollectionTwo;
-                        model = guiContext.mainFrame.treeCollectionTwo.getModel();
-                        node = (NavTreeNode) guiContext.mainFrame.treeCollectionTwo.getLastSelectedPathComponent();
+                        lastComponent = context.mainFrame.treeCollectionTwo;
+                        model = context.mainFrame.treeCollectionTwo.getModel();
+                        node = (NavTreeNode) context.mainFrame.treeCollectionTwo.getLastSelectedPathComponent();
                         tabStops[2] = 4;
                         tabStops[3] = 5;
                         break;
                     case 1:
-                        lastComponent = guiContext.mainFrame.treeSystemTwo;
-                        model = guiContext.mainFrame.treeSystemTwo.getModel();
-                        node = (NavTreeNode) guiContext.mainFrame.treeSystemTwo.getLastSelectedPathComponent();
+                        lastComponent = context.mainFrame.treeSystemTwo;
+                        model = context.mainFrame.treeSystemTwo.getModel();
+                        node = (NavTreeNode) context.mainFrame.treeSystemTwo.getLastSelectedPathComponent();
                         tabStops[2] = 6;
                         tabStops[3] = 7;
                         break;
@@ -1279,23 +1279,23 @@ public class Browser
         });
 
         // --- treeCollectionTwo
-        guiContext.mainFrame.treeCollectionTwo.setName("treeCollectionTwo");
-        if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
+        context.mainFrame.treeCollectionTwo.setName("treeCollectionTwo");
+        if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
         {
-            File json = new File(guiContext.context.subscriberRepo.getJsonFilename());
+            File json = new File(context.subscriberRepo.getJsonFilename());
             String path = json.getAbsolutePath();
-            guiContext.preferences.setLastSubscriberOpenFile(path);
-            guiContext.preferences.setLastSubscriberOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
+            context.preferences.setLastSubscriberOpenFile(path);
+            context.preferences.setLastSubscriberOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
 
-            loadCollectionTree(guiContext.mainFrame.treeCollectionTwo, guiContext.context.subscriberRepo, guiContext.cfg.isRemoteSession());
+            loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession());
         }
         else
         {
-            setCollectionRoot(null, guiContext.mainFrame.treeCollectionTwo, guiContext.cfg.gs("Browser.open.a.subscriber"), guiContext.cfg.isRemoteSession());
+            setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteSession());
         }
         //
         // treeCollectionTwo tree expansion event handler
-        guiContext.mainFrame.treeCollectionTwo.addTreeWillExpandListener(new TreeWillExpandListener()
+        context.mainFrame.treeCollectionTwo.addTreeWillExpandListener(new TreeWillExpandListener()
         {
             @Override
             public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
@@ -1312,7 +1312,7 @@ public class Browser
         });
         //
         // treeCollectionTwo tree selection event handler
-        guiContext.mainFrame.treeCollectionTwo.addTreeSelectionListener(new TreeSelectionListener()
+        context.mainFrame.treeCollectionTwo.addTreeSelectionListener(new TreeSelectionListener()
         {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent)
@@ -1326,25 +1326,25 @@ public class Browser
                     node.loadTable();
             }
         });
-        guiContext.mainFrame.treeCollectionTwo.setTransferHandler(navTransferHandler);
-        addFocusListener(guiContext.mainFrame.treeCollectionTwo);
-        addHandlersToTable(guiContext.mainFrame.tableCollectionTwo);
-        addFocusListener(guiContext.mainFrame.tableCollectionTwo);
-        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.mainFrame.treeCollectionTwo);
+        context.mainFrame.treeCollectionTwo.setTransferHandler(navTransferHandler);
+        addFocusListener(context.mainFrame.treeCollectionTwo);
+        addHandlersToTable(context.mainFrame.tableCollectionTwo);
+        addFocusListener(context.mainFrame.tableCollectionTwo);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeCollectionTwo);
 
         // --- treeSystemTwo
-        guiContext.mainFrame.treeSystemTwo.setName("treeSystemTwo");
-        if (guiContext.context.subscriberRepo != null && guiContext.context.subscriberRepo.isInitialized())
+        context.mainFrame.treeSystemTwo.setName("treeSystemTwo");
+        if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
         {
-            loadSystemTree(guiContext.mainFrame.treeSystemTwo, guiContext.context.subscriberRepo, guiContext.cfg.isRemoteSession());
+            loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteSession());
         }
         else
         {
-            setCollectionRoot(null, guiContext.mainFrame.treeSystemTwo, guiContext.cfg.gs("Browser.open.a.subscriber"), guiContext.cfg.isRemoteSession());
+            setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteSession());
         }
         //
         // treeSystemTwo tree expansion event handler
-        guiContext.mainFrame.treeSystemTwo.addTreeWillExpandListener(new TreeWillExpandListener()
+        context.mainFrame.treeSystemTwo.addTreeWillExpandListener(new TreeWillExpandListener()
         {
             @Override
             public void treeWillCollapse(TreeExpansionEvent treeExpansionEvent) throws ExpandVetoException
@@ -1361,7 +1361,7 @@ public class Browser
         });
         //
         // treeSystemTwo tree selection event handler
-        guiContext.mainFrame.treeSystemTwo.addTreeSelectionListener(new TreeSelectionListener()
+        context.mainFrame.treeSystemTwo.addTreeSelectionListener(new TreeSelectionListener()
         {
             @Override
             public void valueChanged(TreeSelectionEvent treeSelectionEvent)
@@ -1375,16 +1375,16 @@ public class Browser
                     node.loadTable();
             }
         });
-        guiContext.mainFrame.treeSystemTwo.setTransferHandler(navTransferHandler);
-        addFocusListener(guiContext.mainFrame.treeSystemTwo);
-        addHandlersToTable(guiContext.mainFrame.tableSystemTwo);
-        addFocusListener(guiContext.mainFrame.tableSystemTwo);
-        javax.swing.ToolTipManager.sharedInstance().registerComponent(guiContext.mainFrame.treeSystemTwo);
+        context.mainFrame.treeSystemTwo.setTransferHandler(navTransferHandler);
+        addFocusListener(context.mainFrame.treeSystemTwo);
+        addHandlersToTable(context.mainFrame.tableSystemTwo);
+        addFocusListener(context.mainFrame.tableSystemTwo);
+        javax.swing.ToolTipManager.sharedInstance().registerComponent(context.mainFrame.treeSystemTwo);
     }
 
     private void initializeNavigation()
     {
-        guiContext.mainFrame.buttonBack.addActionListener(new AbstractAction()
+        context.mainFrame.buttonBack.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1393,7 +1393,7 @@ public class Browser
             }
         });
 
-        guiContext.mainFrame.buttonForward.addActionListener(new AbstractAction()
+        context.mainFrame.buttonForward.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1402,7 +1402,7 @@ public class Browser
             }
         });
 
-        guiContext.mainFrame.buttonUp.addActionListener(new ActionListener()
+        context.mainFrame.buttonUp.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1422,16 +1422,16 @@ public class Browser
 
     private void initializeToolbar()
     {
-        if (!guiContext.navigator.showHintTrackingButton)
+        if (!context.navigator.showHintTrackingButton)
         {
-            guiContext.mainFrame.panelHintTracking.setVisible(false);
+            context.mainFrame.panelHintTracking.setVisible(false);
             hintTrackingEnabled = false;
         }
         else
             hintTrackingEnabled = true;
 
         // toggle hint tracking
-        guiContext.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
+        context.mainFrame.buttonHintTracking.addActionListener(new AbstractAction()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
@@ -1439,9 +1439,9 @@ public class Browser
                 if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
                 {
                     // 1 hints, 2 tracker, 3 server
-                    int level = guiContext.cfg.getHintsDaemonFilename().length() > 0 ? 3 : (guiContext.cfg.getHintTrackerFilename().length() > 0 ? 2 : 1);
+                    int level = context.cfg.getHintsDaemonFilename().length() > 0 ? 3 : (context.cfg.getHintTrackerFilename().length() > 0 ? 2 : 1);
 
-                    if (guiContext.mainFrame.panelHintTracking.isVisible())
+                    if (context.mainFrame.panelHintTracking.isVisible())
                     {
                         if (!hintTrackingEnabled)
                         {
@@ -1449,7 +1449,7 @@ public class Browser
                             {
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-green.png");
                                 Image icon = ImageIO.read(url);
-                                guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
+                                context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
                                 hintTrackingEnabled = true;
                                 setHintTrackingButton(true);
                             }
@@ -1463,11 +1463,11 @@ public class Browser
                             {
                                 URL url = Thread.currentThread().getContextClassLoader().getResource("hint-red.png");
                                 Image icon = ImageIO.read(url);
-                                guiContext.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
-                                String tt = level == 3 ? guiContext.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
-                                        (level == 2 ? guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
-                                         guiContext.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
-                                guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
+                                context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
+                                String tt = level == 3 ? context.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
+                                        (level == 2 ? context.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
+                                         context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
+                                context.mainFrame.buttonHintTracking.setToolTipText(tt);
                                 hintTrackingEnabled = false;
                                 setHintTrackingButton(false);
                             }
@@ -1515,7 +1515,7 @@ public class Browser
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            guiContext.context.fault = true;
+            context.fault = true;
         }
     }
 
@@ -1538,7 +1538,7 @@ public class Browser
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            guiContext.context.fault = true;
+            context.fault = true;
         }
     }
 
@@ -1641,14 +1641,14 @@ public class Browser
         if (!printPropertiesInUse)
         {
             printPropertiesInUse = true;
-            guiContext.mainFrame.textAreaProperties.setText("");
+            context.mainFrame.textAreaProperties.setText("");
             String msg = "<html>";
             msg += "<style>table { margin:0; padding:0; }" +
                     "th { margin:0; padding:0; }" +
                     "td { text-align:left; }" +
                     "</style>";
             msg += "<body>";
-            msg += guiContext.cfg.gs("Properties.type") + tuo.getType() + "<br/>" + System.getProperty("line.separator");
+            msg += context.cfg.gs("Properties.type") + tuo.getType() + "<br/>" + System.getProperty("line.separator");
 
             try
             {
@@ -1657,42 +1657,42 @@ public class Browser
                     case NavTreeUserObject.BOOKMARKS:
                         break;
                     case NavTreeUserObject.COLLECTION:
-                        msg += guiContext.cfg.gs("Properties.libraries") + tuo.node.getChildCount(false, false) +
+                        msg += context.cfg.gs("Properties.libraries") + tuo.node.getChildCount(false, false) +
                                 "<br/>" + System.getProperty("line.separator") +
-                                guiContext.cfg.gs("Properties.path") + tuo.node.getMyRepo().getJsonFilename() +
+                                context.cfg.gs("Properties.path") + tuo.node.getMyRepo().getJsonFilename() +
                                 "<br/>" + System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.COMPUTER:
-                        msg += guiContext.cfg.gs("Properties.drives") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
+                        msg += context.cfg.gs("Properties.drives") + tuo.node.getChildCount(false, false) + "<br/>" + System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.DRIVE:
-                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true, guiContext.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
+                        msg += context.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true, context.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.HOME:
-                        msg += guiContext.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true, guiContext.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
+                        msg += context.cfg.gs("Properties.free") + Utils.formatLong(getFreespace(tuo), true, context.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.LIBRARY:
                         msg += "<table cellpadding=\"0\" cellspacing=\"0\">" +
-                                "<tr><td>" + MessageFormat.format(guiContext.cfg.gs("Properties.sources"), tuo.sources.length) + "</td> <td></td> <td>" +
-                                guiContext.cfg.gs("Properties.free") + "</td></tr>";
+                                "<tr><td>" + MessageFormat.format(context.cfg.gs("Properties.sources"), tuo.sources.length) + "</td> <td></td> <td>" +
+                                context.cfg.gs("Properties.free") + "</td></tr>";
                         if (tuo.isRemote)
-                            guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                         for (String source : tuo.sources)
                         {
-                            String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true, guiContext.cfg.getLongScale());
+                            String free = Utils.formatLong(getFreespace(source, tuo.isRemote), true, context.cfg.getLongScale());
                             msg += "<tr><td>" + source + "</td> <td><div>&nbsp;&nbsp;&nbsp;&nbsp;</div></td> <td>" + free + "</td></tr>";
                         }
-                        guiContext.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                         msg += "</table>";
                         msg += System.getProperty("line.separator");
                         break;
                     case NavTreeUserObject.REAL:
-                        msg += guiContext.cfg.gs("Properties.path") + tuo.path + "<br/>" + System.getProperty("line.separator");
+                        msg += context.cfg.gs("Properties.path") + tuo.path + "<br/>" + System.getProperty("line.separator");
                         if (!tuo.isDir)
-                            msg += guiContext.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true, guiContext.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
+                            msg += context.cfg.gs("Properties.size") + Utils.formatLong(tuo.size, true, context.cfg.getLongScale()) + "<br/>" + System.getProperty("line.separator");
                         if (tuo.path.endsWith(".els"))
                         {
-                            String content = guiContext.context.transfer.readTextFile(tuo);
+                            String content = context.transfer.readTextFile(tuo);
                             if (content.length() > 0)
                             {
                                 content = content.replaceAll("\r\n", "<br/>" + System.getProperty("line.separator"));
@@ -1707,7 +1707,7 @@ public class Browser
                         break;
                 }
                 msg += "</body></html>";
-                guiContext.mainFrame.textAreaProperties.setText(msg);
+                context.mainFrame.textAreaProperties.setText(msg);
             }
             catch (Exception e)
             {
@@ -1719,10 +1719,10 @@ public class Browser
 
     public void refreshAll()
     {
-        refreshTree(guiContext.mainFrame.treeCollectionOne);
-        refreshTree(guiContext.mainFrame.treeSystemOne);
-        refreshTree(guiContext.mainFrame.treeCollectionTwo);
-        refreshTree(guiContext.mainFrame.treeSystemTwo);
+        refreshTree(context.mainFrame.treeCollectionOne);
+        refreshTree(context.mainFrame.treeSystemOne);
+        refreshTree(context.mainFrame.treeCollectionTwo);
+        refreshTree(context.mainFrame.treeSystemTwo);
     }
 
     public void refreshByObject(Object object)
@@ -1799,13 +1799,13 @@ public class Browser
             JTable table;
             if (panelName.endsWith("one")) // publisher
             {
-                tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionOne : guiContext.mainFrame.treeSystemOne;
-                table = panelName.contains("collection") ? guiContext.mainFrame.tableCollectionOne : guiContext.mainFrame.tableSystemOne;
+                tree = panelName.contains("collection") ? context.mainFrame.treeCollectionOne : context.mainFrame.treeSystemOne;
+                table = panelName.contains("collection") ? context.mainFrame.tableCollectionOne : context.mainFrame.tableSystemOne;
             }
             else // subscriber
             {
-                tree = panelName.contains("collection") ? guiContext.mainFrame.treeCollectionTwo : guiContext.mainFrame.treeSystemTwo;
-                table = panelName.contains("collection") ? guiContext.mainFrame.tableCollectionTwo : guiContext.mainFrame.tableSystemTwo;
+                tree = panelName.contains("collection") ? context.mainFrame.treeCollectionTwo : context.mainFrame.treeSystemTwo;
+                table = panelName.contains("collection") ? context.mainFrame.tableCollectionTwo : context.mainFrame.tableSystemTwo;
             }
 
             int nodeIndex = 0;
@@ -1872,7 +1872,7 @@ public class Browser
             }
 
             // remove last segment if it's a file but not being shown, or a directory in the table
-            if ((!nodes[nodeIndex - 1].getUserObject().isDir && guiContext.preferences.isHideFilesInTree()))
+            if ((!nodes[nodeIndex - 1].getUserObject().isDir && context.preferences.isHideFilesInTree()))
             {
                 NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
                 for (int j = 0; j < nodeIndex - 1; ++j)
@@ -1893,12 +1893,12 @@ public class Browser
             {
                 if (panelName.startsWith("table"))
                 {
-                    int panelNo = guiContext.browser.getPanelNumber(panelName);
-                    table = (JTable) guiContext.browser.getTabComponent(panelNo);
+                    int panelNo = context.browser.getPanelNumber(panelName);
+                    table = (JTable) context.browser.getTabComponent(panelNo);
                     if (table != null)
                     {
                         table.requestFocus();
-                        int index = guiContext.browser.findRowIndex(table, pathElements[pathElements.length - 1]); // last element
+                        int index = context.browser.findRowIndex(table, pathElements[pathElements.length - 1]); // last element
                         if (index > -1)
                         {
                             // select and scroll into view
@@ -1929,7 +1929,7 @@ public class Browser
             else
             {
                 // make dialog pieces
-                String message = java.text.MessageFormat.format(guiContext.cfg.gs("Navigator.menu.New.folder.select.library.source"), tuo.sources.length, tuo.name);
+                String message = java.text.MessageFormat.format(context.cfg.gs("Navigator.menu.New.folder.select.library.source"), tuo.sources.length, tuo.name);
                 JList<String> sources = new JList<String>();
                 DefaultListModel<String> listModel = new DefaultListModel<String>();
                 sources.setModel(listModel);
@@ -1945,7 +1945,7 @@ public class Browser
                 sources.requestFocus();
                 Object[] params = {message, pane};
 
-                int opt = JOptionPane.showConfirmDialog(guiContext.mainFrame, params, guiContext.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);
+                int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);
                 if (opt == JOptionPane.YES_OPTION)
                 {
                     int index = sources.getSelectedIndex();
@@ -1967,36 +1967,36 @@ public class Browser
             switch (panelNo)
             {
                 case 0:
-                    guiContext.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(0);
-                    guiContext.mainFrame.treeCollectionOne.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(0);
+                    context.mainFrame.treeCollectionOne.requestFocus();
                     break;
                 case 1:
-                    guiContext.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(0);
-                    guiContext.mainFrame.tableCollectionOne.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(0);
+                    context.mainFrame.tableCollectionOne.requestFocus();
                     break;
                 case 2:
-                    guiContext.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
-                    guiContext.mainFrame.treeSystemOne.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
+                    context.mainFrame.treeSystemOne.requestFocus();
                     break;
                 case 3:
-                    guiContext.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
-                    guiContext.mainFrame.tableSystemOne.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
+                    context.mainFrame.tableSystemOne.requestFocus();
                     break;
                 case 4:
-                    guiContext.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(0);
-                    guiContext.mainFrame.treeCollectionTwo.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(0);
+                    context.mainFrame.treeCollectionTwo.requestFocus();
                     break;
                 case 5:
-                    guiContext.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(0);
-                    guiContext.mainFrame.tableCollectionTwo.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(0);
+                    context.mainFrame.tableCollectionTwo.requestFocus();
                     break;
                 case 6:
-                    guiContext.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
-                    guiContext.mainFrame.treeSystemTwo.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
+                    context.mainFrame.treeSystemTwo.requestFocus();
                     break;
                 case 7:
-                    guiContext.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
-                    guiContext.mainFrame.tableSystemTwo.requestFocus();
+                    context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
+                    context.mainFrame.tableSystemTwo.requestFocus();
                     break;
             }
         }
@@ -2005,34 +2005,34 @@ public class Browser
     public void setHintTrackingButton(boolean enabled)
     {
         String tt;
-        tt = guiContext.cfg.getHintsDaemonFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintServer.text") :
-                (guiContext.cfg.getHintTrackerFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintTracking.text") :
-                        guiContext.cfg.gs("Navigator.button.HintsKeys.text"));
-        guiContext.mainFrame.buttonHintTracking.setText(tt);
+        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.text") :
+                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.text") :
+                        context.cfg.gs("Navigator.button.HintsKeys.text"));
+        context.mainFrame.buttonHintTracking.setText(tt);
 
         if (enabled)
         {
-            tt = guiContext.cfg.getHintsDaemonFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
-                    (guiContext.cfg.getHintTrackerFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip") :
-                            guiContext.cfg.gs("Navigator.button.Hints.enabled.tooltip"));
+            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.enabled.tooltip") :
+                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.enabled.tooltip") :
+                            context.cfg.gs("Navigator.button.Hints.enabled.tooltip"));
         }
         else
         {
-            tt = guiContext.cfg.getHintsDaemonFilename().length() > 0  ? guiContext.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
-                    (guiContext.cfg.getHintTrackerFilename().length() > 0 ? guiContext.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
-                            guiContext.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
+            tt = context.cfg.getHintsDaemonFilename().length() > 0  ? context.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
+                    (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
+                            context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
         }
-        guiContext.mainFrame.buttonHintTracking.setToolTipText(tt);
+        context.mainFrame.buttonHintTracking.setToolTipText(tt);
     }
 
     private NavTreeNode setCollectionRoot(Repository repo, JTree tree, String title, boolean remote)
     {
-        NavTreeNode root = new NavTreeNode(guiContext, repo, tree);
+        NavTreeNode root = new NavTreeNode(context, repo, tree);
         NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION, remote);
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
-        model.activateFilter(guiContext.preferences.isHideFilesInTree());
-        tree.setCellRenderer(new NavTreeCellRenderer(guiContext));
+        model.activateFilter(context.preferences.isHideFilesInTree());
+        tree.setCellRenderer(new NavTreeCellRenderer(context));
         tree.setRootVisible(true);
         tree.setShowsRootHandles(true);
         tree.setLargeModel(true);
@@ -2046,7 +2046,7 @@ public class Browser
         NavTreeNode root = (NavTreeNode) model.getRoot();
         for (Library lib : repo.getLibraryData().libraries.bibliography)
         {
-            NavTreeNode node = new NavTreeNode(guiContext, repo, tree);
+            NavTreeNode node = new NavTreeNode(context, repo, tree);
             NavTreeUserObject tuo = new NavTreeUserObject(node, lib.name, lib.sources, remote);
             node.setNavTreeUserObject(tuo);
             root.add(node);
@@ -2061,25 +2061,25 @@ public class Browser
     private NavTreeNode styleSystemAll(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive) throws Exception
     {
         // setup new invisible root for Computer, Home & Bookmarks
-        NavTreeNode root = new NavTreeNode(guiContext, repo, tree);
-        NavTreeUserObject tuo = new NavTreeUserObject(root, guiContext.cfg.gs("Browser.system"), NavTreeUserObject.SYSTEM, remote);
+        NavTreeNode root = new NavTreeNode(context, repo, tree);
+        NavTreeUserObject tuo = new NavTreeUserObject(root, context.cfg.gs("Browser.system"), NavTreeUserObject.SYSTEM, remote);
         root.setNavTreeUserObject(tuo);
         NavTreeModel model = new NavTreeModel(root, true);
-        model.activateFilter(guiContext.preferences.isHideFilesInTree());
+        model.activateFilter(context.preferences.isHideFilesInTree());
         tree.setShowsRootHandles(true);
         tree.setRootVisible(false);
         tree.setLargeModel(true);
-        tree.setCellRenderer(new NavTreeCellRenderer(guiContext));
+        tree.setCellRenderer(new NavTreeCellRenderer(context));
         tree.setModel(model);
 
         // add Computer node
-        NavTreeNode rootNode = new NavTreeNode(guiContext, repo, tree);
-        tuo = new NavTreeUserObject(rootNode, guiContext.cfg.gs("Browser.computer"), NavTreeUserObject.COMPUTER, remote);
+        NavTreeNode rootNode = new NavTreeNode(context, repo, tree);
+        tuo = new NavTreeUserObject(rootNode, context.cfg.gs("Browser.computer"), NavTreeUserObject.COMPUTER, remote);
         rootNode.setNavTreeUserObject(tuo);
         root.add(rootNode);
         if (remote && tree.getName().equalsIgnoreCase("treeSystemTwo"))
         {
-            NavTreeNode node = new NavTreeNode(guiContext, repo, tree);
+            NavTreeNode node = new NavTreeNode(context, repo, tree);
             tuo = new NavTreeUserObject(node, "/", "/", NavTreeUserObject.DRIVE, remote);
             node.setNavTreeUserObject(tuo);
             rootNode.add(node);
@@ -2097,7 +2097,7 @@ public class Browser
             for (int i = 0; i < rootPaths.length; ++i)
             {
                 File drive = rootPaths[i];
-                NavTreeNode node = new NavTreeNode(guiContext, repo, tree);
+                NavTreeNode node = new NavTreeNode(context, repo, tree);
                 tuo = new NavTreeUserObject(node, drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE, false);
                 node.setNavTreeUserObject(tuo);
                 rootNode.add(node);
@@ -2112,8 +2112,8 @@ public class Browser
         if (tree.getName().equalsIgnoreCase("treeSystemOne"))
         {
             // add Home root node
-            NavTreeNode homeNode = new NavTreeNode(guiContext, repo, tree);
-            tuo = new NavTreeUserObject(homeNode, guiContext.cfg.gs("Browser.home"), System.getProperty("user.home"), NavTreeUserObject.HOME, false);
+            NavTreeNode homeNode = new NavTreeNode(context, repo, tree);
+            tuo = new NavTreeUserObject(homeNode, context.cfg.gs("Browser.home"), System.getProperty("user.home"), NavTreeUserObject.HOME, false);
             homeNode.setNavTreeUserObject(tuo);
             root.add(homeNode);
             if (deep)
@@ -2130,11 +2130,11 @@ public class Browser
     {
         Object object = lastComponent;
 
-        guiContext.preferences.setHideHiddenFiles(!guiContext.preferences.isHideHiddenFiles());
-        if (guiContext.preferences.isHideHiddenFiles())
-            guiContext.mainFrame.menuItemShowHidden.setSelected(false);
+        context.preferences.setHideHiddenFiles(!context.preferences.isHideHiddenFiles());
+        if (context.preferences.isHideHiddenFiles())
+            context.mainFrame.menuItemShowHidden.setSelected(false);
         else
-            guiContext.mainFrame.menuItemShowHidden.setSelected(true);
+            context.mainFrame.menuItemShowHidden.setSelected(true);
 
         refreshAll();
         JTree tree = null;
@@ -2144,7 +2144,7 @@ public class Browser
         }
         else if (object instanceof JTable)
         {
-            tree = guiContext.browser.navTransferHandler.getTargetTree((JTable) object);
+            tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
         }
         if (tree != null)
         {
@@ -2169,7 +2169,7 @@ public class Browser
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -2188,15 +2188,15 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowTouchConfirmation())
+            if (context.preferences.isShowTouchConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
+                String msg = MessageFormat.format(context.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
                         rows.length, isRemote ? 0 : 1, rows.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
-                reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
-                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, context.cfg.getLongScale()));
+                msg += (dirCount > 0 ? MessageFormat.format(context.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(context.mainFrame, msg,
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
             if (reply == JOptionPane.YES_OPTION)
@@ -2208,7 +2208,7 @@ public class Browser
                     {
                         try
                         {
-                            long seconds = guiContext.context.transfer.touch(tuo.path, tuo.isRemote);
+                            long seconds = context.transfer.touch(tuo.path, tuo.isRemote);
                             if (tuo.isRemote)
                             {
                                 tuo.mtime = (int) seconds;
@@ -2218,7 +2218,7 @@ public class Browser
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Touch.error") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                         NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
                         if (parent != null)
@@ -2229,7 +2229,7 @@ public class Browser
                     }
                     else
                     {
-                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(context.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
             }
@@ -2252,7 +2252,7 @@ public class Browser
                 NavTreeUserObject tuo = ntn.getUserObject();
                 if (tuo.type != NavTreeUserObject.REAL)
                 {
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Touch.cannot") + tuo.name, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 isRemote = tuo.isRemote;
@@ -2271,15 +2271,15 @@ public class Browser
             }
 
             int reply = JOptionPane.YES_OPTION;
-            if (guiContext.preferences.isShowTouchConfirmation())
+            if (context.preferences.isShowTouchConfirmation())
             {
-                String msg = MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
+                String msg = MessageFormat.format(context.cfg.gs("Navigator.menu.Touch.are.you.sure1"),
                         paths.length, isRemote ? 0 : 1, paths.length > 1 ? 0 : 1,
-                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, guiContext.cfg.getLongScale()));
-                msg += (dirCount > 0 ? MessageFormat.format(guiContext.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
-                msg += (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "");
-                reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, msg,
-                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                        fileCount, fileCount > 1 ? 0 : 1, Utils.formatLong(size, false, context.cfg.getLongScale()));
+                msg += (dirCount > 0 ? MessageFormat.format(context.cfg.gs("Navigator.menu.Touch.are.you.sure2"), dirCount > 1 ? 0 : 1) : "");
+                msg += (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "");
+                reply = JOptionPane.showConfirmDialog(context.mainFrame, msg,
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
             if (reply == JOptionPane.YES_OPTION)
@@ -2292,7 +2292,7 @@ public class Browser
                     {
                         try
                         {
-                            long seconds = guiContext.context.transfer.touch(tuo.path, tuo.isRemote);
+                            long seconds = context.transfer.touch(tuo.path, tuo.isRemote);
                             if (tuo.isRemote)
                             {
                                 tuo.mtime = (int) seconds;
@@ -2302,7 +2302,7 @@ public class Browser
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Navigator.menu.Touch.error") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Touch.error") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                         }
                         NavTreeNode parent = (NavTreeNode) tuo.node.getParent();
                         if (parent != null)
@@ -2313,7 +2313,7 @@ public class Browser
                     }
                     else
                     {
-                        logger.info(guiContext.cfg.gs("Browser.skipping") + tuo.name);
+                        logger.info(context.cfg.gs("Browser.skipping") + tuo.name);
                     }
                 }
             }

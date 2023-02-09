@@ -1,7 +1,7 @@
 package com.groksoft.els.gui.tools.junkRemover;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Origins;
@@ -29,8 +29,8 @@ import java.util.Arrays;
 public class JunkRemoverUI extends JDialog
 {
     private ConfigModel configModel;
+    private Context context;
     private ArrayList<JunkRemoverTool> deletedTools;
-    private GuiContext guiContext;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
@@ -44,10 +44,10 @@ public class JunkRemoverUI extends JDialog
         // hide default constructor
     }
 
-    public JunkRemoverUI(Window owner, GuiContext guiContext)
+    public JunkRemoverUI(Window owner, Context context)
     {
         super(owner);
-        this.guiContext = guiContext;
+        this.context = context;
 
         initComponents();
 
@@ -59,12 +59,12 @@ public class JunkRemoverUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (guiContext.preferences.getToolsJunkRemoverXpos() > 0)
+        if (context.preferences.getToolsJunkRemoverXpos() > 0)
         {
-            this.setLocation(guiContext.preferences.getToolsJunkRemoverXpos(), guiContext.preferences.getToolsJunkRemoverYpos());
-            Dimension dim = new Dimension(guiContext.preferences.getToolsJunkRemoverWidth(), guiContext.preferences.getToolsJunkRemoverHeight());
+            this.setLocation(context.preferences.getToolsJunkRemoverXpos(), context.preferences.getToolsJunkRemoverYpos());
+            Dimension dim = new Dimension(context.preferences.getToolsJunkRemoverWidth(), context.preferences.getToolsJunkRemoverHeight());
             this.setSize(dim);
-            this.splitPaneContent.setDividerLocation(guiContext.preferences.getToolsJunkRemoverDividerLocation());
+            this.splitPaneContent.setDividerLocation(context.preferences.getToolsJunkRemoverDividerLocation());
         }
         else
         {
@@ -88,7 +88,7 @@ public class JunkRemoverUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // setup the left-side list of configurations
-        configModel = new ConfigModel(guiContext, this);
+        configModel = new ConfigModel(context, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -141,20 +141,20 @@ public class JunkRemoverUI extends JDialog
     {
         if (workerRunning && workerJrt != null)
         {
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("JunkRemover.stop.running.junk.remover"),
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("JunkRemover.stop.running.junk.remover"),
                     "Z.cancel.run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerJrt.requestStop();
-                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.config.cancelled"), workerJrt.getConfigName()));
+                logger.info(java.text.MessageFormat.format(context.cfg.gs("JunkRemover.config.cancelled"), workerJrt.getConfigName()));
             }
         }
         else
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
-                        guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
+                        context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
@@ -176,7 +176,7 @@ public class JunkRemoverUI extends JDialog
         if (index >= 0)
         {
             JunkRemoverTool origJrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
-            String rename = origJrt.getConfigName() + guiContext.cfg.gs("Z.copy");
+            String rename = origJrt.getConfigName() + context.cfg.gs("Z.copy");
             if (configModel.find(rename, null) == null)
             {
                 JunkRemoverTool jrt = origJrt.clone();
@@ -201,8 +201,8 @@ public class JunkRemoverUI extends JDialog
             }
             else
             {
-                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                        rename, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
+                        rename, context.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -220,8 +220,8 @@ public class JunkRemoverUI extends JDialog
 
             // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
 
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + jrt.getConfigName(),
-                    guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + jrt.getConfigName(),
+                    context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 jrt.setDataHasChanged();
@@ -244,7 +244,7 @@ public class JunkRemoverUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, guiContext, guiContext.cfg.gs("JunkRemover.help"), "junkremover_" + guiContext.preferences.getLocale() + ".html");
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("JunkRemover.help"), "junkremover_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.isVisible())
         {
@@ -274,10 +274,10 @@ public class JunkRemoverUI extends JDialog
         {
             tableJunk.getCellEditor().stopCellEditing();
         }
-        if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
+        if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
         {
-            JunkRemoverTool jrt = new JunkRemoverTool(guiContext, guiContext.cfg, guiContext.context);
-            jrt.setConfigName(guiContext.cfg.gs("Z.untitled"));
+            JunkRemoverTool jrt = new JunkRemoverTool(context);
+            jrt.setConfigName(context.cfg.gs("Z.untitled"));
             jrt.setDataHasChanged();
             jrt.addJunkItem();
 
@@ -308,8 +308,8 @@ public class JunkRemoverUI extends JDialog
         }
         else
         {
-            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                    guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
+                    context.cfg.gs("Z.untitled"), context.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -370,7 +370,7 @@ public class JunkRemoverUI extends JDialog
 
     private void adjustJunkTable()
     {
-        tableJunk.setModel(new JunkTableModel(guiContext.cfg));
+        tableJunk.setModel(new JunkTableModel(context));
         tableJunk.getTableHeader().setReorderingAllowed(false);
 
         // junk pattern column
@@ -464,7 +464,7 @@ public class JunkRemoverUI extends JDialog
         try
         {
             Tools tools = new Tools();
-            ArrayList<AbstractTool> toolList = tools.loadAllTools(guiContext, JunkRemoverTool.INTERNAL_NAME);
+            ArrayList<AbstractTool> toolList = tools.loadAllTools(context, JunkRemoverTool.INTERNAL_NAME);
             for (AbstractTool tool : toolList)
             {
                 JunkRemoverTool jrt = (JunkRemoverTool) tool;
@@ -473,11 +473,11 @@ public class JunkRemoverUI extends JDialog
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-            if (guiContext != null)
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (context != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.navigator.dialogJunkRemover, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -527,22 +527,22 @@ public class JunkRemoverUI extends JDialog
             try
             {
                 ArrayList<Origin> origins = new ArrayList<Origin>();
-                isSubscriber = Origins.makeOriginsFromSelected(this, origins, jrt.isRealOnly());
+                isSubscriber = Origins.makeOriginsFromSelected(context, this, origins, jrt.isRealOnly());
 
                 if (origins != null && origins.size() > 0)
                 {
                     int count = origins.size();
 
                     // make dialog pieces
-                    String which = (isSubscriber) ? guiContext.cfg.gs("Z.subscriber") : guiContext.cfg.gs("Z.publisher");
-                    String message = java.text.MessageFormat.format(guiContext.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
-                    JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
-                    checkbox.setToolTipText(guiContext.cfg.gs("Navigator.dryrun.tooltip"));
+                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                    String message = java.text.MessageFormat.format(context.cfg.gs("JunkRemover.run.on.N.locations"), jrt.getConfigName(), count, which);
+                    JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+                    checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
                     checkbox.setSelected(true);
                     Object[] params = {message, checkbox};
 
                     // confirm run of tool
-                    int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.YES_NO_OPTION);
+                    int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JunkRemover.title"), JOptionPane.YES_NO_OPTION);
                     isDryRun = checkbox.isSelected();
                     if (reply == JOptionPane.YES_OPTION)
                     {
@@ -563,7 +563,7 @@ public class JunkRemoverUI extends JDialog
                             else
                                 task.setPublisherKey(Task.ANY_SERVER);
 
-                            worker = task.process(guiContext, jrt, isDryRun);
+                            worker = task.process(context, jrt, isDryRun);
                             if (worker != null)
                             {
                                 workerRunning = true;
@@ -583,11 +583,11 @@ public class JunkRemoverUI extends JDialog
                         }
                         catch (Exception e)
                         {
-                            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                            if (guiContext != null)
+                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                            if (context != null)
                             {
                                 logger.error(msg);
-                                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(context.navigator.dialogJunkRemover, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                             }
                             else
                                 logger.error(msg);
@@ -596,19 +596,19 @@ public class JunkRemoverUI extends JDialog
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(this, guiContext.cfg.gs("JunkRemover.nothing.selected.in.browser"),
-                            guiContext.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, context.cfg.gs("JunkRemover.nothing.selected.in.browser"),
+                            context.cfg.gs("JunkRemover.title"), JOptionPane.WARNING_MESSAGE);
                 }
             }
             catch (Exception e)
             {
                 if (!e.getMessage().equals("HANDLED_INTERNALLY"))
                 {
-                    String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (guiContext != null)
+                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                    if (context != null)
                     {
                         logger.error(msg);
-                        JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(context.navigator.dialogJunkRemover, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
                         logger.error(msg);
@@ -619,10 +619,10 @@ public class JunkRemoverUI extends JDialog
 
     private void processTerminated(Task task, JunkRemoverTool jrt)
     {
-        if (guiContext.progress != null)
-            guiContext.progress.done();
+        if (context.progress != null)
+            context.progress.done();
 
-        Origins.setSelectedFromOrigins(guiContext, this, task.getOrigins());
+        Origins.setSelectedFromOrigins(context, this, task.getOrigins());
 
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -631,13 +631,13 @@ public class JunkRemoverUI extends JDialog
 
         if (jrt.isRequestStop())
         {
-            logger.info(jrt.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
-            guiContext.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(jrt.getConfigName() + context.cfg.gs("Z.cancelled"));
+            context.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
         else
         {
-            logger.info(jrt.getConfigName() + guiContext.cfg.gs("Z.completed"));
-            guiContext.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(jrt.getConfigName() + context.cfg.gs("Z.completed"));
+            context.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }
 
@@ -669,11 +669,11 @@ public class JunkRemoverUI extends JDialog
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-            if (guiContext != null)
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (context != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(guiContext.navigator.dialogJunkRemover, msg, guiContext.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.navigator.dialogJunkRemover, msg, context.cfg.gs("JunkRemover.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -682,12 +682,12 @@ public class JunkRemoverUI extends JDialog
 
     private void savePreferences()
     {
-        guiContext.preferences.setToolsJunkRemoverHeight(this.getHeight());
-        guiContext.preferences.setToolsJunkRemoverWidth(this.getWidth());
+        context.preferences.setToolsJunkRemoverHeight(this.getHeight());
+        context.preferences.setToolsJunkRemoverWidth(this.getWidth());
         Point location = this.getLocation();
-        guiContext.preferences.setToolsJunkRemoverXpos(location.x);
-        guiContext.preferences.setToolsJunkRemoverYpos(location.y);
-        guiContext.preferences.setToolsJunkRemoverDividerLocation(splitPaneContent.getDividerLocation());
+        context.preferences.setToolsJunkRemoverXpos(location.x);
+        context.preferences.setToolsJunkRemoverYpos(location.y);
+        context.preferences.setToolsJunkRemoverDividerLocation(splitPaneContent.getDividerLocation());
     }
 
     public void setComponentEnabled(boolean enabled)
@@ -776,7 +776,7 @@ public class JunkRemoverUI extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
-        setTitle(guiContext.cfg.gs("JunkRemover.title"));
+        setTitle(context.cfg.gs("JunkRemover.title"));
         setName("junkRemoverUI");
         setMinimumSize(new Dimension(150, 126));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -814,23 +814,23 @@ public class JunkRemoverUI extends JDialog
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                         //---- buttonNew ----
-                        buttonNew.setText(guiContext.cfg.gs("JunkRemover.button.New.text"));
-                        buttonNew.setMnemonic(guiContext.cfg.gs("JunkRemover.button.New.mnemonic").charAt(0));
-                        buttonNew.setToolTipText(guiContext.cfg.gs("JunkRemover.button.New.toolTipText"));
+                        buttonNew.setText(context.cfg.gs("JunkRemover.button.New.text"));
+                        buttonNew.setMnemonic(context.cfg.gs("JunkRemover.button.New.mnemonic").charAt(0));
+                        buttonNew.setToolTipText(context.cfg.gs("JunkRemover.button.New.toolTipText"));
                         buttonNew.addActionListener(e -> actionNewClicked(e));
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
-                        buttonCopy.setText(guiContext.cfg.gs("JunkRemover.button.Copy.text"));
-                        buttonCopy.setMnemonic(guiContext.cfg.gs("JunkRemover.button.Copy.mnemonic").charAt(0));
-                        buttonCopy.setToolTipText(guiContext.cfg.gs("JunkRemover.button.Copy.toolTipText"));
+                        buttonCopy.setText(context.cfg.gs("JunkRemover.button.Copy.text"));
+                        buttonCopy.setMnemonic(context.cfg.gs("JunkRemover.button.Copy.mnemonic").charAt(0));
+                        buttonCopy.setToolTipText(context.cfg.gs("JunkRemover.button.Copy.toolTipText"));
                         buttonCopy.addActionListener(e -> actionCopyClicked(e));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText(guiContext.cfg.gs("JunkRemover.button.Delete.text"));
-                        buttonDelete.setMnemonic(guiContext.cfg.gs("JunkRemover.button.Delete.mnemonic").charAt(0));
-                        buttonDelete.setToolTipText(guiContext.cfg.gs("JunkRemover.button.Delete.toolTipText"));
+                        buttonDelete.setText(context.cfg.gs("JunkRemover.button.Delete.text"));
+                        buttonDelete.setMnemonic(context.cfg.gs("JunkRemover.button.Delete.mnemonic").charAt(0));
+                        buttonDelete.setToolTipText(context.cfg.gs("JunkRemover.button.Delete.toolTipText"));
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
 
@@ -840,9 +840,9 @@ public class JunkRemoverUI extends JDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonRun ----
-                        buttonRun.setText(guiContext.cfg.gs("JunkRemover.button.Run.text"));
-                        buttonRun.setMnemonic(guiContext.cfg.gs("JunkRemover.button.Run.mnemonic").charAt(0));
-                        buttonRun.setToolTipText(guiContext.cfg.gs("JunkRemover.button.Run.toolTipText"));
+                        buttonRun.setText(context.cfg.gs("JunkRemover.button.Run.text"));
+                        buttonRun.setMnemonic(context.cfg.gs("JunkRemover.button.Run.mnemonic").charAt(0));
+                        buttonRun.setToolTipText(context.cfg.gs("JunkRemover.button.Run.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
                         panelTopButtons.add(buttonRun);
                     }
@@ -859,7 +859,7 @@ public class JunkRemoverUI extends JDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(guiContext.cfg.gs("JunkRemover.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("JunkRemover.labelHelp.toolTipText"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {
@@ -922,24 +922,24 @@ public class JunkRemoverUI extends JDialog
                             panelOptionsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                             //---- buttonAddRow ----
-                            buttonAddRow.setText(guiContext.cfg.gs("JunkRemover.button.AddRow.text"));
+                            buttonAddRow.setText(context.cfg.gs("JunkRemover.button.AddRow.text"));
                             buttonAddRow.setFont(buttonAddRow.getFont().deriveFont(buttonAddRow.getFont().getSize() - 2f));
                             buttonAddRow.setPreferredSize(new Dimension(78, 24));
                             buttonAddRow.setMinimumSize(new Dimension(78, 24));
                             buttonAddRow.setMaximumSize(new Dimension(78, 24));
-                            buttonAddRow.setMnemonic(guiContext.cfg.gs("JunkRemover.button.AddRow.mnemonic").charAt(0));
-                            buttonAddRow.setToolTipText(guiContext.cfg.gs("JunkRemover.button.AddRow.toolTipText"));
+                            buttonAddRow.setMnemonic(context.cfg.gs("JunkRemover.button.AddRow.mnemonic").charAt(0));
+                            buttonAddRow.setToolTipText(context.cfg.gs("JunkRemover.button.AddRow.toolTipText"));
                             buttonAddRow.addActionListener(e -> actionAddRowClicked(e));
                             panelOptionsButtons.add(buttonAddRow);
 
                             //---- buttonRemoveRow ----
-                            buttonRemoveRow.setText(guiContext.cfg.gs("JunkRemover.button.RemoveRow.text"));
+                            buttonRemoveRow.setText(context.cfg.gs("JunkRemover.button.RemoveRow.text"));
                             buttonRemoveRow.setFont(buttonRemoveRow.getFont().deriveFont(buttonRemoveRow.getFont().getSize() - 2f));
                             buttonRemoveRow.setPreferredSize(new Dimension(78, 24));
                             buttonRemoveRow.setMinimumSize(new Dimension(78, 24));
                             buttonRemoveRow.setMaximumSize(new Dimension(78, 24));
-                            buttonRemoveRow.setMnemonic(guiContext.cfg.gs("JunkRemover.button.RemoveRow.mnemonic").charAt(0));
-                            buttonRemoveRow.setToolTipText(guiContext.cfg.gs("JunkRemover.button.RemoveRow.toolTipText"));
+                            buttonRemoveRow.setMnemonic(context.cfg.gs("JunkRemover.button.RemoveRow.mnemonic").charAt(0));
+                            buttonRemoveRow.setToolTipText(context.cfg.gs("JunkRemover.button.RemoveRow.toolTipText"));
                             buttonRemoveRow.addActionListener(e -> actionRemoveRowClicked(e));
                             panelOptionsButtons.add(buttonRemoveRow);
                         }
@@ -959,16 +959,16 @@ public class JunkRemoverUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- saveButton ----
-                saveButton.setText(guiContext.cfg.gs("Z.save"));
-                saveButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                saveButton.setText(context.cfg.gs("Z.save"));
+                saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
                 saveButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
-                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setText(context.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

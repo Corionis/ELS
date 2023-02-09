@@ -1,16 +1,16 @@
 package com.groksoft.els.gui.libraries;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LibrariesUI
 {
     public static final String INTERNAL_NAME = "libraries";
+    private Context context;
     private String currentLibraryName = "";
     private String displayName;
-    private GuiContext guiContext;
     private Logger logger = LogManager.getLogger("applog");
 
     private LibrariesUI()
@@ -18,10 +18,10 @@ public class LibrariesUI
         // hide default constructor
     }
 
-    public LibrariesUI(GuiContext guiContext)
+    public LibrariesUI(Context context)
     {
-        this.guiContext = guiContext;
-        this.displayName = guiContext.cfg.gs("Operations.displayName");
+        this.context = context;
+        this.displayName = context.cfg.gs("Operations.displayName");
     }
 
     public String getConfigName()

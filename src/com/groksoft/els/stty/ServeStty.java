@@ -131,15 +131,15 @@ public class ServeStty extends Thread
             Connection theConnection;
             if (cfg.isPublisherListener())
             {
-                theConnection = new Connection(aSocket, "publisher", new com.groksoft.els.stty.publisher.Daemon(cfg, context, context.publisherRepo, context.subscriberRepo));
+                theConnection = new Connection(aSocket, "publisher", new com.groksoft.els.stty.publisher.Daemon(context, context.publisherRepo, context.subscriberRepo));
             }
             else if (cfg.isSubscriberListener() || cfg.isSubscriberTerminal())
             {
-                theConnection = new Connection(aSocket, "subscriber", new com.groksoft.els.stty.subscriber.Daemon(cfg, context, context.subscriberRepo, context.publisherRepo));
+                theConnection = new Connection(aSocket, "subscriber", new com.groksoft.els.stty.subscriber.Daemon(context, context.subscriberRepo, context.publisherRepo));
             }
             else if (cfg.isStatusServer())
             {
-                theConnection = new Connection(aSocket, "hintserver", new com.groksoft.els.stty.hintServer.Daemon(cfg, context, context.statusRepo, null));
+                theConnection = new Connection(aSocket, "hintserver", new com.groksoft.els.stty.hintServer.Daemon(context, context.statusRepo, null));
             }
             else
             {

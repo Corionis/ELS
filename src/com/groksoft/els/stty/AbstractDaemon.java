@@ -1,6 +1,5 @@
 package com.groksoft.els.stty;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
@@ -26,7 +25,6 @@ public abstract class AbstractDaemon
 
     protected InetAddress address;
     protected boolean authorized = false;
-    protected Configuration cfg;
     protected boolean connected = false;
     protected Context context;
     protected boolean fault = false;
@@ -45,10 +43,9 @@ public abstract class AbstractDaemon
     /**
      * Instantiate the Daemon service
      */
-    public AbstractDaemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
+    public AbstractDaemon(Context context, Repository mine, Repository theirs)
     {
-        this.cfg = config;
-        this.context = ctxt;
+        this.context = context;
         this.myRepo = mine;
         if (theirs != null)
         {

@@ -1,6 +1,6 @@
 package com.groksoft.els.gui.util;
 
-import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.Context;
 
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 @Plugin(name = "GuiLogAppender", category = "Core", elementType = "appender", printObject = true)
 public class GuiLogAppender extends AbstractAppender
 {
-    private GuiContext guiContext = null;
+    private Context context = null;
     private static ArrayList<String> preBuffer = null;
 
     public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
@@ -70,7 +70,7 @@ public class GuiLogAppender extends AbstractAppender
         byte[] data = getLayout().toByteArray(event);
         String line = new String(data).trim() + System.getProperty("line.separator");
 
-        if (guiContext == null)
+        if (context == null || context.navigator == null)
             addPreBuffer(line);
         else
         {
@@ -83,9 +83,9 @@ public class GuiLogAppender extends AbstractAppender
         }
     }
 
-    public void setGuiContext(GuiContext guiContext)
+    public void setContext(Context context)
     {
-        this.guiContext = guiContext;
+        this.context = context;
     }
 
     @Override
@@ -95,8 +95,8 @@ public class GuiLogAppender extends AbstractAppender
 
     private void writeGuiLogs(String line)
     {
-        guiContext.mainFrame.textAreaLog.append(line);
-        guiContext.mainFrame.textAreaOperationLog.append(line);
+        context.mainFrame.textAreaLog.append(line);
+        context.mainFrame.textAreaOperationLog.append(line);
     }
 
 }

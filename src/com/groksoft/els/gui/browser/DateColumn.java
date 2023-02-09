@@ -1,22 +1,24 @@
 package com.groksoft.els.gui.browser;
 
-import com.groksoft.els.gui.Navigator;
+import com.groksoft.els.Context;
 
 import java.nio.file.attribute.FileTime;
 import java.text.SimpleDateFormat;
 
 public class DateColumn implements Comparable
 {
-    FileTime time;
+    private Context context;
+    private FileTime time;
 
     public DateColumn()
     {
         // hide default constructor
     }
 
-    public DateColumn(FileTime t)
+    public DateColumn(Context context, FileTime time)
     {
-        time = t;
+        this.context = context;
+        this.time = time;
     }
 
     @Override
@@ -29,7 +31,7 @@ public class DateColumn implements Comparable
     {
         if (stamp != null)
         {
-            SimpleDateFormat dateFormatter = new SimpleDateFormat(Navigator.guiContext.preferences.getDateFormat());
+            SimpleDateFormat dateFormatter = new SimpleDateFormat(context.preferences.getDateFormat());
             return dateFormatter.format(stamp.toMillis());
         }
         return "";

@@ -3,6 +3,7 @@ package com.groksoft.els.gui;
 import java.awt.event.*;
 
 import com.formdev.flatlaf.FlatLaf;
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,7 +23,7 @@ import javax.swing.border.*;
 public class Settings extends JDialog
 {
     private transient Logger logger = LogManager.getLogger("applog");
-    private GuiContext guiContext;
+    private Context context;
     private NavHelp helpDialog;
     private Settings thisDialog;
 
@@ -38,10 +39,10 @@ public class Settings extends JDialog
             + Default console and debug levels
      */
 
-    public Settings(Window owner, GuiContext ctxt)
+    public Settings(Window owner, Context context)
     {
         super(owner);
-        guiContext = ctxt;
+        this.context = context;
         initComponents();
         thisDialog = this;
         setDialog();
@@ -51,7 +52,7 @@ public class Settings extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                refreshLookAndFeel(guiContext.preferences.getLookAndFeel());
+                refreshLookAndFeel(context.preferences.getLookAndFeel());
                 if (helpDialog != null && helpDialog.isVisible())
                     helpDialog.setVisible(false);
                 setVisible(false);
@@ -65,7 +66,7 @@ public class Settings extends JDialog
             {
                 if (setPreferences())
                 {
-                    refreshLookAndFeel(guiContext.preferences.getLookAndFeel());
+                    refreshLookAndFeel(context.preferences.getLookAndFeel());
                     if (helpDialog != null && helpDialog.isVisible())
                         helpDialog.setVisible(false);
                     setVisible(false);
@@ -115,7 +116,7 @@ public class Settings extends JDialog
             {
                 if (helpDialog == null)
                 {
-                    helpDialog = new NavHelp(owner, thisDialog, guiContext, guiContext.cfg.gs("Settings.date.format.help.title"), "formats_" + guiContext.preferences.getLocale() + ".html");
+                    helpDialog = new NavHelp(owner, thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html");
                 }
                 if (!helpDialog.isVisible())
                 {
@@ -156,8 +157,8 @@ public class Settings extends JDialog
             {
                 if (actionEvent.getActionCommand().equals("comboBoxChanged"))
                 {
-                    guiContext.mainFrame.setBrowserTabs(tabPlacementComboBox.getSelectedIndex());
-                    guiContext.browser.refreshAll();
+                    context.mainFrame.setBrowserTabs(tabPlacementComboBox.getSelectedIndex());
+                    context.browser.refreshAll();
                 }
             }
         });
@@ -166,7 +167,7 @@ public class Settings extends JDialog
 
     private void chooseColor(ActionEvent e) {
         Color color = new Color(Integer.parseInt(textFieldAccentColor.getText(), 16));
-        color = JColorChooser.showDialog(guiContext.mainFrame, guiContext.cfg.gs("Settings.select.accent.color"), color);
+        color = JColorChooser.showDialog(context.mainFrame, context.cfg.gs("Settings.select.accent.color"), color);
         if (color != null)
         {
             textFieldAccentColor.setText(Utils.formatHex(color.getRed(), 2) +
@@ -183,9 +184,9 @@ public class Settings extends JDialog
             catch (Exception ex)
             {
                 logger.error(Utils.getStackTrace(ex));
-                JOptionPane.showMessageDialog(guiContext.mainFrame,
-                        guiContext.cfg.gs("Z.exception") + ex.getMessage(),
-                        guiContext.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame,
+                        context.cfg.gs("Z.exception") + ex.getMessage(),
+                        context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
 
             }
         }
@@ -198,12 +199,12 @@ public class Settings extends JDialog
             if (index == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
-                UIManager.setLookAndFeel(guiContext.mainFrame.getLookAndFeel(index));
+                UIManager.setLookAndFeel(context.mainFrame.getLookAndFeel(index));
 
             try
             {
                 // set accent color for current LaF
-                FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + guiContext.preferences.getAccentColor()));
+                FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + context.preferences.getAccentColor()));
                 Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
                 FlatLaf.setup(lafClass.newInstance());
                 FlatLaf.updateUI();
@@ -211,9 +212,9 @@ public class Settings extends JDialog
             catch (Exception e)
             {
                 logger.error(Utils.getStackTrace(e));
-                JOptionPane.showMessageDialog(guiContext.mainFrame,
-                        guiContext.cfg.gs("Z.exception") + e.getMessage(),
-                        guiContext.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame,
+                        context.cfg.gs("Z.exception") + e.getMessage(),
+                        context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
 
             }
 
@@ -222,35 +223,35 @@ public class Settings extends JDialog
                 updateLAFRecursively(frame);
             }
 
-            guiContext.mainFrame.setBrowserTabs(-1);
-            guiContext.browser.refreshAll();
+            context.mainFrame.setBrowserTabs(-1);
+            context.browser.refreshAll();
         }
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(settingsDialogPane, guiContext.cfg.gs("Settings.error.changing.look.n.feel") + e.getMessage(), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(settingsDialogPane, context.cfg.gs("Settings.error.changing.look.n.feel") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void setDialog()
     {
         // general
-        preserveFileTimestampsCheckBox.setSelected(guiContext.preferences.isPreserveFileTimes());
-        showDeleteConfirmationCheckBox.setSelected(guiContext.preferences.isShowDeleteConfirmation());
-        showCcpConfirmationCheckBox.setSelected(guiContext.preferences.isShowCcpConfirmation());
-        showDndConfirmationCheckBox.setSelected(guiContext.preferences.isShowDnDConfirmation());
-        showTouchConfirmationCheckBox.setSelected(guiContext.preferences.isShowTouchConfirmation());
+        preserveFileTimestampsCheckBox.setSelected(context.preferences.isPreserveFileTimes());
+        showDeleteConfirmationCheckBox.setSelected(context.preferences.isShowDeleteConfirmation());
+        showCcpConfirmationCheckBox.setSelected(context.preferences.isShowCcpConfirmation());
+        showDndConfirmationCheckBox.setSelected(context.preferences.isShowDnDConfirmation());
+        showTouchConfirmationCheckBox.setSelected(context.preferences.isShowTouchConfirmation());
 
         // appearance
         lookFeelComboBox.setAutoscrolls(true);
-        lookFeelComboBox.setSelectedIndex(guiContext.preferences.getLookAndFeel());
+        lookFeelComboBox.setSelectedIndex(context.preferences.getLookAndFeel());
         // locale - add new locales to Preferences.availableLocales
         ComboBoxModel<String> model = localeComboBox.getModel();
         localeComboBox.setAutoscrolls(true);
-        if (guiContext.context.main.availableLocales.length > 0)
+        if (context.main.availableLocales.length > 0)
         {
             localeComboBox.removeAllItems();
-            for (String loc : guiContext.context.main.availableLocales)
+            for (String loc : context.main.availableLocales)
             {
                 localeComboBox.addItem(loc);
             }
@@ -258,34 +259,34 @@ public class Settings extends JDialog
         for (int i = 0; i < model.getSize(); ++i)
         {
             String loc = model.getElementAt(i);
-            if (loc.equals(guiContext.preferences.getLocale()))
+            if (loc.equals(context.preferences.getLocale()))
             {
                 localeComboBox.setSelectedIndex(i);
                 break;
             }
         }
-        scaleCheckBox.setSelected(guiContext.preferences.isBinaryScale());
-        dateFormatTextField.setText(guiContext.preferences.getDateFormat());
-        if (guiContext.preferences.getAccentColor() == null || guiContext.preferences.getAccentColor().length() < 1)
+        scaleCheckBox.setSelected(context.preferences.isBinaryScale());
+        dateFormatTextField.setText(context.preferences.getDateFormat());
+        if (context.preferences.getAccentColor() == null || context.preferences.getAccentColor().length() < 1)
         {
-            guiContext.preferences.setAccentColor("2675BF");
+            context.preferences.setAccentColor("2675BF");
         }
-        textFieldAccentColor.setText(guiContext.preferences.getAccentColor());
+        textFieldAccentColor.setText(context.preferences.getAccentColor());
 
         // browser
-        autoRefreshCheckBox.setSelected(guiContext.preferences.isAutoRefresh());
-        hideFilesInTreeCheckBox.setSelected(guiContext.preferences.isHideFilesInTree());
-        hideHiddenFilesCheckBox.setSelected(guiContext.preferences.isHideHiddenFiles());
-        sortCaseSensitiveCheckBox.setSelected(guiContext.preferences.isSortCaseInsensitive());
-        sortFoldersBeforeFilesCheckBox.setSelected(guiContext.preferences.isSortFoldersBeforeFiles());
-        sortReverseCheckBox.setSelected(guiContext.preferences.isSortReverse());
+        autoRefreshCheckBox.setSelected(context.preferences.isAutoRefresh());
+        hideFilesInTreeCheckBox.setSelected(context.preferences.isHideFilesInTree());
+        hideHiddenFilesCheckBox.setSelected(context.preferences.isHideHiddenFiles());
+        sortCaseSensitiveCheckBox.setSelected(context.preferences.isSortCaseInsensitive());
+        sortFoldersBeforeFilesCheckBox.setSelected(context.preferences.isSortFoldersBeforeFiles());
+        sortReverseCheckBox.setSelected(context.preferences.isSortReverse());
         tabPlacementComboBox.removeAllItems();
         model = tabPlacementComboBox.getModel();
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.top"));
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.bottom"));
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.left"));
-        tabPlacementComboBox.addItem(guiContext.cfg.gs("Settings.tabPlacement.right"));
-        tabPlacementComboBox.setSelectedIndex(guiContext.preferences.getTabPlacementIndex());
+        tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.top"));
+        tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.bottom"));
+        tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.left"));
+        tabPlacementComboBox.addItem(context.cfg.gs("Settings.tabPlacement.right"));
+        tabPlacementComboBox.setSelectedIndex(context.preferences.getTabPlacementIndex());
 
         // operationsUI
 
@@ -301,39 +302,39 @@ public class Settings extends JDialog
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Settings.date.format.not.valid"), guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Settings.date.format.not.valid"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             settingsTabbedPane.setSelectedIndex(1);
             dateFormatTextField.requestFocus();
-            guiContext.mainFrame.labelStatusMiddle.setText(guiContext.cfg.gs("Settings.date.format.not.valid"));
+            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Settings.date.format.not.valid"));
             return false;
         }
 
         // general
-        guiContext.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
-        guiContext.preferences.setShowDeleteConfirmation(showDeleteConfirmationCheckBox.isSelected());
-        guiContext.preferences.setShowCcpConfirmation(showCcpConfirmationCheckBox.isSelected());
-        guiContext.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
-        guiContext.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
+        context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
+        context.preferences.setShowDeleteConfirmation(showDeleteConfirmationCheckBox.isSelected());
+        context.preferences.setShowCcpConfirmation(showCcpConfirmationCheckBox.isSelected());
+        context.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
+        context.preferences.setShowTouchConfirmation(showTouchConfirmationCheckBox.isSelected());
 
         // appearance
-        guiContext.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
-        guiContext.preferences.setLocale((String) localeComboBox.getSelectedItem());
-        guiContext.preferences.setBinaryScale(scaleCheckBox.isSelected());
-        guiContext.preferences.setDateFormat(dateFormatTextField.getText());
-        if (guiContext.preferences.getAccentColor().length() < 6) // use default if empty
-            guiContext.preferences.setAccentColor("2675BF");
-        guiContext.preferences.setAccentColor(textFieldAccentColor.getText());
+        context.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
+        context.preferences.setLocale((String) localeComboBox.getSelectedItem());
+        context.preferences.setBinaryScale(scaleCheckBox.isSelected());
+        context.preferences.setDateFormat(dateFormatTextField.getText());
+        if (context.preferences.getAccentColor().length() < 6) // use default if empty
+            context.preferences.setAccentColor("2675BF");
+        context.preferences.setAccentColor(textFieldAccentColor.getText());
 
         // browser
-        guiContext.preferences.setAutoRefresh(autoRefreshCheckBox.isSelected());
-        guiContext.preferences.setHideFilesInTree(hideFilesInTreeCheckBox.isSelected());
-        guiContext.preferences.setHideHiddenFiles(hideHiddenFilesCheckBox.isSelected());
-        guiContext.preferences.setSortCaseInsensitive(sortCaseSensitiveCheckBox.isSelected());
-        guiContext.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
-        guiContext.preferences.setSortReverse(sortReverseCheckBox.isSelected());
-        guiContext.preferences.setTabPlacement(tabPlacementComboBox.getSelectedIndex());
+        context.preferences.setAutoRefresh(autoRefreshCheckBox.isSelected());
+        context.preferences.setHideFilesInTree(hideFilesInTreeCheckBox.isSelected());
+        context.preferences.setHideHiddenFiles(hideHiddenFilesCheckBox.isSelected());
+        context.preferences.setSortCaseInsensitive(sortCaseSensitiveCheckBox.isSelected());
+        context.preferences.setSortFoldersBeforeFiles(sortFoldersBeforeFilesCheckBox.isSelected());
+        context.preferences.setSortReverse(sortReverseCheckBox.isSelected());
+        context.preferences.setTabPlacement(tabPlacementComboBox.getSelectedIndex());
 
-        guiContext.mainFrame.labelStatusMiddle.setText("");
+        context.mainFrame.labelStatusMiddle.setText("");
         return true;
     }
 
@@ -411,7 +412,7 @@ public class Settings extends JDialog
         cancelButton = new JButton();
 
         //======== this ========
-        setTitle(guiContext.cfg.gs("Settings.this.title"));
+        setTitle(context.cfg.gs("Settings.this.title"));
         setMinimumSize(new Dimension(100, 50));
         setName("settingsDialog");
         setResizable(false);
@@ -447,19 +448,19 @@ public class Settings extends JDialog
                     {
 
                         //---- preserveFileTimestampsLabel ----
-                        preserveFileTimestampsLabel.setText(guiContext.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
+                        preserveFileTimestampsLabel.setText(context.cfg.gs("Settings.preserveFileTimestampsLabel.text"));
 
                         //---- showDeleteConfirmationLabel ----
-                        showDeleteConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
+                        showDeleteConfirmationLabel.setText(context.cfg.gs("Settings.showDeleteConfirmationLabel.text"));
 
                         //---- showCcpConfirmationLabel ----
-                        showCcpConfirmationLabel.setText(guiContext.cfg.gs("Settings.showCcpConfirmationLabel.text"));
+                        showCcpConfirmationLabel.setText(context.cfg.gs("Settings.showCcpConfirmationLabel.text"));
 
                         //---- showDndConfirmationLabel ----
-                        showDndConfirmationLabel.setText(guiContext.cfg.gs("Settings.showDndConfirmationLabel.text"));
+                        showDndConfirmationLabel.setText(context.cfg.gs("Settings.showDndConfirmationLabel.text"));
 
                         //---- showTouchConfirmationLabel ----
-                        showTouchConfirmationLabel.setText(guiContext.cfg.gs("Settings.showTouchConfirmationLabel.text"));
+                        showTouchConfirmationLabel.setText(context.cfg.gs("Settings.showTouchConfirmationLabel.text"));
 
                         GroupLayout generalPanelLayout = new GroupLayout(generalPanel);
                         generalPanel.setLayout(generalPanelLayout);
@@ -516,14 +517,14 @@ public class Settings extends JDialog
                                     .addContainerGap(163, Short.MAX_VALUE))
                         );
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
-                    settingsTabbedPane.setMnemonicAt(0, guiContext.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
+                    settingsTabbedPane.addTab(context.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
+                    settingsTabbedPane.setMnemonicAt(0, context.cfg.gs("Settings.generalPanel.tab.mnemonic").charAt(0));
 
                     //======== apperancePanel ========
                     {
 
                         //---- lookFeelLabel ----
-                        lookFeelLabel.setText(guiContext.cfg.gs("Settings.lookFeelLabel.text"));
+                        lookFeelLabel.setText(context.cfg.gs("Settings.lookFeelLabel.text"));
 
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -537,7 +538,7 @@ public class Settings extends JDialog
                         }));
 
                         //---- localeLabel ----
-                        localeLabel.setText(guiContext.cfg.gs("Settings.localeLabel.text"));
+                        localeLabel.setText(context.cfg.gs("Settings.localeLabel.text"));
 
                         //---- localeComboBox ----
                         localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -545,30 +546,30 @@ public class Settings extends JDialog
                         }));
 
                         //---- scaleLabel ----
-                        scaleLabel.setText(guiContext.cfg.gs("Settings.scaleLabel.text"));
+                        scaleLabel.setText(context.cfg.gs("Settings.scaleLabel.text"));
 
                         //---- scaleCheckBox ----
-                        scaleCheckBox.setToolTipText(guiContext.cfg.gs("Settings.scaleCheckBox.toolTipText"));
+                        scaleCheckBox.setToolTipText(context.cfg.gs("Settings.scaleCheckBox.toolTipText"));
 
                         //---- dateFormatLabel ----
-                        dateFormatLabel.setText(guiContext.cfg.gs("Settings.dateFormatLabel.text"));
+                        dateFormatLabel.setText(context.cfg.gs("Settings.dateFormatLabel.text"));
 
                         //---- dateFormatTextField ----
                         dateFormatTextField.setText("yyyy-MM-dd hh:mm:ss aa");
 
                         //---- accentColorButtonLabel ----
-                        accentColorButtonLabel.setText(guiContext.cfg.gs("Settings.accentColorLabel.text"));
+                        accentColorButtonLabel.setText(context.cfg.gs("Settings.accentColorLabel.text"));
 
                         //---- dateInfoButton ----
-                        dateInfoButton.setText(guiContext.cfg.gs("Settings.button.dateInfo.text"));
-                        dateInfoButton.setToolTipText(guiContext.cfg.gs("Settings.button.dateInfo.text.tooltip"));
+                        dateInfoButton.setText(context.cfg.gs("Settings.button.dateInfo.text"));
+                        dateInfoButton.setToolTipText(context.cfg.gs("Settings.button.dateInfo.text.tooltip"));
 
                         //---- textFieldAccentColor ----
-                        textFieldAccentColor.setToolTipText(guiContext.cfg.gs("Settings.textField.HintButtonColor.toolTipText"));
+                        textFieldAccentColor.setToolTipText(context.cfg.gs("Settings.textField.HintButtonColor.toolTipText"));
 
                         //---- buttonChooseColor ----
-                        buttonChooseColor.setText(guiContext.cfg.gs("Settings.button.ChooseColor.text"));
-                        buttonChooseColor.setToolTipText(guiContext.cfg.gs("Settings.button.ChooseColor.toolTipText"));
+                        buttonChooseColor.setText(context.cfg.gs("Settings.button.ChooseColor.text"));
+                        buttonChooseColor.setToolTipText(context.cfg.gs("Settings.button.ChooseColor.toolTipText"));
                         buttonChooseColor.addActionListener(e -> chooseColor(e));
 
                         GroupLayout apperancePanelLayout = new GroupLayout(apperancePanel);
@@ -633,8 +634,8 @@ public class Settings extends JDialog
                                     .addContainerGap())
                         );
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
-                    settingsTabbedPane.setMnemonicAt(1, guiContext.cfg.gs("Settings.apperancePanel.tab.mnemonic").charAt(0));
+                    settingsTabbedPane.addTab(context.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
+                    settingsTabbedPane.setMnemonicAt(1, context.cfg.gs("Settings.apperancePanel.tab.mnemonic").charAt(0));
 
                     //======== browserPanel ========
                     {
@@ -643,22 +644,22 @@ public class Settings extends JDialog
                         autoRefreshLabel.setText("Auto-refresh:");
 
                         //---- hideFilesInTreeLabel ----
-                        hideFilesInTreeLabel.setText(guiContext.cfg.gs("Settings.hideFilesInTreeLabel.text"));
+                        hideFilesInTreeLabel.setText(context.cfg.gs("Settings.hideFilesInTreeLabel.text"));
 
                         //---- hideHiddenFilesLabel ----
-                        hideHiddenFilesLabel.setText(guiContext.cfg.gs("Settings.hideHiddenFilesLabel.text"));
+                        hideHiddenFilesLabel.setText(context.cfg.gs("Settings.hideHiddenFilesLabel.text"));
 
                         //---- sortCaseSensitiveLabel ----
-                        sortCaseSensitiveLabel.setText(guiContext.cfg.gs("Settings.sortCaseSensitiveLabel.text"));
+                        sortCaseSensitiveLabel.setText(context.cfg.gs("Settings.sortCaseSensitiveLabel.text"));
 
                         //---- sortFoldersBeforeFilesLabel ----
-                        sortFoldersBeforeFilesLabel.setText(guiContext.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
+                        sortFoldersBeforeFilesLabel.setText(context.cfg.gs("Settings.sortFoldersBeforeFilesLabel.text"));
 
                         //---- sortReverseLabel ----
-                        sortReverseLabel.setText(guiContext.cfg.gs("Settings.sortReverseLabel.text"));
+                        sortReverseLabel.setText(context.cfg.gs("Settings.sortReverseLabel.text"));
 
                         //---- tabPlacementlabel ----
-                        tabPlacementlabel.setText(guiContext.cfg.gs("Settings.tabPlacementLabel.text"));
+                        tabPlacementlabel.setText(context.cfg.gs("Settings.tabPlacementLabel.text"));
 
                         //---- tabPlacementComboBox ----
                         tabPlacementComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
@@ -729,22 +730,22 @@ public class Settings extends JDialog
                                     .addContainerGap())
                         );
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
-                    settingsTabbedPane.setMnemonicAt(2, guiContext.cfg.gs("Settings.browserPanel.tab.mnemonic").charAt(0));
+                    settingsTabbedPane.addTab(context.cfg.gs("Settings.browserPanel.tab.title"), browserPanel);
+                    settingsTabbedPane.setMnemonicAt(2, context.cfg.gs("Settings.browserPanel.tab.mnemonic").charAt(0));
 
                     //======== operationsPanel ========
                     {
                         operationsPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.operationsPanel.tab.title"), operationsPanel);
-                    settingsTabbedPane.setMnemonicAt(3, guiContext.cfg.gs("Settings.operationsPanel.tab.mnemonic").charAt(0));
+                    settingsTabbedPane.addTab(context.cfg.gs("Settings.operationsPanel.tab.title"), operationsPanel);
+                    settingsTabbedPane.setMnemonicAt(3, context.cfg.gs("Settings.operationsPanel.tab.mnemonic").charAt(0));
 
                     //======== librariesPanel ========
                     {
                         librariesPanel.setLayout(new GridLayout(1, 2, 2, 2));
                     }
-                    settingsTabbedPane.addTab(guiContext.cfg.gs("Settings.librariesPanel.tab.title"), librariesPanel);
-                    settingsTabbedPane.setMnemonicAt(4, guiContext.cfg.gs("Settings.librariesPanel.tab.mnemonic").charAt(0));
+                    settingsTabbedPane.addTab(context.cfg.gs("Settings.librariesPanel.tab.title"), librariesPanel);
+                    settingsTabbedPane.setMnemonicAt(4, context.cfg.gs("Settings.librariesPanel.tab.mnemonic").charAt(0));
                 }
                 settingsContentPanel.add(settingsTabbedPane);
             }
@@ -758,15 +759,15 @@ public class Settings extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- okButton ----
-                okButton.setText(guiContext.cfg.gs("Z.save"));
-                okButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                okButton.setText(context.cfg.gs("Z.save"));
+                okButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
                 buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
-                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setText(context.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 0), 0, 0));

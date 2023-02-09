@@ -3,7 +3,6 @@ package com.groksoft.els.tools;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.Repository;
@@ -20,7 +19,6 @@ import java.util.ArrayList;
  */
 public abstract class AbstractTool implements Comparable, Serializable
 {
-    transient protected Configuration cfg;
     transient protected Context context;
     transient protected String displayName; // GUI i18n display name
     transient protected boolean includeInToolsList = true; // set by tool at runtime
@@ -36,10 +34,9 @@ public abstract class AbstractTool implements Comparable, Serializable
     /**
      * Constructor
      */
-    public AbstractTool(Configuration config, Context ctxt)
+    public AbstractTool(Context context)
     {
-        this.cfg = config;
-        this.context = ctxt;
+        this.context = context;
     }
 
     public int compareTo(Object o)
@@ -49,7 +46,7 @@ public abstract class AbstractTool implements Comparable, Serializable
 
     public Configuration getCfg()
     {
-        return cfg;
+        return context.cfg;
     }
 
     abstract public String getConfigName();
@@ -123,7 +120,7 @@ public abstract class AbstractTool implements Comparable, Serializable
      * @param dryRun Boolean dryrun
      * @throws Exception
      */
-    public abstract void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception;
+    public abstract void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception;
 
     /**
      * Process the tool on a SwingWorker thread
@@ -134,7 +131,7 @@ public abstract class AbstractTool implements Comparable, Serializable
      * @param dryRun Boolean dryrun
      * @return SwingWorker<Void, Void> of thread
      */
-    public abstract SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun);
+    public abstract SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun);
 
     /**
      * Request the tool to stop (optional)

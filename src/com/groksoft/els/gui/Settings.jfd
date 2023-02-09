@@ -8,8 +8,8 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		auxiliary() {
-			"JavaCodeGenerator.i18nGetBundleFormat": "guiContext.cfg.bundle()"
-			"JavaCodeGenerator.i18nGetStringFormat": "guiContext.cfg.gs(${key})"
+			"JavaCodeGenerator.i18nGetStringFormat": "context.cfg.gs(${key})"
+			"JavaCodeGenerator.i18nGetBundleFormat": "context.cfg.bundle()"
 		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"

@@ -1,6 +1,5 @@
 package com.groksoft.els.gui;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.jobs.Task;
@@ -12,8 +11,6 @@ import javax.swing.*;
 
 public class SavedEnvironment
 {
-    GuiContext guiContext;
-    Configuration cfg;
     Context context;
 
     private boolean dryRun;
@@ -25,10 +22,8 @@ public class SavedEnvironment
     private String subscriberLibrariesFilename;
     private Logger logger = LogManager.getLogger("applog");
 
-    public SavedEnvironment(GuiContext guiContext, Configuration config, Context context)
+    public SavedEnvironment(Context context)
     {
-        this.guiContext = guiContext;
-        this.cfg = config;
         this.context = context;
     }
 
@@ -41,54 +36,54 @@ public class SavedEnvironment
             boolean scfChanged = false;
             boolean slfChanged = false;
 
-            cfg.setDryRun(dryRun);
-            cfg.setRemoteType(remoteType);
+            context.cfg.setDryRun(dryRun);
+            context.cfg.setRemoteType(remoteType);
 
-            cfg.setPublishOperation(publishOperation);
-            if (!cfg.getPublisherCollectionFilename().equals(publisherCollectionFilename))
+            context.cfg.setPublishOperation(publishOperation);
+            if (!context.cfg.getPublisherCollectionFilename().equals(publisherCollectionFilename))
             {
-                cfg.setPublisherCollectionFilename(publisherCollectionFilename);
+                context.cfg.setPublisherCollectionFilename(publisherCollectionFilename);
                 pcfChanged = true;
             }
-            if (!cfg.getPublisherLibrariesFileName().equals(publisherLibrariesFilename))
+            if (!context.cfg.getPublisherLibrariesFileName().equals(publisherLibrariesFilename))
             {
-                cfg.setPublisherLibrariesFileName(publisherLibrariesFilename);
+                context.cfg.setPublisherLibrariesFileName(publisherLibrariesFilename);
                 plfChanged = true;
             }
-            if (!cfg.getSubscriberCollectionFilename().equals(subscriberCollectionFilename))
+            if (!context.cfg.getSubscriberCollectionFilename().equals(subscriberCollectionFilename))
             {
-                cfg.setSubscriberCollectionFilename(subscriberCollectionFilename);
+                context.cfg.setSubscriberCollectionFilename(subscriberCollectionFilename);
                 scfChanged = true;
             }
-            if (!cfg.getSubscriberLibrariesFileName().equals(subscriberLibrariesFilename))
+            if (!context.cfg.getSubscriberLibrariesFileName().equals(subscriberLibrariesFilename))
             {
-                cfg.setSubscriberLibrariesFileName(subscriberLibrariesFilename);
+                context.cfg.setSubscriberLibrariesFileName(subscriberLibrariesFilename);
                 slfChanged = true;
             }
 
-            if (cfg.getPublisherFilename() != null && cfg.getPublisherFilename().length() > 0 && (pcfChanged || plfChanged))
+            if (context.cfg.getPublisherFilename() != null && context.cfg.getPublisherFilename().length() > 0 && (pcfChanged || plfChanged))
             {
-                context.publisherRepo = new Repository(cfg, Repository.PUBLISHER);
-                context.publisherRepo.read(cfg.getPublisherFilename(), true);
+                context.publisherRepo = new Repository(context, Repository.PUBLISHER);
+                context.publisherRepo.read(context.cfg.getPublisherFilename(), true);
             }
-            if (cfg.getSubscriberFilename() != null && cfg.getSubscriberFilename().length() > 0 && (scfChanged || slfChanged))
+            if (context.cfg.getSubscriberFilename() != null && context.cfg.getSubscriberFilename().length() > 0 && (scfChanged || slfChanged))
             {
-                context.subscriberRepo = new Repository(cfg, Repository.SUBSCRIBER);
-                context.subscriberRepo.read(cfg.getSubscriberFilename(), true);
+                context.subscriberRepo = new Repository(context, Repository.SUBSCRIBER);
+                context.subscriberRepo.read(context.cfg.getSubscriberFilename(), true);
             }
 
-            if (cfg.isRemoteSession() && task.getSubscriberKey().length() > 0 &&
+            if (context.cfg.isRemoteSession() && task.getSubscriberKey().length() > 0 &&
                     context.clientStty != null && context.clientStty.isConnected() &&
                     !context.clientStty.getTheirKey().equals(context.subscriberRepo.getLibraryData().libraries.key) &&
                     !task.getSubscriberKey().equals(Task.ANY_SERVER))
             {
-                task.connectRemote(cfg, context, context.publisherRepo, context.subscriberRepo);
+                task.connectRemote(context, context.publisherRepo, context.subscriberRepo);
                 Thread.sleep(2000); // wait for connection to be setup
             }
             else
             {
                 // if not a remote session, and connected, disconnect
-                if (!cfg.isRemoteSession() && context.clientStty != null && context.clientStty.isConnected())
+                if (!context.cfg.isRemoteSession() && context.clientStty != null && context.clientStty.isConnected())
                 {
                     try
                     {
@@ -103,18 +98,18 @@ public class SavedEnvironment
                 }
             }
 
-            if (guiContext != null)
+            if (context != null && context.browser != null)
             {
-                guiContext.browser.refreshAll();
+                context.browser.refreshAll();
             }
         }
         catch (Exception e)
         {
-            if (guiContext != null)
+            if (context != null && context.browser != null)
             {
-                String msg = guiContext.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
-                JOptionPane.showMessageDialog(guiContext.mainFrame, msg,
-                        guiContext.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                String msg = context.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                JOptionPane.showMessageDialog(context.mainFrame, msg,
+                        context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(e.getMessage() + " " + Utils.getStackTrace(e));
@@ -123,12 +118,12 @@ public class SavedEnvironment
 
     public void save()
     {
-        dryRun = cfg.isDryRun();
-        remoteType = cfg.getRemoteType();
-        publishOperation = cfg.isPublishOperation();
-        publisherCollectionFilename = cfg.getPublisherCollectionFilename();
-        publisherLibrariesFilename = cfg.getPublisherLibrariesFileName();
-        subscriberCollectionFilename = cfg.getSubscriberCollectionFilename();
-        subscriberLibrariesFilename = cfg.getSubscriberLibrariesFileName();
+        dryRun = context.cfg.isDryRun();
+        remoteType = context.cfg.getRemoteType();
+        publishOperation = context.cfg.isPublishOperation();
+        publisherCollectionFilename = context.cfg.getPublisherCollectionFilename();
+        publisherLibrariesFilename = context.cfg.getPublisherLibrariesFileName();
+        subscriberCollectionFilename = context.cfg.getSubscriberCollectionFilename();
+        subscriberLibrariesFilename = context.cfg.getSubscriberLibrariesFileName();
     }
 }

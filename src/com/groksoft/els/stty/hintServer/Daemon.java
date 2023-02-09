@@ -1,6 +1,5 @@
 package com.groksoft.els.stty.hintServer;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.HintKeys;
@@ -35,12 +34,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     /**
      * Instantiate the Daemon service
      *
-     * @param config
-     * @param ctxt
+     * @param context  The Context
      */
-    public Daemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
+    public Daemon(Context context, Repository mine, Repository theirs)
     {
-        super(config, ctxt, mine, theirs);
+        super(context, mine, theirs);
     } // constructor
 
     /**
@@ -135,11 +133,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         address = getSocket().getInetAddress();
 
         // Get ELS hints keys & Tracker if specified
-        if (cfg.getHintKeysFile().length() > 0)
+        if (context.cfg.getHintKeysFile().length() > 0)
         {
-            context.hintKeys = new HintKeys(cfg, context);
-            context.hintKeys.read(cfg.getHintKeysFile());
-            hints = new Hints(cfg, context, context.hintKeys);
+            context.hintKeys = new HintKeys(context);
+            context.hintKeys.read(context.cfg.getHintKeysFile());
+            hints = new Hints(context, context.hintKeys);
         }
 
         // setup i/o
@@ -184,7 +182,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     // send response or prompt the user for a command
                     if (!isPing)
                     {
-                        String log = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? "writing response " + response.length() + " bytes to " + system : "";
+                        String log = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? "writing response " + response.length() + " bytes to " + system : "";
                         send(response + (isTerminal ? prompt : ""), log);
                     }
                     response = "";
@@ -270,7 +268,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         Thread.sleep(1000);
 
                         // if this is the first command or keep going is not enabled then stop
-                        if (commandCount == 1 || !cfg.isKeepGoing())
+                        if (commandCount == 1 || !context.cfg.isKeepGoing())
                             stop = true;
                         else
                             logger.info("Ignoring quit command, --listener-keep-going enabled");

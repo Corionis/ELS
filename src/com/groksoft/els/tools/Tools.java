@@ -2,9 +2,7 @@ package com.groksoft.els.tools;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.tools.operations.OperationsTool;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import com.groksoft.els.tools.renamer.RenamerTool;
@@ -43,22 +41,20 @@ public class Tools
     /**
      * Load a specific tool from disk
      *
-     * @param guiContext The guiContext, null is allowed
-     * @param config The Configuration
-     * @param ctxt The Context
+     * @param context The Context
      * @param internalName Internal name of desired tool
      * @param configName Config name of desired tool
      * @return The AbstractTool or null if not found
      * @throws Exception File system and parse exceptions
      */
-    public AbstractTool loadTool(GuiContext guiContext, Configuration config, Context ctxt, String internalName, String configName) throws Exception
+    public AbstractTool loadTool(Context context, String internalName, String configName) throws Exception
     {
         AbstractTool tool = null;
 
         if (internalName.equals("Operations"))
         {
             // begin OperationsUI
-            OperationsTool tmpTool = new OperationsTool(null, config, ctxt);
+            OperationsTool tmpTool = new OperationsTool(context);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
             {
@@ -71,7 +67,7 @@ public class Tools
                         String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                         if (json != null)
                         {
-                            AbstractTool but = operationParser.parseTool(guiContext, config, ctxt, json);
+                            AbstractTool but = operationParser.parseTool(context, json);
                             if (but != null)
                             {
                                 if (but.getConfigName().equalsIgnoreCase(configName))
@@ -89,7 +85,7 @@ public class Tools
         else if (internalName.equals("JunkRemover"))
         {
             // begin JunkRemover
-            JunkRemoverTool tmpTool = new JunkRemoverTool(null, config, ctxt);
+            JunkRemoverTool tmpTool = new JunkRemoverTool(context);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
             {
@@ -102,7 +98,7 @@ public class Tools
                         String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                         if (json != null)
                         {
-                            AbstractTool jrt = junkRemoverParser.parseTool(guiContext, config, ctxt, json);
+                            AbstractTool jrt = junkRemoverParser.parseTool(context, json);
                             if (jrt != null)
                             {
                                 if (jrt.getConfigName().equalsIgnoreCase(configName))
@@ -120,7 +116,7 @@ public class Tools
         else if (internalName.equals("Renamer"))
         {
             // begin Renamer
-            RenamerTool tmpTool = new RenamerTool(null, config, ctxt);
+            RenamerTool tmpTool = new RenamerTool(context);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
             {
@@ -133,7 +129,7 @@ public class Tools
                         String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                         if (json != null)
                         {
-                            AbstractTool jrt = RenamerParser.parseTool(guiContext, config, ctxt, json);
+                            AbstractTool jrt = RenamerParser.parseTool(context, json);
                             if (jrt != null)
                             {
                                 if (jrt.getConfigName().equalsIgnoreCase(configName))
@@ -161,15 +157,15 @@ public class Tools
      * <br/>
      * Creates an ArrayList of AbstractTool that is populated and returned
      *
-     * @param guiContext The guiContext, null is allowed
+     * @param context The Context, null is allowed
      * @param internalName Internal name of desired tool, or null/empty for all tools
      * @return ArrayList of tools
      * @throws Exception File system and parse exceptions
      */
-    public ArrayList<AbstractTool> loadAllTools(GuiContext guiContext, String internalName) throws Exception
+    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName) throws Exception
     {
         ArrayList<AbstractTool> toolList = new ArrayList<AbstractTool>();
-        return loadAllTools(guiContext, internalName, toolList);
+        return loadAllTools(context, internalName, toolList);
     }
 
     /**
@@ -178,13 +174,13 @@ public class Tools
      * Note the Duplicate Finder and Empty Directory Finder tools are run manually and
      * are not appropriate for Jobs. Therefore they are not loaded here.
      *
-     * @param guiContext The guiContext, null is allowed
+     * @param context The Context, null is allowed
      * @param internalName Internal name of desired tool, or null/empty for all tools
      * @param  toolList ArrayList of AbstractTool to add new items to
      * @return ArrayList of tools
      * @throws Exception File system and parse exceptions
      */
-    public ArrayList<AbstractTool> loadAllTools(GuiContext guiContext, String internalName, ArrayList<AbstractTool> toolList) throws Exception
+    public ArrayList<AbstractTool> loadAllTools(Context context, String internalName, ArrayList<AbstractTool> toolList) throws Exception
     {
         if (internalName != null && internalName.length() == 0)
             internalName = null;
@@ -196,9 +192,9 @@ public class Tools
         if (internalName == null || internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             toolParser = new OperationParser();
-            OperationsTool tmpOperation = new OperationsTool(null, guiContext.cfg, guiContext.context);
+            OperationsTool tmpOperation = new OperationsTool(context);
             toolDir = new File(tmpOperation.getDirectoryPath());
-            toolList = scanTools(guiContext, toolList, toolParser, toolDir);
+            toolList = scanTools(context, toolList, toolParser, toolDir);
         }
         // end OperationsUI
 
@@ -206,9 +202,9 @@ public class Tools
         if (internalName == null || internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
             toolParser = new JunkRemoverParser();
-            JunkRemoverTool tmpJrt = new JunkRemoverTool(null, guiContext.cfg, guiContext.context);
+            JunkRemoverTool tmpJrt = new JunkRemoverTool(context);
             toolDir = new File(tmpJrt.getDirectoryPath());
-            toolList = scanTools(guiContext, toolList, toolParser, toolDir);
+            toolList = scanTools(context, toolList, toolParser, toolDir);
         }
         // end JunkRemover
 
@@ -216,9 +212,9 @@ public class Tools
         if (internalName == null || internalName.equals(RenamerTool.INTERNAL_NAME))
         {
             toolParser = new RenamerParser();
-            RenamerTool tmpRenamer = new RenamerTool(null, guiContext.cfg, guiContext.context);
+            RenamerTool tmpRenamer = new RenamerTool(context);
             toolDir = new File(tmpRenamer.getDirectoryPath());
-            toolList = scanTools(guiContext, toolList, toolParser, toolDir);
+            toolList = scanTools(context, toolList, toolParser, toolDir);
         }
         // end Renamer
 
@@ -234,24 +230,23 @@ public class Tools
      * Create an AbstractTool object based on the internal name
      *
      * @param internalName Internal name of tool
-     * @param config The Configuration
-     * @param ctxt The Context
+     * @param context The Context
      * @return AbstractTool object
      */
-    public AbstractTool makeTempTool(String internalName, Configuration config, Context ctxt)
+    public AbstractTool makeTempTool(String internalName, Context context)
     {
         AbstractTool tmpTool = null;
         if (internalName.equals("Operations"))
         {
-            tmpTool = new OperationsTool(null, config, ctxt);
+            tmpTool = new OperationsTool(context);
         }
         else if (internalName.equals("JunkRemover"))
         {
-            tmpTool = new JunkRemoverTool(null, config, ctxt);
+            tmpTool = new JunkRemoverTool(context);
         }
         else if (internalName.equals("Renamer"))
         {
-            tmpTool = new RenamerTool(null, config, ctxt);
+            tmpTool = new RenamerTool(context);
         }
         return tmpTool;
     }
@@ -259,14 +254,14 @@ public class Tools
     /**
      * Scan the disk for a specific tool's configurations
      *
-     * @param guiContext The guiContext, null is allowed
+     * @param context The Context, null is allowed
      * @param toolList   Existing toolList
      * @param parser     The ToolParserI implementation for this tool
      * @param toolDir    The full path to this tool's configurations
      * @return ArrayList&lt;AbstractTool&gt; toolList
      * @throws Exception File system exceptions
      */
-    private ArrayList<AbstractTool> scanTools(GuiContext guiContext, ArrayList<AbstractTool> toolList, ToolParserI parser, File toolDir) throws Exception
+    private ArrayList<AbstractTool> scanTools(Context context, ArrayList<AbstractTool> toolList, ToolParserI parser, File toolDir) throws Exception
     {
         if (toolDir.exists() && toolDir.isDirectory())
         {
@@ -278,7 +273,7 @@ public class Tools
                     String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                     if (json != null)
                     {
-                        AbstractTool tool = parser.parseTool(guiContext, guiContext.cfg, guiContext.context, json);
+                        AbstractTool tool = parser.parseTool(context, json);
                         if (tool != null)
                             toolList.add(tool);
                     }
@@ -295,7 +290,7 @@ public class Tools
      */
     private interface ToolParserI
     {
-        AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json);
+        AbstractTool parseTool(Context context, String json);
     }
 
     //=================================================================================================================
@@ -308,21 +303,19 @@ public class Tools
         /**
          * Parse a OperationsTool
          *
-         * @param guiContext The guiContext, null is allowed
-         * @param config The Configuration
-         * @param ctxt The Context
+         * @param context The Context
          * @param json String of JSON to parse
          * @return AbstractTool instance
          */
         @Override
-        public AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json)
+        public AbstractTool parseTool(Context context, String json)
         {
             class objInstanceCreator implements InstanceCreator
             {
                 @Override
                 public Object createInstance(Type type)
                 {
-                    return new OperationsTool(guiContext, config, ctxt);
+                    return new OperationsTool(context);
                 }
             };
 
@@ -343,21 +336,19 @@ public class Tools
         /**
          * Parse a JunkRemoverTool
          *
-         * @param guiContext The guiContext, null is allowed
-         * @param config The Configuration
-         * @param ctxt The Context
+         * @param context The Context
          * @param json String of JSON to parse
          * @return AbstractTool instance
          */
         @Override
-        public AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json)
+        public AbstractTool parseTool(Context context, String json)
         {
             class objInstanceCreator implements InstanceCreator
             {
                 @Override
                 public Object createInstance(Type type)
                 {
-                    return new JunkRemoverTool(guiContext, config, ctxt);
+                    return new JunkRemoverTool(context);
                 }
             };
 
@@ -378,21 +369,19 @@ public class Tools
         /**
          * Parse a RenamerTool
          *
-         * @param guiContext The guiContext, null is allowed
-         * @param config The Configuration
-         * @param ctxt The Context
+         * @param context The Context
          * @param json String of JSON to parse
          * @return AbstractTool instance
          */
         @Override
-        public AbstractTool parseTool(GuiContext guiContext, Configuration config, Context ctxt, String json)
+        public AbstractTool parseTool(Context context, String json)
         {
             class objInstanceCreator implements InstanceCreator
             {
                 @Override
                 public Object createInstance(Type type)
                 {
-                    return new RenamerTool(guiContext, config, ctxt);
+                    return new RenamerTool(context);
                 }
             };
 

@@ -1,6 +1,6 @@
 package com.groksoft.els.sftp;
 
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
@@ -20,7 +20,7 @@ import java.util.Vector;
  */
 public class ClientSftp
 {
-    private Configuration cfg;
+    private Context context;
     private String hostname;
     private int hostport;
     private Channel jChannel;
@@ -43,9 +43,9 @@ public class ClientSftp
      * @param mine   Repository of local system
      * @param theirs Repository of remote system
      */
-    public ClientSftp(Configuration config, Repository mine, Repository theirs, boolean primaryServers)
+    public ClientSftp(Context context, Repository mine, Repository theirs, boolean primaryServers)
     {
-        cfg = config;
+        this.context = context;
         myRepo = mine;
         theirRepo = theirs;
 

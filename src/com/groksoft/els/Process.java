@@ -18,7 +18,6 @@ import java.util.ArrayList;
  */
 public class Process
 {
-    private Configuration cfg = null;
     private Context context;
     private int differentSizes = 0;
     private int errorCount = 0;
@@ -43,10 +42,9 @@ public class Process
     /**
      * Instantiates the class
      */
-    public Process(Configuration config, Context ctxt)
+    public Process(Context context)
     {
-        this.cfg = config;
-        this.context = ctxt;
+        this.context = context;
     }
 
     /**
@@ -57,7 +55,7 @@ public class Process
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
 
         // scan the collection if library file specified
-        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
+        if (context.cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
             justScannedPublisher = true;
@@ -119,7 +117,7 @@ public class Process
     private void exportCollection() throws Exception
     {
         // scan the collection if library file specified
-        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
+        if (context.cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
             justScannedPublisher = true;
@@ -133,7 +131,7 @@ public class Process
     private void exportText() throws Exception
     {
         // scan the collection if library file specified
-        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
+        if (context.cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
             justScannedPublisher = true;
@@ -147,7 +145,7 @@ public class Process
     private void hintsLocal() throws Exception
     {
         // scan the collection if library file specified
-        if (cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
+        if (context.cfg.getPublisherLibrariesFileName().length() > 0 && !justScannedPublisher)
         {
             context.publisherRepo.scan();
             justScannedPublisher = true;
@@ -175,39 +173,39 @@ public class Process
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
 
         String header = "Munging collections " + context.publisherRepo.getLibraryData().libraries.description + " to " +
-                context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : "");
+                context.subscriberRepo.getLibraryData().libraries.description + (context.cfg.isDryRun() ? " (--dry-run)" : "");
 
         // setup the -m mismatch output file
-        if (cfg.getMismatchFilename().length() > 0)
+        if (context.cfg.getMismatchFilename().length() > 0)
         {
             try
             {
-                mismatchFile = new PrintWriter(cfg.getMismatchFilename());
+                mismatchFile = new PrintWriter(context.cfg.getMismatchFilename());
                 mismatchFile.println(header);
-                logger.info("Writing to Mismatches file " + cfg.getMismatchFilename());
+                logger.info("Writing to Mismatches file " + context.cfg.getMismatchFilename());
             }
             catch (FileNotFoundException fnf)
             {
                 fault = true;
-                String s = "File not found exception for Mismatches output file " + cfg.getMismatchFilename();
+                String s = "File not found exception for Mismatches output file " + context.cfg.getMismatchFilename();
                 logger.error(s);
                 throw new MungeException(s);
             }
         }
 
         // setup the -w What's New output file
-        if (cfg.getWhatsNewFilename().length() > 0)
+        if (context.cfg.getWhatsNewFilename().length() > 0)
         {
             try
             {
-                whatsNewFile = new PrintWriter(cfg.getWhatsNewFilename());
+                whatsNewFile = new PrintWriter(context.cfg.getWhatsNewFilename());
                 whatsNewFile.println("What's New");
-                logger.info("Writing to What's New file " + cfg.getWhatsNewFilename());
+                logger.info("Writing to What's New file " + context.cfg.getWhatsNewFilename());
             }
             catch (FileNotFoundException fnf)
             {
                 fault = true;
-                String s = "File not found exception for What's New output file " + cfg.getWhatsNewFilename();
+                String s = "File not found exception for What's New output file " + context.cfg.getWhatsNewFilename();
                 logger.error(s);
                 throw new MungeException(s);
             }
@@ -226,8 +224,8 @@ public class Process
 
                 // if processing all libraries, or this one was specified on the command line with -l,
                 // and it has not been excluded with -L
-                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name))) 
+                if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(subLib.name)) &&
+                        (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name))) 
                 {
                     // if the subscriber has included and not excluded this library
                     if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE)) 
@@ -248,7 +246,7 @@ public class Process
                         }
                         if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            if (!cfg.isRemoteSession()) // remote collection already loaded and may be empty
+                            if (!context.cfg.isRemoteSession()) // remote collection already loaded and may be empty
                             {
                                 context.subscriberRepo.scan(subLib.name);
                             }
@@ -291,7 +289,7 @@ public class Process
                                     }
                                     else
                                     {
-                                        if (cfg.getWhatsNewFilename().length() > 0)
+                                        if (context.cfg.getWhatsNewFilename().length() > 0)
                                         {
                                             logger.info("  + Subscriber " + subLib.name + " missing " + item.getItemPath());
 
@@ -319,15 +317,15 @@ public class Process
                                                 whatsNewFile.println(new String(new char[currLib.length()]).replace('\0', '='));
                                             }
                                             String path = Utils.getLastPath(item.getItemPath(), context.publisherRepo.getSeparator());
-                                            if (cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
+                                            if (context.cfg.isWhatsNewAll() || !currentWhatsNew.equalsIgnoreCase(path))
                                             {
-                                                whatsNewFile.println("    " + (cfg.isWhatsNewAll() ? item.getItemPath() : path));
+                                                whatsNewFile.println("    " + (context.cfg.isWhatsNewAll() ? item.getItemPath() : path));
                                                 currentWhatsNew = path;
                                                 whatsNewTotal++;
                                             }
                                         }
 
-                                        if (cfg.getMismatchFilename().length() > 0)
+                                        if (context.cfg.getMismatchFilename().length() > 0)
                                         {
                                             assert mismatchFile != null;
                                             mismatchFile.println(item.getFullPath());
@@ -338,15 +336,15 @@ public class Process
                                         {
                                             // There is a new group - process the old group
                                             logger.info("Switching groups from " + context.transfer.getLastGroupName() + " to " + context.transfer.getCurrentGroupName());
-                                            context.transfer.copyGroup(group, totalSize, cfg.isOverwrite());
+                                            context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite());
                                             totalSize = 0L;
 
                                             // Flush the output files
-                                            if (cfg.getWhatsNewFilename().length() > 0)
+                                            if (context.cfg.getWhatsNewFilename().length() > 0)
                                             {
                                                 whatsNewFile.flush();
                                             }
-                                            if (cfg.getMismatchFilename().length() > 0)
+                                            if (context.cfg.getMismatchFilename().length() > 0)
                                             {
                                                 mismatchFile.flush();
                                             }
@@ -354,7 +352,7 @@ public class Process
 
                                         totalSize += item.getSize();
                                         group.add(item);
-                                        if (!cfg.isDryRun())
+                                        if (!context.cfg.isDryRun())
                                             subLib.rescanNeeded = true;
                                     }
                                 }
@@ -391,7 +389,7 @@ public class Process
                 {
                     // Process the last group
                     logger.info("Processing last group " + context.transfer.getCurrentGroupName());
-                    context.transfer.copyGroup(group, totalSize, cfg.isOverwrite());
+                    context.transfer.copyGroup(group, totalSize, context.cfg.isOverwrite());
                 }
                 catch (Exception e)
                 {
@@ -408,7 +406,7 @@ public class Process
             {
                 mismatchFile.println("----------------------------------------------------");
                 mismatchFile.println("Total items: " + context.transfer.getGrandTotalItems());
-                mismatchFile.println("Total size : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, cfg.getLongScale()));
+                mismatchFile.println("Total size : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()));
                 mismatchFile.close();
             }
             if (whatsNewFile != null)
@@ -459,10 +457,10 @@ public class Process
         logger.info(SHORT, "# Ignored files    : " + ignoredList.size());
         logger.info(SHORT, "# Directories      : " + totalDirectories);
         logger.info(SHORT, "# Files            : " + totalItems);
-        logger.info(SHORT, "# Copies           : " + context.transfer.getCopyCount() + ((!cfg.isDryRun() && context.transfer.getCopyCount() > 0) ? ", " + context.transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : "") + (cfg.isDryRun() ? " (--dry-run)" : ""));
+        logger.info(SHORT, "# Copies           : " + context.transfer.getCopyCount() + ((!context.cfg.isDryRun() && context.transfer.getCopyCount() > 0) ? ", " + context.transfer.getGrandTotalOriginalLocation() + " of which went to original locations" : "") + (context.cfg.isDryRun() ? " (--dry-run)" : ""));
         logger.info(SHORT, "# Errors           : " + errorCount);
         logger.info(SHORT, "# Items processed  : " + context.transfer.getGrandTotalItems());
-        logger.info(SHORT, "# Total size       : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, cfg.getLongScale()));
+        logger.info(SHORT, "# Total size       : " + Utils.formatLong(context.transfer.getGrandTotalSize(), true, context.cfg.getLongScale()));
     }
 
     /**
@@ -482,66 +480,66 @@ public class Process
         {
             if (!isInitialized)
             {
-                context.transfer = new Transfer(cfg, context);
+                context.transfer = new Transfer(context);
                 context.transfer.initialize();
                 isInitialized = true;
             }
 
             // Get ELS hints keys & Tracker if specified
-            if (cfg.getHintKeysFile().length() > 0) 
+            if (context.cfg.getHintKeysFile().length() > 0) 
             {
-                context.hintKeys = new HintKeys(cfg, context);
-                context.hintKeys.read(cfg.getHintKeysFile());
-                hints = new Hints(cfg, context, context.hintKeys);
+                context.hintKeys = new HintKeys(context);
+                context.hintKeys.read(context.cfg.getHintKeysFile());
+                hints = new Hints(context, context.hintKeys);
             }
 
             // process ELS Hints locally, no subscriber, publisher's targets
-            if (hints != null && cfg.isTargetsEnabled() && !cfg.isRemoteSession() &&
-                    (cfg.getPublisherLibrariesFileName().length() > 0 ||
-                            cfg.getPublisherCollectionFilename().length() > 0) &&
-                    (cfg.getSubscriberLibrariesFileName().length() == 0 &&
-                            cfg.getSubscriberCollectionFilename().length() == 0))
+            if (hints != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteSession() &&
+                    (context.cfg.getPublisherLibrariesFileName().length() > 0 ||
+                            context.cfg.getPublisherCollectionFilename().length() > 0) &&
+                    (context.cfg.getSubscriberLibrariesFileName().length() == 0 &&
+                            context.cfg.getSubscriberCollectionFilename().length() == 0))
             {
                 localHints = true; // skip munge, the targets are wrong for that
                 hintsLocal();
             }
 
             // process -e export text, publisher only
-            if (cfg.getExportTextFilename().length() > 0)
+            if (context.cfg.getExportTextFilename().length() > 0)
             {
                 exportText();
             }
 
             // process -i export collection items, publisher only
-            if (cfg.getExportCollectionFilename().length() > 0)
+            if (context.cfg.getExportCollectionFilename().length() > 0)
             {
                 exportCollection();
             }
 
             // check for publisher duplicates
-            if (cfg.isDuplicateCheck())
+            if (context.cfg.isDuplicateCheck())
             {
                 duplicatesCheck();
             }
 
             // process ELS Hints to subscriber
-            if (hints != null && cfg.isTargetsEnabled() && cfg.getPublisherFilename().length() > 0 && cfg.getSubscriberFilename().length() > 0)
+            if (hints != null && context.cfg.isTargetsEnabled() && context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
                 hints.hintsMunge();
             }
 
             // if all the pieces are specified perform a full munge of the collections
-            if (!context.fault && !localHints && !cfg.isHintSkipMainProcess())
+            if (!context.fault && !localHints && !context.cfg.isHintSkipMainProcess())
             {
-                if (cfg.isTargetsEnabled() && cfg.getPublisherFilename().length() > 0 && cfg.getSubscriberFilename().length() > 0)
+                if (context.cfg.isTargetsEnabled() && context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
                 {
                     munge();
                 }
             }
 
             // clean-up ELS Hints on subscriber
-            if (!context.fault && hints != null && !localHints && !cfg.isDryRun() && cfg.isTargetsEnabled() &&
-                    cfg.getPublisherFilename().length() > 0 && cfg.getSubscriberFilename().length() > 0)
+            if (!context.fault && hints != null && !localHints && !context.cfg.isDryRun() && context.cfg.isTargetsEnabled() &&
+                    context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
                 logger.info(SHORT, "-------------------------------------------");
                 lined = true;
@@ -562,7 +560,7 @@ public class Process
                 if (!lined)
                     logger.info(SHORT, "-------------------------------------------");
 
-                if (cfg.isHintSkipMainProcess() && !localHints)
+                if (context.cfg.isHintSkipMainProcess() && !localHints)
                 {
                     logger.info("! Skipping main process, hint processing with -K | --keys-only enabled");
                 }
@@ -582,7 +580,7 @@ public class Process
                         }
                         else
                         {
-                            if (!cfg.isKeepGoing())
+                            if (!context.cfg.isKeepGoing())
                                 resp = context.clientStty.roundTrip("quit", "Sending quit command to remote", 1000);
                             else
                             {
@@ -627,14 +625,14 @@ public class Process
             {
                 if (duplicates == 0)
                 {
-                    if (cfg.isDuplicateCheck())
+                    if (context.cfg.isDuplicateCheck())
                     {
                         logger.debug(SIMPLE, "+------------------------------------------");
                         logger.debug(SIMPLE, type + " duplicate filenames found:");
                     }
                 }
                 ++duplicates;
-                if (cfg.isDuplicateCheck())
+                if (context.cfg.isDuplicateCheck())
                     logger.debug(SIMPLE, "  " + dupe.getFullPath());
                 dupe.setReported(true);
             }
@@ -655,14 +653,14 @@ public class Process
         Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
         if (empties == 0)
         {
-            if (cfg.isEmptyDirectoryCheck())
+            if (context.cfg.isEmptyDirectoryCheck())
             {
                 logger.debug(SIMPLE, "+------------------------------------------");
                 logger.debug(SIMPLE, type + " empty directories found:");
             }
         }
         ++empties;
-        if (cfg.isEmptyDirectoryCheck())
+        if (context.cfg.isEmptyDirectoryCheck())
             logger.debug(SIMPLE, "  " + item.getFullPath());
         return empties;
     }
@@ -672,7 +670,7 @@ public class Process
      */
     private void reportIgnored()
     {
-        if (cfg.isIgnoredReported())
+        if (context.cfg.isIgnoredReported())
         {
             Marker SHORT = MarkerManager.getMarker("SHORT");
             Marker SIMPLE = MarkerManager.getMarker("SIMPLE");

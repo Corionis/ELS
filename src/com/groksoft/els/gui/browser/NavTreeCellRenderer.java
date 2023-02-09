@@ -1,7 +1,6 @@
 package com.groksoft.els.gui.browser;
 
-import com.groksoft.els.Configuration;
-import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.Context;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -12,13 +11,11 @@ import java.awt.*;
  */
 public class NavTreeCellRenderer extends DefaultTreeCellRenderer
 {
-    Configuration cfg;
-    GuiContext guiContext;
+    Context context;
     
-    public NavTreeCellRenderer(GuiContext context)
+    public NavTreeCellRenderer(Context context)
     {
-        guiContext = context;
-        cfg = guiContext.cfg;
+        this.context = context;
     }
 
     @Override
@@ -40,13 +37,13 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         break;
                     case NavTreeUserObject.COLLECTION:
                         setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
-                        setToolTipText((tuo.isRemote ? cfg.gs("Z.remote.uppercase") : cfg.gs("NavTreeNode.local")) +
-                                (!tuo.isSubscriber() && guiContext.preferences.isLastIsWorkstation() ? cfg.gs("Navigator.workstation") : cfg.gs("NavTreeNode.collection")) +
-                                ", " + tuo.node.getChildCount() + cfg.gs("Navigator.libraries"));
+                        setToolTipText((tuo.isRemote ? context.cfg.gs("Z.remote.uppercase") : context.cfg.gs("NavTreeNode.local")) +
+                                (!tuo.isSubscriber() && context.preferences.isLastIsWorkstation() ? context.cfg.gs("Navigator.workstation") : context.cfg.gs("NavTreeNode.collection")) +
+                                ", " + tuo.node.getChildCount() + context.cfg.gs("Navigator.libraries"));
                         break;
                     case NavTreeUserObject.COMPUTER:
                         setIcon(UIManager.getIcon("FileView.computerIcon"));
-                        setToolTipText((tuo.isRemote ? cfg.gs("Z.remote.uppercase") : cfg.gs("NavTreeNode.local")));
+                        setToolTipText((tuo.isRemote ? context.cfg.gs("Z.remote.uppercase") : context.cfg.gs("NavTreeNode.local")));
                         break;
                     case NavTreeUserObject.DRIVE:
                         setIcon(UIManager.getIcon("FileView.hardDriveIcon"));
@@ -58,7 +55,7 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                         break;
                     case NavTreeUserObject.LIBRARY:
                         setIcon(UIManager.getIcon("FileView.directoryIcon"));
-                        setToolTipText(cfg.gs("NavTreeNode.library") + ", " + tuo.sources.length + (tuo.sources.length == 1 ? cfg.gs("NavTreeNode.source") : cfg.gs("NavTreeNode.sources")));
+                        setToolTipText(context.cfg.gs("NavTreeNode.library") + ", " + tuo.sources.length + (tuo.sources.length == 1 ? context.cfg.gs("NavTreeNode.source") : context.cfg.gs("NavTreeNode.sources")));
                         break;
                     case NavTreeUserObject.REAL:
                         setToolTipText(tuo.path);

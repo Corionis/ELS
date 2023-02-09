@@ -2,7 +2,7 @@ package com.groksoft.els.jobs;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.InstanceCreator;
-import com.groksoft.els.gui.GuiContext;
+import com.groksoft.els.Context;
 import com.groksoft.els.tools.AbstractTool;
 
 import javax.swing.filechooser.FileSystemView;
@@ -16,16 +16,16 @@ import java.util.Collections;
 @SuppressWarnings(value = "unchecked")
 public class Jobs
 {
-    private GuiContext guiContext;
+    private Context context;
 
     private Jobs()
     {
         // hide default constructor
     }
 
-    public Jobs(GuiContext guiContext)
+    public Jobs(Context context)
     {
-        this.guiContext = guiContext;
+        this.context = context;
     }
 
     public ArrayList<AbstractTool> loadAllJobs() throws Exception
@@ -38,7 +38,7 @@ public class Jobs
 
     private ArrayList<AbstractTool> scanTools(ArrayList<AbstractTool> jobList) throws Exception
     {
-        Job tmpJob = new Job(guiContext.cfg, guiContext.context, "temp");
+        Job tmpJob = new Job(context, "temp");
         String dir = tmpJob.getDirectoryPath();
         File jobDir = new File(dir);
         if (jobDir.exists() && jobDir.isDirectory())
@@ -48,7 +48,7 @@ public class Jobs
                 @Override
                 public Object createInstance(Type type)
                 {
-                    return new Job(guiContext.cfg, guiContext.context, "");
+                    return new Job(context, "");
                 }
             }
             GsonBuilder builder = new GsonBuilder();

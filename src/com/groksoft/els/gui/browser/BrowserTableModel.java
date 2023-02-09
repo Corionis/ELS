@@ -1,20 +1,20 @@
 package com.groksoft.els.gui.browser;
 
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class BrowserTableModel extends DefaultTableModel
 {
-    Configuration cfg;
+    Context context;
     private boolean initialized = false;
     private NavTreeNode node;
 
-    public BrowserTableModel(Configuration config)
+    public BrowserTableModel(Context context)
     {
         super();
-        cfg = config;
+        this.context = context;
     }
 
     @Override
@@ -48,13 +48,13 @@ public class BrowserTableModel extends DefaultTableModel
             case 0:
                 return "";
             case 1:
-                return cfg.gs("BrowserTable.column.name");
+                return context.cfg.gs("BrowserTable.column.name");
             case 2:
-                return cfg.gs("BrowserTable.column.size");
+                return context.cfg.gs("BrowserTable.column.size");
             case 3:
-                return cfg.gs("BrowserTable.column.modified");
+                return context.cfg.gs("BrowserTable.column.modified");
         }
-        return cfg.gs("NavTreeNode.unknown");
+        return context.cfg.gs("NavTreeNode.unknown");
     }
 
     public NavTreeNode getNode()
@@ -131,13 +131,13 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.COMPUTER:
                     case NavTreeUserObject.HOME:
                     case NavTreeUserObject.LIBRARY:
-                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), cfg.getLongScale(), true);
+                        return new SizeColumn(Long.valueOf(child.getChildCount(false, true)), context.cfg.getLongScale(), true);
                     case NavTreeUserObject.DRIVE:
                         return null; // with lazy loading there are no children
                     case NavTreeUserObject.REAL:
                         if (tuo.isDir)
                             return null; // with lazy loading there are no children
-                        return new SizeColumn(tuo.size, cfg.getLongScale());
+                        return new SizeColumn(tuo.size, context.cfg.getLongScale());
                     case NavTreeUserObject.SYSTEM:
                         return null;
                 }
@@ -160,7 +160,7 @@ public class BrowserTableModel extends DefaultTableModel
                     case NavTreeUserObject.LIBRARY:
                         break;
                     case NavTreeUserObject.REAL:
-                        return new DateColumn(tuo.fileTime);
+                        return new DateColumn(context, tuo.fileTime);
                     case NavTreeUserObject.SYSTEM:
                         break;
                     default:

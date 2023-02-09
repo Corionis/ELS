@@ -1,6 +1,6 @@
 package com.groksoft.els.repository;
 
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
@@ -65,7 +65,7 @@ public class Repositories
         return index;
     }
 
-    public ArrayList<Meta> loadList(Configuration cfg) throws Exception
+    public ArrayList<Meta> loadList(Context context) throws Exception
     {
         File libDir = new File(getDirectoryPath());
         if (libDir.exists() && libDir.isDirectory())
@@ -75,7 +75,7 @@ public class Repositories
             {
                 if (!entry.isDirectory())
                 {
-                    Repository repo = new Repository(cfg, 0);
+                    Repository repo = new Repository(context, 0);
                     repo.read(entry.getPath(), false);
 
                     Meta meta = new Meta();

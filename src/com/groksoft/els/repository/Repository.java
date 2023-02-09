@@ -3,7 +3,7 @@ package com.groksoft.els.repository;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +34,7 @@ public class Repository
     public static final boolean VALIDATE = true;
 
     public final String SUB_EXCLUDE = "ELS-SUBSCRIBER-SKIP_";
-    private transient Configuration cfg = null;
+    private transient Context context;
     private String jsonFilename = "";
     private LibraryData libraryData = null;
     private transient Logger logger = LogManager.getLogger("applog");
@@ -42,12 +42,12 @@ public class Repository
 
     /**
      * Instantiate a Repository with a purpose
-     * @param config Configuration
+     * @param context The Context
      * @param purpose One of PUBLISHER, SUBSCRIBER, HINT_SERVER
      */
-    public Repository(Configuration config, int purpose)
+    public Repository(Context context, int purpose)
     {
-        this.cfg = config;
+        this.context = context;
         this.purpose = purpose;
     }
 
@@ -58,7 +58,7 @@ public class Repository
      */
     public Repository cloneNoItems()
     {
-        Repository noItems = new Repository(cfg, purpose);
+        Repository noItems = new Repository(context, purpose);
         noItems.setJsonFilename(getJsonFilename());
         noItems.libraryData = new LibraryData();
         noItems.libraryData.libraries = new Libraries();
@@ -101,17 +101,17 @@ public class Repository
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + cfg.getExportCollectionFilename());
+        logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + context.cfg.getExportCollectionFilename());
         json = gson.toJson(getLibraryData());
         try
         {
-            PrintWriter outputStream = new PrintWriter(cfg.getExportCollectionFilename());
+            PrintWriter outputStream = new PrintWriter(context.cfg.getExportCollectionFilename());
             outputStream.println(json);
             outputStream.close();
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing " + (isCollection ? "collection" : "library") + " file " + cfg.getExportCollectionFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Exception while writing " + (isCollection ? "collection" : "library") + " file " + context.cfg.getExportCollectionFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -122,15 +122,15 @@ public class Repository
      */
     public void exportText() throws MungeException
     {
-        logger.info("Writing text file " + cfg.getExportTextFilename());
+        logger.info("Writing text file " + context.cfg.getExportTextFilename());
 
         try
         {
-            PrintWriter outputStream = new PrintWriter(cfg.getExportTextFilename());
+            PrintWriter outputStream = new PrintWriter(context.cfg.getExportTextFilename());
             for (Library lib : getLibraryData().libraries.bibliography)
             {
-                if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                        (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
+                        (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(lib.name)))
                 {
                     for (Item item : lib.items)
                     {
@@ -148,7 +148,7 @@ public class Repository
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing text file " + cfg.getExportTextFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Exception while writing text file " + context.cfg.getExportTextFilename() + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -366,7 +366,7 @@ public class Repository
         {
             for (Library lib : getLibraryData().libraries.bibliography)
             {
-                if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(libName))
+                if (context.cfg.isCrossCheck() || lib.name.equalsIgnoreCase(libName))
                 {
                     if (lib.itemMap != null)
                     {
@@ -418,7 +418,7 @@ public class Repository
         String key;
         for (Library lib : getLibraryData().libraries.bibliography)
         {
-            if (cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
+            if (context.cfg.isCrossCheck() || lib.name.equalsIgnoreCase(pubItem.getLibrary()))
             {
                 if (lib.itemMap != null)
                 {
@@ -670,8 +670,8 @@ public class Repository
     {
         for (Library lib : getLibraryData().libraries.bibliography)
         {
-            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+            if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
+                    (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(lib.name)))
             {
                 scanSources(lib);
                 sort(lib);
@@ -870,8 +870,8 @@ public class Repository
                 }
                 else
                 {
-                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                    if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
+                            (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(lib.name)))
                     {
                         logger.info("  library: " + lib.name +
                                 ", " + lib.sources.length + " source" + ((lib.sources.length > 1) ? "s" : "") +

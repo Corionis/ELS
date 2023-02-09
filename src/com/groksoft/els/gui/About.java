@@ -1,6 +1,8 @@
 package com.groksoft.els.gui;
 
 import java.awt.event.*;
+
+import com.groksoft.els.Context;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,18 +13,18 @@ import javax.swing.border.*;
 public class About extends JDialog
 {
     private transient Logger logger = LogManager.getLogger("applog");
-    GuiContext guiContext;
+    Context context;
     Window parent;
 
-    public About(Window owner, GuiContext gctxt)
+    public About(Window owner, Context context)
     {
         super(owner);
         parent = owner;
-        guiContext = gctxt;
+        this.context = context;
         initComponents();
 
-        labelVersion.setText("Version " + guiContext.cfg.getVersion());
-        labelBuild.setText(guiContext.context.main.getBuildStamp());
+        labelVersion.setText("Version " + context.cfg.getVersion());
+        labelBuild.setText(context.main.getBuildStamp());
 
         ActionListener escListener = new AbstractAction()
         {
@@ -57,7 +59,7 @@ public class About extends JDialog
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         setResizable(false);
-        setTitle(guiContext.cfg.gs("About.title"));
+        setTitle(context.cfg.gs("About.title"));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {

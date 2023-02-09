@@ -3,7 +3,6 @@ package com.groksoft.els.tools.operations;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.groksoft.els.*;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.util.ArgumentTokenizer;
 import com.groksoft.els.jobs.Origin;
@@ -72,25 +71,22 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     private boolean optDecimalScale = false; // -z | --decimal-scale
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
-    transient private GuiContext guiContext = null;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private Repository pubRepo;
     transient private Repository subRepo;
     transient boolean stop = false;
     // @formatter-on
 
-    public OperationsTool(GuiContext guiContext, Configuration config, Context ctxt)
+    public OperationsTool(Context context)
     {
-        super(config, ctxt);
+        super(context);
         setDisplayName(getCfg().gs("Navigator.splitPane.Operations.tab.title"));
-        this.guiContext = guiContext;
         this.originPathsAllowed = false;
     }
 
     public OperationsTool clone()
     {
-        assert guiContext != null;
-        OperationsTool tool = new OperationsTool(guiContext, this.cfg, this.context);
+        OperationsTool tool = new OperationsTool(this.context);
         tool.setConfigName(getConfigName());
         tool.internalName = INTERNAL_NAME;
         tool.setOperation(getOperation());
@@ -138,7 +134,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public String generateCommandLine()
     {
         Configuration defCfg = new Configuration(context);
-        boolean glo = guiContext != null ? guiContext.preferences.isGenerateLongOptions() : false;
+        boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
 
         // --- log levels
@@ -541,7 +537,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     }
 
     @Override
-    public void processTool(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         pubRepo = publisherRepo;
         subRepo = subscriberRepo;
@@ -553,15 +549,15 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         String[] args = list.toArray(new String[0]);
 
         // run the Operation
-        logger.info(cfg.gs("Operations.launching") + getConfigName());
-        Main main = new Main(args, guiContext);
+        logger.info(context.cfg.gs("Operations.launching") + getConfigName());
+        Main main = new Main(args, context);
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(GuiContext guiContext, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
         // create a fresh dialog
-        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+        if (context.progress == null || !context.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()
             {
@@ -571,20 +567,20 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                     requestStop();
                 }
             };
-            guiContext.progress = new Progress(guiContext, guiContext.mainFrame.panelOperationTop, cancel, dryRun);
-            guiContext.context.progress = guiContext.progress;
-            guiContext.progress.display();
+            context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, dryRun);
+            context.progress = context.progress;
+            context.progress.display();
         }
         else
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.WARNING_MESSAGE);
             return null;
         }
 
         // using currently-loaded repositories means there is no change in connection
-        //if (willDisconnect(guiContext))
+        //if (willDisconnect(context))
         //{
-        //    int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame.panelOperationTop, guiContext.cfg.gs("Job.this.job.contains.remote.subscriber"), guiContext.cfg.gs("Navigator.splitPane.OperationsUI.tab.title"), JOptionPane.YES_NO_OPTION);
+        //    int reply = JOptionPane.showConfirmDialog(context.mainFrame.panelOperationTop, context.cfg.gs("Job.this.job.contains.remote.subscriber"), context.cfg.gs("Navigator.splitPane.OperationsUI.tab.title"), JOptionPane.YES_NO_OPTION);
         //    if (reply != JOptionPane.YES_OPTION)
         //        return null;
         //}
@@ -596,14 +592,14 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             {
                 try
                 {
-                    processTool(guiContext, publisherRepo, subscriberRepo, null, false, null);
+                    processTool(context, publisherRepo, subscriberRepo, null, false, null);
                 }
                 catch (Exception e)
                 {
-                    String msg = cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
+                    String msg = context.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
                     logger.error(msg);
-                    if (guiContext != null)
-                        JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.ERROR_MESSAGE);
+                    if (context.navigator != null)
+                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 return null;
             }

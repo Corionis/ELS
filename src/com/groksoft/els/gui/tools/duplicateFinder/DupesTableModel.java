@@ -1,6 +1,6 @@
 package com.groksoft.els.gui.tools.duplicateFinder;
 
-import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.browser.DateColumn;
 import com.groksoft.els.gui.browser.SizeColumn;
@@ -12,13 +12,13 @@ import java.util.ArrayList;
 
 public class DupesTableModel extends DefaultTableModel
 {
-    private Configuration cfg;
+    private Context context;
     private ArrayList<Dupe> dupes;
 
-    public DupesTableModel(Configuration cfg, ArrayList<Dupe> dupes)
+    public DupesTableModel(Context context, ArrayList<Dupe> dupes)
     {
         super();
-        this.cfg = cfg;
+        this.context = context;
         this.dupes = dupes;
     }
 
@@ -53,13 +53,13 @@ public class DupesTableModel extends DefaultTableModel
             case 0:
                 return "Duplicates";
             case 1:
-                return cfg.gs("BrowserTable.column.size");
+                return context.cfg.gs("BrowserTable.column.size");
             case 2:
-                return cfg.gs("BrowserTable.column.modified");
+                return context.cfg.gs("BrowserTable.column.modified");
             case 3:
-                return cfg.gs("DuplicateFinder.action");
+                return context.cfg.gs("DuplicateFinder.action");
         }
-        return cfg.gs("NavTreeNode.unknown");
+        return context.cfg.gs("NavTreeNode.unknown");
     }
 
     @Override
@@ -91,12 +91,12 @@ public class DupesTableModel extends DefaultTableModel
             if (column == 1)
             {
                 if (!dupe.isTop && !item.isDirectory())
-                    return new SizeColumn(item.getSize(), cfg.getLongScale());
+                    return new SizeColumn(item.getSize(), context.cfg.getLongScale());
             }
             if (column == 2)
             {
                 if (!dupe.isTop)
-                    return new DateColumn(item.getModifiedDate());
+                    return new DateColumn(context, item.getModifiedDate());
             }
             if (column == 3)
             {

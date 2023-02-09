@@ -1,8 +1,8 @@
 package com.groksoft.els.gui.browser;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.Progress;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
@@ -23,11 +23,11 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     private transient Logger logger = LogManager.getLogger("applog");
     private int action = TransferHandler.NONE;
     private long batchSize = 0L;
+    private Context context;
     private int depth = 0;
     private int fileNumber = 0;
     private int filesToCopy = 0;
     private long filesSize = 0L;
-    private GuiContext guiContext;
     private ArrayList<Batch> queue;
     private Repository sourceRepo;
     private JTree sourceTree;
@@ -42,9 +42,9 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         // hide default constructor
     }
 
-    public NavTransferWorker(GuiContext gct)
+    public NavTransferWorker(Context context)
     {
-        guiContext = gct;
+        this.context = context;
         queue = new ArrayList<Batch>();
     }
 
@@ -56,28 +56,28 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
         // create a fresh dialog
         // TODO factors controlling whether to display the progress dialog may needed adjusting
-        if (guiContext.progress == null || !guiContext.progress.isBeingUsed())
+        if (context.progress == null || !context.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
                 {
-                    if (guiContext.browser.navTransferHandler.getTransferWorker() != null &&
-                            !guiContext.browser.navTransferHandler.getTransferWorker().isDone())
+                    if (context.browser.navTransferHandler.getTransferWorker() != null &&
+                            !context.browser.navTransferHandler.getTransferWorker().isDone())
                     {
-                        logger.warn(guiContext.cfg.gs("MainFrame.cancelling.transfers.at.user.request"));
-                        guiContext.browser.navTransferHandler.getTransferWorker().cancel(true);
+                        logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.at.user.request"));
+                        context.browser.navTransferHandler.getTransferWorker().cancel(true);
                     }
                 }
             };
-            guiContext.progress = new Progress(guiContext, guiContext.mainFrame, cancel, guiContext.cfg.isDryRun());
-            guiContext.context.progress = guiContext.progress;
-            guiContext.progress.display();
+            context.progress = new Progress(context, context.mainFrame, cancel, context.cfg.isDryRun());
+            context.progress = context.progress;
+            context.progress.display();
         }
         else
         {
-            JOptionPane.showMessageDialog(guiContext.mainFrame, guiContext.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), guiContext.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
@@ -124,7 +124,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
             if (!error && !isCancelled())
             {
-                if (guiContext.browser.hintTrackingEnabled == true)
+                if (context.browser.hintTrackingEnabled == true)
                     exportHints(transferData, targetTuo);
                 removeTransferData(transferData);
             }
@@ -134,25 +134,25 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             }
         }
         if (isCancelled())
-            logger.warn(guiContext.cfg.gs("NavTransferWorker.cancelled"));
+            logger.warn(context.cfg.gs("NavTransferWorker.cancelled"));
         return null;
     }
 
     @Override
     protected void done()
     {
-        guiContext.progress.done();
-        guiContext.mainFrame.labelStatusMiddle.setText(MessageFormat.format(guiContext.cfg.gs("Transfer.of.complete"), filesToCopy));
+        context.progress.done();
+        context.mainFrame.labelStatusMiddle.setText(MessageFormat.format(context.cfg.gs("Transfer.of.complete"), filesToCopy));
 
         // reset the queue
         queue = new ArrayList<Batch>();
         filesToCopy = 0;
         filesSize = 0L;
 
-        if (guiContext.preferences.isAutoRefresh())
+        if (context.preferences.isAutoRefresh())
         {
-            guiContext.browser.refreshTree(sourceTree);
-            guiContext.browser.refreshTree(targetTree);
+            context.browser.refreshTree(sourceTree);
+            context.browser.refreshTree(targetTree);
         }
     }
 
@@ -182,7 +182,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             // iterate the selected rows of user objects
             for (NavTreeUserObject sourceTuo : transferData)
             {
-                guiContext.browser.navTransferHandler.exportHint("mv", sourceTuo, targetTuo);
+                context.browser.navTransferHandler.exportHint("mv", sourceTuo, targetTuo);
             }
         }
     }
@@ -203,7 +203,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         // get the directory
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
-            directory = guiContext.context.transfer.getTarget(sourceRepo, targetTuo.name, batchSize, targetRepo, targetTuo.isRemote, sourceTuo.path);
+            directory = context.transfer.getTarget(sourceRepo, targetTuo.name, batchSize, targetRepo, targetTuo.isRemote, sourceTuo.path);
             if (directory != null && directory.length() > 0)
             {
                 File physical = new File(directory);
@@ -211,8 +211,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             }
             else
             {
-                throw new MungeException(MessageFormat.format(guiContext.cfg.gs("Transfer.no.space.on.any.target.location"),
-                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(targetTuo.size, false, guiContext.cfg.getLongScale())));
+                throw new MungeException(MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
+                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(targetTuo.size, false, context.cfg.getLongScale())));
             }
         }
         else if (targetTuo.type == NavTreeUserObject.DRIVE || targetTuo.type == NavTreeUserObject.HOME)
@@ -245,19 +245,19 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     {
         boolean error = false;
         if (sourceTuo.isDir)
-            error = guiContext.browser.navTransferHandler.removeDirectory(sourceTuo);
+            error = context.browser.navTransferHandler.removeDirectory(sourceTuo);
         else
-            error = guiContext.browser.navTransferHandler.removeFile(sourceTuo);
+            error = context.browser.navTransferHandler.removeFile(sourceTuo);
 
-        if (!error && !guiContext.context.fault)
+        if (!error && !context.fault)
         {
             NavTreeNode parent = (NavTreeNode) sourceTuo.node.getParent();
             parent.remove(sourceTuo.node);
 
-            if (guiContext.preferences.isAutoRefresh())
+            if (context.preferences.isAutoRefresh())
             {
-                guiContext.browser.refreshTree(sourceTree);
-                guiContext.browser.refreshTree(targetTree);
+                context.browser.refreshTree(sourceTree);
+                context.browser.refreshTree(targetTree);
             }
         }
         return error;
@@ -301,12 +301,12 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         NavTreeUserObject toTuo = toNode.getUserObject();
         toTuo.node = toNode;
         toTuo.path = path;
-        toTuo.isRemote = !targetIsPublisher && guiContext.cfg.isRemoteSession();
+        toTuo.isRemote = !targetIsPublisher && context.cfg.isRemoteSession();
         toTuo.file = new File(path);
         toNode.setAllowsChildren(toTuo.isDir);
 
         // add the new node on the target
-        if (!exists && !guiContext.cfg.isDryRun())
+        if (!exists && !context.cfg.isDryRun())
             targetTuo.node.add(toNode);
 
         return toTuo;
@@ -347,8 +347,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             if (!isCancelled())
             {
                 logger.error(Utils.getStackTrace(e));
-                JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") + e,
-                        guiContext.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") + e,
+                        context.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
             }
             error = true;
         }
@@ -359,35 +359,35 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     {
         boolean error = false;
         String path = "";
-        String msg = guiContext.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
-                (guiContext.cfg.isDryRun() ? guiContext.cfg.gs("Z.dry.run") : "") +
-                guiContext.cfg.gs("NavTransferHandler.transfer.file.from") + sourceTuo.path;
+        String msg = context.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
+                (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "") +
+                context.cfg.gs("NavTransferHandler.transfer.file.from") + sourceTuo.path;
 
         try
         {
             ++fileNumber;
-            String status = " " + fileNumber + guiContext.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
-                    ", " + Utils.formatLong(sourceTuo.size, false, guiContext.cfg.getLongScale()) + ", " + sourceTuo.name + " ";
-            guiContext.progress.update(status);
-            //guiContext.progress.update(fileNumber, sourceTuo.size, sourceTuo.name);
+            String status = " " + fileNumber + context.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
+                    ", " + Utils.formatLong(sourceTuo.size, false, context.cfg.getLongScale()) + ", " + sourceTuo.name + " ";
+            context.progress.update(status);
+            //context.progress.update(fileNumber, sourceTuo.size, sourceTuo.name);
 
             path = makeToPath(sourceTuo, targetTuo);
-            msg += guiContext.cfg.gs("NavTransferHandler.transfer.file.to") + path;
+            msg += context.cfg.gs("NavTransferHandler.transfer.file.to") + path;
 
             // perform the transfer
             if (!sourceTuo.isRemote && !targetTuo.isRemote)
             {
                 // local copy
-                logger.info(guiContext.cfg.gs("NavTreeNode.local") + msg);
-                if (!guiContext.cfg.isDryRun())
+                logger.info(context.cfg.gs("NavTreeNode.local") + msg);
+                if (!context.cfg.isDryRun())
                 {
                     if (action == TransferHandler.MOVE)
                     {
-                        guiContext.context.transfer.moveFile(sourceTuo.path, sourceTuo.fileTime, path, true);
+                        context.transfer.moveFile(sourceTuo.path, sourceTuo.fileTime, path, true);
                     }
                     else
                     {
-                        guiContext.context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, false, true);
+                        context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, false, true);
                     }
                     setupToNode(sourceTuo, targetTuo, path);
                 }
@@ -395,32 +395,32 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             else if (!sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // put to remote
-                logger.info(guiContext.cfg.gs("NavTransferHandler.put") + msg);
-                if (!guiContext.cfg.isDryRun())
+                logger.info(context.cfg.gs("NavTransferHandler.put") + msg);
+                if (!context.cfg.isDryRun())
                 {
-                    guiContext.context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, true, false);
+                    context.transfer.copyFile(sourceTuo.path, sourceTuo.fileTime, path, true, false);
                     setupToNode(sourceTuo, targetTuo, path);
                 }
             }
             else if (sourceTuo.isRemote && !targetTuo.isRemote)
             {
                 // get from remote
-                logger.info(guiContext.cfg.gs("NavTransferHandler.get") + msg);
-                if (!guiContext.cfg.isDryRun())
+                logger.info(context.cfg.gs("NavTransferHandler.get") + msg);
+                if (!context.cfg.isDryRun())
                 {
                     String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
                     Files.createDirectories(Paths.get(dir));
-                    guiContext.context.clientSftp.get(sourceTuo.path, path);
+                    context.clientSftp.get(sourceTuo.path, path);
                     setupToNode(sourceTuo, targetTuo, path);
-                    if (guiContext.preferences.isPreserveFileTimes())
+                    if (context.preferences.isPreserveFileTimes())
                         Files.setLastModifiedTime(Paths.get(path), sourceTuo.fileTime);
                 }
             }
             else if (sourceTuo.isRemote && targetTuo.isRemote)
             {
                 // send command to remote
-                logger.info(guiContext.cfg.gs("Z.remote.uppercase") + msg);
-                if (!guiContext.cfg.isDryRun())
+                logger.info(context.cfg.gs("Z.remote.uppercase") + msg);
+                if (!context.cfg.isDryRun())
                 {
                     String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
                     Files.createDirectories(Paths.get(dir));
@@ -433,24 +433,24 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     {
                         command = "copy \"" + sourceTuo.path + "\" \"" + path + "\"";
                     }
-                    String response = guiContext.context.clientStty.roundTrip(command, "Sending command: " + command, -1);
+                    String response = context.clientStty.roundTrip(command, "Sending command: " + command, -1);
                     if (response.equalsIgnoreCase("true"))
                     {
                         setupToNode(sourceTuo, targetTuo, path);
-                        if (guiContext.preferences.isPreserveFileTimes())
-                            guiContext.context.clientSftp.setDate(path, (int) sourceTuo.fileTime.to(TimeUnit.SECONDS));
+                        if (context.preferences.isPreserveFileTimes())
+                            context.clientSftp.setDate(path, (int) sourceTuo.fileTime.to(TimeUnit.SECONDS));
                     }
                     else
-                        throw new MungeException(guiContext.cfg.gs("Z.remote.uppercase") + guiContext.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
-                                guiContext.cfg.gs("NavTransferHandler.progress.of") + sourceTuo.name + guiContext.cfg.gs("NavTransferHandler.failed"));
+                        throw new MungeException(context.cfg.gs("Z.remote.uppercase") + context.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
+                                context.cfg.gs("NavTransferHandler.progress.of") + sourceTuo.name + context.cfg.gs("NavTransferHandler.failed"));
                 }
             }
 
             // update trees with progress so far, do again when done
-            if (guiContext.preferences.isAutoRefresh())
+            if (context.preferences.isAutoRefresh())
             {
-                guiContext.browser.refreshTree(sourceTree);
-                guiContext.browser.refreshTree(targetTree);
+                context.browser.refreshTree(sourceTree);
+                context.browser.refreshTree(targetTree);
             }
         }
         catch (Exception e)
@@ -458,9 +458,9 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             logger.error(Utils.getStackTrace(e));
             if (!isCancelled())
             {
-                int reply = JOptionPane.showConfirmDialog(guiContext.mainFrame, guiContext.cfg.gs("Browser.error") +
-                                guiContext.browser.navTransferHandler.getOperation(action, true) + ": " + e.toString() + "\n\n" + guiContext.cfg.gs("NavTransferHandler.continue"),
-                        guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+                int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") +
+                                context.browser.navTransferHandler.getOperation(action, true) + ": " + e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                 if (reply == JOptionPane.NO_OPTION)
                     error = true;
             }

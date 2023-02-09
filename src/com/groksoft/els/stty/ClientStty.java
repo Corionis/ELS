@@ -1,6 +1,5 @@
 package com.groksoft.els.stty;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
@@ -24,7 +23,6 @@ import java.time.format.DateTimeFormatter;
  */
 public class ClientStty
 {
-    private Configuration cfg;
     private Context context;
     protected TerminalGui gui = null;
     private Thread heartBeat = null;
@@ -43,14 +41,13 @@ public class ClientStty
     /**
      * Instantiate a ClientStty.<br>
      *
-     * @param config           The Configuration object
+     * @param context          The Context
      * @param isManualTerminal True if an interactive client, false if an automated client
      * @param primaryServers   True if base servers, false if secondary servers for Publisher
      */
-    public ClientStty(Configuration config, Context ctxt, boolean isManualTerminal, boolean primaryServers)
+    public ClientStty(Context context, boolean isManualTerminal, boolean primaryServers)
     {
-        this.cfg = config;
-        this.context = ctxt;
+        this.context = context;
         this.isTerminal = isManualTerminal;
         this.primaryServers = primaryServers;
     }
@@ -88,7 +85,7 @@ public class ClientStty
     {
         boolean hasCommands = false;
         String response = receive("", 5000); // read opening terminal banner
-        if (!cfg.isNavigator()) // ignore subscriber commands with Navigator
+        if (!context.cfg.isNavigator()) // ignore subscriber commands with Navigator
         {
             if (!response.startsWith("Enter "))
             {
@@ -102,21 +99,21 @@ public class ClientStty
                             if (cmdSplit[i].equals("RequestCollection"))
                             {
                                 hasCommands = true;
-                                cfg.setRequestCollection(true);
+                                context.cfg.setRequestCollection(true);
                                 String location;
-                                if (cfg.getSubscriberCollectionFilename().length() > 0)
-                                    location = cfg.getSubscriberCollectionFilename();
+                                if (context.cfg.getSubscriberCollectionFilename().length() > 0)
+                                    location = context.cfg.getSubscriberCollectionFilename();
                                 else
-                                    location = cfg.getSubscriberLibrariesFileName();
+                                    location = context.cfg.getSubscriberLibrariesFileName();
 
                                 // change cfg -S to -s so -s handling in Transfer.initialize retrieves the data
-                                cfg.setSubscriberLibrariesFileName(location);
-                                cfg.setSubscriberCollectionFilename("");
+                                context.cfg.setSubscriberLibrariesFileName(location);
+                                context.cfg.setSubscriberCollectionFilename("");
                             }
                             else if (cmdSplit[i].equals("RequestTargets"))
                             {
                                 hasCommands = true;
-                                cfg.setRequestTargets(true);
+                                context.cfg.setRequestTargets(true);
                             }
                         }
                     }
@@ -326,7 +323,7 @@ public class ClientStty
     public int guiSession() throws Exception
     {
         int returnValue = 0;
-        gui = new TerminalGui(this, cfg, in, out);
+        gui = new TerminalGui(this, context.cfg, in, out);
         returnValue = gui.run(myRepo, theirRepo);
         return returnValue;
     }
@@ -394,7 +391,7 @@ public class ClientStty
      */
     public void quitStatusServer(Context context)
     {
-        if (cfg.isQuitStatusServer())
+        if (context.cfg.isQuitStatusServer())
         {
             if (context.statusRepo == null)
             {

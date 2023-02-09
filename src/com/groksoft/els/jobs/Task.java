@@ -1,9 +1,7 @@
 package com.groksoft.els.jobs;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.repository.Repositories;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
@@ -31,9 +29,9 @@ public class Task implements Comparable, Serializable
     private boolean subscriberRemote = false;
     private ArrayList<Origin> origins;
 
+    transient private Context context = null;
     transient private AbstractTool currentTool = null;
     transient private boolean dual = true;
-    transient private GuiContext guiContext = null;
     transient private Task lastTask = null;
     transient private Repository pubRepo = null;
     transient private Repository subRepo = null;
@@ -76,7 +74,7 @@ public class Task implements Comparable, Serializable
         return this.getConfigName().compareTo(((Task) o).getConfigName());
     }
 
-    public boolean connectRemote(Configuration config, Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
+    public boolean connectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
         boolean didDisconnect = false;
 
@@ -107,16 +105,16 @@ public class Task implements Comparable, Serializable
         }
 
         // start the serveStty client for automation
-        context.clientStty = new ClientStty(config, context, false, true);
+        context.clientStty = new ClientStty(context, false, true);
         if (!context.clientStty.connect(publisherRepo, subscriberRepo))
         {
-            config.setRemoteType("-");
-            if (guiContext != null)
+            context.cfg.setRemoteType("-");
+            if (context.navigator != null)
             {
-                JOptionPane.showMessageDialog(guiContext.mainFrame,
-                        guiContext.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect") +
+                JOptionPane.showMessageDialog(context.mainFrame,
+                        context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect") +
                                 subscriberRepo.getLibraryData().libraries.host,
-                        guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
             return false;
         }
@@ -125,7 +123,7 @@ public class Task implements Comparable, Serializable
         // *** might change cfg options for subscriber and targets that are handled below ***
         if (context.clientStty.checkBannerCommands())
         {
-            logger.info(config.gs("Transfer.received.subscriber.commands") + (config.isRequestCollection() ? "RequestCollection " : "") + (config.isRequestTargets() ? "RequestTargets" : ""));
+            logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
         }
 
         // close any existing SFTP connections
@@ -135,15 +133,15 @@ public class Task implements Comparable, Serializable
         }
 
         // start the serveSftp client
-        context.clientSftp = new ClientSftp(config, publisherRepo, subscriberRepo, true);
+        context.clientSftp = new ClientSftp(context, publisherRepo, subscriberRepo, true);
         if (!context.clientSftp.startClient())
         {
-            config.setRemoteType("-");
-            if (guiContext != null)
+            context.cfg.setRemoteType("-");
+            if (context.navigator != null)
             {
-                JOptionPane.showMessageDialog(guiContext.mainFrame,
-                        guiContext.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
-                        guiContext.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame,
+                        context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
             return false;
         }
@@ -171,7 +169,7 @@ public class Task implements Comparable, Serializable
         return publisherKey;
     }
 
-    private Repository getRepo(Configuration cfg, Context context, String key, boolean forPublisher) throws Exception
+    private Repository getRepo(Context context, String key, boolean forPublisher) throws Exception
     {
         Repository repo = null;
 
@@ -196,7 +194,7 @@ public class Task implements Comparable, Serializable
                 {
                     // load it
                     Repositories repositories = new Repositories();
-                    repositories.loadList(cfg);
+                    repositories.loadList(context);
 
                     Repositories.Meta meta;
                     if (key.length() > 0)
@@ -204,11 +202,11 @@ public class Task implements Comparable, Serializable
                         meta = repositories.find(key);
                         if (meta != null)
                         {
-                            repo = new Repository(cfg, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
+                            repo = new Repository(context, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
                             repo.read(meta.path, true);
                         }
                         else
-                            throw new MungeException(key + cfg.gs("Z.not.found"));
+                            throw new MungeException(key + context.cfg.gs("Z.not.found"));
                     }
                 }
             }
@@ -216,12 +214,12 @@ public class Task implements Comparable, Serializable
 
         if (repo != null)
         {
-            cfg.setPublisherCollectionFilename("");
-            cfg.setSubscriberCollectionFilename("");
+            context.cfg.setPublisherCollectionFilename("");
+            context.cfg.setSubscriberCollectionFilename("");
             if (forPublisher)
-                cfg.setPublisherLibrariesFileName(repo.getJsonFilename());
+                context.cfg.setPublisherLibrariesFileName(repo.getJsonFilename());
             else
-                cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
+                context.cfg.setSubscriberLibrariesFileName(repo.getJsonFilename());
         }
 
         return repo;
@@ -237,14 +235,14 @@ public class Task implements Comparable, Serializable
         return currentTool;
     }
 
-    public boolean isCachedLastTask(Configuration config, Context ctxt)
+    public boolean isCachedLastTask(Context context)
     {
         AbstractTool tool;
         if (currentTool == null)
         {
             if (tools == null)
                 this.tools = new Tools();
-            tool = tools.makeTempTool(getInternalName(), config, ctxt);
+            tool = tools.makeTempTool(getInternalName(), context);
         }
         else
             tool = currentTool;
@@ -263,14 +261,14 @@ public class Task implements Comparable, Serializable
         return false;
     }
 
-    public boolean isOriginPathsAllowed(Configuration config, Context ctxt)
+    public boolean isOriginPathsAllowed(Context context)
     {
         AbstractTool tool;
         if (currentTool == null)
         {
             if (tools == null)
                 this.tools = new Tools();
-            tool = tools.makeTempTool(getInternalName(), config, ctxt);
+            tool = tools.makeTempTool(getInternalName(), context);
         }
         else
             tool = currentTool;
@@ -292,14 +290,13 @@ public class Task implements Comparable, Serializable
      * <br/>
      * Used by a Job
      *
-     * @param config The Configuration
-     * @param ctxt   The Context
+     * @param context   The Context
      * @param dryRun Boolean for a dry-run
      * @throws Exception
      */
-    public boolean process(GuiContext guiContext, Configuration config, Context ctxt, boolean dryRun) throws Exception
+    public boolean process(Context context, boolean dryRun) throws Exception
     {
-        this.guiContext = guiContext;
+        this.currentTool = currentTool;
         if (logger == null)
             logger = LogManager.getLogger("applog");
 
@@ -307,25 +304,25 @@ public class Task implements Comparable, Serializable
         if (tools == null)
             this.tools = new Tools();
 
-        currentTool = tools.loadTool(guiContext, config, ctxt, getInternalName(), getConfigName());
+        currentTool = tools.loadTool(context, getInternalName(), getConfigName());
         if (currentTool != null)
         {
-            if ((origins == null || origins.size() == 0) && !useCachedLastTask(config, ctxt) && currentTool.isOriginPathsAllowed())
+            if ((origins == null || origins.size() == 0) && !useCachedLastTask(context) && currentTool.isOriginPathsAllowed())
             {
-                if (guiContext != null)
+                if (context.navigator != null)
                 {
-                    String msg = guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
+                    String msg = context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
                     logger.info(msg);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
-                    logger.info(config.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                    logger.info(context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
 
                 return false;
             }
 
             // get repos
-            if (useCachedLastTask(config, ctxt))
+            if (useCachedLastTask(context))
             {
                 pubRepo = lastTask.pubRepo;
                 subRepo = lastTask.subRepo;
@@ -333,34 +330,34 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                pubRepo = getRepo(config, ctxt, getPublisherKey(), true);
-                subRepo = getRepo(config, ctxt, getSubscriberKey(), false);
+                pubRepo = getRepo(context, getPublisherKey(), true);
+                subRepo = getRepo(context, getSubscriberKey(), false);
             }
             if (pubRepo == null && subRepo == null)
-                throw new MungeException((config.gs("Task.no.repository.is.loaded")));
+                throw new MungeException((context.cfg.gs("Task.no.repository.is.loaded")));
 
             if (!(currentTool instanceof OperationsTool))
             {
                 type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
-                config.setRemoteType(type);
-                config.setPublishOperation(false);  // TODO Change when OperationsUI tool added
+                context.cfg.setRemoteType(type);
+                context.cfg.setPublishOperation(false);  // TODO Change when OperationsUI tool added
 
                 if (isSubscriberRemote())
                 {
                     Repository me = pubRepo;
                     if (me == null)
-                        me = ctxt.publisherRepo;
-                    if (!connectRemote(config, ctxt, me, subRepo))
+                        me = context.publisherRepo;
+                    if (!connectRemote(context, me, subRepo))
                         return false;
                 }
             }
             else
-                ctxt.nestedProcesses = true;
+                context.nestedProcesses = true;
 
-            currentTool.processTool(guiContext, pubRepo, subRepo, origins, dryRun, useCachedLastTask(config, ctxt) ? lastTask : null);
+            currentTool.processTool(context, pubRepo, subRepo, origins, dryRun, useCachedLastTask(context) ? lastTask : null);
         }
         else
-            throw new MungeException(config.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
+            throw new MungeException(context.cfg.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
         return true;
     }
 
@@ -369,35 +366,35 @@ public class Task implements Comparable, Serializable
      * <br/>
      * Used by the Run button of the tool
      *
-     * @param guiContext The GuiContext
+     * @param context The Context
      * @param dryRun     Boolean for a dry-run
      * @return SwingWorker<Void, Void> of thread
      */
-    public SwingWorker<Void, Void> process(GuiContext guiContext, AbstractTool tool, boolean dryRun) throws Exception
+    public SwingWorker<Void, Void> process(Context context, AbstractTool tool, boolean dryRun) throws Exception
     {
         if (logger == null)
             logger = LogManager.getLogger("applog");
 
         if (tool != null)
         {
-            this.guiContext = guiContext;
+            this.context = context;
             currentTool = tool;
 
-            if ((origins == null || origins.size() == 0) && !useCachedLastTask(guiContext.cfg, guiContext.context) && currentTool.isOriginPathsAllowed())
+            if ((origins == null || origins.size() == 0) && !useCachedLastTask(context) && currentTool.isOriginPathsAllowed())
             {
-                if (guiContext != null)
+                if (context.navigator != null)
                 {
-                    String msg = guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
+                    String msg = context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName();
                     logger.info(msg);
-                    JOptionPane.showMessageDialog(guiContext.mainFrame, msg, guiContext.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
                 else
-                    logger.info(guiContext.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
+                    logger.info(context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
                 return null;
             }
 
             // get repos
-            if (useCachedLastTask(guiContext.cfg, guiContext.context))
+            if (useCachedLastTask(context))
             {
                 pubRepo = lastTask.pubRepo;
                 subRepo = lastTask.subRepo;
@@ -405,16 +402,16 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                pubRepo = getRepo(guiContext.cfg, guiContext.context, getPublisherKey(), true);
-                subRepo = getRepo(guiContext.cfg, guiContext.context, getSubscriberKey(), false);
+                pubRepo = getRepo(context, getPublisherKey(), true);
+                subRepo = getRepo(context, getSubscriberKey(), false);
             }
             if (pubRepo == null && subRepo == null)
-                throw new MungeException((guiContext.cfg.gs("Task.no.repository.is.loaded")));
+                throw new MungeException((context.cfg.gs("Task.no.repository.is.loaded")));
 
             // No connection change. This method is only used by the tool's Run button, not by a Job.
             // So it uses whatever subscriber is currently loaded.
 
-            return tool.processToolThread(guiContext, pubRepo, subRepo, origins, dryRun);
+            return tool.processToolThread(context, pubRepo, subRepo, origins, dryRun);
         }
         return null;
     }
@@ -472,9 +469,9 @@ public class Task implements Comparable, Serializable
         this.subscriberRemote = isSubscriberRemote;
     }
 
-    public boolean useCachedLastTask(Configuration cfg, Context ctxt)
+    public boolean useCachedLastTask(Context context)
     {
-        if (isCachedLastTask(cfg, ctxt) && lastTask != null && publisherKey.equalsIgnoreCase(CACHEDLASTTASK))
+        if (isCachedLastTask(context) && lastTask != null && publisherKey.equalsIgnoreCase(CACHEDLASTTASK))
             return true;
         return false;
     }

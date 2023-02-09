@@ -1,6 +1,5 @@
 package com.groksoft.els.repository;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import org.apache.logging.log4j.LogManager;
@@ -19,16 +18,14 @@ import java.util.ArrayList;
  */
 public class HintKeys
 {
-    private Configuration cfg;
     private Context context;
     private String filename;
     private ArrayList<HintKey> keys;
     private transient Logger logger = LogManager.getLogger("applog");
 
-    public HintKeys(Configuration config, Context ctx)
+    public HintKeys(Context context)
     {
-        cfg = config;
-        context = ctx;
+        this.context = context;
     }
 
     public HintKey findKey(String uuid)
@@ -76,7 +73,7 @@ public class HintKeys
                     throw new MungeException("Malformed line " + count + " reading ELS keys file: " + file);
                 }
 
-                if (!cfg.isStatusServer() && !cfg.isNavigator())
+                if (!context.cfg.isStatusServer() && !context.cfg.isNavigator())
                 {
                     if (parts[1].equals(context.publisherRepo.getLibraryData().libraries.key))
                     {
@@ -100,7 +97,7 @@ public class HintKeys
             }
         }
 
-        if (!cfg.isStatusServer() && !cfg.isNavigator())
+        if (!context.cfg.isStatusServer() && !context.cfg.isNavigator())
         {
             if (!foundPublisher)
                 throw new MungeException("The current publisher key was not found in ELS keys file: " + file);

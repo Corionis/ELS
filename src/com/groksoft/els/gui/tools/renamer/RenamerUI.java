@@ -2,8 +2,8 @@ package com.groksoft.els.gui.tools.renamer;
 
 import javax.swing.table.*;
 
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.GuiContext;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
@@ -42,12 +42,12 @@ public class RenamerUI extends JDialog
     private ChangesTableModel changeModel;
     private String[][] changeStrings;
     private ConfigModel configModel;
+    private Context context;
     private JPanel currentCard = null;
     private int currentConfigIndex = -1;
     private RenamerTool currentRenamer = null;
     private ArrayList<RenamerTool> deletedTools;
     private String[] displayNames;
-    private GuiContext guiContext;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
@@ -64,10 +64,10 @@ public class RenamerUI extends JDialog
         // hide default constructor
     }
 
-    public RenamerUI(Window owner, GuiContext guiContext)
+    public RenamerUI(Window owner, Context context)
     {
         super(owner);
-        this.guiContext = guiContext;
+        this.context = context;
 
         initComponents();
 
@@ -79,12 +79,12 @@ public class RenamerUI extends JDialog
         labelHelp.setIcon(replacement);
 
         // position, size & divider
-        if (guiContext.preferences.getToolsRenamerXpos() > 0)
+        if (context.preferences.getToolsRenamerXpos() > 0)
         {
-            this.setLocation(guiContext.preferences.getToolsRenamerXpos(), guiContext.preferences.getToolsRenamerYpos());
-            Dimension dim = new Dimension(guiContext.preferences.getToolsRenamerWidth(), guiContext.preferences.getToolsRenamerHeight());
+            this.setLocation(context.preferences.getToolsRenamerXpos(), context.preferences.getToolsRenamerYpos());
+            Dimension dim = new Dimension(context.preferences.getToolsRenamerWidth(), context.preferences.getToolsRenamerHeight());
             this.setSize(dim);
-            this.splitPaneContent.setDividerLocation(guiContext.preferences.getToolsRenamerDividerLocation());
+            this.splitPaneContent.setDividerLocation(context.preferences.getToolsRenamerDividerLocation());
         }
         else
         {
@@ -108,7 +108,7 @@ public class RenamerUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // setup the left-side list of configurations
-        configModel = new ConfigModel(guiContext, this);
+        configModel = new ConfigModel(context, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
@@ -137,11 +137,11 @@ public class RenamerUI extends JDialog
 
         // get display names once
         displayNames = new String[6];
-        displayNames[0] = guiContext.cfg.gs("RenameUI.type.combobox.0.case.change"); // 0
-        displayNames[1] = guiContext.cfg.gs("RenameUI.type.combobox.1.insert");
-        displayNames[2] = guiContext.cfg.gs("RenameUI.type.combobox.2.numbering");
-        displayNames[3] = guiContext.cfg.gs("RenameUI.type.combobox.3.remove");
-        displayNames[4] = guiContext.cfg.gs("RenameUI.type.combobox.4.replace"); // 4
+        displayNames[0] = context.cfg.gs("RenameUI.type.combobox.0.case.change"); // 0
+        displayNames[1] = context.cfg.gs("RenameUI.type.combobox.1.insert");
+        displayNames[2] = context.cfg.gs("RenameUI.type.combobox.2.numbering");
+        displayNames[3] = context.cfg.gs("RenameUI.type.combobox.3.remove");
+        displayNames[4] = context.cfg.gs("RenameUI.type.combobox.4.replace"); // 4
 
         addHandlers();
 
@@ -156,20 +156,20 @@ public class RenamerUI extends JDialog
     {
         if (workerRunning && workerRenamer != null)
         {
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Renamer.stop.running.renamer"),
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Renamer.stop.running.renamer"),
                     "Z.cancel.run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerRenamer.requestStop();
-                logger.info(java.text.MessageFormat.format(guiContext.cfg.gs("Renamer.config.cancelled"), workerRenamer.getConfigName()));
+                logger.info(java.text.MessageFormat.format(context.cfg.gs("Renamer.config.cancelled"), workerRenamer.getConfigName()));
             }
         }
         else
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.cancel.all.changes"),
-                        guiContext.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
+                int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
+                        context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                 {
                     cancelChanges();
@@ -199,7 +199,7 @@ public class RenamerUI extends JDialog
         if (index >= 0)
         {
             RenamerTool origRenamer = (RenamerTool) configModel.getValueAt(index, 0);
-            String rename = origRenamer.getConfigName() + guiContext.cfg.gs("Z.copy");
+            String rename = origRenamer.getConfigName() + context.cfg.gs("Z.copy");
             if (configModel.find(rename, null) == null)
             {
                 RenamerTool renamer = origRenamer.clone();
@@ -216,8 +216,8 @@ public class RenamerUI extends JDialog
             }
             else
             {
-                JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                        rename, guiContext.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
+                        rename, context.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
             }
         }
     }
@@ -231,8 +231,8 @@ public class RenamerUI extends JDialog
 
             // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
 
-            int reply = JOptionPane.showConfirmDialog(this, guiContext.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + renamer.getConfigName(),
-                    guiContext.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + renamer.getConfigName(),
+                    context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 renamer.setDataHasChanged();
@@ -292,7 +292,7 @@ public class RenamerUI extends JDialog
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(this, this, guiContext, guiContext.cfg.gs("Renamer.help"), "renamer_" + guiContext.preferences.getLocale() + ".html");
+            helpDialog = new NavHelp(this, this, context, context.cfg.gs("Renamer.help"), "renamer_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.isVisible())
         {
@@ -318,14 +318,14 @@ public class RenamerUI extends JDialog
 
     private void actionNewClicked(ActionEvent e)
     {
-        if (configModel.find(guiContext.cfg.gs("Z.untitled"), null) == null)
+        if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
         {
             JComboBox comboBoxRenameType = new JComboBox<>();
             comboBoxRenameType.setModel(new DefaultComboBoxModel<>(new String[]{
             }));
 
             // set Rename Type combobox
-            String message = guiContext.cfg.gs("RenameUI.type.combobox.select.type");
+            String message = context.cfg.gs("RenameUI.type.combobox.select.type");
             comboBoxRenameType.removeAllItems();
             comboBoxRenameType.addItem(displayNames[0]);
             comboBoxRenameType.addItem(displayNames[1]);
@@ -336,11 +336,11 @@ public class RenamerUI extends JDialog
             Object[] params = {message, comboBoxRenameType};
 
             // get renamer type
-            int opt = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("Renamer.title"), JOptionPane.OK_CANCEL_OPTION);
+            int opt = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("Renamer.title"), JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
-                RenamerTool renamer = new RenamerTool(guiContext, guiContext.cfg, guiContext.context);
-                renamer.setConfigName(guiContext.cfg.gs("Z.untitled"));
+                RenamerTool renamer = new RenamerTool(context);
+                renamer.setConfigName(context.cfg.gs("Z.untitled"));
                 renamer.setType(comboBoxRenameType.getSelectedIndex());
                 currentRenamer = renamer;
                 initNewCard(renamer.getType());
@@ -365,8 +365,8 @@ public class RenamerUI extends JDialog
         }
         else
         {
-            JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Z.please.rename.the.existing") +
-                    guiContext.cfg.gs("Z.untitled"), guiContext.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
+                    context.cfg.gs("Z.untitled"), context.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -566,7 +566,7 @@ public class RenamerUI extends JDialog
         try
         {
             Tools tools = new Tools();
-            ArrayList<AbstractTool> toolList = tools.loadAllTools(guiContext, RenamerTool.INTERNAL_NAME);
+            ArrayList<AbstractTool> toolList = tools.loadAllTools(context, RenamerTool.INTERNAL_NAME);
             for (AbstractTool tool : toolList)
             {
                 RenamerTool renamer = (RenamerTool) tool;
@@ -575,11 +575,11 @@ public class RenamerUI extends JDialog
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-            if (guiContext != null)
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (context.navigator != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.navigator.dialogRenamer, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -697,7 +697,7 @@ public class RenamerUI extends JDialog
         int index = 0;
         boolean isSubscriber = false;
 
-        Object object = guiContext.browser.lastComponent;
+        Object object = context.browser.lastComponent;
         if (object instanceof JTree)
         {
             JTree sourceTree = (JTree) object;
@@ -746,22 +746,22 @@ public class RenamerUI extends JDialog
             try
             {
                 ArrayList<Origin> origins = new ArrayList<Origin>();
-                isSubscriber = Origins.makeOriginsFromSelected(this, origins, renamer.isRealOnly());
+                isSubscriber = Origins.makeOriginsFromSelected(context, this, origins, renamer.isRealOnly());
 
                 if (origins != null && origins.size() > 0)
                 {
                     int count = origins.size();
 
                     // make dialog pieces
-                    String which = (isSubscriber) ? guiContext.cfg.gs("Z.subscriber") : guiContext.cfg.gs("Z.publisher");
-                    String message = java.text.MessageFormat.format(guiContext.cfg.gs("Renamer.run.on.N.locations"), renamer.getConfigName(), count, which);
-                    JCheckBox checkbox = new JCheckBox(guiContext.cfg.gs("Navigator.dryrun"));
-                    checkbox.setToolTipText(guiContext.cfg.gs("Navigator.dryrun.tooltip"));
+                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                    String message = java.text.MessageFormat.format(context.cfg.gs("Renamer.run.on.N.locations"), renamer.getConfigName(), count, which);
+                    JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+                    checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
                     checkbox.setSelected(true);
                     Object[] params = {message, checkbox};
 
                     // confirm run of tool
-                    int reply = JOptionPane.showConfirmDialog(this, params, guiContext.cfg.gs("Renamer.title"), JOptionPane.YES_NO_OPTION);
+                    int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("Renamer.title"), JOptionPane.YES_NO_OPTION);
                     isDryRun = checkbox.isSelected();
                     if (reply == JOptionPane.YES_OPTION)
                     {
@@ -782,7 +782,7 @@ public class RenamerUI extends JDialog
                             else
                                 task.setPublisherKey(Task.ANY_SERVER);
 
-                            worker = task.process(guiContext, renamer, isDryRun);
+                            worker = task.process(context, renamer, isDryRun);
                             if (worker != null)
                             {
                                 workerRunning = true;
@@ -802,11 +802,11 @@ public class RenamerUI extends JDialog
                         }
                         catch (Exception e)
                         {
-                            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                            if (guiContext != null)
+                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                            if (context.navigator != null)
                             {
                                 logger.error(msg);
-                                JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(context.navigator.dialogRenamer, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                             }
                             else
                                 logger.error(msg);
@@ -815,19 +815,19 @@ public class RenamerUI extends JDialog
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(this, guiContext.cfg.gs("Renamer.nothing.selected.in.browser"),
-                            guiContext.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(this, context.cfg.gs("Renamer.nothing.selected.in.browser"),
+                            context.cfg.gs("Renamer.title"), JOptionPane.WARNING_MESSAGE);
                 }
             }
             catch (Exception e)
             {
                 if (!e.getMessage().equals("HANDLED_INTERNALLY"))
                 {
-                    String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (guiContext != null)
+                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                    if (context.navigator != null)
                     {
                         logger.error(msg);
-                        JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(context.navigator.dialogRenamer, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
                     }
                     else
                         logger.error(msg);
@@ -838,10 +838,10 @@ public class RenamerUI extends JDialog
 
     private void processTerminated(Task task, RenamerTool renamer)
     {
-        if (guiContext.progress != null)
-            guiContext.progress.done();
+        if (context.progress != null)
+            context.progress.done();
 
-        Origins.setSelectedFromOrigins(guiContext, this, task.getOrigins());
+        Origins.setSelectedFromOrigins(context, this, task.getOrigins());
 
         setComponentEnabled(true);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -853,13 +853,13 @@ public class RenamerUI extends JDialog
 
         if (renamer.isRequestStop())
         {
-            logger.info(renamer.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
-            guiContext.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + guiContext.cfg.gs("Z.cancelled"));
+            logger.info(renamer.getConfigName() + context.cfg.gs("Z.cancelled"));
+            context.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
         else
         {
-            logger.info(renamer.getConfigName() + guiContext.cfg.gs("Z.completed"));
-            guiContext.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + guiContext.cfg.gs("Z.completed"));
+            logger.info(renamer.getConfigName() + context.cfg.gs("Z.completed"));
+            context.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }
 
@@ -880,7 +880,7 @@ public class RenamerUI extends JDialog
 
     private void refreshTable()
     {
-        changeModel = new ChangesTableModel(guiContext.cfg);
+        changeModel = new ChangesTableModel(context);
         tableChanges.removeAll();
         if (changeStrings != null && changeStrings.length > 0)
         {
@@ -921,11 +921,11 @@ public class RenamerUI extends JDialog
         }
         catch (Exception e)
         {
-            String msg = guiContext.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-            if (guiContext != null)
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (context.navigator != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(guiContext.navigator.dialogRenamer, msg, guiContext.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.navigator.dialogRenamer, msg, context.cfg.gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -934,12 +934,12 @@ public class RenamerUI extends JDialog
 
     private void savePreferences()
     {
-        guiContext.preferences.setToolsRenamerHeight(this.getHeight());
-        guiContext.preferences.setToolsRenamerWidth(this.getWidth());
+        context.preferences.setToolsRenamerHeight(this.getHeight());
+        context.preferences.setToolsRenamerWidth(this.getWidth());
         Point location = this.getLocation();
-        guiContext.preferences.setToolsRenamerXpos(location.x);
-        guiContext.preferences.setToolsRenamerYpos(location.y);
-        guiContext.preferences.setToolsRenamerDividerLocation(splitPaneContent.getDividerLocation());
+        context.preferences.setToolsRenamerXpos(location.x);
+        context.preferences.setToolsRenamerYpos(location.y);
+        context.preferences.setToolsRenamerDividerLocation(splitPaneContent.getDividerLocation());
     }
 
     public void setComponentEnabled(boolean enabled)
@@ -1297,7 +1297,7 @@ public class RenamerUI extends JDialog
         buttonGroupChangeCase = new ButtonGroup();
 
         //======== this ========
-        setTitle(guiContext.cfg.gs("Renamer.title"));
+        setTitle(context.cfg.gs("Renamer.title"));
         setName("renamerUI");
         setMinimumSize(new Dimension(150, 126));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -1335,23 +1335,23 @@ public class RenamerUI extends JDialog
                         panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                         //---- buttonNew ----
-                        buttonNew.setText(guiContext.cfg.gs("Renamer.button.New.text"));
-                        buttonNew.setMnemonic(guiContext.cfg.gs("Renamer.button.New.mnemonic").charAt(0));
-                        buttonNew.setToolTipText(guiContext.cfg.gs("Renamer.button.New.toolTipText"));
+                        buttonNew.setText(context.cfg.gs("Renamer.button.New.text"));
+                        buttonNew.setMnemonic(context.cfg.gs("Renamer.button.New.mnemonic").charAt(0));
+                        buttonNew.setToolTipText(context.cfg.gs("Renamer.button.New.toolTipText"));
                         buttonNew.addActionListener(e -> actionNewClicked(e));
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
-                        buttonCopy.setText(guiContext.cfg.gs("Renamer.button.Copy.text"));
-                        buttonCopy.setMnemonic(guiContext.cfg.gs("Renamer.button.Copy.mnemonic").charAt(0));
-                        buttonCopy.setToolTipText(guiContext.cfg.gs("Renamer.button.Copy.toolTipText"));
+                        buttonCopy.setText(context.cfg.gs("Renamer.button.Copy.text"));
+                        buttonCopy.setMnemonic(context.cfg.gs("Renamer.button.Copy.mnemonic").charAt(0));
+                        buttonCopy.setToolTipText(context.cfg.gs("Renamer.button.Copy.toolTipText"));
                         buttonCopy.addActionListener(e -> actionCopyClicked(e));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText(guiContext.cfg.gs("Renamer.button.Delete.text"));
-                        buttonDelete.setMnemonic(guiContext.cfg.gs("Renamer.button.Delete.mnemonic").charAt(0));
-                        buttonDelete.setToolTipText(guiContext.cfg.gs("Renamer.button.Delete.toolTipText"));
+                        buttonDelete.setText(context.cfg.gs("Renamer.button.Delete.text"));
+                        buttonDelete.setMnemonic(context.cfg.gs("Renamer.button.Delete.mnemonic").charAt(0));
+                        buttonDelete.setToolTipText(context.cfg.gs("Renamer.button.Delete.toolTipText"));
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
 
@@ -1361,9 +1361,9 @@ public class RenamerUI extends JDialog
                         panelTopButtons.add(hSpacerBeforeRun);
 
                         //---- buttonRun ----
-                        buttonRun.setText(guiContext.cfg.gs("Renamer.button.Run.text"));
-                        buttonRun.setMnemonic(guiContext.cfg.gs("Renamer.button.Run.mnemonic").charAt(0));
-                        buttonRun.setToolTipText(guiContext.cfg.gs("Renamer.button.Run.toolTipText"));
+                        buttonRun.setText(context.cfg.gs("Renamer.button.Run.text"));
+                        buttonRun.setMnemonic(context.cfg.gs("Renamer.button.Run.mnemonic").charAt(0));
+                        buttonRun.setToolTipText(context.cfg.gs("Renamer.button.Run.toolTipText"));
                         buttonRun.addActionListener(e -> actionRunClicked(e));
                         panelTopButtons.add(buttonRun);
                     }
@@ -1380,7 +1380,7 @@ public class RenamerUI extends JDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(guiContext.cfg.gs("Renamer.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("Renamer.labelHelp.toolTipText"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {
@@ -1468,9 +1468,9 @@ public class RenamerUI extends JDialog
                                     panelCbOpts.setLayout(new BoxLayout(panelCbOpts, BoxLayout.X_AXIS));
 
                                     //---- checkBoxRecursive ----
-                                    checkBoxRecursive.setText(guiContext.cfg.gs("Renamer.checkBoxRecursive.text"));
+                                    checkBoxRecursive.setText(context.cfg.gs("Renamer.checkBoxRecursive.text"));
                                     checkBoxRecursive.setHorizontalAlignment(SwingConstants.CENTER);
-                                    checkBoxRecursive.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxRecursive.toolTipText"));
+                                    checkBoxRecursive.setToolTipText(context.cfg.gs("Renamer.checkBoxRecursive.toolTipText"));
                                     checkBoxRecursive.setActionCommand("recursiveChanged");
                                     checkBoxRecursive.setPreferredSize(new Dimension(120, 21));
                                     checkBoxRecursive.setMaximumSize(new Dimension(32767, 21));
@@ -1479,13 +1479,13 @@ public class RenamerUI extends JDialog
                                     panelCbOpts.add(checkBoxRecursive);
 
                                     //---- checkBoxFilesOnly ----
-                                    checkBoxFilesOnly.setText(guiContext.cfg.gs("Renamer.checkBoxFilesOnly.text"));
+                                    checkBoxFilesOnly.setText(context.cfg.gs("Renamer.checkBoxFilesOnly.text"));
                                     checkBoxFilesOnly.setHorizontalAlignment(SwingConstants.CENTER);
                                     checkBoxFilesOnly.setAlignmentX(0.5F);
                                     checkBoxFilesOnly.setPreferredSize(new Dimension(120, 21));
                                     checkBoxFilesOnly.setMaximumSize(new Dimension(32767, 21));
                                     checkBoxFilesOnly.setActionCommand("filesOnlyChanged");
-                                    checkBoxFilesOnly.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxFilesOnly.toolTipText"));
+                                    checkBoxFilesOnly.setToolTipText(context.cfg.gs("Renamer.checkBoxFilesOnly.toolTipText"));
                                     checkBoxFilesOnly.addActionListener(e -> actionFilesOnlyClicked(e));
                                     panelCbOpts.add(checkBoxFilesOnly);
                                 }
@@ -1549,27 +1549,27 @@ public class RenamerUI extends JDialog
                                             panelCaseChangeCard.setLayout(new GridLayout(2, 2));
 
                                             //---- radioButtonFirstUpperCase ----
-                                            radioButtonFirstUpperCase.setText(guiContext.cfg.gs("Renamer.radioButtonFirstUpperCase.text"));
+                                            radioButtonFirstUpperCase.setText(context.cfg.gs("Renamer.radioButtonFirstUpperCase.text"));
                                             radioButtonFirstUpperCase.setHorizontalAlignment(SwingConstants.CENTER);
                                             radioButtonFirstUpperCase.setActionCommand("firstupper");
                                             radioButtonFirstUpperCase.addActionListener(e -> actionCaseChangeClicked(e));
                                             panelCaseChangeCard.add(radioButtonFirstUpperCase);
 
                                             //---- radioButtonLowerCase ----
-                                            radioButtonLowerCase.setText(guiContext.cfg.gs("Renamer.radioButtonLowerCase.text"));
+                                            radioButtonLowerCase.setText(context.cfg.gs("Renamer.radioButtonLowerCase.text"));
                                             radioButtonLowerCase.setHorizontalAlignment(SwingConstants.CENTER);
                                             radioButtonLowerCase.addActionListener(e -> actionCaseChangeClicked(e));
                                             panelCaseChangeCard.add(radioButtonLowerCase);
 
                                             //---- radioButtonTitleCase ----
-                                            radioButtonTitleCase.setText(guiContext.cfg.gs("Renamer.radioButtonTitleCase.text"));
+                                            radioButtonTitleCase.setText(context.cfg.gs("Renamer.radioButtonTitleCase.text"));
                                             radioButtonTitleCase.setHorizontalAlignment(SwingConstants.CENTER);
                                             radioButtonTitleCase.setActionCommand("titlecase");
                                             radioButtonTitleCase.addActionListener(e -> actionCaseChangeClicked(e));
                                             panelCaseChangeCard.add(radioButtonTitleCase);
 
                                             //---- radioButtonUpperCase ----
-                                            radioButtonUpperCase.setText(guiContext.cfg.gs("Renamer.radioButtonUpperCase.text"));
+                                            radioButtonUpperCase.setText(context.cfg.gs("Renamer.radioButtonUpperCase.text"));
                                             radioButtonUpperCase.setHorizontalAlignment(SwingConstants.CENTER);
                                             radioButtonUpperCase.setActionCommand("upper");
                                             radioButtonUpperCase.addActionListener(e -> actionCaseChangeClicked(e));
@@ -1593,7 +1593,7 @@ public class RenamerUI extends JDialog
                                             ((GridBagLayout)panelInsertCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
 
                                             //---- labelTextToInsert ----
-                                            labelTextToInsert.setText(guiContext.cfg.gs("Renamer.labelTextToInsert.text"));
+                                            labelTextToInsert.setText(context.cfg.gs("Renamer.labelTextToInsert.text"));
                                             labelTextToInsert.setHorizontalAlignment(SwingConstants.RIGHT);
                                             panelInsertCard.add(labelTextToInsert, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1602,7 +1602,7 @@ public class RenamerUI extends JDialog
                                             //---- textFieldToInsert ----
                                             textFieldToInsert.setPreferredSize(new Dimension(320, 30));
                                             textFieldToInsert.setMinimumSize(new Dimension(50, 30));
-                                            textFieldToInsert.setToolTipText(guiContext.cfg.gs("Renamer.textFieldToInsert.toolTipText"));
+                                            textFieldToInsert.setToolTipText(context.cfg.gs("Renamer.textFieldToInsert.toolTipText"));
                                             textFieldToInsert.setName("text1");
                                             textFieldToInsert.addActionListener(e -> genericAction(e));
                                             textFieldToInsert.addKeyListener(new KeyAdapter() {
@@ -1622,7 +1622,7 @@ public class RenamerUI extends JDialog
                                                 new Insets(0, 0, 0, 0), 0, 0));
 
                                             //---- labelInsertPosition ----
-                                            labelInsertPosition.setText(guiContext.cfg.gs("Renamer.labelInsertPosition.text"));
+                                            labelInsertPosition.setText(context.cfg.gs("Renamer.labelInsertPosition.text"));
                                             labelInsertPosition.setHorizontalAlignment(SwingConstants.RIGHT);
                                             panelInsertCard.add(labelInsertPosition, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1636,7 +1636,7 @@ public class RenamerUI extends JDialog
                                                 textFieldInsertPosition.setMinimumSize(new Dimension(96, 30));
                                                 textFieldInsertPosition.setPreferredSize(new Dimension(96, 30));
                                                 textFieldInsertPosition.setMaximumSize(new Dimension(96, 30));
-                                                textFieldInsertPosition.setToolTipText(guiContext.cfg.gs("Renamer.textFieldInsertPosition.toolTipText"));
+                                                textFieldInsertPosition.setToolTipText(context.cfg.gs("Renamer.textFieldInsertPosition.toolTipText"));
                                                 textFieldInsertPosition.setName("text2");
                                                 textFieldInsertPosition.addKeyListener(new KeyAdapter() {
                                                     @Override
@@ -1659,8 +1659,8 @@ public class RenamerUI extends JDialog
                                                 panelInsertPostion.add(hSpacer3);
 
                                                 //---- checkBoxInsertFromEnd ----
-                                                checkBoxInsertFromEnd.setText(guiContext.cfg.gs("Renamer.checkBoxInsertFromEnd.text"));
-                                                checkBoxInsertFromEnd.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxInsertFromEnd.toolTipText"));
+                                                checkBoxInsertFromEnd.setText(context.cfg.gs("Renamer.checkBoxInsertFromEnd.text"));
+                                                checkBoxInsertFromEnd.setToolTipText(context.cfg.gs("Renamer.checkBoxInsertFromEnd.toolTipText"));
                                                 checkBoxInsertFromEnd.setName("option1");
                                                 checkBoxInsertFromEnd.addKeyListener(new KeyAdapter() {
                                                     @Override
@@ -1677,8 +1677,8 @@ public class RenamerUI extends JDialog
                                                 panelInsertPostion.add(hSpacer7);
 
                                                 //---- checkBoxInsertAtEnd ----
-                                                checkBoxInsertAtEnd.setText(guiContext.cfg.gs("Renamer.checkBoxInsertAtEnd.text"));
-                                                checkBoxInsertAtEnd.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxInsertAtEnd.toolTipText"));
+                                                checkBoxInsertAtEnd.setText(context.cfg.gs("Renamer.checkBoxInsertAtEnd.text"));
+                                                checkBoxInsertAtEnd.setToolTipText(context.cfg.gs("Renamer.checkBoxInsertAtEnd.toolTipText"));
                                                 checkBoxInsertAtEnd.setName("option2");
                                                 checkBoxInsertAtEnd.addKeyListener(new KeyAdapter() {
                                                     @Override
@@ -1700,7 +1700,7 @@ public class RenamerUI extends JDialog
                                                 panelInsertOther.setLayout(new GridLayout(1, 0, 8, 0));
 
                                                 //---- checkBoxInsertOverwrite ----
-                                                checkBoxInsertOverwrite.setText(guiContext.cfg.gs("Renamer.checkBoxInsertOverwrite.text"));
+                                                checkBoxInsertOverwrite.setText(context.cfg.gs("Renamer.checkBoxInsertOverwrite.text"));
                                                 checkBoxInsertOverwrite.setMargin(new Insets(2, 6, 2, 2));
                                                 checkBoxInsertOverwrite.setName("option3");
                                                 checkBoxInsertOverwrite.addKeyListener(new KeyAdapter() {
@@ -1734,7 +1734,7 @@ public class RenamerUI extends JDialog
                                             ((GridBagLayout)panelNumberingCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
 
                                             //---- labelStart ----
-                                            labelStart.setText(guiContext.cfg.gs("Renamer.labelStart.text"));
+                                            labelStart.setText(context.cfg.gs("Renamer.labelStart.text"));
                                             labelStart.setHorizontalAlignment(SwingConstants.RIGHT);
                                             panelNumberingCard.add(labelStart, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1749,7 +1749,7 @@ public class RenamerUI extends JDialog
                                                 textFieldNumberingStart.setMinimumSize(new Dimension(96, 30));
                                                 textFieldNumberingStart.setMaximumSize(new Dimension(96, 30));
                                                 textFieldNumberingStart.setText("1");
-                                                textFieldNumberingStart.setToolTipText(guiContext.cfg.gs("Renamer.textFieldNumberingStart.toolTipText"));
+                                                textFieldNumberingStart.setToolTipText(context.cfg.gs("Renamer.textFieldNumberingStart.toolTipText"));
                                                 textFieldNumberingStart.setName("text1");
                                                 textFieldNumberingStart.addKeyListener(new KeyAdapter() {
                                                     @Override
@@ -1773,7 +1773,7 @@ public class RenamerUI extends JDialog
                                                 panelNums.add(hSpacer5);
 
                                                 //---- labelZeros ----
-                                                labelZeros.setText(guiContext.cfg.gs("Renamer.labelZeros.text"));
+                                                labelZeros.setText(context.cfg.gs("Renamer.labelZeros.text"));
                                                 panelNums.add(labelZeros);
 
                                                 //---- textFieldNumberingZeros ----
@@ -1781,7 +1781,7 @@ public class RenamerUI extends JDialog
                                                 textFieldNumberingZeros.setMinimumSize(new Dimension(96, 30));
                                                 textFieldNumberingZeros.setMaximumSize(new Dimension(96, 30));
                                                 textFieldNumberingZeros.setText("1");
-                                                textFieldNumberingZeros.setToolTipText(guiContext.cfg.gs("Renamer.textFieldNumberingZeros.toolTipText"));
+                                                textFieldNumberingZeros.setToolTipText(context.cfg.gs("Renamer.textFieldNumberingZeros.toolTipText"));
                                                 textFieldNumberingZeros.setName("text2");
                                                 textFieldNumberingZeros.addKeyListener(new KeyAdapter() {
                                                     @Override
@@ -1803,7 +1803,7 @@ public class RenamerUI extends JDialog
                                                 new Insets(0, 0, 0, 0), 0, 0));
 
                                             //---- labelNumberingPosition ----
-                                            labelNumberingPosition.setText(guiContext.cfg.gs("Renamer.labelNumberingPosition.text_2"));
+                                            labelNumberingPosition.setText(context.cfg.gs("Renamer.labelNumberingPosition.text_2"));
                                             labelNumberingPosition.setHorizontalAlignment(SwingConstants.RIGHT);
                                             panelNumberingCard.add(labelNumberingPosition, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1839,7 +1839,7 @@ public class RenamerUI extends JDialog
                                                 panelNumberingPostion.add(hSpacer4);
 
                                                 //---- checkBoxNumberingFromEnd ----
-                                                checkBoxNumberingFromEnd.setText(guiContext.cfg.gs("Renamer.checkBoxNumberingFromEnd.text_2"));
+                                                checkBoxNumberingFromEnd.setText(context.cfg.gs("Renamer.checkBoxNumberingFromEnd.text_2"));
                                                 checkBoxNumberingFromEnd.setName("option1");
                                                 checkBoxNumberingFromEnd.addKeyListener(new KeyAdapter() {
                                                     @Override
@@ -1856,8 +1856,8 @@ public class RenamerUI extends JDialog
                                                 panelNumberingPostion.add(hSpacer8);
 
                                                 //---- checkBoxNumberingAtEnd ----
-                                                checkBoxNumberingAtEnd.setText(guiContext.cfg.gs("Renamer.checkBoxNumberingAtEnd.text"));
-                                                checkBoxNumberingAtEnd.setToolTipText(guiContext.cfg.gs("Renamer.checkBoxNumberingAtEnd.toolTipText"));
+                                                checkBoxNumberingAtEnd.setText(context.cfg.gs("Renamer.checkBoxNumberingAtEnd.text"));
+                                                checkBoxNumberingAtEnd.setToolTipText(context.cfg.gs("Renamer.checkBoxNumberingAtEnd.toolTipText"));
                                                 checkBoxNumberingAtEnd.setName("option2");
                                                 checkBoxNumberingAtEnd.addKeyListener(new KeyAdapter() {
                                                     @Override
@@ -1879,7 +1879,7 @@ public class RenamerUI extends JDialog
                                                 panelNumberingOther.setLayout(new GridLayout(1, 0, 8, 0));
 
                                                 //---- checkBoxNumberingOverwrite ----
-                                                checkBoxNumberingOverwrite.setText(guiContext.cfg.gs("Renamer.checkBoxNumberingOverwrite.text_2"));
+                                                checkBoxNumberingOverwrite.setText(context.cfg.gs("Renamer.checkBoxNumberingOverwrite.text_2"));
                                                 checkBoxNumberingOverwrite.setMargin(new Insets(2, 6, 2, 2));
                                                 checkBoxNumberingOverwrite.setName("option3");
                                                 checkBoxNumberingOverwrite.addKeyListener(new KeyAdapter() {
@@ -1913,7 +1913,7 @@ public class RenamerUI extends JDialog
                                             ((GridBagLayout)panelRemoveCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
 
                                             //---- labelFrom ----
-                                            labelFrom.setText(guiContext.cfg.gs("Renamer.labelFrom.text"));
+                                            labelFrom.setText(context.cfg.gs("Renamer.labelFrom.text"));
                                             labelFrom.setHorizontalAlignment(SwingConstants.RIGHT);
                                             panelRemoveCard.add(labelFrom, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1950,7 +1950,7 @@ public class RenamerUI extends JDialog
                                                 new Insets(0, 0, 0, 0), 0, 0));
 
                                             //---- labelLength ----
-                                            labelLength.setText(guiContext.cfg.gs("Renamer.labelLength.text"));
+                                            labelLength.setText(context.cfg.gs("Renamer.labelLength.text"));
                                             labelLength.setHorizontalAlignment(SwingConstants.RIGHT);
                                             panelRemoveCard.add(labelLength, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1985,7 +1985,7 @@ public class RenamerUI extends JDialog
                                                 panelRemoveOther.setLayout(new GridLayout(1, 2, 8, 0));
 
                                                 //---- checkBoxRemoveFromEnd ----
-                                                checkBoxRemoveFromEnd.setText(guiContext.cfg.gs("Renamer.checkBoxRemoveFromEnd.text"));
+                                                checkBoxRemoveFromEnd.setText(context.cfg.gs("Renamer.checkBoxRemoveFromEnd.text"));
                                                 checkBoxRemoveFromEnd.setMargin(new Insets(2, 6, 2, 6));
                                                 checkBoxRemoveFromEnd.setPreferredSize(new Dimension(98, 21));
                                                 checkBoxRemoveFromEnd.setMinimumSize(new Dimension(98, 21));
@@ -2022,7 +2022,7 @@ public class RenamerUI extends JDialog
                                             ((GridBagLayout)panelReplaceCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
 
                                             //---- labelFind ----
-                                            labelFind.setText(guiContext.cfg.gs("Renamer.labelFind.text"));
+                                            labelFind.setText(context.cfg.gs("Renamer.labelFind.text"));
                                             labelFind.setHorizontalAlignment(SwingConstants.RIGHT);
                                             panelReplaceCard.add(labelFind, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2050,7 +2050,7 @@ public class RenamerUI extends JDialog
                                                 new Insets(0, 0, 0, 0), 0, 0));
 
                                             //---- labeReplace ----
-                                            labeReplace.setText(guiContext.cfg.gs("Renamer.labelReplace.text"));
+                                            labeReplace.setText(context.cfg.gs("Renamer.labelReplace.text"));
                                             labeReplace.setHorizontalAlignment(SwingConstants.TRAILING);
                                             panelReplaceCard.add(labeReplace, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2084,7 +2084,7 @@ public class RenamerUI extends JDialog
                                                 panelReplaceOther.setLayout(new GridLayout(1, 0, 8, 0));
 
                                                 //---- checkBoxRegularExpr ----
-                                                checkBoxRegularExpr.setText(guiContext.cfg.gs("Renamer.checkBoxRegularExpr.text"));
+                                                checkBoxRegularExpr.setText(context.cfg.gs("Renamer.checkBoxRegularExpr.text"));
                                                 checkBoxRegularExpr.setMargin(new Insets(2, 6, 2, 6));
                                                 checkBoxRegularExpr.setName("option1");
                                                 checkBoxRegularExpr.addActionListener(e -> genericAction(e));
@@ -2097,7 +2097,7 @@ public class RenamerUI extends JDialog
                                                 panelReplaceOther.add(checkBoxRegularExpr);
 
                                                 //---- checkBoxCase ----
-                                                checkBoxCase.setText(guiContext.cfg.gs("Renamer.checkBoxCase.text"));
+                                                checkBoxCase.setText(context.cfg.gs("Renamer.checkBoxCase.text"));
                                                 checkBoxCase.setMargin(new Insets(2, 6, 2, 2));
                                                 checkBoxCase.setName("option2");
                                                 checkBoxCase.addActionListener(e -> genericAction(e));
@@ -2140,7 +2140,7 @@ public class RenamerUI extends JDialog
                             ));
                             tableChanges.setFillsViewportHeight(true);
                             tableChanges.setFocusable(false);
-                            tableChanges.setToolTipText(guiContext.cfg.gs("Renamer.tableChanges.toolTipText"));
+                            tableChanges.setToolTipText(context.cfg.gs("Renamer.tableChanges.toolTipText"));
                             scrollPaneExamples.setViewportView(tableChanges);
                         }
                         panelOptions.add(scrollPaneExamples, BorderLayout.CENTER);
@@ -2150,13 +2150,13 @@ public class RenamerUI extends JDialog
                             panelOptionsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                             //---- buttonRefresh ----
-                            buttonRefresh.setText(guiContext.cfg.gs("Z.refresh"));
+                            buttonRefresh.setText(context.cfg.gs("Z.refresh"));
                             buttonRefresh.setFont(buttonRefresh.getFont().deriveFont(buttonRefresh.getFont().getSize() - 2f));
                             buttonRefresh.setPreferredSize(new Dimension(78, 24));
                             buttonRefresh.setMinimumSize(new Dimension(78, 24));
                             buttonRefresh.setMaximumSize(new Dimension(78, 24));
-                            buttonRefresh.setMnemonic(guiContext.cfg.gs("Renamer.buttonRefresh.mnemonic").charAt(0));
-                            buttonRefresh.setToolTipText(guiContext.cfg.gs("Z.refresh.tooltip.text"));
+                            buttonRefresh.setMnemonic(context.cfg.gs("Renamer.buttonRefresh.mnemonic").charAt(0));
+                            buttonRefresh.setToolTipText(context.cfg.gs("Z.refresh.tooltip.text"));
                             buttonRefresh.addActionListener(e -> actionRefreshClicked(e));
                             panelOptionsButtons.add(buttonRefresh);
                         }
@@ -2176,16 +2176,16 @@ public class RenamerUI extends JDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
                 //---- saveButton ----
-                saveButton.setText(guiContext.cfg.gs("Z.save"));
-                saveButton.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                saveButton.setText(context.cfg.gs("Z.save"));
+                saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
                 saveButton.addActionListener(e -> actionSaveClicked(e));
                 buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 2), 0, 0));
 
                 //---- cancelButton ----
-                cancelButton.setText(guiContext.cfg.gs("Z.cancel"));
-                cancelButton.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                cancelButton.setText(context.cfg.gs("Z.cancel"));
+                cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
                 cancelButton.addActionListener(e -> actionCancelClicked(e));
                 buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,

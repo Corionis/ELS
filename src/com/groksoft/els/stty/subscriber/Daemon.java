@@ -38,12 +38,11 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     /**
      * Instantiate the Daemon service
      *
-     * @param config
-     * @param ctxt
+     * @param context   The Context
      */
-    public Daemon(Configuration config, Context ctxt, Repository mine, Repository theirs)
+    public Daemon(Context context, Repository mine, Repository theirs)
     {
-        super(config, ctxt, mine, theirs);
+        super(context, mine, theirs);
     } // constructor
 
     /**
@@ -172,7 +171,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         String line;
         String basePrompt = ": ";
         String prompt = basePrompt;
-        boolean trace = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
+        boolean trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
 
         port = getSocket().getPort();
         address = getSocket().getInetAddress();
@@ -180,18 +179,18 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         // Get ELS Authorization Keys if specified
         try
         {
-            if (cfg.getAuthKeysFile().length() > 0)
+            if (context.cfg.getAuthKeysFile().length() > 0)
             {
-                context.authKeys = new HintKeys(cfg, context);
-                context.authKeys.read(cfg.getAuthKeysFile());
+                context.authKeys = new HintKeys(context);
+                context.authKeys.read(context.cfg.getAuthKeysFile());
             }
 
             // Get ELS hints keys & Tracker if specified
-            if (cfg.getHintKeysFile().length() > 0)
+            if (context.cfg.getHintKeysFile().length() > 0)
             {
-                context.hintKeys = new HintKeys(cfg, context);
-                context.hintKeys.read(cfg.getHintKeysFile());
-                hints = new Hints(cfg, context, context.hintKeys);
+                context.hintKeys = new HintKeys(context);
+                context.hintKeys.read(context.cfg.getHintKeysFile());
+                hints = new Hints(context, context.hintKeys);
             }
         }
         catch (Exception e)
@@ -201,7 +200,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         }
 
         // setup i/o
-        context.transfer = new Transfer(cfg, context);
+        context.transfer = new Transfer(context);
 
         getSocket().setKeepAlive(true); // keep alive to avoid time-out
         getSocket().setSoTimeout(myRepo.getLibraryData().libraries.timeout * 60 * 1000); // read time-out
@@ -232,13 +231,13 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 response = "CMD";
 
                 //  -S Subscriber collection file
-                if (cfg.isForceCollection())
+                if (context.cfg.isForceCollection())
                 {
                     response = response + ":RequestCollection";
                 }
 
                 //  -t Subscriber targets
-                if (cfg.isForceTargets())
+                if (context.cfg.isForceTargets())
                 {
                     response = response + ":RequestTargets";
                 }
@@ -268,7 +267,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         line = receive(trace ? "Reading command" : "", -1);
                         if (line == null)
                         {
-                            if (!cfg.isKeepGoing())
+                            if (!context.cfg.isKeepGoing())
                             {
                                 fault = true; // exit on EOF
                                 stop = true;
@@ -302,7 +301,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             String pw = "";
                             if (t.hasMoreTokens())
                                 pw = t.nextToken(); // get the password
-                            if (cfg.getAuthorizedPassword().equals(pw.trim()))
+                            if (context.cfg.getAuthorizedPassword().equals(pw.trim()))
                             {
                                 response = "password accepted\r\n";
                                 authorized = true;
@@ -367,12 +366,12 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                 else
                                     location = fn;
                                 location += "_collection-generated" + stamp + ".json";
-                                cfg.setExportCollectionFilename(location);
+                                context.cfg.setExportCollectionFilename(location);
 
                                 for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
                                 {
-                                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
+                                    if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(subLib.name)) &&
+                                            (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name)))
                                     {
                                         if (subLib.items != null)
                                         {
@@ -570,7 +569,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             Thread.sleep(1000);
 
                             // if this is the first command or keep going is not enabled then stop
-                            if (commandCount == 1 || !cfg.isKeepGoing())
+                            if (commandCount == 1 || !context.cfg.isKeepGoing())
                                 stop = true;
                             else
                                 logger.info("Ignoring quit command, --listener-keep-going enabled");
@@ -637,10 +636,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             {
                                 location = t.nextToken();
                                 long space = Utils.availableSpace(location);
-                                logger.info("  space: " + Utils.formatLong(space, true, cfg.getLongScale()) + " at " + location);
+                                logger.info("  space: " + Utils.formatLong(space, true, context.cfg.getLongScale()) + " at " + location);
                                 if (isTerminal)
                                 {
-                                    response = Utils.formatLong(space, true, cfg.getLongScale());
+                                    response = Utils.formatLong(space, true, context.cfg.getLongScale());
                                 }
                                 else
                                 {
@@ -674,9 +673,9 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         {
                             try
                             {
-                                if (cfg.getTargetsFilename().length() > 0)
+                                if (context.cfg.getTargetsFilename().length() > 0)
                                 {
-                                    response = new String(Files.readAllBytes(Paths.get(cfg.getTargetsFilename())));
+                                    response = new String(Files.readAllBytes(Paths.get(context.cfg.getTargetsFilename())));
                                 }
                                 else
                                 {

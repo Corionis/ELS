@@ -1,6 +1,5 @@
 package com.groksoft.els.stty.hintServer;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.repository.Item;
@@ -26,7 +25,6 @@ public class Datastore
     private final transient Logger logger = LogManager.getLogger("applog");
     private final Marker SHORT = MarkerManager.getMarker("SHORT");
     private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
-    private Configuration cfg;
     private Context context;
     private String statusDirectory;
     private Library statusLibrary;
@@ -34,13 +32,11 @@ public class Datastore
     /**
      * Constructor
      *
-     * @param config Configuration
-     * @param ctx    Context
+     * @param context    Context
      */
-    public Datastore(Configuration config, Context ctx)
+    public Datastore(Context context)
     {
-        cfg = config;
-        context = ctx;
+        this.context = context;
     }
 
     /**

@@ -2,7 +2,6 @@ package com.groksoft.els.gui;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
@@ -113,158 +112,157 @@ public class Preferences implements Serializable
     private int toolsRenamerWidth = 570;
     private int toolsRenamerXpos = -1;
     private int toolsRenamerYpos = -1;
-    private transient Configuration cfg;
     private transient Context context;
 
     /**
      * Constructor
      */
-    public Preferences(Configuration config, Context ctx)
+    public Preferences(Context context)
     {
-        cfg = config;
-        context = ctx;
+        this.context = context;
+        this.context.preferences = this;
     }
 
-    public void extractColumnSizes(GuiContext guiContext, JTable table)
+    public void extractColumnSizes(Context context, JTable table)
     {
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionOne"))
         {
-            if (guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
             {
-                collectionOneNameWidth = guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).getWidth();
-                collectionOneSizeWidth = guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).getWidth();
-                collectionOneDateWidth = guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).getWidth();
+                collectionOneNameWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).getWidth();
+                collectionOneSizeWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).getWidth();
+                collectionOneDateWidth = context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).getWidth();
             }
         }
 
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionTwo"))
         {
-            if (guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
             {
-                collectionTwoNameWidth = guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).getWidth();
-                collectionTwoSizeWidth = guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).getWidth();
-                collectionTwoDateWidth = guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).getWidth();
+                collectionTwoNameWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).getWidth();
+                collectionTwoSizeWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).getWidth();
+                collectionTwoDateWidth = context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).getWidth();
             }
         }
 
         if (table == null || table.getName().equalsIgnoreCase("tableSystemOne"))
         {
-            if (guiContext.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
             {
-                systemOneNameWidth = guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(1).getWidth();
-                systemOneSizeWidth = guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(2).getWidth();
-                systemOneDateWidth = guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(3).getWidth();
+                systemOneNameWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).getWidth();
+                systemOneSizeWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).getWidth();
+                systemOneDateWidth = context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).getWidth();
             }
         }
 
         if (table == null || table.getName().equalsIgnoreCase("tableSystemTwo"))
         {
-            if (guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
             {
-                systemTwoNameWidth = guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).getWidth();
-                systemTwoSizeWidth = guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).getWidth();
-                systemTwoDateWidth = guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).getWidth();
+                systemTwoNameWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).getWidth();
+                systemTwoSizeWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).getWidth();
+                systemTwoDateWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).getWidth();
             }
         }
     }
 
-    public void fixApplication(GuiContext guiContext)
+    public void fixApplication(Context context)
     {
         // set position and size
-        if (guiContext.preferences.getAppXpos() > -1)
-            guiContext.mainFrame.setLocation(guiContext.preferences.getAppXpos(), guiContext.preferences.getAppYpos());
-        if (guiContext.preferences.getAppWidth() > -1)
-            guiContext.mainFrame.setSize(guiContext.preferences.getAppWidth(), guiContext.preferences.getAppHeight());
+        if (context.preferences.getAppXpos() > -1)
+            context.mainFrame.setLocation(context.preferences.getAppXpos(), context.preferences.getAppYpos());
+        if (context.preferences.getAppWidth() > -1)
+            context.mainFrame.setSize(context.preferences.getAppWidth(), context.preferences.getAppHeight());
 
         // dividers
         // the bottom divider is handler elsewhere
-        guiContext.mainFrame.splitPaneTwoBrowsers.setOrientation(guiContext.preferences.getCenterDividerOrientation());
-        guiContext.mainFrame.splitPaneTwoBrowsers.setDividerLocation(guiContext.preferences.getCenterDividerLocation());
-        guiContext.mainFrame.splitPaneCollectionOne.setDividerLocation(guiContext.preferences.getCollectionOneDividerLocation());
-        guiContext.mainFrame.splitPaneCollectionTwo.setDividerLocation(guiContext.preferences.getCollectionTwoDividerLocation());
-        guiContext.mainFrame.splitPaneSystemOne.setDividerLocation(guiContext.preferences.getSystemOneDividerLocation());
-        guiContext.mainFrame.splitPaneSystemTwo.setDividerLocation(guiContext.preferences.getSystemTwoDividerLocation());
+        context.mainFrame.splitPaneTwoBrowsers.setOrientation(context.preferences.getCenterDividerOrientation());
+        context.mainFrame.splitPaneTwoBrowsers.setDividerLocation(context.preferences.getCenterDividerLocation());
+        context.mainFrame.splitPaneCollectionOne.setDividerLocation(context.preferences.getCollectionOneDividerLocation());
+        context.mainFrame.splitPaneCollectionTwo.setDividerLocation(context.preferences.getCollectionTwoDividerLocation());
+        context.mainFrame.splitPaneSystemOne.setDividerLocation(context.preferences.getSystemOneDividerLocation());
+        context.mainFrame.splitPaneSystemTwo.setDividerLocation(context.preferences.getSystemTwoDividerLocation());
 
-        fixColumnSizes(guiContext, null);
+        fixColumnSizes(context, null);
     }
 
     /**
      * Fix (set) the position of the Browser bottom divider
      *
-     * @param guiContext
+     * @param context
      * @param bottomSize If < 0 use the bottomSize from Preferences
      */
-    public void fixBrowserDivider(GuiContext guiContext, int bottomSize)
+    public void fixBrowserDivider(Context context, int bottomSize)
     {
         if (bottomSize < 0)
-            bottomSize = guiContext.preferences.getBrowserBottomSize();
+            bottomSize = context.preferences.getBrowserBottomSize();
 
-        int whole = guiContext.mainFrame.splitPaneBrowser.getHeight();
-        int divider = guiContext.mainFrame.splitPaneBrowser.getDividerSize();
+        int whole = context.mainFrame.splitPaneBrowser.getHeight();
+        int divider = context.mainFrame.splitPaneBrowser.getDividerSize();
         int pos = whole - divider - bottomSize;
-        guiContext.mainFrame.splitPaneBrowser.setDividerLocation(pos);
+        context.mainFrame.splitPaneBrowser.setDividerLocation(pos);
     }
 
-    public void fixColumnSizes(GuiContext guiContext, JTable table)
+    public void fixColumnSizes(Context context, JTable table)
     {
         // column sizes
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionOne"))
         {
-            if (guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
             {
-                guiContext.mainFrame.splitPaneCollectionOne.setDividerLocation(guiContext.preferences.getCollectionOneDividerLocation());
-                guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setPreferredWidth(guiContext.preferences.getCollectionOneNameWidth());
-                guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setWidth(guiContext.preferences.getCollectionOneNameWidth());
-                guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setPreferredWidth(guiContext.preferences.getCollectionOneSizeWidth());
-                guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getCollectionOneSizeWidth());
-                guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getCollectionOneDateWidth());
-                guiContext.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getCollectionOneDateWidth());
-                setTableSort(guiContext.mainFrame.tableCollectionOne, getCollectionOneSortColumn(), getCollectionOneSortDirection());
+                context.mainFrame.splitPaneCollectionOne.setDividerLocation(context.preferences.getCollectionOneDividerLocation());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getCollectionOneNameWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setWidth(context.preferences.getCollectionOneNameWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getCollectionOneSizeWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setWidth(context.preferences.getCollectionOneSizeWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getCollectionOneDateWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(context.preferences.getCollectionOneDateWidth());
+                setTableSort(context.mainFrame.tableCollectionOne, getCollectionOneSortColumn(), getCollectionOneSortDirection());
             }
         }
 
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionTwo"))
         {
-            if (guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
             {
-                guiContext.mainFrame.splitPaneCollectionTwo.setDividerLocation(guiContext.preferences.getCollectionTwoDividerLocation());
-                guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(guiContext.preferences.getCollectionTwoNameWidth());
-                guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setWidth(guiContext.preferences.getCollectionTwoNameWidth());
-                guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setPreferredWidth(guiContext.preferences.getCollectionTwoSizeWidth());
-                guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getCollectionTwoSizeWidth());
-                guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getCollectionTwoDateWidth());
-                guiContext.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getCollectionTwoDateWidth());
-                setTableSort(guiContext.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
+                context.mainFrame.splitPaneCollectionTwo.setDividerLocation(context.preferences.getCollectionTwoDividerLocation());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getCollectionTwoNameWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setWidth(context.preferences.getCollectionTwoNameWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getCollectionTwoSizeWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setWidth(context.preferences.getCollectionTwoSizeWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getCollectionTwoDateWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(context.preferences.getCollectionTwoDateWidth());
+                setTableSort(context.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
             }
         }
 
         if (table == null || table.getName().equalsIgnoreCase("tableSystemOne"))
         {
-            if (guiContext.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
             {
-                guiContext.mainFrame.splitPaneSystemOne.setDividerLocation(guiContext.preferences.getSystemOneDividerLocation());
-                guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setPreferredWidth(guiContext.preferences.getSystemOneNameWidth());
-                guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setWidth(guiContext.preferences.getSystemOneNameWidth());
-                guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setPreferredWidth(guiContext.preferences.getSystemOneSizeWidth());
-                guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getSystemOneSizeWidth());
-                guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getSystemOneDateWidth());
-                guiContext.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getSystemOneDateWidth());
-                setTableSort(guiContext.mainFrame.tableSystemOne, getSystemOneSortColumn(), getSystemOneSortDirection());
+                context.mainFrame.splitPaneSystemOne.setDividerLocation(context.preferences.getSystemOneDividerLocation());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getSystemOneNameWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setWidth(context.preferences.getSystemOneNameWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getSystemOneSizeWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setWidth(context.preferences.getSystemOneSizeWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getSystemOneDateWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(context.preferences.getSystemOneDateWidth());
+                setTableSort(context.mainFrame.tableSystemOne, getSystemOneSortColumn(), getSystemOneSortDirection());
             }
         }
 
         if (table == null || table.getName().equalsIgnoreCase("tableSystemTwo"))
         {
-            if (guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
+            if (context.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
             {
-                guiContext.mainFrame.splitPaneSystemTwo.setDividerLocation(guiContext.preferences.getSystemTwoDividerLocation());
-                guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setPreferredWidth(guiContext.preferences.getSystemTwoNameWidth());
-                guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setWidth(guiContext.preferences.getSystemTwoNameWidth());
-                guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setPreferredWidth(guiContext.preferences.getSystemTwoSizeWidth());
-                guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setWidth(guiContext.preferences.getSystemTwoSizeWidth());
-                guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setPreferredWidth(guiContext.preferences.getSystemTwoDateWidth());
-                guiContext.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(guiContext.preferences.getSystemTwoDateWidth());
-                setTableSort(guiContext.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
+                context.mainFrame.splitPaneSystemTwo.setDividerLocation(context.preferences.getSystemTwoDividerLocation());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getSystemTwoNameWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setWidth(context.preferences.getSystemTwoNameWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getSystemTwoSizeWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setWidth(context.preferences.getSystemTwoSizeWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getSystemTwoDateWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(context.preferences.getSystemTwoDateWidth());
+                setTableSort(context.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
             }
         }
     }
@@ -272,18 +270,18 @@ public class Preferences implements Serializable
     /**
      * Fix (set) the position of the Operations bottom divider
      *
-     * @param guiContext
+     * @param context
      * @param bottomSize If < 0 use the bottomSize from Preferences
      */
-    public void fixOperationsDivider(GuiContext guiContext, int bottomSize)
+    public void fixOperationsDivider(Context context, int bottomSize)
     {
         if (bottomSize < 0)
-            bottomSize = guiContext.preferences.getOperationDividerBottomSize();
+            bottomSize = context.preferences.getOperationDividerBottomSize();
 
-        int whole = guiContext.mainFrame.splitPaneOperation.getHeight();
-        int divider = guiContext.mainFrame.splitPaneOperation.getDividerSize();
+        int whole = context.mainFrame.splitPaneOperation.getHeight();
+        int divider = context.mainFrame.splitPaneOperation.getDividerSize();
         int pos = whole - divider - bottomSize;
-        guiContext.mainFrame.splitPaneOperation.setDividerLocation(pos);
+        context.mainFrame.splitPaneOperation.setDividerLocation(pos);
     }
 
     public String getAccentColor()
@@ -852,9 +850,9 @@ public class Preferences implements Serializable
         this.centerDividerOrientation = centerDividerOrientation;
     }
 
-    public void setCfg(Configuration cfg)
+    public void setContext(Context context)
     {
-        this.cfg = cfg;
+        this.context = context;
     }
 
     public void setCollectionOneDateWidth(int collectionOneDateWidth)
@@ -1272,52 +1270,52 @@ public class Preferences implements Serializable
         this.toolsRenamerYpos = toolsRenamerYpos;
     }
 
-    public void write(GuiContext guiContext) throws Exception
+    public void write(Context context) throws Exception
     {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         // size & position
-        appWidth = guiContext.mainFrame.getWidth();
-        appHeight = guiContext.mainFrame.getHeight();
-        Point location = guiContext.mainFrame.getLocation();
+        appWidth = context.mainFrame.getWidth();
+        appHeight = context.mainFrame.getHeight();
+        Point location = context.mainFrame.getLocation();
         appXpos = location.x;
         appYpos = location.y;
 
         // dividers
-//        int whole = guiContext.form.splitPaneBrowser.getHeight();
-//        int divider = guiContext.form.splitPaneBrowser.getDividerSize();
-//        int pos = whole - divider - guiContext.preferences.getBrowserBottomSize();
+//        int whole = context.form.splitPaneBrowser.getHeight();
+//        int divider = context.form.splitPaneBrowser.getDividerSize();
+//        int pos = whole - divider - context.preferences.getBrowserBottomSize();
 //        browserBottomSize = pos;
-        centerDividerOrientation = guiContext.mainFrame.splitPaneTwoBrowsers.getOrientation();
-        centerDividerLocation = guiContext.mainFrame.splitPaneTwoBrowsers.getDividerLocation();
+        centerDividerOrientation = context.mainFrame.splitPaneTwoBrowsers.getOrientation();
+        centerDividerLocation = context.mainFrame.splitPaneTwoBrowsers.getDividerLocation();
 
         SortMeta sortMeta;
-        collectionOneDividerLocation = guiContext.mainFrame.splitPaneCollectionOne.getDividerLocation();
-        sortMeta = getTableSort(guiContext.mainFrame.tableCollectionOne);
+        collectionOneDividerLocation = context.mainFrame.splitPaneCollectionOne.getDividerLocation();
+        sortMeta = getTableSort(context.mainFrame.tableCollectionOne);
         collectionOneSortColumn = sortMeta.column;
         collectionOneSortDirection = sortMeta.direction;
 
-        systemOneDividerLocation = guiContext.mainFrame.splitPaneSystemOne.getDividerLocation();
-        sortMeta = getTableSort(guiContext.mainFrame.tableSystemOne);
+        systemOneDividerLocation = context.mainFrame.splitPaneSystemOne.getDividerLocation();
+        sortMeta = getTableSort(context.mainFrame.tableSystemOne);
         systemOneSortColumn = sortMeta.column;
         systemOneSortDirection = sortMeta.direction;
 
-        collectionTwoDividerLocation = guiContext.mainFrame.splitPaneCollectionTwo.getDividerLocation();
-        sortMeta = getTableSort(guiContext.mainFrame.tableCollectionTwo);
+        collectionTwoDividerLocation = context.mainFrame.splitPaneCollectionTwo.getDividerLocation();
+        sortMeta = getTableSort(context.mainFrame.tableCollectionTwo);
         collectionTwoSortColumn = sortMeta.column;
         collectionTwoSortDirection = sortMeta.direction;
 
-        systemTwoDividerLocation = guiContext.mainFrame.splitPaneSystemTwo.getDividerLocation();
-        sortMeta = getTableSort(guiContext.mainFrame.tableSystemTwo);
+        systemTwoDividerLocation = context.mainFrame.splitPaneSystemTwo.getDividerLocation();
+        sortMeta = getTableSort(context.mainFrame.tableSystemTwo);
         systemTwoSortColumn = sortMeta.column;
         systemTwoSortDirection = sortMeta.direction;
 
         // all columns
-        extractColumnSizes(guiContext, null);
+        extractColumnSizes(context, null);
 
         // other panels
-        guiContext.operationsUI.savePreferences();
+        context.operationsUI.savePreferences();
 
         json = gson.toJson(this);
         try

@@ -1,6 +1,7 @@
 package com.groksoft.els.gui;
 
 import com.formdev.flatlaf.*;
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.browser.BrowserTableModel;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
@@ -42,12 +43,13 @@ import java.util.Collections;
 public class MainFrame extends JFrame
 {
     private transient Logger logger = LogManager.getLogger("applog");
-    private GuiContext guiContext;
+    private Context context;
     private LookAndFeel laf;
 
-    public MainFrame(GuiContext guiContext)
+    public MainFrame(Context context)
     {
-        this.guiContext = guiContext;
+        this.context = context;
+        this.context.mainFrame = this;
 
         try
         {
@@ -57,27 +59,27 @@ public class MainFrame extends JFrame
 //            UIManager.put( "TabbedPane.tabSeparatorsFullHeight", true );
             UIManager.put( "Tree.showDefaultIcons", true );
 
-            if (guiContext.preferences.getLookAndFeel() == 0)
+            if (context.preferences.getLookAndFeel() == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
             {
-                laf = getLookAndFeel(guiContext.preferences.getLookAndFeel());
+                laf = getLookAndFeel(context.preferences.getLookAndFeel());
                 UIManager.setLookAndFeel(laf);
             }
 
             // set accent color for current LaF
-            if (guiContext.preferences.getAccentColor() == null || guiContext.preferences.getAccentColor().length() < 1)
+            if (context.preferences.getAccentColor() == null || context.preferences.getAccentColor().length() < 1)
             {
-                guiContext.preferences.setAccentColor("2675BF");
+                context.preferences.setAccentColor("2675BF");
             }
-            String accent = guiContext.preferences.getAccentColor();
+            String accent = context.preferences.getAccentColor();
             FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + accent));
             Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
             FlatLaf.setup(lafClass.newInstance());
             FlatLaf.updateUI();
 
             initComponents();
-            setTitle(guiContext.cfg.getNavigatorName());
+            setTitle(context.cfg.getNavigatorName());
             setBrowserTabs(-1);
 
             // re-create the right-side tables, for getToolTipText(), and re-setup
@@ -97,7 +99,7 @@ public class MainFrame extends JFrame
                             NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
                             if (tuo.path.toLowerCase().endsWith(".els"))
                             {
-                                tip = guiContext.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
+                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
                             }
                         }
                     }
@@ -121,7 +123,7 @@ public class MainFrame extends JFrame
             tableCollectionOne.getTableHeader().setReorderingAllowed(false);
             tableCollectionOne.setRowSelectionAllowed(true);
             tableCollectionOne.setColumnSelectionAllowed(false);
-            tableCollectionOne.setModel(new BrowserTableModel(guiContext.cfg));
+            tableCollectionOne.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableCollectionOne);
             scrollPaneTableCollectionOne.setViewportView(tableCollectionOne);
 
@@ -141,7 +143,7 @@ public class MainFrame extends JFrame
                             NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
                             if (tuo.path.toLowerCase().endsWith(".els"))
                             {
-                                tip = guiContext.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
+                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
                             }
                         }
                     }
@@ -165,7 +167,7 @@ public class MainFrame extends JFrame
             tableSystemOne.getTableHeader().setReorderingAllowed(false);
             tableSystemOne.setRowSelectionAllowed(true);
             tableSystemOne.setColumnSelectionAllowed(false);
-            tableSystemOne.setModel(new BrowserTableModel(guiContext.cfg));
+            tableSystemOne.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableSystemOne);
             scrollPaneTableSystemOne.setViewportView(tableSystemOne);
 
@@ -185,7 +187,7 @@ public class MainFrame extends JFrame
                             NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
                             if (tuo.path.toLowerCase().endsWith(".els"))
                             {
-                                tip = guiContext.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
+                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
                             }
                         }
                     }
@@ -209,7 +211,7 @@ public class MainFrame extends JFrame
             tableCollectionTwo.getTableHeader().setReorderingAllowed(false);
             tableCollectionTwo.setRowSelectionAllowed(true);
             tableCollectionTwo.setColumnSelectionAllowed(false);
-            tableCollectionTwo.setModel(new BrowserTableModel(guiContext.cfg));
+            tableCollectionTwo.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableCollectionTwo);
             scrollPaneTableCollectionTwo.setViewportView(tableCollectionTwo);
 
@@ -229,7 +231,7 @@ public class MainFrame extends JFrame
                             NavTreeUserObject tuo = (NavTreeUserObject) getValueAt(row, 1);
                             if (tuo.path.toLowerCase().endsWith(".els"))
                             {
-                                tip = guiContext.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
+                                tip = context.cfg.gs("Mainframe.select.to.see.details.in.properties.tab");
                             }
                         }
                     }
@@ -253,7 +255,7 @@ public class MainFrame extends JFrame
             tableSystemTwo.getTableHeader().setReorderingAllowed(false);
             tableSystemTwo.setRowSelectionAllowed(true);
             tableSystemTwo.setColumnSelectionAllowed(false);
-            tableSystemTwo.setModel(new BrowserTableModel(guiContext.cfg));
+            tableSystemTwo.setModel(new BrowserTableModel(context));
             adjustTableColumns(tableSystemTwo);
             scrollPaneTableSystemTwo.setViewportView(tableSystemTwo);
 
@@ -277,19 +279,19 @@ public class MainFrame extends JFrame
 
             // Change default JOptionPanel button names based on the locale
             // TODO add tool tip text & mnemonic
-            UIManager.put("OptionPane.cancelButtonText", guiContext.cfg.gs("Z.cancel"));
+            UIManager.put("OptionPane.cancelButtonText", context.cfg.gs("Z.cancel"));
             // TODO add all the FileChooser buttons
-            UIManager.put("FileChooser.openButtonText", guiContext.cfg.gs("Z.open"));
-            UIManager.put("FileChooser.cancelButtonText", guiContext.cfg.gs("Z.cancel"));
-            UIManager.put("OptionPane.noButtonText", guiContext.cfg.gs("Z.no"));
-            UIManager.put("OptionPane.okButtonText", guiContext.cfg.gs("Z.ok"));
-            UIManager.put("OptionPane.yesButtonText", guiContext.cfg.gs("Z.yes"));
+            UIManager.put("FileChooser.openButtonText", context.cfg.gs("Z.open"));
+            UIManager.put("FileChooser.cancelButtonText", context.cfg.gs("Z.cancel"));
+            UIManager.put("OptionPane.noButtonText", context.cfg.gs("Z.no"));
+            UIManager.put("OptionPane.okButtonText", context.cfg.gs("Z.ok"));
+            UIManager.put("OptionPane.yesButtonText", context.cfg.gs("Z.yes"));
 
         }
         catch(Exception ex)
         {
             logger.error(Utils.getStackTrace(ex));
-            guiContext.context.fault = true;
+            context.fault = true;
         }
     }
 
@@ -330,13 +332,13 @@ public class MainFrame extends JFrame
     private boolean changesCheckAll()
     {
         boolean changes = false;
-        if (guiContext.operationsUI.checkForChanges())
+        if (context.operationsUI.checkForChanges())
             changes = true;
-        else if (guiContext.navigator.dialogJunkRemover != null && guiContext.navigator.dialogJunkRemover.checkForChanges())
+        else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
             changes = true;
-        else if (guiContext.navigator.dialogRenamer != null && guiContext.navigator.dialogRenamer.checkForChanges())
+        else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
             changes = true;
-        else if (guiContext.navigator.dialogJobs != null && guiContext.navigator.dialogJobs.checkForChanges())
+        else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
             changes = true;
         return changes;
     }
@@ -344,35 +346,35 @@ public class MainFrame extends JFrame
     private void changesGotoUnsaved()
     {
         boolean changes = false;
-        if (guiContext.operationsUI.checkForChanges())
+        if (context.operationsUI.checkForChanges())
         {
             tabbedPaneMain.setSelectedIndex(1);
             buttonOperationSave.requestFocus();
         }
-        else if (guiContext.navigator.dialogJunkRemover != null && guiContext.navigator.dialogJunkRemover.checkForChanges())
+        else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
         {
-            guiContext.navigator.dialogJunkRemover.setVisible(true);
-            guiContext.navigator.dialogJunkRemover.toFront();
-            guiContext.navigator.dialogJunkRemover.requestFocus();
-            guiContext.navigator.dialogJunkRemover.toFront();
-            guiContext.navigator.dialogJunkRemover.requestFocus();
-            guiContext.navigator.dialogJunkRemover.saveButton.requestFocus();
+            context.navigator.dialogJunkRemover.setVisible(true);
+            context.navigator.dialogJunkRemover.toFront();
+            context.navigator.dialogJunkRemover.requestFocus();
+            context.navigator.dialogJunkRemover.toFront();
+            context.navigator.dialogJunkRemover.requestFocus();
+            context.navigator.dialogJunkRemover.saveButton.requestFocus();
         }
-        else if (guiContext.navigator.dialogRenamer != null && guiContext.navigator.dialogRenamer.checkForChanges())
+        else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
         {
-            guiContext.navigator.dialogRenamer.toFront();
-            guiContext.navigator.dialogRenamer.requestFocus();
-            guiContext.navigator.dialogRenamer.toFront();
-            guiContext.navigator.dialogRenamer.requestFocus();
-            guiContext.navigator.dialogRenamer.saveButton.requestFocus();
+            context.navigator.dialogRenamer.toFront();
+            context.navigator.dialogRenamer.requestFocus();
+            context.navigator.dialogRenamer.toFront();
+            context.navigator.dialogRenamer.requestFocus();
+            context.navigator.dialogRenamer.saveButton.requestFocus();
         }
-        else if (guiContext.navigator.dialogJobs != null && guiContext.navigator.dialogJobs.checkForChanges())
+        else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
         {
-            guiContext.navigator.dialogJobs.toFront();
-            guiContext.navigator.dialogJobs.requestFocus();
-            guiContext.navigator.dialogJobs.toFront();
-            guiContext.navigator.dialogJobs.requestFocus();
-            guiContext.navigator.dialogJobs.saveButton.requestFocus();
+            context.navigator.dialogJobs.toFront();
+            context.navigator.dialogJobs.requestFocus();
+            context.navigator.dialogJobs.toFront();
+            context.navigator.dialogJobs.requestFocus();
+            context.navigator.dialogJobs.saveButton.requestFocus();
         }
     }
 
@@ -408,7 +410,7 @@ public class MainFrame extends JFrame
     private void menuItemFileQuitActionPerformed(ActionEvent e)
     {
         if (verifyClose())
-            guiContext.navigator.stop();
+            context.navigator.stop();
     }
 
     public void setBrowserTabs(int tabPlacementIndex)
@@ -416,11 +418,11 @@ public class MainFrame extends JFrame
         int tabPlacement;
         if (tabPlacementIndex < 0)
         {
-            tabPlacement = guiContext.preferences.getTabPlacement();
-            tabPlacementIndex = guiContext.preferences.getTabPlacementIndex();
+            tabPlacement = context.preferences.getTabPlacement();
+            tabPlacementIndex = context.preferences.getTabPlacementIndex();
         }
         else
-            tabPlacement = guiContext.preferences.getTabPlacement(tabPlacementIndex);
+            tabPlacement = context.preferences.getTabPlacement(tabPlacementIndex);
 
         tabbedPaneBrowserOne.setTabPlacement(tabPlacement);
         tabbedPaneBrowserTwo.setTabPlacement(tabPlacement);
@@ -428,38 +430,38 @@ public class MainFrame extends JFrame
         if (tabPlacementIndex > 1) // left or right, rotate
         {
             // change browser tabs orientation to vertical
-            JLabel label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
+            JLabel label = new JLabel(context.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
             label.setUI(new VerticalLabel(tabPlacementIndex == 3));
             tabbedPaneBrowserOne.setTabComponentAt(0, label);
             //
-            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemOne.tab.title"));
+            label = new JLabel(context.cfg.gs("Navigator.panel.SystemOne.tab.title"));
             label.setUI(new VerticalLabel(tabPlacementIndex == 3));
             tabbedPaneBrowserOne.setTabComponentAt(1, label);
 
-            label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.title"));
+            label = new JLabel(context.cfg.gs("Navigator.panel.CollectionTwo.tab.title"));
             label.setUI(new VerticalLabel(tabPlacementIndex == 3));
             tabbedPaneBrowserTwo.setTabComponentAt(0, label);
             //
-            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
+            label = new JLabel(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
             label.setUI(new VerticalLabel(tabPlacementIndex == 3));
             tabbedPaneBrowserTwo.setTabComponentAt(1, label);
         }
         else // top or bottom
         {
             // change browser tabs orientation to vertical
-            JLabel label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
+            JLabel label = new JLabel(context.cfg.gs("Navigator.panel.CollectionOne.tab.title"));
             label.setUI(new BasicLabelUI());
             tabbedPaneBrowserOne.setTabComponentAt(0, label);
             //
-            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemOne.tab.title"));
+            label = new JLabel(context.cfg.gs("Navigator.panel.SystemOne.tab.title"));
             label.setUI(new BasicLabelUI());
             tabbedPaneBrowserOne.setTabComponentAt(1, label);
 
-            label = new JLabel(guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.title"));
+            label = new JLabel(context.cfg.gs("Navigator.panel.CollectionTwo.tab.title"));
             label.setUI(new BasicLabelUI());
             tabbedPaneBrowserTwo.setTabComponentAt(0, label);
             //
-            label = new JLabel(guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
+            label = new JLabel(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"));
             label.setUI(new BasicLabelUI());
             tabbedPaneBrowserTwo.setTabComponentAt(1, label);
         }
@@ -468,16 +470,16 @@ public class MainFrame extends JFrame
     private void thisWindowClosing(WindowEvent e)
     {
         if (verifyClose())
-            guiContext.navigator.stop();
+            context.navigator.stop();
     }
 
     public boolean verifyClose()
     {
         if (changesCheckAll())
         {
-            int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
-                    guiContext.cfg.gs("MainFrame.unsaved.changes.are.you.sure"),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                    context.cfg.gs("MainFrame.unsaved.changes.are.you.sure"),
+                    context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
             {
                 changesGotoUnsaved();
@@ -485,20 +487,20 @@ public class MainFrame extends JFrame
             }
         }
 
-        if (guiContext.progress != null && guiContext.progress.isBeingUsed())
+        if (context.progress != null && context.progress.isBeingUsed())
         {
-            int r = JOptionPane.showConfirmDialog(guiContext.mainFrame,
-                    guiContext.cfg.gs("MainFrame.transfers.are.active.are.you.sure"),
-                    guiContext.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+            int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                    context.cfg.gs("MainFrame.transfers.are.active.are.you.sure"),
+                    context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                 return false;
         }
-        if (guiContext.browser.navTransferHandler.getTransferWorker() != null &&
-                !guiContext.browser.navTransferHandler.getTransferWorker().isDone())
+        if (context.browser.navTransferHandler.getTransferWorker() != null &&
+                !context.browser.navTransferHandler.getTransferWorker().isDone())
         {
-            logger.warn(guiContext.cfg.gs("MainFrame.cancelling.transfers.at.user.request"));
-            guiContext.browser.navTransferHandler.getTransferWorker().cancel(true);
-            guiContext.context.fault = true;
+            logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.at.user.request"));
+            context.browser.navTransferHandler.getTransferWorker().cancel(true);
+            context.fault = true;
         }
         return true;
     }
@@ -848,49 +850,49 @@ public class MainFrame extends JFrame
 
             //======== menuFile ========
             {
-                menuFile.setText(guiContext.cfg.gs("Navigator.menu.File.text"));
-                menuFile.setMnemonic(guiContext.cfg.gs("Navigator.menu.File.mnemonic").charAt(0));
+                menuFile.setText(context.cfg.gs("Navigator.menu.File.text"));
+                menuFile.setMnemonic(context.cfg.gs("Navigator.menu.File.mnemonic").charAt(0));
 
                 //---- menuItemOpenPublisher ----
-                menuItemOpenPublisher.setText(guiContext.cfg.gs("Navigator.menu.OpenPublisher.text"));
-                menuItemOpenPublisher.setMnemonic(guiContext.cfg.gs("Navigator.menu.OpenPublisher.mnemonic").charAt(0));
+                menuItemOpenPublisher.setText(context.cfg.gs("Navigator.menu.OpenPublisher.text"));
+                menuItemOpenPublisher.setMnemonic(context.cfg.gs("Navigator.menu.OpenPublisher.mnemonic").charAt(0));
                 menuItemOpenPublisher.setDisplayedMnemonicIndex(5);
                 menuFile.add(menuItemOpenPublisher);
 
                 //---- menuItemOpenSubscriber ----
-                menuItemOpenSubscriber.setText(guiContext.cfg.gs("Navigator.menu.OpenSubscriber.text"));
-                menuItemOpenSubscriber.setMnemonic(guiContext.cfg.gs("Navigator.menu.OpenSubscriber.mnemonic").charAt(0));
+                menuItemOpenSubscriber.setText(context.cfg.gs("Navigator.menu.OpenSubscriber.text"));
+                menuItemOpenSubscriber.setMnemonic(context.cfg.gs("Navigator.menu.OpenSubscriber.mnemonic").charAt(0));
                 menuFile.add(menuItemOpenSubscriber);
 
                 //---- menuItemOpenHintKeys ----
-                menuItemOpenHintKeys.setText(guiContext.cfg.gs("Navigator.menu.OpenHintKeys.text"));
+                menuItemOpenHintKeys.setText(context.cfg.gs("Navigator.menu.OpenHintKeys.text"));
                 menuItemOpenHintKeys.setSelected(true);
-                menuItemOpenHintKeys.setMnemonic(guiContext.cfg.gs("Navigator.menu.OpenHintKeys.mnemonic").charAt(0));
+                menuItemOpenHintKeys.setMnemonic(context.cfg.gs("Navigator.menu.OpenHintKeys.mnemonic").charAt(0));
                 menuFile.add(menuItemOpenHintKeys);
 
                 //---- menuItemOpenHintTracking ----
-                menuItemOpenHintTracking.setText(guiContext.cfg.gs("Navigator.menuItemOpenHintTracking.text"));
+                menuItemOpenHintTracking.setText(context.cfg.gs("Navigator.menuItemOpenHintTracking.text"));
                 menuItemOpenHintTracking.setSelected(true);
-                menuItemOpenHintTracking.setMnemonic(guiContext.cfg.gs("Navigator.menuItemOpenHintTracking.mnemonic_2").charAt(0));
-                menuItemOpenHintTracking.setDisplayedMnemonicIndex(Integer.parseInt(guiContext.cfg.gs("Navigator.menuItemOpenHintTracking.displayedMnemonicIndex")));
+                menuItemOpenHintTracking.setMnemonic(context.cfg.gs("Navigator.menuItemOpenHintTracking.mnemonic_2").charAt(0));
+                menuItemOpenHintTracking.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemOpenHintTracking.displayedMnemonicIndex")));
                 menuFile.add(menuItemOpenHintTracking);
                 menuFile.addSeparator();
 
                 //---- menuItemSaveLayout ----
-                menuItemSaveLayout.setText(guiContext.cfg.gs("Navigator.menu.SaveLayout.text"));
-                menuItemSaveLayout.setMnemonic(guiContext.cfg.gs("Navigator.menu.SaveLayout.mnemonic_3").charAt(0));
+                menuItemSaveLayout.setText(context.cfg.gs("Navigator.menu.SaveLayout.text"));
+                menuItemSaveLayout.setMnemonic(context.cfg.gs("Navigator.menu.SaveLayout.mnemonic_3").charAt(0));
                 menuFile.add(menuItemSaveLayout);
                 menuFile.addSeparator();
 
                 //---- menuItemQuitTerminate ----
-                menuItemQuitTerminate.setText(guiContext.cfg.gs("Navigator.menu.QuitTerminate.text"));
-                menuItemQuitTerminate.setMnemonic(guiContext.cfg.gs("Navigator.menuItemQuitTerminate.mnemonic").charAt(0));
+                menuItemQuitTerminate.setText(context.cfg.gs("Navigator.menu.QuitTerminate.text"));
+                menuItemQuitTerminate.setMnemonic(context.cfg.gs("Navigator.menuItemQuitTerminate.mnemonic").charAt(0));
                 menuItemQuitTerminate.setDisplayedMnemonicIndex(12);
                 menuFile.add(menuItemQuitTerminate);
 
                 //---- menuItemFileQuit ----
-                menuItemFileQuit.setText(guiContext.cfg.gs("Navigator.menu.Quit.text"));
-                menuItemFileQuit.setMnemonic(guiContext.cfg.gs("Navigator.menu.Quit.mnemonic").charAt(0));
+                menuItemFileQuit.setText(context.cfg.gs("Navigator.menu.Quit.text"));
+                menuItemFileQuit.setMnemonic(context.cfg.gs("Navigator.menu.Quit.mnemonic").charAt(0));
                 menuItemFileQuit.addActionListener(e -> menuItemFileQuitActionPerformed(e));
                 menuFile.add(menuItemFileQuit);
             }
@@ -898,99 +900,99 @@ public class MainFrame extends JFrame
 
             //======== menuEdit ========
             {
-                menuEdit.setText(guiContext.cfg.gs("Navigator.menu.Edit.text"));
-                menuEdit.setMnemonic(guiContext.cfg.gs("Navigator.menu.Edit.mnemonic").charAt(0));
+                menuEdit.setText(context.cfg.gs("Navigator.menu.Edit.text"));
+                menuEdit.setMnemonic(context.cfg.gs("Navigator.menu.Edit.mnemonic").charAt(0));
 
                 //---- menuItemCopy ----
-                menuItemCopy.setText(guiContext.cfg.gs("Navigator.menu.Copy.text"));
-                menuItemCopy.setMnemonic(guiContext.cfg.gs("Navigator.menu.Copy.mnemonic").charAt(0));
+                menuItemCopy.setText(context.cfg.gs("Navigator.menu.Copy.text"));
+                menuItemCopy.setMnemonic(context.cfg.gs("Navigator.menu.Copy.mnemonic").charAt(0));
                 menuItemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
                 menuEdit.add(menuItemCopy);
 
                 //---- menuItemCut ----
-                menuItemCut.setText(guiContext.cfg.gs("Navigator.menu.Cut.text"));
-                menuItemCut.setMnemonic(guiContext.cfg.gs("Navigator.menu.Cut.mnemonic").charAt(0));
+                menuItemCut.setText(context.cfg.gs("Navigator.menu.Cut.text"));
+                menuItemCut.setMnemonic(context.cfg.gs("Navigator.menu.Cut.mnemonic").charAt(0));
                 menuItemCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
                 menuEdit.add(menuItemCut);
 
                 //---- menuItemPaste ----
-                menuItemPaste.setText(guiContext.cfg.gs("Navigator.menu.Paste.text"));
-                menuItemPaste.setMnemonic(guiContext.cfg.gs("Navigator.menu.Paste.mnemonic").charAt(0));
+                menuItemPaste.setText(context.cfg.gs("Navigator.menu.Paste.text"));
+                menuItemPaste.setMnemonic(context.cfg.gs("Navigator.menu.Paste.mnemonic").charAt(0));
                 menuItemPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
                 menuEdit.add(menuItemPaste);
                 menuEdit.addSeparator();
 
                 //---- menuItemDelete ----
-                menuItemDelete.setText(guiContext.cfg.gs("Navigator.menu.Delete.text"));
+                menuItemDelete.setText(context.cfg.gs("Navigator.menu.Delete.text"));
                 menuItemDelete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-                menuItemDelete.setMnemonic(guiContext.cfg.gs("Navigator.menu.Delete.mnemonic").charAt(0));
+                menuItemDelete.setMnemonic(context.cfg.gs("Navigator.menu.Delete.mnemonic").charAt(0));
                 menuEdit.add(menuItemDelete);
                 menuEdit.addSeparator();
 
                 //---- menuItemFind ----
-                menuItemFind.setText(guiContext.cfg.gs("Navigator.menu.Find.text"));
-                menuItemFind.setMnemonic(guiContext.cfg.gs("Navigator.menu.Find.mnemonic").charAt(0));
+                menuItemFind.setText(context.cfg.gs("Navigator.menu.Find.text"));
+                menuItemFind.setMnemonic(context.cfg.gs("Navigator.menu.Find.mnemonic").charAt(0));
                 menuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
                 menuEdit.add(menuItemFind);
 
                 //---- menuItemFindNext ----
-                menuItemFindNext.setText(guiContext.cfg.gs("Navigator.menuItemFindNext.text"));
+                menuItemFindNext.setText(context.cfg.gs("Navigator.menuItemFindNext.text"));
                 menuItemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
-                menuItemFindNext.setMnemonic(guiContext.cfg.gs("Navigator.menuItemFindNext.mnemonic").charAt(0));
+                menuItemFindNext.setMnemonic(context.cfg.gs("Navigator.menuItemFindNext.mnemonic").charAt(0));
                 menuEdit.add(menuItemFindNext);
                 menuEdit.addSeparator();
 
                 //---- menuItemNewFolder ----
-                menuItemNewFolder.setText(guiContext.cfg.gs("Navigator.menu.New.folder.text"));
+                menuItemNewFolder.setText(context.cfg.gs("Navigator.menu.New.folder.text"));
                 menuItemNewFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
-                menuItemNewFolder.setMnemonic(guiContext.cfg.gs("Navigator.menu.New.folder.mnemonic").charAt(0));
+                menuItemNewFolder.setMnemonic(context.cfg.gs("Navigator.menu.New.folder.mnemonic").charAt(0));
                 menuEdit.add(menuItemNewFolder);
 
                 //---- menuItemRename ----
-                menuItemRename.setText(guiContext.cfg.gs("Navigator.menu.Rename.text"));
+                menuItemRename.setText(context.cfg.gs("Navigator.menu.Rename.text"));
                 menuItemRename.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
-                menuItemRename.setMnemonic(guiContext.cfg.gs("Navigator.menu.Rename.mnemonic").charAt(0));
+                menuItemRename.setMnemonic(context.cfg.gs("Navigator.menu.Rename.mnemonic").charAt(0));
                 menuEdit.add(menuItemRename);
 
                 //---- menuItemTouch ----
-                menuItemTouch.setText(guiContext.cfg.gs("Navigator.menu.Touch.text"));
-                menuItemTouch.setMnemonic(guiContext.cfg.gs("Navigator.menu.Touch.mnemonic").charAt(0));
+                menuItemTouch.setText(context.cfg.gs("Navigator.menu.Touch.text"));
+                menuItemTouch.setMnemonic(context.cfg.gs("Navigator.menu.Touch.mnemonic").charAt(0));
                 menuEdit.add(menuItemTouch);
             }
             menuBarMain.add(menuEdit);
 
             //======== menuView ========
             {
-                menuView.setText(guiContext.cfg.gs("Navigator.menu.View.text"));
-                menuView.setMnemonic(guiContext.cfg.gs("Navigator.menu.View.mnemonic").charAt(0));
+                menuView.setText(context.cfg.gs("Navigator.menu.View.text"));
+                menuView.setMnemonic(context.cfg.gs("Navigator.menu.View.mnemonic").charAt(0));
 
                 //---- menuItemRefresh ----
-                menuItemRefresh.setText(guiContext.cfg.gs("Navigator.menu.Refresh.text"));
-                menuItemRefresh.setMnemonic(guiContext.cfg.gs("Navigator.menuItemRefresh.mnemonic").charAt(0));
+                menuItemRefresh.setText(context.cfg.gs("Navigator.menu.Refresh.text"));
+                menuItemRefresh.setMnemonic(context.cfg.gs("Navigator.menuItemRefresh.mnemonic").charAt(0));
                 menuItemRefresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
                 menuView.add(menuItemRefresh);
 
                 //---- menuItemProgress ----
-                menuItemProgress.setText(guiContext.cfg.gs("Navigator.menu.Progress.text"));
-                menuItemProgress.setMnemonic(guiContext.cfg.gs("Navigator.menu.Progress.mnemonic").charAt(0));
+                menuItemProgress.setText(context.cfg.gs("Navigator.menu.Progress.text"));
+                menuItemProgress.setMnemonic(context.cfg.gs("Navigator.menu.Progress.mnemonic").charAt(0));
                 menuView.add(menuItemProgress);
                 menuView.addSeparator();
 
                 //---- menuItemAutoRefresh ----
-                menuItemAutoRefresh.setText(guiContext.cfg.gs("Navigator.menuItemAutoRefresh.text"));
-                menuItemAutoRefresh.setMnemonic(guiContext.cfg.gs("Navigator.menuItemAutoRefresh.mnemonic").charAt(0));
+                menuItemAutoRefresh.setText(context.cfg.gs("Navigator.menuItemAutoRefresh.text"));
+                menuItemAutoRefresh.setMnemonic(context.cfg.gs("Navigator.menuItemAutoRefresh.mnemonic").charAt(0));
                 menuView.add(menuItemAutoRefresh);
 
                 //---- menuItemShowHidden ----
-                menuItemShowHidden.setText(guiContext.cfg.gs("Navigator.menu.ShowHidden.text"));
-                menuItemShowHidden.setMnemonic(guiContext.cfg.gs("Navigator.menu.ShowHidden.mnemonic").charAt(0));
+                menuItemShowHidden.setText(context.cfg.gs("Navigator.menu.ShowHidden.text"));
+                menuItemShowHidden.setMnemonic(context.cfg.gs("Navigator.menu.ShowHidden.mnemonic").charAt(0));
                 menuItemShowHidden.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, KeyEvent.CTRL_DOWN_MASK));
                 menuItemShowHidden.setDisplayedMnemonicIndex(5);
                 menuView.add(menuItemShowHidden);
 
                 //---- menuItemWordWrap ----
-                menuItemWordWrap.setText(guiContext.cfg.gs("Navigator.menuItemWordWrap.text"));
-                menuItemWordWrap.setMnemonic(guiContext.cfg.gs("Navigator.menuItemWordWrap.mnemonic").charAt(0));
+                menuItemWordWrap.setText(context.cfg.gs("Navigator.menuItemWordWrap.text"));
+                menuItemWordWrap.setMnemonic(context.cfg.gs("Navigator.menuItemWordWrap.mnemonic").charAt(0));
                 menuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK));
                 menuView.add(menuItemWordWrap);
             }
@@ -998,17 +1000,17 @@ public class MainFrame extends JFrame
 
             //======== menuBookmarks ========
             {
-                menuBookmarks.setText(guiContext.cfg.gs("Navigator.menu.Bookmarks.text"));
-                menuBookmarks.setMnemonic(guiContext.cfg.gs("Navigator.menu.Bookmarks.mnemonic").charAt(0));
+                menuBookmarks.setText(context.cfg.gs("Navigator.menu.Bookmarks.text"));
+                menuBookmarks.setMnemonic(context.cfg.gs("Navigator.menu.Bookmarks.mnemonic").charAt(0));
 
                 //---- menuItemAddBookmark ----
-                menuItemAddBookmark.setText(guiContext.cfg.gs("Navigator.menu.AddBookmark.text"));
-                menuItemAddBookmark.setMnemonic(guiContext.cfg.gs("Navigator.menu.AddBookmark.mnemonic").charAt(0));
+                menuItemAddBookmark.setText(context.cfg.gs("Navigator.menu.AddBookmark.text"));
+                menuItemAddBookmark.setMnemonic(context.cfg.gs("Navigator.menu.AddBookmark.mnemonic").charAt(0));
                 menuBookmarks.add(menuItemAddBookmark);
 
                 //---- menuItemBookmarksDelete ----
-                menuItemBookmarksDelete.setText(guiContext.cfg.gs("Navigator.menu.BookmarksManage.text"));
-                menuItemBookmarksDelete.setMnemonic(guiContext.cfg.gs("Navigator.menu.BookmarksManage.mnemonic").charAt(0));
+                menuItemBookmarksDelete.setText(context.cfg.gs("Navigator.menu.BookmarksManage.text"));
+                menuItemBookmarksDelete.setMnemonic(context.cfg.gs("Navigator.menu.BookmarksManage.mnemonic").charAt(0));
                 menuBookmarks.add(menuItemBookmarksDelete);
                 menuBookmarks.addSeparator();
             }
@@ -1016,35 +1018,35 @@ public class MainFrame extends JFrame
 
             //======== menuTools ========
             {
-                menuTools.setText(guiContext.cfg.gs("Navigator.menu.Tools.text"));
-                menuTools.setMnemonic(guiContext.cfg.gs("Navigator.menu.Tools.mnemonic").charAt(0));
+                menuTools.setText(context.cfg.gs("Navigator.menu.Tools.text"));
+                menuTools.setMnemonic(context.cfg.gs("Navigator.menu.Tools.mnemonic").charAt(0));
 
                 //---- menuItemDuplicates ----
-                menuItemDuplicates.setText(guiContext.cfg.gs("Navigator.menu.Duplicates.text"));
-                menuItemDuplicates.setMnemonic(guiContext.cfg.gs("Navigator.menu.Duplicates.mnemonic").charAt(0));
+                menuItemDuplicates.setText(context.cfg.gs("Navigator.menu.Duplicates.text"));
+                menuItemDuplicates.setMnemonic(context.cfg.gs("Navigator.menu.Duplicates.mnemonic").charAt(0));
                 menuTools.add(menuItemDuplicates);
 
                 //---- menuItemEmptyFinder ----
-                menuItemEmptyFinder.setText(guiContext.cfg.gs("Navigator.menuItemEmptyFinder.text"));
-                menuItemEmptyFinder.setMnemonic(guiContext.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
+                menuItemEmptyFinder.setText(context.cfg.gs("Navigator.menuItemEmptyFinder.text"));
+                menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
                 menuTools.add(menuItemEmptyFinder);
 
                 //---- menuItemJunk ----
-                menuItemJunk.setText(guiContext.cfg.gs("Navigator.menu.Junk.text"));
-                menuItemJunk.setMnemonic(guiContext.cfg.gs("Navigator.menu.Junk.mnemonic").charAt(0));
+                menuItemJunk.setText(context.cfg.gs("Navigator.menu.Junk.text"));
+                menuItemJunk.setMnemonic(context.cfg.gs("Navigator.menu.Junk.mnemonic").charAt(0));
                 menuTools.add(menuItemJunk);
 
                 //---- menuItemRenamer ----
-                menuItemRenamer.setText(guiContext.cfg.gs("Navigator.menu.Renamer.text"));
-                menuItemRenamer.setMnemonic(guiContext.cfg.gs("Navigator.menu.Renamer.mnemonic").charAt(0));
+                menuItemRenamer.setText(context.cfg.gs("Navigator.menu.Renamer.text"));
+                menuItemRenamer.setMnemonic(context.cfg.gs("Navigator.menu.Renamer.mnemonic").charAt(0));
                 menuTools.add(menuItemRenamer);
                 menuTools.addSeparator();
 
                 //---- menuItemExternalTools ----
-                menuItemExternalTools.setText(guiContext.cfg.gs("Navigator.menu.ExternalTools.text"));
-                menuItemExternalTools.setMnemonic(guiContext.cfg.gs("Navigator.menuItemExternalTools.mnemonic").charAt(0));
+                menuItemExternalTools.setText(context.cfg.gs("Navigator.menu.ExternalTools.text"));
+                menuItemExternalTools.setMnemonic(context.cfg.gs("Navigator.menuItemExternalTools.mnemonic").charAt(0));
                 menuItemExternalTools.setEnabled(false);
-                menuItemExternalTools.setDisplayedMnemonicIndex(Integer.parseInt(guiContext.cfg.gs("Navigator.menuItemExternalTools.displayedMnemonicIndex")));
+                menuItemExternalTools.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemExternalTools.displayedMnemonicIndex")));
                 menuTools.add(menuItemExternalTools);
 
                 //---- menuItem1 ----
@@ -1054,8 +1056,8 @@ public class MainFrame extends JFrame
                 menuTools.add(menuItem1);
 
                 //---- menuItemPlexGenerator ----
-                menuItemPlexGenerator.setText(guiContext.cfg.gs("Navigator.menu.PlexGenerator.text"));
-                menuItemPlexGenerator.setMnemonic(guiContext.cfg.gs("Navigator.menu.PlexGenerator.mnemonic").charAt(0));
+                menuItemPlexGenerator.setText(context.cfg.gs("Navigator.menu.PlexGenerator.text"));
+                menuItemPlexGenerator.setMnemonic(context.cfg.gs("Navigator.menu.PlexGenerator.mnemonic").charAt(0));
                 menuItemPlexGenerator.setEnabled(false);
                 menuItemPlexGenerator.setMargin(new Insets(2, 18, 2, 2));
                 menuTools.add(menuItemPlexGenerator);
@@ -1064,12 +1066,12 @@ public class MainFrame extends JFrame
 
             //======== menuJobs ========
             {
-                menuJobs.setText(guiContext.cfg.gs("Navigator.menu.Jobs.text"));
-                menuJobs.setMnemonic(guiContext.cfg.gs("Navigator.menu.Jobs.mnemonic").charAt(0));
+                menuJobs.setText(context.cfg.gs("Navigator.menu.Jobs.text"));
+                menuJobs.setMnemonic(context.cfg.gs("Navigator.menu.Jobs.mnemonic").charAt(0));
 
                 //---- menuItemJobsManage ----
-                menuItemJobsManage.setText(guiContext.cfg.gs("Navigator.menu.JobsManage.text"));
-                menuItemJobsManage.setMnemonic(guiContext.cfg.gs("Navigator.menu.JobsManage.mnemonic").charAt(0));
+                menuItemJobsManage.setText(context.cfg.gs("Navigator.menu.JobsManage.text"));
+                menuItemJobsManage.setMnemonic(context.cfg.gs("Navigator.menu.JobsManage.mnemonic").charAt(0));
                 menuJobs.add(menuItemJobsManage);
                 menuJobs.addSeparator();
             }
@@ -1078,111 +1080,111 @@ public class MainFrame extends JFrame
             //======== menuSystem ========
             {
                 menuSystem.setText("System");
-                menuSystem.setMnemonic(guiContext.cfg.gs("Navigator.menuSystem.mnemonic").charAt(0));
+                menuSystem.setMnemonic(context.cfg.gs("Navigator.menuSystem.mnemonic").charAt(0));
 
                 //---- menuItemSettings ----
-                menuItemSettings.setText(guiContext.cfg.gs("Navigator.menu.Settings.text"));
-                menuItemSettings.setMnemonic(guiContext.cfg.gs("Navigator.menu.Settings.mnemonic").charAt(0));
+                menuItemSettings.setText(context.cfg.gs("Navigator.menu.Settings.text"));
+                menuItemSettings.setMnemonic(context.cfg.gs("Navigator.menu.Settings.mnemonic").charAt(0));
                 menuSystem.add(menuItemSettings);
                 menuSystem.addSeparator();
 
                 //---- menuItemAuthKeys ----
-                menuItemAuthKeys.setText(guiContext.cfg.gs("Navigator.menuItemAuthKeys.text"));
-                menuItemAuthKeys.setMnemonic(guiContext.cfg.gs("Navigator.menuItemAuthKeys.mnemonic").charAt(0));
+                menuItemAuthKeys.setText(context.cfg.gs("Navigator.menuItemAuthKeys.text"));
+                menuItemAuthKeys.setMnemonic(context.cfg.gs("Navigator.menuItemAuthKeys.mnemonic").charAt(0));
                 menuItemAuthKeys.setEnabled(false);
                 menuSystem.add(menuItemAuthKeys);
 
                 //---- menuItemHintKeys ----
-                menuItemHintKeys.setText(guiContext.cfg.gs("Navigator.menuItemHintKeys.text"));
-                menuItemHintKeys.setMnemonic(guiContext.cfg.gs("Navigator.menuItemHintKeys.mnemonic").charAt(0));
+                menuItemHintKeys.setText(context.cfg.gs("Navigator.menuItemHintKeys.text"));
+                menuItemHintKeys.setMnemonic(context.cfg.gs("Navigator.menuItemHintKeys.mnemonic").charAt(0));
                 menuItemHintKeys.setEnabled(false);
                 menuSystem.add(menuItemHintKeys);
                 menuSystem.addSeparator();
 
                 //---- menuItemBlacklist ----
-                menuItemBlacklist.setText(guiContext.cfg.gs("Navigator.menuItemBlacklist.text"));
-                menuItemBlacklist.setMnemonic(guiContext.cfg.gs("Navigator.menuItemBlacklist.mnemonic").charAt(0));
+                menuItemBlacklist.setText(context.cfg.gs("Navigator.menuItemBlacklist.text"));
+                menuItemBlacklist.setMnemonic(context.cfg.gs("Navigator.menuItemBlacklist.mnemonic").charAt(0));
                 menuItemBlacklist.setEnabled(false);
                 menuSystem.add(menuItemBlacklist);
 
                 //---- menuItemWhitelist ----
-                menuItemWhitelist.setText(guiContext.cfg.gs("Navigator.menuItemWhitelist.text"));
+                menuItemWhitelist.setText(context.cfg.gs("Navigator.menuItemWhitelist.text"));
                 menuItemWhitelist.setEnabled(false);
-                menuItemWhitelist.setMnemonic(guiContext.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
+                menuItemWhitelist.setMnemonic(context.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
                 menuSystem.add(menuItemWhitelist);
             }
             menuBarMain.add(menuSystem);
 
             //======== menuWindows ========
             {
-                menuWindows.setText(guiContext.cfg.gs("Navigator.menu.Windows.text"));
-                menuWindows.setMnemonic(guiContext.cfg.gs("Navigator.menu.Windows.mnemonic").charAt(0));
+                menuWindows.setText(context.cfg.gs("Navigator.menu.Windows.text"));
+                menuWindows.setMnemonic(context.cfg.gs("Navigator.menu.Windows.mnemonic").charAt(0));
 
                 //---- menuItemMaximize ----
-                menuItemMaximize.setText(guiContext.cfg.gs("Navigator.menu.Maximize.text"));
-                menuItemMaximize.setMnemonic(guiContext.cfg.gs("Navigator.menu.Maximize.mnemonic").charAt(0));
+                menuItemMaximize.setText(context.cfg.gs("Navigator.menu.Maximize.text"));
+                menuItemMaximize.setMnemonic(context.cfg.gs("Navigator.menu.Maximize.mnemonic").charAt(0));
                 menuWindows.add(menuItemMaximize);
 
                 //---- menuItemMinimize ----
-                menuItemMinimize.setText(guiContext.cfg.gs("Navigator.menu.Minimize.text"));
-                menuItemMinimize.setMnemonic(guiContext.cfg.gs("Navigator.menu.Minimize.mnemonic").charAt(0));
+                menuItemMinimize.setText(context.cfg.gs("Navigator.menu.Minimize.text"));
+                menuItemMinimize.setMnemonic(context.cfg.gs("Navigator.menu.Minimize.mnemonic").charAt(0));
                 menuWindows.add(menuItemMinimize);
 
                 //---- menuItemRestore ----
-                menuItemRestore.setText(guiContext.cfg.gs("Navigator.menu.Restore.text"));
-                menuItemRestore.setMnemonic(guiContext.cfg.gs("Navigator.menu.Restore.mnemonic").charAt(0));
+                menuItemRestore.setText(context.cfg.gs("Navigator.menu.Restore.text"));
+                menuItemRestore.setMnemonic(context.cfg.gs("Navigator.menu.Restore.mnemonic").charAt(0));
                 menuWindows.add(menuItemRestore);
                 menuWindows.addSeparator();
 
                 //---- menuItemSplitHorizontal ----
-                menuItemSplitHorizontal.setText(guiContext.cfg.gs("Navigator.menu.SplitHorizontal.text"));
-                menuItemSplitHorizontal.setMnemonic(guiContext.cfg.gs("Navigator.menu.SplitHorizontal.mnemonic").charAt(0));
+                menuItemSplitHorizontal.setText(context.cfg.gs("Navigator.menu.SplitHorizontal.text"));
+                menuItemSplitHorizontal.setMnemonic(context.cfg.gs("Navigator.menu.SplitHorizontal.mnemonic").charAt(0));
                 menuWindows.add(menuItemSplitHorizontal);
 
                 //---- menuItemSplitVertical ----
-                menuItemSplitVertical.setText(guiContext.cfg.gs("Navigator.menu.SplitVertical.text"));
-                menuItemSplitVertical.setMnemonic(guiContext.cfg.gs("Navigator.menu.SplitVertical.mnemonic").charAt(0));
+                menuItemSplitVertical.setText(context.cfg.gs("Navigator.menu.SplitVertical.text"));
+                menuItemSplitVertical.setMnemonic(context.cfg.gs("Navigator.menu.SplitVertical.mnemonic").charAt(0));
                 menuWindows.add(menuItemSplitVertical);
             }
             menuBarMain.add(menuWindows);
 
             //======== menuHelp ========
             {
-                menuHelp.setText(guiContext.cfg.gs("Navigator.menu.Help.text"));
-                menuHelp.setMnemonic(guiContext.cfg.gs("Navigator.menu.Help.mnemonic").charAt(0));
+                menuHelp.setText(context.cfg.gs("Navigator.menu.Help.text"));
+                menuHelp.setMnemonic(context.cfg.gs("Navigator.menu.Help.mnemonic").charAt(0));
 
                 //---- menuItemControls ----
-                menuItemControls.setText(guiContext.cfg.gs("Navigator.menu.Controls.text"));
-                menuItemControls.setMnemonic(guiContext.cfg.gs("Navigator.menu.Controls.mnemonic").charAt(0));
+                menuItemControls.setText(context.cfg.gs("Navigator.menu.Controls.text"));
+                menuItemControls.setMnemonic(context.cfg.gs("Navigator.menu.Controls.mnemonic").charAt(0));
                 menuHelp.add(menuItemControls);
 
                 //---- menuItemDocumentation ----
-                menuItemDocumentation.setText(guiContext.cfg.gs("Navigator.menu.Documentation.text"));
-                menuItemDocumentation.setMnemonic(guiContext.cfg.gs("Navigator.menu.Documentation.mnemonic").charAt(0));
-                menuItemDocumentation.setToolTipText(guiContext.cfg.gs("Navigator.menuItemDocumentation.toolTipText"));
+                menuItemDocumentation.setText(context.cfg.gs("Navigator.menu.Documentation.text"));
+                menuItemDocumentation.setMnemonic(context.cfg.gs("Navigator.menu.Documentation.mnemonic").charAt(0));
+                menuItemDocumentation.setToolTipText(context.cfg.gs("Navigator.menuItemDocumentation.toolTipText"));
                 menuHelp.add(menuItemDocumentation);
 
                 //---- menuItemGettingStarted ----
-                menuItemGettingStarted.setText(guiContext.cfg.gs("Navigator.menuItemGettingStarted.text"));
+                menuItemGettingStarted.setText(context.cfg.gs("Navigator.menuItemGettingStarted.text"));
                 menuItemGettingStarted.setEnabled(false);
                 menuHelp.add(menuItemGettingStarted);
 
                 //---- menuItemGitHubProject ----
-                menuItemGitHubProject.setText(guiContext.cfg.gs("Navigator.menu.GitHubProject.text"));
-                menuItemGitHubProject.setMnemonic(guiContext.cfg.gs("Navigator.menu.GitHubProject.mnemonic").charAt(0));
-                menuItemGitHubProject.setToolTipText(guiContext.cfg.gs("Navigator.menuItemGitHubProject.toolTipText"));
+                menuItemGitHubProject.setText(context.cfg.gs("Navigator.menu.GitHubProject.text"));
+                menuItemGitHubProject.setMnemonic(context.cfg.gs("Navigator.menu.GitHubProject.mnemonic").charAt(0));
+                menuItemGitHubProject.setToolTipText(context.cfg.gs("Navigator.menuItemGitHubProject.toolTipText"));
                 menuHelp.add(menuItemGitHubProject);
                 menuHelp.addSeparator();
 
                 //---- menuItemUpdates ----
-                menuItemUpdates.setText(guiContext.cfg.gs("Navigator.menuItemUpdates.text"));
-                menuItemUpdates.setMnemonic(guiContext.cfg.gs("Navigator.menuItemUpdates.mnemonic").charAt(0));
+                menuItemUpdates.setText(context.cfg.gs("Navigator.menuItemUpdates.text"));
+                menuItemUpdates.setMnemonic(context.cfg.gs("Navigator.menuItemUpdates.mnemonic").charAt(0));
                 menuItemUpdates.setEnabled(false);
                 menuHelp.add(menuItemUpdates);
 
                 //---- menuItemAbout ----
-                menuItemAbout.setText(guiContext.cfg.gs("Navigator.menu.About.text"));
-                menuItemAbout.setMnemonic(guiContext.cfg.gs("Navigator.menu.About.mnemonic").charAt(0));
+                menuItemAbout.setText(context.cfg.gs("Navigator.menu.About.text"));
+                menuItemAbout.setMnemonic(context.cfg.gs("Navigator.menu.About.mnemonic").charAt(0));
                 menuHelp.add(menuItemAbout);
             }
             menuBarMain.add(menuHelp);
@@ -1246,7 +1248,7 @@ public class MainFrame extends JFrame
                                     buttonBack.setMaximumSize(new Dimension(36, 30));
                                     buttonBack.setMinimumSize(new Dimension(36, 30));
                                     buttonBack.setPreferredSize(new Dimension(36, 30));
-                                    buttonBack.setToolTipText(guiContext.cfg.gs("Navigator.button.Back.toolTipText"));
+                                    buttonBack.setToolTipText(context.cfg.gs("Navigator.button.Back.toolTipText"));
                                     buttonBack.setActionCommand("navBack");
                                     buttonBack.setFocusable(false);
                                     buttonBack.setDefaultCapable(false);
@@ -1260,7 +1262,7 @@ public class MainFrame extends JFrame
                                     buttonForward.setMaximumSize(new Dimension(36, 30));
                                     buttonForward.setMinimumSize(new Dimension(36, 30));
                                     buttonForward.setPreferredSize(new Dimension(36, 30));
-                                    buttonForward.setToolTipText(guiContext.cfg.gs("Navigator.button.Forward.toolTipText"));
+                                    buttonForward.setToolTipText(context.cfg.gs("Navigator.button.Forward.toolTipText"));
                                     buttonForward.setActionCommand("NavForward");
                                     buttonForward.setFocusable(false);
                                     buttonForward.setDefaultCapable(false);
@@ -1274,7 +1276,7 @@ public class MainFrame extends JFrame
                                     buttonUp.setMaximumSize(new Dimension(36, 30));
                                     buttonUp.setMinimumSize(new Dimension(36, 30));
                                     buttonUp.setPreferredSize(new Dimension(36, 30));
-                                    buttonUp.setToolTipText(guiContext.cfg.gs("Navigator.button.Up.toolTipText"));
+                                    buttonUp.setToolTipText(context.cfg.gs("Navigator.button.Up.toolTipText"));
                                     buttonUp.setActionCommand("NavUp");
                                     buttonUp.setFocusable(false);
                                     buttonUp.setDefaultCapable(false);
@@ -1288,7 +1290,7 @@ public class MainFrame extends JFrame
                                 //---- textFieldLocation ----
                                 textFieldLocation.setPreferredSize(new Dimension(810, 30));
                                 textFieldLocation.setHorizontalAlignment(SwingConstants.LEFT);
-                                textFieldLocation.setToolTipText(guiContext.cfg.gs("Navigator.textField.Location.toolTipText"));
+                                textFieldLocation.setToolTipText(context.cfg.gs("Navigator.textField.Location.toolTipText"));
                                 textFieldLocation.setName("location");
                                 textFieldLocation.setEditable(false);
                                 textFieldLocation.setMaximumSize(new Dimension(2147483647, 30));
@@ -1310,15 +1312,15 @@ public class MainFrame extends JFrame
                                 panelHintTracking.setLayout(new BorderLayout());
 
                                 //---- buttonHintTracking ----
-                                buttonHintTracking.setText(guiContext.cfg.gs("Navigator.button.HintTracking.text"));
-                                buttonHintTracking.setMnemonic(guiContext.cfg.gs("Navigator.buttonHintTracking.mnemonic").charAt(0));
+                                buttonHintTracking.setText(context.cfg.gs("Navigator.button.HintTracking.text"));
+                                buttonHintTracking.setMnemonic(context.cfg.gs("Navigator.buttonHintTracking.mnemonic").charAt(0));
                                 buttonHintTracking.setFocusable(false);
                                 buttonHintTracking.setPreferredSize(new Dimension(124, 30));
                                 buttonHintTracking.setMinimumSize(new Dimension(124, 30));
                                 buttonHintTracking.setMaximumSize(new Dimension(124, 30));
                                 buttonHintTracking.setIcon(new ImageIcon(getClass().getResource("/hint-green.png")));
                                 buttonHintTracking.setActionCommand("hints");
-                                buttonHintTracking.setToolTipText(guiContext.cfg.gs("Navigator.button.HintTracking.enabled.tooltip"));
+                                buttonHintTracking.setToolTipText(context.cfg.gs("Navigator.button.HintTracking.enabled.tooltip"));
                                 panelHintTracking.add(buttonHintTracking, BorderLayout.CENTER);
 
                                 //---- hSpacer2 ----
@@ -1404,8 +1406,8 @@ public class MainFrame extends JFrame
                                     }
                                     panelCollectionOne.add(splitPaneCollectionOne);
                                 }
-                                tabbedPaneBrowserOne.addTab(guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.title"), panelCollectionOne);
-                                tabbedPaneBrowserOne.setMnemonicAt(0, guiContext.cfg.gs("Navigator.panel.CollectionOne.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserOne.addTab(context.cfg.gs("Navigator.panel.CollectionOne.tab.title"), panelCollectionOne);
+                                tabbedPaneBrowserOne.setMnemonicAt(0, context.cfg.gs("Navigator.panel.CollectionOne.tab.mnemonic").charAt(0));
 
                                 //======== panelSystemOne ========
                                 {
@@ -1452,8 +1454,8 @@ public class MainFrame extends JFrame
                                     }
                                     panelSystemOne.add(splitPaneSystemOne);
                                 }
-                                tabbedPaneBrowserOne.addTab(guiContext.cfg.gs("Navigator.panel.SystemOne.tab.title"), panelSystemOne);
-                                tabbedPaneBrowserOne.setMnemonicAt(1, guiContext.cfg.gs("Navigator.panel.SystemOne.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserOne.addTab(context.cfg.gs("Navigator.panel.SystemOne.tab.title"), panelSystemOne);
+                                tabbedPaneBrowserOne.setMnemonicAt(1, context.cfg.gs("Navigator.panel.SystemOne.tab.mnemonic").charAt(0));
                             }
                             splitPaneTwoBrowsers.setLeftComponent(tabbedPaneBrowserOne);
 
@@ -1513,8 +1515,8 @@ public class MainFrame extends JFrame
                                     }
                                     panelCollectionTwo.add(splitPaneCollectionTwo);
                                 }
-                                tabbedPaneBrowserTwo.addTab(guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.title"), panelCollectionTwo);
-                                tabbedPaneBrowserTwo.setMnemonicAt(0, guiContext.cfg.gs("Navigator.panel.CollectionTwo.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserTwo.addTab(context.cfg.gs("Navigator.panel.CollectionTwo.tab.title"), panelCollectionTwo);
+                                tabbedPaneBrowserTwo.setMnemonicAt(0, context.cfg.gs("Navigator.panel.CollectionTwo.tab.mnemonic").charAt(0));
 
                                 //======== panelSystemTwo ========
                                 {
@@ -1560,8 +1562,8 @@ public class MainFrame extends JFrame
                                     }
                                     panelSystemTwo.add(splitPaneSystemTwo);
                                 }
-                                tabbedPaneBrowserTwo.addTab(guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.title"), panelSystemTwo);
-                                tabbedPaneBrowserTwo.setMnemonicAt(1, guiContext.cfg.gs("Navigator.panel.SystemTwo.tab.mnemonic").charAt(0));
+                                tabbedPaneBrowserTwo.addTab(context.cfg.gs("Navigator.panel.SystemTwo.tab.title"), panelSystemTwo);
+                                tabbedPaneBrowserTwo.setMnemonicAt(1, context.cfg.gs("Navigator.panel.SystemTwo.tab.mnemonic").charAt(0));
                             }
                             splitPaneTwoBrowsers.setRightComponent(tabbedPaneBrowserTwo);
                         }
@@ -1593,8 +1595,8 @@ public class MainFrame extends JFrame
                             textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 14));
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
-                        tabbedPaneNavigatorBottom.addTab(guiContext.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
-                        tabbedPaneNavigatorBottom.setMnemonicAt(0, guiContext.cfg.gs("Navigator.scrollPaneLog.tab.mnemonic_2").charAt(0));
+                        tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
+                        tabbedPaneNavigatorBottom.setMnemonicAt(0, context.cfg.gs("Navigator.scrollPaneLog.tab.mnemonic_2").charAt(0));
 
                         //======== scrollPaneProperties ========
                         {
@@ -1607,13 +1609,13 @@ public class MainFrame extends JFrame
                             textAreaProperties.setContentType("text/html");
                             scrollPaneProperties.setViewportView(textAreaProperties);
                         }
-                        tabbedPaneNavigatorBottom.addTab(guiContext.cfg.gs("Navigator.scrollPane.Properties.tab.title"), scrollPaneProperties);
-                        tabbedPaneNavigatorBottom.setMnemonicAt(1, guiContext.cfg.gs("Navigator.scrollPaneProperties.tab.mnemonic_2").charAt(0));
+                        tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Properties.tab.title"), scrollPaneProperties);
+                        tabbedPaneNavigatorBottom.setMnemonicAt(1, context.cfg.gs("Navigator.scrollPaneProperties.tab.mnemonic_2").charAt(0));
                     }
                     splitPaneBrowser.setBottomComponent(tabbedPaneNavigatorBottom);
                 }
-                tabbedPaneMain.addTab(guiContext.cfg.gs("Navigator.splitPane.Browser.tab.title"), splitPaneBrowser);
-                tabbedPaneMain.setMnemonicAt(0, guiContext.cfg.gs("Navigator.splitPane.Browser.tab.mnemonic").charAt(0));
+                tabbedPaneMain.addTab(context.cfg.gs("Navigator.splitPane.Browser.tab.title"), splitPaneBrowser);
+                tabbedPaneMain.setMnemonicAt(0, context.cfg.gs("Navigator.splitPane.Browser.tab.mnemonic").charAt(0));
 
                 //======== splitPaneOperation ========
                 {
@@ -1638,21 +1640,21 @@ public class MainFrame extends JFrame
                                 panelTopOperationButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
                                 //---- buttonNewOperation ----
-                                buttonNewOperation.setText(guiContext.cfg.gs("Operations.buttonNew.text"));
-                                buttonNewOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonNew.toolTipText"));
-                                buttonNewOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonNew.mnemonic").charAt(0));
+                                buttonNewOperation.setText(context.cfg.gs("Operations.buttonNew.text"));
+                                buttonNewOperation.setToolTipText(context.cfg.gs("Operations.buttonNew.toolTipText"));
+                                buttonNewOperation.setMnemonic(context.cfg.gs("Operations.buttonNew.mnemonic").charAt(0));
                                 panelTopOperationButtons.add(buttonNewOperation);
 
                                 //---- buttonCopyOperation ----
-                                buttonCopyOperation.setText(guiContext.cfg.gs("Operations.buttonCopy.text"));
-                                buttonCopyOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonCopy.mnemonic").charAt(0));
-                                buttonCopyOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonCopy.toolTipText"));
+                                buttonCopyOperation.setText(context.cfg.gs("Operations.buttonCopy.text"));
+                                buttonCopyOperation.setMnemonic(context.cfg.gs("Operations.buttonCopy.mnemonic").charAt(0));
+                                buttonCopyOperation.setToolTipText(context.cfg.gs("Operations.buttonCopy.toolTipText"));
                                 panelTopOperationButtons.add(buttonCopyOperation);
 
                                 //---- buttonDeleteOperation ----
-                                buttonDeleteOperation.setText(guiContext.cfg.gs("Operations.buttonDelete.text"));
-                                buttonDeleteOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonDelete.mnemonic").charAt(0));
-                                buttonDeleteOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonDelete.toolTipText"));
+                                buttonDeleteOperation.setText(context.cfg.gs("Operations.buttonDelete.text"));
+                                buttonDeleteOperation.setMnemonic(context.cfg.gs("Operations.buttonDelete.mnemonic").charAt(0));
+                                buttonDeleteOperation.setToolTipText(context.cfg.gs("Operations.buttonDelete.toolTipText"));
                                 panelTopOperationButtons.add(buttonDeleteOperation);
 
                                 //---- hSpacerBeforeRun ----
@@ -1661,9 +1663,9 @@ public class MainFrame extends JFrame
                                 panelTopOperationButtons.add(hSpacerBeforeRun);
 
                                 //---- buttonRunOperation ----
-                                buttonRunOperation.setText(guiContext.cfg.gs("Operations.buttonRun.text"));
-                                buttonRunOperation.setMnemonic(guiContext.cfg.gs("Navigator.buttonRunOperation.mnemonic").charAt(0));
-                                buttonRunOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonRun.toolTipText"));
+                                buttonRunOperation.setText(context.cfg.gs("Operations.buttonRun.text"));
+                                buttonRunOperation.setMnemonic(context.cfg.gs("Navigator.buttonRunOperation.mnemonic").charAt(0));
+                                buttonRunOperation.setToolTipText(context.cfg.gs("Operations.buttonRun.toolTipText"));
                                 panelTopOperationButtons.add(buttonRunOperation);
 
                                 //---- hSpacerBeforeGenerate ----
@@ -1672,9 +1674,9 @@ public class MainFrame extends JFrame
                                 panelTopOperationButtons.add(hSpacerBeforeGenerate);
 
                                 //---- buttonGenerateOperation ----
-                                buttonGenerateOperation.setText(guiContext.cfg.gs("Operations.buttonGenerate.text"));
-                                buttonGenerateOperation.setMnemonic(guiContext.cfg.gs("Operations.buttonGenerate.mnemonic").charAt(0));
-                                buttonGenerateOperation.setToolTipText(guiContext.cfg.gs("Operations.buttonGenerate.toolTipText"));
+                                buttonGenerateOperation.setText(context.cfg.gs("Operations.buttonGenerate.text"));
+                                buttonGenerateOperation.setMnemonic(context.cfg.gs("Operations.buttonGenerate.mnemonic").charAt(0));
+                                buttonGenerateOperation.setToolTipText(context.cfg.gs("Operations.buttonGenerate.toolTipText"));
                                 panelTopOperationButtons.add(buttonGenerateOperation);
                             }
                             panelOperationButtons.add(panelTopOperationButtons, BorderLayout.WEST);
@@ -1690,7 +1692,7 @@ public class MainFrame extends JFrame
                                 labelOperationHelp.setPreferredSize(new Dimension(32, 30));
                                 labelOperationHelp.setMinimumSize(new Dimension(32, 30));
                                 labelOperationHelp.setMaximumSize(new Dimension(32, 30));
-                                labelOperationHelp.setToolTipText(guiContext.cfg.gs("Operations.labelHelp.toolTipText"));
+                                labelOperationHelp.setToolTipText(context.cfg.gs("Operations.labelHelp.toolTipText"));
                                 labelOperationHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                                 labelOperationHelp.setIconTextGap(0);
                                 panelOperationHelp.add(labelOperationHelp);
@@ -1776,7 +1778,7 @@ public class MainFrame extends JFrame
                                             panelCardGettingStarted.setLayout(new BorderLayout());
 
                                             //---- labelOperationGettingStarted ----
-                                            labelOperationGettingStarted.setText(guiContext.cfg.gs("Operations.labelOperationGettingStarted.text"));
+                                            labelOperationGettingStarted.setText(context.cfg.gs("Operations.labelOperationGettingStarted.text"));
                                             labelOperationGettingStarted.setFont(labelOperationGettingStarted.getFont().deriveFont(labelOperationGettingStarted.getFont().getStyle() | Font.BOLD));
                                             labelOperationGettingStarted.setHorizontalAlignment(SwingConstants.CENTER);
                                             panelCardGettingStarted.add(labelOperationGettingStarted, BorderLayout.CENTER);
@@ -1790,7 +1792,7 @@ public class MainFrame extends JFrame
                                             ((GridBagLayout)panelCardPublisher.getLayout()).rowHeights = new int[] {0, 28, 34, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
                                             //---- labelOperationNavigatorCheckbox ----
-                                            labelOperationNavigatorCheckbox.setText(guiContext.cfg.gs("Operations.labelOperationNavigatorCheckbox.text"));
+                                            labelOperationNavigatorCheckbox.setText(context.cfg.gs("Operations.labelOperationNavigatorCheckbox.text"));
                                             labelOperationNavigatorCheckbox.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationNavigatorCheckbox, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1798,7 +1800,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationNavigator ----
                                             checkBoxOperationNavigator.setName("navigator");
-                                            checkBoxOperationNavigator.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationNavigator.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationNavigator, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1848,27 +1850,27 @@ public class MainFrame extends JFrame
                                                     panelOperationIncludeExcludeButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                                                     //---- buttonOperationAddIncludeExclude ----
-                                                    buttonOperationAddIncludeExclude.setText(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.text"));
+                                                    buttonOperationAddIncludeExclude.setText(context.cfg.gs("Operations.buttonOperationAddIncludeExclude.text"));
                                                     buttonOperationAddIncludeExclude.setFont(buttonOperationAddIncludeExclude.getFont().deriveFont(buttonOperationAddIncludeExclude.getFont().getSize() - 2f));
                                                     buttonOperationAddIncludeExclude.setPreferredSize(new Dimension(78, 24));
                                                     buttonOperationAddIncludeExclude.setMinimumSize(new Dimension(78, 24));
                                                     buttonOperationAddIncludeExclude.setMaximumSize(new Dimension(78, 24));
-                                                    buttonOperationAddIncludeExclude.setMnemonic(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.mnemonic").charAt(0));
-                                                    buttonOperationAddIncludeExclude.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationAddIncludeExclude.toolTipText"));
+                                                    buttonOperationAddIncludeExclude.setMnemonic(context.cfg.gs("Operations.buttonOperationAddIncludeExclude.mnemonic").charAt(0));
+                                                    buttonOperationAddIncludeExclude.setToolTipText(context.cfg.gs("Operations.buttonOperationAddIncludeExclude.toolTipText"));
                                                     buttonOperationAddIncludeExclude.setName("addincexc");
-                                                    buttonOperationAddIncludeExclude.addActionListener(e -> guiContext.operationsUI.actionOperationAddRowClicked(e));
+                                                    buttonOperationAddIncludeExclude.addActionListener(e -> context.operationsUI.actionOperationAddRowClicked(e));
                                                     panelOperationIncludeExcludeButtons.add(buttonOperationAddIncludeExclude);
 
                                                     //---- buttonOperationRemoveIncludeExclude ----
-                                                    buttonOperationRemoveIncludeExclude.setText(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.text"));
+                                                    buttonOperationRemoveIncludeExclude.setText(context.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.text"));
                                                     buttonOperationRemoveIncludeExclude.setFont(buttonOperationRemoveIncludeExclude.getFont().deriveFont(buttonOperationRemoveIncludeExclude.getFont().getSize() - 2f));
                                                     buttonOperationRemoveIncludeExclude.setPreferredSize(new Dimension(78, 24));
                                                     buttonOperationRemoveIncludeExclude.setMinimumSize(new Dimension(78, 24));
                                                     buttonOperationRemoveIncludeExclude.setMaximumSize(new Dimension(78, 24));
-                                                    buttonOperationRemoveIncludeExclude.setMnemonic(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.mnemonic").charAt(0));
-                                                    buttonOperationRemoveIncludeExclude.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.toolTipText"));
+                                                    buttonOperationRemoveIncludeExclude.setMnemonic(context.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.mnemonic").charAt(0));
+                                                    buttonOperationRemoveIncludeExclude.setToolTipText(context.cfg.gs("Operations.buttonOperationRemoveIncludeExclude.toolTipText"));
                                                     buttonOperationRemoveIncludeExclude.setName("removeincexc");
-                                                    buttonOperationRemoveIncludeExclude.addActionListener(e -> guiContext.operationsUI.actionOperationRemoveRowClicked(e));
+                                                    buttonOperationRemoveIncludeExclude.addActionListener(e -> context.operationsUI.actionOperationRemoveRowClicked(e));
                                                     panelOperationIncludeExcludeButtons.add(buttonOperationRemoveIncludeExclude);
                                                 }
                                                 panelOperationIncludeExcludeBox.add(panelOperationIncludeExcludeButtons);
@@ -1878,14 +1880,14 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationIncludeExclude ----
-                                            labelOperationIncludeExclude.setText(guiContext.cfg.gs("Operations.labelOperationIncludeExclude.text"));
+                                            labelOperationIncludeExclude.setText(context.cfg.gs("Operations.labelOperationIncludeExclude.text"));
                                             labelOperationIncludeExclude.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationIncludeExclude, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationJob ----
-                                            labelOperationJob.setText(guiContext.cfg.gs("Operations.labelOperationJob.text"));
+                                            labelOperationJob.setText(context.cfg.gs("Operations.labelOperationJob.text"));
                                             labelOperationJob.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationJob, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1899,10 +1901,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationJob.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationJob.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationJob.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationJob, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1918,8 +1920,8 @@ public class MainFrame extends JFrame
                                             buttonOperationJobPick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationJobPick.setActionCommand("jobPick");
                                             buttonOperationJobPick.setName("job");
-                                            buttonOperationJobPick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationJobPick.toolTipText"));
-                                            buttonOperationJobPick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationJobPick.setToolTipText(context.cfg.gs("Operations.buttonOperationJobPick.toolTipText"));
+                                            buttonOperationJobPick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationJobPick, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1933,7 +1935,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationTargets ----
-                                            labelOperationTargets.setText(guiContext.cfg.gs("Operations.labelOperationTargets.text"));
+                                            labelOperationTargets.setText(context.cfg.gs("Operations.labelOperationTargets.text"));
                                             panelCardPublisher.add(labelOperationTargets, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1946,10 +1948,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationTargets.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationTargets.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationTargets.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationTargets, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1964,9 +1966,9 @@ public class MainFrame extends JFrame
                                             buttonOperationTargetsFilePick.setIconTextGap(0);
                                             buttonOperationTargetsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationTargetsFilePick.setActionCommand("targetsFilePick");
-                                            buttonOperationTargetsFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationTargetsFilePick.toolTipText"));
+                                            buttonOperationTargetsFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationTargetsFilePick.toolTipText"));
                                             buttonOperationTargetsFilePick.setName("targets");
-                                            buttonOperationTargetsFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationTargetsFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationTargetsFilePick, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -1980,7 +1982,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationsMismatches ----
-                                            labelOperationsMismatches.setText(guiContext.cfg.gs("Operations.labelOperationsMismatches.text"));
+                                            labelOperationsMismatches.setText(context.cfg.gs("Operations.labelOperationsMismatches.text"));
                                             labelOperationsMismatches.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationsMismatches, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1994,10 +1996,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationMismatches.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationMismatches.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationMismatches.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationMismatches, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2012,9 +2014,9 @@ public class MainFrame extends JFrame
                                             buttonOperationMismatchesFilePick.setIconTextGap(0);
                                             buttonOperationMismatchesFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationMismatchesFilePick.setActionCommand("mismatchesFilePick");
-                                            buttonOperationMismatchesFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationMismatchesFilePick.toolTipText"));
+                                            buttonOperationMismatchesFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationMismatchesFilePick.toolTipText"));
                                             buttonOperationMismatchesFilePick.setName("mismatches");
-                                            buttonOperationMismatchesFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationMismatchesFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationMismatchesFilePick, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2028,14 +2030,14 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- comboBoxOperationWhatsNew ----
-                                            comboBoxOperationWhatsNew.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationWhatsNew.prototypeDisplayValue"));
+                                            comboBoxOperationWhatsNew.setPrototypeDisplayValue(context.cfg.gs("Operations.comboBoxOperationWhatsNew.prototypeDisplayValue"));
                                             comboBoxOperationWhatsNew.setModel(new DefaultComboBoxModel<>(new String[] {
                                                 "What's New:",
                                                 "What's New, all:"
                                             }));
                                             comboBoxOperationWhatsNew.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationWhatsNew.setName("whatsnew");
-                                            comboBoxOperationWhatsNew.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            comboBoxOperationWhatsNew.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationWhatsNew, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2048,16 +2050,16 @@ public class MainFrame extends JFrame
                                             textFieldOperationWhatsNew.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationWhatsNew.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationWhatsNew.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationWhatsNew, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- buttonOperationWhatsNewFilePick ----
-                                            buttonOperationWhatsNewFilePick.setText(guiContext.cfg.gs("Operations.buttonOperationWhatsNewFilePick.text"));
+                                            buttonOperationWhatsNewFilePick.setText(context.cfg.gs("Operations.buttonOperationWhatsNewFilePick.text"));
                                             buttonOperationWhatsNewFilePick.setFont(buttonOperationWhatsNewFilePick.getFont().deriveFont(buttonOperationWhatsNewFilePick.getFont().getStyle() | Font.BOLD));
                                             buttonOperationWhatsNewFilePick.setMaximumSize(new Dimension(32, 24));
                                             buttonOperationWhatsNewFilePick.setMinimumSize(new Dimension(32, 24));
@@ -2067,8 +2069,8 @@ public class MainFrame extends JFrame
                                             buttonOperationWhatsNewFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationWhatsNewFilePick.setActionCommand("whatsnewFilePick");
                                             buttonOperationWhatsNewFilePick.setName("whatsnew");
-                                            buttonOperationWhatsNewFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationWhatsNewFilePick.toolTipText"));
-                                            buttonOperationWhatsNewFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationWhatsNewFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationWhatsNewFilePick.toolTipText"));
+                                            buttonOperationWhatsNewFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationWhatsNewFilePick, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2082,7 +2084,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationOverwrite ----
-                                            labelOperationOverwrite.setText(guiContext.cfg.gs("Operations.labelOperationOverwrite.text"));
+                                            labelOperationOverwrite.setText(context.cfg.gs("Operations.labelOperationOverwrite.text"));
                                             labelOperationOverwrite.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationOverwrite, new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2090,13 +2092,13 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationOverwrite ----
                                             checkBoxOperationOverwrite.setName("overwrite");
-                                            checkBoxOperationOverwrite.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationOverwrite.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationOverwrite, new GridBagConstraints(5, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationExportText ----
-                                            labelOperationExportText.setText(guiContext.cfg.gs("Operations.labelOperationExportText.text"));
+                                            labelOperationExportText.setText(context.cfg.gs("Operations.labelOperationExportText.text"));
                                             labelOperationExportText.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationExportText, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2110,10 +2112,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationExportText.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationExportText.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationExportText.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationExportText, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2128,9 +2130,9 @@ public class MainFrame extends JFrame
                                             buttonOperationExportTextFilePick.setIconTextGap(0);
                                             buttonOperationExportTextFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationExportTextFilePick.setActionCommand("exportTextFilePick");
-                                            buttonOperationExportTextFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationExportTextFilePick.toolTipText"));
+                                            buttonOperationExportTextFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationExportTextFilePick.toolTipText"));
                                             buttonOperationExportTextFilePick.setName("exporttext");
-                                            buttonOperationExportTextFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationExportTextFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationExportTextFilePick, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2144,7 +2146,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationPreservedDates ----
-                                            labelOperationPreservedDates.setText(guiContext.cfg.gs("Operations.labelOperationPreservedDates.text"));
+                                            labelOperationPreservedDates.setText(context.cfg.gs("Operations.labelOperationPreservedDates.text"));
                                             labelOperationPreservedDates.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationPreservedDates, new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2152,13 +2154,13 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationPreserveDates ----
                                             checkBoxOperationPreserveDates.setName("preserveDates");
-                                            checkBoxOperationPreserveDates.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationPreserveDates.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationPreserveDates, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationExportItems ----
-                                            labelOperationExportItems.setText(guiContext.cfg.gs("Operations.labelOperationExportItems.text"));
+                                            labelOperationExportItems.setText(context.cfg.gs("Operations.labelOperationExportItems.text"));
                                             labelOperationExportItems.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationExportItems, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2172,10 +2174,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationExportItems.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationExportItems.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationExportItems.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationExportItems, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2191,8 +2193,8 @@ public class MainFrame extends JFrame
                                             buttonOperationExportItemsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationExportItemsFilePick.setActionCommand("exportItemsFilePick");
                                             buttonOperationExportItemsFilePick.setName("exportitems");
-                                            buttonOperationExportItemsFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationExportItemsFilePick.toolTipText"));
-                                            buttonOperationExportItemsFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationExportItemsFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationExportItemsFilePick.toolTipText"));
+                                            buttonOperationExportItemsFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationExportItemsFilePick, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2206,7 +2208,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationDecimalScale ----
-                                            labelOperationDecimalScale.setText(guiContext.cfg.gs("Operations.labelOperationDecimalScale.text"));
+                                            labelOperationDecimalScale.setText(context.cfg.gs("Operations.labelOperationDecimalScale.text"));
                                             labelOperationDecimalScale.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationDecimalScale, new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2214,8 +2216,8 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDecimalScale ----
                                             checkBoxOperationDecimalScale.setName("decimalScale");
-                                            checkBoxOperationDecimalScale.setToolTipText(guiContext.cfg.gs("Operations.checkBoxOperationDecimalScale.toolTipText"));
-                                            checkBoxOperationDecimalScale.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationDecimalScale.setToolTipText(context.cfg.gs("Operations.checkBoxOperationDecimalScale.toolTipText"));
+                                            checkBoxOperationDecimalScale.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationDecimalScale, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2229,7 +2231,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationDryRun ----
-                                            labelOperationDryRun.setText(guiContext.cfg.gs("Operations.labelOperation.DryRun.text"));
+                                            labelOperationDryRun.setText(context.cfg.gs("Operations.labelOperation.DryRun.text"));
                                             labelOperationDryRun.setMinimumSize(new Dimension(5260, 16));
                                             panelCardPublisher.add(labelOperationDryRun, new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2237,20 +2239,20 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDryRun ----
                                             checkBoxOperationDryRun.setName("dryRun");
-                                            checkBoxOperationDryRun.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationDryRun.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationDryRun, new GridBagConstraints(5, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- comboBoxOperationHintKeys ----
-                                            comboBoxOperationHintKeys.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationHintKeys.prototypeDisplayValue"));
+                                            comboBoxOperationHintKeys.setPrototypeDisplayValue(context.cfg.gs("Operations.comboBoxOperationHintKeys.prototypeDisplayValue"));
                                             comboBoxOperationHintKeys.setModel(new DefaultComboBoxModel<>(new String[] {
                                                 "Hint keys:",
                                                 "Hint keys, only:"
                                             }));
                                             comboBoxOperationHintKeys.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationHintKeys.setName("keys");
-                                            comboBoxOperationHintKeys.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            comboBoxOperationHintKeys.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationHintKeys, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2263,10 +2265,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationHintKeys.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationHintKeys.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationHintKeys.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationHintKeys, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2281,9 +2283,9 @@ public class MainFrame extends JFrame
                                             buttonOperationHintKeysFilePick.setIconTextGap(0);
                                             buttonOperationHintKeysFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationHintKeysFilePick.setActionCommand("hintKeysFilePick");
-                                            buttonOperationHintKeysFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationHintKeysFilePick.toolTipText"));
+                                            buttonOperationHintKeysFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationHintKeysFilePick.toolTipText"));
                                             buttonOperationHintKeysFilePick.setName("hintkeys");
-                                            buttonOperationHintKeysFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationHintKeysFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationHintKeysFilePick, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2297,7 +2299,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationNoBackfill ----
-                                            labelOperationNoBackfill.setText(guiContext.cfg.gs("Operations.labelOperation.NoBackfill.text"));
+                                            labelOperationNoBackfill.setText(context.cfg.gs("Operations.labelOperation.NoBackfill.text"));
                                             labelOperationNoBackfill.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationNoBackfill, new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2305,20 +2307,20 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationNoBackFill ----
                                             checkBoxOperationNoBackFill.setName("noBackFill");
-                                            checkBoxOperationNoBackFill.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationNoBackFill.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationNoBackFill, new GridBagConstraints(5, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- comboBoxOperationHintsAndServer ----
-                                            comboBoxOperationHintsAndServer.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationHintsAndServer.prototypeDisplayValue"));
+                                            comboBoxOperationHintsAndServer.setPrototypeDisplayValue(context.cfg.gs("Operations.comboBoxOperationHintsAndServer.prototypeDisplayValue"));
                                             comboBoxOperationHintsAndServer.setModel(new DefaultComboBoxModel<>(new String[] {
                                                 "Hints:",
                                                 "Hint Server:"
                                             }));
                                             comboBoxOperationHintsAndServer.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationHintsAndServer.setName("hints");
-                                            comboBoxOperationHintsAndServer.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            comboBoxOperationHintsAndServer.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationHintsAndServer, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2331,10 +2333,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationHints.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationHints.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationHints.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationHints, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2349,9 +2351,9 @@ public class MainFrame extends JFrame
                                             buttonOperationHintsFilePick.setIconTextGap(0);
                                             buttonOperationHintsFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationHintsFilePick.setActionCommand("hintsFilePick");
-                                            buttonOperationHintsFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationHintsFilePick.toolTipText"));
+                                            buttonOperationHintsFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationHintsFilePick.toolTipText"));
                                             buttonOperationHintsFilePick.setName("hints");
-                                            buttonOperationHintsFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationHintsFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationHintsFilePick, new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2365,7 +2367,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationValidate ----
-                                            labelOperationValidate.setText(guiContext.cfg.gs("Operations.labelOperationValidate.text"));
+                                            labelOperationValidate.setText(context.cfg.gs("Operations.labelOperationValidate.text"));
                                             labelOperationValidate.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationValidate, new GridBagConstraints(4, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2373,13 +2375,13 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationValidate ----
                                             checkBoxOperationValidate.setName("validate");
-                                            checkBoxOperationValidate.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationValidate.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationValidate, new GridBagConstraints(5, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationKeepGoing ----
-                                            labelOperationKeepGoing.setText(guiContext.cfg.gs("Operations.labelOperationKeepGoing.text"));
+                                            labelOperationKeepGoing.setText(context.cfg.gs("Operations.labelOperationKeepGoing.text"));
                                             labelOperationKeepGoing.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationKeepGoing, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2387,7 +2389,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationKeepGoing ----
                                             checkBoxOperationKeepGoing.setName("keepgoing");
-                                            checkBoxOperationKeepGoing.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationKeepGoing.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationKeepGoing, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2401,7 +2403,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationQuitStatusServer ----
-                                            labelOperationQuitStatusServer.setText(guiContext.cfg.gs("Operations.labelOperationQuitStatusServer.text"));
+                                            labelOperationQuitStatusServer.setText(context.cfg.gs("Operations.labelOperationQuitStatusServer.text"));
                                             labelOperationQuitStatusServer.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationQuitStatusServer, new GridBagConstraints(0, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2409,7 +2411,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationQuitStatus ----
                                             checkBoxOperationQuitStatus.setName("quitstatusserver");
-                                            checkBoxOperationQuitStatus.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationQuitStatus.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationQuitStatus, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2423,7 +2425,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationDuplicates ----
-                                            labelOperationDuplicates.setText(guiContext.cfg.gs("Operations.labelOperationDuplicates.text"));
+                                            labelOperationDuplicates.setText(context.cfg.gs("Operations.labelOperationDuplicates.text"));
                                             labelOperationDuplicates.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationDuplicates, new GridBagConstraints(4, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2431,7 +2433,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDuplicates ----
                                             checkBoxOperationDuplicates.setName("duplicates");
-                                            checkBoxOperationDuplicates.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationDuplicates.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationDuplicates, new GridBagConstraints(5, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2445,7 +2447,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationCrossCheck ----
-                                            labelOperationCrossCheck.setText(guiContext.cfg.gs("Operations.labelOperationCrossCheck.text"));
+                                            labelOperationCrossCheck.setText(context.cfg.gs("Operations.labelOperationCrossCheck.text"));
                                             labelOperationCrossCheck.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationCrossCheck, new GridBagConstraints(4, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2453,20 +2455,20 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationCrossCheck ----
                                             checkBoxOperationCrossCheck.setName("crossCheck");
-                                            checkBoxOperationCrossCheck.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationCrossCheck.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationCrossCheck, new GridBagConstraints(5, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- comboBoxOperationLog ----
-                                            comboBoxOperationLog.setPrototypeDisplayValue(guiContext.cfg.gs("Operations.comboBoxOperationLog.prototypeDisplayValue"));
+                                            comboBoxOperationLog.setPrototypeDisplayValue(context.cfg.gs("Operations.comboBoxOperationLog.prototypeDisplayValue"));
                                             comboBoxOperationLog.setModel(new DefaultComboBoxModel<>(new String[] {
                                                 "Log:",
                                                 "Log, overwrite:"
                                             }));
                                             comboBoxOperationLog.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationLog.setName("log");
-                                            comboBoxOperationLog.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            comboBoxOperationLog.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(comboBoxOperationLog, new GridBagConstraints(0, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2479,10 +2481,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationLog.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationLog.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationLog.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(textFieldOperationLog, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2497,9 +2499,9 @@ public class MainFrame extends JFrame
                                             buttonOperationLogFilePick.setIconTextGap(0);
                                             buttonOperationLogFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationLogFilePick.setActionCommand("logFilePick");
-                                            buttonOperationLogFilePick.setToolTipText(guiContext.cfg.gs("Operations.buttonOperationLogFilePick.toolTipText"));
+                                            buttonOperationLogFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationLogFilePick.toolTipText"));
                                             buttonOperationLogFilePick.setName("log");
-                                            buttonOperationLogFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationLogFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(buttonOperationLogFilePick, new GridBagConstraints(2, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2513,7 +2515,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationEmptyDirectories ----
-                                            labelOperationEmptyDirectories.setText(guiContext.cfg.gs("Operations.labelOperationEmptyDirectories.text"));
+                                            labelOperationEmptyDirectories.setText(context.cfg.gs("Operations.labelOperationEmptyDirectories.text"));
                                             labelOperationEmptyDirectories.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationEmptyDirectories, new GridBagConstraints(4, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2521,13 +2523,13 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationEmptyDirectories ----
                                             checkBoxOperationEmptyDirectories.setName("emptyDirectories");
-                                            checkBoxOperationEmptyDirectories.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationEmptyDirectories.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationEmptyDirectories, new GridBagConstraints(5, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationLogLevels ----
-                                            labelOperationLogLevels.setText(guiContext.cfg.gs("Operations.labelOperationLogLevels.text"));
+                                            labelOperationLogLevels.setText(context.cfg.gs("Operations.labelOperationLogLevels.text"));
                                             labelOperationLogLevels.setMinimumSize(new Dimension(60, 16));
                                             labelOperationLogLevels.setPreferredSize(new Dimension(138, 16));
                                             panelCardPublisher.add(labelOperationLogLevels, new GridBagConstraints(0, 14, 1, 1, 0.0, 0.0,
@@ -2551,7 +2553,7 @@ public class MainFrame extends JFrame
                                                 }));
                                                 comboBoxOperationConsoleLevel.setSelectedIndex(3);
                                                 comboBoxOperationConsoleLevel.setName("consolelevel");
-                                                comboBoxOperationConsoleLevel.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                                comboBoxOperationConsoleLevel.addActionListener(e -> context.operationsUI.genericAction(e));
                                                 panelOperationLogLevels.add(comboBoxOperationConsoleLevel);
 
                                                 //---- comboBoxOperationDebugLevel ----
@@ -2567,7 +2569,7 @@ public class MainFrame extends JFrame
                                                 }));
                                                 comboBoxOperationDebugLevel.setSelectedIndex(2);
                                                 comboBoxOperationDebugLevel.setName("debuglevel");
-                                                comboBoxOperationDebugLevel.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                                comboBoxOperationDebugLevel.addActionListener(e -> context.operationsUI.genericAction(e));
                                                 panelOperationLogLevels.add(comboBoxOperationDebugLevel);
                                             }
                                             panelCardPublisher.add(panelOperationLogLevels, new GridBagConstraints(1, 14, 1, 1, 0.0, 0.0,
@@ -2583,7 +2585,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationIgnored ----
-                                            labelOperationIgnored.setText(guiContext.cfg.gs("Operations.labelOperationIgnored.text"));
+                                            labelOperationIgnored.setText(context.cfg.gs("Operations.labelOperationIgnored.text"));
                                             labelOperationIgnored.setPreferredSize(new Dimension(138, 16));
                                             labelOperationIgnored.setMinimumSize(new Dimension(60, 16));
                                             panelCardPublisher.add(labelOperationIgnored, new GridBagConstraints(4, 14, 1, 1, 0.0, 0.0,
@@ -2592,7 +2594,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationIgnored ----
                                             checkBoxOperationIgnored.setName("ignored");
-                                            checkBoxOperationIgnored.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationIgnored.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationIgnored, new GridBagConstraints(5, 14, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2606,7 +2608,7 @@ public class MainFrame extends JFrame
                                             ((GridBagLayout)panelCardListener.getLayout()).rowHeights = new int[] {0, 28, 34, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
                                             //---- labelOperationJob2 ----
-                                            labelOperationJob2.setText(guiContext.cfg.gs("Operations.labelOperation.Job2.text"));
+                                            labelOperationJob2.setText(context.cfg.gs("Operations.labelOperation.Job2.text"));
                                             labelOperationJob2.setMinimumSize(new Dimension(60, 16));
                                             panelCardListener.add(labelOperationJob2, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2620,10 +2622,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationJob2.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationJob2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationJob2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationJob2, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2639,8 +2641,8 @@ public class MainFrame extends JFrame
                                             buttonOperationJobPick2.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationJobPick2.setActionCommand("jobPick");
                                             buttonOperationJobPick2.setName("job2");
-                                            buttonOperationJobPick2.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationJobPick2.toolTipText"));
-                                            buttonOperationJobPick2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationJobPick2.setToolTipText(context.cfg.gs("Navigator.buttonOperationJobPick2.toolTipText"));
+                                            buttonOperationJobPick2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationJobPick2, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2690,27 +2692,27 @@ public class MainFrame extends JFrame
                                                     panelOperationExcludeButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                                                     //---- buttonOperationAddExclude ----
-                                                    buttonOperationAddExclude.setText(guiContext.cfg.gs("Navigator.buttonOperationAddExclude.text"));
+                                                    buttonOperationAddExclude.setText(context.cfg.gs("Navigator.buttonOperationAddExclude.text"));
                                                     buttonOperationAddExclude.setFont(buttonOperationAddExclude.getFont().deriveFont(buttonOperationAddExclude.getFont().getSize() - 2f));
                                                     buttonOperationAddExclude.setPreferredSize(new Dimension(78, 24));
                                                     buttonOperationAddExclude.setMinimumSize(new Dimension(78, 24));
                                                     buttonOperationAddExclude.setMaximumSize(new Dimension(78, 24));
-                                                    buttonOperationAddExclude.setMnemonic(guiContext.cfg.gs("Navigator.buttonOperationAddExclude.mnemonic").charAt(0));
-                                                    buttonOperationAddExclude.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationAddExclude.toolTipText"));
+                                                    buttonOperationAddExclude.setMnemonic(context.cfg.gs("Navigator.buttonOperationAddExclude.mnemonic").charAt(0));
+                                                    buttonOperationAddExclude.setToolTipText(context.cfg.gs("Navigator.buttonOperationAddExclude.toolTipText"));
                                                     buttonOperationAddExclude.setName("addexc");
-                                                    buttonOperationAddExclude.addActionListener(e -> guiContext.operationsUI.actionOperationAddRowClicked(e));
+                                                    buttonOperationAddExclude.addActionListener(e -> context.operationsUI.actionOperationAddRowClicked(e));
                                                     panelOperationExcludeButtons.add(buttonOperationAddExclude);
 
                                                     //---- buttonOperationRemoveExclude ----
-                                                    buttonOperationRemoveExclude.setText(guiContext.cfg.gs("Navigator.buttonOperationRemoveExclude.text"));
+                                                    buttonOperationRemoveExclude.setText(context.cfg.gs("Navigator.buttonOperationRemoveExclude.text"));
                                                     buttonOperationRemoveExclude.setFont(buttonOperationRemoveExclude.getFont().deriveFont(buttonOperationRemoveExclude.getFont().getSize() - 2f));
                                                     buttonOperationRemoveExclude.setPreferredSize(new Dimension(78, 24));
                                                     buttonOperationRemoveExclude.setMinimumSize(new Dimension(78, 24));
                                                     buttonOperationRemoveExclude.setMaximumSize(new Dimension(78, 24));
-                                                    buttonOperationRemoveExclude.setMnemonic(guiContext.cfg.gs("Navigator.buttonOperationRemoveExclude.mnemonic").charAt(0));
-                                                    buttonOperationRemoveExclude.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationRemoveExclude.toolTipText"));
+                                                    buttonOperationRemoveExclude.setMnemonic(context.cfg.gs("Navigator.buttonOperationRemoveExclude.mnemonic").charAt(0));
+                                                    buttonOperationRemoveExclude.setToolTipText(context.cfg.gs("Navigator.buttonOperationRemoveExclude.toolTipText"));
                                                     buttonOperationRemoveExclude.setName("removeexc");
-                                                    buttonOperationRemoveExclude.addActionListener(e -> guiContext.operationsUI.actionOperationRemoveRowClicked(e));
+                                                    buttonOperationRemoveExclude.addActionListener(e -> context.operationsUI.actionOperationRemoveRowClicked(e));
                                                     panelOperationExcludeButtons.add(buttonOperationRemoveExclude);
                                                 }
                                                 panelOperationExcludeBox.add(panelOperationExcludeButtons);
@@ -2720,7 +2722,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationExclude ----
-                                            labelOperationExclude.setText(guiContext.cfg.gs("Operations.labelOperation.Exclude.text"));
+                                            labelOperationExclude.setText(context.cfg.gs("Operations.labelOperation.Exclude.text"));
                                             labelOperationExclude.setMinimumSize(new Dimension(60, 16));
                                             labelOperationExclude.setPreferredSize(new Dimension(138, 16));
                                             panelCardListener.add(labelOperationExclude, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
@@ -2728,7 +2730,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationTargets2 ----
-                                            labelOperationTargets2.setText(guiContext.cfg.gs("Operations.labelOperation.Targets2.text"));
+                                            labelOperationTargets2.setText(context.cfg.gs("Operations.labelOperation.Targets2.text"));
                                             panelCardListener.add(labelOperationTargets2, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2741,10 +2743,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationTargets2.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationTargets2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationTargets2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationTargets2, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2759,9 +2761,9 @@ public class MainFrame extends JFrame
                                             buttonOperationTargetsFilePick2.setIconTextGap(0);
                                             buttonOperationTargetsFilePick2.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationTargetsFilePick2.setActionCommand("targetsFilePick");
-                                            buttonOperationTargetsFilePick2.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationTargetsFilePick2.toolTipText"));
+                                            buttonOperationTargetsFilePick2.setToolTipText(context.cfg.gs("Navigator.buttonOperationTargetsFilePick2.toolTipText"));
                                             buttonOperationTargetsFilePick2.setName("targets2");
-                                            buttonOperationTargetsFilePick2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationTargetsFilePick2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationTargetsFilePick2, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2783,19 +2785,19 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationAuthorize ----
-                                            labelOperationAuthorize.setText(guiContext.cfg.gs("Operations.labelOperation.Authorize.text"));
+                                            labelOperationAuthorize.setText(context.cfg.gs("Operations.labelOperation.Authorize.text"));
                                             panelCardListener.add(labelOperationAuthorize, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- passwordFieldOperationsAuthorize ----
-                                            passwordFieldOperationsAuthorize.setToolTipText(guiContext.cfg.gs("Operations.passwordFieldOperationsAuthorize.toolTipText"));
+                                            passwordFieldOperationsAuthorize.setToolTipText(context.cfg.gs("Operations.passwordFieldOperationsAuthorize.toolTipText"));
                                             passwordFieldOperationsAuthorize.setName("authpassword");
-                                            passwordFieldOperationsAuthorize.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            passwordFieldOperationsAuthorize.addActionListener(e -> context.operationsUI.genericAction(e));
                                             passwordFieldOperationsAuthorize.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
                                             panelCardListener.add(passwordFieldOperationsAuthorize, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
@@ -2811,7 +2813,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationAuthKeys ----
-                                            labelOperationAuthKeys.setText(guiContext.cfg.gs("Operations.labelOperation.AuthKeys.text"));
+                                            labelOperationAuthKeys.setText(context.cfg.gs("Operations.labelOperation.AuthKeys.text"));
                                             panelCardListener.add(labelOperationAuthKeys, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2824,10 +2826,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationAuthKeys.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationAuthKeys.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationAuthKeys.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationAuthKeys, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2842,9 +2844,9 @@ public class MainFrame extends JFrame
                                             buttonOperationAuthKeysFilePick.setIconTextGap(0);
                                             buttonOperationAuthKeysFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationAuthKeysFilePick.setActionCommand("authKeysFilePick");
-                                            buttonOperationAuthKeysFilePick.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationAuthKeysFilePick.toolTipText"));
+                                            buttonOperationAuthKeysFilePick.setToolTipText(context.cfg.gs("Navigator.buttonOperationAuthKeysFilePick.toolTipText"));
                                             buttonOperationAuthKeysFilePick.setName("authkeys");
-                                            buttonOperationAuthKeysFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationAuthKeysFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationAuthKeysFilePick, new GridBagConstraints(2, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2858,7 +2860,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationOverwrite2 ----
-                                            labelOperationOverwrite2.setText(guiContext.cfg.gs("Operations.labelOperation.Overwrite2.text"));
+                                            labelOperationOverwrite2.setText(context.cfg.gs("Operations.labelOperation.Overwrite2.text"));
                                             labelOperationOverwrite2.setMinimumSize(new Dimension(60, 16));
                                             panelCardListener.add(labelOperationOverwrite2, new GridBagConstraints(4, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2866,13 +2868,13 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationOverwrite2 ----
                                             checkBoxOperationOverwrite2.setName("overwrite2");
-                                            checkBoxOperationOverwrite2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationOverwrite2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(checkBoxOperationOverwrite2, new GridBagConstraints(5, 4, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationBlacklist ----
-                                            labelOperationBlacklist.setText(guiContext.cfg.gs("Operations.labelOperation.Blacklist.text"));
+                                            labelOperationBlacklist.setText(context.cfg.gs("Operations.labelOperation.Blacklist.text"));
                                             panelCardListener.add(labelOperationBlacklist, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2885,10 +2887,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationBlacklist.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationBlacklist.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationBlacklist.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationBlacklist, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2903,9 +2905,9 @@ public class MainFrame extends JFrame
                                             buttonOperationBlacklistFilePick.setIconTextGap(0);
                                             buttonOperationBlacklistFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationBlacklistFilePick.setActionCommand("blacklistFilePick");
-                                            buttonOperationBlacklistFilePick.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationBlacklistFilePick.toolTipText"));
+                                            buttonOperationBlacklistFilePick.setToolTipText(context.cfg.gs("Navigator.buttonOperationBlacklistFilePick.toolTipText"));
                                             buttonOperationBlacklistFilePick.setName("blacklist");
-                                            buttonOperationBlacklistFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationBlacklistFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationBlacklistFilePick, new GridBagConstraints(2, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2919,7 +2921,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationPreservedDates2 ----
-                                            labelOperationPreservedDates2.setText(guiContext.cfg.gs("Operations.labelOperation.PreservedDates2.text"));
+                                            labelOperationPreservedDates2.setText(context.cfg.gs("Operations.labelOperation.PreservedDates2.text"));
                                             labelOperationPreservedDates2.setMinimumSize(new Dimension(60, 16));
                                             panelCardListener.add(labelOperationPreservedDates2, new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2927,13 +2929,13 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationPreserveDates2 ----
                                             checkBoxOperationPreserveDates2.setName("preserveDates2");
-                                            checkBoxOperationPreserveDates2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationPreserveDates2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(checkBoxOperationPreserveDates2, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationIpWhitelist ----
-                                            labelOperationIpWhitelist.setText(guiContext.cfg.gs("Operations.labelOperation.IpWhitelist.text"));
+                                            labelOperationIpWhitelist.setText(context.cfg.gs("Operations.labelOperation.IpWhitelist.text"));
                                             panelCardListener.add(labelOperationIpWhitelist, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2946,10 +2948,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationIpWhitelist.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationIpWhitelist.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationIpWhitelist.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationIpWhitelist, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2964,9 +2966,9 @@ public class MainFrame extends JFrame
                                             buttonOperationIpWhitelistFilePick.setIconTextGap(0);
                                             buttonOperationIpWhitelistFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationIpWhitelistFilePick.setActionCommand("ipWhitelistFilePick");
-                                            buttonOperationIpWhitelistFilePick.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationIpWhitelistFilePick.toolTipText"));
+                                            buttonOperationIpWhitelistFilePick.setToolTipText(context.cfg.gs("Navigator.buttonOperationIpWhitelistFilePick.toolTipText"));
                                             buttonOperationIpWhitelistFilePick.setName("ipwhitelist");
-                                            buttonOperationIpWhitelistFilePick.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationIpWhitelistFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationIpWhitelistFilePick, new GridBagConstraints(2, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -2980,7 +2982,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationDecimalScale2 ----
-                                            labelOperationDecimalScale2.setText(guiContext.cfg.gs("Operations.labelOperation.DecimalScale2.text"));
+                                            labelOperationDecimalScale2.setText(context.cfg.gs("Operations.labelOperation.DecimalScale2.text"));
                                             labelOperationDecimalScale2.setMinimumSize(new Dimension(60, 16));
                                             panelCardListener.add(labelOperationDecimalScale2, new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2988,8 +2990,8 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDecimalScale2 ----
                                             checkBoxOperationDecimalScale2.setName("decimalScale2");
-                                            checkBoxOperationDecimalScale2.setToolTipText(guiContext.cfg.gs("Operations.checkBoxOperationDecimalScale2.toolTipText"));
-                                            checkBoxOperationDecimalScale2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationDecimalScale2.setToolTipText(context.cfg.gs("Operations.checkBoxOperationDecimalScale2.toolTipText"));
+                                            checkBoxOperationDecimalScale2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(checkBoxOperationDecimalScale2, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3003,7 +3005,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationHintKeys ----
-                                            labelOperationHintKeys.setText(guiContext.cfg.gs("Operations.labelOperationHintKeys.text"));
+                                            labelOperationHintKeys.setText(context.cfg.gs("Operations.labelOperationHintKeys.text"));
                                             panelCardListener.add(labelOperationHintKeys, new GridBagConstraints(0, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3016,10 +3018,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationHintKeys2.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationHintKeys2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationHintKeys2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationHintKeys2, new GridBagConstraints(1, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3034,9 +3036,9 @@ public class MainFrame extends JFrame
                                             buttonOperationHintKeysFilePick2.setIconTextGap(0);
                                             buttonOperationHintKeysFilePick2.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationHintKeysFilePick2.setActionCommand("hintKeysFilePick");
-                                            buttonOperationHintKeysFilePick2.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationHintKeysFilePick2.toolTipText"));
+                                            buttonOperationHintKeysFilePick2.setToolTipText(context.cfg.gs("Navigator.buttonOperationHintKeysFilePick2.toolTipText"));
                                             buttonOperationHintKeysFilePick2.setName("hintkeys2");
-                                            buttonOperationHintKeysFilePick2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationHintKeysFilePick2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationHintKeysFilePick2, new GridBagConstraints(2, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3050,14 +3052,14 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- comboBoxOperationHintsAndServer2 ----
-                                            comboBoxOperationHintsAndServer2.setPrototypeDisplayValue(guiContext.cfg.gs("Navigator.comboBoxOperationHintsAndServer2.prototypeDisplayValue"));
+                                            comboBoxOperationHintsAndServer2.setPrototypeDisplayValue(context.cfg.gs("Navigator.comboBoxOperationHintsAndServer2.prototypeDisplayValue"));
                                             comboBoxOperationHintsAndServer2.setModel(new DefaultComboBoxModel<>(new String[] {
                                                 "Hints:",
                                                 "Hint Server:"
                                             }));
                                             comboBoxOperationHintsAndServer2.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationHintsAndServer2.setName("hints");
-                                            comboBoxOperationHintsAndServer2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            comboBoxOperationHintsAndServer2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(comboBoxOperationHintsAndServer2, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3070,10 +3072,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationHints2.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationHints2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationHints2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationHints2, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3088,9 +3090,9 @@ public class MainFrame extends JFrame
                                             buttonOperationHintsFilePick2.setIconTextGap(0);
                                             buttonOperationHintsFilePick2.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationHintsFilePick2.setActionCommand("hintsFilePick");
-                                            buttonOperationHintsFilePick2.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationHintsFilePick2.toolTipText"));
+                                            buttonOperationHintsFilePick2.setToolTipText(context.cfg.gs("Navigator.buttonOperationHintsFilePick2.toolTipText"));
                                             buttonOperationHintsFilePick2.setName("hints2");
-                                            buttonOperationHintsFilePick2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationHintsFilePick2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationHintsFilePick2, new GridBagConstraints(2, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3104,7 +3106,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationKeepGoing2 ----
-                                            labelOperationKeepGoing2.setText(guiContext.cfg.gs("Operations.labelOperation.KeepGoing2.text"));
+                                            labelOperationKeepGoing2.setText(context.cfg.gs("Operations.labelOperation.KeepGoing2.text"));
                                             labelOperationKeepGoing2.setMinimumSize(new Dimension(60, 16));
                                             panelCardListener.add(labelOperationKeepGoing2, new GridBagConstraints(0, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -3112,7 +3114,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationKeepGoing2 ----
                                             checkBoxOperationKeepGoing2.setName("keepgoing2");
-                                            checkBoxOperationKeepGoing2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            checkBoxOperationKeepGoing2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(checkBoxOperationKeepGoing2, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3134,14 +3136,14 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- comboBoxOperationLog2 ----
-                                            comboBoxOperationLog2.setPrototypeDisplayValue(guiContext.cfg.gs("Navigator.comboBoxOperationLog2.prototypeDisplayValue"));
+                                            comboBoxOperationLog2.setPrototypeDisplayValue(context.cfg.gs("Navigator.comboBoxOperationLog2.prototypeDisplayValue"));
                                             comboBoxOperationLog2.setModel(new DefaultComboBoxModel<>(new String[] {
                                                 "Log:",
                                                 "Log, overwrite:"
                                             }));
                                             comboBoxOperationLog2.setMinimumSize(new Dimension(60, 30));
                                             comboBoxOperationLog2.setName("log");
-                                            comboBoxOperationLog2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            comboBoxOperationLog2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(comboBoxOperationLog2, new GridBagConstraints(0, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3154,10 +3156,10 @@ public class MainFrame extends JFrame
                                             textFieldOperationLog2.addFocusListener(new FocusAdapter() {
                                                 @Override
                                                 public void focusLost(FocusEvent e) {
-                                                    guiContext.operationsUI.genericTextFieldFocusLost(e);
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
                                                 }
                                             });
-                                            textFieldOperationLog2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            textFieldOperationLog2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(textFieldOperationLog2, new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3172,9 +3174,9 @@ public class MainFrame extends JFrame
                                             buttonOperationLogFilePick2.setIconTextGap(0);
                                             buttonOperationLogFilePick2.setHorizontalTextPosition(SwingConstants.LEADING);
                                             buttonOperationLogFilePick2.setActionCommand("logFilePick");
-                                            buttonOperationLogFilePick2.setToolTipText(guiContext.cfg.gs("Navigator.buttonOperationLogFilePick2.toolTipText"));
+                                            buttonOperationLogFilePick2.setToolTipText(context.cfg.gs("Navigator.buttonOperationLogFilePick2.toolTipText"));
                                             buttonOperationLogFilePick2.setName("log2");
-                                            buttonOperationLogFilePick2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                            buttonOperationLogFilePick2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(buttonOperationLogFilePick2, new GridBagConstraints(2, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
@@ -3188,7 +3190,7 @@ public class MainFrame extends JFrame
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- labelOperationLogLevels2 ----
-                                            labelOperationLogLevels2.setText(guiContext.cfg.gs("Operations.labelOperation.LogLevels2.text"));
+                                            labelOperationLogLevels2.setText(context.cfg.gs("Operations.labelOperation.LogLevels2.text"));
                                             labelOperationLogLevels2.setMinimumSize(new Dimension(60, 16));
                                             labelOperationLogLevels2.setPreferredSize(new Dimension(138, 16));
                                             panelCardListener.add(labelOperationLogLevels2, new GridBagConstraints(0, 13, 1, 1, 0.0, 0.0,
@@ -3212,7 +3214,7 @@ public class MainFrame extends JFrame
                                                 }));
                                                 comboBoxOperationConsoleLevel2.setSelectedIndex(3);
                                                 comboBoxOperationConsoleLevel2.setName("consolelevel2");
-                                                comboBoxOperationConsoleLevel2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                                comboBoxOperationConsoleLevel2.addActionListener(e -> context.operationsUI.genericAction(e));
                                                 panelOperationLogLevels2.add(comboBoxOperationConsoleLevel2);
 
                                                 //---- comboBoxOperationDebugLevel2 ----
@@ -3228,7 +3230,7 @@ public class MainFrame extends JFrame
                                                 }));
                                                 comboBoxOperationDebugLevel2.setSelectedIndex(2);
                                                 comboBoxOperationDebugLevel2.setName("debuglevel2");
-                                                comboBoxOperationDebugLevel2.addActionListener(e -> guiContext.operationsUI.genericAction(e));
+                                                comboBoxOperationDebugLevel2.addActionListener(e -> context.operationsUI.genericAction(e));
                                                 panelOperationLogLevels2.add(comboBoxOperationDebugLevel2);
                                             }
                                             panelCardListener.add(panelOperationLogLevels2, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0,
@@ -3317,13 +3319,13 @@ public class MainFrame extends JFrame
                                 panelOperationBottomButtons.setLayout(new FlowLayout(FlowLayout.RIGHT, 5, 0));
 
                                 //---- buttonOperationSave ----
-                                buttonOperationSave.setText(guiContext.cfg.gs("Z.save"));
-                                buttonOperationSave.setToolTipText(guiContext.cfg.gs("Z.save.toolTip.text"));
+                                buttonOperationSave.setText(context.cfg.gs("Z.save"));
+                                buttonOperationSave.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
                                 panelOperationBottomButtons.add(buttonOperationSave);
 
                                 //---- buttonOperationCancel ----
-                                buttonOperationCancel.setText(guiContext.cfg.gs("Z.cancel"));
-                                buttonOperationCancel.setToolTipText(guiContext.cfg.gs("Z.cancel.changes.toolTipText"));
+                                buttonOperationCancel.setText(context.cfg.gs("Z.cancel"));
+                                buttonOperationCancel.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
                                 panelOperationBottomButtons.add(buttonOperationCancel);
                             }
                             panelOperationBottom.add(panelOperationBottomButtons, BorderLayout.EAST);
@@ -3356,20 +3358,20 @@ public class MainFrame extends JFrame
                             textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 14));
                             scrollPaneOperationLog.setViewportView(textAreaOperationLog);
                         }
-                        tabbedPaneOperationBottom.addTab(guiContext.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);
-                        tabbedPaneOperationBottom.setMnemonicAt(0, guiContext.cfg.gs("Operations.scrollPaneLog.tab.mnemonic").charAt(0));
+                        tabbedPaneOperationBottom.addTab(context.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);
+                        tabbedPaneOperationBottom.setMnemonicAt(0, context.cfg.gs("Operations.scrollPaneLog.tab.mnemonic").charAt(0));
                     }
                     splitPaneOperation.setBottomComponent(tabbedPaneOperationBottom);
                 }
-                tabbedPaneMain.addTab(guiContext.cfg.gs("Navigator.splitPane.Operations.tab.title"), splitPaneOperation);
-                tabbedPaneMain.setMnemonicAt(1, guiContext.cfg.gs("Navigator.splitPaneOperations.tab.mnemonic").charAt(0));
+                tabbedPaneMain.addTab(context.cfg.gs("Navigator.splitPane.Operations.tab.title"), splitPaneOperation);
+                tabbedPaneMain.setMnemonicAt(1, context.cfg.gs("Navigator.splitPaneOperations.tab.mnemonic").charAt(0));
 
                 //======== panelLibraries ========
                 {
                     panelLibraries.setLayout(new BorderLayout());
                 }
-                tabbedPaneMain.addTab(guiContext.cfg.gs("Navigator.splitPane.Libraries.tab.title"), panelLibraries);
-                tabbedPaneMain.setMnemonicAt(2, guiContext.cfg.gs("Navigator.splitPane.Libraries.tab.mnemonic").charAt(0));
+                tabbedPaneMain.addTab(context.cfg.gs("Navigator.splitPane.Libraries.tab.title"), panelLibraries);
+                tabbedPaneMain.setMnemonicAt(2, context.cfg.gs("Navigator.splitPane.Libraries.tab.mnemonic").charAt(0));
             }
             panelMain.add(tabbedPaneMain);
         }
@@ -3380,7 +3382,7 @@ public class MainFrame extends JFrame
             panelStatus.setLayout(new GridBagLayout());
 
             //---- labelStatusLeft ----
-            labelStatusLeft.setText(guiContext.cfg.gs("Navigator.label.StatusLeft.text"));
+            labelStatusLeft.setText(context.cfg.gs("Navigator.label.StatusLeft.text"));
             labelStatusLeft.setHorizontalAlignment(SwingConstants.LEFT);
             panelStatus.add(labelStatusLeft, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
@@ -3394,7 +3396,7 @@ public class MainFrame extends JFrame
                 new Insets(0, 0, 0, 4), 0, 0));
 
             //---- labelStatusRight ----
-            labelStatusRight.setText(guiContext.cfg.gs("Navigator.label.StatusRight.text"));
+            labelStatusRight.setText(context.cfg.gs("Navigator.label.StatusRight.text"));
             labelStatusRight.setHorizontalAlignment(SwingConstants.RIGHT);
             panelStatus.add(labelStatusRight, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
@@ -3409,53 +3411,53 @@ public class MainFrame extends JFrame
             popupMenuBrowser.setPreferredSize(new Dimension(170, 194));
 
             //---- popupMenuItemRefresh ----
-            popupMenuItemRefresh.setText(guiContext.cfg.gs("Navigator.popupMenuItemRefresh.text"));
-            popupMenuItemRefresh.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemRefresh.mnemonic").charAt(0));
+            popupMenuItemRefresh.setText(context.cfg.gs("Navigator.popupMenuItemRefresh.text"));
+            popupMenuItemRefresh.setMnemonic(context.cfg.gs("Navigator.popupMenuItemRefresh.mnemonic").charAt(0));
             popupMenuItemRefresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
             popupMenuBrowser.add(popupMenuItemRefresh);
             popupMenuBrowser.addSeparator();
 
             //---- popupMenuItemCopy ----
-            popupMenuItemCopy.setText(guiContext.cfg.gs("Navigator.popupMenu.Copy.text"));
-            popupMenuItemCopy.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Copy.mnemonic").charAt(0));
+            popupMenuItemCopy.setText(context.cfg.gs("Navigator.popupMenu.Copy.text"));
+            popupMenuItemCopy.setMnemonic(context.cfg.gs("Navigator.popupMenu.Copy.mnemonic").charAt(0));
             popupMenuItemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
             popupMenuBrowser.add(popupMenuItemCopy);
 
             //---- popupMenuItemCut ----
-            popupMenuItemCut.setText(guiContext.cfg.gs("Navigator.popupMenu.Cut.text"));
-            popupMenuItemCut.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Cut.mnemonic").charAt(0));
+            popupMenuItemCut.setText(context.cfg.gs("Navigator.popupMenu.Cut.text"));
+            popupMenuItemCut.setMnemonic(context.cfg.gs("Navigator.popupMenu.Cut.mnemonic").charAt(0));
             popupMenuItemCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
             popupMenuBrowser.add(popupMenuItemCut);
 
             //---- popupMenuItemPaste ----
-            popupMenuItemPaste.setText(guiContext.cfg.gs("Navigator.popupMenu.Paste.text"));
-            popupMenuItemPaste.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Paste.mnemonic").charAt(0));
+            popupMenuItemPaste.setText(context.cfg.gs("Navigator.popupMenu.Paste.text"));
+            popupMenuItemPaste.setMnemonic(context.cfg.gs("Navigator.popupMenu.Paste.mnemonic").charAt(0));
             popupMenuItemPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
             popupMenuBrowser.add(popupMenuItemPaste);
             popupMenuBrowser.addSeparator();
 
             //---- popupMenuItemDelete ----
-            popupMenuItemDelete.setText(guiContext.cfg.gs("Navigator.popupMenu.Delete.text"));
-            popupMenuItemDelete.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Delete.mnemonic").charAt(0));
+            popupMenuItemDelete.setText(context.cfg.gs("Navigator.popupMenu.Delete.text"));
+            popupMenuItemDelete.setMnemonic(context.cfg.gs("Navigator.popupMenu.Delete.mnemonic").charAt(0));
             popupMenuItemDelete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
             popupMenuBrowser.add(popupMenuItemDelete);
             popupMenuBrowser.addSeparator();
 
             //---- popupMenuItemNewFolder ----
-            popupMenuItemNewFolder.setText(guiContext.cfg.gs("Navigator.popupMenu.NewFolder.text"));
-            popupMenuItemNewFolder.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.NewFolder.mnemonic").charAt(0));
+            popupMenuItemNewFolder.setText(context.cfg.gs("Navigator.popupMenu.NewFolder.text"));
+            popupMenuItemNewFolder.setMnemonic(context.cfg.gs("Navigator.popupMenu.NewFolder.mnemonic").charAt(0));
             popupMenuItemNewFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
             popupMenuBrowser.add(popupMenuItemNewFolder);
 
             //---- popupMenuItemRename ----
-            popupMenuItemRename.setText(guiContext.cfg.gs("Navigator.popupMenu.Rename.text"));
-            popupMenuItemRename.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Rename.mnemonic").charAt(0));
+            popupMenuItemRename.setText(context.cfg.gs("Navigator.popupMenu.Rename.text"));
+            popupMenuItemRename.setMnemonic(context.cfg.gs("Navigator.popupMenu.Rename.mnemonic").charAt(0));
             popupMenuItemRename.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
             popupMenuBrowser.add(popupMenuItemRename);
 
             //---- popupMenuItemTouch ----
-            popupMenuItemTouch.setText(guiContext.cfg.gs("Navigator.popupMenu.Touch.text"));
-            popupMenuItemTouch.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Touch.mnemonic").charAt(0));
+            popupMenuItemTouch.setText(context.cfg.gs("Navigator.popupMenu.Touch.text"));
+            popupMenuItemTouch.setMnemonic(context.cfg.gs("Navigator.popupMenu.Touch.mnemonic").charAt(0));
             popupMenuBrowser.add(popupMenuItemTouch);
         }
 
@@ -3464,38 +3466,38 @@ public class MainFrame extends JFrame
             popupMenuLog.setPreferredSize(new Dimension(170, 156));
 
             //---- popupMenuItemFindNext ----
-            popupMenuItemFindNext.setText(guiContext.cfg.gs("Navigator.popupMenuItemFindNext.text"));
-            popupMenuItemFindNext.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemFindNext.mnemonic").charAt(0));
+            popupMenuItemFindNext.setText(context.cfg.gs("Navigator.popupMenuItemFindNext.text"));
+            popupMenuItemFindNext.setMnemonic(context.cfg.gs("Navigator.popupMenuItemFindNext.mnemonic").charAt(0));
             popupMenuItemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
             popupMenuLog.add(popupMenuItemFindNext);
 
             //---- popupMenuItemFind ----
-            popupMenuItemFind.setText(guiContext.cfg.gs("Navigator.popupMenuItemFind.text"));
-            popupMenuItemFind.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemFind.mnemonic").charAt(0));
+            popupMenuItemFind.setText(context.cfg.gs("Navigator.popupMenuItemFind.text"));
+            popupMenuItemFind.setMnemonic(context.cfg.gs("Navigator.popupMenuItemFind.mnemonic").charAt(0));
             popupMenuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
             popupMenuLog.add(popupMenuItemFind);
             popupMenuLog.addSeparator();
 
             //---- popupMenuItemTop ----
-            popupMenuItemTop.setText(guiContext.cfg.gs("Navigator.popupMenuItemTop.text"));
-            popupMenuItemTop.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemTop.mnemonic").charAt(0));
+            popupMenuItemTop.setText(context.cfg.gs("Navigator.popupMenuItemTop.text"));
+            popupMenuItemTop.setMnemonic(context.cfg.gs("Navigator.popupMenuItemTop.mnemonic").charAt(0));
             popupMenuLog.add(popupMenuItemTop);
 
             //---- popupMenuItemBottom ----
-            popupMenuItemBottom.setText(guiContext.cfg.gs("Navigator.popupMenu.Bottom.text"));
-            popupMenuItemBottom.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Bottom.mnemonic").charAt(0));
+            popupMenuItemBottom.setText(context.cfg.gs("Navigator.popupMenu.Bottom.text"));
+            popupMenuItemBottom.setMnemonic(context.cfg.gs("Navigator.popupMenu.Bottom.mnemonic").charAt(0));
             popupMenuLog.add(popupMenuItemBottom);
             popupMenuLog.addSeparator();
 
             //---- popupMenuItemClear ----
-            popupMenuItemClear.setText(guiContext.cfg.gs("Navigator.popupMenu.Clear.text"));
-            popupMenuItemClear.setMnemonic(guiContext.cfg.gs("Navigator.popupMenu.Clear.mnemonic").charAt(0));
+            popupMenuItemClear.setText(context.cfg.gs("Navigator.popupMenu.Clear.text"));
+            popupMenuItemClear.setMnemonic(context.cfg.gs("Navigator.popupMenu.Clear.mnemonic").charAt(0));
             popupMenuLog.add(popupMenuItemClear);
             popupMenuLog.addSeparator();
 
             //---- popupCheckBoxMenuItemWordWrap ----
-            popupCheckBoxMenuItemWordWrap.setText(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.text"));
-            popupCheckBoxMenuItemWordWrap.setMnemonic(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.mnemonic").charAt(0));
+            popupCheckBoxMenuItemWordWrap.setText(context.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.text"));
+            popupCheckBoxMenuItemWordWrap.setMnemonic(context.cfg.gs("Navigator.popupCheckBoxMenuItemWordWrap.mnemonic").charAt(0));
             popupCheckBoxMenuItemWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK));
             popupMenuLog.add(popupCheckBoxMenuItemWordWrap);
         }
@@ -3505,38 +3507,38 @@ public class MainFrame extends JFrame
             popupMenuOperationLog.setPreferredSize(new Dimension(170, 156));
 
             //---- popupMenuItemOperationFindNext ----
-            popupMenuItemOperationFindNext.setText(guiContext.cfg.gs("Navigator.popupMenuItemOperationFindNext.text"));
-            popupMenuItemOperationFindNext.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationFindNext.mnemonic").charAt(0));
+            popupMenuItemOperationFindNext.setText(context.cfg.gs("Navigator.popupMenuItemOperationFindNext.text"));
+            popupMenuItemOperationFindNext.setMnemonic(context.cfg.gs("Navigator.popupMenuItemOperationFindNext.mnemonic").charAt(0));
             popupMenuItemOperationFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
             popupMenuOperationLog.add(popupMenuItemOperationFindNext);
 
             //---- popupMenuItemOperationFind ----
-            popupMenuItemOperationFind.setText(guiContext.cfg.gs("Navigator.popupMenuItemOperationFind.text"));
-            popupMenuItemOperationFind.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationFind.mnemonic").charAt(0));
+            popupMenuItemOperationFind.setText(context.cfg.gs("Navigator.popupMenuItemOperationFind.text"));
+            popupMenuItemOperationFind.setMnemonic(context.cfg.gs("Navigator.popupMenuItemOperationFind.mnemonic").charAt(0));
             popupMenuItemOperationFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
             popupMenuOperationLog.add(popupMenuItemOperationFind);
             popupMenuOperationLog.addSeparator();
 
             //---- popupMenuItemOperationTop ----
-            popupMenuItemOperationTop.setText(guiContext.cfg.gs("Operations.popupMenuItemOperationTop.text"));
-            popupMenuItemOperationTop.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationTop.mnemonic").charAt(0));
+            popupMenuItemOperationTop.setText(context.cfg.gs("Operations.popupMenuItemOperationTop.text"));
+            popupMenuItemOperationTop.setMnemonic(context.cfg.gs("Navigator.popupMenuItemOperationTop.mnemonic").charAt(0));
             popupMenuOperationLog.add(popupMenuItemOperationTop);
 
             //---- popupMenuItemOperationBottom ----
-            popupMenuItemOperationBottom.setText(guiContext.cfg.gs("Navigator.popupMenuItemOperationBottom.text"));
-            popupMenuItemOperationBottom.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationBottom.mnemonic").charAt(0));
+            popupMenuItemOperationBottom.setText(context.cfg.gs("Navigator.popupMenuItemOperationBottom.text"));
+            popupMenuItemOperationBottom.setMnemonic(context.cfg.gs("Navigator.popupMenuItemOperationBottom.mnemonic").charAt(0));
             popupMenuOperationLog.add(popupMenuItemOperationBottom);
             popupMenuOperationLog.addSeparator();
 
             //---- popupMenuItemOperationClear ----
-            popupMenuItemOperationClear.setText(guiContext.cfg.gs("Navigator.popupMenuItemOperationClear.text"));
-            popupMenuItemOperationClear.setMnemonic(guiContext.cfg.gs("Navigator.popupMenuItemOperationClear.mnemonic").charAt(0));
+            popupMenuItemOperationClear.setText(context.cfg.gs("Navigator.popupMenuItemOperationClear.text"));
+            popupMenuItemOperationClear.setMnemonic(context.cfg.gs("Navigator.popupMenuItemOperationClear.mnemonic").charAt(0));
             popupMenuOperationLog.add(popupMenuItemOperationClear);
             popupMenuOperationLog.addSeparator();
 
             //---- popupCheckBoxMenuItemOperationWordWrap ----
-            popupCheckBoxMenuItemOperationWordWrap.setText(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemOperationWordWrap.text"));
-            popupCheckBoxMenuItemOperationWordWrap.setMnemonic(guiContext.cfg.gs("Navigator.popupCheckBoxMenuItemOperationWordWrap.mnemonic").charAt(0));
+            popupCheckBoxMenuItemOperationWordWrap.setText(context.cfg.gs("Navigator.popupCheckBoxMenuItemOperationWordWrap.text"));
+            popupCheckBoxMenuItemOperationWordWrap.setMnemonic(context.cfg.gs("Navigator.popupCheckBoxMenuItemOperationWordWrap.mnemonic").charAt(0));
             popupCheckBoxMenuItemOperationWordWrap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK));
             popupMenuOperationLog.add(popupCheckBoxMenuItemOperationWordWrap);
         }

@@ -1,6 +1,5 @@
 package com.groksoft.els.repository;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
@@ -29,7 +28,6 @@ public class Hints
 {
     private final Marker SHORT = MarkerManager.getMarker("SHORT");
     private final Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
-    private Configuration cfg;
     private Context context;
     private int deletedHints = 0;
     private int doneHints = 0;
@@ -45,14 +43,12 @@ public class Hints
     /**
      * Constructor
      *
-     * @param config   Configuration
-     * @param ctx      Contect
+     * @param context  The Context
      * @param hintKeys HintKeys if enabled, else null
      */
-    public Hints(Configuration config, Context ctx, HintKeys hintKeys)
+    public Hints(Context context, HintKeys hintKeys)
     {
-        cfg = config;
-        context = ctx;
+        this.context = context;
         keys = hintKeys;
     }
 
@@ -68,7 +64,7 @@ public class Hints
         }
         else
         {
-            logger.info(SHORT, "# Executed hints     : " + executedHints + (cfg.isDryRun() ? " (--dry-run)" : ""));
+            logger.info(SHORT, "# Executed hints     : " + executedHints + (context.cfg.isDryRun() ? " (--dry-run)" : ""));
             logger.info(SHORT, "# Seen Hints         : " + seenHints);
             logger.info(SHORT, "# Done hints         : " + doneHints);
             logger.info(SHORT, "# Deleted hints      : " + deletedHints);
@@ -79,7 +75,7 @@ public class Hints
             logger.info(SHORT, "# Removed files      : " + context.transfer.getRemovedFiles());
             logger.info(SHORT, "# Skipped missing    : " + context.transfer.getSkippedMissing());
         }
-        if (!cfg.isHintSkipMainProcess())
+        if (!context.cfg.isHintSkipMainProcess())
             logger.info(SHORT, "-------------------------------------------");
     }
 
@@ -198,7 +194,7 @@ public class Hints
         // update hint status
         if (item.isHintExecuted())
         {
-            if (!cfg.isDryRun())
+            if (!context.cfg.isDryRun())
             {
                 updateStatus(item, lines, hintKey.name, "Done");
             }
@@ -287,7 +283,7 @@ public class Hints
                     {
                         candidate = lib.sources[j];
                         // check size of item(s) to be copied
-                        long space = context.transfer.getFreespace(candidate, cfg.isRemoteSession());
+                        long space = context.transfer.getFreespace(candidate, context.cfg.isRemoteSession());
                         if (space > (item.getSize() + (1024 * 1024 * 10)))
                         {
                             target = candidate + Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor) + item.getItemPath();
@@ -385,14 +381,14 @@ public class Hints
     public void hintsLocal() throws Exception
     {
         boolean hintsFound = false;
-        logger.info("Processing local ELS Hints for " + context.publisherRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : ""));
+        logger.info("Processing local ELS Hints for " + context.publisherRepo.getLibraryData().libraries.description + (context.cfg.isDryRun() ? " (--dry-run)" : ""));
 
         for (Library lib : context.publisherRepo.getLibraryData().libraries.bibliography)
         {
             // if processing all libraries, or this one was specified on the command line with -l,
             // and it has not been excluded with -L
-            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+            if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
+                    (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(lib.name)))
             {
                 // does the library have items?
                 if (lib.items == null || lib.items.size() < 1)
@@ -425,14 +421,14 @@ public class Hints
         {
             dumpStats();
 
-            if (!cfg.isDryRun())
+            if (!context.cfg.isDryRun())
             {
                 for (Library lib : context.publisherRepo.getLibraryData().libraries.bibliography)
                 {
                     // if processing all libraries, or this one was specified on the command line with -l,
                     // and it has not been excluded with -L
-                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                    if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
+                            (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(lib.name)))
                     {
                         if (lib.rescanNeeded)
                         {
@@ -461,7 +457,7 @@ public class Hints
     {
         boolean hintsFound = false;
         logger.info("Munging ELS Hints from " + context.publisherRepo.getLibraryData().libraries.description + " to " +
-                context.subscriberRepo.getLibraryData().libraries.description + (cfg.isDryRun() ? " (--dry-run)" : ""));
+                context.subscriberRepo.getLibraryData().libraries.description + (context.cfg.isDryRun() ? " (--dry-run)" : ""));
 
         for (Library subLib : context.subscriberRepo.getLibraryData().libraries.bibliography)
         {
@@ -470,8 +466,8 @@ public class Hints
 
             // if processing all libraries, or this one was specified on the command line with -l,
             // and it has not been excluded with -L
-            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
+            if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(subLib.name)) &&
+                    (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name)))
             {
                 // if the subscriber has included and not excluded this library
                 if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE))
@@ -503,7 +499,7 @@ public class Hints
                         // do the libraries have items or do they need to be scanned?
                         if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            if (!cfg.isRemoteSession()) // remote collection already loaded and may be empty
+                            if (!context.cfg.isRemoteSession()) // remote collection already loaded and may be empty
                             {
                                 context.subscriberRepo.scan(subLib.name);
                             }
@@ -512,7 +508,7 @@ public class Hints
                         // Hints are intended to be copied and processed immediately
                         // So the hint cannot be copied during a --dry-run
                         // Validate the syntax instead
-                        if (cfg.isDryRun())
+                        if (context.cfg.isDryRun())
                         {
                             logger.info("* Validating syntax for dry run: " + item.getFullPath());
                             ++validatedHints;
@@ -537,7 +533,7 @@ public class Hints
 
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
-                            context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, cfg.isRemoteSession(), true);
+                            context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, context.cfg.isRemoteSession(), true);
 
                             toItem = SerializationUtils.clone(item);
                             toItem.setFullPath(toPath);
@@ -547,7 +543,7 @@ public class Hints
                             }
 
                             boolean updatePubSide = false;
-                            if (cfg.isRemoteSession())
+                            if (context.cfg.isRemoteSession())
                             {
                                 if (context.clientStty.isConnected())
                                 {
@@ -565,10 +561,10 @@ public class Hints
                                         }
                                     }
                                     else
-                                        throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
+                                        throw new MungeException(context.cfg.gs("Z.subscriber.disconnected"));
                                 }
                                 else
-                                    throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
+                                    throw new MungeException(context.cfg.gs("Z.subscriber.disconnected"));
                             }
                             else
                             {
@@ -587,7 +583,7 @@ public class Hints
 
                             updateSubscriberOnPublisher(item);
 
-                            if (!cfg.isRemoteSession()) // subscriber-side does this itself
+                            if (!context.cfg.isRemoteSession()) // subscriber-side does this itself
                             {
                                 postprocessHintFile(context.subscriberRepo, toItem);
                             }
@@ -610,19 +606,19 @@ public class Hints
         {
             dumpStats();
 
-            if (!cfg.isDryRun())
+            if (!context.cfg.isDryRun())
             {
                 boolean request = false;
                 for (Library lib : context.subscriberRepo.getLibraryData().libraries.bibliography)
                 {
                     // if processing all libraries, or this one was specified on the command line with -l,
                     // and it has not been excluded with -L
-                    if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(lib.name)) &&
-                            (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(lib.name)))
+                    if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
+                            (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(lib.name)))
                     {
                         if (lib.rescanNeeded)
                         {
-                            if (cfg.isRemoteSession())
+                            if (context.cfg.isRemoteSession())
                             {
                                 request = true;
                                 break;
@@ -658,7 +654,7 @@ public class Hints
      */
     public void hintsSubscriberCleanup() throws Exception
     {
-        if (cfg.isRemoteSession() && !context.localMode)
+        if (context.cfg.isRemoteSession() && !context.localMode)
         {
             if (context.clientStty.isConnected())
             {
@@ -670,10 +666,10 @@ public class Hints
                     logger.debug("  > cleanup command returned: " + response);
                 }
                 else
-                    throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
+                    throw new MungeException(context.cfg.gs("Z.subscriber.disconnected"));
             }
             else
-                throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
+                throw new MungeException(context.cfg.gs("Z.subscriber.disconnected"));
         }
         else
         {
@@ -772,7 +768,7 @@ public class Hints
     private List<String> mergeStatusServer(Item item, List<String> lines) throws Exception
     {
         // is a hint status server being used?
-        if (cfg.isUsingHintTracking())
+        if (context.cfg.isUsingHintTracking())
         {
             boolean changed = false;
             for (int i = 0; i < lines.size(); ++i)
@@ -1050,7 +1046,7 @@ public class Hints
                 File prevFile = new File(item.getFullPath());
                 if (prevFile.exists())
                 {
-                    if (cfg.isDryRun())
+                    if (context.cfg.isDryRun())
                     {
                         logger.info("  > Hint done and seen, would delete hint file: " + item.getFullPath());
                     }
@@ -1226,8 +1222,8 @@ public class Hints
         {
             // if processing all libraries, or this one was specified on the command line with -l,
             // and it has not been excluded with -L
-            if ((!cfg.isSpecificLibrary() || cfg.isSelectedLibrary(subLib.name)) &&
-                    (!cfg.isSpecificExclude() || !cfg.isExcludedLibrary(subLib.name)))
+            if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(subLib.name)) &&
+                    (!context.cfg.isSpecificExclude() || !context.cfg.isExcludedLibrary(subLib.name)))
             {
                 // if the subscriber has included and not excluded this library
                 if (subLib.name.startsWith(context.subscriberRepo.SUB_EXCLUDE))
@@ -1243,7 +1239,7 @@ public class Hints
                 }
 
                 // iterate the subscriber's items
-                if (!cfg.isDryRun())
+                if (!context.cfg.isDryRun())
                 {
                     for (Item item : subLib.items)
                     {
@@ -1381,7 +1377,7 @@ public class Hints
                     throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
             }
             else
-                throw new MungeException(cfg.gs("Z.subscriber.disconnected"));
+                throw new MungeException(context.cfg.gs("Z.subscriber.disconnected"));
         }
         else // no, local
         {
@@ -1562,7 +1558,7 @@ public class Hints
 
     public void writeOrUpdateHint(String hintPath, String command, String sourceKey) throws Exception
     {
-        if (cfg.isRemoteSession() && !context.localMode)
+        if (context.cfg.isRemoteSession() && !context.localMode)
         {
             String line = "hint \"" + hintPath + "\" " + command;
             context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);
@@ -1575,7 +1571,7 @@ public class Hints
             if (Files.exists(hintFile.toPath()))
             {
                 Files.write(hintFile.toPath(), command.getBytes(StandardCharsets.UTF_8), StandardOpenOption.APPEND);
-                logger.info(cfg.gs("Transfer.updated.hint.file") + hintFile.getAbsolutePath());
+                logger.info(context.cfg.gs("Transfer.updated.hint.file") + hintFile.getAbsolutePath());
             }
             else
             {
@@ -1592,7 +1588,7 @@ public class Hints
                 }
                 sb.append(command);
                 Files.write(hintFile.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
-                logger.info(cfg.gs("Transfer.created.hint.file") + hintFile.getAbsolutePath());
+                logger.info(context.cfg.gs("Transfer.created.hint.file") + hintFile.getAbsolutePath());
             }
         }
     }
