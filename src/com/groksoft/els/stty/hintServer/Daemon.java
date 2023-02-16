@@ -28,7 +28,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
     protected static Logger logger = LogManager.getLogger("applog");
 
     private boolean fault = false;
-    private Hints hints = null;
     private boolean isTerminal = false;
 
     /**
@@ -137,7 +136,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         {
             context.hintKeys = new HintKeys(context);
             context.hintKeys.read(context.cfg.getHintKeysFile());
-            hints = new Hints(context, context.hintKeys);
+            context.hints = new Hints(context, context.hintKeys);
         }
 
         // setup i/o

@@ -1,10 +1,12 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.MainFrame;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -14,6 +16,7 @@ import java.util.*;
  */
 public class Configuration
 {
+    public static final String ELS_ICON = "els-logo-98px";
     public static final int JOB_PROCESS = 8;
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
@@ -38,6 +41,7 @@ public class Configuration
     private ResourceBundle currentBundle = null;
     private String debugLevel = "Debug";
     private boolean debugSet = false;
+    private boolean devEnv = false;
     private int dryRun = -1;
     private int dumpSystem = -1;
     private int duplicateCheck = -1;
@@ -54,7 +58,9 @@ public class Configuration
     private String iplist = "";
     private String jobName = "";
     private int keepGoing = -1;
-    private String logFilename = "";
+    private String logFileFullPath = "";
+    private String logFilePath = "";
+    private String logFileName = "";
     private int logOverwrite = -1;
     private double longScale = 1024L;
     private String mismatchFilename = "";
@@ -69,7 +75,6 @@ public class Configuration
     private String publisherLibrariesFileName = "";
     private int quitStatusServer = -1;
     private int quitSubscriberListener = -1;
-    private String remoteType = "-";
     private int requestCollection = -1;
     private int requestTargets = -1;
     private ArrayList<String> selectedLibraryExcludes = new ArrayList<>();
@@ -83,6 +88,8 @@ public class Configuration
     private int validation = -1;
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
+    private String workingDirectory = "";
+
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
@@ -169,7 +176,8 @@ public class Configuration
             logger.info(SHORT, "  cfg: -e Export text filename = " + getExportTextFilename());
         }
         indicator(logger, SHORT, "  cfg: -E Empty directories = ", emptyDirectoryCheck);
-        logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFilename());
+        if (getLogFileName().length() > 0)
+            logger.info(SHORT, "  cfg: -" + (isLogOverwrite() ? "F" : "f") + " Log filename = " + getLogFileName());
         indicator(logger, SHORT, "  cfg: -g Listener keep going = ", keepGoing);
         if (isQuitSubscriberListener())
             logger.info(SHORT, "  cfg: -G Subscriber listener FORCE QUIT now");
@@ -259,7 +267,10 @@ public class Configuration
         }
         indicator(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
         indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
-        indicator(logger, SHORT, "  cfg: -z Numeric scale = ", getLongScale() == 1024 ? -1 : 1);
+        indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
+
+        if (context.trace)
+            logger.trace("Working directory: " + getWorkingDirectory() + ", " + (isDevEnv() ? "Development environment" : "Release environment"));
     }
 
     /**
@@ -343,16 +354,6 @@ public class Configuration
     }
 
     /**
-     * Gets Hint Keys filename
-     *
-     * @return String filename
-     */
-    public String getHintKeysFile()
-    {
-        return hintKeysFile;
-    }
-
-    /**
      * Get either the Hint Tracker or HintDaemon filename, whichever is defined
      *
      * @return String filename
@@ -362,6 +363,16 @@ public class Configuration
         if (getHintsDaemonFilename().length() > 0)
             return getHintsDaemonFilename();
         return getHintTrackerFilename();
+    }
+
+    /**
+     * Gets Hint Keys filename
+     *
+     * @return String filename
+     */
+    public String getHintKeysFile()
+    {
+        return hintKeysFile;
     }
 
     /**
@@ -385,6 +396,20 @@ public class Configuration
     }
 
     /**
+     * Gets the path to the ELS icon
+     *
+     * @return String Fully-qualified path
+     */
+    public String getIconPath()
+    {
+        String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".ico" : ".png");
+        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
+                ".els" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") +
+                ELS_ICON + ext;
+        return path;
+    }
+
+    /**
      * Get IP address whitelist filename
      *
      * @return Filename or empty string
@@ -405,13 +430,33 @@ public class Configuration
     }
 
     /**
+     * Gets the full path to the log file
+     *
+     * @return String Fully-qualified path to log file
+     */
+    public String getLogFileFullPath()
+    {
+        return logFileFullPath;
+    }
+
+    /**
+     * Gets any relative path to the log file
+     *
+     * @return String Relative path if any, otherwise an empty string
+     */
+    public String getLogFilePath()
+    {
+        return logFilePath;
+    }
+
+    /**
      * Gets log filename
      *
      * @return the log filename
      */
-    public String getLogFilename()
+    public String getLogFileName()
     {
-        return logFilename;
+        return logFileName;
     }
 
     /**
@@ -665,6 +710,18 @@ public class Configuration
     }
 
     /**
+     * Gets the working directory of ELS
+     * <br/>
+     * This is the root of the ELS directory.
+     *
+     * @return String Fully-qualified working directory
+     */
+    public String getWorkingDirectory()
+    {
+        return workingDirectory;
+    }
+
+    /**
      * Return locale bundle string
      *
      * @return String from built-in locale
@@ -683,6 +740,17 @@ public class Configuration
         return value;
     }
 
+    /**
+     * Print a logger.info() line from a configuration "indicator"
+     * <br/><br/>
+     * An indicator is an int value representing a boolean: -1 = not set,
+     * 0 = false, 1 = true
+     *
+     * @param logger The logger singleton
+     * @param SHORT The SHORT format
+     * @param message The message to print
+     * @param indicator The indicator
+     */
     private void indicator(Logger logger, Marker SHORT, String message, int indicator)
     {
         if (indicator >= 0)
@@ -713,6 +781,16 @@ public class Configuration
     }
 
     /**
+     * Is ELS running in it's development environment?
+     *
+     * @return false if Release environment, true if development
+     */
+    public boolean isDevEnv()
+    {
+        return devEnv;
+    }
+
+    /**
      * Is dry run boolean
      *
      * @return the boolean
@@ -722,6 +800,10 @@ public class Configuration
         return dryRun == 1 ? true : false;
     }
 
+    /**
+     * Is this a simple "dump configuration" operation?
+     * @return
+     */
     public boolean isDumpSystem()
     {
         return dumpSystem == 1 ? true : false;
@@ -858,6 +940,12 @@ public class Configuration
         return overwrite == 1 ? true : false;
     }
 
+    /**
+     * Are file dates to be preserved between publisher and subscriber?
+     * <br/>
+     * Note directory dates are not preserved.
+     * @return true if dates are to be preserved
+     */
     public boolean isPreserveDates()
     {
         return preserveDates == 1 ? true : false;
@@ -1062,9 +1150,41 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // single option letters remaining, case-sensitive:  C J M O R U V X Y Z
+        // Single option letters remaining, case-sensitive:  C J M O R U V X Y Z
         // Reserved: C configuration directory; O start on-demand; R operation???; M match dates; U user authorization
-        // leaving single option letters, case-sensitive:  J M V X Y Z
+        // Leaving single option letters, case-sensitive:  J M V X Y Z
+
+        // set the current working directory
+        try
+        {
+            String execPath = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+
+            // installed / production
+            String platEnd = System.getProperty("file.separator") + "bin" +
+                    System.getProperty("file.separator") + "ELS.jar";
+            if (execPath.endsWith(platEnd))
+            {
+                execPath = execPath.substring(0, execPath.lastIndexOf(platEnd));
+            }
+
+            // development
+            platEnd = System.getProperty("file.separator") + "out" +
+                    System.getProperty("file.separator") + "production" +
+                    System.getProperty("file.separator") + "ELS";
+            if (execPath.endsWith(platEnd))
+            {
+                execPath = execPath.substring(0, execPath.lastIndexOf(platEnd));
+                execPath += System.getProperty("file.separator") + "mock";
+                devEnv = true;
+            }
+
+            File directory = new File(execPath);
+            this.workingDirectory = directory.getAbsolutePath();
+            System.setProperty("user.dir", this.workingDirectory);
+        }
+        catch (Exception e)
+        {
+        }
 
         int index;
         originalArgs = args;
@@ -1077,7 +1197,7 @@ public class Configuration
                 case "--auth-keys":
                     if (index <= args.length - 2)
                     {
-                        setAuthKeysFile(args[index + 1]);
+                        setAuthKeysFile(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1089,7 +1209,7 @@ public class Configuration
                 case "--authorize":
                     if (index <= args.length - 2)
                     {
-                        setAuthorizedPassword(args[index + 1]);
+                        setAuthorizedPassword(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1105,7 +1225,7 @@ public class Configuration
                 case "--blacklist":
                     if (index <= args.length - 2)
                     {
-                        setBlacklist(args[index + 1]);
+                        setBlacklist(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1117,7 +1237,7 @@ public class Configuration
                 case "--console-level":
                     if (index <= args.length - 2)
                     {
-                        setConsoleLevel(args[index + 1]);
+                        setConsoleLevel(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1129,7 +1249,7 @@ public class Configuration
                 case "--debug-level":
                     if (index <= args.length - 2)
                     {
-                        setDebugLevel(args[index + 1]);
+                        setDebugLevel(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1148,7 +1268,7 @@ public class Configuration
                 case "--export-text":
                     if (index <= args.length - 2)
                     {
-                        setExportTextFilename(args[index + 1]);
+                        setExportTextFilename(args[index + 1].trim());
                         ++index;
                         setPublishOperation(false);
                     }
@@ -1165,13 +1285,13 @@ public class Configuration
                 case "-F":
                 case "--log-file":
                 case "--log-overwrite":
-                    if (getLogFilename().length() > 0)
+                    if (getLogFileName().length() > 0)
                         throw new MungeException("Error: -f and -F cannot be used at the same time");
                     if (args[index].equals("-F") || args[index].equals("--log-overwrite"))
                         setLogOverwrite(true);
                     if (index <= args.length - 2)
                     {
-                        setLogFilename(args[index + 1]);
+                        setLogFileName(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1192,7 +1312,7 @@ public class Configuration
                 case "--hints":
                     if (index <= args.length - 2)
                     {
-                        setHintTrackerFilename(args[index + 1]);
+                        setHintTrackerFilename(args[index + 1].trim());
                         ++index;
                         setPublishOperation(false);
                     }
@@ -1206,7 +1326,7 @@ public class Configuration
                     // this.operation = STATUS_SERVER;  See getOperation()
                     if (index <= args.length - 2)
                     {
-                        setHintsDaemonFilename(args[index + 1]);
+                        setHintsDaemonFilename(args[index + 1].trim());
                         ++index;
                         setPublishOperation(false);
                     }
@@ -1219,7 +1339,7 @@ public class Configuration
                 case "--export-items":
                     if (index <= args.length - 2)
                     {
-                        setExportCollectionFilename(args[index + 1]);
+                        setExportCollectionFilename(args[index + 1].trim());
                         ++index;
                         setPublishOperation(false);
                     }
@@ -1232,7 +1352,7 @@ public class Configuration
                 case "--ip-whitelist":
                     if (index <= args.length - 2)
                     {
-                        setIplist(args[index + 1]);
+                        setIplist(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1245,7 +1365,7 @@ public class Configuration
                     this.operation = JOB_PROCESS;
                     if (index <= args.length - 2)
                     {
-                        setJobName(args[index + 1]);
+                        setJobName(args[index + 1].trim());
                         ++index;
                         setPublishOperation(false);
                     }
@@ -1258,7 +1378,7 @@ public class Configuration
                 case "--keys":
                     if (index <= args.length - 2)
                     {
-                        setHintKeysFile(args[index + 1]);
+                        setHintKeysFile(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1270,7 +1390,7 @@ public class Configuration
                 case "--keys-only":
                     if (index <= args.length - 2)
                     {
-                        setHintKeysFile(args[index + 1]);
+                        setHintKeysFile(args[index + 1].trim());
                         ++index;
                         setHintSkipMainProcess(true);
                     }
@@ -1283,7 +1403,7 @@ public class Configuration
                 case "--library":
                     if (index <= args.length - 2)
                     {
-                        addPublisherLibraryName(args[index + 1]);
+                        addPublisherLibraryName(args[index + 1].trim());
                         setSpecificLibrary(true);
                         ++index;
                     }
@@ -1296,7 +1416,7 @@ public class Configuration
                 case "--exclude":
                     if (index <= args.length - 2)
                     {
-                        addExcludedLibraryName(args[index + 1]);
+                        addExcludedLibraryName(args[index + 1].trim());
                         setSpecificExclude(true);
                         ++index;
                     }
@@ -1309,7 +1429,7 @@ public class Configuration
                 case "--mismatches":
                     if (index <= args.length - 2)
                     {
-                        setMismatchFilename(args[index + 1]);
+                        setMismatchFilename(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1333,7 +1453,7 @@ public class Configuration
                 case "--publisher-libraries":
                     if (index <= args.length - 2)
                     {
-                        setPublisherLibrariesFileName(args[index + 1]);
+                        setPublisherLibrariesFileName(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1345,7 +1465,7 @@ public class Configuration
                 case "--publisher-collection":
                     if (index <= args.length - 2)
                     {
-                        setPublisherCollectionFilename(args[index + 1]);
+                        setPublisherCollectionFilename(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1366,7 +1486,7 @@ public class Configuration
                 case "--remote":
                     if (index <= args.length - 2)
                     {
-                        setRemoteType(args[index + 1]);
+                        setRemoteType(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1380,7 +1500,7 @@ public class Configuration
                     {
                         setForceCollection(false);
                         setRequestCollection(true);
-                        setSubscriberLibrariesFileName(args[index + 1]);
+                        setSubscriberLibrariesFileName(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1394,7 +1514,7 @@ public class Configuration
                     {
                         setForceCollection(true);
                         setRequestCollection(false);
-                        setSubscriberCollectionFilename(args[index + 1]);
+                        setSubscriberCollectionFilename(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1409,7 +1529,7 @@ public class Configuration
                     setRequestTargets(true);
                     if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
-                        setTargetsFilename(args[index + 1]);
+                        setTargetsFilename(args[index + 1].trim());
                         ++index;
                     }
                     break;
@@ -1420,7 +1540,7 @@ public class Configuration
                     setRequestTargets(false);
                     if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
-                        setTargetsFilename(args[index + 1]);
+                        setTargetsFilename(args[index + 1].trim());
                         ++index;
                     }
                     break;
@@ -1444,7 +1564,7 @@ public class Configuration
                 case "--whatsnew":
                     if (index <= args.length - 2)
                     {
-                        setWhatsNewFilename(args[index + 1]);
+                        setWhatsNewFilename(args[index + 1].trim());
                         ++index;
                     }
                     else
@@ -1456,7 +1576,7 @@ public class Configuration
                 case "--whatsnew-all":
                     if (index <= args.length - 2)
                     {
-                        setWhatsNewFilename(args[index + 1]);
+                        setWhatsNewFilename(args[index + 1].trim());
                         ++index;
                         setWhatsNewAll(true);
                     }
@@ -1480,6 +1600,55 @@ public class Configuration
                 default:
                     throw new MungeException("Error: unknown option: " + args[index]);
             }
+        }
+
+        parseLogging();
+    }
+
+    /**
+     * Parse the logging configuration and set required data members
+     * <br/>
+     * Sets logFullPath and logPath based on configuration.
+     */
+    private void parseLogging()
+    {
+        // setup the absolute path for the log file before configuring logging
+        if (getLogFileName() != null && getLogFileName().length() > 0)
+        {
+            String prefix = "";
+            String relative = "";
+
+            String lfn = getLogFileName();
+            setLogFilePath("");
+
+            // if relative path prepend with working directory
+            if (!lfn.matches("^[a-zA-Z]:") &&
+                    !lfn.startsWith("/") &&
+                    !lfn.startsWith("\\"))
+            {
+                prefix = getWorkingDirectory() + System.getProperty("file.separator");
+
+                String separator = "";
+                if (lfn.contains("\\"))
+                {
+                    separator = "\\\\";
+                }
+                else if (lfn.contains("/"))
+                {
+                    separator = "/";
+                }
+                else if (lfn.contains(":"))
+                {
+                    separator = ":";
+                }
+                int i = lfn.lastIndexOf(separator);
+                if (i >= 0)
+                {
+                    relative = lfn.substring(0, i + 1);
+                    setLogFilePath(relative);
+                }
+            }
+            setLogFileFullPath(prefix + lfn);
         }
     }
 
@@ -1560,6 +1729,11 @@ public class Configuration
         this.dryRun = dryRun == true ? 1 : 0;
     }
 
+    /**
+     * Set "dump the configuration and exit" flag
+     *
+     * @param dumpSystem
+     */
     public void setDumpSystem(boolean dumpSystem)
     {
         this.dumpSystem = dumpSystem == true ? 1 : 0;
@@ -1709,13 +1883,33 @@ public class Configuration
     }
 
     /**
+     * Set the full path to the log file
+     *
+     * @param logFileFullPath
+     */
+    public void setLogFileFullPath(String logFileFullPath)
+    {
+        this.logFileFullPath = logFileFullPath;
+    }
+
+    /**
+     * Set any relative path to the log file
+     *
+     * @param logFilePath
+     */
+    public void setLogFilePath(String logFilePath)
+    {
+        this.logFilePath = logFilePath;
+    }
+
+    /**
      * Sets log filename
      *
-     * @param logFilename the log filename
+     * @param logFileName the log filename
      */
-    public void setLogFilename(String logFilename)
+    public void setLogFileName(String logFileName)
     {
-        this.logFilename = logFilename;
+        this.logFileName = logFileName;
     }
 
     /**
@@ -1748,6 +1942,11 @@ public class Configuration
         this.mismatchFilename = mismatchFilename;
     }
 
+    /**
+     * Set if this is a Navigator operation
+     *
+     * @param navigator
+     */
     public void setNavigator(boolean navigator)
     {
         this.navigator = navigator == true ? 1 : 0;
@@ -1771,6 +1970,11 @@ public class Configuration
         overwrite = sense == true ? 1 : 0;
     }
 
+    /**
+     * Set whether file dates should be preserved between publisher and subscriber
+     *
+     * @param preserveDates
+     */
     public void setPreserveDates(boolean preserveDates)
     {
         this.preserveDates = preserveDates == true ? 1 : 0;
@@ -1833,7 +2037,6 @@ public class Configuration
      */
     public void setRemoteType(String type) throws MungeException
     {
-        this.remoteType = type;
         this.operation = NOT_REMOTE;
         if (type.equalsIgnoreCase("P")) // 1
             this.operation = PUBLISH_REMOTE;

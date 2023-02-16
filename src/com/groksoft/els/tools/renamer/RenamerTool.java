@@ -471,6 +471,12 @@ public class RenamerTool extends AbstractTool
         return recursive;
     }
 
+    @Override
+    public void processTool(Context context, String publisherPath, String subscriberPath) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+    }
+
     /**
      * Process the tool with the metadata provided
      * <br/>
@@ -532,6 +538,14 @@ public class RenamerTool extends AbstractTool
         {
             logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
         }
+        logger.info(getConfigName() + context.cfg.gs("Z.completed"));
+    }
+
+    @Override
+    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+        return null;
     }
 
     /**

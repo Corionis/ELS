@@ -72,7 +72,7 @@ public abstract class AbstractDaemon
                         sleep(1 * 60 * 1000); // heartbeat sleep time in milliseconds
                         if (heartBeatEnabled)
                         {
-                            send("ping", context.main.trace ? "heartbeat sent" + desc : "");
+                            send("ping", context.trace ? "heartbeat sent" + desc : "");
                         }
                     }
                 }

@@ -2317,7 +2317,8 @@ public class Navigator
         context.main.stopVerbiage();
 
         // end the Navigator Swing thread
-        System.exit(context.fault ? 1 : 0);
+        if (!context.main.secondaryInvocation)
+            System.exit(context.fault ? 1 : 0);
     }
 
 }

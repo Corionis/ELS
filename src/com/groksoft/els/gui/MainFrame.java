@@ -53,11 +53,11 @@ public class MainFrame extends JFrame
 
         try
         {
+            UIManager.put( "Tree.showDefaultIcons", true );
             UIManager.put( "ScrollBar.showButtons", true ); // show scrollbar up/down buttons
             UIManager.put( "Component.hideMnemonics", false ); // show/hide mnemonic letters
             UIManager.put( "TabbedPane.showTabSeparators", true ); // separators between tabs
 //            UIManager.put( "TabbedPane.tabSeparatorsFullHeight", true );
-            UIManager.put( "Tree.showDefaultIcons", true );
 
             if (context.preferences.getLookAndFeel() == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -551,6 +551,7 @@ public class MainFrame extends JFrame
         menuItemPlexGenerator = new JMenuItem();
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
+        menuStopTask = new JMenu();
         menuSystem = new JMenu();
         menuItemSettings = new JMenuItem();
         menuItemAuthKeys = new JMenuItem();
@@ -657,9 +658,6 @@ public class MainFrame extends JFrame
         buttonOperationAddIncludeExclude = new JButton();
         buttonOperationRemoveIncludeExclude = new JButton();
         labelOperationIncludeExclude = new JLabel();
-        labelOperationJob = new JLabel();
-        textFieldOperationJob = new JTextField();
-        buttonOperationJobPick = new JButton();
         vSpacer4 = new JPanel(null);
         labelOperationTargets = new JLabel();
         textFieldOperationTargets = new JTextField();
@@ -713,23 +711,14 @@ public class MainFrame extends JFrame
         vSpacer15 = new JPanel(null);
         labelOperationCrossCheck = new JLabel();
         checkBoxOperationCrossCheck = new JCheckBox();
-        comboBoxOperationLog = new JComboBox<>();
-        textFieldOperationLog = new JTextField();
-        buttonOperationLogFilePick = new JButton();
         vSpacer14 = new JPanel(null);
         labelOperationEmptyDirectories = new JLabel();
         checkBoxOperationEmptyDirectories = new JCheckBox();
-        labelOperationLogLevels = new JLabel();
         panelOperationLogLevels = new JPanel();
-        comboBoxOperationConsoleLevel = new JComboBox<>();
-        comboBoxOperationDebugLevel = new JComboBox<>();
         vSpacer13 = new JPanel(null);
         labelOperationIgnored = new JLabel();
         checkBoxOperationIgnored = new JCheckBox();
         panelCardListener = new JPanel();
-        labelOperationJob2 = new JLabel();
-        textFieldOperationJob2 = new JTextField();
-        buttonOperationJobPick2 = new JButton();
         vSpacer32 = new JPanel(null);
         panelOperationExcludeBox = new JPanel();
         scrollPaneOperationExclude = new JScrollPane();
@@ -777,14 +766,8 @@ public class MainFrame extends JFrame
         checkBoxOperationKeepGoing2 = new JCheckBox();
         vSpacer27 = new JPanel(null);
         vSpacer28 = new JPanel(null);
-        comboBoxOperationLog2 = new JComboBox<>();
-        textFieldOperationLog2 = new JTextField();
-        buttonOperationLogFilePick2 = new JButton();
         vSpacer29 = new JPanel(null);
-        labelOperationLogLevels2 = new JLabel();
         panelOperationLogLevels2 = new JPanel();
-        comboBoxOperationConsoleLevel2 = new JComboBox<>();
-        comboBoxOperationDebugLevel2 = new JComboBox<>();
         vSpacer30 = new JPanel(null);
         vSpacer31 = new JPanel(null);
         panelCardHintServer = new JPanel();
@@ -1073,6 +1056,15 @@ public class MainFrame extends JFrame
                 menuItemJobsManage.setText(context.cfg.gs("Navigator.menu.JobsManage.text"));
                 menuItemJobsManage.setMnemonic(context.cfg.gs("Navigator.menu.JobsManage.mnemonic").charAt(0));
                 menuJobs.add(menuItemJobsManage);
+
+                //======== menuStopTask ========
+                {
+                    menuStopTask.setText(context.cfg.gs("Navigator.menuStopTask.text"));
+                    menuStopTask.setMnemonic(context.cfg.gs("Navigator.menuStopTask.mnemonic").charAt(0));
+                    menuStopTask.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuStopTask.displayedMnemonicIndex")));
+                    menuStopTask.setEnabled(false);
+                }
+                menuJobs.add(menuStopTask);
                 menuJobs.addSeparator();
             }
             menuBarMain.add(menuJobs);
@@ -1886,46 +1878,6 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationJob ----
-                                            labelOperationJob.setText(context.cfg.gs("Operations.labelOperationJob.text"));
-                                            labelOperationJob.setMinimumSize(new Dimension(60, 16));
-                                            panelCardPublisher.add(labelOperationJob, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- textFieldOperationJob ----
-                                            textFieldOperationJob.setPreferredSize(new Dimension(240, 30));
-                                            textFieldOperationJob.setMinimumSize(new Dimension(60, 30));
-                                            textFieldOperationJob.setName("job");
-                                            textFieldOperationJob.setMaximumSize(new Dimension(240, 30));
-                                            textFieldOperationJob.addFocusListener(new FocusAdapter() {
-                                                @Override
-                                                public void focusLost(FocusEvent e) {
-                                                    context.operationsUI.genericTextFieldFocusLost(e);
-                                                }
-                                            });
-                                            textFieldOperationJob.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(textFieldOperationJob, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- buttonOperationJobPick ----
-                                            buttonOperationJobPick.setText("...");
-                                            buttonOperationJobPick.setFont(buttonOperationJobPick.getFont().deriveFont(buttonOperationJobPick.getFont().getStyle() | Font.BOLD));
-                                            buttonOperationJobPick.setMaximumSize(new Dimension(32, 24));
-                                            buttonOperationJobPick.setMinimumSize(new Dimension(32, 24));
-                                            buttonOperationJobPick.setPreferredSize(new Dimension(32, 24));
-                                            buttonOperationJobPick.setVerticalTextPosition(SwingConstants.TOP);
-                                            buttonOperationJobPick.setIconTextGap(0);
-                                            buttonOperationJobPick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationJobPick.setActionCommand("jobPick");
-                                            buttonOperationJobPick.setName("job");
-                                            buttonOperationJobPick.setToolTipText(context.cfg.gs("Operations.buttonOperationJobPick.toolTipText"));
-                                            buttonOperationJobPick.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(buttonOperationJobPick, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
                                             //---- vSpacer4 ----
                                             vSpacer4.setMinimumSize(new Dimension(10, 30));
                                             vSpacer4.setPreferredSize(new Dimension(20, 30));
@@ -2460,52 +2412,6 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- comboBoxOperationLog ----
-                                            comboBoxOperationLog.setPrototypeDisplayValue(context.cfg.gs("Operations.comboBoxOperationLog.prototypeDisplayValue"));
-                                            comboBoxOperationLog.setModel(new DefaultComboBoxModel<>(new String[] {
-                                                "Log:",
-                                                "Log, overwrite:"
-                                            }));
-                                            comboBoxOperationLog.setMinimumSize(new Dimension(60, 30));
-                                            comboBoxOperationLog.setName("log");
-                                            comboBoxOperationLog.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(comboBoxOperationLog, new GridBagConstraints(0, 13, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- textFieldOperationLog ----
-                                            textFieldOperationLog.setMinimumSize(new Dimension(60, 30));
-                                            textFieldOperationLog.setName("log");
-                                            textFieldOperationLog.setMaximumSize(new Dimension(240, 30));
-                                            textFieldOperationLog.setPreferredSize(new Dimension(240, 30));
-                                            textFieldOperationLog.addFocusListener(new FocusAdapter() {
-                                                @Override
-                                                public void focusLost(FocusEvent e) {
-                                                    context.operationsUI.genericTextFieldFocusLost(e);
-                                                }
-                                            });
-                                            textFieldOperationLog.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(textFieldOperationLog, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- buttonOperationLogFilePick ----
-                                            buttonOperationLogFilePick.setText("...");
-                                            buttonOperationLogFilePick.setFont(buttonOperationLogFilePick.getFont().deriveFont(buttonOperationLogFilePick.getFont().getStyle() | Font.BOLD));
-                                            buttonOperationLogFilePick.setMaximumSize(new Dimension(32, 24));
-                                            buttonOperationLogFilePick.setMinimumSize(new Dimension(32, 24));
-                                            buttonOperationLogFilePick.setPreferredSize(new Dimension(32, 24));
-                                            buttonOperationLogFilePick.setVerticalTextPosition(SwingConstants.TOP);
-                                            buttonOperationLogFilePick.setIconTextGap(0);
-                                            buttonOperationLogFilePick.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationLogFilePick.setActionCommand("logFilePick");
-                                            buttonOperationLogFilePick.setToolTipText(context.cfg.gs("Operations.buttonOperationLogFilePick.toolTipText"));
-                                            buttonOperationLogFilePick.setName("log");
-                                            buttonOperationLogFilePick.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(buttonOperationLogFilePick, new GridBagConstraints(2, 13, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
                                             //---- vSpacer14 ----
                                             vSpacer14.setMinimumSize(new Dimension(10, 30));
                                             vSpacer14.setPreferredSize(new Dimension(20, 30));
@@ -2528,49 +2434,9 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationLogLevels ----
-                                            labelOperationLogLevels.setText(context.cfg.gs("Operations.labelOperationLogLevels.text"));
-                                            labelOperationLogLevels.setMinimumSize(new Dimension(60, 16));
-                                            labelOperationLogLevels.setPreferredSize(new Dimension(138, 16));
-                                            panelCardPublisher.add(labelOperationLogLevels, new GridBagConstraints(0, 14, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
                                             //======== panelOperationLogLevels ========
                                             {
                                                 panelOperationLogLevels.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
-
-                                                //---- comboBoxOperationConsoleLevel ----
-                                                comboBoxOperationConsoleLevel.setModel(new DefaultComboBoxModel<>(new String[] {
-                                                    "All",
-                                                    "Trace",
-                                                    "Debug",
-                                                    "Info",
-                                                    "Warn",
-                                                    "Error",
-                                                    "Fatal",
-                                                    "Off"
-                                                }));
-                                                comboBoxOperationConsoleLevel.setSelectedIndex(3);
-                                                comboBoxOperationConsoleLevel.setName("consolelevel");
-                                                comboBoxOperationConsoleLevel.addActionListener(e -> context.operationsUI.genericAction(e));
-                                                panelOperationLogLevels.add(comboBoxOperationConsoleLevel);
-
-                                                //---- comboBoxOperationDebugLevel ----
-                                                comboBoxOperationDebugLevel.setModel(new DefaultComboBoxModel<>(new String[] {
-                                                    "All",
-                                                    "Trace",
-                                                    "Debug",
-                                                    "Info",
-                                                    "Warn",
-                                                    "Error",
-                                                    "Fatal",
-                                                    "Off"
-                                                }));
-                                                comboBoxOperationDebugLevel.setSelectedIndex(2);
-                                                comboBoxOperationDebugLevel.setName("debuglevel");
-                                                comboBoxOperationDebugLevel.addActionListener(e -> context.operationsUI.genericAction(e));
-                                                panelOperationLogLevels.add(comboBoxOperationDebugLevel);
                                             }
                                             panelCardPublisher.add(panelOperationLogLevels, new GridBagConstraints(1, 14, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2606,46 +2472,6 @@ public class MainFrame extends JFrame
                                             panelCardListener.setName("listener");
                                             panelCardListener.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelCardListener.getLayout()).rowHeights = new int[] {0, 28, 34, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-                                            //---- labelOperationJob2 ----
-                                            labelOperationJob2.setText(context.cfg.gs("Operations.labelOperation.Job2.text"));
-                                            labelOperationJob2.setMinimumSize(new Dimension(60, 16));
-                                            panelCardListener.add(labelOperationJob2, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- textFieldOperationJob2 ----
-                                            textFieldOperationJob2.setPreferredSize(new Dimension(240, 30));
-                                            textFieldOperationJob2.setMinimumSize(new Dimension(60, 30));
-                                            textFieldOperationJob2.setName("job2");
-                                            textFieldOperationJob2.setMaximumSize(new Dimension(240, 30));
-                                            textFieldOperationJob2.addFocusListener(new FocusAdapter() {
-                                                @Override
-                                                public void focusLost(FocusEvent e) {
-                                                    context.operationsUI.genericTextFieldFocusLost(e);
-                                                }
-                                            });
-                                            textFieldOperationJob2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(textFieldOperationJob2, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- buttonOperationJobPick2 ----
-                                            buttonOperationJobPick2.setText("...");
-                                            buttonOperationJobPick2.setFont(buttonOperationJobPick2.getFont().deriveFont(buttonOperationJobPick2.getFont().getStyle() | Font.BOLD));
-                                            buttonOperationJobPick2.setMaximumSize(new Dimension(32, 24));
-                                            buttonOperationJobPick2.setMinimumSize(new Dimension(32, 24));
-                                            buttonOperationJobPick2.setPreferredSize(new Dimension(32, 24));
-                                            buttonOperationJobPick2.setVerticalTextPosition(SwingConstants.TOP);
-                                            buttonOperationJobPick2.setIconTextGap(0);
-                                            buttonOperationJobPick2.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationJobPick2.setActionCommand("jobPick");
-                                            buttonOperationJobPick2.setName("job2");
-                                            buttonOperationJobPick2.setToolTipText(context.cfg.gs("Navigator.buttonOperationJobPick2.toolTipText"));
-                                            buttonOperationJobPick2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(buttonOperationJobPick2, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
 
                                             //---- vSpacer32 ----
                                             vSpacer32.setMinimumSize(new Dimension(10, 30));
@@ -3135,52 +2961,6 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- comboBoxOperationLog2 ----
-                                            comboBoxOperationLog2.setPrototypeDisplayValue(context.cfg.gs("Navigator.comboBoxOperationLog2.prototypeDisplayValue"));
-                                            comboBoxOperationLog2.setModel(new DefaultComboBoxModel<>(new String[] {
-                                                "Log:",
-                                                "Log, overwrite:"
-                                            }));
-                                            comboBoxOperationLog2.setMinimumSize(new Dimension(60, 30));
-                                            comboBoxOperationLog2.setName("log");
-                                            comboBoxOperationLog2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(comboBoxOperationLog2, new GridBagConstraints(0, 12, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- textFieldOperationLog2 ----
-                                            textFieldOperationLog2.setMinimumSize(new Dimension(60, 30));
-                                            textFieldOperationLog2.setName("log2");
-                                            textFieldOperationLog2.setMaximumSize(new Dimension(240, 30));
-                                            textFieldOperationLog2.setPreferredSize(new Dimension(240, 30));
-                                            textFieldOperationLog2.addFocusListener(new FocusAdapter() {
-                                                @Override
-                                                public void focusLost(FocusEvent e) {
-                                                    context.operationsUI.genericTextFieldFocusLost(e);
-                                                }
-                                            });
-                                            textFieldOperationLog2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(textFieldOperationLog2, new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
-                                            //---- buttonOperationLogFilePick2 ----
-                                            buttonOperationLogFilePick2.setText("...");
-                                            buttonOperationLogFilePick2.setFont(buttonOperationLogFilePick2.getFont().deriveFont(buttonOperationLogFilePick2.getFont().getStyle() | Font.BOLD));
-                                            buttonOperationLogFilePick2.setMaximumSize(new Dimension(32, 24));
-                                            buttonOperationLogFilePick2.setMinimumSize(new Dimension(32, 24));
-                                            buttonOperationLogFilePick2.setPreferredSize(new Dimension(32, 24));
-                                            buttonOperationLogFilePick2.setVerticalTextPosition(SwingConstants.TOP);
-                                            buttonOperationLogFilePick2.setIconTextGap(0);
-                                            buttonOperationLogFilePick2.setHorizontalTextPosition(SwingConstants.LEADING);
-                                            buttonOperationLogFilePick2.setActionCommand("logFilePick");
-                                            buttonOperationLogFilePick2.setToolTipText(context.cfg.gs("Navigator.buttonOperationLogFilePick2.toolTipText"));
-                                            buttonOperationLogFilePick2.setName("log2");
-                                            buttonOperationLogFilePick2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(buttonOperationLogFilePick2, new GridBagConstraints(2, 12, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
                                             //---- vSpacer29 ----
                                             vSpacer29.setMinimumSize(new Dimension(10, 30));
                                             vSpacer29.setPreferredSize(new Dimension(20, 30));
@@ -3189,49 +2969,9 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationLogLevels2 ----
-                                            labelOperationLogLevels2.setText(context.cfg.gs("Operations.labelOperation.LogLevels2.text"));
-                                            labelOperationLogLevels2.setMinimumSize(new Dimension(60, 16));
-                                            labelOperationLogLevels2.setPreferredSize(new Dimension(138, 16));
-                                            panelCardListener.add(labelOperationLogLevels2, new GridBagConstraints(0, 13, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
-
                                             //======== panelOperationLogLevels2 ========
                                             {
                                                 panelOperationLogLevels2.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 0));
-
-                                                //---- comboBoxOperationConsoleLevel2 ----
-                                                comboBoxOperationConsoleLevel2.setModel(new DefaultComboBoxModel<>(new String[] {
-                                                    "All",
-                                                    "Trace",
-                                                    "Debug",
-                                                    "Info",
-                                                    "Warn",
-                                                    "Error",
-                                                    "Fatal",
-                                                    "Off"
-                                                }));
-                                                comboBoxOperationConsoleLevel2.setSelectedIndex(3);
-                                                comboBoxOperationConsoleLevel2.setName("consolelevel2");
-                                                comboBoxOperationConsoleLevel2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                                panelOperationLogLevels2.add(comboBoxOperationConsoleLevel2);
-
-                                                //---- comboBoxOperationDebugLevel2 ----
-                                                comboBoxOperationDebugLevel2.setModel(new DefaultComboBoxModel<>(new String[] {
-                                                    "All",
-                                                    "Trace",
-                                                    "Debug",
-                                                    "Info",
-                                                    "Warn",
-                                                    "Error",
-                                                    "Fatal",
-                                                    "Off"
-                                                }));
-                                                comboBoxOperationDebugLevel2.setSelectedIndex(2);
-                                                comboBoxOperationDebugLevel2.setName("debuglevel2");
-                                                comboBoxOperationDebugLevel2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                                panelOperationLogLevels2.add(comboBoxOperationDebugLevel2);
                                             }
                                             panelCardListener.add(panelOperationLogLevels2, new GridBagConstraints(1, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -3408,7 +3148,7 @@ public class MainFrame extends JFrame
 
         //======== popupMenuBrowser ========
         {
-            popupMenuBrowser.setPreferredSize(new Dimension(170, 194));
+            popupMenuBrowser.setPreferredSize(new Dimension(180, 194));
 
             //---- popupMenuItemRefresh ----
             popupMenuItemRefresh.setText(context.cfg.gs("Navigator.popupMenuItemRefresh.text"));
@@ -3463,7 +3203,7 @@ public class MainFrame extends JFrame
 
         //======== popupMenuLog ========
         {
-            popupMenuLog.setPreferredSize(new Dimension(170, 156));
+            popupMenuLog.setPreferredSize(new Dimension(180, 156));
 
             //---- popupMenuItemFindNext ----
             popupMenuItemFindNext.setText(context.cfg.gs("Navigator.popupMenuItemFindNext.text"));
@@ -3481,11 +3221,13 @@ public class MainFrame extends JFrame
             //---- popupMenuItemTop ----
             popupMenuItemTop.setText(context.cfg.gs("Navigator.popupMenuItemTop.text"));
             popupMenuItemTop.setMnemonic(context.cfg.gs("Navigator.popupMenuItemTop.mnemonic").charAt(0));
+            popupMenuItemTop.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, KeyEvent.CTRL_DOWN_MASK));
             popupMenuLog.add(popupMenuItemTop);
 
             //---- popupMenuItemBottom ----
             popupMenuItemBottom.setText(context.cfg.gs("Navigator.popupMenu.Bottom.text"));
             popupMenuItemBottom.setMnemonic(context.cfg.gs("Navigator.popupMenu.Bottom.mnemonic").charAt(0));
+            popupMenuItemBottom.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_END, KeyEvent.CTRL_DOWN_MASK));
             popupMenuLog.add(popupMenuItemBottom);
             popupMenuLog.addSeparator();
 
@@ -3504,7 +3246,7 @@ public class MainFrame extends JFrame
 
         //======== popupMenuOperationLog ========
         {
-            popupMenuOperationLog.setPreferredSize(new Dimension(170, 156));
+            popupMenuOperationLog.setPreferredSize(new Dimension(180, 156));
 
             //---- popupMenuItemOperationFindNext ----
             popupMenuItemOperationFindNext.setText(context.cfg.gs("Navigator.popupMenuItemOperationFindNext.text"));
@@ -3522,11 +3264,13 @@ public class MainFrame extends JFrame
             //---- popupMenuItemOperationTop ----
             popupMenuItemOperationTop.setText(context.cfg.gs("Operations.popupMenuItemOperationTop.text"));
             popupMenuItemOperationTop.setMnemonic(context.cfg.gs("Navigator.popupMenuItemOperationTop.mnemonic").charAt(0));
+            popupMenuItemOperationTop.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, KeyEvent.CTRL_DOWN_MASK));
             popupMenuOperationLog.add(popupMenuItemOperationTop);
 
             //---- popupMenuItemOperationBottom ----
             popupMenuItemOperationBottom.setText(context.cfg.gs("Navigator.popupMenuItemOperationBottom.text"));
             popupMenuItemOperationBottom.setMnemonic(context.cfg.gs("Navigator.popupMenuItemOperationBottom.mnemonic").charAt(0));
+            popupMenuItemOperationBottom.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_END, KeyEvent.CTRL_DOWN_MASK));
             popupMenuOperationLog.add(popupMenuItemOperationBottom);
             popupMenuOperationLog.addSeparator();
 
@@ -3584,6 +3328,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemPlexGenerator;
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
+    public JMenu menuStopTask;
     public JMenu menuSystem;
     public JMenuItem menuItemSettings;
     public JMenuItem menuItemAuthKeys;
@@ -3690,9 +3435,6 @@ public class MainFrame extends JFrame
     public JButton buttonOperationAddIncludeExclude;
     public JButton buttonOperationRemoveIncludeExclude;
     public JLabel labelOperationIncludeExclude;
-    public JLabel labelOperationJob;
-    public JTextField textFieldOperationJob;
-    public JButton buttonOperationJobPick;
     public JPanel vSpacer4;
     public JLabel labelOperationTargets;
     public JTextField textFieldOperationTargets;
@@ -3746,23 +3488,14 @@ public class MainFrame extends JFrame
     public JPanel vSpacer15;
     public JLabel labelOperationCrossCheck;
     public JCheckBox checkBoxOperationCrossCheck;
-    public JComboBox<String> comboBoxOperationLog;
-    public JTextField textFieldOperationLog;
-    public JButton buttonOperationLogFilePick;
     public JPanel vSpacer14;
     public JLabel labelOperationEmptyDirectories;
     public JCheckBox checkBoxOperationEmptyDirectories;
-    public JLabel labelOperationLogLevels;
     public JPanel panelOperationLogLevels;
-    public JComboBox<String> comboBoxOperationConsoleLevel;
-    public JComboBox<String> comboBoxOperationDebugLevel;
     public JPanel vSpacer13;
     public JLabel labelOperationIgnored;
     public JCheckBox checkBoxOperationIgnored;
     public JPanel panelCardListener;
-    public JLabel labelOperationJob2;
-    public JTextField textFieldOperationJob2;
-    public JButton buttonOperationJobPick2;
     public JPanel vSpacer32;
     public JPanel panelOperationExcludeBox;
     public JScrollPane scrollPaneOperationExclude;
@@ -3810,14 +3543,8 @@ public class MainFrame extends JFrame
     public JCheckBox checkBoxOperationKeepGoing2;
     public JPanel vSpacer27;
     public JPanel vSpacer28;
-    public JComboBox<String> comboBoxOperationLog2;
-    public JTextField textFieldOperationLog2;
-    public JButton buttonOperationLogFilePick2;
     public JPanel vSpacer29;
-    public JLabel labelOperationLogLevels2;
     public JPanel panelOperationLogLevels2;
-    public JComboBox<String> comboBoxOperationConsoleLevel2;
-    public JComboBox<String> comboBoxOperationDebugLevel2;
     public JPanel vSpacer30;
     public JPanel vSpacer31;
     public JPanel panelCardHintServer;

@@ -31,12 +31,14 @@ public class Settings extends JDialog
         TODO
          + Change from group layout to gridbag
          General
-            + Default dry run
-         Apperance
+            + Default dry run in dialogs
+            + Console & Debug log level
+            + Log file
+         Appearance
             + Show mnemonics
+            + Show scrollbar up/down buttons
          OperationsUI
-            + Generate short or long options
-            + Default console and debug levels
+            + Some default values
      */
 
     public Settings(Window owner, Context context)

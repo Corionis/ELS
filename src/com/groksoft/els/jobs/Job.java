@@ -135,9 +135,22 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     @Override
+    public void processTool(Context context, String publisherPath, String subscriberPath) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+    }
+
+    @Override
     public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         // to satisfy AbstractTool, not used
+    }
+
+    @Override
+    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+        return null;
     }
 
     @Override
@@ -157,7 +170,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
     {
         Job job = null;
         String path = getDirectoryPath();
-
         if (jobName == null || jobName.length() == 0)
             jobName = getConfigName();
 
@@ -198,7 +210,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     /**
-     * Process this Job
+     * Process Job
      * <br/>
      * Used by Main() with the -j | --job command line option
      *
@@ -211,9 +223,9 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     /**
-     * Process the job on a SwingWorker thread
+     * Process Job on a SwingWorker thread
      * <br/>
-     * Used by the Jobs GUI and Navigator Jobs menu run
+     * Used by the Jobs GUI run button and Navigator Jobs menu
      *
      * @param context The Context
      * @param comp       The owning component
@@ -296,7 +308,10 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 if (currentTask.isJob())
                 {
                     Job subJob = load(currentTask.getConfigName());
+
+                    // run it
                     subJob.processJob(context, subJob, isDryRun);
+                    logger.info(getConfigName() + context.cfg.gs("Z.completed"));
                     if (subJob.lastTask != null)
                         lastTask = subJob.lastTask;
 
@@ -307,37 +322,14 @@ public class Job extends AbstractTool implements Comparable, Serializable
                     if (lastTask != null && currentTask.isCachedLastTask(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
                         currentTask.setLastTask(lastTask);
 
+                    // run it
                     if (!currentTask.process(context, isDryRun))
                         requestStop();
 
                     if (currentTask.isCachedLastTask(context))
                         lastTask = currentTask;
-
-/*
-                    // reconfigure logging back to current context
-                    System.setProperty("logFilename", cfg.getLogFilename());
-                    System.setProperty("consoleLevel", cfg.getConsoleLevel());
-                    System.setProperty("debugLevel", cfg.getDebugLevel());
-                    System.setProperty("pattern", cfg.getPattern());
-                    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(true); //context.navigator == null ? true : false);  //(LogManager.class.getClassLoader(), false);
-                    loggerContext.reconfigure();
-                    AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-                    LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
-                    loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
-                    loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-                    loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
-                    if (context.navigator != null)
-                    {
-                        Map<String, Appender> appenders = loggerConfig.getAppenders();
-                        GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-                        appender.setContext(context);
-                    }
-                    loggerContext.updateLoggers();
-
-                    // get the named logger
-                    logger = LogManager.getLogger("applog");
-*/
                 }
+                logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
             }
             context.savedEnvironment.restore(currentTask);
         }
@@ -399,7 +391,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                         status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
                         break;
                     }
-                    else if (task.getOrigins() == null || task.getOrigins().size() == 0)
+                    else if ((task.getOrigins() == null || task.getOrigins().size() == 0) && !task.getInternalName().equals("Operations"))
                     {
                         status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
                         break;

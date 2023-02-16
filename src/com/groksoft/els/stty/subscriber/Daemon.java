@@ -32,7 +32,6 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 {
     protected static Logger logger = LogManager.getLogger("applog");
 
-    private Hints hints = null;
     private boolean isTerminal = false;
 
     /**
@@ -190,7 +189,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             {
                 context.hintKeys = new HintKeys(context);
                 context.hintKeys.read(context.cfg.getHintKeysFile());
-                hints = new Hints(context, context.hintKeys);
+                context.hints = new Hints(context, context.hintKeys);
             }
         }
         catch (Exception e)
@@ -329,10 +328,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         // -------------- cleanup -----------------------------------
                         if (theCommand.equalsIgnoreCase("cleanup"))
                         {
-                            if (hints != null)
+                            if (context.hints != null)
                             {
                                 context.localMode = true;
-                                hints.hintsSubscriberCleanup();
+                                context.hints.hintsSubscriberCleanup();
                                 context.localMode = false;
                                 response = "true";
                             }
@@ -449,7 +448,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                     if (libName.length() > 0 && itemPath.length() > 0 && toPath.length() > 0)
                                     {
                                         valid = true;
-                                        boolean sense = hints.hintRun(libName, itemPath, toPath);
+                                        boolean sense = context.hints.hintRun(libName, itemPath, toPath);
                                         response = (isTerminal ? "ok" + (sense ? ", executed" : "") + "\r\n" : Boolean.toString(sense));
                                     }
                                 }
@@ -497,7 +496,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                     {
                                         valid = true;
                                         context.localMode = true;
-                                        hints.writeOrUpdateHint(filename, command, myKey); // response is ignored
+                                        context.hints.writeOrUpdateHint(filename, command, myKey); // response is ignored
                                         context.localMode = false;
                                     }
                                 }

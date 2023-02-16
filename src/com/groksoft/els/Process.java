@@ -22,7 +22,6 @@ public class Process
     private int differentSizes = 0;
     private int errorCount = 0;
     private boolean fault = false;
-    private Hints hints = null;
     private ArrayList<String> ignoredList = new ArrayList<>();
     private boolean isInitialized = false;
     private boolean justScannedPublisher = false;
@@ -150,7 +149,7 @@ public class Process
             context.publisherRepo.scan();
             justScannedPublisher = true;
         }
-        hints.hintsLocal();
+        context.hints.hintsLocal();
     }
 
     /**
@@ -182,6 +181,7 @@ public class Process
             {
                 mismatchFile = new PrintWriter(context.cfg.getMismatchFilename());
                 mismatchFile.println(header);
+                mismatchFile.println("");
                 logger.info("Writing to Mismatches file " + context.cfg.getMismatchFilename());
             }
             catch (FileNotFoundException fnf)
@@ -490,11 +490,11 @@ public class Process
             {
                 context.hintKeys = new HintKeys(context);
                 context.hintKeys.read(context.cfg.getHintKeysFile());
-                hints = new Hints(context, context.hintKeys);
+                context.hints = new Hints(context, context.hintKeys);
             }
 
             // process ELS Hints locally, no subscriber, publisher's targets
-            if (hints != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteSession() &&
+            if (context.hints != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteSession() &&
                     (context.cfg.getPublisherLibrariesFileName().length() > 0 ||
                             context.cfg.getPublisherCollectionFilename().length() > 0) &&
                     (context.cfg.getSubscriberLibrariesFileName().length() == 0 &&
@@ -523,9 +523,9 @@ public class Process
             }
 
             // process ELS Hints to subscriber
-            if (hints != null && context.cfg.isTargetsEnabled() && context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
+            if (context.hints != null && context.cfg.isTargetsEnabled() && context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
-                hints.hintsMunge();
+                context.hints.hintsMunge();
             }
 
             // if all the pieces are specified perform a full munge of the collections
@@ -538,12 +538,12 @@ public class Process
             }
 
             // clean-up ELS Hints on subscriber
-            if (!context.fault && hints != null && !localHints && !context.cfg.isDryRun() && context.cfg.isTargetsEnabled() &&
+            if (!context.fault && context.hints != null && !localHints && !context.cfg.isDryRun() && context.cfg.isTargetsEnabled() &&
                     context.cfg.getPublisherFilename().length() > 0 && context.cfg.getSubscriberFilename().length() > 0)
             {
                 logger.info(SHORT, "-------------------------------------------");
                 lined = true;
-                hints.hintsSubscriberCleanup();
+                context.hints.hintsSubscriberCleanup();
             }
 
         }

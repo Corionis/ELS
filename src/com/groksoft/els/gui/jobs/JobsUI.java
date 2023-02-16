@@ -6,6 +6,7 @@ import com.google.gson.InstanceCreator;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
+import com.groksoft.els.gui.Generator;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
@@ -23,8 +24,11 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -53,7 +57,9 @@ public class JobsUI extends JDialog
     private Job currentJob = null;
     private Task currentTask = null;
     private ArrayList<Job> deletedJobs;
+    private JobsUI jobsUi;
     private boolean loadingCombo = false;
+    private File generatorLogFile = null;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
@@ -72,6 +78,7 @@ public class JobsUI extends JDialog
     {
         super(owner);
         this.context = context;
+        this.jobsUi = this;
         initComponents();
 
         // scale the help icon
@@ -250,26 +257,8 @@ public class JobsUI extends JDialog
 
     private void actionGenerateClicked(ActionEvent evt)
     {
-        try
-        {
-            // TODO change when JRE is embedded in ELS distro
-            String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-            String generated = "java -jar " + jar + " -c debug -d debug -j \"" + currentJob.getConfigName() + "\" -F \"" + currentJob.getConfigName() + ".log\"";
-
-            JOptionPane.showInputDialog(this,
-                    "<html><body>" + context.cfg.gs("Z.generated") + currentJob.getConfigName() +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</body></html>",
-                    context.cfg.gs("JobsUI.title"), JOptionPane.PLAIN_MESSAGE,
-                    null, null, generated);
-        }
-        catch (Exception e)
-        {
-            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-            logger.error(msg);
-            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-        }
+        Generator generator = new Generator(context);
+        generator.showDialog(this, currentJob, currentJob.getConfigName());
     }
 
     private void actionHelpClicked(MouseEvent e)
@@ -1464,7 +1453,6 @@ public class JobsUI extends JDialog
         }
         else
         {
-            logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }

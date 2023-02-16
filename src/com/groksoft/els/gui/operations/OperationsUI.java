@@ -3,10 +3,10 @@ package com.groksoft.els.gui.operations;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
+import com.groksoft.els.gui.Generator;
 import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.libraries.LibrariesUI;
-import com.groksoft.els.jobs.Jobs;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings(value = "unchecked")
-
 /**
  * Operations tab and Tool
  */
@@ -172,26 +171,10 @@ public class OperationsUI
 
     private void actionGenerateClicked(ActionEvent evt)
     {
-        try
-        {
-            // TODO change when JRE is embedded in ELS distro
-            String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-            String generated = "java -jar " + jar + " " + currentTool.generateCommandLine(context.publisherRepo, context.subscriberRepo);
-
-            Object[] opts = {context.cfg.gs("Z.ok")};
-            JOptionPane.showInputDialog(context.mainFrame,
-                    "<html><body>" + context.cfg.gs("Z.generated") + currentTool.getConfigName() +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                            "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</body></html>",
-                    displayName, JOptionPane.PLAIN_MESSAGE, null, null, generated);
-        }
-        catch (Exception e)
-        {
-            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-            logger.error(msg);
-            JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
-        }
+        if (configItems.isEditing())
+            configItems.getCellEditor().stopCellEditing();
+        Generator generator = new Generator(context);
+        generator.showDialog(context.mainFrame, currentTool, currentTool.getConfigName());
     }
 
     private void actionHelpClicked(MouseEvent e)
@@ -514,12 +497,6 @@ public class OperationsUI
             case "hints2":
                 fileName = context.mainFrame.textFieldOperationHints2.getText();
                 break;
-            case "log":
-                fileName = context.mainFrame.textFieldOperationLog.getText();
-                break;
-            case "log2":
-                fileName = context.mainFrame.textFieldOperationLog2.getText();
-                break;
         }
 
         File dir;
@@ -554,18 +531,18 @@ public class OperationsUI
                 file = fc.getSelectedFile();
 
                 // sanity checks
-                if (fileMustExist && !file.exists())
-                {
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
-                            displayName, JOptionPane.ERROR_MESSAGE);
-                    continue;
-                }
                 if (file.isDirectory())
                 {
                     JOptionPane.showMessageDialog(context.mainFrame,
                             context.cfg.gs("Navigator.open.error.select.a.file.only"),
                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                if (fileMustExist && !file.exists())
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
+                            displayName, JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
 
@@ -632,14 +609,6 @@ public class OperationsUI
                         context.mainFrame.textFieldOperationHints2.setText(path);
                         context.mainFrame.textFieldOperationHints2.postActionEvent();
                         break;
-                    case "log":
-                        context.mainFrame.textFieldOperationLog.setText(path);
-                        context.mainFrame.textFieldOperationLog.postActionEvent();
-                        break;
-                    case "log2":
-                        context.mainFrame.textFieldOperationLog2.setText(path);
-                        context.mainFrame.textFieldOperationLog2.postActionEvent();
-                        break;
                 }
             }
             break;
@@ -667,8 +636,6 @@ public class OperationsUI
             JButton button = (JButton) e.getSource();
             if (button.getActionCommand().toLowerCase().endsWith("filepick"))
                 filePicker(button);
-            else if (button.getActionCommand().toLowerCase().endsWith("jobpick"))
-                jobPicker(button);
             else
                 updateOnChange(e.getSource());
         }
@@ -698,21 +665,6 @@ public class OperationsUI
     public ArrayList<OperationsTool> getDeletedTools()
     {
         return deletedTools;
-    }
-
-    private int getLogLevelIndex(String level)
-    {
-        int index = -1;
-        ComboBoxModel<String> model = context.mainFrame.comboBoxOperationConsoleLevel.getModel();
-        for (int i = 0; i < model.getSize(); ++i)
-        {
-            if (level.equals(model.getElementAt(i)))
-            {
-                index = i;
-                break;
-            }
-        }
-        return index;
     }
 
     private int getModeOperationIndex()
@@ -844,107 +796,6 @@ public class OperationsUI
         context.mainFrame.comboBoxOperationHintsAndServer.removeAllItems();
         context.mainFrame.comboBoxOperationHintsAndServer.addItem(context.cfg.gs("Operations.comboBoxOperationHintsAndServer.0.hints"));
         context.mainFrame.comboBoxOperationHintsAndServer.addItem(context.cfg.gs("Operations.comboBoxOperationHintsAndServer.1.hintServer"));
-
-        context.mainFrame.comboBoxOperationLog.removeAllItems();
-        context.mainFrame.comboBoxOperationLog.addItem(context.cfg.gs("Operations.comboBoxOperationLog.0.log"));
-        context.mainFrame.comboBoxOperationLog.addItem(context.cfg.gs("Operations.comboBoxOperationLog.1.logOverwrite"));
-    }
-
-    private void jobPicker(JButton button)
-    {
-        Jobs jobsHandler = new Jobs(context);
-        try
-        {
-            class JobItem implements Comparable
-            {
-                String displayName;
-                String configName;
-
-                public JobItem(String displayName, String configName)
-                {
-                    this.displayName = displayName;
-                    this.configName = configName;
-                }
-
-                @Override
-                public String toString()
-                {
-                    return displayName;
-                }
-
-                @Override
-                public int compareTo(Object o)
-                {
-                    return toString().compareTo(o.toString());
-                }
-            }
-
-            // get all Jobs
-            ArrayList<AbstractTool> jobs = jobsHandler.loadAllJobs();
-
-            // make the String list for display
-            ArrayList<JobItem> jobItems = new ArrayList<>();
-            for (AbstractTool job : jobs)
-            {
-                jobItems.add(new JobItem(job.getListName(), job.getConfigName()));
-            }
-            Collections.sort(jobItems);
-
-            // add the Strings to the JList model
-            int selected = 0;
-            DefaultListModel<String> dialogList = new DefaultListModel<String>();
-            for (int i = 0; i < jobItems.size(); ++i)
-            {
-                dialogList.addElement(jobItems.get(i).displayName);
-                if (currentTool.getOptJob() != null && currentTool.getOptJob().length() > 0)
-                {
-                    if (currentTool.getOptJob().equals(jobItems.get(i).configName))
-                        selected = i;
-                }
-            }
-            JList<String> toolJList = new JList<String>();
-            toolJList.setModel(dialogList);
-            toolJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-            JScrollPane pane = new JScrollPane();
-            pane.setViewportView(toolJList);
-            toolJList.requestFocus();
-            toolJList.setSelectedIndex(selected);
-            toolJList.ensureIndexIsVisible(selected);
-            Object[] params = {context.cfg.gs("Operations.select.job"), pane};
-
-            int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, displayName, JOptionPane.OK_CANCEL_OPTION);
-            if (opt == JOptionPane.YES_OPTION)
-            {
-                String name = toolJList.getSelectedValue();
-                int index = 0;
-                for (; index < jobs.size(); ++index)
-                {
-                    if (name.equals(((AbstractTool) jobs.get(index)).getListName()))
-                    {
-                        break; // it is not possible for index to be invalid
-                    }
-                }
-                AbstractTool tool = jobs.get(index);
-                switch (button.getName().toLowerCase())
-                {
-                    case "job":
-                        context.mainFrame.textFieldOperationJob.setText(tool.getConfigName());
-                        context.mainFrame.textFieldOperationJob.postActionEvent();
-                        break;
-                    case "job2":
-                        context.mainFrame.textFieldOperationJob2.setText(tool.getConfigName());
-                        context.mainFrame.textFieldOperationJob2.postActionEvent();
-                        break;
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-            logger.error(msg);
-            JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     private void libraryLoader(int which)
@@ -1314,7 +1165,6 @@ public class OperationsUI
 
         // ### LEFT SIDE
         // --- General
-        mf.textFieldOperationJob2.setText(currentTool.getOptJob());
         if (currentTool.getOptTargets().length() > 0)
         {
             mf.textFieldOperationTargets2.setText(currentTool.getOptTargets());
@@ -1358,26 +1208,6 @@ public class OperationsUI
         }
         mf.checkBoxOperationKeepGoing2.setSelected(currentTool.isOptListenerKeepGoing());
 
-        // --- Logging
-        if (currentTool.getOptLogFile().length() > 0)
-        {
-            mf.comboBoxOperationLog2.setSelectedIndex(0);
-            mf.textFieldOperationLog2.setText(currentTool.getOptLogFile());
-        }
-        else if (currentTool.getOptLogFileOverwrite().length() > 0)
-        {
-            mf.comboBoxOperationLog2.setSelectedIndex(1);
-            mf.textFieldOperationLog2.setText(currentTool.getOptLogFileOverwrite());
-        }
-        else
-        {
-            mf.comboBoxOperationLog2.setSelectedIndex(0);
-            mf.textFieldOperationLog2.setText("");
-        }
-        mf.comboBoxOperationConsoleLevel2.setSelectedIndex(getLogLevelIndex(currentTool.getOptConsoleLevel()));
-        mf.comboBoxOperationDebugLevel2.setSelectedIndex(getLogLevelIndex(currentTool.getOptDebugLevel()));
-
-
         // ### RIGHT SIDE
         // --- Include/Exclude
         loadExcludeList();
@@ -1395,7 +1225,6 @@ public class OperationsUI
         // ### LEFT SIDE
         // --- General
         mf.checkBoxOperationNavigator.setSelected(currentTool.isOptNavigator());
-        mf.textFieldOperationJob.setText(currentTool.getOptJob());
         if (currentTool.getOptTargets().length() > 0)
         {
             mf.textFieldOperationTargets.setText(currentTool.getOptTargets());
@@ -1456,26 +1285,6 @@ public class OperationsUI
         }
         mf.checkBoxOperationQuitStatus.setSelected(currentTool.isOptQuitStatus());
         mf.checkBoxOperationKeepGoing.setSelected(currentTool.isOptListenerKeepGoing());
-
-        // --- Logging
-        if (currentTool.getOptLogFile().length() > 0)
-        {
-            mf.comboBoxOperationLog.setSelectedIndex(0);
-            mf.textFieldOperationLog.setText(currentTool.getOptLogFile());
-        }
-        else if (currentTool.getOptLogFileOverwrite().length() > 0)
-        {
-            mf.comboBoxOperationLog.setSelectedIndex(1);
-            mf.textFieldOperationLog.setText(currentTool.getOptLogFileOverwrite());
-        }
-        else
-        {
-            mf.comboBoxOperationLog.setSelectedIndex(0);
-            mf.textFieldOperationLog.setText("");
-        }
-        mf.comboBoxOperationConsoleLevel.setSelectedIndex(getLogLevelIndex(currentTool.getOptConsoleLevel()));
-        mf.comboBoxOperationDebugLevel.setSelectedIndex(getLogLevelIndex(currentTool.getOptDebugLevel()));
-
 
         // ### RIGHT SIDE
         // --- Include/Exclude
@@ -1667,27 +1476,6 @@ public class OperationsUI
                         current = currentTool.getOptIpWhitelist();
                         currentTool.setOptIpWhitelist(tf.getText());
                         break;
-                    case "job2":
-                    case "job":
-                        current = currentTool.getOptJob();
-                        currentTool.setOptJob(tf.getText());
-                        break;
-                    case "log2":
-                        cardVar = 2;
-                    case "log":
-                        selection = (cardVar == 2) ? context.mainFrame.comboBoxOperationLog2.getSelectedIndex() :
-                                context.mainFrame.comboBoxOperationLog.getSelectedIndex();
-                        if (selection == 0)
-                        {
-                            current = currentTool.getOptLogFile();
-                            currentTool.setOptLogFile(tf.getText());
-                        }
-                        else if (selection == 1)
-                        {
-                            current = currentTool.getOptLogFileOverwrite();
-                            currentTool.setOptLogFileOverwrite(tf.getText());
-                        }
-                        break;
                     case "mismatches":
                         current = currentTool.getOptMismatches();
                         currentTool.setOptMismatches(tf.getText());
@@ -1806,16 +1594,6 @@ public class OperationsUI
                 String value = "";
                 switch (name.toLowerCase())
                 {
-                    case "consolelevel2":
-                    case "consolelevel":
-                        current = getLogLevelIndex(currentTool.getOptConsoleLevel());
-                        currentTool.setOptConsoleLevel((String) combo.getItemAt(combo.getSelectedIndex()));
-                        break;
-                    case "debuglevel2":
-                    case "debuglevel":
-                        current = getLogLevelIndex(currentTool.getOptDebugLevel());
-                        currentTool.setOptDebugLevel((String) combo.getItemAt(combo.getSelectedIndex()));
-                        break;
                     case "hints2":
                         cardVar = 2;
                     case "hints":
@@ -1858,28 +1636,6 @@ public class OperationsUI
                                     context.mainFrame.textFieldOperationHintKeys.getText();
                             currentTool.setOptKeysOnly(value);
                             currentTool.setOptKeys("");
-                        }
-                        break;
-                    case "log2":
-                        cardVar = 2;
-                    case "log":
-                        if (currentTool.getOptLogFile().length() > 0)
-                            current = 0;
-                        else if (currentTool.getOptLogFileOverwrite().length() > 0)
-                            current = 1;
-                        if (index == 0)
-                        {
-                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationLog2.getText() :
-                                    context.mainFrame.textFieldOperationLog.getText();
-                            currentTool.setOptLogFile(value);
-                            currentTool.setOptLogFileOverwrite("");
-                        }
-                        else if (index == 1)
-                        {
-                            value = (cardVar == 2) ? context.mainFrame.textFieldOperationLog2.getText() :
-                                    context.mainFrame.textFieldOperationLog.getText();
-                            currentTool.setOptLogFileOverwrite(value);
-                            currentTool.setOptLogFile("");
                         }
                         break;
                     case "whatsnew":
@@ -1947,12 +1703,6 @@ public class OperationsUI
             context.mainFrame.textFieldOperationIpWhitelist.setToolTipText(current);
         }
 
-        current = currentTool.getOptJob();
-        if (carVar == 1)
-            context.mainFrame.textFieldOperationJob.setToolTipText(current);
-        else
-            context.mainFrame.textFieldOperationJob2.setToolTipText(current);
-
         current = currentTool.getOptTargets();
         if (carVar == 1)
             context.mainFrame.textFieldOperationTargets.setToolTipText(current);
@@ -1986,20 +1736,6 @@ public class OperationsUI
             context.mainFrame.textFieldOperationHints.setToolTipText(current);
         else
             context.mainFrame.textFieldOperationHints2.setToolTipText(current);
-
-        current = "";
-        if (carVar == 1)
-            selected = context.mainFrame.comboBoxOperationLog.getSelectedIndex();
-        else
-            selected = context.mainFrame.comboBoxOperationLog2.getSelectedIndex();
-        if (selected == 0)
-            current = currentTool.getOptLogFile();
-        else if (selected == 1)
-            current = currentTool.getOptLogFileOverwrite();
-        if (carVar == 1)
-            context.mainFrame.textFieldOperationLog.setToolTipText(current);
-        else
-            context.mainFrame.textFieldOperationLog2.setToolTipText(current);
     }
 
     private void updateState()

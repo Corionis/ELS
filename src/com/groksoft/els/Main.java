@@ -35,13 +35,13 @@ public class Main
 {
     public Main main;
     public Context context = new Context();
-    public Configuration cfg;
     public String currentFilePart;
     private boolean isListening = false;
     public Logger logger = null;
+    public String operationName = "";
+    public Context previousContext = null;
     public Date stamp = new Date();
     public boolean secondaryInvocation = false;
-    public boolean trace;
 
     // add new locales here
     public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO EXTEND+ Update locales here
@@ -65,14 +65,15 @@ public class Main
     }
 
     /**
-     * Main application Operations constructor
+     * Main application Job task for Operations constructor
      */
-    public Main(String[] args, Context context)
+    public Main(String[] args, Context context, String operationName)
     {
         main = this;
-        this.context = context;
         this.context.main = this;
         this.secondaryInvocation = true;
+        this.previousContext = context;
+        this.operationName = operationName;
         main.process(args);          // ELS Processor
     }
 
@@ -94,12 +95,12 @@ public class Main
      */
     public void connectHintServer(Repository repo) throws Exception
     {
-        if (cfg.isUsingHintTracking() && repo != null)
+        if (context.cfg.isUsingHintTracking() && repo != null)
         {
             context.statusRepo = new Repository(context, Repository.HINT_SERVER);
-            if (cfg.getHintsDaemonFilename().length() > 0)
+            if (context.cfg.getHintsDaemonFilename().length() > 0)
             {
-                context.statusRepo.read(cfg.getHintsDaemonFilename(), true);
+                context.statusRepo.read(context.cfg.getHintsDaemonFilename(), true);
 
                 // start the serveStty client to the hints status server
                 context.statusStty = new ClientStty(context, false, true);
@@ -113,7 +114,7 @@ public class Main
             }
             else
             {
-                context.statusRepo.read(cfg.getHintTrackerFilename(), true);
+                context.statusRepo.read(context.cfg.getHintTrackerFilename(), true);
 
                 // Setup the hint status store, single instance
                 context.datastore = new Datastore(context);
@@ -122,10 +123,10 @@ public class Main
         }
         else
             // Validate ELS hints keys if specified
-            if (cfg.getHintKeysFile().length() > 0) 
+            if (context.cfg.getHintKeysFile().length() > 0) 
             {
                 context.hintKeys = new HintKeys(context);
-                context.hintKeys.read(cfg.getHintKeysFile());
+                context.hintKeys.read(context.cfg.getHintKeysFile());
             }
     }
 
@@ -168,7 +169,7 @@ public class Main
         {
             filePart = "en_US"; // default locale
         }
-        cfg.setCurrentBundle(ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + filePart));
+        context.cfg.setCurrentBundle(ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + filePart));
     }
 
     /**
@@ -182,15 +183,14 @@ public class Main
         ThreadGroup sessionThreads = null;
         Process proc;
 
-        cfg = new Configuration(context);
-        context.cfg = cfg;
+        context.cfg = new Configuration(context);
 
         try
         {
             MungeException cfgException = null;
             try
             {
-                cfg.parseCommandLine(args);
+                context.cfg.parseCommandLine(args);
             }
             catch (MungeException e)
             {
@@ -200,24 +200,24 @@ public class Main
             // setup the logger
             if (!secondaryInvocation)
             {
-                if (cfg.getLogFilename().length() < 1)
-                    cfg.setLogFilename("els.log"); // make sure there's a filename
-                if (cfg.isLogOverwrite()) // optionally delete any existing log
+                if (context.cfg.getLogFileName().length() < 1)
+                    context.cfg.setLogFileName("els.log"); // make sure there's a filename
+                if (context.cfg.isLogOverwrite()) // optionally delete any existing log
                 {
-                    File aLog = new File(cfg.getLogFilename());
+                    File aLog = new File(context.cfg.getLogFileName());
                     aLog.delete();
                 }
-                System.setProperty("logFilename", cfg.getLogFilename());
-                System.setProperty("consoleLevel", cfg.getConsoleLevel());
-                System.setProperty("debugLevel", cfg.getDebugLevel());
-                System.setProperty("pattern", cfg.getPattern());
+                System.setProperty("logFilename", context.cfg.getLogFilePath());
+                System.setProperty("consoleLevel", context.cfg.getConsoleLevel());
+                System.setProperty("debugLevel", context.cfg.getDebugLevel());
+                System.setProperty("pattern", context.cfg.getPattern());
                 LoggerContext loggerContext = (LoggerContext) LogManager.getContext(context.navigator == null ? true : false);
                 loggerContext.reconfigure();
                 AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
                 LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
-                loggerConfig.setLevel(Level.toLevel(cfg.getConsoleLevel()));
+                loggerConfig.setLevel(Level.toLevel(context.cfg.getConsoleLevel()));
                 loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-                loggerConfig.setLevel(Level.toLevel(cfg.getDebugLevel()));
+                loggerConfig.setLevel(Level.toLevel(context.cfg.getDebugLevel()));
                 if (context.navigator != null)
                 {
                     Map<String, Appender> appenders = loggerConfig.getAppenders();
@@ -226,18 +226,25 @@ public class Main
                 }
                 loggerContext.updateLoggers();
             }
+            else // carry-over previous Context log values
+            {
+                context.cfg.setConsoleLevel(previousContext.cfg.getConsoleLevel());
+                context.cfg.setDebugLevel(previousContext.cfg.getDebugLevel());
+                context.cfg.setLogFileName(previousContext.cfg.getLogFileName());
+                context.cfg.setLogFilePath(previousContext.cfg.getLogFilePath());
+                context.cfg.setLogFileFullPath(previousContext.cfg.getLogFileFullPath());
+                context.cfg.setLogOverwrite(previousContext.cfg.isLogOverwrite());
+            }
 
             // get the named logger
             logger = LogManager.getLogger("applog");
+            context.trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
 
             if (cfgException != null) // re-throw any configuration exception
                 throw cfgException;
 
-            trace = cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
-            context.trace = trace;
-
             // Hack for viewing all system properties
-            if (cfg.isDumpSystem())
+            if (context.cfg.isDumpSystem())
             {
                 System.out.println("\nDumping System Properties");
                 System.getProperties().list(System.out);
@@ -250,7 +257,7 @@ public class Main
             String country = locale.getCountry();
             String filePart = lang + "_" + country;
             loadLocale(filePart);
-            if (cfg.gs("Transfer.received.subscriber.commands").length() == 0)
+            if (context.cfg.gs("Transfer.received.subscriber.commands").length() == 0)
             {
                 //logger.debug("local locale not supported, loading default");
                 loadLocale("-");
@@ -264,32 +271,32 @@ public class Main
             //
             logger.info("+------------------------------------------");
             boolean defaultNavigator = false;
-            switch (cfg.getOperation())
+            switch (context.cfg.getOperation())
             {
-                // --- handle standard local execution, no -r|--remote option
+                // --- standard local execution, no -r|--remote option
                 case NOT_REMOTE:
-                    if (cfg.getPublisherFilename().length() == 0 && cfg.getSubscriberFilename().length() == 0)
+                    if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
                         defaultNavigator = true;
 
                     // handle -n|--navigator to display the Navigator
-                    if (defaultNavigator || cfg.isNavigator())
+                    if (defaultNavigator || context.cfg.isNavigator())
                     {
-                        logger.info("ELS: Local Navigator, version " + cfg.getVersionStamp());
-                        cfg.dump();
+                        logger.info("ELS: Local Navigator, version " + context.cfg.getVersionStamp());
+                        context.cfg.dump();
 
-                        if (cfg.getPublisherFilename().length() > 0)
+                        if (context.cfg.getPublisherFilename().length() > 0)
                         {
                             context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                         }
 
-                        if (cfg.getSubscriberFilename().length() > 0)
+                        if (context.cfg.getSubscriberFilename().length() > 0)
                         {
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
 
-                        if (defaultNavigator && !cfg.isNavigator())
+                        if (defaultNavigator && !context.cfg.isNavigator())
                         {
-                            cfg.setNavigator(true);
+                            context.cfg.setNavigator(true);
                             logger.warn("Publisher, subscriber and mode not defined. Defaulting to Navigator");
                         }
 
@@ -302,15 +309,15 @@ public class Main
                     }
                     else
                     {
-                        logger.info("ELS: Local Publish, version " + cfg.getVersionStamp());
-                        cfg.dump();
+                        logger.info("ELS: Local Publish, version " + context.cfg.getVersionStamp());
+                        context.cfg.dump();
 
                         context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
-                        if (!cfg.isValidation() && (cfg.getSubscriberFilename().length() > 0))
+                        if (!context.cfg.isValidation() && (context.cfg.getSubscriberFilename().length() > 0))
                         {
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
-                        else if (cfg.isTargetsEnabled())
+                        else if (context.cfg.isTargetsEnabled())
                         {
                             context.subscriberRepo = context.publisherRepo; 
                         }
@@ -324,10 +331,10 @@ public class Main
                     }
                     break;
 
-                // --- handle -r L publisher listener for remote subscriber -r T connections
+                // --- -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS: Publisher Listener, version " + cfg.getVersionStamp());
-                    cfg.dump();
+                    logger.info("ELS: Publisher Listener, version " + context.cfg.getVersionStamp());
+                    context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
@@ -340,7 +347,7 @@ public class Main
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("publisher.listener");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
+                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, true);
                         context.serveStty.startListening(context.publisherRepo);
                         isListening = true;
 
@@ -354,10 +361,10 @@ public class Main
                     }
                     break;
 
-                // --- handle -r M publisher manual terminal to remote subscriber -r S
+                // --- -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS: Publisher Terminal, version " + cfg.getVersionStamp());
-                    cfg.dump();
+                    logger.info("ELS: Publisher Terminal, version " + context.cfg.getVersionStamp());
+                    context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
@@ -389,15 +396,15 @@ public class Main
                     }
                     break;
 
-                // --- handle -r P execute the operationsUI process to remote subscriber -r S
+                // --- -r P execute the operationsUI process to remote subscriber -r S
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
-                    if (cfg.isNavigator())
-                        logger.info("ELS: Remote Navigator, version " + cfg.getVersionStamp());
+                    if (context.cfg.isNavigator())
+                        logger.info("ELS: Remote Navigator, version " + context.cfg.getVersionStamp());
                     else
-                        logger.info("ELS: Remote Publish, version " + cfg.getVersionStamp());
+                        logger.info("ELS: Remote Publish, version " + context.cfg.getVersionStamp());
 
-                    cfg.dump();
+                    context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
@@ -423,7 +430,7 @@ public class Main
                         }
 
                         // handle -n|--navigator to display the Navigator
-                        if (cfg.isNavigator())
+                        if (context.cfg.isNavigator())
                         {
                             context.navigator = new Navigator(main, context);
                             if (!context.fault)
@@ -442,12 +449,12 @@ public class Main
                     }
                     break;
 
-                // --- handle -r S subscriber listener for publisher -r P|M connections
+                // --- -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS: Subscriber Listener, version " + cfg.getVersionStamp());
-                    cfg.dump();
+                    logger.info("ELS: Subscriber Listener, version " + context.cfg.getVersionStamp());
+                    context.cfg.dump();
 
-                    if (!cfg.isTargetsEnabled())
+                    if (!context.cfg.isTargetsEnabled())
                         throw new MungeException("Targets -t|-T required");
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
@@ -461,7 +468,7 @@ public class Main
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("subscriber.listener");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
+                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, true);
                         context.serveStty.startListening(context.subscriberRepo);
                         isListening = true;
 
@@ -475,12 +482,12 @@ public class Main
                     }
                     break;
 
-                // --- handle -r T subscriber manual terminal to publisher -r L
+                // --- -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS: Subscriber Terminal, version " + cfg.getVersionStamp());
-                    cfg.dump();
+                    logger.info("ELS: Subscriber Terminal, version " + context.cfg.getVersionStamp());
+                    context.cfg.dump();
 
-                    if (!cfg.isTargetsEnabled())
+                    if (!context.cfg.isTargetsEnabled())
                         throw new MungeException("Targets -t|-T required");
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
@@ -513,7 +520,7 @@ public class Main
 
                         // start serveStty server
                         sessionThreads = new ThreadGroup("subscriber.terminal");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, false);
+                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, false);
                         context.serveStty.startListening(context.subscriberRepo);
                         isListening = true;
 
@@ -527,30 +534,30 @@ public class Main
                     }
                     break;
 
-                // --- handle -H|--hint-server stand-alone hints status server
+                // --- -H|--hint-server stand-alone hint status server
                 case STATUS_SERVER:
-                    logger.info("ELS: Hint Status Server, version " + cfg.getVersionStamp());
-                    cfg.dump();
+                    logger.info("ELS: Hint Status Server, version " + context.cfg.getVersionStamp());
+                    context.cfg.dump();
 
-                    if (cfg.getHintKeysFile() == null || cfg.getHintKeysFile().length() == 0)
+                    if (context.cfg.getHintKeysFile() == null || context.cfg.getHintKeysFile().length() == 0)
                         throw new MungeException("-H|--status-server requires a -k|-K hint keys file");
 
-                    if (cfg.getPublisherFilename().length() > 0)
+                    if (context.cfg.getPublisherFilename().length() > 0)
                         throw new MungeException("-H|--status-server does not use -p|-P");
 
-                    if (cfg.getSubscriberFilename().length() > 0)
+                    if (context.cfg.getSubscriberFilename().length() > 0)
                         throw new MungeException("-H|--status-server does not use -s|-S");
 
-                    if (cfg.isTargetsEnabled())
+                    if (context.cfg.isTargetsEnabled())
                         throw new MungeException("-H|--status-server does not use targets");
 
                     // Get the hint status server repo
                     context.statusRepo = new Repository(context, Repository.HINT_SERVER);
-                    context.statusRepo.read(cfg.getHintsDaemonFilename(), true);
+                    context.statusRepo.read(context.cfg.getHintsDaemonFilename(), true);
 
                     // Get ELS hints keys
                     context.hintKeys = new HintKeys(context);
-                    context.hintKeys.read(cfg.getHintKeysFile());
+                    context.hintKeys.read(context.cfg.getHintKeysFile());
 
                     // Setup the hint status store, single instance
                     context.datastore = new Datastore(context);
@@ -561,7 +568,7 @@ public class Main
                     {
                         // start serveStty server
                         sessionThreads = new ThreadGroup("hint.status.server");
-                        context.serveStty = new ServeStty(sessionThreads, 10, cfg, context, true);
+                        context.serveStty = new ServeStty(sessionThreads, 10, context.cfg, context, true);
                         context.serveStty.startListening(context.statusRepo);
                         isListening = true;
                     }
@@ -571,12 +578,12 @@ public class Main
                     }
                     break;
 
-                // --- handle -Q|--force-quit the hint status server remotely
+                // --- -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Hint Status Server Quit, version " + cfg.getVersionStamp());
-                    cfg.dump();
+                    logger.info("ELS: Hint Status Server Quit, version " + context.cfg.getVersionStamp());
+                    context.cfg.dump();
 
-                    if (cfg.getHintHandlerFilename() == null || cfg.getHintHandlerFilename().length() == 0)
+                    if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
                         throw new MungeException("-Q|--force-quit requires a either -h|--hints or -H|--hint-server");
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
@@ -585,15 +592,15 @@ public class Main
 
                     // force the cfg setting & let this process end normally
                     // that will send the quit command to the hint status server
-                    cfg.setQuitStatusServer(true);
+                    context.cfg.setQuitStatusServer(true);
                     break;
 
-                // --- handle -G|--listener-quit the remote subscriber
+                // --- -G|--listener-quit the remote subscriber
                 case SUBSCRIBER_LISTENER_FORCE_QUIT:
-                    logger.info("ELS: Subscriber Listener Quit, version " + cfg.getVersionStamp());
-                    cfg.dump();
+                    logger.info("ELS: Subscriber Listener Quit, version " + context.cfg.getVersionStamp());
+                    context.cfg.dump();
 
-                    if (cfg.getSubscriberFilename() == null || cfg.getSubscriberFilename().length() == 0)
+                    if (context.cfg.getSubscriberFilename() == null || context.cfg.getSubscriberFilename().length() == 0)
                         throw new MungeException("-G|--listener-quit requires a -s|-S subscriber JSON file");
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
@@ -620,21 +627,22 @@ public class Main
                     }
                     break;
 
-                // --- handle -j|--job to execute a Job
+                // --- -j|--job to execute a Job
                 case JOB_PROCESS:
-                    logger.info("ELS: Job, version " + cfg.getVersionStamp());
+                    logger.info("ELS: Job, version " + context.cfg.getVersionStamp());
 
-                    cfg.dump();
+                    context.cfg.dump();
 
-                    if (cfg.isNavigator())
+                    if (context.cfg.isNavigator())
                         throw new MungeException("-j|--job and -n|--navigator are not used together");
 
-                    if (cfg.getPublisherFilename().length() > 0)
+                    // optional arguments for support of Any Publisher/Subscriber
+                    if (context.cfg.getPublisherFilename().length() > 0)
                     {
                         context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                     }
 
-                    if (cfg.getSubscriberFilename().length() > 0)
+                    if (context.cfg.getSubscriberFilename().length() > 0)
                     {
                         context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                     }
@@ -648,9 +656,9 @@ public class Main
 
                     // run the Job
                     Job tmpJob = new Job(context, "temp");
-                    Job job = tmpJob.load(cfg.getJobName());
+                    Job job = tmpJob.load(context.cfg.getJobName());
                     if (job == null)
-                        throw new MungeException("Job \"" + cfg.getJobName() + "\" could not be loaded");
+                        throw new MungeException("Job \"" + context.cfg.getJobName() + "\" could not be loaded");
                     job.process(context);
                     break;
 
@@ -671,7 +679,7 @@ public class Main
             {
                 System.out.println(Utils.getStackTrace(e));
             }
-            if (cfg.isNavigator())
+            if (context.cfg.isNavigator())
             {
                 if (context.navigator == null)
                 {
@@ -683,7 +691,7 @@ public class Main
                     {
                     }
                 }
-                JOptionPane.showMessageDialog(context != null ? context.mainFrame : null, e.getMessage(), cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context != null ? context.mainFrame : null, e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
 
             isListening = false; // force stop
@@ -691,7 +699,7 @@ public class Main
         finally
         {
             // stop stuff
-            if (!isListening && !cfg.isNavigator() && !context.nestedProcesses) // clients
+            if (!isListening && !context.cfg.isNavigator() && !context.nestedProcesses) // clients
             {
                 // if a fault occurred tell any listener
                 if (main.context.fault && main.context.clientStty != null && main.context.clientStty.isConnected())
@@ -777,15 +785,15 @@ public class Main
         Repository repo = new Repository(context, purpose);
         if (purpose == Repository.PUBLISHER)
         {
-            if (cfg.getPublisherLibrariesFileName().length() > 0 &&                     // both
-                    cfg.getPublisherCollectionFilename().length() > 0)
+            if (context.cfg.getPublisherLibrariesFileName().length() > 0 &&                     // both
+                    context.cfg.getPublisherCollectionFilename().length() > 0)
             {
                 throw new MungeException("Cannot use both -p and -P");
             }
-            else if (cfg.getPublisherLibrariesFileName().length() == 0 &&               // neither
-                    cfg.getPublisherCollectionFilename().length() == 0)
+            else if (context.cfg.getPublisherLibrariesFileName().length() == 0 &&               // neither
+                    context.cfg.getPublisherCollectionFilename().length() == 0)
             {
-                if (cfg.isRemoteSession())
+                if (context.cfg.isRemoteSession())
                 {
                     throw new MungeException("A -p publisher library or -P collection file is required for -r P");
                 }
@@ -796,25 +804,25 @@ public class Main
             }
 
             // get Publisher data
-            repo.read(cfg.getPublisherFilename(), true);
+            repo.read(context.cfg.getPublisherFilename(), true);
         }
         else
         {
-            if (cfg.getSubscriberLibrariesFileName().length() > 0 &&                    // both
-                    cfg.getSubscriberCollectionFilename().length() > 0)
+            if (context.cfg.getSubscriberLibrariesFileName().length() > 0 &&                    // both
+                    context.cfg.getSubscriberCollectionFilename().length() > 0)
             {
                 throw new MungeException("Cannot use both -s and -S");
             }
-            else if (cfg.getSubscriberLibrariesFileName().length() == 0 &&              // neither
-                    cfg.getSubscriberCollectionFilename().length() == 0)
+            else if (context.cfg.getSubscriberLibrariesFileName().length() == 0 &&              // neither
+                    context.cfg.getSubscriberCollectionFilename().length() == 0)
             {
-                if (cfg.isRemoteSession())
+                if (context.cfg.isRemoteSession())
                 {
                     throw new MungeException("A -s subscriber library or -S collection file is required for -r S");
                 }
                 else
                 {
-                    if (cfg.isPublishOperation())
+                    if (context.cfg.isPublishOperation())
                     {
                         throw new MungeException("A -s subscriber library or -S collection file is required, or the filename missing for -s or -S");
                     }
@@ -823,7 +831,7 @@ public class Main
             }
 
             // get Subscriber data
-            repo.read(cfg.getSubscriberFilename(), true);
+            repo.read(context.cfg.getSubscriberFilename(), true);
         }
 
         // -v|--validate option
@@ -847,7 +855,7 @@ public class Main
         {
             if (context.statusStty != null)
             {
-                if (!cfg.isQuitStatusServer() && context.statusStty.isConnected())
+                if (!context.cfg.isQuitStatusServer() && context.statusStty.isConnected())
                 {
                     context.statusStty.send("bye", "Sending bye command to Hint Server");
                     Thread.sleep(1000);
@@ -892,8 +900,8 @@ public class Main
      */
     public void stopVerbiage()
     {
-        if (!main.cfg.getConsoleLevel().equalsIgnoreCase(cfg.getDebugLevel()))
-            main.logger.info("log file has more details: " + cfg.getLogFilename());
+        if (!main.context.cfg.getConsoleLevel().equalsIgnoreCase(context.cfg.getDebugLevel()))
+            main.logger.info("log file has more details: " + context.cfg.getLogFileName());
 
         Date done = new Date();
         long millis = Math.abs(done.getTime() - stamp.getTime());

@@ -37,20 +37,15 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     private String optAuthKeys = ""; // -A | --auth-keys
     private boolean optNoBackFill = false; // -b | --no-back-fill
     private String optBlacklist = ""; // -B | --blacklist
-    private String optConsoleLevel = "Info"; // -c | --console-level
-    private String optDebugLevel = "Debug"; // -d | --debug-level
     private boolean optDryRun = false; // -D --dry-run
     private String optExportText = ""; // -e | --export-text
     private boolean optEmptyDirectories = false; // -E | --empty-directories
-    private String optLogFile = ""; // -f | --log-file
-    private String optLogFileOverwrite = ""; // -F | --log-overwrite
     private boolean optListenerKeepGoing = false; // -g | --listener-keep-going
     private boolean optListenerQuit = false; // -G | --listener-quit
     private String optHints = ""; // -h | --hints
     private String optHintServer = ""; // -H | --hint-server
     private String optExportItems = ""; // -i | --export-items
     private String optIpWhitelist = ""; // -I | --ip-whitelist
-    private String optJob = ""; // -j | --job
     private String optKeys = ""; // -k | --keys (Hint keys)
     private String optKeysOnly = ""; // -K | --key-only
     private String[] optLibrary; // -l | --library
@@ -72,8 +67,8 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
 
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private Repository pubRepo;
-    transient private Repository subRepo;
+    transient private String pubPath;
+    transient private String subPath;
     transient boolean stop = false;
     // @formatter-on
 
@@ -94,20 +89,15 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         tool.setOptAuthKeys(getOptAuthKeys());
         tool.setOptNoBackFill(isOptNoBackFill());
         tool.setOptBlacklist(getOptBlacklist());
-        tool.setOptConsoleLevel(getOptConsoleLevel());
-        tool.setOptDebugLevel(getOptDebugLevel());
         tool.setOptDryRun(isOptDryRun());
         tool.setOptExportText(getOptExportText());
         tool.setOptEmptyDirectories(isOptEmptyDirectories());
-        tool.setOptLogFile(getOptLogFile());
-        tool.setOptLogFileOverwrite(getOptLogFileOverwrite());
         tool.setOptListenerKeepGoing(isOptListenerKeepGoing());
         tool.setOptListenerQuit(isOptListenerQuit());
         tool.setOptHints(getOptHints());
         tool.setOptHintServer(getOptHintServer());
         tool.setOptExportItems(getOptExportItems());
         tool.setOptIpWhitelist(getOptIpWhitelist());
-        tool.setOptJob(getOptJob());
         tool.setOptKeys(getOptKeys());
         tool.setOptKeysOnly(getOptKeysOnly());
 //        tool.setOptLibrary(getOptLibrary().clone());
@@ -137,17 +127,9 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
 
-        // --- log levels
-        if (!getOptConsoleLevel().equals(defCfg.getConsoleLevel()))
-            sb.append(" " + (glo ? "--console-level" : "-c") + " " + getOptConsoleLevel());
-        if (!getOptDebugLevel().equals(defCfg.getDebugLevel()))
-            sb.append(" " + (glo ? "--debug-level" : "-d") + " " + getOptDebugLevel());
-
         // --- non-munging actions
         if (isOptNavigator() != defCfg.isNavigator())
             sb.append(" " + (glo ? "--navigator" : "-n"));
-        if (getOptJob().length() > 0)
-            sb.append(" " + (glo ? "--job" : "-j") + " " + getOptJob());
         if (isOptForceQuit())
             sb.append(" " + (glo ? "--force-quit" : "-Q"));
         if (isOptQuitStatus())
@@ -182,10 +164,10 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         }
 
         // --- libraries
-        if (pubRepo != null)
-            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubRepo.getJsonFilename() + "\"");
-        if (subRepo != null)
-            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subRepo.getJsonFilename() + "\"");
+        if (pubPath != null && pubPath.length() > 0)
+            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubPath + "\"");
+        if (subPath != null && subPath.length() > 0)
+            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
 
         // --- targets
         switch (operation)
@@ -272,19 +254,13 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         if (isOptValidate() != defCfg.isValidation())
             sb.append(" " + (glo ? "--validate" : "-v"));
 
-        // -- logging
-        if (getOptLogFile().length() > 0)
-            sb.append(" " + (glo ? "--log-file" : "-f") + " \"" + getOptLogFile() + "\"");
-        if (getOptLogFileOverwrite().length() > 0)
-            sb.append(" " + (glo ? "--log-overwrite" : "-F") + " \"" + getOptLogFileOverwrite() + "\"");
-
         return sb.toString().trim();
     }
 
-    public String generateCommandLine(Repository pubRepo, Repository subRepo)
+    public String generateCommandLine(String pubPath, String subPath)
     {
-        this.pubRepo = pubRepo;
-        this.subRepo = subRepo;
+        this.pubPath = pubPath;
+        this.subPath = subPath;
         return generateCommandLine();
     }
 
@@ -342,16 +318,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         return optBlacklist;
     }
 
-    public String getOptConsoleLevel()
-    {
-        return optConsoleLevel;
-    }
-
-    public String getOptDebugLevel()
-    {
-        return optDebugLevel;
-    }
-
     public String[] getOptExclude()
     {
         return optExclude;
@@ -382,11 +348,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         return optIpWhitelist;
     }
 
-    public String getOptJob()
-    {
-        return optJob;
-    }
-
     public String getOptKeys()
     {
         return optKeys;
@@ -400,16 +361,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public String[] getOptLibrary()
     {
         return optLibrary;
-    }
-
-    public String getOptLogFile()
-    {
-        return optLogFile;
-    }
-
-    public String getOptLogFileOverwrite()
-    {
-        return optLogFileOverwrite;
     }
 
     public String getOptMismatches()
@@ -536,12 +487,21 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         return false;
     }
 
+    /**
+     * Process an Operations tool
+     * <br/>
+     * Used by by a Job when executing an Operations task
+     *
+     * @param context The runtime Context
+     * @param publisherPath Repository of the publisher or null
+     * @param subscriberPath Repository of the subscriber or null
+     * @throws Exception
+     */
     @Override
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    public void processTool(Context context, String publisherPath, String subscriberPath) throws Exception
     {
-        pubRepo = publisherRepo;
-        subRepo = subscriberRepo;
-        // origins, dryRun & lastTask not used
+        pubPath = publisherPath;
+        subPath = subscriberPath;
 
         // construct the arguments
         String cmd = generateCommandLine();
@@ -550,11 +510,28 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
 
         // run the Operation
         logger.info(context.cfg.gs("Operations.launching") + getConfigName());
-        Main main = new Main(args, context);
+        Main main = new Main(args, context, getConfigName());
+        logger.info(getConfigName() + context.cfg.gs("Z.completed"));
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+    }
+
+    /**
+     * Process an Operations tool on a SwingWorker thread
+     * <br/>
+     * Used by the Run button of the tool
+     *
+     * @param context The runtime Context
+     * @param publisherPath Repository of the publisher or null
+     * @param subscriberPath Repository of the subscriber or null
+     * @return SwingWorker<Void, Void> of thread
+     */
+    @Override
+    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception
     {
         // create a fresh dialog
         if (context.progress == null || !context.progress.isBeingUsed())
@@ -567,7 +544,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                     requestStop();
                 }
             };
-            context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, dryRun);
+            context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, optDryRun);
             context.progress = context.progress;
             context.progress.display();
         }
@@ -578,12 +555,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         }
 
         // using currently-loaded repositories means there is no change in connection
-        //if (willDisconnect(context))
-        //{
-        //    int reply = JOptionPane.showConfirmDialog(context.mainFrame.panelOperationTop, context.cfg.gs("Job.this.job.contains.remote.subscriber"), context.cfg.gs("Navigator.splitPane.OperationsUI.tab.title"), JOptionPane.YES_NO_OPTION);
-        //    if (reply != JOptionPane.YES_OPTION)
-        //        return null;
-        //}
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
         {
@@ -592,7 +563,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             {
                 try
                 {
-                    processTool(context, publisherRepo, subscriberRepo, null, false, null);
+                    processTool(context, publisherPath, subscriberPath);
                 }
                 catch (Exception e)
                 {
@@ -605,6 +576,13 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             }
         };
         return worker;
+    }
+
+    @Override
+    public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
+    {
+        // to satisfy AbstractTool, not used
+        return null;
     }
 
     public void requestStop()
@@ -659,19 +637,9 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         this.optBlacklist = optBlacklist;
     }
 
-    public void setOptConsoleLevel(String optConsoleLevel)
-    {
-        this.optConsoleLevel = optConsoleLevel;
-    }
-
     public void setOptCrossCheck(boolean optCrossCheck)
     {
         this.optCrossCheck = optCrossCheck;
-    }
-
-    public void setOptDebugLevel(String optDebugLevel)
-    {
-        this.optDebugLevel = optDebugLevel;
     }
 
     public void setOptDecimalScale(boolean optDecimalScale)
@@ -734,11 +702,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         this.optIpWhitelist = optIpWhitelist;
     }
 
-    public void setOptJob(String optJob)
-    {
-        this.optJob = optJob;
-    }
-
     public void setOptKeys(String optKeys)
     {
         this.optKeys = optKeys;
@@ -762,16 +725,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public void setOptListenerQuit(boolean optListenerQuit)
     {
         this.optListenerQuit = optListenerQuit;
-    }
-
-    public void setOptLogFile(String optLogFile)
-    {
-        this.optLogFile = optLogFile;
-    }
-
-    public void setOptLogFileOverwrite(String optLogFileOverwrite)
-    {
-        this.optLogFileOverwrite = optLogFileOverwrite;
     }
 
     public void setOptMismatches(String optMismatches)

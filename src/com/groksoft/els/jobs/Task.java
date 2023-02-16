@@ -33,9 +33,9 @@ public class Task implements Comparable, Serializable
     transient private AbstractTool currentTool = null;
     transient private boolean dual = true;
     transient private Task lastTask = null;
-    transient private Repository pubRepo = null;
-    transient private Repository subRepo = null;
+    transient private Repository pubRepo;
     transient private boolean realOnly = false;
+    transient private Repository subRepo;
     transient private Tools tools = null;
     transient private String type;
 
@@ -225,6 +225,26 @@ public class Task implements Comparable, Serializable
         return repo;
     }
 
+    private String getRepoPath(String key) throws Exception
+    {
+        String path = null;
+        Repositories repositories = new Repositories();
+        repositories.loadList(context);
+
+        Repositories.Meta meta;
+        if (key.length() > 0)
+        {
+            meta = repositories.find(key);
+            if (meta != null)
+            {
+                path = meta.path;
+            }
+            else
+                throw new MungeException(key + context.cfg.gs("Z.not.found"));
+        }
+        return path;
+    }
+
     public String getSubscriberKey()
     {
         return subscriberKey;
@@ -296,13 +316,15 @@ public class Task implements Comparable, Serializable
      */
     public boolean process(Context context, boolean dryRun) throws Exception
     {
-        this.currentTool = currentTool;
-        if (logger == null)
-            logger = LogManager.getLogger("applog");
+        String pubPath = null;
+        String subPath = null;
 
-        // get tool
+        this.context = context;
         if (tools == null)
             this.tools = new Tools();
+
+        if (logger == null)
+            logger = LogManager.getLogger("applog");
 
         currentTool = tools.loadTool(context, getInternalName(), getConfigName());
         if (currentTool != null)
@@ -317,12 +339,11 @@ public class Task implements Comparable, Serializable
                 }
                 else
                     logger.info(context.cfg.gs("JobsUI.task.has.no.origins") + currentTool.getDisplayName() + ", " + currentTool.getConfigName());
-
                 return false;
             }
 
-            // get repos
-            if (useCachedLastTask(context))
+            // get repositories or paths
+            if (useCachedLastTask(context)) // not an Operations tool
             {
                 pubRepo = lastTask.pubRepo;
                 subRepo = lastTask.subRepo;
@@ -330,34 +351,53 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                pubRepo = getRepo(context, getPublisherKey(), true);
-                subRepo = getRepo(context, getSubscriberKey(), false);
-            }
-            if (pubRepo == null && subRepo == null)
-                throw new MungeException((context.cfg.gs("Task.no.repository.is.loaded")));
-
-            if (!(currentTool instanceof OperationsTool))
-            {
-                type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
-                context.cfg.setRemoteType(type);
-                context.cfg.setPublishOperation(false);  // TODO Change when OperationsUI tool added
-
-                if (isSubscriberRemote())
+                if (currentTool instanceof OperationsTool)
                 {
-                    Repository me = pubRepo;
-                    if (me == null)
-                        me = context.publisherRepo;
-                    if (!connectRemote(context, me, subRepo))
-                        return false;
+                    pubPath = getRepoPath(getPublisherKey());
+                    subPath = getRepoPath(getSubscriberKey());
+                    pubRepo = null;
+                    subRepo = null;
+                    context.nestedProcesses = true;
+                }
+                else // other tools
+                {
+                    pubRepo = getRepo(context, getPublisherKey(), true);
+                    subRepo = getRepo(context, getSubscriberKey(), false);
+                    type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
+
+                    context.cfg.setRemoteType(type);
+                    context.cfg.setPublishOperation(false);  // TODO Change when OperationsUI tool added
+
+                    if (isSubscriberRemote())
+                    {
+                        Repository me = pubRepo;
+                        if (me == null)
+                            me = context.publisherRepo;
+                        if (!connectRemote(context, me, subRepo))
+                            return false;
+                    }
                 }
             }
-            else
-                context.nestedProcesses = true;
 
-            currentTool.processTool(context, pubRepo, subRepo, origins, dryRun, useCachedLastTask(context) ? lastTask : null);
+            // sanity check then run it
+            if (currentTool instanceof OperationsTool)
+            {
+                if (pubPath == null && subPath == null)
+                    throw new MungeException(context.cfg.gs("Task.no.repository.is.defined"));
+
+                currentTool.processTool(context, pubPath, subPath);
+            }
+            else
+            {
+                if (pubRepo == null && subRepo == null)
+                    throw new MungeException(context.cfg.gs("Task.no.repository.is.loaded"));
+
+                currentTool.processTool(context, pubRepo, subRepo, origins, dryRun, useCachedLastTask(context) ? lastTask : null);
+            }
         }
         else
             throw new MungeException(context.cfg.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
+
         return true;
     }
 
@@ -372,14 +412,18 @@ public class Task implements Comparable, Serializable
      */
     public SwingWorker<Void, Void> process(Context context, AbstractTool tool, boolean dryRun) throws Exception
     {
+        String pubPath = null;
+        String subPath = null;
+        SwingWorker<Void, Void> worker = null;
+
+        this.context = context;
+        currentTool = tool;
+
         if (logger == null)
             logger = LogManager.getLogger("applog");
 
-        if (tool != null)
+        if (currentTool != null)
         {
-            this.context = context;
-            currentTool = tool;
-
             if ((origins == null || origins.size() == 0) && !useCachedLastTask(context) && currentTool.isOriginPathsAllowed())
             {
                 if (context.navigator != null)
@@ -393,8 +437,8 @@ public class Task implements Comparable, Serializable
                 return null;
             }
 
-            // get repos
-            if (useCachedLastTask(context))
+            // get repositories or paths
+            if (useCachedLastTask(context)) // not an Operations tool
             {
                 pubRepo = lastTask.pubRepo;
                 subRepo = lastTask.subRepo;
@@ -402,16 +446,38 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                pubRepo = getRepo(context, getPublisherKey(), true);
-                subRepo = getRepo(context, getSubscriberKey(), false);
+                if (currentTool instanceof OperationsTool)
+                {
+                    pubPath = getRepoPath(getPublisherKey());
+                    subPath = getRepoPath(getSubscriberKey());
+                    pubRepo = null;
+                    subRepo = null;
+                    context.nestedProcesses = true;
+                }
+                else // other tools
+                {
+                    pubRepo = getRepo(context, getPublisherKey(), true);
+                    subRepo = getRepo(context, getSubscriberKey(), false);
+                }
             }
-            if (pubRepo == null && subRepo == null)
-                throw new MungeException((context.cfg.gs("Task.no.repository.is.loaded")));
 
-            // No connection change. This method is only used by the tool's Run button, not by a Job.
-            // So it uses whatever subscriber is currently loaded.
+            // sanity check then run it
+            if (currentTool instanceof OperationsTool)
+            {
+                if (pubPath == null && subPath == null)
+                    throw new MungeException(context.cfg.gs("Task.no.repository.is.defined"));
 
-            return tool.processToolThread(context, pubRepo, subRepo, origins, dryRun);
+                worker = currentTool.processToolThread(context, pubPath, subPath);
+            }
+            else
+            {
+                if (pubRepo == null && subRepo == null)
+                    throw new MungeException((context.cfg.gs("Task.no.repository.is.loaded")));
+
+                worker = currentTool.processToolThread(context, pubRepo, subRepo, origins, dryRun);
+            }
+
+            return worker;
         }
         return null;
     }

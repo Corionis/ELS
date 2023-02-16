@@ -213,6 +213,12 @@ public class JunkRemoverTool extends AbstractTool
         return isMatch;
     }
 
+    @Override
+    public void processTool(Context context, String publisherPath, String subscriberPath) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+    }
+
     /**
      * Process the tool with the metadata provided
      * <br/>
@@ -269,7 +275,15 @@ public class JunkRemoverTool extends AbstractTool
                     context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, isRemote());
                 }
             }
+            logger.info(getConfigName() + context.cfg.gs("Z.completed"));
         }
+    }
+
+    @Override
+    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception
+    {
+        // to satisfy AbstractTool, not used
+        return null;
     }
 
     /**
