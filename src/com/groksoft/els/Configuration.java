@@ -1624,8 +1624,6 @@ public class Configuration
                     throw new MungeException("Error: unknown option: " + args[index]);
             }
         }
-
-        parseLogging();
     }
 
     /**
@@ -1633,7 +1631,7 @@ public class Configuration
      * <br/>
      * Sets logFullPath and logPath based on configuration.
      */
-    private void parseLogging()
+    public void parseLogging()
     {
         // setup the absolute path for the log file before configuring logging
         if (getLogFileName() != null && getLogFileName().length() > 0)

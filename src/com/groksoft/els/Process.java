@@ -517,7 +517,7 @@ public class Process
             }
 
             // check for publisher duplicates
-            if (context.cfg.isDuplicateCheck())
+            if (context.cfg.isDuplicateCheck() || context.cfg.isEmptyDirectoryCheck())
             {
                 duplicatesCheck();
             }

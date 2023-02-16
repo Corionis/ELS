@@ -200,6 +200,7 @@ public class Main
             // setup the logger
             if (!secondaryInvocation)
             {
+                context.cfg.parseLogging();
                 if (context.cfg.getLogFileName().length() < 1)
                     context.cfg.setLogFileName("els.log"); // make sure there's a filename
                 if (context.cfg.isLogOverwrite()) // optionally delete any existing log
