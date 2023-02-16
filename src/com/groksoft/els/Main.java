@@ -207,7 +207,7 @@ public class Main
                     File aLog = new File(context.cfg.getLogFileName());
                     aLog.delete();
                 }
-                System.setProperty("logFilename", context.cfg.getLogFilePath());
+                System.setProperty("logFilename", context.cfg.getLogFileFullPath());
                 System.setProperty("consoleLevel", context.cfg.getConsoleLevel());
                 System.setProperty("debugLevel", context.cfg.getDebugLevel());
                 System.setProperty("pattern", context.cfg.getPattern());

@@ -85,6 +85,7 @@ public class Configuration
     private String subscriberLibrariesFileName = "";
     private int targetsEnabled = -1;
     private String targetsFilename = "";
+    private boolean testEnv = false;
     private int validation = -1;
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
@@ -270,7 +271,8 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
 
         if (context.trace)
-            logger.trace("Working directory: " + getWorkingDirectory() + ", " + (isDevEnv() ? "Development environment" : "Release environment"));
+            logger.trace("Working directory: " + getWorkingDirectory() + ", " +
+                    (isDevEnv() ? "Development" : (isTestEnv() ? "Test" : "Release")) + " environment");
     }
 
     /**
@@ -718,6 +720,7 @@ public class Configuration
      */
     public String getWorkingDirectory()
     {
+        // LEFTOFF Change ALL other path handling to use this method
         return workingDirectory;
     }
 
@@ -1111,6 +1114,16 @@ public class Configuration
     }
 
     /**
+     * Is ELS running in it's test environment?
+     *
+     * @return false if Release environment, true if test
+     */
+    public boolean isTestEnv()
+    {
+        return testEnv;
+    }
+
+    /**
      * Is a Hint Status Tracker or Status Server being used?
      *
      * @return true if so
@@ -1176,6 +1189,16 @@ public class Configuration
                 execPath = execPath.substring(0, execPath.lastIndexOf(platEnd));
                 execPath += System.getProperty("file.separator") + "mock";
                 devEnv = true;
+            }
+
+            // test
+            platEnd = System.getProperty("file.separator") + "deploy" +
+                    System.getProperty("file.separator") + "ELS.jar";
+            if (execPath.endsWith(platEnd))
+            {
+                execPath = execPath.substring(0, execPath.lastIndexOf(platEnd));
+                execPath += System.getProperty("file.separator") + "mock";
+                testEnv = true;
             }
 
             File directory = new File(execPath);
