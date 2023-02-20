@@ -498,7 +498,7 @@ public class MainFrame extends JFrame
         if (context.browser.navTransferHandler.getTransferWorker() != null &&
                 !context.browser.navTransferHandler.getTransferWorker().isDone())
         {
-            logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.at.user.request"));
+            logger.warn(context.cfg.gs("MainFrame.cancelling.transfers.as.requested"));
             context.browser.navTransferHandler.getTransferWorker().cancel(true);
             context.fault = true;
         }

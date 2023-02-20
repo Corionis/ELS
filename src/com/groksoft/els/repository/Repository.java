@@ -551,10 +551,11 @@ public class Repository
                     to = "\\\\";
             }
 
+            // temporary files location
             if (getLibraryData().libraries.temp_location != null)
             {
                 String path = getLibraryData().libraries.temp_location;
-                if (path.startsWith("~"))
+                if (path.startsWith("~")) // is it relative to the user's home directory?
                 {
                     path = System. getProperty("user.home") + path.substring(1);
                     getLibraryData().libraries.temp_location = path;

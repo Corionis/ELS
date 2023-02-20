@@ -1,0 +1,18 @@
+{
+  "configName": "003 Any subscriber",
+  "tasks": [
+    {
+      "configName": "Archive junk",
+      "internalName": "JunkRemover",
+      "publisherKey": "",
+      "subscriberKey": "_ANY_SERVER_",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "name": "Movies",
+          "type": 5
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+	"libraries": {
+        "description": "Hint Server",
+        "host": "localhost:50971",
+        "listen": "localhost:50971",
+        "flavor": "linux",
+        "terminal_allowed": "false",
+        "key": "dd154b96-9dbe-43ad-be0f-ceaa00d4a64e",
+        "case_sensitive": "false",
+        "locations": [
+            {
+                "location": "datastore",
+                "minimum": "42GB"
+            }
+        ],
+		"bibliography": [
+			{
+				"name": "ELS Hint Status Datastore",
+				"sources": [
+                    "datastore"
+				]
+			}
+		]
+	}
+}
+

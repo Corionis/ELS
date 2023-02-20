@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -c debug -d debug -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -T test/subscriber-one/targets.json -m output/10-24_Backup-exclude-lib_mismatches.txt -W output/10-24_Backup-exclude-lib_whatsnew.txt -F output/10-24_Backup-exclude-lib.log -L "TV Shows"
+java -jar ../deploy/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -s libraries/subscriber-one.json -T libraries/targets.json -m output/10-24_Backup-exclude-lib_mismatches.txt -W output/10-24_Backup-exclude-lib_whatsnew.txt -F output/10-24_Backup-exclude-lib.log -L "TV Shows"

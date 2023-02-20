@@ -1,0 +1,21 @@
+{
+  "configName": "030 Subi-Job Renamer",
+  "tasks": [
+    {
+      "configName": "20 Renamer Tests",
+      "internalName": "jobs",
+      "publisherKey": "",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "UPPER",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    }
+  ]
+}

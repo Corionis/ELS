@@ -1,0 +1,34 @@
+{
+  "configName": "Archive junk",
+  "internalName": "JunkRemover",
+  "junkList": [
+    {
+      "caseSensitive": true,
+      "wildcard": "*.7z"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.arc"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.gz"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.tar"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.zip"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.rar"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.lzh"
+    }
+  ]
+}

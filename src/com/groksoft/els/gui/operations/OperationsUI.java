@@ -516,7 +516,7 @@ public class OperationsUI
         else
         {
             // default to ELS home
-            fc.setCurrentDirectory(new File(Utils.getElsHome()));
+            fc.setCurrentDirectory(new File(context.cfg.getWorkingDirectory()));
         }
 
         fc.setDialogType(fileMustExist ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG);
@@ -548,8 +548,8 @@ public class OperationsUI
 
                 // make path relative if possible
                 String path = "";
-                if (file.getPath().startsWith(Utils.getElsHome()))
-                    path = file.getPath().substring(Utils.getElsHome().length() + 1);
+                if (file.getPath().startsWith(context.cfg.getWorkingDirectory()))
+                    path = file.getPath().substring(context.cfg.getWorkingDirectory().length() + 1);
                 else
                     path = file.getPath();
 
@@ -618,7 +618,7 @@ public class OperationsUI
     private String filePickerDirectory(String path)
     {
         if (Utils.isRelativePath(path))
-            path = Utils.getElsHome() + System.getProperty("file.separator") + path;
+            path = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + path;
         return Utils.getLeftPath(path, Utils.getSeparatorFromPath(path));
     }
 

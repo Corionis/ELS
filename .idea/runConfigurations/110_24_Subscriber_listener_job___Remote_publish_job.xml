@@ -2,7 +2,7 @@
   <configuration default="false" name="110-24 Subscriber listener job + Remote publish job" type="Application" factoryName="Application" folderName="110-00 Jobs">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-c debug -d debug -j &quot;503 Sub+Pub&quot; -F &quot;output/110-24_Subscriber-listener-job+Remote-publish-job.log&quot;" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug -j &quot;503 Sub+Pub&quot; -F &quot;output/110-24_Subscriber-listener-job+Remote-publish-job.log&quot;" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />

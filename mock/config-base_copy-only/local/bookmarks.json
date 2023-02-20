@@ -1,0 +1,95 @@
+{
+  "bookmarks": [
+    {
+      "name": ".els",
+      "panel": "treeSystemOne",
+      "pathElements": [
+        "System",
+        "Home",
+        ".els"
+      ]
+    },
+    {
+      "name": "1942 - Bugs Bunny.mkv",
+      "panel": "tableCollectionOne",
+      "pathElements": [
+        "Media Publisher",
+        "TV Shows",
+        "A Bugs Show (2021)",
+        "Season 1",
+        "Specials",
+        "1942 - Bugs Bunny.mkv"
+      ]
+    },
+    {
+      "name": "Bugs Bunny Season 1",
+      "panel": "tableCollectionTwo",
+      "pathElements": [
+        "Subscriber One",
+        "TV Shows",
+        "A Bugs Show (2021)",
+        "Season 1"
+      ]
+    },
+    {
+      "name": "Bugs What A Repeated Interview - S02e01.mp4",
+      "panel": "tableCollectionOne",
+      "pathElements": [
+        "Media Publisher",
+        "TV Shows",
+        "A Bugs Show (2021)",
+        "Season 2",
+        "Bugs What A Repeated Interview - S02e01.mp4"
+      ]
+    },
+    {
+      "name": "ELS",
+      "panel": "treeSystemOne",
+      "pathElements": [
+        "System",
+        "Home",
+        "Work",
+        "groksoft",
+        "ELS"
+      ]
+    },
+    {
+      "name": "More Virus.mp4",
+      "panel": "tableCollectionOne",
+      "pathElements": [
+        "Media Publisher",
+        "TV Shows",
+        "Virus (2021)",
+        "Virus.mp4"
+      ]
+    },
+    {
+      "name": "Pub: Bugs Bunny Season 2",
+      "panel": "treeCollectionOne",
+      "pathElements": [
+        "Media Publisher",
+        "TV Shows",
+        "A Bugs Show (2021)",
+        "Season 2"
+      ]
+    },
+    {
+      "name": "volmunger.txt",
+      "panel": "tableCollectionTwo",
+      "pathElements": [
+        "RockPlex",
+        "Music Videos",
+        "volmunger.txt"
+      ]
+    },
+    {
+      "name": "M4 Renamer Tests D4",
+      "panel": "treeCollectionOne",
+      "pathElements": [
+        "Media Publisher",
+        "TV Shows",
+        "M4 Renamer Tests D4"
+      ]
+    }
+  ]
+}

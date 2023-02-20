@@ -2,7 +2,7 @@
   <configuration default="false" name="62-21_Subscriber-One-listener" type="Application" factoryName="Application" folderName="62-00 Local Hint Tracker - Remote Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-k test/test-hints.keys -c debug -d debug --remote S --authorize sharkbait -p test/publisher/publisher.json -S test/subscriber-one/subscriber-one.json -T -F output/62-21_Subscriber-One-listener.log" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-one.json -T -F output/62-21_Subscriber-One-listener.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />

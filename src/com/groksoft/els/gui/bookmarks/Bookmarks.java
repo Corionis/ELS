@@ -70,9 +70,8 @@ public class Bookmarks implements Serializable
 
     public String getFullPath()
     {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
-                ".els"  + System.getProperty("file.separator") + "local" + System.getProperty("file.separator") +
-                "bookmarks.json";
+        String path = System.getProperty("user.dir") + System.getProperty("file.separator") +
+                "local" + System.getProperty("file.separator") + "bookmarks.json";
         return path;
     }
 

@@ -33,7 +33,7 @@ if [[ $* == *"-r"* ]]; then
     cd "$base"
     ./reset.sh -f
 
-    mkdir "../../test/hints/datastore"
+    mkdir "../../libraries/datastore"
 
     cd "../../output/capture" 
     echo 'Copying .els files back'

@@ -1,0 +1,14 @@
+{
+  "configName": "Replace Webrip",
+  "internalName": "Renamer",
+  "type": 4,
+  "segment": 0,
+  "recursive": false,
+  "filesOnly": true,
+  "text1": "(?i)Webrip",
+  "text2": "",
+  "text3": "",
+  "option1": true,
+  "option2": false,
+  "option3": false
+}

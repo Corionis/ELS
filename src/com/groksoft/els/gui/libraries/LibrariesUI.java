@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 
 public class LibrariesUI
 {
-    public static final String INTERNAL_NAME = "libraries";
     private Context context;
     private String currentLibraryName = "";
     private String displayName;
@@ -31,10 +30,7 @@ public class LibrariesUI
 
     public String getDirectoryPath()
     {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
-                ".els" + System.getProperty("file.separator") +
-                (getSubsystem().length() > 0 ? getSubsystem() + System.getProperty("file.separator") : "") +
-                getInternalName();
+        String path = System.getProperty("user.dir") + System.getProperty("file.separator") + "libraries";
         return path;
     }
 
@@ -43,11 +39,6 @@ public class LibrariesUI
         String path = getDirectoryPath() + System.getProperty("file.separator") +
                 Utils.scrubFilename(getConfigName()) + ".json";
         return path;
-    }
-
-    public String getInternalName()
-    {
-        return INTERNAL_NAME;
     }
 
     public String getSubsystem()

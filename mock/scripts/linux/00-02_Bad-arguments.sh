@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -c debug -d debug -p test/publisher/publisher.json -s test/subscribe-one/subscriber-one.json -T test/subscriber-one/targets.json -F output/00-02_Bad-arguments.log -a-bad-argument
+java -jar ../deploy/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -s libraries/subscriber-one.json -T libraries/targets.json -F output/00-02_Bad-arguments.log -a-bad-argument

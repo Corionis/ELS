@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar --navigator -c debug -d debug -k test/test-hints.keys -P test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -F output/90-13_Navigator-hint-keys.log
+java -jar ../deploy/ELS.jar -C . --navigator -c debug -d debug -k system/hint.keys -P libraries/publisher.json -s libraries/subscriber-one.json -F output/90-13_Navigator-hint-keys.log
 

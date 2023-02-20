@@ -1,0 +1,14 @@
+{
+  "configName": "Manual Test Cleanup",
+  "internalName": "Renamer",
+  "type": 4,
+  "segment": 0,
+  "recursive": true,
+  "filesOnly": false,
+  "text1": " *[MRD][0-9] *",
+  "text2": "",
+  "text3": "",
+  "option1": true,
+  "option2": false,
+  "option3": false
+}

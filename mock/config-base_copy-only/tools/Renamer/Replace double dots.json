@@ -1,0 +1,14 @@
+{
+  "configName": "Replace double dots",
+  "internalName": "Renamer",
+  "type": 4,
+  "segment": 0,
+  "recursive": false,
+  "filesOnly": true,
+  "text1": "..",
+  "text2": ".",
+  "text3": "",
+  "option1": false,
+  "option2": false,
+  "option3": false
+}

@@ -7,4 +7,4 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar --version
+java -jar ../deploy/ELS.jar -C . --version

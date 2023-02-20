@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar --version
+java -jar ../deploy/ELS.jar -C . --version

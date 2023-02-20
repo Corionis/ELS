@@ -2,7 +2,7 @@
   <configuration default="false" name="20-21 Subscriber listener" type="Application" factoryName="Application" folderName="20-00 Remote Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-c debug -d debug --remote S -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -T -F output/20-21_Subscriber-listener.log" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/20-21_Subscriber-listener.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />

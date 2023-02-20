@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -c debug -d debug -p test/publisher/publisher.json -T test/subscriber-one/targets.json -F output/00-05_Duplicates.log --duplicates
+java -jar ../deploy/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -T libraries/targets.json -F output/00-05_Duplicates.log --duplicates

@@ -1,0 +1,20 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="ELS-Windows">
+    <output-path>$PROJECT_DIR$/deploy</output-path>
+    <root id="root">
+      <element id="archive" name="ELS-4.0.0-Windows.zip">
+        <element id="directory" name="ELS">
+          <element id="directory" name="bin">
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/images/els-logo-98px.ico" />
+            <element id="file-copy" path="$PROJECT_DIR$/artifacts/images/els-logo-98px.png" />
+            <element id="artifact" artifact-name="ELS:jar" />
+          </element>
+          <element id="directory" name="rt">
+            <element id="extracted-dir" path="$PROJECT_DIR$/artifacts/stage/rt-archives/OpenJDK8-windows.zip" path-in-jar="/" />
+          </element>
+          <element id="dir-copy" path="$PROJECT_DIR$/artifacts/stage/windows" />
+        </element>
+      </element>
+    </root>
+  </artifact>
+</component>

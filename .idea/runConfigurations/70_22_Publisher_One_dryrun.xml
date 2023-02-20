@@ -2,7 +2,7 @@
   <configuration default="false" name="70-22 Publisher One dryrun" type="Application" factoryName="Application" folderName="70-00 Remote Hint Server - Local Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="--hints test/hints/hint-server.json -k test/test-hints.keys -c debug -d debug --remote P -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -T -m output/70-22_Publisher-One-dryrun_mismatches.txt -W output/70-22_Publisher-One-dryrun_whatsnew.txt -F output/70-22_Publisher-One-dryrun.log --dry-run" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote P -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/70-22_Publisher-One-dryrun_mismatches.txt -W output/70-22_Publisher-One-dryrun_whatsnew.txt -F output/70-22_Publisher-One-dryrun.log --dry-run" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />

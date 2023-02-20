@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar --hints test/hints/hint-server.json --keys-only test/test-hints.keys -c debug -d debug -p test/publisher/publisher.json -T -F output/60-01_Hints-publisher.log
+java -jar ../deploy/ELS.jar -C . --hints libraries/hint-server.json --keys-only system/hint.keys -c debug -d debug -p libraries/publisher.json -T -F output/60-01_Hints-publisher.log
 

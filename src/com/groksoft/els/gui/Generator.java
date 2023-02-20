@@ -89,7 +89,6 @@ public class Generator
             name = fieldName.getText();
             if (name != null && name.length() > 0)
             {
-                String icon = context.cfg.getIconPath() + System.getProperty("file.separator") +
                 sb.append("[Desktop Entry]\n");
                 sb.append("Name=" + name + "\n");
                 sb.append("Exec=" + commandLine + "\n");
@@ -100,15 +99,16 @@ public class Generator
             }
             else
             {
-                // name required
+                // TODO name required
             }
 
+            // shortcut path to user Desktop
             String shortcut = System.getProperty("user.home") + System.getProperty("file.separator") + "Desktop" +
                     System.getProperty("file.separator") + name + ".desktop";
             File shortFile = new File(shortcut);
             if (shortFile.exists())
             {
-                // exists, overwrite?
+                // TODO exists, overwrite?
             }
 
             try
@@ -154,9 +154,11 @@ public class Generator
     {
         // TODO change when JRE is embedded in ELS distro
         boolean glo = context.preferences.isGenerateLongOptions();
-        String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+        String jar = context.cfg.getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
+
+        String conf = getCfgOpt();
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "java -jar " + jar + " -j \"" + tool.getConfigName() + "\"";
+        String cmd = "java -jar " + jar + " " + conf + "-j \"" + tool.getConfigName() + "\"";
 
         // --- hint keys
         if (context.cfg.getHintKeysFile().length() > 0)
@@ -182,12 +184,24 @@ public class Generator
     private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
         // TODO change when JRE is embedded in ELS distro
-        String jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+        String jar = context.cfg.getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
+
         // tool has all the parameter data, use it's generate method
+        String conf = getCfgOpt();
         String opts = ((OperationsTool)tool).generateCommandLine(context.publisherRepo.getJsonFilename(), context.subscriberRepo.getJsonFilename());
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "java -jar " + jar + " " + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+        String cmd = "java -jar " + jar + " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
+    }
+
+    private String getCfgOpt()
+    {
+        String opt = "";
+
+        // if the -C parameter was originally specified for this ELS then use that parameter
+        if (context.cfg.getConfigurationDirectory().length() > 0)
+            opt = "-C " + context.cfg.getConfigurationDirectory() + " ";
+        return opt;
     }
 
     public String getConsoleLevel()

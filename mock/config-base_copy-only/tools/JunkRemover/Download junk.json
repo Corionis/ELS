@@ -1,0 +1,198 @@
+{
+  "configName": "Download junk",
+  "internalName": "JunkRemover",
+  "junkList": [
+    {
+      "caseSensitive": false,
+      "wildcard": "*.alb"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.aspx"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.ass"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.bak"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.bat"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.!bt"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.css"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.dat"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.db"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.doc"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.docx"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.epub"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.exe"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.ffs_db"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.filepart"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.htm?"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.ico"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.idx"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.if0"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.ini"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.lnk"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.log"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.mht"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.msi"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.mta"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.nfo"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.nfo-"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.par2"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.part"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.php"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.pk"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.pl"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.pls"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.pps"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.psd"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.sfv"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.sh"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.smi"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.sqlite"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.sub"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.thmx"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.torrent"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.url"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.vob"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.x"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "*.xml"
+    },
+    {
+      "caseSensitive": true,
+      "wildcard": "desktop.ini"
+    },
+    {
+      "caseSensitive": false,
+      "wildcard": "Thumbs.db"
+    }
+  ]
+}

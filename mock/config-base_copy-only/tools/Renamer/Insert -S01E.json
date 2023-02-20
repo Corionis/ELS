@@ -1,0 +1,14 @@
+{
+  "configName": "Insert -S01E",
+  "internalName": "Renamer",
+  "type": 1,
+  "segment": 0,
+  "recursive": false,
+  "filesOnly": true,
+  "text1": "-S01E",
+  "text2": "0",
+  "text3": "",
+  "option1": false,
+  "option2": true,
+  "option3": false
+}

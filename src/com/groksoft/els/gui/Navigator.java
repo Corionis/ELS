@@ -1893,13 +1893,15 @@ public class Navigator
 
     public void loadJobsMenu()
     {
+        final int OffsetCount = 3; // number of static Job menu items
+
         JMenu menu = context.mainFrame.menuJobs;
         int count = menu.getItemCount();
 
-        // A -2 offset for "Manage ..." and separator
-        if (count > 3)
+        // offset for static top items
+        if (count > OffsetCount)
         {
-            for (int i = count - 1; i > 1; --i)
+            for (int i = count - 1; i > OffsetCount - 1; --i)
             {
                 menu.remove(i);
             }
@@ -1965,8 +1967,8 @@ public class Navigator
                         {
                             JMenuItem selected = (JMenuItem) actionEvent.getSource();
 
-                            // A -2 offset for "Manage ..." and separator
-                            int index = findMenuItemIndex(context.mainFrame.menuJobs, selected) - 2;
+                            // offset for static top items
+                            int index = findMenuItemIndex(context.mainFrame.menuJobs, selected) - OffsetCount;
                             if (index >= 0)
                             {
                                 Job job = jobs[index];

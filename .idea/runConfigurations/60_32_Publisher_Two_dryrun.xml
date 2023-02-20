@@ -2,7 +2,7 @@
   <configuration default="false" name="60-32 Publisher Two dryrun" type="Application" factoryName="Application" folderName="60-00 Local Hint Tracker - Local Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="--hints test/hints/hint-server.json -k test/test-hints.keys -c debug -d debug -p test/publisher/publisher.json -s test/subscriber-two/subscriber-two.json -T -m output/60-32_Publisher-Two-dryrun_mismatches.txt -W output/60-32_Publisher-Two-dryrun_whatsnew.txt -F output/60-32_Publisher-Two-dryrun.log --dry-run" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug -p libraries/publisher.json -s libraries/subscriber-two.json -T -m output/60-32_Publisher-Two-dryrun_mismatches.txt -W output/60-32_Publisher-Two-dryrun_whatsnew.txt -F output/60-32_Publisher-Two-dryrun.log --dry-run" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />

@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -k test/test-hints.keys -c debug -d debug --remote S --authorize sharkbait -p test/publisher/publisher.json -S test/subscriber-one/subscriber-one.json -T -F output/50-21_Subscriber-One-listener.log
+java -jar ../deploy/ELS.jar -C . -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-one.json -T -F output/50-21_Subscriber-One-listener.log
 

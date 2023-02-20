@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar --navigator -c debug -d debug -P test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -F output/80-23_Navigator-local.log
+java -jar ../deploy/ELS.jar -C . --navigator -c trace -d trace -P libraries/publisher.json -s libraries/subscriber-one.json -F output/80-23_Navigator-local.log
 

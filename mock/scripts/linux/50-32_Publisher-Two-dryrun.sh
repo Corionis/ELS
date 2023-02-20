@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -k test/test-hints.keys -c debug -d debug --remote P -p test/publisher/publisher.json -S test/subscriber-two/subscriber-two.json -T -m output/50-32_Publisher-Two-dryrun_mismatches.txt -W output/50-32_Publisher-Two-dryrun_whatsnew.txt -F output/50-32_Publisher-Two-dryrun.log --dry-run
+java -jar ../deploy/ELS.jar -C . -k system/hint.keys -c debug -d debug --remote P -p libraries/publisher.json -S libraries/subscriber-two.json -T -m output/50-32_Publisher-Two-dryrun_mismatches.txt -W output/50-32_Publisher-Two-dryrun_whatsnew.txt -F output/50-32_Publisher-Two-dryrun.log --dry-run

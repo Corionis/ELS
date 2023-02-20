@@ -11,9 +11,9 @@ import java.util.Vector;
  * Handle individual client connections.
  * <p>
  * The Connection class is a subclass of Thread. It handles individual
- * connections between a Service and a client user. Each connection has a
- * separate thread. Each Service can have multiple connection requests pending
- * at once.
+ * connections between a Service and a client. Each connection has a
+ * separate thread. Each Service can have multiple connection requests
+ * pending at once.
  */
 public class Connection extends Thread
 {

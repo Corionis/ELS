@@ -36,9 +36,7 @@ public class Repositories
 
     public String getDirectoryPath()
     {
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
-                ".els" + System.getProperty("file.separator") +
-                "libraries";
+        String path = System.getProperty("user.dir") + System.getProperty("file.separator") + "libraries";
         return path;
     }
 

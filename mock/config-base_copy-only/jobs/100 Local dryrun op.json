@@ -1,0 +1,22 @@
+{
+  "configName": "100 Local dryrun op",
+  "tasks": [
+    {
+      "configName": "Local dryrun",
+      "internalName": "Operations",
+      "publisherKey": "_ANY_SERVER_",
+      "subscriberKey": "_ANY_SERVER_",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "name": "Movies",
+          "type": 5
+        },
+        {
+          "name": "TV Shows",
+          "type": 5
+        }
+      ]
+    }
+  ]
+}

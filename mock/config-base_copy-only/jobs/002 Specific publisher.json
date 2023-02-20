@@ -1,0 +1,18 @@
+{
+  "configName": "002 Specific publisher",
+  "tasks": [
+    {
+      "configName": "Archive junk",
+      "internalName": "JunkRemover",
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "name": "Media Publisher",
+          "type": 1
+        }
+      ]
+    }
+  ]
+}

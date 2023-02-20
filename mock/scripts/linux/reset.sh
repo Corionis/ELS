@@ -2,31 +2,20 @@
 
 base=`dirname $0`
 cd ${base}
-cd ../..
 
 if [ "$1" != "-f" ]; then
-    if [ -e ./test ]; then
-        echo ""
-        echo "Reset Test Directory"
-        read -p "Confirm: DESTROY Test directory and recreate from templates (y/N)? " R
-        R=${R:0:1}
-        if [ "$R" != 'y' -a "$R" != 'Y' ]; then
-            echo -e "Cancelled\n"
-            exit 1
-        fi
+    echo ""
+    echo "Reset Test Configuration and Data"
+    read -p "Confirm: DESTROY Test Configuration and Data directories and recreate from templates (y/N)? " R
+    R=${R:0:1}
+    if [ "$R" != 'y' -a "$R" != 'Y' ]; then
+        echo -e "Cancelled\n"
+        exit 1
     fi
 fi
 
-rm -rf ./test
-rm -f ./*.log
-rm -f ./*received*.json
-rm -f ./*generated*.json
-rm -f ./output/*
+./reset-config.sh $1
+./reset-test.sh $1
 
-cp -rpv ./media-base_copy-only ./test
-echo ""
-
-echo -e "Reset done"
-date
 echo ""
 

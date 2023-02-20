@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -c debug -d debug --remote S --listener-keep-going -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -T -F output/82-41_Subscriber-listener-keepgoing.log
+java -jar ../deploy/ELS.jar -C . -c debug -d debug --remote S --listener-keep-going -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/82-41_Subscriber-listener-keepgoing.log
 

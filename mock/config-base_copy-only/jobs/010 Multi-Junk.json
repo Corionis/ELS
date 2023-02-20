@@ -1,0 +1,31 @@
+{
+  "configName": "010 Multi-Junk",
+  "tasks": [
+    {
+      "configName": "Archive junk",
+      "internalName": "JunkRemover",
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "name": "TV Shows",
+          "type": 5
+        }
+      ]
+    },
+    {
+      "configName": "Download junk",
+      "internalName": "JunkRemover",
+      "publisherKey": "_ANY_SERVER_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "name": "TV Shows",
+          "type": 5
+        }
+      ]
+    }
+  ]
+}

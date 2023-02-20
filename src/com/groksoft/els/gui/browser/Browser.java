@@ -2111,7 +2111,7 @@ public class Browser
 
         if (tree.getName().equalsIgnoreCase("treeSystemOne"))
         {
-            // add Home root node
+            // add user's Home directory root node
             NavTreeNode homeNode = new NavTreeNode(context, repo, tree);
             tuo = new NavTreeUserObject(homeNode, context.cfg.gs("Browser.home"), System.getProperty("user.home"), NavTreeUserObject.HOME, false);
             homeNode.setNavTreeUserObject(tuo);

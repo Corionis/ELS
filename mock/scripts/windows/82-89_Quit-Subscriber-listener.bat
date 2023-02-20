@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -c debug -d debug --listener-quit -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -F output/82-89_Quit-subscriber-listener.log
+java -jar ../deploy/ELS.jar -C . -c debug -d debug --listener-quit -p libraries/publisher.json -s libraries/subscriber-one.json -F output/82-89_Quit-subscriber-listener.log
 

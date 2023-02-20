@@ -17,6 +17,7 @@ import java.util.*;
 public class Configuration
 {
     public static final String ELS_ICON = "els-logo-98px";
+    public static final String ELS_JAR = "ELS.jar";
     public static final int JOB_PROCESS = 8;
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
@@ -34,6 +35,7 @@ public class Configuration
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private String blacklist = "";
+    private String configurationDirectory = "";
     private String consoleLevel = "Debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean consoleSet = false;
     private Context context;
@@ -41,7 +43,6 @@ public class Configuration
     private ResourceBundle currentBundle = null;
     private String debugLevel = "Debug";
     private boolean debugSet = false;
-    private boolean devEnv = false;
     private int dryRun = -1;
     private int dumpSystem = -1;
     private int duplicateCheck = -1;
@@ -59,8 +60,8 @@ public class Configuration
     private String jobName = "";
     private int keepGoing = -1;
     private String logFileFullPath = "";
-    private String logFilePath = "";
     private String logFileName = "";
+    private String logFilePath = "";
     private int logOverwrite = -1;
     private double longScale = 1024L;
     private String mismatchFilename = "";
@@ -85,18 +86,15 @@ public class Configuration
     private String subscriberLibrariesFileName = "";
     private int targetsEnabled = -1;
     private String targetsFilename = "";
-    private boolean testEnv = false;
     private int validation = -1;
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
-
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerForceQuit, JobProcess, SubscriberListenerForceQuit
     }
-
     /**
      * Constructor
      */
@@ -133,6 +131,72 @@ public class Configuration
     public ResourceBundle bundle()
     {
         return currentBundle;
+    }
+
+    /**
+     * Configure the working directory & logging configuration
+     * <br/>
+     * Sets the current working directory, logFullPath and logPath based on configuration.
+     */
+    public void configure() throws Exception
+    {
+        // set default working directory if not set with -C | --cfg
+        if (this.workingDirectory == null || this.workingDirectory.length() == 0)
+            this.workingDirectory = getDefaultWorkingDirectory();
+
+        // if "current directory" as a "." then get from system
+        if (this.workingDirectory.equals("."))
+            this.workingDirectory = System.getProperty("user.dir");
+
+        // check & create working directory
+        File wd = new File(this.workingDirectory);
+        if (!wd.exists())
+            wd.mkdirs();
+        else if (!wd.isDirectory())
+            throw new MungeException("Configuration directory \"" + wd.getAbsolutePath() + "\" is not a directory");
+
+        // change to working directory
+        this.workingDirectory = wd.getAbsolutePath();
+        System.setProperty("user.dir", this.workingDirectory);
+
+        // setup the absolute path for the log file before configuring logging
+        if (getLogFileName() != null && getLogFileName().length() > 0)
+        {
+            String prefix = "";
+            String relative = "";
+
+            String lfn = getLogFileName();
+            setLogFilePath("");
+
+            // if relative path prepend with working directory
+            if (!lfn.matches("^[a-zA-Z]:") &&
+                    !lfn.startsWith("/") &&
+                    !lfn.startsWith("\\"))
+            {
+                prefix = getWorkingDirectory() + System.getProperty("file.separator");
+
+                String separator = "";
+                if (lfn.contains("\\"))
+                {
+                    separator = "\\\\";
+                }
+                else if (lfn.contains("/"))
+                {
+                    separator = "/";
+                }
+                else if (lfn.contains(":"))
+                {
+                    separator = ":";
+                }
+                int i = lfn.lastIndexOf(separator);
+                if (i >= 0)
+                {
+                    relative = lfn.substring(0, i + 1);
+                    setLogFilePath(relative);
+                }
+            }
+            setLogFileFullPath(prefix + lfn);
+        }
     }
 
     /**
@@ -271,8 +335,7 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
 
         if (context.trace)
-            logger.trace("Working directory: " + getWorkingDirectory() + ", " +
-                    (isDevEnv() ? "Development" : (isTestEnv() ? "Test" : "Release")) + " environment");
+            logger.trace("Working directory: " + getWorkingDirectory());
     }
 
     /**
@@ -306,6 +369,16 @@ public class Configuration
     }
 
     /**
+     * Get the ELS configuration directory
+     *
+     * @return String Configuration directory as specific on the command line
+     */
+    public String getConfigurationDirectory()
+    {
+        return configurationDirectory;
+    }
+
+    /**
      * Gets console level
      *
      * @return the console level
@@ -323,6 +396,55 @@ public class Configuration
     public String getDebugLevel()
     {
         return debugLevel;
+    }
+
+    /**
+     * Gets the default working directory
+     * <br/>
+     * The default is: [user home]/.els
+     *
+     * @return String Default ELS working directory
+     */
+    public String getDefaultWorkingDirectory()
+    {
+        return System.getProperty("user.home") + System.getProperty("file.separator") + ".els";
+    }
+
+    /**
+     * Get path to ELS Jar file
+     * <br/>
+     * Works with ELS installed using ELS.jar and in development when executing with class files
+     * and ELS.jar is in the development deploy directory.
+     * <br/><br/>
+     * This is the single source for the executable path for the ELS program.
+     *
+     * @return String Path to directory of ELS.jar
+     */
+    public String getElsJarPath()
+    {
+        String jar = "";
+        try
+        {
+            jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+            if (jar.endsWith("ELS.jar"))
+            {
+                jar = jar.substring(0, jar.length() - "ELS.jar".length());
+            }
+            else // hack for development environment to be consistent with the install environment
+            {
+                String dev = "out" + System.getProperty("file.separator") + "production" + System.getProperty("file.separator") + "ELS";
+                if (jar.endsWith(dev))
+                {
+                    jar = jar.substring(0, jar.length() - dev.length());
+                    jar += System.getProperty("file.separator") + "deploy";
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // should never get an exception
+        }
+        return jar;
     }
 
     /**
@@ -404,10 +526,10 @@ public class Configuration
      */
     public String getIconPath()
     {
+        String path = "";
+        String jarPath = getElsJarPath();
         String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".ico" : ".png");
-        String path = System.getProperty("user.home") + System.getProperty("file.separator") +
-                ".els" + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") +
-                ELS_ICON + ext;
+        path = jarPath + System.getProperty("file.separator") + ELS_ICON + ext;
         return path;
     }
 
@@ -442,16 +564,6 @@ public class Configuration
     }
 
     /**
-     * Gets any relative path to the log file
-     *
-     * @return String Relative path if any, otherwise an empty string
-     */
-    public String getLogFilePath()
-    {
-        return logFilePath;
-    }
-
-    /**
      * Gets log filename
      *
      * @return the log filename
@@ -459,6 +571,16 @@ public class Configuration
     public String getLogFileName()
     {
         return logFileName;
+    }
+
+    /**
+     * Gets any relative path to the log file
+     *
+     * @return String Relative path if any, otherwise an empty string
+     */
+    public String getLogFilePath()
+    {
+        return logFilePath;
     }
 
     /**
@@ -720,7 +842,6 @@ public class Configuration
      */
     public String getWorkingDirectory()
     {
-        // LEFTOFF Change ALL other path handling to use this method
         return workingDirectory;
     }
 
@@ -749,9 +870,9 @@ public class Configuration
      * An indicator is an int value representing a boolean: -1 = not set,
      * 0 = false, 1 = true
      *
-     * @param logger The logger singleton
-     * @param SHORT The SHORT format
-     * @param message The message to print
+     * @param logger    The logger singleton
+     * @param SHORT     The SHORT format
+     * @param message   The message to print
      * @param indicator The indicator
      */
     private void indicator(Logger logger, Marker SHORT, String message, int indicator)
@@ -784,16 +905,6 @@ public class Configuration
     }
 
     /**
-     * Is ELS running in it's development environment?
-     *
-     * @return false if Release environment, true if development
-     */
-    public boolean isDevEnv()
-    {
-        return devEnv;
-    }
-
-    /**
      * Is dry run boolean
      *
      * @return the boolean
@@ -805,6 +916,7 @@ public class Configuration
 
     /**
      * Is this a simple "dump configuration" operation?
+     *
      * @return
      */
     public boolean isDumpSystem()
@@ -947,6 +1059,7 @@ public class Configuration
      * Are file dates to be preserved between publisher and subscriber?
      * <br/>
      * Note directory dates are not preserved.
+     *
      * @return true if dates are to be preserved
      */
     public boolean isPreserveDates()
@@ -1114,16 +1227,6 @@ public class Configuration
     }
 
     /**
-     * Is ELS running in it's test environment?
-     *
-     * @return false if Release environment, true if test
-     */
-    public boolean isTestEnv()
-    {
-        return testEnv;
-    }
-
-    /**
      * Is a Hint Status Tracker or Status Server being used?
      *
      * @return true if so
@@ -1166,48 +1269,6 @@ public class Configuration
         // Single option letters remaining, case-sensitive:  C J M O R U V X Y Z
         // Reserved: C configuration directory; O start on-demand; R operation???; M match dates; U user authorization
         // Leaving single option letters, case-sensitive:  J M V X Y Z
-
-        // set the current working directory
-        try
-        {
-            String execPath = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-
-            // installed / production
-            String platEnd = System.getProperty("file.separator") + "bin" +
-                    System.getProperty("file.separator") + "ELS.jar";
-            if (execPath.endsWith(platEnd))
-            {
-                execPath = execPath.substring(0, execPath.lastIndexOf(platEnd));
-            }
-
-            // development
-            platEnd = System.getProperty("file.separator") + "out" +
-                    System.getProperty("file.separator") + "production" +
-                    System.getProperty("file.separator") + "ELS";
-            if (execPath.endsWith(platEnd))
-            {
-                execPath = execPath.substring(0, execPath.lastIndexOf(platEnd));
-                execPath += System.getProperty("file.separator") + "mock";
-                devEnv = true;
-            }
-
-            // test
-            platEnd = System.getProperty("file.separator") + "deploy" +
-                    System.getProperty("file.separator") + "ELS.jar";
-            if (execPath.endsWith(platEnd))
-            {
-                execPath = execPath.substring(0, execPath.lastIndexOf(platEnd));
-                execPath += System.getProperty("file.separator") + "mock";
-                testEnv = true;
-            }
-
-            File directory = new File(execPath);
-            this.workingDirectory = directory.getAbsolutePath();
-            System.setProperty("user.dir", this.workingDirectory);
-        }
-        catch (Exception e)
-        {
-        }
 
         int index;
         originalArgs = args;
@@ -1266,6 +1327,22 @@ public class Configuration
                     else
                     {
                         throw new MungeException("Error: -c requires a level, trace, debug, info, warn, error, fatal, or off");
+                    }
+                    break;
+                case "-C":
+                case "--cfg":
+                    if (index <= args.length - 2)
+                    {
+                        // see configure()
+                        this.workingDirectory = args[index + 1].trim();
+                        ++index;
+
+                        // save original specification; workingDirectory may be changed
+                        this.configurationDirectory = this.workingDirectory;
+                    }
+                    else
+                    {
+                        throw new MungeException("Error: -C requires a directory path");
                     }
                     break;
                 case "-d":                                             // debug level
@@ -1627,53 +1704,6 @@ public class Configuration
     }
 
     /**
-     * Parse the logging configuration and set required data members
-     * <br/>
-     * Sets logFullPath and logPath based on configuration.
-     */
-    public void parseLogging()
-    {
-        // setup the absolute path for the log file before configuring logging
-        if (getLogFileName() != null && getLogFileName().length() > 0)
-        {
-            String prefix = "";
-            String relative = "";
-
-            String lfn = getLogFileName();
-            setLogFilePath("");
-
-            // if relative path prepend with working directory
-            if (!lfn.matches("^[a-zA-Z]:") &&
-                    !lfn.startsWith("/") &&
-                    !lfn.startsWith("\\"))
-            {
-                prefix = getWorkingDirectory() + System.getProperty("file.separator");
-
-                String separator = "";
-                if (lfn.contains("\\"))
-                {
-                    separator = "\\\\";
-                }
-                else if (lfn.contains("/"))
-                {
-                    separator = "/";
-                }
-                else if (lfn.contains(":"))
-                {
-                    separator = ":";
-                }
-                int i = lfn.lastIndexOf(separator);
-                if (i >= 0)
-                {
-                    relative = lfn.substring(0, i + 1);
-                    setLogFilePath(relative);
-                }
-            }
-            setLogFileFullPath(prefix + lfn);
-        }
-    }
-
-    /**
      * Set the Authorization Keys filename
      *
      * @param authKeysFile
@@ -1914,16 +1944,6 @@ public class Configuration
     }
 
     /**
-     * Set any relative path to the log file
-     *
-     * @param logFilePath
-     */
-    public void setLogFilePath(String logFilePath)
-    {
-        this.logFilePath = logFilePath;
-    }
-
-    /**
      * Sets log filename
      *
      * @param logFileName the log filename
@@ -1931,6 +1951,16 @@ public class Configuration
     public void setLogFileName(String logFileName)
     {
         this.logFileName = logFileName;
+    }
+
+    /**
+     * Set any relative path to the log file
+     *
+     * @param logFilePath
+     */
+    public void setLogFilePath(String logFilePath)
+    {
+        this.logFilePath = logFilePath;
     }
 
     /**
@@ -2191,6 +2221,18 @@ public class Configuration
     public void setWhatsNewFilename(String whatsNewFilename)
     {
         this.whatsNewFilename = whatsNewFilename;
+    }
+
+    /**
+     * Sets the working directory data member
+     * <br/>
+     * Does not change the working directory.
+     *
+     * @param workingDirectory
+     */
+    public void setWorkingDirectory(String workingDirectory)
+    {
+        this.workingDirectory = workingDirectory;
     }
 
 }

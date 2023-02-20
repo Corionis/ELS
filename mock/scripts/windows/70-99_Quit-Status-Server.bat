@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -c debug -d debug --force-quit --hint-server test/hints/hint-server.json -p test/publisher/publisher.json -F output/70-99_Quit-Status-Server.log
+java -jar ../deploy/ELS.jar -C . -c debug -d debug --force-quit --hint-server libraries/hint-server.json -p libraries/publisher.json -F output/70-99_Quit-Status-Server.log
 

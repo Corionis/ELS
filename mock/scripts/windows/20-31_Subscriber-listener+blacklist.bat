@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -c debug -d debug --blacklist test/blacklist.txt --remote S -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -T -F output/20-31_Subscriber-listener+blacklist.log
+java -jar ../deploy/ELS.jar -C . -c debug -d debug --blacklist system/blacklist.txt --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/20-31_Subscriber-listener+blacklist.log
 

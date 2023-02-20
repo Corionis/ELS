@@ -205,6 +205,8 @@ public class Job extends AbstractTool implements Comparable, Serializable
                     }
                 }
             }
+            if (job == null)
+                throw new MungeException(jobName + context.cfg.gs("Z.not.found"));
         }
         return job;
     }

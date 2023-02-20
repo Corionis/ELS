@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -c debug -d debug --hint-server test/hints/hint-server.json -K test/test-hints.keys -F output/72-10_Status-Server-listener.log
+java -jar ../deploy/ELS.jar -C . -c debug -d debug --hint-server libraries/hint-server.json -K system/hint.keys -F output/72-10_Status-Server-listener.log
 

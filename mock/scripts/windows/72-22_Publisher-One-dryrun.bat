@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar --hint-server test/hints/hint-server.json -k test/test-hints.keys -c debug -d debug --remote P -p test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -T -m output/72-22_Publisher-One-dryrun_mismatches.txt -W output/72-22_Publisher-One-dryrun_whatsnew.txt -F output/72-22_Publisher-One-dryrun.log --dry-run
+java -jar ../deploy/ELS.jar -C . --hint-server libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote P -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/72-22_Publisher-One-dryrun_mismatches.txt -W output/72-22_Publisher-One-dryrun_whatsnew.txt -F output/72-22_Publisher-One-dryrun.log --dry-run
 

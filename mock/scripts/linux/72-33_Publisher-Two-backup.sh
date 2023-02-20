@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar --hint-server test/hints/hint-server.json -k test/test-hints.keys -c debug -d debug --remote P -p test/publisher/publisher.json -S test/subscriber-two/subscriber-two.json -T -m output/72-33_Publisher-Two-backup_mismatches.txt -W output/72-33_Publisher-Two-bacup_whatsnew.txt -F output/72-33_Publisher-Two-backup.log
+java -jar ../deploy/ELS.jar -C . --hint-server libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote P -p libraries/publisher.json -S libraries/subscriber-two.json -T -m output/72-33_Publisher-Two-backup_mismatches.txt -W output/72-33_Publisher-Two-bacup_whatsnew.txt -F output/72-33_Publisher-Two-backup.log

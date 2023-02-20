@@ -197,10 +197,11 @@ public class Main
                 cfgException = e; // configuration exception
             }
 
-            // setup the logger
+            // setup the working directory & logger
             if (!secondaryInvocation)
             {
-                context.cfg.parseLogging();
+                context.cfg.configure(); // configure working directory & log path
+
                 if (context.cfg.getLogFileName().length() < 1)
                     context.cfg.setLogFileName("els.log"); // make sure there's a filename
                 if (context.cfg.isLogOverwrite()) // optionally delete any existing log
@@ -235,6 +236,7 @@ public class Main
                 context.cfg.setLogFilePath(previousContext.cfg.getLogFilePath());
                 context.cfg.setLogFileFullPath(previousContext.cfg.getLogFileFullPath());
                 context.cfg.setLogOverwrite(previousContext.cfg.isLogOverwrite());
+                context.cfg.setWorkingDirectory(previousContext.cfg.getWorkingDirectory());
             }
 
             // get the named logger

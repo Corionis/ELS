@@ -281,16 +281,6 @@ public class Utils
     }
 
     /**
-     * Get the home directory for ELS
-     *
-     * @return Path to ELS home, no trailing separator
-     */
-    public static String getElsHome()
-    {
-        return System.getProperty("user.home") + System.getProperty("file.separator") + ".els";
-    }
-
-    /**
      * Parse file extension from filename
      *
      * @param name Filename to parse

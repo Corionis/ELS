@@ -2,7 +2,7 @@
   <configuration default="false" name="82-31 Subscriber listener auth" type="Application" factoryName="Application" folderName="82-00 Navigator - Remote Backup">
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
-    <option name="PROGRAM_PARAMETERS" value="-c debug -d debug --auth-keys test/test-auth.keys --remote S -p test/workstation.json -s test/publisher/publisher.json -T -F output/82-31_Subscriber-listener-auth.log" />
+    <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug --auth-keys system/auth.keys --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/82-31_Subscriber-listener-auth.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />

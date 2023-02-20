@@ -1,0 +1,18 @@
+{
+  "configName": "001 Any publisher",
+  "tasks": [
+    {
+      "configName": "Archive junk",
+      "internalName": "JunkRemover",
+      "publisherKey": "_ANY_SERVER_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "name": "TV Shows",
+          "type": 5
+        }
+      ]
+    }
+  ]
+}

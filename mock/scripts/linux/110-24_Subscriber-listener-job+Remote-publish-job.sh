@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -c debug -d debug -j "503 Sub+Pub" -F "output/110-24_Subscriber-listener-job+Remote-publish-job.log"
+java -jar ../deploy/ELS.jar -C . -c debug -d debug -j "503 Sub+Pub" -F "output/110-24_Subscriber-listener-job+Remote-publish-job.log"
 

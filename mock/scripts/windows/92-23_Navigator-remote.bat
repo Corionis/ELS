@@ -7,5 +7,5 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar --navigator -c debug -d debug --hints test/hints/hint-server.json -k test/test-hints.keys --remote P -P test/publisher/publisher.json -s test/subscriber-one/subscriber-one.json -F output/92-23_Navigator.log
+java -jar ../deploy/ELS.jar -C . --navigator -c debug -d debug --hints libraries/hint-server.json -k system/hint.keys --remote P -P libraries/publisher.json -s libraries/subscriber-one.json -F output/92-23_Navigator.log
 
