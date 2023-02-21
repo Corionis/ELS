@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="ELS-Windows">
+  <artifact build-on-make="true" name="ELS-Windows">
     <output-path>$PROJECT_DIR$/deploy</output-path>
     <root id="root">
       <element id="archive" name="ELS-4.0.0-Windows.zip">

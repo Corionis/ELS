@@ -63,7 +63,8 @@ public class Navigator
     private String lastFindString = "";
     private int lastFindTab = -1;
     public boolean showHintTrackingButton = false;
-    private int bottomSize;
+    private int bottomSizeBrowser;
+    private int bottomSizeOperations;
     private boolean quitRemoteHintStatusServer = false;
     private boolean quitRemoteSubscriber = false;
     private boolean remoteJobRunning = false;
@@ -84,9 +85,12 @@ public class Navigator
 
         if (enable == false)
         {
-            bottomSize = context.preferences.getBrowserBottomSize();
+            bottomSizeBrowser = context.preferences.getBrowserBottomSize();
+            bottomSizeOperations = context.preferences.getOperationDividerBottomSize();
         }
+
         context.mainFrame.panelBrowserTop.setVisible(enable);
+        context.mainFrame.panelOperationTop.setVisible(enable);
 
         context.mainFrame.menuItemOpenPublisher.setEnabled(enable);
         context.mainFrame.menuItemOpenSubscriber.setEnabled(enable);
@@ -130,7 +134,10 @@ public class Navigator
         context.mainFrame.menuItemSplitVertical.setEnabled(enable);
 
         if (enable == true)
-            context.preferences.fixBrowserDivider(context, bottomSize);
+        {
+            context.preferences.fixBrowserDivider(context, bottomSizeBrowser);
+            context.preferences.fixOperationsDivider(context, bottomSizeOperations);
+        }
 
         // TODO context.mainFrame.menuItemUpdates.setEnabled(disable);
     }

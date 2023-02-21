@@ -420,7 +420,7 @@ new FormModel {
 									"minimumSize": &Dimension4 new java.awt.Dimension( 0, 0 )
 									"componentPopupMenu": new FormReference( "popupMenuLog" )
 									"verifyInputWhenFocusTarget": false
-									"font": new java.awt.Font( "Courier New", 0, 12 )
+									"font": new java.awt.Font( "Courier 10 Pitch", 0, 12 )
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPane.Log.tab.title" )
@@ -1941,7 +1941,7 @@ new FormModel {
 									"minimumSize": #Dimension4
 									"componentPopupMenu": new FormReference( "popupMenuOperationLog" )
 									"verifyInputWhenFocusTarget": false
-									"font": new java.awt.Font( "Courier New", 0, 12 )
+									"font": new java.awt.Font( "Courier 10 Pitch", 0, 12 )
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Operations.scrollPaneLog.tab.title" )

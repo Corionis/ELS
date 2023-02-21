@@ -7,7 +7,6 @@ import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.Generator;
-import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.*;
@@ -24,11 +23,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -1406,7 +1402,7 @@ public class JobsUI extends JDialog
         if (tasks.size() > 0)
         {
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            setComponentEnabled(false);
+            context.navigator.setComponentEnabled(false, getContentPane());
             cancelButton.setEnabled(true);
             cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             labelHelp.setEnabled(true);
@@ -1442,7 +1438,7 @@ public class JobsUI extends JDialog
             context.progress.done();
 
         context.navigator.disableGui(false);
-        setComponentEnabled(true);
+        context.navigator.setComponentEnabled(true, getContentPane());
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
 
@@ -1513,11 +1509,6 @@ public class JobsUI extends JDialog
         context.preferences.setJobsYpos(location.y);
         context.preferences.setJobsTaskDividerLocation(splitPaneContent.getDividerLocation());
         context.preferences.setJobsOriginDividerLocation(splitPaneToolsOrigin.getDividerLocation());
-    }
-
-    public void setComponentEnabled(boolean enabled)
-    {
-        context.navigator.setComponentEnabled(enabled, getContentPane());
     }
 
     private boolean validateJob(Job job, boolean onlyFound) throws Exception

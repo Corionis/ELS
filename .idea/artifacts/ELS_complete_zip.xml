@@ -1,5 +1,5 @@
 <component name="ArtifactManager">
-  <artifact name="ELS-complete.zip">
+  <artifact build-on-make="true" name="ELS-complete.zip">
     <output-path>$PROJECT_DIR$/deploy</output-path>
     <root id="root">
       <element id="archive" name="ELS-complete.zip">

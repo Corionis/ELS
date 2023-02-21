@@ -272,7 +272,19 @@ public class MainFrame extends JFrame
             buttonUp.setIcon(r1);
             buttonUp.setMnemonic(KeyEvent.VK_UP);
 
-            // add smart scroll to the log
+            // set the fixed-space font for the logs
+            if (Utils.getOS().equalsIgnoreCase("Windows"))
+            {
+                textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 12));
+                textAreaOperationLog.setFont(new Font("Courier New", Font.PLAIN, 12));
+            }
+            else
+            {
+                textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
+                textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
+            }
+
+            // add smart scroll to the logs
             // https://tips4java.wordpress.com/2013/03/03/smart-scrolling/
             new SmartScroller(scrollPaneLog);
             new SmartScroller(scrollPaneOperationLog);
@@ -1584,7 +1596,7 @@ public class MainFrame extends JFrame
                             textAreaLog.setMinimumSize(new Dimension(0, 0));
                             textAreaLog.setComponentPopupMenu(popupMenuLog);
                             textAreaLog.setVerifyInputWhenFocusTarget(false);
-                            textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 12));
+                            textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
@@ -3095,7 +3107,7 @@ public class MainFrame extends JFrame
                             textAreaOperationLog.setMinimumSize(new Dimension(0, 0));
                             textAreaOperationLog.setComponentPopupMenu(popupMenuOperationLog);
                             textAreaOperationLog.setVerifyInputWhenFocusTarget(false);
-                            textAreaOperationLog.setFont(new Font("Courier New", Font.PLAIN, 12));
+                            textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
                             scrollPaneOperationLog.setViewportView(textAreaOperationLog);
                         }
                         tabbedPaneOperationBottom.addTab(context.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);
