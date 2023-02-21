@@ -2,7 +2,7 @@
 REM reset [-f]
 
 set base=%~dp0
-cd /d %base%
+cd /d "%base%"
 cd ..\..
 
 if not exist .\config-base_copy-only goto NoDir
@@ -34,5 +34,4 @@ echo Cancelled
 
 :JXT
 echo/
-cd /d %base%
-
+cd /d "%base%"

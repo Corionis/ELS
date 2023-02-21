@@ -135,6 +135,9 @@ upgrading for changes, additions and enhancements.
 
 16. Added --dump-system that prints all JVM System.getProperties() values then exits.
 
+17. Added -C | --config to set the location of the ELS configuration directory. Use
+    "-C ." for the current directory.
+
 
 ### Other Changes
 

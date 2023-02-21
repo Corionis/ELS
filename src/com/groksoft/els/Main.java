@@ -35,16 +35,18 @@ public class Main
 {
     public Main main;
     public Context context = new Context();
-    public String currentFilePart;
-    private boolean isListening = false;
-    public Logger logger = null;
-    public String operationName = "";
-    public Context previousContext = null;
-    public Date stamp = new Date();
+    public GuiLogAppender guiLogAppender; // appender when Navigator is used
+    private boolean isListening = false; // listener mode
+    public String localeAbbrev; // abbreviation of locale, e.g. en_US
+    public Logger logger = null; // log4j2 logger singleton
+    public String operationName = ""; // secondaryInvocation name
+    public Context previousContext = null; // the previous Context during a secondaryInvocation
+    public Date stamp = new Date(); // runtime stamp for this invocation
     public boolean secondaryInvocation = false;
 
+    // TODO EXTEND+ Add new locales here
     // add new locales here
-    public String[] availableLocales = {"en_US"}; // Array of built-in locale names; TODO EXTEND+ Update locales here
+    public String[] availableLocales = {"en_US"}; // Array of built-in locale names;
 
     /**
      * Hide default constructor
@@ -89,6 +91,11 @@ public class Main
 
     /**
      * Connect to or setup hint tracking, connect to hint server if specified
+     * <br/>
+     * Will connect to a Hint Server, if specified, or local Hint Tracker,
+     * if specified, or Hint keys for creating basic Hint files, if specified.
+     * If none of those things are defined in the configuration this method
+     * simply returns.
      *
      * @param repo The Repository that is connecting to the tracker/server
      * @throws Exception Configuration and connection exceptions
@@ -181,7 +188,7 @@ public class Main
     public void process(String[] args)
     {
         ThreadGroup sessionThreads = null;
-        Process proc;
+        Process process;
 
         context.cfg = new Configuration(context);
 
@@ -201,13 +208,11 @@ public class Main
             if (!secondaryInvocation)
             {
                 context.cfg.configure(); // configure working directory & log path
-
-                if (context.cfg.getLogFileName().length() < 1)
-                    context.cfg.setLogFileName("els.log"); // make sure there's a filename
                 if (context.cfg.isLogOverwrite()) // optionally delete any existing log
                 {
-                    File aLog = new File(context.cfg.getLogFileName());
-                    aLog.delete();
+                    File dLog = new File(context.cfg.getLogFileName());
+                    if (dLog.exists())
+                        dLog.delete();
                 }
                 System.setProperty("logFilename", context.cfg.getLogFileFullPath());
                 System.setProperty("consoleLevel", context.cfg.getConsoleLevel());
@@ -223,8 +228,8 @@ public class Main
                 if (context.navigator != null)
                 {
                     Map<String, Appender> appenders = loggerConfig.getAppenders();
-                    GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-                    appender.setContext(context);
+                    guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                    guiLogAppender.setContext(context);
                 }
                 loggerContext.updateLoggers();
             }
@@ -243,16 +248,9 @@ public class Main
             logger = LogManager.getLogger("applog");
             context.trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
 
-            if (cfgException != null) // re-throw any configuration exception
+            // re-throw any configuration exception
+            if (cfgException != null)
                 throw cfgException;
-
-            // Hack for viewing all system properties
-            if (context.cfg.isDumpSystem())
-            {
-                System.out.println("\nDumping System Properties");
-                System.getProperties().list(System.out);
-                System.exit(1); // exit on dump of system properties
-            }
 
             // attempt to load the language Java started with, default en_US
             Locale locale = Locale.getDefault();
@@ -267,7 +265,7 @@ public class Main
             }
             //else
                 //logger.debug("loaded locale: " + filePart);
-            currentFilePart = filePart;
+            localeAbbrev = filePart;
 
             //
             // an execution of this program can only be configured as one of these
@@ -329,8 +327,8 @@ public class Main
                         connectHintServer(context.publisherRepo);
 
                         // the Process class handles the ELS process
-                        proc = new Process(context);
-                        proc.process();
+                        process = new Process(context);
+                        process.process();
                     }
                     break;
 
@@ -442,8 +440,8 @@ public class Main
                         else
                         {
                             // the Process class handles the ELS process
-                            proc = new Process(context);
-                            proc.process();
+                            process = new Process(context);
+                            process.process();
                         }
                     }
                     else
@@ -754,12 +752,14 @@ public class Main
                             // halt kills the remaining threads
                             if (main.context.fault)
                                 logger.error("Exiting with error code");
-                            Runtime.getRuntime().halt(main.context.fault ? 1 : 0);
+                            if (!secondaryInvocation)
+                                Runtime.getRuntime().halt(main.context.fault ? 1 : 0);
                         }
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
-                            Runtime.getRuntime().halt(1);
+                            if (!secondaryInvocation)
+                                Runtime.getRuntime().halt(1);
                         }
                     }
                 });

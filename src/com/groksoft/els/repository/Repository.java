@@ -637,10 +637,12 @@ public class Repository
      * Read library.
      *
      * @param filename The JSON Libraries filename
+     * @return boolean True if file is a valid ELS repository, false if not a repository
      * @throws MungeException the els exception
      */
-    public void read(String filename, boolean printLog) throws MungeException
+    public boolean read(String filename, boolean printLog) throws MungeException
     {
+        boolean valid = false;
         try
         {
             String json;
@@ -652,14 +654,19 @@ public class Repository
             setJsonFilename(filename);
             json = new String(Files.readAllBytes(Paths.get(filename)));
             libraryData = gson.fromJson(json, LibraryData.class);
-            normalize();
-            if (printLog)
-                logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
+            if (libraryData != null && libraryData.libraries != null)
+            {
+                normalize();
+                if (printLog)
+                    logger.info("Read \"" + libraryData.libraries.description + "\" successfully");
+                valid = true;
+            }
         }
         catch (IOException ioe)
         {
             throw new MungeException("Exception while reading library " + filename + " trace: " + Utils.getStackTrace(ioe));
         }
+        return valid;
     }
 
     /**

@@ -4,7 +4,7 @@
         "host": "localhost:50371",
         "listen": "localhost:50371",
         "timeout": "10",
-4       "flavor": "linux",
+        "flavor": "linux",
         "case_sensitive": "false",
         "temp_dated": "false",
         "temp_location": "",

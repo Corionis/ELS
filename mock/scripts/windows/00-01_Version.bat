@@ -1,10 +1,12 @@
 @echo off
 
 set base=%~dp0
-cd /d %base%
+cd /d "%base%"
 
 set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -C . --version
+java -jar ../deploy/ELS.jar --version
+
+cd /d "%base%"

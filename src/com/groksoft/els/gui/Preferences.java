@@ -469,7 +469,7 @@ public class Preferences implements Serializable
     public String getLocale()
     {
         if (locale.length() == 0)
-            locale = context.main.currentFilePart;
+            locale = context.main.localeAbbrev;
         return locale;
     }
 

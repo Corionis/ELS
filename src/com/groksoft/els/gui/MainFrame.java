@@ -1584,7 +1584,7 @@ public class MainFrame extends JFrame
                             textAreaLog.setMinimumSize(new Dimension(0, 0));
                             textAreaLog.setComponentPopupMenu(popupMenuLog);
                             textAreaLog.setVerifyInputWhenFocusTarget(false);
-                            textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 14));
+                            textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 12));
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
@@ -3095,7 +3095,7 @@ public class MainFrame extends JFrame
                             textAreaOperationLog.setMinimumSize(new Dimension(0, 0));
                             textAreaOperationLog.setComponentPopupMenu(popupMenuOperationLog);
                             textAreaOperationLog.setVerifyInputWhenFocusTarget(false);
-                            textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 14));
+                            textAreaOperationLog.setFont(new Font("Courier New", Font.PLAIN, 12));
                             scrollPaneOperationLog.setViewportView(textAreaOperationLog);
                         }
                         tabbedPaneOperationBottom.addTab(context.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);

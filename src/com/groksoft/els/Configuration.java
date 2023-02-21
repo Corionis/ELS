@@ -44,7 +44,6 @@ public class Configuration
     private String debugLevel = "Debug";
     private boolean debugSet = false;
     private int dryRun = -1;
-    private int dumpSystem = -1;
     private int duplicateCheck = -1;
     private int emptyDirectoryCheck = -1;
     private String exportCollectionFilename = "";
@@ -197,6 +196,8 @@ public class Configuration
             }
             setLogFileFullPath(prefix + lfn);
         }
+        else
+            setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "els.log");
     }
 
     /**
@@ -915,16 +916,6 @@ public class Configuration
     }
 
     /**
-     * Is this a simple "dump configuration" operation?
-     *
-     * @return
-     */
-    public boolean isDumpSystem()
-    {
-        return dumpSystem == 1 ? true : false;
-    }
-
-    /**
      * Are duplicates being checked?
      *
      * @return true if duplcates checking is enabled, else false
@@ -1330,7 +1321,7 @@ public class Configuration
                     }
                     break;
                 case "-C":
-                case "--cfg":
+                case "--config":
                     if (index <= args.length - 2)
                     {
                         // see configure()
@@ -1362,7 +1353,9 @@ public class Configuration
                     setDryRun(true);
                     break;
                 case "--dump-system":
-                    setDumpSystem(true);
+                    System.out.println("ELS version " + context.cfg.getVersionStamp() + System.getProperty("line.separator"));
+                    System.getProperties().list(System.out);
+                    System.exit(1);
                     break;
                 case "-e":                                             // export publisher items to flat text file
                 case "--export-text":
@@ -1658,7 +1651,7 @@ public class Configuration
                     System.out.println("See the ELS wiki on GitHub for documentation at:");
                     System.out.println("  https://github.com/GrokSoft/ELS/wiki");
                     System.out.println("");
-                    System.exit(1); // exit on --version
+                    System.exit(1);
                     break;
                 case "-w":                                             // What's New output filename
                 case "--whatsnew":
@@ -1778,16 +1771,6 @@ public class Configuration
     public void setDryRun(boolean dryRun)
     {
         this.dryRun = dryRun == true ? 1 : 0;
-    }
-
-    /**
-     * Set "dump the configuration and exit" flag
-     *
-     * @param dumpSystem
-     */
-    public void setDumpSystem(boolean dumpSystem)
-    {
-        this.dumpSystem = dumpSystem == true ? 1 : 0;
     }
 
     /**

@@ -1,11 +1,13 @@
 @echo off
 
 set base=%~dp0
-cd /d %base%
+cd /d "%base%"
 
 set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -C . -c debug -d debug -F output/80-01_Navigator.log $*
+java -jar ../deploy/ELS.jar -C . -c debug -d debug -F output/80-01_Navigator.log %*
+
+cd /d "%base%"
 

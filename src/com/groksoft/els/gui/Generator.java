@@ -75,7 +75,7 @@ public class Generator
         fieldComment.setPreferredSize(new Dimension(200, 30));
         panelComment.add(fieldComment);
 
-        // setup termina panel
+        // setup terminal panel
         labelTerminal.setText(context.cfg.gs("Generator.shortcut.launch.in.terminal"));
         panelTerminal.add(labelTerminal);
         panelTerminal.add(checkboxTerminal);
@@ -84,6 +84,13 @@ public class Generator
         int resp = JOptionPane.showConfirmDialog(owner, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
         if (resp == JOptionPane.OK_OPTION)
         {
+
+
+            // LEFTOFF Platform-specific create shortcut - Use mslinks-1.1.0.jar
+            //   https://github.com/DmitriiShamrikov/mslinks
+
+
+
             StringBuilder sb = new StringBuilder();
 
             name = fieldName.getText();
@@ -241,7 +248,7 @@ public class Generator
     public boolean showDialog(Component owner, AbstractTool tool, String configName)
     {
         boolean completed = false;
-        String messasge = "<html><body>" + context.cfg.gs("Generator.generated") + "<b>" + configName +
+        String messasge = "<html><body>" + context.cfg.gs("Generator.generated") + " <b>" + configName +
                 "</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                 //"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +

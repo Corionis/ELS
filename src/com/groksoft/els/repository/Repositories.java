@@ -74,15 +74,16 @@ public class Repositories
                 if (!entry.isDirectory())
                 {
                     Repository repo = new Repository(context, 0);
-                    repo.read(entry.getPath(), false);
-
-                    Meta meta = new Meta();
-                    meta.description = repo.getLibraryData().libraries.description;
-                    meta.key = repo.getLibraryData().libraries.key;
-                    meta.path = entry.getPath();
-                    if (list == null)
-                        list = new ArrayList<Meta>();
-                    list.add(meta);
+                    if (repo.read(entry.getPath(), false))
+                    {
+                        Meta meta = new Meta();
+                        meta.description = repo.getLibraryData().libraries.description;
+                        meta.key = repo.getLibraryData().libraries.key;
+                        meta.path = entry.getPath();
+                        if (list == null)
+                            list = new ArrayList<Meta>();
+                        list.add(meta);
+                    }
                 }
             }
             Collections.sort(list);

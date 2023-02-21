@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class GuiLogAppender extends AbstractAppender
 {
     private Context context = null;
+    private boolean disabled = false;
     private static ArrayList<String> preBuffer = null;
 
     public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
@@ -53,6 +54,17 @@ public class GuiLogAppender extends AbstractAppender
         return appender;
     }
 
+    public void disable()
+    {
+        this.disabled = true;
+        preBuffer = null;
+    }
+
+    public void disable(boolean disable)
+    {
+        this.disabled = disable;
+    }
+
     private void dumpPreBuffer()
     {
         if (preBuffer != null)
@@ -67,19 +79,22 @@ public class GuiLogAppender extends AbstractAppender
     @Override
     public void append(LogEvent event)
     {
-        byte[] data = getLayout().toByteArray(event);
-        String line = new String(data).trim() + System.getProperty("line.separator");
-
-        if (context == null || context.navigator == null)
-            addPreBuffer(line);
-        else
+        if (!disabled)
         {
-            if (preBuffer != null)
+            byte[] data = getLayout().toByteArray(event);
+            String line = new String(data).trim() + System.getProperty("line.separator");
+
+            if (context == null || context.navigator == null)
+                addPreBuffer(line);
+            else
             {
-                dumpPreBuffer();
-                preBuffer = null;
+                if (preBuffer != null)
+                {
+                    dumpPreBuffer();
+                    preBuffer = null;
+                }
+                writeGuiLogs(line);
             }
-            writeGuiLogs(line);
         }
     }
 

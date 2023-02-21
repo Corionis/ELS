@@ -39,6 +39,17 @@ public class Progress extends JFrame
         setLocationByPlatform(false);
         setLocationRelativeTo(null);
 
+        // Escape key
+        ActionListener escListener = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                cancelClicked(actionEvent);
+            }
+        };
+
+        getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
         context.mainFrame.labelStatusMiddle.setText("");
     }
 

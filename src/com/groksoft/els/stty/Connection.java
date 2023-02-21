@@ -122,12 +122,14 @@ public class Connection extends Thread
                     // halt kills the remaining threads
                     if (service.context.main.context.fault)
                         logger.error("Exiting with error code");
-                    Runtime.getRuntime().halt(service.context.main.context.fault ? 1 : 0);
+                    if (!service.context.main.secondaryInvocation)
+                        Runtime.getRuntime().halt(service.context.main.context.fault ? 1 : 0);
                 }
                 catch (Exception e)
                 {
                     logger.error(Utils.getStackTrace(e));
-                    Runtime.getRuntime().halt(1);
+                    if (!service.context.main.secondaryInvocation)
+                        Runtime.getRuntime().halt(1);
                 }
 
 //                logger.trace("stty calling exit");

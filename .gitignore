@@ -8,11 +8,17 @@
 hs_err_pid*
 
 /.idea/workspace.xml
-/out
-/mock/output/
-/mock/test/
-/mock/*.json
-/deploy/ELS-nav.jar
-/mock/scripts/linux/900*
 /artifacts/document/! Private.md
+/deploy/ELS-nav.jar
+/mock/*.json
+/mock/datastore/
+/mock/jobs/
+/mock/libraries/
+/mock/local/
+/mock/output/
+/mock/scripts/linux/900*
+/mock/system/
 /mock/test (copy)/
+/mock/test/
+/mock/tools/
+/out

@@ -3,7 +3,7 @@
     <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C .  --hints libraries/hint-server.json --keys-only system/hint.keys -c debug -d debug -p libraries/publisher.json -T -F output/62-01_Hints-publisher.log" />
-    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=file:$ProjectFileDir$/lib/log4j2.xml" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />
     <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <method v="2">
