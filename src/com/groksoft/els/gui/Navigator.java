@@ -28,6 +28,8 @@ import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
@@ -42,8 +44,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.Process;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -95,7 +100,7 @@ public class Navigator
         context.mainFrame.menuItemOpenPublisher.setEnabled(enable);
         context.mainFrame.menuItemOpenSubscriber.setEnabled(enable);
         context.mainFrame.menuItemOpenHintKeys.setEnabled(enable);
-        // TODO context.mainFrame.menuItemOpenHintServer.setEnabled(disable);
+        context.mainFrame.menuItemOpenHintTracking.setEnabled(enable);
 
         context.mainFrame.menuItemFind.setEnabled(enable);
         context.mainFrame.menuItemFindNext.setEnabled(enable);
@@ -140,6 +145,51 @@ public class Navigator
         }
 
         // TODO context.mainFrame.menuItemUpdates.setEnabled(disable);
+    }
+
+    public boolean execExternalExe(String commandLine)
+    {
+        Marker SIMPLE = MarkerManager.getMarker("SIMPLE");
+        try
+        {
+            final Process proc = Runtime.getRuntime().exec(commandLine);
+            Thread thread = new Thread()
+            {
+                public void run()
+                {
+                    String line;
+                    BufferedReader input = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+                    try
+                    {
+                        while ((line = input.readLine()) != null)
+                            logger.info(SIMPLE, line);
+                        input.close();
+                    }
+                    catch (IOException e)
+                    {
+                        logger.error(context.cfg.gs("Z.exception") + e);
+                        JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.exception") + Utils.getStackTrace(e), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            };
+
+            // run it
+            thread.start();
+            int result = proc.waitFor();
+            thread.join();
+            if (result != 0)
+            {
+                logger.error(context.cfg.gs("Z.process.failed") + result);
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.process.failed") + result, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(context.cfg.gs("Z.process.failed") + Utils.getStackTrace(e));
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.process.failed") + Utils.getStackTrace(e), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+        return false;
     }
 
     private int findMenuItemIndex(JMenu menu, JMenuItem item)

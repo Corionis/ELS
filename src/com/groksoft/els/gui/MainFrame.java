@@ -273,15 +273,15 @@ public class MainFrame extends JFrame
             buttonUp.setMnemonic(KeyEvent.VK_UP);
 
             // set the fixed-space font for the logs
-            if (Utils.getOS().equalsIgnoreCase("Windows"))
-            {
-                textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 12));
-                textAreaOperationLog.setFont(new Font("Courier New", Font.PLAIN, 12));
-            }
-            else
+            if (Utils.isOsLinux())
             {
                 textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
                 textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
+            }
+            else
+            {
+                textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 12));
+                textAreaOperationLog.setFont(new Font("Courier New", Font.PLAIN, 12));
             }
 
             // add smart scroll to the logs

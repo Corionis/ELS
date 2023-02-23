@@ -210,9 +210,9 @@ public class Main
                 context.cfg.configure(); // configure working directory & log path
                 if (context.cfg.isLogOverwrite()) // optionally delete any existing log
                 {
-                    File dLog = new File(context.cfg.getLogFileName());
-                    if (dLog.exists())
-                        dLog.delete();
+                    File delLog = new File(context.cfg.getLogFileName());
+                    if (delLog.exists())
+                        delLog.delete();
                 }
                 System.setProperty("logFilename", context.cfg.getLogFileFullPath());
                 System.setProperty("consoleLevel", context.cfg.getConsoleLevel());

@@ -638,6 +638,18 @@ public class Utils
     }
 
     /**
+     * Is the operating system Linux?
+     *
+     * @return false if Windows from getOS(), otherwise true
+     */
+    public static boolean isOsLinux()
+    {
+        if (getOS().equalsIgnoreCase("Windows"))
+            return false;
+        return true;
+    }
+
+    /**
      * Is the path relative or absolute?
      *
      * @param path Path to check

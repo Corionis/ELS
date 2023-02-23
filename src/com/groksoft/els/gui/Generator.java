@@ -14,8 +14,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.PrintWriter;
+import java.io.*;
 
 public class Generator
 {
@@ -34,18 +33,6 @@ public class Generator
 
     private void createDesktopShortcut(Component owner, String name, String commandLine)
     {
-        /*
-            Format:
-                [Desktop Entry]
-                Name=ELS Navigator
-                Exec=java -jar ...
-                Comment=Launch ELS Navigator
-                Terminal=false
-                Icon=/home/...
-                Type=Application
-            chmod 775 "~/Desktop/ELS Navigator.desktop"
-        */
-
         JPanel panelName = new JPanel();
         panelName.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         JLabel labelName = new JLabel();
@@ -76,63 +63,129 @@ public class Generator
         panelComment.add(fieldComment);
 
         // setup terminal panel
-        labelTerminal.setText(context.cfg.gs("Generator.shortcut.launch.in.terminal"));
-        panelTerminal.add(labelTerminal);
-        panelTerminal.add(checkboxTerminal);
+        if (Utils.isOsLinux())
+        {
+            labelTerminal.setText(context.cfg.gs("Generator.shortcut.launch.in.terminal"));
+            panelTerminal.add(labelTerminal);
+            panelTerminal.add(checkboxTerminal);
+        }
 
         Object[] params = {panelName, panelComment, panelTerminal};
         int resp = JOptionPane.showConfirmDialog(owner, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
         if (resp == JOptionPane.OK_OPTION)
         {
-
-
-            // LEFTOFF Platform-specific create shortcut - Use mslinks-1.1.0.jar
-            //   https://github.com/DmitriiShamrikov/mslinks
-
-
-
-            StringBuilder sb = new StringBuilder();
-
             name = fieldName.getText();
-            if (name != null && name.length() > 0)
+            String shortcut = System.getProperty("user.home") + System.getProperty("file.separator") + "Desktop" +
+                    System.getProperty("file.separator") + name + (Utils.isOsLinux() ? ".desktop" : ".lnk");
+            File shortFile = new File(shortcut);
+            boolean skip = false;
+
+            if (name.length() == 0)
             {
-                sb.append("[Desktop Entry]\n");
-                sb.append("Name=" + name + "\n");
-                sb.append("Exec=" + commandLine + "\n");
-                sb.append("Comment=" + fieldComment.getText() + "\n");
-                sb.append("Terminal=" + checkboxTerminal.isSelected() + "\n");
-                sb.append("Icon=" + context.cfg.getIconPath() + "\n");
-                sb.append("Type=Application\n");
+                skip = true;
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Generator.name.required"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             }
             else
             {
-                // TODO name required
-            }
-
-            // shortcut path to user Desktop
-            String shortcut = System.getProperty("user.home") + System.getProperty("file.separator") + "Desktop" +
-                    System.getProperty("file.separator") + name + ".desktop";
-            File shortFile = new File(shortcut);
-            if (shortFile.exists())
-            {
-                // TODO exists, overwrite?
-            }
-
-            try
-            {
-                PrintWriter outputStream = new PrintWriter(shortcut);
-                outputStream.println(sb);
-                outputStream.close();
-
-                if (Utils.getOS().equalsIgnoreCase("Linux"))
+                // shortcut path to user Desktop
+                if (shortFile.exists())
                 {
-                    shortFile.setExecutable(true);
+                    resp = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Generator.exists.overwrite"), context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                    if (resp != JOptionPane.YES_OPTION)
+                        skip = true;
                 }
             }
-            catch (Exception e)
+
+            if (!skip)
             {
-                // error
-                System.out.println(Utils.getStackTrace(e));
+                if (Utils.isOsLinux())
+                {
+                /*
+                    Format:
+                        [Desktop Entry]
+                        Name=ELS Navigator
+                        Exec=java -jar ...
+                        Comment=Launch ELS Navigator
+                        Terminal=false
+                        Icon=/home/...
+                        Type=Application
+                    chmod 775 "~/Desktop/ELS Navigator.desktop"
+                */
+
+                    StringBuilder sb = new StringBuilder();
+                    name = fieldName.getText();
+                    if (name != null && name.length() > 0)
+                    {
+                        sb.append("[Desktop Entry]\n");
+                        sb.append("Name=" + name + "\n");
+                        sb.append("Exec=" + commandLine + "\n");
+                        sb.append("Comment=" + fieldComment.getText() + "\n");
+                        sb.append("Terminal=" + checkboxTerminal.isSelected() + "\n");
+                        sb.append("Icon=" + context.cfg.getIconPath() + "\n");
+                        sb.append("Type=Application\n");
+                    }
+
+                    try
+                    {
+                        PrintWriter outputStream = new PrintWriter(shortcut);
+                        outputStream.println(sb);
+                        outputStream.close();
+                        // make executable
+                        shortFile.setExecutable(true);
+                    }
+                    catch (Exception e)
+                    {
+                        // error
+                        System.out.println(Utils.getStackTrace(e));
+                    }
+                }
+                else // Windows
+                {
+                    // Shortcut.exe :: https://www.optimumx.com/downloads.html
+                /* Shortcut.exe ReadMe.txt:
+                    Shortcut [Version 1.20]
+                    Creates, modifies or queries Windows shell links (shortcuts)
+                    The syntax of this command is:
+                     /F:filename    : Specifies the .LNK shortcut file.
+                     /A:action      : Defines the action to take (C=Create, E=Edit or Q=Query).
+                     /T:target      : Defines the target path and file name the shortcut points to.
+                     /P:parameters  : Defines the command-line parameters to pass to the target.
+                     /W:working dir : Defines the working directory the target starts with.
+                     /R:run style   : Defines the window state (1=Normal, 3=Max, 7=Min).
+                     /I:icon,index  : Defines the icon and optional index (file.exe or file.exe,0).
+                     /H:hotkey      : Defines the hotkey, a numeric value of the keyboard shortcut.
+                     /D:description : Defines the description (or comment) for the shortcut.
+
+                     Notes:
+                     - Any argument that contains spaces must be enclosed in "double quotes".
+                     - If Query is specified (/A:Q), all arguments except /F: are ignored.
+                     - To find the numeric hotkey value, use Explorer to set a hotkey and then /A:Q
+                     - To prevent an environment variable from being expanded until the shortcut
+                       is launched, use the ^ carat escape character like this: ^%WINDIR^%
+
+                     Examples:
+                       /f:"%ALLUSERSPROFILE%\Start Menu\Programs\My App.lnk" /a:q
+                       /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:c /t:^%WINDIR^%\Notepad.exe /h:846
+                       /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:e /p:C:\Setup.log /r:3
+                */
+
+                    // remove "java.exe" target /T to have only parameters /P
+                    commandLine = commandLine.substring(("\"" + context.cfg.getJavaExe() + "\" ").length());
+                    // escape embedded quotes
+                    commandLine = commandLine.replace("\"", "\\\"");
+
+                    StringBuilder wb = new StringBuilder();
+                    wb.append("\"" + context.cfg.getElsJarPath() + System.getProperty("file.separator") + "Shortcut.exe" + "\" ");
+                    wb.append("/F:\"" + shortFile.getAbsolutePath() + "\" ");
+                    wb.append("/A:C ");
+                    wb.append("/T:\"" + context.cfg.getJavaExe() + "\" ");
+                    wb.append("/I:\"" + context.cfg.getIconPath() + "\" ");
+                    wb.append("/W:\"" + context.cfg.getWorkingDirectory() + "\" ");
+                    wb.append("/D:\"" + fieldComment.getText() + "\" ");
+                    wb.append("/P:\"" + commandLine + "\" ");
+                    String wc = wb.toString();
+                    context.navigator.execExternalExe(wc);
+                }
             }
         }
     }
@@ -159,13 +212,13 @@ public class Generator
 
     private String generateJobCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
-        // TODO change when JRE is embedded in ELS distro
         boolean glo = context.preferences.isGenerateLongOptions();
-        String jar = context.cfg.getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
+        String java = context.cfg.getJavaExe();
+        String jar = context.cfg.getElsJar();
 
         String conf = getCfgOpt();
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "java -jar " + jar + " " + conf + "-j \"" + tool.getConfigName() + "\"";
+        String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + "-j \"" + tool.getConfigName() + "\"";
 
         // --- hint keys
         if (context.cfg.getHintKeysFile().length() > 0)
@@ -180,9 +233,8 @@ public class Generator
         // --- hints & hint server
         if (context.cfg.getHintTrackerFilename().length() > 0)
             cmd += " " + (glo ? "--hints" : "-h") + " \"" + context.cfg.getHintTrackerFilename() + "\"";
-        else
-            if (context.cfg.getHintsDaemonFilename().length() > 0)
-                cmd += " " + (glo ? "--hint-server" : "-H") + " \"" + context.cfg.getHintsDaemonFilename() + "\"";
+        else if (context.cfg.getHintsDaemonFilename().length() > 0)
+            cmd += " " + (glo ? "--hint-server" : "-H") + " \"" + context.cfg.getHintsDaemonFilename() + "\"";
 
         cmd += " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
@@ -190,14 +242,14 @@ public class Generator
 
     private String generateOperationsCommandline(AbstractTool tool, String consoleLevel, String debugLevel, boolean overwriteLog, String log) throws Exception
     {
-        // TODO change when JRE is embedded in ELS distro
-        String jar = context.cfg.getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
+        String java = context.cfg.getJavaExe();
+        String jar = context.cfg.getElsJar();
 
         // tool has all the parameter data, use it's generate method
         String conf = getCfgOpt();
-        String opts = ((OperationsTool)tool).generateCommandLine(context.publisherRepo.getJsonFilename(), context.subscriberRepo.getJsonFilename());
+        String opts = ((OperationsTool) tool).generateCommandLine(context.publisherRepo.getJsonFilename(), context.subscriberRepo.getJsonFilename());
         String overOpt = overwriteLog ? "-F" : "-f";
-        String cmd = "java -jar " + jar + " " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+        String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
     }
 

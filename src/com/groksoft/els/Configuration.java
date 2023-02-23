@@ -412,6 +412,16 @@ public class Configuration
     }
 
     /**
+     * Get full path to ELS Jar including Jar file
+     *
+     * @return String Full path to ELS.jar
+     */
+    public String getElsJar()
+    {
+        return context.cfg.getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
+    }
+
+    /**
      * Get path to ELS Jar file
      * <br/>
      * Works with ELS installed using ELS.jar and in development when executing with class files
@@ -423,21 +433,21 @@ public class Configuration
      */
     public String getElsJarPath()
     {
-        String jar = "";
+        String jarPath = "";
         try
         {
-            jar = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-            if (jar.endsWith("ELS.jar"))
+            jarPath = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+            if (jarPath.endsWith("ELS.jar"))
             {
-                jar = jar.substring(0, jar.length() - "ELS.jar".length());
+                jarPath = jarPath.substring(0, jarPath.length() - "ELS.jar".length());
             }
             else // hack for development environment to be consistent with the install environment
             {
                 String dev = "out" + System.getProperty("file.separator") + "production" + System.getProperty("file.separator") + "ELS";
-                if (jar.endsWith(dev))
+                if (jarPath.endsWith(dev))
                 {
-                    jar = jar.substring(0, jar.length() - dev.length());
-                    jar += System.getProperty("file.separator") + "deploy";
+                    jarPath = jarPath.substring(0, jarPath.length() - dev.length());
+                    jarPath += "deploy";
                 }
             }
         }
@@ -445,7 +455,7 @@ public class Configuration
         {
             // should never get an exception
         }
-        return jar;
+        return jarPath;
     }
 
     /**
@@ -552,6 +562,14 @@ public class Configuration
     public String getJobName()
     {
         return jobName;
+    }
+
+    public String getJavaExe()
+    {
+        String je = System.getProperty("java.home") + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "java";
+        if (!Utils.isOsLinux())
+            je += ".exe";
+        return je;
     }
 
     /**
@@ -724,9 +742,6 @@ public class Configuration
         String op = "-";
         switch (operation)
         {
-//            case JOB_PROCESS: // 8
-//                op = "J";
-// TODO correct?               break;
             case NOT_REMOTE: // 0
                 op = "-";
                 break;
