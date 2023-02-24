@@ -63,12 +63,9 @@ public class Generator
         panelComment.add(fieldComment);
 
         // setup terminal panel
-        if (Utils.isOsLinux())
-        {
-            labelTerminal.setText(context.cfg.gs("Generator.shortcut.launch.in.terminal"));
-            panelTerminal.add(labelTerminal);
-            panelTerminal.add(checkboxTerminal);
-        }
+        labelTerminal.setText(context.cfg.gs("Generator.shortcut.launch.in.terminal"));
+        panelTerminal.add(labelTerminal);
+        panelTerminal.add(checkboxTerminal);
 
         Object[] params = {panelName, panelComment, panelTerminal};
         int resp = JOptionPane.showConfirmDialog(owner, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
@@ -168,6 +165,9 @@ public class Generator
                        /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:c /t:^%WINDIR^%\Notepad.exe /h:846
                        /f:"%USERPROFILE%\Desktop\Notepad.lnk" /a:e /p:C:\Setup.log /r:3
                 */
+                    String target = context.cfg.getJavaExe();
+                    if (!checkboxTerminal.isSelected())
+                        target = target.replace("java.exe", "javaw.exe");
 
                     // remove "java.exe" target /T to have only parameters /P
                     commandLine = commandLine.substring(("\"" + context.cfg.getJavaExe() + "\" ").length());
@@ -178,7 +178,7 @@ public class Generator
                     wb.append("\"" + context.cfg.getElsJarPath() + System.getProperty("file.separator") + "Shortcut.exe" + "\" ");
                     wb.append("/F:\"" + shortFile.getAbsolutePath() + "\" ");
                     wb.append("/A:C ");
-                    wb.append("/T:\"" + context.cfg.getJavaExe() + "\" ");
+                    wb.append("/T:\"" + target + "\" ");
                     wb.append("/I:\"" + context.cfg.getIconPath() + "\" ");
                     wb.append("/W:\"" + context.cfg.getWorkingDirectory() + "\" ");
                     wb.append("/D:\"" + fieldComment.getText() + "\" ");
