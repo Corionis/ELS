@@ -255,12 +255,7 @@ public class Generator
 
     private String getCfgOpt()
     {
-        String opt = "";
-
-        // if the -C parameter was originally specified for this ELS then use that parameter
-        if (context.cfg.getConfigurationDirectory().length() > 0)
-            opt = "-C " + context.cfg.getConfigurationDirectory() + " ";
-        return opt;
+        return "-C \"" + context.cfg.getWorkingDirectory() + "\" ";
     }
 
     public String getConsoleLevel()
