@@ -100,18 +100,18 @@ public class Repository
     {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-        logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + context.cfg.getExportCollectionFilename());
+        String where = Utils.getWorkingFile(context.cfg.getExportCollectionFilename());
+        logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + where);
         json = gson.toJson(getLibraryData());
         try
         {
-            PrintWriter outputStream = new PrintWriter(context.cfg.getExportCollectionFilename());
+            PrintWriter outputStream = new PrintWriter(where);
             outputStream.println(json);
             outputStream.close();
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing " + (isCollection ? "collection" : "library") + " file " + context.cfg.getExportCollectionFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Exception while writing " + (isCollection ? "collection" : "library") + " file " + where + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 
@@ -122,11 +122,11 @@ public class Repository
      */
     public void exportText() throws MungeException
     {
-        logger.info("Writing text file " + context.cfg.getExportTextFilename());
-
+        String where = Utils.getWorkingFile(context.cfg.getExportTextFilename());
+        logger.info("Writing text file " + where);
         try
         {
-            PrintWriter outputStream = new PrintWriter(context.cfg.getExportTextFilename());
+            PrintWriter outputStream = new PrintWriter(where);
             for (Library lib : getLibraryData().libraries.bibliography)
             {
                 if ((!context.cfg.isSpecificLibrary() || context.cfg.isSelectedLibrary(lib.name)) &&
@@ -148,7 +148,7 @@ public class Repository
         }
         catch (FileNotFoundException fnf)
         {
-            throw new MungeException("Exception while writing text file " + context.cfg.getExportTextFilename() + " trace: " + Utils.getStackTrace(fnf));
+            throw new MungeException("Exception while writing text file " + where + " trace: " + Utils.getStackTrace(fnf));
         }
     }
 

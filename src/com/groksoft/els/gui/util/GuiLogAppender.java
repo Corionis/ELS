@@ -18,20 +18,44 @@ import java.util.ArrayList;
 @Plugin(name = "GuiLogAppender", category = "Core", elementType = "appender", printObject = true)
 public class GuiLogAppender extends AbstractAppender
 {
-    private Context context = null;
-    private boolean disabled = false;
     private static ArrayList<String> preBuffer = null;
+    private Context context = null;
 
     public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
     {
         super(name, filter, layout, ignoreExceptions, null);
     }
 
-    private void addPreBuffer(String line)
+    @Override
+    public synchronized void append(LogEvent event)
     {
-        if (preBuffer == null)
-            preBuffer = new ArrayList<String>();
-        preBuffer.add(line);
+        byte[] data = getLayout().toByteArray(event);
+        String line = new String(data).trim() + System.getProperty("line.separator");
+
+        if (context == null || context.navigator == null)
+        {
+            if (preBuffer == null)
+                preBuffer = new ArrayList<String>();
+            preBuffer.add(line);
+        }
+        else
+        {
+            if (preBuffer != null)
+            {
+                for (String preLine : preBuffer)
+                {
+                    appendGuiLogs(preLine);
+                }
+                preBuffer = null;
+            }
+            appendGuiLogs(line);
+        }
+    }
+
+    private void appendGuiLogs(String line)
+    {
+        context.mainFrame.textAreaLog.append(line);
+        context.mainFrame.textAreaOperationLog.append(line);
     }
 
     @PluginFactory
@@ -54,50 +78,6 @@ public class GuiLogAppender extends AbstractAppender
         return appender;
     }
 
-    public void disable()
-    {
-        this.disabled = true;
-        preBuffer = null;
-    }
-
-    public void disable(boolean disable)
-    {
-        this.disabled = disable;
-    }
-
-    private void dumpPreBuffer()
-    {
-        if (preBuffer != null)
-        {
-            for (String line : preBuffer)
-            {
-                writeGuiLogs(line);
-            }
-        }
-    }
-
-    @Override
-    public void append(LogEvent event)
-    {
-        if (!disabled)
-        {
-            byte[] data = getLayout().toByteArray(event);
-            String line = new String(data).trim() + System.getProperty("line.separator");
-
-            if (context == null || context.navigator == null)
-                addPreBuffer(line);
-            else
-            {
-                if (preBuffer != null)
-                {
-                    dumpPreBuffer();
-                    preBuffer = null;
-                }
-                writeGuiLogs(line);
-            }
-        }
-    }
-
     public void setContext(Context context)
     {
         this.context = context;
@@ -106,12 +86,6 @@ public class GuiLogAppender extends AbstractAppender
     @Override
     public void stop()
     {
-    }
-
-    private void writeGuiLogs(String line)
-    {
-        context.mainFrame.textAreaLog.append(line);
-        context.mainFrame.textAreaOperationLog.append(line);
     }
 
 }

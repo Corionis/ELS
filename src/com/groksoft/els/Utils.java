@@ -2,6 +2,7 @@ package com.groksoft.els;
 
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,8 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.security.Key;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -593,6 +596,76 @@ public class Utils
         final PrintWriter pw = new PrintWriter(sw, true);
         throwable.printStackTrace(pw);
         return sw.getBuffer().toString();
+    }
+
+    /**
+     * Get a date/time stamped filename
+     * <br/>
+     * If the Repository temp_dated = true a formatted stamp is appended to the filename.
+     *
+     * @param repo Repository with temp_dated defined
+     * @param filename The left portion of the filename, no extension
+     * @return String The filename with an optional date/time stamp appended, or not
+     */
+    public static String getStampedFilename(Repository repo, String filename)
+    {
+        String stamped = "";
+        if (repo.getLibraryData().libraries.temp_dated != null && repo.getLibraryData().libraries.temp_dated)
+        {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+            LocalDateTime now = LocalDateTime.now();
+            stamped = filename + "-" + dtf.format(now);
+        }
+        else
+            stamped = filename;
+        return stamped;
+    }
+
+    /**
+     * Get the left-side absolute path for a temporary file
+     * <br/>
+     * If the Repository temp_location is defined use that path, otherwise use
+     * the current working directory. In either case any relative path is expanded
+     * to be an fully-qualified path.
+     * @param repo Repository with temp_location defined
+     * @param filename The right portion of the filename
+     * @return String The fully-qualified path
+     */
+    public static String getTemporaryFilePrefix(Repository repo, String filename)
+    {
+        String location = filename;
+        String path = "";
+        if (repo.getLibraryData().libraries.temp_location != null && repo.getLibraryData().libraries.temp_location.length() > 0)
+        {
+            path = repo.getLibraryData().libraries.temp_location;
+            String sep = repo.getSeparator();
+            if (!path.endsWith(sep))
+                path += sep;
+            location = path + filename;
+        }
+        location = Utils.getWorkingFile(location);
+        return location;
+    }
+
+    /**
+     * Get an absolute working file path
+     * <br/>
+     * If the filename is relative the current working directory is prefixed,
+     * otherwise the filename is returned.
+     * <br/>
+     * The path separator is for the local system.
+     *
+     * @param filename Filename to set
+     * @return String Absolute path to work file
+     */
+    public static String getWorkingFile(String filename)
+    {
+        String location;
+        if (Utils.isRelativePath(filename))
+            location = System.getProperty("user.dir") + System.getProperty("file.separator") + filename;
+        else
+            location = filename;
+        return location;
     }
 
     /**

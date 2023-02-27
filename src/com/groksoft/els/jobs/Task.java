@@ -385,7 +385,7 @@ public class Task implements Comparable, Serializable
                 if (pubPath == null && subPath == null)
                     throw new MungeException(context.cfg.gs("Task.no.repository.is.defined"));
 
-                currentTool.processTool(context, pubPath, subPath);
+                currentTool.processTool(context, pubPath, subPath, dryRun);
             }
             else
             {
@@ -467,7 +467,7 @@ public class Task implements Comparable, Serializable
                 if (pubPath == null && subPath == null)
                     throw new MungeException(context.cfg.gs("Task.no.repository.is.defined"));
 
-                worker = currentTool.processToolThread(context, pubPath, subPath);
+                worker = currentTool.processToolThread(context, pubPath, subPath, dryRun);
             }
             else
             {

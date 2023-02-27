@@ -135,6 +135,9 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         if (isOptQuitStatus())
             sb.append(" " + (glo ? "--quit-status" : "-q"));
 
+        if (isOptDryRun() != defCfg.isDryRun())
+            sb.append(" " + (glo ? "--dry-run" : "-D"));
+
         // --- remote mode
         switch (operation)
         {
@@ -231,8 +234,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         // --- options
         if (isOptDecimalScale() != !defCfg.isBinaryScale())
             sb.append(" " + (glo ? "--decimal-scale" : "-z"));
-        if (isOptDryRun() != defCfg.isDryRun())
-            sb.append(" " + (glo ? "--dry-run" : "-D"));
         if (isOptDuplicates() != defCfg.isDuplicateCheck())
             sb.append(" " + (glo ? "--duplicates" : "-u"));
         if (isOptEmptyDirectories() != defCfg.isEmptyDirectoryCheck())
@@ -498,13 +499,18 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
      * @throws Exception
      */
     @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath) throws Exception
+    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
     {
         pubPath = publisherPath;
         subPath = subscriberPath;
 
         // construct the arguments
         String cmd = generateCommandLine();
+        if (dryRun && !cmd.contains(" -D") && !cmd.contains(" --dry-run"))
+        {
+            boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
+            cmd += (" " + (glo ? "--dry-run" : "-D"));
+        }
         List<String> list = ArgumentTokenizer.tokenize(cmd);
         String[] args = list.toArray(new String[0]);
 
@@ -531,7 +537,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
      * @return SwingWorker<Void, Void> of thread
      */
     @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception
+    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
     {
         // create a fresh dialog
         if (context.progress == null || !context.progress.isBeingUsed())
@@ -544,8 +550,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                     requestStop();
                 }
             };
-            context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, optDryRun);
-            context.progress = context.progress;
+            context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, ((dryRun) ? dryRun : optDryRun));
             context.progress.display();
         }
         else
@@ -563,7 +568,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             {
                 try
                 {
-                    processTool(context, publisherPath, subscriberPath);
+                    processTool(context, publisherPath, subscriberPath, ((dryRun) ? dryRun : optDryRun));
                 }
                 catch (Exception e)
                 {

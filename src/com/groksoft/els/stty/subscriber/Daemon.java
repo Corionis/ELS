@@ -16,6 +16,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -343,28 +344,10 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         {
                             try
                             {
-                                String stamp = "";
-                                if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
-                                {
-                                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                                    LocalDateTime now = LocalDateTime.now();
-                                    stamp = "-" + dtf.format(now);
-                                }
+                                String location = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
+                                location = Utils.getStampedFilename(myRepo, location + "_collection-generated");
+                                location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
 
-                                String location;
-                                String path = "";
-                                String fn = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
-                                if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
-                                {
-                                    path = myRepo.getLibraryData().libraries.temp_location;
-                                    String sep = myRepo.getSeparator();
-                                    if (!path.endsWith(sep))
-                                        path += sep;
-                                    location = path + fn;
-                                }
-                                else
-                                    location = fn;
-                                location += "_collection-generated" + stamp + ".json";
                                 context.cfg.setExportCollectionFilename(location);
 
                                 for (Library subLib : myRepo.getLibraryData().libraries.bibliography)
@@ -387,8 +370,9 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                                 // otherwise it must be -S so do not scan
                                 myRepo.exportItems(true);
-
-                                response = new String(Files.readAllBytes(Paths.get(location)));
+                                Thread.sleep(2000);
+                                Path jsonPath = Paths.get(context.cfg.getExportCollectionFilename()).toAbsolutePath();
+                                response = new String(Files.readAllBytes(jsonPath));
                             }
                             catch (MungeException e)
                             {
@@ -513,30 +497,14 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         {
                             try
                             {
-                                String stamp = "";
-                                if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
-                                {
-                                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                                    LocalDateTime now = LocalDateTime.now();
-                                    stamp = "-" + dtf.format(now);
-                                }
+                                String location = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
+                                location = Utils.getStampedFilename(myRepo, location + "_library-generated");
+                                location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
 
-                                String location;
-                                String path = "";
-                                String fn = Utils.scrubFilename(myRepo.getLibraryData().libraries.description).replaceAll(" ", "");
-                                if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
-                                {
-                                    path = myRepo.getLibraryData().libraries.temp_location;
-                                    String sep = myRepo.getSeparator();
-                                    if (!path.endsWith(sep))
-                                        path += sep;
-                                    location = path + fn;
-                                }
-                                else
-                                    location = fn;
-                                location += "_library-generated" + stamp + ".json";
                                 exportLibrary(location);
-                                response = new String(Files.readAllBytes(Paths.get(location)));
+                                Thread.sleep(2000);
+                                Path jsonPath = Paths.get(location).toAbsolutePath();
+                                response = new String(Files.readAllBytes(jsonPath));
                             }
                             catch (MungeException e)
                             {

@@ -177,17 +177,18 @@ public class Process
         // setup the -m mismatch output file
         if (context.cfg.getMismatchFilename().length() > 0)
         {
+            String where = Utils.getWorkingFile(context.cfg.getMismatchFilename());
             try
             {
-                mismatchFile = new PrintWriter(context.cfg.getMismatchFilename());
+                mismatchFile = new PrintWriter(where);
                 mismatchFile.println(header);
                 mismatchFile.println("");
-                logger.info("Writing to Mismatches file " + context.cfg.getMismatchFilename());
+                logger.info("Writing to Mismatches file " + where);
             }
             catch (FileNotFoundException fnf)
             {
                 fault = true;
-                String s = "File not found exception for Mismatches output file " + context.cfg.getMismatchFilename();
+                String s = "File not found exception for Mismatches output file " + where;
                 logger.error(s);
                 throw new MungeException(s);
             }
@@ -196,16 +197,17 @@ public class Process
         // setup the -w What's New output file
         if (context.cfg.getWhatsNewFilename().length() > 0)
         {
+            String where = Utils.getWorkingFile(context.cfg.getWhatsNewFilename());
             try
             {
-                whatsNewFile = new PrintWriter(context.cfg.getWhatsNewFilename());
+                whatsNewFile = new PrintWriter(where);
                 whatsNewFile.println("What's New");
-                logger.info("Writing to What's New file " + context.cfg.getWhatsNewFilename());
+                logger.info("Writing to What's New file " + where);
             }
             catch (FileNotFoundException fnf)
             {
                 fault = true;
-                String s = "File not found exception for What's New output file " + context.cfg.getWhatsNewFilename();
+                String s = "File not found exception for What's New output file " + where;
                 logger.error(s);
                 throw new MungeException(s);
             }

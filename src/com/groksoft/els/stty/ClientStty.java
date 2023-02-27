@@ -15,6 +15,8 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -356,7 +358,7 @@ public class ClientStty
                     // the subscriber's flavor is valid
                     Utils.getFileSeparator(input);
 
-                    logger.info("Authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
+                    logger.info("Stty client authenticated " + (isTerminal ? "terminal" : "automated") + " session: " + theirRepo.getLibraryData().libraries.description);
                     valid = true;
 
                     // override what we THINK the subscriber flavor is with what we are told
@@ -475,28 +477,10 @@ public class ClientStty
         response = roundTrip(message, log, timeout);
         if (response != null && response.length() > 0)
         {
-            String stamp = "";
-            if (myRepo.getLibraryData().libraries.temp_dated != null && myRepo.getLibraryData().libraries.temp_dated)
-            {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
-                LocalDateTime now = LocalDateTime.now();
-                stamp = "-" + dtf.format(now);
-            }
+            location = Utils.scrubFilename(theirRepo.getLibraryData().libraries.description).replaceAll(" ", "");
+            location = Utils.getStampedFilename(myRepo, location + "_" + message + "-received");
+            location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
 
-            String path = "";
-            String fn = Utils.scrubFilename(theirRepo.getLibraryData().libraries.description).replaceAll(" ", "");
-            if (myRepo.getLibraryData().libraries.temp_location != null && myRepo.getLibraryData().libraries.temp_location.length() > 0)
-            {
-                path = myRepo.getLibraryData().libraries.temp_location;
-                String sep = myRepo.getSeparator();
-                if (!path.endsWith(sep))
-                    path += sep;
-                location = path + fn;
-            }
-            else
-                location = fn;
-
-            location += "_" + message + "-received" + stamp + ".json";
             try
             {
                 PrintWriter outputStream = new PrintWriter(location);

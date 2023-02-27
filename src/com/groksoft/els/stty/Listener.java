@@ -163,7 +163,20 @@ public class Listener extends Thread
                 context.fault = true;
             }
         }
-        if (logger != null && socket != null)
-            logger.debug("stopping stty listener on: " + socket.getLocalAddress().toString() + ":" + socket.getPort());
+
+        if (logger != null)
+            logger.debug("stopping stty listener on: " + listenSocket.getLocalSocketAddress().toString() + ":" + listenSocket.getLocalPort());
+
+        if (listenSocket != null && listenSocket.isBound())
+        {
+            try
+            {
+                listenSocket.close();
+                listenSocket = null;
+            }
+            catch (Exception se)
+            {
+            }
+        }
     }
 } // Listener

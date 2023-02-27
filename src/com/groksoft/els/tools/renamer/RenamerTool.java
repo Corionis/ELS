@@ -472,7 +472,7 @@ public class RenamerTool extends AbstractTool
     }
 
     @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath) throws Exception
+    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
     {
         // to satisfy AbstractTool, not used
     }
@@ -542,7 +542,7 @@ public class RenamerTool extends AbstractTool
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception
+    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
     {
         // to satisfy AbstractTool, not used
         return null;
@@ -576,7 +576,6 @@ public class RenamerTool extends AbstractTool
                     }
                 };
                 context.progress = new Progress(context, context.mainFrame, cancel, isDryRun);
-                context.progress = context.progress;
                 context.progress.display();
             }
             else

@@ -116,9 +116,10 @@ public abstract class AbstractTool implements Comparable, Serializable
      * @param context The runtime Context
      * @param publisherPath Repository of the publisher or null
      * @param subscriberPath Repository of the subscriber or null
+     * @param dryRun Boolean dryrun
      * @throws Exception
      */
-    public abstract void processTool(Context context, String publisherPath, String subscriberPath) throws Exception;
+    public abstract void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception;
 
     /**
      * Process the tool
@@ -138,9 +139,10 @@ public abstract class AbstractTool implements Comparable, Serializable
      * @param context The runtime Context
      * @param publisherPath Repository of the publisher or null
      * @param subscriberPath Repository of the subscriber or null
+     * @param dryRun Boolean dryrun
      * @return SwingWorker<Void, Void> of thread
      */
-    public abstract SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception;
+    public abstract SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception;
 
     /**
      * Process the tool on a SwingWorker thread

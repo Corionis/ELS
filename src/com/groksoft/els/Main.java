@@ -35,7 +35,6 @@ public class Main
 {
     public Main main;
     public Context context = new Context();
-    public GuiLogAppender guiLogAppender; // appender when Navigator is used
     private boolean isListening = false; // listener mode
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
     public Logger logger = null; // log4j2 logger singleton
@@ -43,6 +42,7 @@ public class Main
     public Context previousContext = null; // the previous Context during a secondaryInvocation
     public Date stamp = new Date(); // runtime stamp for this invocation
     public boolean secondaryInvocation = false;
+    public boolean secondaryNavigator = false;
 
     // TODO EXTEND+ Add new locales here
     // add new locales here
@@ -204,13 +204,13 @@ public class Main
                 cfgException = e; // configuration exception
             }
 
-            // setup the working directory & logger
+            // setup the working directory & logger - once
             if (!secondaryInvocation)
             {
                 context.cfg.configure(); // configure working directory & log path
                 if (context.cfg.isLogOverwrite()) // optionally delete any existing log
                 {
-                    File delLog = new File(context.cfg.getLogFileName());
+                    File delLog = new File(context.cfg.getLogFileFullPath());
                     if (delLog.exists())
                         delLog.delete();
                 }
@@ -218,19 +218,17 @@ public class Main
                 System.setProperty("consoleLevel", context.cfg.getConsoleLevel());
                 System.setProperty("debugLevel", context.cfg.getDebugLevel());
                 System.setProperty("pattern", context.cfg.getPattern());
-                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(context.navigator == null ? true : false);
+                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false); //context.navigator == null ? true : false);
+                //LoggerContext loggerContext = (LoggerContext) LogManager.getContext(context.navigator == null ? true : false);
                 loggerContext.reconfigure();
                 AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
                 LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
                 loggerConfig.setLevel(Level.toLevel(context.cfg.getConsoleLevel()));
                 loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
                 loggerConfig.setLevel(Level.toLevel(context.cfg.getDebugLevel()));
-                if (context.navigator != null)
-                {
-                    Map<String, Appender> appenders = loggerConfig.getAppenders();
-                    guiLogAppender = (GuiLogAppender) appenders.get("GuiLogAppender");
-                    guiLogAppender.setContext(context);
-                }
+                Map<String, Appender> appenders = loggerConfig.getAppenders();
+                GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                appender.setContext(context);
                 loggerContext.updateLoggers();
             }
             else // carry-over previous Context log values
@@ -260,11 +258,11 @@ public class Main
             loadLocale(filePart);
             if (context.cfg.gs("Transfer.received.subscriber.commands").length() == 0)
             {
-                //logger.debug("local locale not supported, loading default");
+                logger.debug("local locale not supported, loading default");
                 loadLocale("-");
             }
-            //else
-                //logger.debug("loaded locale: " + filePart);
+            else
+                logger.debug("loaded locale: " + filePart);
             localeAbbrev = filePart;
 
             //
@@ -753,13 +751,17 @@ public class Main
                             if (main.context.fault)
                                 logger.error("Exiting with error code");
                             if (!secondaryInvocation)
+                            {
                                 Runtime.getRuntime().halt(main.context.fault ? 1 : 0);
+                            }
                         }
                         catch (Exception e)
                         {
                             logger.error(Utils.getStackTrace(e));
                             if (!secondaryInvocation)
+                            {
                                 Runtime.getRuntime().halt(1);
+                            }
                         }
                     }
                 });

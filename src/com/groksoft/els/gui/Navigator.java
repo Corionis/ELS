@@ -26,10 +26,7 @@ import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.*;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
@@ -292,6 +289,9 @@ public class Navigator
         }
 
         // setup the GUI
+        if (context.main.previousContext != null && context.main.previousContext.navigator != null)
+            context.main.secondaryNavigator = true;
+
         context.operationsUI = new OperationsUI(context);
         context.mainFrame = new MainFrame(context);
         if (!context.fault)
@@ -299,22 +299,26 @@ public class Navigator
             // setup the Main Menu and primary tabs
             initializeMainMenu();
             context.browser = new Browser(context);
-            context.browser = context.browser;
             context.operationsUI.initialize();
             // TODO Add Library tab content creation here
+
+            // set the GuiLogAppender context for a second invocation
+            if (context.main.secondaryInvocation)
+            {
+                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+                AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+                LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+                Map<String, Appender> appenders = loggerConfig.getAppenders();
+                GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                appender.setContext(context);
+                // this causes the preBuffer to be appended to the Navigator Log panels
+                logger.info(context.cfg.gs("Navigator.secondary,context"));
+            }
 
             // disable back-fill because we never know what combination of items might be selected
             context.cfg.setNoBackFill(true);
 
             context.cfg.setPreserveDates(context.preferences.isPreserveFileTimes());
-
-            // set the TextArea for the GUI log
-            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-            AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-            LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-            Map<String, Appender> appenders = loggerConfig.getAppenders();
-            GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
-            appender.setContext(context);
 
             if (context.cfg.isUsingHintTracking())
             {
@@ -1442,7 +1446,6 @@ public class Navigator
                         }
                     };
                     context.progress = new Progress(context, context.mainFrame, cancel, false);
-                    context.progress = context.progress;
                 }
                 context.progress.view();
             }
@@ -2115,7 +2118,7 @@ public class Navigator
         }
         else
         {
-            logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
+            //logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
         }
         disableGui(false);
@@ -2376,8 +2379,17 @@ public class Navigator
         context.main.stopVerbiage();
 
         // end the Navigator Swing thread
-        if (!context.main.secondaryInvocation)
+        if (!context.main.secondaryNavigator)
             System.exit(context.fault ? 1 : 0);
+        else
+        {
+            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+            AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+            LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+            Map<String, Appender> appenders = loggerConfig.getAppenders();
+            GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+            appender.setContext(context.main.previousContext);
+        }
     }
 
 }

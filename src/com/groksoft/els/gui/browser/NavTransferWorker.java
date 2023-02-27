@@ -72,7 +72,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 }
             };
             context.progress = new Progress(context, context.mainFrame, cancel, context.cfg.isDryRun());
-            context.progress = context.progress;
             context.progress.display();
         }
         else

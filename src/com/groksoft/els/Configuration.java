@@ -35,7 +35,6 @@ public class Configuration
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private String blacklist = "";
-    private String configurationDirectory = "";
     private String consoleLevel = "Debug";  // Levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, FATAL, and OFF
     private boolean consoleSet = false;
     private Context context;
@@ -89,11 +88,13 @@ public class Configuration
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
+
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerForceQuit, JobProcess, SubscriberListenerForceQuit
     }
+
     /**
      * Constructor
      */
@@ -367,16 +368,6 @@ public class Configuration
     public String getBlacklist()
     {
         return blacklist;
-    }
-
-    /**
-     * Get the ELS configuration directory
-     *
-     * @return String Configuration directory as specific on the command line
-     */
-    public String getConfigurationDirectory()
-    {
-        return configurationDirectory;
     }
 
     /**
@@ -1342,9 +1333,6 @@ public class Configuration
                         // see configure()
                         this.workingDirectory = args[index + 1].trim();
                         ++index;
-
-                        // save original specification; workingDirectory may be changed
-                        this.configurationDirectory = this.workingDirectory;
                     }
                     else
                     {

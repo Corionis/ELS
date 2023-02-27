@@ -391,8 +391,8 @@ public class Preferences implements Serializable
 
     public String getFullPath()
     {
-        String path = System.getProperty("user.dir") + System.getProperty("file.separator") +
-                "local" + System.getProperty("file.separator") + "preferences.json";
+        String path = System.getProperty("user.dir") + System.getProperty("file.separator") + "local" +
+                System.getProperty("file.separator") + "preferences.json";
         return path;
     }
 

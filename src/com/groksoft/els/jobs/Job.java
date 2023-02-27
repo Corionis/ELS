@@ -135,7 +135,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     @Override
-    public void processTool(Context context, String publisherPath, String subscriberPath) throws Exception
+    public void processTool(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
     {
         // to satisfy AbstractTool, not used
     }
@@ -147,7 +147,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     @Override
-    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath) throws Exception
+    public SwingWorker<Void, Void> processToolThread(Context context, String publisherPath, String subscriberPath, boolean dryRun) throws Exception
     {
         // to satisfy AbstractTool, not used
         return null;
@@ -251,7 +251,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 }
             };
             context.progress = new Progress(context, comp, cancel, isDryRun);
-            context.progress = context.progress;
             context.progress.display();
         }
         else
