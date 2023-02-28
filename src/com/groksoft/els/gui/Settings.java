@@ -323,9 +323,10 @@ public class Settings extends JDialog
         context.preferences.setLocale((String) localeComboBox.getSelectedItem());
         context.preferences.setBinaryScale(scaleCheckBox.isSelected());
         context.preferences.setDateFormat(dateFormatTextField.getText());
-        if (context.preferences.getAccentColor().length() < 6) // use default if empty
+        if (textFieldAccentColor.getText().length() == 0) // use default if empty
             context.preferences.setAccentColor("2675BF");
-        context.preferences.setAccentColor(textFieldAccentColor.getText());
+        else
+            context.preferences.setAccentColor(textFieldAccentColor.getText());
 
         // browser
         context.preferences.setAutoRefresh(autoRefreshCheckBox.isSelected());

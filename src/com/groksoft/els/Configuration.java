@@ -88,13 +88,11 @@ public class Configuration
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
     private String workingDirectory = "";
-
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerForceQuit, JobProcess, SubscriberListenerForceQuit
     }
-
     /**
      * Constructor
      */
@@ -137,6 +135,7 @@ public class Configuration
      * Configure the working directory & logging configuration
      * <br/>
      * Sets the current working directory, logFullPath and logPath based on configuration.
+     * This is executed BEFORE the logger is configured, so the Utils class cannot be used.
      */
     public void configure() throws Exception
     {
@@ -169,7 +168,7 @@ public class Configuration
             setLogFilePath("");
 
             // if relative path prepend with working directory
-            if (!lfn.matches("^[a-zA-Z]:") &&
+            if (!lfn.matches("^[a-zA-Z]:.*") &&
                     !lfn.startsWith("/") &&
                     !lfn.startsWith("\\"))
             {
@@ -545,6 +544,14 @@ public class Configuration
         return iplist;
     }
 
+    public String getJavaExe()
+    {
+        String je = System.getProperty("java.home") + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "java";
+        if (!Utils.isOsLinux())
+            je += ".exe";
+        return je;
+    }
+
     /**
      * Gets the job name
      *
@@ -553,14 +560,6 @@ public class Configuration
     public String getJobName()
     {
         return jobName;
-    }
-
-    public String getJavaExe()
-    {
-        String je = System.getProperty("java.home") + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "java";
-        if (!Utils.isOsLinux())
-            je += ".exe";
-        return je;
     }
 
     /**

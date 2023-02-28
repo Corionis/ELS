@@ -1316,6 +1316,24 @@ public class Preferences implements Serializable
         // other panels
         context.operationsUI.savePreferences();
 
+        // shorten paths relative to the working directory if possible
+        String savedHintKeysOpenFile = getLastHintKeysOpenFile();
+        setLastHintKeysOpenFile(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenFile()));
+        String savedHintKeysOpenPath = getLastHintKeysOpenPath();
+        setLastHintKeysOpenPath(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenPath()));
+        String savedHintTrackingOpenFile = getLastHintTrackingOpenFile();
+        setLastHintTrackingOpenFile(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenFile()));
+        String savedHintTrackingOpenPath = getLastHintTrackingOpenPath();
+        setLastHintTrackingOpenPath(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenPath()));
+        String savedPublisherOpenFile = getLastPublisherOpenFile();
+        setLastPublisherOpenFile(context.main.getWorkingDirectoryRelative(getLastPublisherOpenFile()));
+        String savedPublisherOpenPath = getLastPublisherOpenPath();
+        setLastPublisherOpenPath(context.main.getWorkingDirectoryRelative(getLastPublisherOpenPath()));
+        String savedSubscriberOpenFile = getLastSubscriberOpenFile();
+        setLastSubscriberOpenFile(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenFile()));
+        String savedSubscriberOpenPath = getLastSubscriberOpenPath();
+        setLastSubscriberOpenPath(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenPath()));
+
         json = gson.toJson(this);
         try
         {
@@ -1332,6 +1350,16 @@ public class Preferences implements Serializable
         {
             throw new MungeException("Error writing: " + getFullPath() + " trace: " + Utils.getStackTrace(fnf));
         }
+
+        // restore long paths
+        setLastHintKeysOpenFile(savedHintKeysOpenFile);
+        setLastHintKeysOpenPath(savedHintKeysOpenPath);
+        setLastHintTrackingOpenFile(savedHintTrackingOpenFile);
+        setLastHintTrackingOpenPath(savedHintTrackingOpenPath);
+        setLastPublisherOpenFile(savedPublisherOpenFile);
+        setLastPublisherOpenPath(savedPublisherOpenPath);
+        setLastSubscriberOpenFile(savedSubscriberOpenFile);
+        setLastSubscriberOpenPath(savedSubscriberOpenPath);
     }
 
     // ================================================================================================================

@@ -44,8 +44,7 @@ public class Main
     public boolean secondaryInvocation = false;
     public boolean secondaryNavigator = false;
 
-    // TODO EXTEND+ Add new locales here
-    // add new locales here
+    // TODO EXTEND+ Add new locales here; Potentially refactor to include files from a locales directory
     public String[] availableLocales = {"en_US"}; // Array of built-in locale names;
 
     /**
@@ -162,6 +161,27 @@ public class Main
     }
 
     /**
+     * Get the path as relative to the current working path if possible.
+     * <br/>
+     * If the path starts with the current working path it is shortened
+     * to be relative to the current working path. Otherwise the path
+     * is returned.
+     * @param path Path to check for relativity to the current working path
+     * @return String Path possibly shortened to be relative
+     */
+    public String getWorkingDirectoryRelative(String path)
+    {
+        if (path != null && path.length() > 0 && path.startsWith(context.cfg.getWorkingDirectory()))
+        {
+            if (path.length() >= context.cfg.getWorkingDirectory().length() + 1)
+                path = path.substring(context.cfg.getWorkingDirectory().length() + 1);
+            else
+                path = "";
+        }
+        return path;
+    }
+
+    /**
      * Load a locale and set current locale bundle
      * <br/>
      * Requires the abbreviated language_country part of the locale filename, e.g. en_US.
@@ -258,21 +278,21 @@ public class Main
             loadLocale(filePart);
             if (context.cfg.gs("Transfer.received.subscriber.commands").length() == 0)
             {
-                logger.debug("local locale not supported, loading default");
+                //logger.debug("local locale not supported, loading default");
                 loadLocale("-");
             }
             else
-                logger.debug("loaded locale: " + filePart);
+                //logger.debug("loaded locale: " + filePart);
             localeAbbrev = filePart;
 
             //
-            // an execution of this program can only be configured as one of these
+            // an execution of this program can only be configured as one of these operations
             //
             logger.info("+------------------------------------------");
             boolean defaultNavigator = false;
             switch (context.cfg.getOperation())
             {
-                // --- standard local execution, no -r|--remote option
+                // --- local execution, no -r|--remote option
                 case NOT_REMOTE:
                     if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
                         defaultNavigator = true;

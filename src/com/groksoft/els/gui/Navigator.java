@@ -1,9 +1,5 @@
 package com.groksoft.els.gui;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.InstanceCreator;
-import com.groksoft.els.*;
 import com.groksoft.els.gui.operations.OperationsUI;
 import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.gui.bookmarks.Bookmarks;
@@ -24,6 +20,11 @@ import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
 import com.groksoft.els.stty.ClientStty;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.InstanceCreator;
+import com.groksoft.els.*;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.*;
@@ -320,15 +321,7 @@ public class Navigator
 
             context.cfg.setPreserveDates(context.preferences.isPreserveFileTimes());
 
-            if (context.cfg.isUsingHintTracking())
-            {
-                if (context.cfg.getHintsDaemonFilename().length() > 0)
-                    context.mainFrame.menuItemQuitTerminate.setVisible(true);
-                else
-                    context.mainFrame.menuItemQuitTerminate.setVisible(false);
-            }
-            else
-                context.mainFrame.menuItemQuitTerminate.setVisible(false);
+            setQuitTerminate();
 
             // add any defined bookmarks to the menu
             bookmarks = new Bookmarks();
@@ -379,12 +372,14 @@ public class Navigator
                 });
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.publisher"));
                 fc.setFileHidingEnabled(false);
+                File ld;
                 if (context.preferences.getLastPublisherOpenPath().length() > 0)
-                {
-                    File ld = new File(context.preferences.getLastPublisherOpenPath());
-                    if (ld.exists() && ld.isDirectory())
-                        fc.setCurrentDirectory(ld);
-                }
+                    ld = new File(context.preferences.getLastPublisherOpenPath());
+                else
+                    ld = new File(context.cfg.getWorkingDirectory());
+                if (ld.exists() && ld.isDirectory())
+                    fc.setCurrentDirectory(ld);
+
                 if (context.preferences.getLastPublisherOpenFile().length() > 0)
                 {
                     File lf = new File(context.preferences.getLastPublisherOpenFile());
@@ -510,12 +505,14 @@ public class Navigator
                 });
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.subscriber"));
                 fc.setFileHidingEnabled(false);
+                File ld;
                 if (context.preferences.getLastSubscriberOpenPath().length() > 0)
-                {
-                    File ld = new File(context.preferences.getLastSubscriberOpenPath());
-                    if (ld.exists() && ld.isDirectory())
-                        fc.setCurrentDirectory(ld);
-                }
+                    ld = new File(context.preferences.getLastSubscriberOpenPath());
+                else
+                    ld = new File(context.cfg.getWorkingDirectory());
+                if (ld.exists() && ld.isDirectory())
+                    fc.setCurrentDirectory(ld);
+
                 if (context.preferences.getLastSubscriberOpenFile().length() > 0)
                 {
                     File lf = new File(context.preferences.getLastSubscriberOpenFile());
@@ -587,16 +584,11 @@ public class Navigator
                         {
                             // this defines the value returned by context.cfg.isRemoteSession()
                             if (context.preferences.isLastIsRemote())
-                            {
                                 context.cfg.setRemoteType("P"); // publisher to remote subscriber
-                                context.mainFrame.menuItemQuitTerminate.setVisible(true);
-                            }
                             else
-                            {
                                 context.cfg.setRemoteType("-"); // not remote
-                                context.mainFrame.menuItemQuitTerminate.setVisible(false);
-                            }
 
+                            setQuitTerminate();
                             context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                             context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
                             context.cfg.setSubscriberCollectionFilename("");
@@ -682,12 +674,14 @@ public class Navigator
                 });
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.hint.keys"));
                 fc.setFileHidingEnabled(false);
+                File ld;
                 if (context.preferences.getLastHintKeysOpenPath().length() > 0)
-                {
-                    File ld = new File(context.preferences.getLastHintKeysOpenPath());
-                    if (ld.exists() && ld.isDirectory())
-                        fc.setCurrentDirectory(ld);
-                }
+                    ld = new File(context.preferences.getLastHintKeysOpenPath());
+                else
+                    ld = new File(context.cfg.getWorkingDirectory());
+                if (ld.exists() && ld.isDirectory())
+                    fc.setCurrentDirectory(ld);
+
                 if (context.preferences.getLastHintKeysOpenFile().length() > 0)
                 {
                     File lf = new File(context.preferences.getLastHintKeysOpenFile());
@@ -775,12 +769,15 @@ public class Navigator
                 });
                 fc.setDialogTitle(context.cfg.gs("Navigator.menu.Open.hint.tracking"));
                 fc.setFileHidingEnabled(false);
+                File ld;
                 if (context.preferences.getLastHintTrackingOpenPath().length() > 0)
-                {
-                    File ld = new File(context.preferences.getLastHintTrackingOpenPath());
-                    if (ld.exists() && ld.isDirectory())
-                        fc.setCurrentDirectory(ld);
-                }
+                    ld = new File(context.preferences.getLastHintTrackingOpenPath());
+                else
+                    ld = new File(context.cfg.getWorkingDirectory());
+
+                if (ld.exists() && ld.isDirectory())
+                    fc.setCurrentDirectory(ld);
+
                 if (context.preferences.getLastHintTrackingOpenFile().length() > 0)
                 {
                     File lf = new File(context.preferences.getLastHintTrackingOpenFile());
@@ -855,14 +852,13 @@ public class Navigator
                             {
                                 context.cfg.setHintsDaemonFilename(file.getAbsolutePath());
                                 context.cfg.setHintTrackerFilename("");
-                                context.mainFrame.menuItemQuitTerminate.setVisible(true);
                             }
                             else
                             {
                                 context.cfg.setHintsDaemonFilename("");
                                 context.cfg.setHintTrackerFilename(file.getAbsolutePath());
-                                context.mainFrame.menuItemQuitTerminate.setVisible(false);
                             }
+                            setQuitTerminate();
 
                             // connect to the hint tracker or status server
                             context.main.connectHintServer(context.publisherRepo);
@@ -2295,6 +2291,14 @@ public class Navigator
                 }
             }
         }
+    }
+
+    private void setQuitTerminate()
+    {
+        if (context.cfg.getHintsDaemonFilename().length() > 0 || context.cfg.isRemoteSession())
+            context.mainFrame.menuItemQuitTerminate.setVisible(true);
+        else
+            context.mainFrame.menuItemQuitTerminate.setVisible(false);
     }
 
     private void setTableEnabled(boolean disable, JTable table)

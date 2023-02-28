@@ -1236,6 +1236,7 @@ public class JobsUI extends JDialog
         DefaultListModel<String> model = new DefaultListModel<String>();
 
         currentTask = task;
+        enableDisableOrigins(currentTask.isOriginPathsAllowed(context));
         if (currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
         {
             loadPubSubs(currentTask);
@@ -1271,7 +1272,6 @@ public class JobsUI extends JDialog
             }
         }
         listOrigins.setModel(model);
-        enableDisableOrigins(currentTask.isOriginPathsAllowed(context));
     }
 
     private void loadPubSubs(Task task)

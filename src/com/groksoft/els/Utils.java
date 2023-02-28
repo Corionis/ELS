@@ -101,6 +101,34 @@ public class Utils
     }
 
     /**
+     * Ellipse a String ending with a filename and extension
+     *
+     * @param component
+     * @param text
+     * @return Original or ellipsed string based on pixel length
+     */
+    public static synchronized String ellipseFileString(Component component, String text)
+    {
+        FontMetrics metrics = component.getFontMetrics(component.getFont());
+        int width = metrics.stringWidth(text);
+        int max = component.getWidth();
+        if (width > max && text.length() > 4)
+        {
+            String ext = Utils.getFileExtension(text);
+            int l = metrics.stringWidth(ext);
+            max = max - l - 4;
+            text = text.substring(0, text.length() - ext.length());
+            while (width > max && text.length() > 4)
+            {
+                text = StringUtils.abbreviate(text, text.length() - 1);
+                width = metrics.stringWidth(text);
+            }
+            text += ext;
+        }
+        return text;
+    }
+
+    /**
      * Encrypt a string using provided key
      *
      * @param key  UUID key
@@ -131,34 +159,6 @@ public class Utils
             logger.error(e.getMessage());
         }
         return encrypted;
-    }
-
-    /**
-     * Ellipse a String ending with a filename and extension
-     *
-     * @param component
-     * @param text
-     * @return Original or ellipsed string based on pixel length
-     */
-    public static synchronized String ellipseFileString(Component component, String text)
-    {
-        FontMetrics metrics = component.getFontMetrics(component.getFont());
-        int width = metrics.stringWidth(text);
-        int max = component.getWidth();
-        if (width > max && text.length() > 4)
-        {
-            String ext = Utils.getFileExtension(text);
-            int l = metrics.stringWidth(ext);
-            max = max - l - 4;
-            text = text.substring(0, text.length() - ext.length());
-            while (width > max && text.length() > 4)
-            {
-                text = StringUtils.abbreviate(text, text.length() - 1);
-                width = metrics.stringWidth(text);
-            }
-            text += ext;
-        }
-        return text;
     }
 
     /**
@@ -447,7 +447,7 @@ public class Utils
     /**
      * Get the operating system name from the JVM
      *
-     * @return O/S name string
+     * @return O/S name string, "Linux", "Mac" or "Windows" only
      */
     public static String getOS()
     {
@@ -730,7 +730,7 @@ public class Utils
      */
     public static boolean isRelativePath(String path)
     {
-        if (path.matches("^[a-zA-Z]:"))
+        if (path.matches("^[a-zA-Z]:.*"))
             return false;
         if (path.startsWith("/") || path.startsWith("\\"))
             return false;

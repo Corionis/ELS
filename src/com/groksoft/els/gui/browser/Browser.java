@@ -6,7 +6,6 @@ import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.repository.Item;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -1144,8 +1143,8 @@ public class Browser
         {
             File json = new File(context.publisherRepo.getJsonFilename());
             String path = json.getAbsolutePath();
-            context.preferences.setLastPublisherOpenFile(path);
-            context.preferences.setLastPublisherOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
+            //context.preferences.setLastPublisherOpenFile(path);
+            //context.preferences.setLastPublisherOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
 
             loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
         }
@@ -1284,8 +1283,8 @@ public class Browser
         {
             File json = new File(context.subscriberRepo.getJsonFilename());
             String path = json.getAbsolutePath();
-            context.preferences.setLastSubscriberOpenFile(path);
-            context.preferences.setLastSubscriberOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
+            //context.preferences.setLastSubscriberOpenFile(path);
+            //context.preferences.setLastSubscriberOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
 
             loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession());
         }

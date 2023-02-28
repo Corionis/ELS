@@ -32,7 +32,7 @@ public class GuiLogAppender extends AbstractAppender
         byte[] data = getLayout().toByteArray(event);
         String line = new String(data).trim() + System.getProperty("line.separator");
 
-        if (context == null || context.navigator == null)
+        if (context == null || context.mainFrame == null)
         {
             if (preBuffer == null)
                 preBuffer = new ArrayList<String>();
@@ -44,7 +44,8 @@ public class GuiLogAppender extends AbstractAppender
             {
                 for (String preLine : preBuffer)
                 {
-                    appendGuiLogs(preLine);
+                    if (preLine != null)
+                        appendGuiLogs(preLine);
                 }
                 preBuffer = null;
             }
