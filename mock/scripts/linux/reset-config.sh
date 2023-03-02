@@ -26,6 +26,7 @@ rm -rf ./system
 rm -rf ./tools
 
 cp -rpv ./config-base_copy-only/* .
+cp -rpv ./linux-base_copy-only/* .
 echo ""
 
 echo -e "Reset configuration done"

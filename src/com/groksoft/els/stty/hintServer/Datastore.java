@@ -53,7 +53,8 @@ public class Datastore
     {
         Item item = new Item();
         item.setLibrary(itemLib);
-        item.setItemPath(itemLib + "--" + itemPath.replaceAll(context.statusRepo.getWriteSeparator(), "--"));
+        String trackPath = itemLib + "--" + itemPath.replaceAll("/", "--").replaceAll("\\\\", "--");
+        item.setItemPath(trackPath);
         item.setFullPath(statusDirectory + context.statusRepo.getSeparator() + item.getItemPath());
         item.setSize(42);
         statusLibrary.items.add(item); // add to the in-memory collection
@@ -177,11 +178,11 @@ public class Datastore
         {
             if (!dir.isDirectory())
                 throw new MungeException("Status directory is not a directory: " + statusDirectory);
-            logger.info("Using library \'" + statusLibrary.name + "\" source directory \"" + statusDirectory + "\" for status datastore");
+            logger.info("Using library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for status datastore");
         }
         else
         {
-            logger.info("Creating new library \'" + statusLibrary.name + "\" source directory \"" + statusDirectory + "\" for status datastore");
+            logger.info("Creating new library \'" + statusLibrary.name + "\" source directory \"" + dir.getAbsolutePath() + "\" for status datastore");
             dir.mkdirs();
         }
 

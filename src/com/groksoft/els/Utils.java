@@ -310,7 +310,7 @@ public class Utils
         String separator = "";
         if (flavor.equalsIgnoreCase(Libraries.WINDOWS))
         {
-            separator = "\\\\";
+            separator = "\\";
         }
         else if (flavor.equalsIgnoreCase(Libraries.LINUX))
         {
@@ -318,7 +318,7 @@ public class Utils
         }
         else if (flavor.equalsIgnoreCase(Libraries.MAC))
         {
-            separator = "\\\\";
+            separator = "/";
         }
         return separator;
     }
@@ -546,7 +546,7 @@ public class Utils
         String separator = "";
         if (path.contains("\\"))
         {
-            separator = "\\\\";
+            separator = "\\";
         }
         else if (path.contains("/"))
         {
@@ -787,7 +787,10 @@ public class Utils
      */
     public static synchronized String pipe(Repository repo, String path) throws MungeException
     {
-        String p = path.replaceAll(repo.getWriteSeparator(), "|");
+        String separator = repo.getWriteSeparator();
+        if (separator.equals("\\"))
+            separator = "\\\\";
+        String p = path.replaceAll(separator, "|");
         return p;
     }
 
@@ -801,6 +804,8 @@ public class Utils
      */
     public static synchronized String pipe(String path, String separator)
     {
+        if (separator.equals("\\"))
+            separator = "\\\\";
         String p = path.replaceAll(separator, "|");
         return p;
     }
@@ -950,7 +955,7 @@ public class Utils
      */
     public static synchronized String scrubFilename(String name)
     {
-        String scubbed = name.replaceAll("[\\\\/:*?\"<>|]", "");
+        String scubbed = name.replaceAll("[\\/:*?\"<>|]", "");
         return scubbed;
     }
 
@@ -964,7 +969,10 @@ public class Utils
      */
     public static synchronized String unpipe(Repository repo, String path) throws MungeException
     {
-        String p = path.replaceAll("\\|", repo.getWriteSeparator());
+        String separator = repo.getWriteSeparator();
+        if (separator.equals("\\"))
+            separator = "\\\\";
+        String p = path.replaceAll("\\|", separator);
         return p;
     }
 
@@ -977,6 +985,8 @@ public class Utils
      */
     public static synchronized String unpipe(String path, String separator)
     {
+        if (separator.equals("\\"))
+            separator = "\\\\";
         String p = path.replaceAll("\\|", separator);
         return p;
     }

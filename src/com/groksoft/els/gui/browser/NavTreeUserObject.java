@@ -1,6 +1,5 @@
 package com.groksoft.els.gui.browser;
 
-import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
@@ -24,7 +23,7 @@ public class NavTreeUserObject implements Comparable
     public static final int REAL = 6; // physical file or directory
     public static final int SYSTEM = 7; // hidden; holds System tab Computer, Bookmarks, etc.
 
-    private Context context;
+    //private Context context;
     public String name = "";
     public String path = "";
     public int type = REAL;
@@ -51,7 +50,7 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = type;
-        this.context = ntn.context;
+        //this.context = ntn.context;
     }
 
     // A local file or directory
@@ -74,7 +73,7 @@ public class NavTreeUserObject implements Comparable
         {
             this.size = -1L;
         }
-        this.context = ntn.context;
+        //this.context = ntn.context;
     }
 
     // A collection of libraries
@@ -86,7 +85,7 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = LIBRARY;
-        this.context = ntn.context;
+        //this.context = ntn.context;
     }
 
     // A DRIVE or HOME
@@ -98,7 +97,7 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = type;
-        this.context = ntn.context;
+        //this.context = ntn.context;
     }
 
     // A remote file or directory
@@ -117,22 +116,22 @@ public class NavTreeUserObject implements Comparable
         this.isHidden = name.startsWith(".");
         this.isRemote = true;
         this.type = REAL;
-        this.context = ntn.context;
+        //this.context = ntn.context;
     }
 
     @Override
     public int compareTo(Object o)
     {
-        boolean fbf = context.preferences.isSortFoldersBeforeFiles();
+        NavTreeUserObject nto = (NavTreeUserObject) o;
         boolean thatDir = ((NavTreeUserObject) o).isDir;
-        if (context.preferences.isSortFoldersBeforeFiles())
+        if (nto.node.context.preferences.isSortFoldersBeforeFiles())
         {
             if (isDir && !thatDir)
                 return -1;
             if (thatDir && !isDir)
                 return 1;
         }
-        if (context.preferences.isSortCaseInsensitive())
+        if (nto.node.context.preferences.isSortCaseInsensitive())
         {
             return name.compareToIgnoreCase(((NavTreeUserObject) o).name);
         }

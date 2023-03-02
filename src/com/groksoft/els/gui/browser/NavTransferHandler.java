@@ -207,6 +207,8 @@ public class NavTransferHandler extends TransferHandler
                         String lib = node.getUserObject().name;
                         String itemPath = sourceTuo.getItemPath(lib, hintPath);
                         HintKeys.HintKey key = context.hintKeys.findKey(sourceTuo.getRepo().getLibraryData().libraries.key);
+                        if (key == null)
+                            throw new MungeException("Repository not found in ELS keys " + context.hintKeys.getFilename() + " matching key in " + sourceTuo.getRepo().getLibraryData().libraries.description);
                         String backup = key.name;
                         String status = "Done";
                         context.hints.updateStatusTracking(lib, itemPath, backup, status);

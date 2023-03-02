@@ -32,13 +32,14 @@ public class Repository
     public static final int SUBSCRIBER = 2;
     public static final int HINT_SERVER = 3;
     public static final boolean VALIDATE = true;
-
     public final String SUB_EXCLUDE = "ELS-SUBSCRIBER-SKIP_";
-    private transient Context context;
+
     private String jsonFilename = "";
     private LibraryData libraryData = null;
-    private transient Logger logger = LogManager.getLogger("applog");
     private int purpose = -1;
+
+    private transient Context context;
+    private transient Logger logger = LogManager.getLogger("applog");
 
     /**
      * Instantiate a Repository with a purpose
@@ -265,8 +266,6 @@ public class Repository
     public String getSeparator()
     {
         String sep = getWriteSeparator();
-        if (sep.equalsIgnoreCase("\\\\"))
-            sep = "\\";
         return sep;
     }
 
@@ -538,6 +537,8 @@ public class Repository
                 getLibraryData().libraries.timeout = 15; // default connection time-out if not defined
 
             String flavor = getLibraryData().libraries.flavor.toLowerCase();
+            if (!flavor.equalsIgnoreCase(Libraries.LINUX) && !flavor.equalsIgnoreCase(Libraries.MAC) && !flavor.equalsIgnoreCase(Libraries.WINDOWS))
+                throw new MungeException(context.cfg.gs("Repository.flavor.is.not.linux.mac.or.windows") + flavor);
             String from = "";
             String to = "";
             if (flavor.equalsIgnoreCase(Libraries.LINUX) || flavor.equalsIgnoreCase(Libraries.MAC))
@@ -630,6 +631,10 @@ public class Repository
      */
     private String normalizeSubst(String path, String from, String to)
     {
+        if (from.equals("\\"))
+                from = "\\\\";
+        if (to.equals("\\"))
+            to = "\\\\";
         return path.replaceAll(from, to).replaceAll("\\|", to);
     }
 

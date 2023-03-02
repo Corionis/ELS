@@ -1,0 +1,42 @@
+{
+	"libraries": {
+        "description": "Media Publisher",
+        "host": "localhost:50271",
+        "listen": "localhost:50271",
+        "timeout": "10",
+        "flavor": "linux",
+        "case_sensitive": "false",
+        "temp_dated": "false",
+        "temp_location": "",
+        "terminal_allowed": "true",
+        "key": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+        "ignore_patterns": [
+            "(?i)desktop\\.ini",
+            ".*\\.fuse.*",
+            ".*\\.srt",
+            "Thumbs\\.db"
+		],
+        "locations": [
+            {
+                "location": "test/publisher/media",
+                "minimum": "42GB"
+            }
+        ],
+		"bibliography": [
+			{
+				"name": "TV Shows",
+				"sources": [
+					"test/publisher/media/TV Shows",
+					"test/publisher/more-media/TV Shows"
+				]
+			},
+			{
+				"name": "Movies",
+				"sources": [
+                    "test/publisher/media/Movies"
+				]
+			}
+		]
+	}
+}
+

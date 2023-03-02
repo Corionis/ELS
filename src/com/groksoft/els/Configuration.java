@@ -177,7 +177,7 @@ public class Configuration
                 String separator = "";
                 if (lfn.contains("\\"))
                 {
-                    separator = "\\\\";
+                    separator = "\\";
                 }
                 else if (lfn.contains("/"))
                 {

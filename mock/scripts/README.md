@@ -96,7 +96,7 @@ At this point it's a manual and visual process.
  * ``reset`` : Reset the test/ directory
  * ``20-21_Subscriber-listener`` : Separate terminal 2
  * ``20-24_Publisher-backup-keepgoing`` : Separate terminal 1
- * ``20-99_Quit-Subscriber-listener`` : Separate terminal 2
+ * ``20-89_Quit-Subscriber-listener`` : Separate terminal 2
  * ``reset`` : Reset the test/ directory
  * ``20-31_Subscriber-listener+blacklist`` : Separate terminal 1
  * ``20-23_Publisher-backup`` : Separate terminal 2, should fail to connect
@@ -115,7 +115,7 @@ At this point it's a manual and visual process.
  * ``20-61_Subscriber-listener-keepgoing`` : Separate terminal 1
  * ``20-22_Publisher-dryrun`` : Separate terminal 2, subscriber should keep going
  * ``20-23_Publisher-backup`` : Separate terminal 2
- * ``20-99_Quit-Subscriber-listener`` : Separate terminal 2
+ * ``20-89_Quit-Subscriber-listener`` : Separate terminal 2
 
 
 ### 30-00 Interactive Terminals
@@ -265,7 +265,7 @@ This permutation tests with both a remote Hint Server and remote backup.
  * ``72-99_Quit-Status-Server`` : Separate terminal 2 or 3
 
 Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
-
+ 
 
 ### 80-00 Navigator - Local Backup
 
@@ -281,7 +281,7 @@ Run one at a time for basic local Navigator funtionality.
 ### 82-00 Navigator - Remote Backup
 
  * ``82-21_Subscriber-One-listener`` : Start a subscriber listener
- * ``82-23_Navigator-remote`` : Navigator with publisher as Collection and remove subscriber
+ * ``82-23_Navigator-remote`` : Navigator with publisher as Collection and remote subscriber
 
 
 ### 90-00 Navigator - Local Hint Tracker - Local Backup
