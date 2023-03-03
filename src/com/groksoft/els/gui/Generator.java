@@ -206,6 +206,7 @@ public class Generator
         }
         catch (Exception e)
         {
+            logger.error(Utils.getStackTrace(e));
         }
         return generated;
     }
@@ -247,7 +248,7 @@ public class Generator
 
         // tool has all the parameter data, use it's generate method
         String conf = getCfgOpt();
-        String opts = ((OperationsTool) tool).generateCommandLine(context.publisherRepo.getJsonFilename(), context.subscriberRepo.getJsonFilename());
+        String opts = ((OperationsTool) tool).generateCommandLine(context.cfg.getPublisherFilename(), context.cfg.getSubscriberFilename());
         String overOpt = overwriteLog ? "-F" : "-f";
         String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
