@@ -243,6 +243,7 @@ public class DuplicateFinderUI extends JDialog
                 {
                     Dupe dupe = (Dupe) tableDupes.getValueAt(selected, 3);
                     Bookmark bm = context.browser.bookmarkCreate(dupe.item, "goto-dupe", isPublisher);
+                    // TODO If there are dupes in more than one storage location "goto" stops at the first one
                     context.browser.bookmarkGoto(bm);
                 }
             }

@@ -858,8 +858,8 @@ public class RenamerUI extends JDialog
         }
         else
         {
-            logger.info(renamer.getConfigName() + context.cfg.gs("Z.completed"));
-            context.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + context.cfg.gs("Z.completed"));
+            //logger.info(renamer.getConfigName() + context.cfg.gs("Z.completed"));
+            //context.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }
 

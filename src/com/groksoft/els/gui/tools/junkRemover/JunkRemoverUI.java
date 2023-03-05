@@ -636,8 +636,8 @@ public class JunkRemoverUI extends JDialog
         }
         else
         {
-            logger.info(jrt.getConfigName() + context.cfg.gs("Z.completed"));
-            context.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + context.cfg.gs("Z.completed"));
+            //logger.info(jrt.getConfigName() + context.cfg.gs("Z.completed"));
+            //context.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }
 

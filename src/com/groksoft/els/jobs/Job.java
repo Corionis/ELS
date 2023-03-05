@@ -312,7 +312,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
                     // run it
                     subJob.processJob(context, subJob, isDryRun);
-                    logger.info(getConfigName() + context.cfg.gs("Z.completed"));
+                    //logger.info(getConfigName() + context.cfg.gs("Z.completed"));
                     if (subJob.lastTask != null)
                         lastTask = subJob.lastTask;
 

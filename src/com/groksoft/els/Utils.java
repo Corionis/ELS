@@ -538,7 +538,7 @@ public class Utils
     /**
      * Parse the file separator from a path
      *
-     * @param path Path to parsse
+     * @param path Path to parse
      * @return File separator character
      */
     public static synchronized String getSeparatorFromPath(String path)

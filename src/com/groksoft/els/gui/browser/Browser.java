@@ -483,6 +483,8 @@ public class Browser
         Repository repo = (isPublisher) ? context.publisherRepo : context.subscriberRepo;
 
         String sep = Utils.getSeparatorFromPath(item.getFullPath());
+        if (sep.equals("\\"))
+            sep = "\\\\";
         String[] split = item.getItemPath().split(sep);
         if (split != null && split.length > 0)
         {
@@ -1718,10 +1720,15 @@ public class Browser
 
     public void refreshAll()
     {
-        refreshTree(context.mainFrame.treeCollectionOne);
-        refreshTree(context.mainFrame.treeSystemOne);
-        refreshTree(context.mainFrame.treeCollectionTwo);
-        refreshTree(context.mainFrame.treeSystemTwo);
+//        refreshTree(context.mainFrame.treeCollectionOne);
+//        refreshTree(context.mainFrame.treeSystemOne);
+//        refreshTree(context.mainFrame.treeCollectionTwo);
+//        refreshTree(context.mainFrame.treeSystemTwo);
+    // TODO Make refresh more reliable
+        rescanByObject(context.mainFrame.treeCollectionOne);
+        rescanByObject(context.mainFrame.treeSystemOne);
+        rescanByObject(context.mainFrame.treeCollectionTwo);
+        rescanByObject(context.mainFrame.treeSystemTwo);
     }
 
     public void refreshByObject(Object object)

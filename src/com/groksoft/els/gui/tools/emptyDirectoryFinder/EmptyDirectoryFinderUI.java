@@ -138,10 +138,11 @@ public class EmptyDirectoryFinderUI extends JDialog
                     }
                 }
             }
-            Object[] opts = { context.cfg.gs("Z.ok") };
-            JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
-                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
-                    null, opts, opts[0]);
+            context.browser.refreshAll(); // TODO Make refresh more reliable
+//            Object[] opts = { context.cfg.gs("Z.ok") };
+//            JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
+//                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
+//                    null, opts, opts[0]);
         }
     }
 
