@@ -3,9 +3,9 @@
 
     <target name="init">
         <property file="els.properties"/>
-        <echo message="ELS version ${els.version}"/>
-        <echo message="${java.vendor} ${java.runtime.name} ${java.runtime.version}"/>
-        <echo message="${ant.version}"/>
+        <echo message="ELS version ${els.version}" level="info"/>
+        <echo message="${java.vendor} ${java.runtime.name} ${java.runtime.version}" level="info"/>
+        <echo message="${ant.version}" level="info"/>
         <path id="class.path">
             <fileset dir="lib">
                 <include name="*.jar"/>
@@ -19,14 +19,14 @@
     </target>
 
     <!-- Build stamp and copy locales to default -->
-    <target name="stamp" depends="clean">
+    <target name="stamp" depends="clean" description="Copy default locale amd set build stamp">
         <!-- Generate a build timestamp -->
         <tstamp>
             <format property="RIGHTNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
             <format property="SHORTNOW" pattern="ddMMyyyyHHmmzzz" locale="en,US"/>
         </tstamp>
         <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
-        <echo message="Build stamp ${RIGHTNOW}"/>
+        <echo message="Build stamp ${RIGHTNOW}" level="info"/>
         <!-- Copy the IDE default bundle to the en_US bundle -->
         <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
     </target>
@@ -42,18 +42,18 @@
 
     <!-- Assemble all the pieces to build the Jar -->
     <target name="assemble" depends="compile">
-        <copy todir="out/jar/com/groksoft/els/locales">
+        <copy todir="out/jar/com/groksoft/els/locales" preservelastmodified="true">
             <fileset dir="src/com/groksoft/els/locales"/>
         </copy>
-        <copy todir="out/jar/com/groksoft/els/resources">
+        <copy todir="out/jar/com/groksoft/els/resources" preservelastmodified="true">
             <fileset dir="src/com/groksoft/els/resources"/>
         </copy>
-        <copy todir="out/jar">
+        <copy todir="out/jar" preservelastmodified="true">
             <fileset dir="artifacts/images/"/>
             <fileset dir="src/com/groksoft/els/locales/"/>
             <fileset dir="src/com/groksoft/els/resources/"/>
         </copy>
-        <copy file="lib/log4j2.xml" todir="out/jar"/>
+        <copy file="lib/log4j2.xml" todir="out/jar" preservelastmodified="true"/>
         <unzip dest="out/jar">
             <fileset dir="lib">
                 <include name="**/*.jar"/>
@@ -62,7 +62,7 @@
     </target>
 
     <!-- Build ELS.jar -->
-    <target name="jar" depends="assemble">
+    <target name="jar" depends="assemble" description="Build ELS.jar">
         <manifest file="out/jar/META-INF/MANIFEST.MF">
             <attribute name="Main-Class" value="com.groksoft.els.Main"/>
         </manifest>
@@ -72,14 +72,14 @@
     </target>
 
     <!-- Build Linux .tar.gz -->
-    <target name="linux" depends="jar">
+    <target name="linux" depends="jar" description="Build Linux .tar.gz">
         <mkdir dir="out/tar/ELS"/>
-        <copy todir="out/tar/ELS">
+        <copy todir="out/tar/ELS" preservelastmodified="true">
             <fileset dir="artifacts/stage/linux"/>
         </copy>
-        <copy file="artifacts/images/els-logo-98px.ico" todir="out/tar/ELS/bin"/>
-        <copy file="artifacts/images/els-logo-98px.png" todir="out/tar/ELS/bin"/>
-        <copy file="deploy/ELS.jar" todir="out/tar/ELS/bin"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="deploy/ELS.jar" todir="out/tar/ELS/bin" preservelastmodified="true"/>
         <untar dest="out/tar/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-linux.tar.gz" compression="gzip"/>
         <tar destfile="deploy/ELS-${els.version}-Linux-${SHORTNOW}.tar.gz" compression="gzip">
             <tarfileset dir="out/tar" filemode="775">
@@ -96,20 +96,20 @@
     </target>
 
     <!-- Build Windows .zip -->
-    <target name="windows" depends="jar">
+    <target name="windows" depends="jar" description="Build Windows .zip">
         <mkdir dir="out/zip/ELS"/>
-        <copy todir="out/zip/ELS">
+        <copy todir="out/zip/ELS" preservelastmodified="true">
             <fileset dir="artifacts/stage/windows"/>
         </copy>
-        <copy file="artifacts/images/els-logo-98px.ico" todir="out/zip/ELS/bin"/>
-        <copy file="artifacts/images/els-logo-98px.png" todir="out/zip/ELS/bin"/>
-        <copy file="deploy/ELS.jar" todir="out/zip/ELS/bin"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/zip/ELS/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/zip/ELS/bin" preservelastmodified="true"/>
+        <copy file="deploy/ELS.jar" todir="out/zip/ELS/bin" preservelastmodified="true"/>
         <unzip dest="out/zip/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-windows.zip"/>
         <zip destfile="deploy/ELS-${els.version}-Windows-${SHORTNOW}.zip">
             <zipfileset dir="out/zip" includes="**/*"/>
         </zip>
     </target>
 
-    <target name="all" depends="linux, windows"/>
+    <target name="all" depends="linux, windows" description="Build everything"/>
 
 </project>

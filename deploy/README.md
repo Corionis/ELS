@@ -9,9 +9,12 @@ The distributable files are:
  * ELS for Windows - An archive and batch file for Windows including a built-in JRE.
  * ELS for Linux - An archive and script for Linux & Mac including a built-in JRE.
    * ELS has not been tested on Apple systems although provisions have
-     been made in the code for Apple Macintosh macOS. Do not know if the
+     been made in the code for Apple macOS. Do not know if the
      embedded JRE for Linux will run on a Mac where a separate distributable
      file may (likely) be required. Input requested if interested.
+ * The ELS* files are the distributables.
+   * Shortcut.exe and the els-logo files are in this directory to support the
+     development environment. They do not need to be downloaded.
 
 ## Installation
 
