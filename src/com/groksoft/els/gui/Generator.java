@@ -16,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
+@SuppressWarnings(value = "unchecked")
 public class Generator
 {
     private Context context;

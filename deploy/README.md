@@ -5,13 +5,13 @@ required during development.
 
 The distributable files are:
 
- * ELS.jar - The basic ELS software,
- * ELS for Linux - An archive and script for Linux & Mac.
+ * ELS.jar - The ELS software, _it's all built-in_.
+ * ELS for Windows - An archive and batch file for Windows including a built-in JRE.
+ * ELS for Linux - An archive and script for Linux & Mac including a built-in JRE.
    * ELS has not been tested on Apple systems although provisions have
      been made in the code for Apple Macintosh macOS. Do not know if the
      embedded JRE for Linux will run on a Mac where a separate distributable
      file may (likely) be required. Input requested if interested.
- * ELS for Windows - An archive and batch file for Windows.
 
 ## Installation
 

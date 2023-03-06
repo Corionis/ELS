@@ -39,14 +39,13 @@ the mock/scripts/linux/ directory organized in the same way and use the same moc
 
 To build ELS from sources use Apache ant in the root of the project directory:
 
- 1. ant -f els.xml
-    * Copies the default locale file and generates a new build timestamp.
- 2. ant -f els-build.xml
-    * Builds the ELS.jar to the deploy/ directory.
-    * This script was generated from IntelliJ.
+ 1. ant -f els.xml, Builds the ELS default target 'all' for Linux and Windows
+ 2. ant -f els.xml linux, Builds ELS for Linux
+ 3. ant -f els.xml windows, Builds ELS for Windows 
 
 In IntelliJ perform Build, Rebuild Project. The els.xml stamp ant target may be execute
-separately if needed.
+separately if needed. Previous IntelliJ build configurations for Linux and Windows have
+been removed in favor of using the ant build script when those deploy files are wanted.
 
 ## Code Disclaimer
 
