@@ -23,6 +23,7 @@
         <!-- Generate a build timestamp -->
         <tstamp>
             <format property="RIGHTNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
+            <format property="SHORTNOW" pattern="ddMMyyyyHHmmzzz" locale="en,US"/>
         </tstamp>
         <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
         <echo message="Build stamp ${RIGHTNOW}"/>
@@ -80,7 +81,7 @@
         <copy file="artifacts/images/els-logo-98px.png" todir="out/tar/ELS/bin"/>
         <copy file="deploy/ELS.jar" todir="out/tar/ELS/bin"/>
         <untar dest="out/tar/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-linux.tar.gz" compression="gzip"/>
-        <tar destfile="deploy/ELS-${els.version}-Linux.tar.gz" compression="gzip">
+        <tar destfile="deploy/ELS-${els.version}-Linux-${SHORTNOW}.tar.gz" compression="gzip">
             <tarfileset dir="out/tar" filemode="775">
                 <include name="ELS/ELS-Navigator.sh"/>
             </tarfileset>
@@ -104,7 +105,7 @@
         <copy file="artifacts/images/els-logo-98px.png" todir="out/zip/ELS/bin"/>
         <copy file="deploy/ELS.jar" todir="out/zip/ELS/bin"/>
         <unzip dest="out/zip/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-windows.zip"/>
-        <zip destfile="deploy/ELS-${els.version}-Windows.zip">
+        <zip destfile="deploy/ELS-${els.version}-Windows-${SHORTNOW}.zip">
             <zipfileset dir="out/zip" includes="**/*"/>
         </zip>
     </target>
