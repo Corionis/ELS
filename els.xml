@@ -20,22 +20,27 @@
 
     <!-- Build stamp and copy locales to default -->
     <target name="stamp" depends="clean">
-        <!-- Copy the IDE default bundle to the en_US bundle -->
-        <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
         <!-- Generate a build timestamp -->
         <tstamp>
             <format property="RIGHTNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
         </tstamp>
         <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
+        <echo message="Build stamp ${RIGHTNOW}"/>
+        <!-- Copy the IDE default bundle to the en_US bundle -->
+        <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
     </target>
 
-    <!-- Compile ELS & assemble all the pieces to build the Jar -->
+    <!-- Compile ELS -->
     <target name="compile" depends="stamp">
         <mkdir dir="out/jar"/>
         <javac destdir="out/jar" classpathref="class.path" includeantruntime="false" debug="on">
             <src path="src"/>
             <include name="**/*.java"/>
         </javac>
+    </target>
+
+    <!-- Assemble all the pieces to build the Jar -->
+    <target name="assemble" depends="compile">
         <copy todir="out/jar/com/groksoft/els/locales">
             <fileset dir="src/com/groksoft/els/locales"/>
         </copy>
@@ -56,7 +61,7 @@
     </target>
 
     <!-- Build ELS.jar -->
-    <target name="jar" depends="compile">
+    <target name="jar" depends="assemble">
         <manifest file="out/jar/META-INF/MANIFEST.MF">
             <attribute name="Main-Class" value="com.groksoft.els.Main"/>
         </manifest>
@@ -75,7 +80,6 @@
         <copy file="artifacts/images/els-logo-98px.png" todir="out/tar/ELS/bin"/>
         <copy file="deploy/ELS.jar" todir="out/tar/ELS/bin"/>
         <untar dest="out/tar/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-linux.tar.gz" compression="gzip"/>
-        <chmod file="out/tar/ELS/ELS-Navigator.sh" perm="775"/>
         <tar destfile="deploy/ELS-${els.version}-Linux.tar.gz" compression="gzip">
             <tarfileset dir="out/tar" filemode="775">
                 <include name="ELS/ELS-Navigator.sh"/>
