@@ -2,9 +2,10 @@
 <project name="ELS Build" default="all" basedir=".">
 
     <target name="init">
+        <property file="els.properties"/>
+        <echo message="ELS version ${els.version}"/>
         <echo message="${java.vendor} ${java.runtime.name} ${java.runtime.version}"/>
         <echo message="${ant.version}"/>
-        <property file="els.properties"/>
         <path id="class.path">
             <fileset dir="lib">
                 <include name="*.jar"/>
@@ -18,7 +19,7 @@
     </target>
 
     <!-- Build stamp and copy locales to default -->
-    <target name="stamp">
+    <target name="stamp" depends="clean">
         <!-- Copy the IDE default bundle to the en_US bundle -->
         <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
         <!-- Generate a build timestamp -->
@@ -29,10 +30,9 @@
     </target>
 
     <!-- Compile ELS & assemble all the pieces to build the Jar -->
-    <target name="compile" depends="clean, stamp">
+    <target name="compile" depends="stamp">
         <mkdir dir="out/jar"/>
         <javac destdir="out/jar" classpathref="class.path" includeantruntime="false" debug="on">
-            <compilerarg value="-nowarn"/>
             <src path="src"/>
             <include name="**/*.java"/>
         </javac>
