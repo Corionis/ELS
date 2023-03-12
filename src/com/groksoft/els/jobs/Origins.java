@@ -146,7 +146,7 @@ public class Origins
                     String panel = origin.sourceTree.getName().toLowerCase();
                     if (panel.length() > 0)
                     {
-                        paths[i] = context.browser.scanSelectPath(panel, pathElements, false); // scan
+                        paths[i] = context.browser.scanSelectPath(panel, pathElements, false, false); // scan
                     }
                 }
                 // select all tree path(s)
@@ -171,7 +171,7 @@ public class Origins
                 }
                 String panel = origin.sourceTable.getName().toLowerCase();
                 if (panel.length() > 0)
-                    context.browser.scanSelectPath(panel, pathElements, false); // scan
+                    context.browser.scanSelectPath(panel, pathElements, false, false); // scan
                 context.browser.refreshTree(tree);
 
                 // select matching items in table

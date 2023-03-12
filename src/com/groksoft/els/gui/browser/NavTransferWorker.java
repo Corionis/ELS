@@ -55,10 +55,10 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         boolean error = false;
 
         // create a fresh dialog
-        // TODO factors controlling whether to display the progress dialog may needed adjusting
+        // TODO factors controlling whether to display the progress dialog may need adjusting
         if (context.progress == null || !context.progress.isBeingUsed())
         {
-            ActionListener cancel = new ActionListener()
+            ActionListener cancelAction = new ActionListener()
             {
                 @Override
                 public void actionPerformed(ActionEvent actionEvent)
@@ -71,7 +71,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                     }
                 }
             };
-            context.progress = new Progress(context, context.mainFrame, cancel, context.cfg.isDryRun());
+            context.progress = new Progress(context, context.mainFrame, cancelAction, context.cfg.isDryRun());
             context.progress.display();
         }
         else
@@ -358,7 +358,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     {
         boolean error = false;
         String path = "";
-        String msg = context.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
+        String msg = context.browser.navTransferHandler.getOperationText(action,true).toLowerCase() +
                 (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "") +
                 context.cfg.gs("NavTransferHandler.transfer.file.from") + sourceTuo.path;
 
@@ -421,8 +421,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 logger.info(context.cfg.gs("Z.remote.uppercase") + msg);
                 if (!context.cfg.isDryRun())
                 {
-                    String dir = Utils.getLeftPath(path, targetRepo.getSeparator());
-                    Files.createDirectories(Paths.get(dir));
                     String command;
                     if (action == TransferHandler.MOVE)
                     {
@@ -440,7 +438,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                             context.clientSftp.setDate(path, (int) sourceTuo.fileTime.to(TimeUnit.SECONDS));
                     }
                     else
-                        throw new MungeException(context.cfg.gs("Z.remote.uppercase") + context.browser.navTransferHandler.getOperation(action,true).toLowerCase() +
+                        throw new MungeException(context.cfg.gs("Z.remote.uppercase") + context.browser.navTransferHandler.getOperationText(action,true).toLowerCase() +
                                 context.cfg.gs("NavTransferHandler.progress.of") + sourceTuo.name + context.cfg.gs("NavTransferHandler.failed"));
                 }
             }
@@ -458,7 +456,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             if (!isCancelled())
             {
                 int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") +
-                                context.browser.navTransferHandler.getOperation(action, true) + ": " + e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
+                                context.browser.navTransferHandler.getOperationText(action, true) + ": " + e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                 if (reply == JOptionPane.NO_OPTION)
                     error = true;

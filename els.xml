@@ -23,7 +23,7 @@
         <!-- Generate a build timestamp -->
         <tstamp>
             <format property="RIGHTNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
-            <format property="SHORTNOW" pattern="ddMMyyyyHHmmzzz" locale="en,US"/>
+            <format property="SHORTNOW" pattern="ddMMyyyyHHmm" locale="en,US"/>
         </tstamp>
         <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
         <echo message="Build stamp ${RIGHTNOW}" level="info"/>

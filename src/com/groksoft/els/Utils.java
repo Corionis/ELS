@@ -925,6 +925,23 @@ public class Utils
         return notAllDirectories;
     }
 
+    public static String[] removeEmptyElements(String[] elements)
+    {
+        String[] cleaned = new String[elements.length];
+        int j = 0;
+        for (int i = 0; i < elements.length; ++i)
+        {
+            if (elements[i] != null && elements[i].length() > 0)
+                cleaned[j++] = elements[i];
+        }
+        elements = new String[j];
+        for (int i = 0; i < j; ++i)
+        {
+            elements[i] = cleaned[i];
+        }
+        return elements;
+    }
+
     /**
      * Find the right-side Nth occurrence of a character
      *

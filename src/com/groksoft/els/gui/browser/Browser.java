@@ -498,6 +498,32 @@ public class Browser
     }
 
     /**
+     * Create a bookmark from a path
+     *
+     * @param tree Tree of bookmark
+     * @param bookmarkName Name of bookmark
+     * @param repoName Repository name bookmark pathElement[0], "System" for System tree
+     * @param libraryName Library name bookmark pathElement[1], "Computer" for System tree
+     * @param pathElements Split path elements
+     * @return Bookmark constructed with those data
+     */
+    public Bookmark bookmarkCreate(String bookmarkName, JTree tree, String repoName, String libraryName, String[] pathElements)
+    {
+        Bookmark bm = new Bookmark();
+        bm.name = bookmarkName;
+
+        NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
+        bm.panel = node.getMyTree().getName();
+
+        bm.pathElements = new String[pathElements.length + 2];
+        bm.pathElements[0] = repoName;
+        bm.pathElements[1] = libraryName;
+        for (int i = 0; i < pathElements.length; ++i)
+            bm.pathElements[i + 2] = pathElements[i];
+        return bm;
+    }
+
+    /**
      * Navigate to and select a bookmark
      *
      * @param bookmark
@@ -521,7 +547,7 @@ public class Browser
             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
             int panelNo = context.browser.getPanelNumber(bookmark.panel);
             context.browser.selectPanelNumber(panelNo);
-            scanSelectPath(panelName, bookmark.pathElements, true);
+            scanSelectPath(panelName, bookmark.pathElements, true, false);
         }
         else
         {
@@ -1795,7 +1821,7 @@ public class Browser
         }
     }
 
-    public TreePath scanSelectPath(String panelName, String[] pathElements, boolean doTable)
+    public TreePath scanSelectPath(String panelName, String[] pathElements, boolean doTable, boolean fullTreePath)
     {
         TreePath treePath = null;
         if (panelName != null && panelName.length() > 0 && pathElements != null && pathElements.length > 0)
@@ -1803,12 +1829,13 @@ public class Browser
             // determine which
             JTree tree;
             JTable table;
-            if (panelName.endsWith("one")) // publisher
+            panelName = panelName.toLowerCase();
+            if (panelName.endsWith("one")) // publisher collection or system
             {
                 tree = panelName.contains("collection") ? context.mainFrame.treeCollectionOne : context.mainFrame.treeSystemOne;
                 table = panelName.contains("collection") ? context.mainFrame.tableCollectionOne : context.mainFrame.tableSystemOne;
             }
-            else // subscriber
+            else // subscriber collection or system
             {
                 tree = panelName.contains("collection") ? context.mainFrame.treeCollectionTwo : context.mainFrame.treeSystemTwo;
                 table = panelName.contains("collection") ? context.mainFrame.tableCollectionTwo : context.mainFrame.tableSystemTwo;
@@ -1878,7 +1905,7 @@ public class Browser
             }
 
             // remove last segment if it's a file but not being shown, or a directory in the table
-            if ((!nodes[nodeIndex - 1].getUserObject().isDir && context.preferences.isHideFilesInTree()))
+            if (!fullTreePath && !nodes[nodeIndex - 1].getUserObject().isDir && context.preferences.isHideFilesInTree())
             {
                 NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
                 for (int j = 0; j < nodeIndex - 1; ++j)
@@ -1891,8 +1918,12 @@ public class Browser
             // expand, scroll to and select the node tree
             if (!node.isLoaded())
                 node.deepScanChildren(false);
-            tree.setSelectionPath(treePath);
-            tree.scrollPathToVisible(treePath);
+
+            if (doTable)
+            {
+                tree.setSelectionPath(treePath);
+                tree.scrollPathToVisible(treePath);
+            }
 
             // highlight last item if it's a table
             if (doTable)

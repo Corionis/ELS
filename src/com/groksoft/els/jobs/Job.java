@@ -239,7 +239,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     public SwingWorker<Void, Void> process(Context context, Component comp, String title, Job job, boolean isDryRun)
     {
         // create a fresh dialog
-        // TODO factors controlling whether to display the progress dialog may needed adjusting
+        // TODO factors controlling whether to display the progress dialog may need adjusting
         if (context.progress == null || !context.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()

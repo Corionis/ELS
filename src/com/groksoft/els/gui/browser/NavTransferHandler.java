@@ -3,45 +3,103 @@ package com.groksoft.els.gui.browser;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
+import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.repository.HintKeys;
+import com.groksoft.els.repository.Library;
+import com.groksoft.els.repository.Repository;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.activation.ActivationDataFlavor;
-import javax.activation.DataHandler;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
+
+/* IDEA
+    ### Copy, cut, paste (CCP) and Drag 'n Drop (DnD) implementation
+    #---------------------------------------------------------------
+    * Uses standards-based x-java-file-list for operations going outside ELS
+    * Uses state variables in for internal operations
+      - init as null
+      - reset at end of importData()
+      - reset at end of exportDone()
+      - reset on any exception or fault
+    #
+    ### In createTransferable():
+    * Creates state variables for internal use
+    * Creates x-java-file-list for external use if the source is not a remote subscriber
+    * Local sources
+      * Create and return standard Transferable
+    * Remote subscriber
+      > File is null
+      > Has a path
+      > isRemote == true
+      * FOR NOW, return null so if an outside drop there is nothing to do
+        * Later possibly provide a custom DataFlavor, listener and stream type
+    #
+    ### Going from ELS to ELS:
+    * Works using state variables
+    #
+    ### Going from ELS to outside:
+    * Local sources
+      * Works in Windows and macOS
+      * Linux DnD works
+        * Fix Linux CCP
+    * Remote subscriber
+      * Nothing to do, null
+    #
+    ### Coming from outside to ELS:
+    > All incoming operations are from local
+    > No state variables or flavor or action lists do not match
+    > Target is known from info
+    * Find tuo in publisher System tree to make actionList
+    * Works going into both local and remote ELS tabs
+    #
+    ### Nuances
+    * CCP and DnD work inside ELS
+    * Going from ELS to outside applications mostly works, see notes
+      * Right now there is no way to detect when an outside operation is complete
+        * If it was a cut operation the source tab must be refreshed by hand, F5
+    * Coming from outside ELS works
+    * Linux
+      * Going from ELS to outside:
+        * DnD out of ELS works
+        * CCP out of ELS does not work, yet
+      * Going from outside into ELS:
+        * Works with both local publisher and subscriber and with a remote subscriber
+        * Can only copy
+          * Cut does not delete from the Linux side
+          * There is no way to detect the action inside ELS so copy is the default
+ */
 
 /**
- * Handler for Drag 'n Drop (DnD) and Copy/Cut/Paste (CCP) for local and/or remote
+ * Handler for Drag 'n Drop (DnD) and Copy/Cut/Paste (CCP) for internal local/remote and external operations
  */
 @SuppressWarnings(value = "unchecked")
 public class NavTransferHandler extends TransferHandler
 {
-    private final DataFlavor flavor = new ActivationDataFlavor(ArrayList.class, "application/x-java-object;class=java.util.ArrayList", "ArrayList of NavTreeUserObject");
-    private final boolean traceActions = false; // dev-debug
+    private final boolean traceActions = true; // dev-debug
     private Context context;
     public int fileNumber = 0;
     public int filesToCopy = 0;
     private int action = TransferHandler.NONE;
+    private ArrayList<NavTreeUserObject> actionList = null;
     private boolean isDrop = false;
-    private transient Logger logger = LogManager.getLogger("applog");
+    private boolean isRemote = false;
+    private Logger logger = LogManager.getLogger("applog");
     private JTable sourceTable;
     private JTree sourceTree;
     private JTable targetTable;
     private JTree targetTree;
-    public static NavTransferWorker transferWorker = null;
-
-    public NavTransferWorker getTransferWorker()
-    {
-        return transferWorker;
-    }
+    public static NavTransferWorker transferWorker = null; // singleton
+    public boolean transferWorkerRunning = false;
 
     public NavTransferHandler(Context context)
     {
@@ -69,18 +127,21 @@ public class NavTransferHandler extends TransferHandler
             if (targetNode == null || (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0))
                 return false;
         }
-        return (info.isDataFlavorSupported(flavor));
+        boolean supported = info.isDataFlavorSupported(DataFlavor.javaFileListFlavor);
+        return supported;
     }
 
     @Override
-    protected Transferable createTransferable(JComponent c)
+    protected Transferable createTransferable(JComponent component)
     {
+        reset();
         context.fault = false;
-        ArrayList<NavTreeUserObject> rowList = new ArrayList<NavTreeUserObject>();
+        ArrayList<File> rowList = new ArrayList<>(); // standards-based for possible operation outside ELS
+        actionList = new ArrayList<NavTreeUserObject>(); // for internal use
 
-        if (c instanceof JTable)
+        if (component instanceof JTable)
         {
-            sourceTable = (JTable) c;
+            sourceTable = (JTable) component;
             sourceTree = getTargetTree(sourceTable);
             int row = sourceTable.getSelectedRow();
             if (row < 0)
@@ -91,15 +152,25 @@ public class NavTransferHandler extends TransferHandler
             for (int i = 0; i < rows.length; ++i)
             {
                 NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
-                rowList.add(tuo);
+                if (sourceTree == null)
+                {
+                    sourceTree = tuo.node.getMyTree();
+                    sourceTable = tuo.node.getMyTable();
+                    isRemote = tuo.isRemote;
+                }
+                actionList.add(tuo); // for internal use
+                if (!isRemote)
+                {
+                    File item = tuo.file;
+                    rowList.add(item); // for outside ELS
+                }
             }
-
             if (traceActions)
                 logger.trace("Create transferable from " + sourceTable.getName() + " starting at row " + row + ", " + rows.length + " rows total");
         }
-        else if (c instanceof JTree)
+        else if (component instanceof JTree)
         {
-            sourceTree = (JTree) c;
+            sourceTree = (JTree) component;
             sourceTable = getTargetTable(sourceTree);
             int row = sourceTree.getLeadSelectionRow();
             if (row < 0)
@@ -109,22 +180,31 @@ public class NavTransferHandler extends TransferHandler
             {
                 NavTreeNode ntn = (NavTreeNode) path.getLastPathComponent();
                 NavTreeUserObject tuo = ntn.getUserObject();
-                rowList.add(tuo);
+                if (sourceTree == null)
+                {
+                    sourceTree = tuo.node.getMyTree();
+                    sourceTable = tuo.node.getMyTable();
+                    isRemote = tuo.isRemote;
+                }
+                actionList.add(tuo); // for internal use
+                if (!isRemote)
+                {
+                    File item = tuo.file;
+                    rowList.add(item); // for outside ELS
+                }
             }
-
             if (traceActions)
                 logger.trace("Create transferable from " + sourceTree.getName() + " starting at row " + row + ", " + paths.length + " rows total");
         }
-        return new DataHandler(rowList, flavor.getMimeType());
+
+        FileTransferable ft = new FileTransferable(rowList);
+        return ft;
     }
 
     @Override
     protected void exportDone(JComponent c, Transferable info, int act)
     {
         action = act;
-
-        if (traceActions)
-            logger.trace("end of exportDone");
 
         if (isDrop) // Drag 'n Drop
         {
@@ -147,18 +227,79 @@ public class NavTransferHandler extends TransferHandler
                         break;
                 }
             }
-
-            isDrop = false;
-            action = TransferHandler.NONE;
+            if (traceActions)
+                logger.trace("end of exportDone");
         }
+    }
+
+    /**
+     * Does the current actionList match the incoming transfer data?
+     *
+     * @param info TransferHandler.TransferSupport from importDate()
+     * @return true if the datasets match, otherwise false
+     */
+    private boolean datasetsMatch(TransferHandler.TransferSupport info)
+    {
+        boolean sense = true;
+        FileTransferable ftTest = new FileTransferable(null);
+        DataFlavor[] flavors = info.getTransferable().getTransferDataFlavors();
+
+        // if the datasets have the same number of flavors, match each entry
+        if (ftTest.getTransferDataFlavors().length == flavors.length)
+        {
+            Transferable data = info.getTransferable();
+            boolean typeFound = false;
+
+            for (int index = 0; index < flavors.length; index++)
+            {
+                String subType = flavors[index].getSubType();
+                if (subType.equals("x-java-file-list"))
+                {
+                    typeFound = true;
+                    try
+                    {
+                        ArrayList fileList = (ArrayList) data.getTransferData(flavors[index]);
+                        for (int i = 0; i < fileList.size(); ++i)
+                        {
+                            File file = (File) fileList.get(i);
+                            if (file != null)
+                            {
+                                if (file != actionList.get(i).file)
+                                {
+                                    sense = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        actionList = null;
+                        logger.error(Utils.getStackTrace(e));
+                    }
+                }
+                if (typeFound)
+                    break;
+            }
+            if (!typeFound)
+            {
+                actionList = null;
+                logger.error(context.cfg.gs("NavTransferHandler.unsupported.flavor"));
+            }
+        }
+        else
+        {
+            sense = false;
+        }
+        return sense;
     }
 
     /**
      * Export a Hint to subscriber
      *
-     * @param act       Action mv or rm
-     * @param sourceTuo
-     * @param targetTuo
+     * @param act Action mv or rm
+     * @param sourceTuo Source NavTreeUserObject
+     * @param targetTuo Target NavTreeUserObject
      * @throws Exception
      */
     public synchronized void exportHint(String act, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
@@ -218,7 +359,104 @@ public class NavTransferHandler extends TransferHandler
         }
     }
 
-    public synchronized String getOperation(int actionValue, boolean currentTense)
+    /**
+     * Find a local source NavTreeUserObject (tuo) from a path
+     * <br/>
+     * The publisher System tree is used for the searches and
+     * scanned as needed
+     *
+     * @param path Fully-qualified path to find
+     * @return NavTreeUserObject of the item found, or null
+     */
+    public NavTreeUserObject findSourceTuo(String path)
+    {
+        NavTreeUserObject tuo = null;
+
+        String separator = Utils.getSeparatorFromPath(path);
+        if (separator.equals("\\"))
+            separator = "\\\\";
+
+        String[] pathElements = path.split(separator);
+        for (int i = 0; i < pathElements.length; ++i)
+        {
+            if (pathElements[i] == null || pathElements[i].length() == 0)
+                pathElements[i] = separator;
+        }
+
+        if (pathElements != null && pathElements.length > 0)
+        {
+            JTree searchTree = context.mainFrame.treeSystemOne; // otherwise the system
+            String repoName = context.cfg.gs("Browser.system");
+            String libName = context.cfg.gs("Browser.computer");
+
+            // use a temporary (unsaved) Bookmark 'Goto Bookmark' method to scan the full tree path using the publisher System tree
+            Bookmark bm = context.browser.bookmarkCreate("find-tuo", searchTree, repoName, libName, pathElements);
+            TreePath tp = context.browser.scanSelectPath(searchTree.getName(), bm.pathElements, false, true);
+            if (tp != null)
+            {
+                NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                tuo = ntn.getUserObject();
+            }
+        }
+
+        return tuo;
+    }
+
+    private String findPathInCollection(JTree currentTree, String[] pathElements)
+    {
+        String libName = null;
+        NavTreeModel model = (NavTreeModel) currentTree.getModel();
+        NavTreeNode node = (NavTreeNode) model.getRoot();
+        Repository repo = node.getMyRepo();
+        if (repo != null && repo.getLibraryData() != null &&
+                repo.getLibraryData().libraries != null && repo.getLibraryData().libraries.bibliography != null)
+        {
+            for (Library lib : repo.getLibraryData().libraries.bibliography)
+            {
+                for (int i = 0; i < lib.sources.length; ++i)
+                {
+                    File source = new File(lib.sources[i]);
+                    String srcPath = source.getAbsolutePath();
+//                    if (matchPathToLibrarySource(pathElements, srcPath))
+                    {
+                        libName = lib.name;
+                        break;
+                    }
+                }
+                if (libName != null)
+                    break;
+            }
+        }
+        return libName;
+    }
+
+    private boolean matchPathToLibrarySource(String[] pathElements, String libraryPath)
+    {
+        boolean sense = false;
+        String[] libraryElements = libraryPath.split(Utils.getSeparatorFromPath(libraryPath));
+        int max = Integer.min(pathElements.length, libraryElements.length);
+        for (int i = 0; i < max ; )
+        {
+            if (!pathElements[i].equals(libraryElements[i]))
+                break;
+            ++i;
+            if (i == libraryElements.length) // if the path matches library prefix
+            {
+                sense = true;
+                int size = pathElements.length - i;
+                String[] remaining = new String[size];
+                for (int j = 0; j < size; ++j)
+                {
+                    remaining[j] = pathElements[i + j];
+                }
+                pathElements = remaining;
+                break;
+            }
+        }
+        return sense;
+    }
+
+    public synchronized String getOperationText(int actionValue, boolean currentTense)
     {
         String op = "";
         if (actionValue == TransferHandler.COPY)
@@ -246,7 +484,7 @@ public class NavTransferHandler extends TransferHandler
     {
         NavTreeNode targetNode = null;
 
-        // Drop operationsUI, otherwise Paste
+        // Drop otherwise Paste
         if (info.isDrop())
         {
             if (info.getComponent() instanceof JTable)
@@ -334,54 +572,71 @@ public class NavTransferHandler extends TransferHandler
         return targetTree;
     }
 
+    public NavTransferWorker getTransferWorker()
+    {
+        return transferWorker;
+    }
+
     @Override
     public boolean importData(TransferHandler.TransferSupport info)
     {
-        fileNumber = 0;
         context.fault = false;
+        context.mainFrame.toFront();
+        context.mainFrame.requestFocus();
 
         isDrop = info.isDrop();
         if (isDrop)
-        {
             action = info.getUserDropAction();
-        }
+
         if (action == TransferHandler.NONE)
-        {
-            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.nothing.to.do"));
-            logger.info(context.cfg.gs("NavTransferHandler.nothing.to.do"));
-            isDrop = false;
-            return false;
-        }
+            action = TransferHandler.COPY;
 
         // get the target information
         if (info.getComponent() instanceof JTable)
         {
             targetTable = (JTable) info.getComponent();
             targetTree = getTargetTree(targetTable);
+            targetTable.requestFocus();
         }
         else
         {
             targetTree = (JTree) info.getComponent();
             targetTable = getTargetTable(targetTree);
+            targetTree.requestFocus();
         }
 
         NavTreeNode targetNode = getTargetNode(info, targetTree, targetTable);
         NavTreeUserObject targetTuo = targetNode.getUserObject();
-
         if (targetNode.getUserObject().sources == null && targetNode.getUserObject().path.length() == 0)
         {
+            reset();
+            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.cannot.transfer.to.currently.selected.location"));
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.cannot.transfer.to.currently.selected.location"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
         try
         {
+            fileNumber = 0;
             int count = 0;
             long size = 0L;
-            ArrayList<NavTreeUserObject> transferData = (ArrayList<NavTreeUserObject>) info.getTransferable().getTransferData(flavor);
 
-            // iterate the selected source row's user object
-            for (NavTreeUserObject sourceTuo : transferData)
+            // create actionList of tuo elements if from outside ELS (null or mismatches the existing actionList)
+            if (actionList == null || !datasetsMatch(info))
+            {
+                makeActionListFromPaths(info);
+            }
+
+            if (actionList == null || actionList.size() == 0)
+            {
+                reset();
+                logger.warn(context.cfg.gs("NavTransferHandler.nothing.to.do"));
+                context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.nothing.to.do"));
+                return false;
+            }
+
+            // iterate source tuo objects
+            for (NavTreeUserObject sourceTuo : actionList)
             {
                 NavTreeNode sourceNode = sourceTuo.node;
                 sourceTree = sourceNode.getMyTree();
@@ -390,10 +645,10 @@ public class NavTransferHandler extends TransferHandler
                 NavTreeNode parent = (NavTreeNode) sourceNode.getParent();
                 if (parent == targetNode)
                 {
-                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.source.target.are.the.same"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
+                    reset();
                     logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
-                    action = TransferHandler.NONE;
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.source.target.are.the.same"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
 
@@ -414,10 +669,10 @@ public class NavTransferHandler extends TransferHandler
                 }
                 else
                 {
-                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    reset();
+                    logger.warn(context.cfg.gs("NavTransferHandler.action.cancelled"));
                     context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("NavTransferHandler.action.cancelled"));
-                    logger.info(context.cfg.gs("NavTransferHandler.action.cancelled"));
-                    action = TransferHandler.NONE;
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.cannot.transfer") + sourceTuo.getType(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     return false;
                 }
             }
@@ -427,17 +682,17 @@ public class NavTransferHandler extends TransferHandler
             if (confirm)
             {
                 String msg = MessageFormat.format(context.cfg.gs("NavTransferHandler.are.you.sure.you.want.to"),
-                        getOperation(action,true), Utils.formatLong(size, false, context.cfg.getLongScale()),
+                        getOperationText(action, true), Utils.formatLong(size, false, context.cfg.getLongScale()),
                         Utils.formatInteger(count), count > 1 ? 0 : 1, targetTuo.name);
                 msg += (context.cfg.isDryRun() ? context.cfg.gs("Z.dry.run") : "");
                 reply = JOptionPane.showConfirmDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
             }
 
-            // process the selections
+            // process the batches
             if (reply == JOptionPane.YES_OPTION)
             {
                 filesToCopy = count;
-                process(action, count, size, transferData, targetTree, targetTuo); // fire NavTransferWorker thread <<<<<<<<<<<<<<<<
+                process(action, count, size, actionList, targetTree, targetTuo); // fire NavTransferWorker thread <<<<<<<<<<<<<<<<
             }
 
             if (traceActions)
@@ -466,46 +721,109 @@ public class NavTransferHandler extends TransferHandler
                 }
             }
 
-            action = TransferHandler.NONE;
             boolean indicator = (reply == JOptionPane.YES_OPTION && !context.fault);
             if (traceActions)
                 logger.trace("Returning " + indicator);
 
+            reset();
             return indicator;
         }
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.toString(),
+            context.mainFrame.labelStatusMiddle.setText("");
+            JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.toString(),
                     context.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
         }
 
-        action = TransferHandler.NONE;
+        reset();
         return false;
     }
 
     /**
-     * Process the list of NavTreeUserObjects assembled
+     * Make the actionList of tuo objects from paths from the transferable data
      * <br/>
+     * Used when an operation occurs from outside ELS. Because any outside operation
+     * is by definition "local" the publisher System tree is used for the searches.
+     *
+     * @param info The TransferHandler.TransferSupport from importDate()
+     */
+    private void makeActionListFromPaths(TransferHandler.TransferSupport info)
+    {
+        DataFlavor[] flavors = info.getTransferable().getTransferDataFlavors();
+        Transferable data = info.getTransferable();
+        boolean typeFound = false;
+
+        for (int index = 0; index < flavors.length; index++)
+        {
+            String subType = flavors[index].getSubType();
+            if (subType.equals("x-java-file-list"))
+            {
+                typeFound = true;
+                try
+                {
+                    actionList = new ArrayList<NavTreeUserObject>(); // for internal use
+                    ArrayList fileList = (ArrayList) data.getTransferData(flavors[index]);
+                    for (int i = 0; i < fileList.size(); ++i)
+                    {
+                        File file = (File) fileList.get(i);
+                        if (file != null)
+                        {
+                            NavTreeUserObject tuo = findSourceTuo(file.getPath());
+                            if (tuo != null)
+                            {
+                                actionList.add(tuo);
+                            }
+                            else
+                                logger.warn(context.cfg.gs("Z.cannot.find") + file.getAbsolutePath());
+                        }
+                        else
+                            logger.warn(context.cfg.gs("NavTransferHandler.empty.element") + i);
+                    }
+                }
+                catch (Exception e)
+                {
+                    actionList = null;
+                    logger.error(Utils.getStackTrace(e));
+                }
+            }
+            if (typeFound)
+                break;
+        }
+        if (!typeFound)
+        {
+            actionList = null;
+            logger.error(context.cfg.gs("NavTransferHandler.unsupported.flavor"));
+        }
+    }
+
+    /**
+     * Process the list of NavTreeUserObjects assembled with the singleton NavTransferWorker
+     * <br/><br/>
      * The valid target types are:<br/>
-     * + REAL local or remote files
-     * + DRIVE and HOME
-     * + LIBRARY using it's sources
+     *   * REAL local or remote files<br/>
+     *   * DRIVE and HOME<br/>
+     *   * LIBRARY using it's sources<br/>
      * <br/>
+     * Adds a new Batch to the NavTransferWorker queue and executes it if not running
      *
      * @param transferData
      * @param targetTuo
-     * @return
      */
     private void process(int action, int count, long size, ArrayList<NavTreeUserObject> transferData, JTree targetTree, NavTreeUserObject targetTuo) throws Exception
-     {
+    {
+        // make a new NavTransferWorker
         if (transferWorker == null || transferWorker.isDone())
         {
             transferWorker = null; // suggest clean-up
             transferWorker = new NavTransferWorker(context);
         }
         transferWorker.add(action, count, size, transferData, targetTree, targetTuo);
-        transferWorker.execute();
+        if (!transferWorkerRunning)
+        {
+            transferWorker.execute();
+            transferWorkerRunning = true;
+        }
     }
 
     public synchronized boolean removeDirectory(NavTreeUserObject sourceTuo)
@@ -557,13 +875,16 @@ public class NavTransferHandler extends TransferHandler
         }
         catch (Exception e)
         {
-            //context.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             logger.error(Utils.getStackTrace(e));
+            context.mainFrame.labelStatusMiddle.setText("");
             int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.directory.error") +
                             e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
                     context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
             if (reply == JOptionPane.NO_OPTION)
+            {
+                reset();
                 error = true;
+            }
         }
         return error;
     }
@@ -578,7 +899,7 @@ public class NavTransferHandler extends TransferHandler
                 msg = context.cfg.gs("Z.remote.uppercase");
             else
                 msg = context.cfg.gs("NavTreeNode.local");
-            msg += MessageFormat.format(context.cfg.gs("NavTransferHandler.delete.file.message"), context.cfg.isDryRun() ? 0 : 1,sourceTuo.path);
+            msg += MessageFormat.format(context.cfg.gs("NavTransferHandler.delete.file.message"), context.cfg.isDryRun() ? 0 : 1, sourceTuo.path);
 
             if (!context.cfg.isDryRun())
             {
@@ -599,14 +920,61 @@ public class NavTransferHandler extends TransferHandler
             {
                 //context.form.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 logger.error(Utils.getStackTrace(e), true);
+                context.mainFrame.labelStatusMiddle.setText("");
                 int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("NavTransferHandler.delete.file.error") +
                                 e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
                 if (reply == JOptionPane.NO_OPTION)
+                {
+                    reset();
                     error = true;
+                }
             }
         }
         return error;
+    }
+
+    private void reset()
+    {
+        action = TransferHandler.NONE;
+        actionList = null;
+        isDrop = false;
+        isRemote = false;
+        sourceTree = null;
+        sourceTable = null;
+        targetTree = null;
+        targetTable = null;
+        transferWorkerRunning = false;
+    }
+
+    // ==========================================
+
+    public class FileTransferable implements Transferable
+    {
+        private List listOfFiles;
+
+        public FileTransferable(List listOfFiles)
+        {
+            this.listOfFiles = listOfFiles;
+        }
+
+        @Override
+        public DataFlavor[] getTransferDataFlavors()
+        {
+            return new DataFlavor[]{DataFlavor.javaFileListFlavor};
+        }
+
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor flavor)
+        {
+            return DataFlavor.javaFileListFlavor.equals(flavor);
+        }
+
+        @Override
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
+        {
+            return listOfFiles;
+        }
     }
 
 }
