@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /* IDEA
@@ -381,6 +382,8 @@ public class NavTransferHandler extends TransferHandler
         {
             if (pathElements[i] == null || pathElements[i].length() == 0)
                 pathElements[i] = separator;
+            else if (pathElements[i].matches("^[a-zA-Z]:.*"))
+                pathElements[i] = pathElements[i] + "\\";
         }
 
         if (pathElements != null && pathElements.length > 0)
@@ -763,7 +766,8 @@ public class NavTransferHandler extends TransferHandler
                 try
                 {
                     actionList = new ArrayList<NavTreeUserObject>(); // for internal use
-                    ArrayList fileList = (ArrayList) data.getTransferData(flavors[index]);
+                    //ArrayList fileList = (ArrayList) data.getTransferData(flavors[index]);
+                    List<File> fileList = (List<File>) data.getTransferData(flavors[index]);
                     for (int i = 0; i < fileList.size(); ++i)
                     {
                         File file = (File) fileList.get(i);
