@@ -81,6 +81,9 @@ public class Hints
 
     /**
      * Execute the commands of an ELS Hint
+     * <br/>
+     * Paths in a hint are normalized for the repository flavor when executed.
+     * So the paths may "look wrong" in the file.
      *
      * @param repo  The Repository where the hint is executing
      * @param item  The hint Item
@@ -146,9 +149,14 @@ public class Hints
                 String fromName = parseFilename(parts[1], lineNo);
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
-
                 if (hintItemSubdirectory != null && Utils.isFileOnly(fromName))
+                {
+                    hintItemSubdirectory = Utils.pipe(hintItemSubdirectory); // clean-up any mixed path separators
+                    hintItemSubdirectory = Utils.unpipe(hintItemSubdirectory, Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor));
                     fromName = hintItemSubdirectory + "|" + fromName;
+                }
+                fromName = Utils.pipe(fromName); // clean-up any mixed path separators
+                fromName = Utils.unpipe(fromName, Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor));
 
                 String toLib = parseLibrary(parts[2], lineNo);
                 if (toLib == null)
@@ -157,9 +165,14 @@ public class Hints
                 String toName = parseFilename(parts[2], lineNo);
                 if (toName.length() < 1)
                     throw new MungeException("Malformed to filename on line " + lineNo);
-
-                if (hintItemSubdirectory != null && Utils.isFileOnly(fromName))
+                if (hintItemSubdirectory != null && Utils.isFileOnly(toName))
+                {
+                    hintItemSubdirectory = Utils.pipe(hintItemSubdirectory); // clean-up any mixed path separators
+                    hintItemSubdirectory = Utils.unpipe(hintItemSubdirectory, Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor));
                     toName = hintItemSubdirectory + "|" + toName;
+                }
+                toName = Utils.pipe(toName); // clean-up any mixed path separators
+                toName = Utils.unpipe(toName, Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor));
 
                 context.localMode = true;
                 if (context.transfer.move(repo, fromLib.trim(), fromName.trim(), toLib.trim(), toName.trim()))
@@ -180,9 +193,15 @@ public class Hints
                 String fromName = parseFilename(parts[1], lineNo);
                 if (fromName.length() < 1)
                     throw new MungeException("Malformed from filename on line " + lineNo);
+                fromName = Utils.pipe(fromName); // clean-up any mixed path separators
+                fromName = Utils.unpipe(fromName, Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor));
 
                 if (hintItemSubdirectory != null && Utils.isFileOnly(fromName))
+                {
+                    hintItemSubdirectory = Utils.pipe(hintItemSubdirectory); // clean-up any mixed path separators
+                    hintItemSubdirectory = Utils.unpipe(hintItemSubdirectory, Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor));
                     fromName = hintItemSubdirectory + "|" + fromName;
+                }
 
                 if (context.transfer.remove(repo, fromLib.trim(), fromName.trim()))
                     libAltered = true;
@@ -293,11 +312,15 @@ public class Hints
                 }
             }
         }
+
         if (target == null)
         {
             // subscriber does not have the item or directory??? Must be a new item???
             throw new MungeException("Target for ELS hint file cannot be found: " + item.getFullPath());
         }
+
+        target = Utils.pipe(target); // clean-up any mixed path separators
+        target = Utils.unpipe(target, Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor));
         return target;
     }
 
@@ -531,6 +554,7 @@ public class Hints
                             else if (statusLine.toLowerCase().startsWith("seen "))
                                 ++seenHints;
 
+                            // transfer the hint to the subscriber
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
                             context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, context.cfg.isRemoteSession(), true);

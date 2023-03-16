@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /* IDEA
@@ -68,16 +67,22 @@ import java.util.List;
     * Going from ELS to outside applications mostly works, see notes
       * Right now there is no way to detect when an outside operation is complete
         * If it was a cut operation the source tab must be refreshed by hand, F5
-    * Coming from outside ELS works
+    * Coming from outside ELS both CCP and DnD work
+      * Works with both local publisher and subscriber and with a remote subscriber
     * Linux
       * Going from ELS to outside:
         * DnD out of ELS works
         * CCP out of ELS does not work, yet
       * Going from outside into ELS:
-        * Works with both local publisher and subscriber and with a remote subscriber
         * Can only copy
           * Cut does not delete from the Linux side
           * There is no way to detect the action inside ELS so copy is the default
+    * Windows
+      * Going from ELS to outside:
+        * Both CCP and DnD work
+      * Going from outside into ELS:
+        * Both CCP and DnD work
+
  */
 
 /**
@@ -137,7 +142,7 @@ public class NavTransferHandler extends TransferHandler
     {
         reset();
         context.fault = false;
-        ArrayList<File> rowList = new ArrayList<>(); // standards-based for possible operation outside ELS
+        List<File> rowList = new ArrayList<File>(); // for standards-based possible operation outside ELS
         actionList = new ArrayList<NavTreeUserObject>(); // for internal use
 
         if (component instanceof JTable)
@@ -766,7 +771,6 @@ public class NavTransferHandler extends TransferHandler
                 try
                 {
                     actionList = new ArrayList<NavTreeUserObject>(); // for internal use
-                    //ArrayList fileList = (ArrayList) data.getTransferData(flavors[index]);
                     List<File> fileList = (List<File>) data.getTransferData(flavors[index]);
                     for (int i = 0; i < fileList.size(); ++i)
                     {
@@ -977,7 +981,9 @@ public class NavTransferHandler extends TransferHandler
         @Override
         public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException
         {
-            return listOfFiles;
+            if (isDataFlavorSupported(flavor))
+                return listOfFiles;
+            return null;
         }
     }
 

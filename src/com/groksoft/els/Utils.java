@@ -205,7 +205,7 @@ public class Utils
      * Format a long number with byte, MB, GB and TB as applicable
      *
      * @param value Long value to format
-     * @param scale
+     * @param scale Binary (1024) or decimal (1000) scale
      * @return String Formatting text
      */
     public static synchronized String formatLong(long value, boolean isFull, double scale)
@@ -775,6 +775,22 @@ public class Utils
             port = a[1];
         }
         return port;
+    }
+
+    /**
+     * Replace all path separators of / or \ with pipe character
+     *
+     * @param path Path to modify with pipe characters
+     * @return String Modified path
+     * @throws MungeException
+     */
+    public static synchronized String pipe(String path)
+    {
+        String separator = "\\\\";
+        path = path.replaceAll(separator, "|");
+        separator = "/";
+        path = path.replaceAll(separator, "|");
+        return path;
     }
 
     /**

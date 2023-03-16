@@ -215,7 +215,12 @@ public class Progress extends JFrame
     public void view()
     {
         boolean bu = beingUsed;
+        String ls = lastStatus;
         display();
+        if (bu)
+        {
+            update(ls);
+        }
         if (!bu)
         {
             labelForIcon.setVisible(false);

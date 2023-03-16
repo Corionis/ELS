@@ -20,12 +20,17 @@
 
     <!-- Build stamp and copy locales to default -->
     <target name="stamp" depends="clean" description="Copy default locale amd set build stamp">
-        <!-- Generate a build timestamp -->
+        <!-- Write the build timestamp -->
         <tstamp>
             <format property="RIGHTNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
             <format property="SHORTNOW" pattern="ddMMyyyyHHmm" locale="en,US"/>
         </tstamp>
         <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
+        <!-- Write the version.info file -->
+        <delete file="deploy/version.info" failonerror="false"/>
+        <echo file="deploy/version.info" append="false">${SHORTNOW}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${els.version}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${RIGHTNOW}${line.separator}</echo>
         <echo message="Build stamp ${RIGHTNOW}" level="info"/>
         <!-- Copy the IDE default bundle to the en_US bundle -->
         <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>

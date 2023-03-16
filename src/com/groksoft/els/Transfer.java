@@ -638,7 +638,6 @@ public class Transfer
                         // move to a different library
                         if (!toLib.name.equalsIgnoreCase(fromLib.name))
                         {
-
                             // move directory's items
                             for (Item nextItem : fromLib.items)
                             {

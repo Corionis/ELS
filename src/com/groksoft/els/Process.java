@@ -178,6 +178,8 @@ public class Process
         if (context.cfg.getMismatchFilename().length() > 0)
         {
             String where = Utils.getWorkingFile(context.cfg.getMismatchFilename());
+            where = Utils.pipe(where);
+            where = Utils.unpipe(context.publisherRepo, where);
             try
             {
                 mismatchFile = new PrintWriter(where);
@@ -198,6 +200,8 @@ public class Process
         if (context.cfg.getWhatsNewFilename().length() > 0)
         {
             String where = Utils.getWorkingFile(context.cfg.getWhatsNewFilename());
+            where = Utils.pipe(where);
+            where = Utils.unpipe(context.publisherRepo, where);
             try
             {
                 whatsNewFile = new PrintWriter(where);

@@ -2320,24 +2320,27 @@ public class Navigator
             try
             {
                 context.clientSftp.stopClient();
-                if (context.clientStty.isConnected() && !context.timeout)
+                if (context.clientStty.isConnected())
                 {
-                    if (context.fault)
+                    if (!context.timeout)
                     {
-                        String resp;
-                        try
+                        if (context.fault)
                         {
-                            resp = context.clientStty.roundTrip("fault", "Sending fault to remote", 1000);
+                            String resp;
+                            try
+                            {
+                                resp = context.clientStty.roundTrip("fault", "Sending fault to remote", 1000);
+                            }
+                            catch (Exception e)
+                            {
+                                resp = null;
+                            }
                         }
-                        catch (Exception e)
-                        {
-                            resp = null;
-                        }
+                        else if (quitRemoteSubscriber)
+                            context.clientStty.send("quit", "Sending quit command to subscriber");
+                        else
+                            context.clientStty.send("bye", "Sending bye command to subscriber");
                     }
-                    else if (quitRemoteSubscriber)
-                        context.clientStty.send("quit", "Sending quit command to subscriber");
-                    else
-                        context.clientStty.send("bye", "Sending bye command to subscriber");
                 }
             }
             catch (Exception e)

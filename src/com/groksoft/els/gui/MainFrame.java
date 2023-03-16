@@ -275,13 +275,13 @@ public class MainFrame extends JFrame
             // set the fixed-space font for the logs
             if (Utils.isOsLinux())
             {
-                textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
-                textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
+                textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 13));
+                textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 13));
             }
             else
             {
-                textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 12));
-                textAreaOperationLog.setFont(new Font("Courier New", Font.PLAIN, 12));
+                textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 13));
+                textAreaOperationLog.setFont(new Font("Courier New", Font.PLAIN, 13));
             }
 
             // add smart scroll to the logs

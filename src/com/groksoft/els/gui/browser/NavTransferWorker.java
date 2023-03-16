@@ -161,6 +161,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         queue.add(batch);
         filesToCopy += count;
         filesSize += size;
+        logger.info(java.text.MessageFormat.format(context.cfg.gs("NavTransferWorker.added.batch.0.items"), count) +
+                Utils.formatLong(size, false, context.cfg.getLongScale()));
     }
 
     /**
@@ -226,12 +228,12 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 directory = Utils.getLeftPath(directory, targetSep);
             }
         }
-        directory = Utils.pipe(directory, targetSep);
+        directory = Utils.pipe(directory);
         assert (directory.length() > 0);
 
         int dirPos = Utils.rightIndexOf(sourceTuo.path, sourceSep, (targetTuo.isDir ? 0 : depth));
         filename = sourceTuo.path.substring(dirPos);
-        filename = Utils.pipe(filename, sourceSep);
+        filename = Utils.pipe(filename);
 
         // put them together
         path = directory + filename;
@@ -368,7 +370,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             String status = " " + fileNumber + context.cfg.gs("NavTransferHandler.progress.of") + filesToCopy +
                     ", " + Utils.formatLong(sourceTuo.size, false, context.cfg.getLongScale()) + ", " + sourceTuo.name + " ";
             context.progress.update(status);
-            //context.progress.update(fileNumber, sourceTuo.size, sourceTuo.name);
 
             path = makeToPath(sourceTuo, targetTuo);
             msg += context.cfg.gs("NavTransferHandler.transfer.file.to") + path;

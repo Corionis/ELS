@@ -415,7 +415,7 @@ public class Main
                     }
                     break;
 
-                // --- -r P execute the operationsUI process to remote subscriber -r S
+                // --- -r P execute the operation process to remote subscriber -r S
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.isNavigator())

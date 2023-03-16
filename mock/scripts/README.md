@@ -269,7 +269,7 @@ Note: All test/ directory .els files should be gone and the test/hints/datastore
 
 ### 80-00 Navigator - Local Backup
 
-Run one at a time for basic local Navigator funtionality.
+Run one at a time for basic local Navigator functionality.
 
  * ``80-01_Navigator-no-args`` : ELS with no arguments
  * ``80-02_Navigator-navigator`` : With --navigator option only
