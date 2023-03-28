@@ -26,9 +26,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
-
-/* IDEA
+/*
     ### Copy, cut, paste (CCP) and Drag 'n Drop (DnD) implementation
     #---------------------------------------------------------------
     * Uses standards-based x-java-file-list for operations going outside ELS
@@ -88,7 +86,6 @@ import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
         * Both CCP and DnD work
       * Going from outside into ELS:
         * Both CCP and DnD work
-
  */
 
 /**

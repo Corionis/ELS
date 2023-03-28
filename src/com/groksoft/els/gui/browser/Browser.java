@@ -1800,7 +1800,6 @@ public class Browser
                 }
             }
         }
-// IDEA: Move capture & setting of selections outside this method to give the main thread time to update the tree
         refreshTree(sourceTree);
     }
 
@@ -1885,13 +1884,16 @@ public class Browser
             // resize & shuffle if element(s) missing
             if (nodeIndex != pathElements.length)
             {
-                logger.warn("####### Scan elements size mismatch, shuffling #######");
-                NavTreeNode[] shorter = new NavTreeNode[nodeIndex]; // TODO: emit warning path was truncated
+                logger.warn("####### Scan elements size mismatch, a segment was not found");
+
+/*
+                NavTreeNode[] shorter = new NavTreeNode[nodeIndex];
                 for (int k = 0; k < nodeIndex; ++k)
                     shorter[k] = nodes[k];
                 nodes = new NavTreeNode[nodeIndex];
                 for (int k = 0; k < nodeIndex; ++k)
                     nodes[k] = shorter[k];
+*/
 
                 // QUESTION Is this right?
                 return null;  // #########################################################################

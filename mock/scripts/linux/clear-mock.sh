@@ -8,7 +8,7 @@ if [ "$1" != "-f" ]; then
     echo "Clear mock directory"
     read -p "Confirm: DESTROY all test configuration and data directories (Y/n)? " R
     R=${R:0:1}
-    if [ "$R" != 'y' -a "$R" != 'Y' ]; then
+    if [ "$R" = 'n' -o "$R" = 'N' ]; then
         echo -e "Cancelled\n"
         exit 1
     fi

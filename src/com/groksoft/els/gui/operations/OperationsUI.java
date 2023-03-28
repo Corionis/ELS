@@ -1317,30 +1317,37 @@ public class OperationsUI
         Repository pubRepo = context.publisherRepo;
         Repository subRepo = context.subscriberRepo;
 
-        worker = workerOperation.processToolThread(context, pubRepo, subRepo, null, false);
-        if (worker != null)
+        try
         {
-            workerRunning = true;
-            context.navigator.disableGui(true);
-            worker.addPropertyChangeListener(new PropertyChangeListener()
+            worker = workerOperation.processToolThread(context, pubRepo.getJsonFilename(), subRepo.getJsonFilename(), false);
+            if (worker != null)
             {
-                @Override
-                public void propertyChange(PropertyChangeEvent e)
+                workerRunning = true;
+                context.navigator.disableGui(true);
+                worker.addPropertyChangeListener(new PropertyChangeListener()
                 {
-                    if (e.getPropertyName().equals("state"))
+                    @Override
+                    public void propertyChange(PropertyChangeEvent e)
                     {
-                        if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                            processTerminated(currentTool);
+                        if (e.getPropertyName().equals("state"))
+                        {
+                            if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                processTerminated(currentTool);
+                        }
                     }
-                }
-            });
+                });
 
-            logger.info(context.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
-            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
-            worker.execute();
+                logger.info(context.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
+                context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Operations.running.operation") + currentTool.getConfigName());
+                worker.execute();
+            }
+            else
+                processTerminated(currentTool);
         }
-        else
-            processTerminated(currentTool);
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(context.mainFrame, Utils.getStackTrace(e), displayName, JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void processTerminated(OperationsTool operation)
