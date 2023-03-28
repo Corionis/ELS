@@ -336,18 +336,18 @@ public class ClientStty
     {
         boolean valid = false;
         logger.trace("handshake");
-        String input = receive("", 1000);
+        String input = receive("", 2000);
         if (input != null && input.equals("HELO"))
         {
             send((isTerminal ? "DribNit" : "DribNlt"), "");
 
-            input = receive("", 1000);
+            input = receive("", 2000);
             if (input.equals(theirRepo.getLibraryData().libraries.key))
             {
                 send(myKey, "");
 
                 // get the subscriber's flavor
-                input = receive("", 1000);
+                input = receive("", 2000);
                 try
                 {
                     // if Utils.getFileSeparator() does not throw an exception
@@ -402,7 +402,7 @@ public class ClientStty
                 {
                     logger.info("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
                     context.statusStty.send("quit", "");
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                     context.statusStty.disconnect();
                     context.statusStty = null;
                 }

@@ -158,12 +158,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 {
                     if (myTuo.isRemote)
                     {
-                        logger.info(context.cfg.gs("NavTreeNode.deep.scan..remote.drive") + myTuo.path);
+                        logger.info(context.cfg.gs("NavTreeNode.deep.scan.remote.drive") + myTuo.path);
                         scanRemote(myTuo.path, nodeArray, recursive);
                     }
                     else
                     {
-                        logger.info(context.cfg.gs("NavTreeNode.deep.scan..local.drive") + myTuo.path);
+                        logger.info(context.cfg.gs("NavTreeNode.deep.scan.local.drive") + myTuo.path);
                         scan(new File(myTuo.path).getAbsoluteFile(), nodeArray, recursive);
                     }
                 }
@@ -172,7 +172,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 File file = new File(myTuo.path);
                 if (file.isDirectory())
                 {
-                    logger.info(context.cfg.gs("NavTreeNode.deep.scan..home.directory") + myTuo.path);
+                    logger.info(context.cfg.gs("NavTreeNode.deep.scan.home.directory") + myTuo.path);
                     scan(file.getAbsoluteFile(), nodeArray, recursive);
                 }
                 break;
@@ -183,12 +183,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     {
                         if (myTuo.isRemote)
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.deep.scan..remote.library") + path);
+                            logger.info(context.cfg.gs("NavTreeNode.deep.scan.remote.library") + path);
                             scanRemote(path, nodeArray, recursive);
                         }
                         else
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.deep.scan..local.library") + path);
+                            logger.info(context.cfg.gs("NavTreeNode.deep.scan.local.library") + path);
                             scan(new File(path).getAbsoluteFile(), nodeArray, recursive);
                         }
                     }

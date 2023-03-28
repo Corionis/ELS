@@ -587,13 +587,13 @@ public class Process
                         else
                         {
                             if (!context.cfg.isKeepGoing())
-                                resp = context.clientStty.roundTrip("quit", "Sending quit command to remote", 1000);
+                                resp = context.clientStty.roundTrip("quit", "Sending quit command to remote", 2000);
                             else
                             {
                                 context.clientStty.send("bye", "Sending bye command to remote");
                                 resp = "End-Execution";
                             }
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
                         }
                     }
                     catch (Exception e)

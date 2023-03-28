@@ -81,7 +81,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         {
             send("HELO", "");
 
-            String input = receive("", 1000);
+            String input = receive("", 2000);
             if (input.equals("DribNit") || input.equals("DribNlt"))
             {
                 isTerminal = input.equals("DribNit");
@@ -92,7 +92,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 }
                 send(myKey, "");
 
-                input = receive("", 1000);
+                input = receive("", 2000);
                 // validate with Hint Keys
                 HintKeys.HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
                 if (connectedKey != null)
@@ -264,7 +264,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                     if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                     {
                         out.flush();
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
 
                         // if this is the first command or keep going is not enabled then stop
                         if (commandCount == 1 || !context.cfg.isKeepGoing())
@@ -330,7 +330,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         if (!context.timeout)
                         {
                             send(e.getMessage(), "Hint Server exception");
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
                         }
                     }
                     catch (Exception ex)

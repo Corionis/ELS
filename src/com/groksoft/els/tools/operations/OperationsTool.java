@@ -789,6 +789,20 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
 
     public void write() throws Exception
     {
+        setOptAuthKeys(context.main.makeLinuxWorkingDirectoryRelative(getOptAuthKeys()));
+        setOptBlacklist(context.main.makeLinuxWorkingDirectoryRelative(getOptBlacklist()));
+        setOptExportItems(context.main.makeLinuxWorkingDirectoryRelative(getOptExportItems()));
+        setOptExportText(context.main.makeLinuxWorkingDirectoryRelative(getOptExportText()));
+        setOptHints(context.main.makeLinuxWorkingDirectoryRelative(getOptHints()));
+        setOptHintServer(context.main.makeLinuxWorkingDirectoryRelative(getOptHintServer()));
+        setOptIpWhitelist(context.main.makeLinuxWorkingDirectoryRelative(getOptIpWhitelist()));
+        setOptKeys(context.main.makeLinuxWorkingDirectoryRelative(getOptKeys()));
+        setOptKeysOnly(context.main.makeLinuxWorkingDirectoryRelative(getOptKeysOnly()));
+        setOptMismatches(context.main.makeLinuxWorkingDirectoryRelative(getOptMismatches()));
+        setOptTargets(context.main.makeLinuxWorkingDirectoryRelative(getOptTargets()));
+        setOptWhatsNew(context.main.makeLinuxWorkingDirectoryRelative(getOptWhatsNew()));
+        setOptWhatsNewAll(context.main.makeLinuxWorkingDirectoryRelative(getOptWhatsNewAll()));
+
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(this);
         try

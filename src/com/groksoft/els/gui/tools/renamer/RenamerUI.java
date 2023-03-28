@@ -127,7 +127,9 @@ public class RenamerUI extends JDialog
                     {
                         currentConfigIndex = index;
                         loadOptions(currentConfigIndex);
-                    }
+                        updateState();
+                        processTable();
+                     }
                 }
             }
         });
@@ -855,11 +857,6 @@ public class RenamerUI extends JDialog
         {
             logger.info(renamer.getConfigName() + context.cfg.gs("Z.cancelled"));
             context.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + context.cfg.gs("Z.cancelled"));
-        }
-        else
-        {
-            //logger.info(renamer.getConfigName() + context.cfg.gs("Z.completed"));
-            //context.mainFrame.labelStatusMiddle.setText(renamer.getConfigName() + context.cfg.gs("Z.completed"));
         }
     }
 

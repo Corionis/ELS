@@ -10,12 +10,14 @@ hs_err_pid*
 /.idea/workspace.xml
 /artifacts/document/! Private.md
 /deploy/ELS-nav.jar
+/deploy/Thumbs.db
 /mock/*.json
 /mock/datastore/
 /mock/jobs/
 /mock/libraries/
 /mock/local/
 /mock/output/
+/mock/private/
 /mock/scripts/linux/900*
 /mock/system/
 /mock/test (copy)/

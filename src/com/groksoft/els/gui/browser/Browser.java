@@ -53,7 +53,7 @@ public class Browser
     private long keyTime = 0L;
     private transient Logger logger = LogManager.getLogger("applog");
     private Stack<NavItem>[] navStack = new Stack[4];
-    private int[] navStackIndex = { -1, -1, -1, -1 };
+    private int[] navStackIndex = {-1, -1, -1, -1};
     public NavTransferHandler navTransferHandler;
     static boolean printPropertiesInUse = false;
     private int tabStop = 0;
@@ -500,10 +500,10 @@ public class Browser
     /**
      * Create a bookmark from a path
      *
-     * @param tree Tree of bookmark
+     * @param tree         Tree of bookmark
      * @param bookmarkName Name of bookmark
-     * @param repoName Repository name bookmark pathElement[0], "System" for System tree
-     * @param libraryName Library name bookmark pathElement[1], "Computer" for System tree
+     * @param repoName     Repository name bookmark pathElement[0], "System" for System tree
+     * @param libraryName  Library name bookmark pathElement[1], "Computer" for System tree
      * @param pathElements Split path elements
      * @return Bookmark constructed with those data
      */
@@ -547,7 +547,12 @@ public class Browser
             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
             int panelNo = context.browser.getPanelNumber(bookmark.panel);
             context.browser.selectPanelNumber(panelNo);
-            scanSelectPath(panelName, bookmark.pathElements, true, false);
+            if (scanSelectPath(panelName, bookmark.pathElements, true, false, false) == null)
+            {
+                String pe = Utils.concatStringArray(bookmark.pathElements, "/");
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Browser.bookmark.location.not.found") + pe,
+                        context.cfg.gs("Navigator.menu.Bookmarks.text"), JOptionPane.WARNING_MESSAGE);
+            }
         }
         else
         {
@@ -909,7 +914,7 @@ public class Browser
             else if (comp.getName().endsWith("SystemTwo"))
                 active = 3;
         }
-        assert(active > -1);
+        assert (active > -1);
         return active;
     }
 
@@ -1168,18 +1173,9 @@ public class Browser
         // --- treeCollectionOne
         context.mainFrame.treeCollectionOne.setName("treeCollectionOne");
         if (context.publisherRepo != null && context.publisherRepo.isInitialized())
-        {
-            File json = new File(context.publisherRepo.getJsonFilename());
-            String path = json.getAbsolutePath();
-            //context.preferences.setLastPublisherOpenFile(path);
-            //context.preferences.setLastPublisherOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
-
             loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
-        }
         else
-        {
             setCollectionRoot(null, context.mainFrame.treeCollectionOne, context.cfg.gs("Browser.open.a.publisher"), false);
-        }
         //
         // treeCollectionOne tree expansion event handler
         context.mainFrame.treeCollectionOne.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -1222,13 +1218,9 @@ public class Browser
         // --- treeSystemOne
         context.mainFrame.treeSystemOne.setName("treeSystemOne");
         if (context.publisherRepo != null && context.publisherRepo.isInitialized())
-        {
             loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
-        }
         else
-        {
             setCollectionRoot(null, context.mainFrame.treeSystemOne, context.cfg.gs("Browser.open.a.publisher"), false);
-        }
         //
         // treeSystemOne tree expansion event handler
         context.mainFrame.treeSystemOne.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -1308,18 +1300,9 @@ public class Browser
         // --- treeCollectionTwo
         context.mainFrame.treeCollectionTwo.setName("treeCollectionTwo");
         if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
-        {
-            File json = new File(context.subscriberRepo.getJsonFilename());
-            String path = json.getAbsolutePath();
-            //context.preferences.setLastSubscriberOpenFile(path);
-            //context.preferences.setLastSubscriberOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
-
             loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession());
-        }
         else
-        {
             setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteSession());
-        }
         //
         // treeCollectionTwo tree expansion event handler
         context.mainFrame.treeCollectionTwo.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -1362,13 +1345,9 @@ public class Browser
         // --- treeSystemTwo
         context.mainFrame.treeSystemTwo.setName("treeSystemTwo");
         if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
-        {
             loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteSession());
-        }
         else
-        {
             setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteSession());
-        }
         //
         // treeSystemTwo tree expansion event handler
         context.mainFrame.treeSystemTwo.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -1493,7 +1472,7 @@ public class Browser
                                 context.mainFrame.buttonHintTracking.setIcon(new ImageIcon(icon));
                                 String tt = level == 3 ? context.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
                                         (level == 2 ? context.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
-                                         context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
+                                                context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
                                 context.mainFrame.buttonHintTracking.setToolTipText(tt);
                                 hintTrackingEnabled = false;
                                 setHintTrackingButton(false);
@@ -1526,7 +1505,7 @@ public class Browser
                 switch (styleOne)
                 {
                     case STYLE_COLLECTION_ALL:
-                        styleCollectionAll(tree, repo, remote,  false, false);
+                        styleCollectionAll(tree, repo, remote, false, false);
                         break;
                     case STYLE_COLLECTION_AZ:
                         break;
@@ -1722,12 +1701,12 @@ public class Browser
                             String content = context.transfer.readTextFile(tuo);
                             if (content.length() > 0)
                             {
-                                content = content.replaceAll("\r\n", "<br/>" + System.getProperty("line.separator"));
-                                content = content.replaceAll("\n", "<br/>" + System.getProperty("line.separator"));
-                                content = content.replaceAll("\r", "<br/>" + System.getProperty("line.separator"));
+                                content = content.replaceAll("\r\n", "<br/>");
+                                content = content.replaceAll("\n", "<br/>");
+                                content = content.replaceAll("\r", "<br/>");
                             }
                             msg += "<hr>" + System.getProperty("line.separator");
-                            msg += content;
+                            msg += content + "<br/>";
                         }
                         break;
                     case NavTreeUserObject.SYSTEM:
@@ -1746,15 +1725,10 @@ public class Browser
 
     public void refreshAll()
     {
-//        refreshTree(context.mainFrame.treeCollectionOne);
-//        refreshTree(context.mainFrame.treeSystemOne);
-//        refreshTree(context.mainFrame.treeCollectionTwo);
-//        refreshTree(context.mainFrame.treeSystemTwo);
-    // TODO Make refresh more reliable
-        rescanByObject(context.mainFrame.treeCollectionOne);
-        rescanByObject(context.mainFrame.treeSystemOne);
-        rescanByObject(context.mainFrame.treeCollectionTwo);
-        rescanByObject(context.mainFrame.treeSystemTwo);
+        refreshTree(context.mainFrame.treeCollectionOne);
+        refreshTree(context.mainFrame.treeSystemOne);
+        refreshTree(context.mainFrame.treeCollectionTwo);
+        refreshTree(context.mainFrame.treeSystemTwo);
     }
 
     public void refreshByObject(Object object)
@@ -1780,7 +1754,7 @@ public class Browser
             TreePath rootPath = ((NavTreeNode) tree.getModel().getRoot()).getTreePath();
             Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(rootPath);
             TreePath[] paths = tree.getSelectionPaths();
-            ((NavTreeModel)tree.getModel()).reload();
+            ((NavTreeModel) tree.getModel()).reload();
             tree.setExpandsSelectedPaths(true);
             if (expandedDescendants != null)
             {
@@ -1800,28 +1774,37 @@ public class Browser
     public void rescanByObject(Object object)
     {
         JTree sourceTree = null;
-        Object sel = null;
         if (object instanceof JTree)
         {
             sourceTree = (JTree) object;
-            sel = sourceTree.getLastSelectedPathComponent();
         }
         else if (object instanceof JTable)
         {
             JTable sourceTable = (JTable) object;
             sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
-            sel = sourceTree.getLastSelectedPathComponent();
         }
-        if (sel != null)
+
+        TreePath rootPath = ((NavTreeNode) sourceTree.getModel().getRoot()).getTreePath();
+        Enumeration<TreePath> expandedDescendants = sourceTree.getExpandedDescendants(rootPath);
+        TreePath[] paths = sourceTree.getSelectionPaths();
+
+        if (expandedDescendants != null)
         {
-            sourceTree.collapsePath(((NavTreeNode) sel).getTreePath());
-            ((NavTreeNode) sel).setRefresh(true);
-            ((NavTreeNode) sel).loadChildren(true);
-            refreshTree(sourceTree);
+            while (expandedDescendants.hasMoreElements())
+            {
+                TreePath tp = expandedDescendants.nextElement();
+                NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                if (ntn.getUserObject().isDir && ntn.getUserObject().type != NavTreeUserObject.COLLECTION)
+                {
+                    scanSelectPath(sourceTree.getName(), Utils.getTreePathStrings(tp), false, true, false);
+                }
+            }
         }
+// IDEA: Move capture & setting of selections outside this method to give the main thread time to update the tree
+        refreshTree(sourceTree);
     }
 
-    public TreePath scanSelectPath(String panelName, String[] pathElements, boolean doTable, boolean fullTreePath)
+    public TreePath scanSelectPath(String panelName, String[] pathElements, boolean doTable, boolean forceScan, boolean fullTreePath)
     {
         TreePath treePath = null;
         if (panelName != null && panelName.length() > 0 && pathElements != null && pathElements.length > 0)
@@ -1853,13 +1836,19 @@ public class Browser
             for (int i = 1; i < pathElements.length; ++i)
             {
                 next = node.findChildName(pathElements[i], occurrence);
-                if (next != null)
+                if (next != null && (!forceScan)) // || node.getUserObject().type == NavTreeUserObject.COLLECTION))
                 {
                     nodes[nodeIndex++] = next;
                     node = next;
                 }
                 else
                 {
+                    if (next != null) // must be forceScan
+                    {
+                        if (next.getUserObject().isDir)
+                            next.deepScanChildren(false);
+                    }
+                    else
                     // if a directory scan it
                     if (node.getUserObject().isDir)
                     {
@@ -1896,12 +1885,18 @@ public class Browser
             // resize & shuffle if element(s) missing
             if (nodeIndex != pathElements.length)
             {
+                logger.warn("####### Scan elements size mismatch, shuffling #######");
                 NavTreeNode[] shorter = new NavTreeNode[nodeIndex]; // TODO: emit warning path was truncated
                 for (int k = 0; k < nodeIndex; ++k)
                     shorter[k] = nodes[k];
                 nodes = new NavTreeNode[nodeIndex];
                 for (int k = 0; k < nodeIndex; ++k)
                     nodes[k] = shorter[k];
+
+                // QUESTION Is this right?
+                return null;  // #########################################################################
+
+
             }
 
             // remove last segment if it's a file but not being shown, or a directory in the table
@@ -2055,7 +2050,7 @@ public class Browser
         }
         else
         {
-            tt = context.cfg.getHintsDaemonFilename().length() > 0  ? context.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
+            tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.disabled.tooltip") :
                     (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.disabled.tooltip") :
                             context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
         }

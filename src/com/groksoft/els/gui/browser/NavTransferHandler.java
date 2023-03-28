@@ -18,9 +18,15 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.DosFileAttributes;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.nio.file.LinkOption.NOFOLLOW_LINKS;
 
 /* IDEA
     ### Copy, cut, paste (CCP) and Drag 'n Drop (DnD) implementation
@@ -399,7 +405,7 @@ public class NavTransferHandler extends TransferHandler
 
             // use a temporary (unsaved) Bookmark 'Goto Bookmark' method to scan the full tree path using the publisher System tree
             Bookmark bm = context.browser.bookmarkCreate("find-tuo", searchTree, repoName, libName, pathElements);
-            TreePath tp = context.browser.scanSelectPath(searchTree.getName(), bm.pathElements, false, true);
+            TreePath tp = context.browser.scanSelectPath(searchTree.getName(), bm.pathElements, false, false, true);
             if (tp != null)
             {
                 NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
@@ -643,7 +649,7 @@ public class NavTransferHandler extends TransferHandler
                 return false;
             }
 
-            // iterate source tuo objects
+            // iterate source tuo objects for statistics
             for (NavTreeUserObject sourceTuo : actionList)
             {
                 NavTreeNode sourceNode = sourceTuo.node;
@@ -761,6 +767,7 @@ public class NavTransferHandler extends TransferHandler
         DataFlavor[] flavors = info.getTransferable().getTransferDataFlavors();
         Transferable data = info.getTransferable();
         boolean typeFound = false;
+        ArrayList<String > skipped = new ArrayList<>();
 
         for (int index = 0; index < flavors.length; index++)
         {
@@ -777,6 +784,18 @@ public class NavTransferHandler extends TransferHandler
                         File file = (File) fileList.get(i);
                         if (file != null)
                         {
+                            // skip Windows system files
+                            if (Utils.getOS().toLowerCase().equals("windows"))
+                            {
+                                Path dfp = Paths.get(file.getPath());
+                                DosFileAttributes dattr = Files.readAttributes(dfp, DosFileAttributes.class);
+                                if (dattr.isSystem())
+                                {
+                                    skipped.add(file.getPath());
+                                    continue;
+                                }
+                            }
+                            // find the source in the Browser System tab
                             NavTreeUserObject tuo = findSourceTuo(file.getPath());
                             if (tuo != null)
                             {
@@ -796,7 +815,14 @@ public class NavTransferHandler extends TransferHandler
                 }
             }
             if (typeFound)
+            {
+                // report any skipped items, Windows only; done here after other scans for visibility in log panes
+                for (String skip : skipped)
+                {
+                    logger.warn(context.cfg.gs("NavTransferHandler.skipping.system.item") + skip);
+                }
                 break;
+            }
         }
         if (!typeFound)
         {

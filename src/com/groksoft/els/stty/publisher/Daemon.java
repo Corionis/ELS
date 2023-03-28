@@ -73,7 +73,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             logger.trace("handshake");
             send("HELO", "");
 
-            String input = receive("", 1000);
+            String input = receive("", 2000);
             if (input != null && (input.equals("DribNit") || input.equals("DribNlt")))
             {
                 isTerminal = input.equals("DribNit");
@@ -86,7 +86,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 }
                 send(myKey, "");
 
-                input = receive("", 1000);
+                input = receive("", 2000);
                 // validate with Authorization Keys if specified
                 if (context.authKeys != null)
                 {
@@ -501,7 +501,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                         {
                             send("End-Execution", trace ? "send End-Execution" : "");
-                            Thread.sleep(1000);
+                            Thread.sleep(2000);
 
                             // if this is the first command or keep going is not enabled then stop
                             if (commandCount == 1 || !context.cfg.isKeepGoing())
@@ -634,7 +634,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             if (!context.timeout)
                             {
                                 send(e.getMessage(), "Publisher exception");
-                                Thread.sleep(1000);
+                                Thread.sleep(2000);
                             }
                         }
                         catch (Exception ex)

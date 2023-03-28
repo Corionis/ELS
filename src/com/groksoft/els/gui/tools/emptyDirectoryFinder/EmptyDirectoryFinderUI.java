@@ -28,6 +28,7 @@ public class EmptyDirectoryFinderUI extends JDialog
     private NavHelp helpDialog;
     private boolean requestStop = false;
     private final EmptyDirectoryFinderUI thisDialog = this;
+    private JTree sourceTree = null;
     private boolean workerRunning = false;
 
     private EmptyDirectoryFinderUI()
@@ -117,6 +118,8 @@ public class EmptyDirectoryFinderUI extends JDialog
                 this.getTitle(), JOptionPane.YES_NO_OPTION);
         if (reply == JOptionPane.YES_OPTION)
         {
+            EmptiesTableModel etm = (EmptiesTableModel) tableEmpties.getModel();
+            int deletes = 0;
             for (int i = 0; i < empties.size(); ++i)
             {
                 Empty empty = empties.get(i);
@@ -126,8 +129,9 @@ public class EmptyDirectoryFinderUI extends JDialog
                     {
                         try
                         {
-                            logger.info(context.cfg.gs("EmptyDirectoryFinder.removing") + empty.path);
-                            context.transfer.remove(empty.path, true, context.cfg.isRemoteSession());
+                            String path = Utils.makeLinuxPath(empty.path);
+                            logger.info(context.cfg.gs("EmptyDirectoryFinder.removing") + path);
+                            context.transfer.remove(path, true, !isPublisher && context.cfg.isRemoteSession());
                         }
                         catch (Exception ex)
                         {
@@ -135,14 +139,17 @@ public class EmptyDirectoryFinderUI extends JDialog
                             logger.error(msg, true);
                             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
                         }
+                        ++deletes;
+                        empties.remove(i);
                     }
                 }
             }
-            context.browser.refreshAll(); // TODO Make refresh more reliable
-//            Object[] opts = { context.cfg.gs("Z.ok") };
-//            JOptionPane.showOptionDialog(this, context.cfg.gs("EmptyDirectoryFinder.removal.of.empties.successful"),
-//                    this.getTitle(), JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE,
-//                    null, opts, opts[0]);
+            etm.fireTableDataChanged();
+            labelStatus.setText(context.cfg.gs("Z.deleted") + deletes);
+            if (sourceTree != null)
+            {
+                context.browser.rescanByObject(sourceTree);
+            }
         }
     }
 
@@ -211,9 +218,13 @@ public class EmptyDirectoryFinderUI extends JDialog
         {
             isPublisher = true;
             which = context.cfg.gs("Z.publisher");
+            sourceTree = context.mainFrame.treeCollectionOne;
         }
         else
+        {
             which = context.cfg.gs("Z.subscriber");
+            sourceTree = context.mainFrame.treeCollectionTwo;
+        }
 
         // prompt and process
         int reply = JOptionPane.showConfirmDialog(this, java.text.MessageFormat.format(context.cfg.gs("EmptyDirectoryFinder.run.tool.on.collection"), which), this.getTitle(), JOptionPane.YES_NO_OPTION);

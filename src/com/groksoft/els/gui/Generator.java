@@ -520,20 +520,23 @@ public class Generator
         });
         panelActions.add(copyButton);
         //
-        shortcutButton.setText(context.cfg.gs("Generator.shortcut"));
-        shortcutButton.setMnemonic(context.cfg.gs("Generator.shortcut.mnemonic").charAt(0));
-        shortcutButton.setToolTipText(context.cfg.gs("Generator.shortcut.tooltip"));
-        shortcutButton.addActionListener(new ActionListener()
+        if (!(owner == context.mainFrame && Utils.getOS().toLowerCase().equals("windows")))
         {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
+            shortcutButton.setText(context.cfg.gs("Generator.shortcut"));
+            shortcutButton.setMnemonic(context.cfg.gs("Generator.shortcut.mnemonic").charAt(0));
+            shortcutButton.setToolTipText(context.cfg.gs("Generator.shortcut.tooltip"));
+            shortcutButton.addActionListener(new ActionListener()
             {
-                generatedTextField.selectAll();
-                generatedTextField.requestFocus();
-                createDesktopShortcut(owner, configName, generatedTextField.getText());
-            }
-        });
-        panelActions.add(shortcutButton);
+                @Override
+                public void actionPerformed(ActionEvent actionEvent)
+                {
+                    generatedTextField.selectAll();
+                    generatedTextField.requestFocus();
+                    createDesktopShortcut(owner, configName, generatedTextField.getText());
+                }
+            });
+            panelActions.add(shortcutButton);
+        }
 
         // show the dialog
         Object[] params = {messasge, panelLogLevels, panelLogFile, panelHorizontal1, horizontalLine, panelHorizontal2, panelGenerated, panelActions};

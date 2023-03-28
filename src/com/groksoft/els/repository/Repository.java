@@ -793,7 +793,7 @@ public class Repository
         lib.items = null;
         for (String src : lib.sources)
         {
-            logger.info("  " + src);
+            logger.info("  src: " + src);
             scanDirectory(lib, src, src);
         }
     }

@@ -116,7 +116,7 @@ public class Connection extends Thread
                         service.context.main.context.statusStty.quitStatusServer(service.context);  // do before stopping the services
 
                     service.context.main.stopServices();
-                    sleep(1000);
+                    sleep(2000);
                     service.context.main.stopVerbiage();
 
                     // halt kills the remaining threads

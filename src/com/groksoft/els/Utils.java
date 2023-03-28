@@ -1,5 +1,6 @@
 package com.groksoft.els;
 
+import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
 
@@ -11,6 +12,7 @@ import org.apache.sshd.common.util.io.IoUtils;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -65,6 +67,28 @@ public class Utils
             logger.error("Exception '" + e.getMessage() + "' getting usable space from " + location);
         }
         return space;
+    }
+
+    /**
+     * Concatenate the values of a String array into one String with optional divider
+     *
+     * @param array Strings to concatenate
+     * @param divider Optional divider String between each element
+     * @return String The String array concatenated
+     */
+    public static String concatStringArray(String[] array, String divider)
+    {
+        String result = "";
+        for (int i = 0; i < array.length; ++i)
+        {
+            if (array[i].length() == 0)
+                result += "?";
+            else
+                result += array[i];
+            if (i + 1 < array.length)
+                result += divider;
+        }
+        return result;
     }
 
     /**
@@ -205,6 +229,7 @@ public class Utils
      * Format a long number with byte, MB, GB and TB as applicable
      *
      * @param value Long value to format
+     * @param isFull Full long list of B, KB, MB, etc. = true, short highest value = false
      * @param scale Binary (1024) or decimal (1000) scale
      * @return String Formatting text
      */
@@ -459,6 +484,22 @@ public class Utils
         else
             os = "Linux";
         return os;
+    }
+
+    public static String[] getTreePathStrings(TreePath tp)
+    {
+        String[] ps = null;
+        if (tp.getPathCount() > 0)
+        {
+            ps = new String[tp.getPathCount()];
+            Object[] objs = tp.getPath();
+            for (int i = 0; i < tp.getPathCount(); ++i)
+            {
+                NavTreeNode node = (NavTreeNode) objs[i];
+                ps[i] = node.getUserObject().name;
+            }
+        }
+        return ps;
     }
 
     /**
@@ -735,6 +776,21 @@ public class Utils
         if (path.startsWith("/") || path.startsWith("\\"))
             return false;
         return true;
+    }
+
+    /**
+     * Make a path a Linux path with forward-slash separators
+     * <br/>
+     * Internally Java handles using Linux separators
+     *
+     * @param path
+     * @return String path with / separators
+     */
+    public static String makeLinuxPath(String path)
+    {
+        path = pipe(path);
+        path = unpipe(path, "/");
+        return path;
     }
 
     /**

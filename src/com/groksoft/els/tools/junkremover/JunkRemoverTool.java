@@ -463,11 +463,12 @@ public class JunkRemoverTool extends AbstractTool
                             if (match(filename, fullpath, ji))
                             {
                                 ++deleteCount;
-                                if (context != null)
+                                if (context.mainFrame != null)
                                     context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.count") + deleteCount);
                                 if (!isDryRun)
                                     getContext().transfer.remove(fullpath, entry.isDirectory(), isRemote());
                                 logDeletion(fullpath);
+                                break;
                             }
                         }
                     }

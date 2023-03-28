@@ -38,10 +38,12 @@ public class ClientSftp
     }
 
     /**
-     * Instantiate this class.
+     * Constructor
      *
+     * @param context The Context
      * @param mine   Repository of local system
      * @param theirs Repository of remote system
+     * @param primaryServers Is this the primary or secondary servers (for -r L) setup
      */
     public ClientSftp(Context context, Repository mine, Repository theirs, boolean primaryServers)
     {
@@ -66,6 +68,8 @@ public class ClientSftp
     public synchronized Vector listDirectory(String directory) throws Exception
     {
         ChannelSftp jSftp = connect();
+        directory = Utils.pipe(directory);
+        directory = Utils.unpipe(directory, "/");
         Vector listing = jSftp.ls(directory);
         jSftp.disconnect();
         return listing;
@@ -81,6 +85,10 @@ public class ClientSftp
     public void get(String source, String dest) throws Exception
     {
         ChannelSftp jSftp = connect();
+        source = Utils.pipe(source);
+        source = Utils.unpipe(source, "/");
+        dest = Utils.pipe(dest);
+        dest = Utils.unpipe(dest, "/");
         jSftp.get(source, dest);
         jSftp.disconnect();
     }
@@ -94,23 +102,10 @@ public class ClientSftp
      */
     public String makeDirectory(String pathname) throws Exception
     {
-        if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS))
-        {
-            pathname = pathname.replaceAll("\\\\", "\\\\\\\\");
-        }
-        else if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.LINUX))
-        {
-            pathname = pathname.replaceAll("//", "/");
-        }
-        else if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.MAC))
-        {
-            pathname = pathname.replaceAll("//", "/");
-        }
+        pathname = Utils.pipe(pathname);
+        String[] parts = pathname.split("\\|");
 
-        String sep = theirRepo.getWriteSeparator();
-        String[] parts = pathname.split(sep);
-
-        sep = theirRepo.getSeparator();
+        String sep = theirRepo.getSeparator();
         String whole = "";
         for (int i = 0; i < parts.length - 1; ++i)
         {
@@ -181,6 +176,8 @@ public class ClientSftp
     public void remove(String path, boolean isDir) throws Exception
     {
         ChannelSftp jSftp = connect();
+        path = Utils.pipe(path);
+        path = Utils.unpipe(path, "/");
         if (isDir)
             jSftp.rmdir(path);
         else
@@ -198,6 +195,10 @@ public class ClientSftp
     public void rename(String from, String to) throws Exception
     {
         ChannelSftp jSftp = connect();
+        from = Utils.pipe(from);
+        from = Utils.unpipe(from, "/");
+        to = Utils.pipe(to);
+        to = Utils.unpipe(to, "/");
         jSftp.rename(from, to);
         jSftp.disconnect();
     }
@@ -212,6 +213,8 @@ public class ClientSftp
     public void setDate(String dest, long mtime) throws Exception
     {
         ChannelSftp jSftp = connect();
+        dest = Utils.pipe(dest);
+        dest = Utils.unpipe(dest, "/");
         jSftp.setMtime(dest, (int) mtime);
         jSftp.disconnect();
     }
@@ -255,6 +258,8 @@ public class ClientSftp
     public synchronized SftpATTRS stat(String path) throws Exception
     {
         ChannelSftp jSftp = connect();
+        path = Utils.pipe(path);
+        path = Utils.unpipe(path, "/");
         SftpATTRS attrs = jSftp.stat(path);
         jSftp.disconnect();
         return attrs;
@@ -327,11 +332,15 @@ public class ClientSftp
         }
 
         // copy the .els-part file
+        copyDest = Utils.pipe(copyDest);
+        copyDest = Utils.unpipe(copyDest, "/");
         jSftp.put(src, copyDest, mode);
 
         // delete any old original file
         try
         {
+            dest = Utils.pipe(dest);
+            dest = Utils.unpipe(dest, "/");
             jSftp.rm(dest);
         }
         catch (SftpException e)

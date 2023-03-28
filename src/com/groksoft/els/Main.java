@@ -114,7 +114,7 @@ public class Main
                 {
                     throw new MungeException("Hint Status Server " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
                 }
-                String response = context.statusStty.receive("", 1000); // check the initial prompt
+                String response = context.statusStty.receive("", 2000); // check the initial prompt
                 if (!response.startsWith("CMD"))
                     throw new MungeException("Bad initial response from status server: " + context.statusRepo.getLibraryData().libraries.description);
             }
@@ -167,9 +167,10 @@ public class Main
      * to be relative to the current working path. Otherwise the path
      * is returned.
      * @param path Path to check for relativity to the current working path
+     * @param osSeparator true = use local OS separator, otherwise Linux /
      * @return String Path possibly shortened to be relative
      */
-    public String getWorkingDirectoryRelative(String path)
+    public String getWorkingDirectoryRelative(String path, boolean osSeparator)
     {
         if (path != null && path.length() > 0 && path.startsWith(context.cfg.getWorkingDirectory()))
         {
@@ -177,6 +178,20 @@ public class Main
                 path = path.substring(context.cfg.getWorkingDirectory().length() + 1);
             else
                 path = "";
+        }
+        // normalize path separator
+        if (path != null)
+        {
+            path = Utils.pipe(path);
+            if (osSeparator)
+            {
+                if (Utils.getOS().toLowerCase().equals("windows"))
+                    path = Utils.unpipe(path, "\\\\");
+                else
+                    path = Utils.unpipe(path, "/");
+            }
+            else
+                path = Utils.unpipe(path, "/");
         }
         return path;
     }
@@ -197,6 +212,19 @@ public class Main
             filePart = "en_US"; // default locale
         }
         context.cfg.setCurrentBundle(ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + filePart));
+    }
+
+    public String makeLinuxWorkingDirectoryRelative(String path)
+    {
+        if (path != null && path.length() > 0)
+        {
+            path = getWorkingDirectoryRelative(path, false);
+            path = Utils.pipe(path);
+            path = Utils.unpipe(path, "/");
+        }
+        else
+            path = "";
+        return path;
     }
 
     /**
@@ -636,8 +664,8 @@ public class Main
                         }
                         try
                         {
-                            main.context.clientStty.roundTrip("quit", "Sending remote quit command", 1000);
-                            Thread.sleep(1000);
+                            main.context.clientStty.roundTrip("quit", "Sending remote quit command", 2000);
+                            Thread.sleep(2000);
                         }
                         catch (Exception e)
                         {
@@ -727,7 +755,7 @@ public class Main
                     {
                         try
                         {
-                            main.context.clientStty.roundTrip("fault", "Sending remote fault command (1)", 1000);
+                            main.context.clientStty.roundTrip("fault", "Sending remote fault command (1)", 2000);
                         }
                         catch (Exception e)
                         {
@@ -883,7 +911,7 @@ public class Main
                 if (!context.cfg.isQuitStatusServer() && context.statusStty.isConnected())
                 {
                     context.statusStty.send("bye", "Sending bye command to Hint Server");
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 }
                 context.statusStty.disconnect();
                 context.statusStty = null;

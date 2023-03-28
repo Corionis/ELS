@@ -1386,7 +1386,7 @@ public class Hints
      */
     public void updateStatusTracking(String libraryName, String itemPath, String backupName, String status) throws Exception
     {
-        if (context.statusStty != null) // remote?
+        if (context.statusStty != null) // is the Hint Status Server being used?
         {
             if (context.statusStty.isConnected())
             {
@@ -1396,7 +1396,7 @@ public class Hints
                         "\"" + backupName + "\" " +
                         "\"" + status + "\"";
 
-                String response = context.statusStty.roundTrip(command, "Update status", 10000);
+                String response = context.statusStty.roundTrip(command, "", 10000);
                 if (response == null || !response.equalsIgnoreCase(status))
                     throw new MungeException("Status Server " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
             }
@@ -1405,9 +1405,12 @@ public class Hints
         }
         else // no, local
         {
-            String result = context.datastore.setStatus(libraryName, itemPath, backupName, status);
-            if (result == null || !result.equalsIgnoreCase(status))
-                throw new MungeException("Hint setStatus() for " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
+            if (context.datastore != null) // is the Hint Tracker being used?
+            {
+                String result = context.datastore.setStatus(libraryName, itemPath, backupName, status);
+                if (result == null || !result.equalsIgnoreCase(status))
+                    throw new MungeException("Hint setStatus() for " + context.statusRepo.getLibraryData().libraries.description + " returned a failure during set");
+            }
         }
     }
 

@@ -191,7 +191,7 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                             {
                                 // random sleep for 1-3 minutes to discourage automated attacks
                                 Random rand = new Random();
-                                Thread.sleep(rand.nextInt(3) * 1000L);
+                                Thread.sleep(rand.nextInt(3) * 2000L);
                             }
                             catch (InterruptedException e)
                             {

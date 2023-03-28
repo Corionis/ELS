@@ -28,7 +28,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
 {
     public static String INTERNAL_NAME = "jobs"; // must be lowercase
 
-    private String configName; // user name for this instance
+    private String configName; // user-defined name for this instance
     private ArrayList<Task> tasks;
 
     transient Context context;
@@ -45,7 +45,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
         super(context);
         this.context = context;
         this.configName = name;
-//        this.logger = context.logger;
         this.tasks = new ArrayList<Task>();
         this.dataHasChanged = false;
     }
@@ -413,7 +412,9 @@ public class Job extends AbstractTool implements Comparable, Serializable
         {
             for (Task task : getTasks())
             {
-                if (task.isSubscriberRemote() && !context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
+                if (task.isSubscriberRemote() &&
+                        !task.getPublisherKey().equals(Task.CACHEDLASTTASK) &&
+                        !context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
                     return true;
             }
         }

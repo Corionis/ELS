@@ -292,6 +292,8 @@ public class Task implements Comparable, Serializable
         }
         else
             tool = currentTool;
+        if (tool == null)
+            return false;
         return tool.isOriginPathsAllowed();
     }
 

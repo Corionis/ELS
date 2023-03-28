@@ -1318,21 +1318,21 @@ public class Preferences implements Serializable
 
         // shorten paths relative to the working directory if possible
         String savedHintKeysOpenFile = getLastHintKeysOpenFile();
-        setLastHintKeysOpenFile(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenFile()));
+        setLastHintKeysOpenFile(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenFile(), false));
         String savedHintKeysOpenPath = getLastHintKeysOpenPath();
-        setLastHintKeysOpenPath(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenPath()));
+        setLastHintKeysOpenPath(context.main.getWorkingDirectoryRelative(getLastHintKeysOpenPath(), false));
         String savedHintTrackingOpenFile = getLastHintTrackingOpenFile();
-        setLastHintTrackingOpenFile(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenFile()));
+        setLastHintTrackingOpenFile(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenFile(), false));
         String savedHintTrackingOpenPath = getLastHintTrackingOpenPath();
-        setLastHintTrackingOpenPath(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenPath()));
+        setLastHintTrackingOpenPath(context.main.getWorkingDirectoryRelative(getLastHintTrackingOpenPath(), false));
         String savedPublisherOpenFile = getLastPublisherOpenFile();
-        setLastPublisherOpenFile(context.main.getWorkingDirectoryRelative(getLastPublisherOpenFile()));
+        setLastPublisherOpenFile(context.main.getWorkingDirectoryRelative(getLastPublisherOpenFile(), false));
         String savedPublisherOpenPath = getLastPublisherOpenPath();
-        setLastPublisherOpenPath(context.main.getWorkingDirectoryRelative(getLastPublisherOpenPath()));
+        setLastPublisherOpenPath(context.main.getWorkingDirectoryRelative(getLastPublisherOpenPath(), false));
         String savedSubscriberOpenFile = getLastSubscriberOpenFile();
-        setLastSubscriberOpenFile(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenFile()));
+        setLastSubscriberOpenFile(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenFile(), false));
         String savedSubscriberOpenPath = getLastSubscriberOpenPath();
-        setLastSubscriberOpenPath(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenPath()));
+        setLastSubscriberOpenPath(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenPath(), false));
 
         json = gson.toJson(this);
         try

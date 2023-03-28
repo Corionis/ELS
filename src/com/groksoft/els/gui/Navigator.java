@@ -230,6 +230,8 @@ public class Navigator
             context.preferences.setLastPublisherOpenPath(Utils.getLeftPath(context.cfg.getPublisherLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getPublisherLibrariesFileName())));
         }
+        if (context.preferences.getLastPublisherOpenPath().equals(context.preferences.getLastPublisherOpenFile()))
+            context.preferences.setLastPublisherOpenPath(context.cfg.getWorkingDirectory());
 
         if (context.cfg.getSubscriberCollectionFilename().length() > 0)
         {
@@ -245,6 +247,8 @@ public class Navigator
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberLibrariesFileName())));
         }
+        if (context.preferences.getLastSubscriberOpenPath().equals(context.preferences.getLastSubscriberOpenFile()))
+            context.preferences.setLastSubscriberOpenPath(""); //context.cfg.getWorkingDirectory());
 
         if (context.cfg.isUsingHintTracking())
         {
@@ -252,6 +256,8 @@ public class Navigator
             context.preferences.setLastHintTrackingOpenFile(context.cfg.getHintHandlerFilename());
             context.preferences.setLastHintTrackingOpenPath(Utils.getLeftPath(context.cfg.getHintHandlerFilename(),
                     Utils.getSeparatorFromPath(context.cfg.getHintHandlerFilename())));
+            if (context.preferences.getLastHintKeysOpenPath().equals(context.preferences.getLastHintKeysOpenFile()))
+                context.preferences.setLastHintTrackingOpenPath(context.cfg.getWorkingDirectory());
         }
         else
         {
@@ -259,7 +265,7 @@ public class Navigator
             if (context.preferences.getLastHintTrackingOpenFile() == null)
                 context.preferences.setLastHintTrackingOpenFile("");
             if (context.preferences.getLastHintTrackingOpenPath() == null)
-                context.preferences.setLastHintTrackingOpenPath("");
+                context.preferences.setLastHintTrackingOpenPath(context.cfg.getWorkingDirectory());
         }
 
         // setup the needed tools

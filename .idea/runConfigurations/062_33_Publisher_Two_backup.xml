@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="062-33_Publisher-Two-backup" type="Application" factoryName="Application" folderName="062-00 Local Hint Tracker - Remote Backup">
+    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <module name="ELS" />
+    <option name="PROGRAM_PARAMETERS" value="-C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug -r P -p libraries/publisher.json -s libraries/subscriber-two.json -T -m output/062-33_Publisher-Two-backup_mismatches.txt -W output/062-33_Publisher-Two-backup_whatsnew.txt -F output/062-33_Publisher-Two-backup.log" />
+    <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$/mock" />
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <method v="2">
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
