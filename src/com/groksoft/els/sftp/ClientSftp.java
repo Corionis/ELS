@@ -112,11 +112,10 @@ public class ClientSftp
             try
             {
                 // is it a Windows drive letter: ?
-                if (i == 0 && parts[i].endsWith(":"))
+                if (parts[i].endsWith(":"))
                 {
                     // don't try to create a Windows root directory, e.g. C:\
-                    if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS) &&
-                            parts[i].length() == 2)
+                    if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS)) // && parts[i].length() == 2)
                     {
                         whole = parts[i];
                         continue;
@@ -292,7 +291,9 @@ public class ClientSftp
         long writeOffset = 0L;
 
         ChannelSftp jSftp = connect();
-        String copyDest = dest + ".els-part";
+        String copyDest = Utils.pipe(dest + ".els-part");
+        copyDest = Utils.pipe(copyDest);
+        copyDest = Utils.unpipe(copyDest, "/");
 
         // does the destination already exist?
         // automatically resume/continue transfer
@@ -332,8 +333,6 @@ public class ClientSftp
         }
 
         // copy the .els-part file
-        copyDest = Utils.pipe(copyDest);
-        copyDest = Utils.unpipe(copyDest, "/");
         jSftp.put(src, copyDest, mode);
 
         // delete any old original file

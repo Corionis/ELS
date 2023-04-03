@@ -14,10 +14,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.StringTokenizer;
 
 /**
@@ -408,6 +405,13 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             {
                                 response = (isTerminal ? "copy command requires a 2 arguments, from and to\r\n" : "false");
                             }
+                            continue;
+                        }
+
+                        // -------------- drives of system ------------------------
+                        if (theCommand.equalsIgnoreCase("drives"))
+                        {
+                            response = Utils.getLocalHardDrives();
                             continue;
                         }
 

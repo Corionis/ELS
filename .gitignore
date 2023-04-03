@@ -18,9 +18,9 @@ hs_err_pid*
 /mock/local/
 /mock/output/
 /mock/private/
-/mock/scripts/linux/900*
+/mock/scripts/linux/9*
+/mock/scripts/windows/9*
 /mock/system/
-/mock/test (copy)/
 /mock/test/
 /mock/tools/
 /out

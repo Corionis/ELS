@@ -29,6 +29,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
     public SortFoldersBeforeFiles sortFoldersBeforeFiles;
     public SortTreeAlphabetically sortTreeAlphabetically;
     public Context context;
+    private boolean forceReload = false;
     private boolean loaded = false;
     private transient Logger logger = LogManager.getLogger("applog");
     private Repository myRepo;
@@ -134,82 +135,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
      */
     public void deepScanChildren(boolean recursive)
     {
-        NavTreeUserObject myTuo;
-        List<NavTreeNode> nodeArray;
-
-        nodeArray = new ArrayList<NavTreeNode>();
-        myTuo = (NavTreeUserObject) getUserObject();
-        switch (myTuo.type)
-        {
-            case NavTreeUserObject.BOOKMARKS:
-                //logger.debug("bookmarks");
-                break;
-            case NavTreeUserObject.SYSTEM: // for completeness, hidden
-                //logger.debug("system");
-                break;
-            case NavTreeUserObject.COLLECTION:
-                //logger.debug("collection"); // root of collection
-                break;
-            case NavTreeUserObject.COMPUTER: // virtual node, not processed
-                //logger.debug("computer");
-                break;
-            case NavTreeUserObject.DRIVE:
-                if (myTuo.isDir)
-                {
-                    if (myTuo.isRemote)
-                    {
-                        logger.info(context.cfg.gs("NavTreeNode.deep.scan.remote.drive") + myTuo.path);
-                        scanRemote(myTuo.path, nodeArray, recursive);
-                    }
-                    else
-                    {
-                        logger.info(context.cfg.gs("NavTreeNode.deep.scan.local.drive") + myTuo.path);
-                        scan(new File(myTuo.path).getAbsoluteFile(), nodeArray, recursive);
-                    }
-                }
-                break;
-            case NavTreeUserObject.HOME:
-                File file = new File(myTuo.path);
-                if (file.isDirectory())
-                {
-                    logger.info(context.cfg.gs("NavTreeNode.deep.scan.home.directory") + myTuo.path);
-                    scan(file.getAbsoluteFile(), nodeArray, recursive);
-                }
-                break;
-            case NavTreeUserObject.LIBRARY:
-                if (myTuo.sources != null && myTuo.sources.length > 0)
-                {
-                    for (String path : myTuo.sources)
-                    {
-                        if (myTuo.isRemote)
-                        {
-                            logger.info(context.cfg.gs("NavTreeNode.deep.scan.remote.library") + path);
-                            scanRemote(path, nodeArray, recursive);
-                        }
-                        else
-                        {
-                            logger.info(context.cfg.gs("NavTreeNode.deep.scan.local.library") + path);
-                            scan(new File(path).getAbsoluteFile(), nodeArray, recursive);
-                        }
-                    }
-                }
-                break;
-            case NavTreeUserObject.REAL:
-                if (myTuo.isDir)
-                {
-                    if (myTuo.isRemote)
-                    {
-                        logger.info(context.cfg.gs("NavTreeNode.deep.scan.remote.directory") + myTuo.path);
-                        scanRemote(myTuo.path, nodeArray, recursive);
-                    }
-                    else
-                    {
-                        logger.info(context.cfg.gs("NavTreeNode.deep.scan.local.directory") + myTuo.file.getAbsolutePath());
-                        scan(myTuo.file.getAbsoluteFile(), nodeArray, recursive);
-                    }
-                }
-                break;
-        }
+        List<NavTreeNode> nodeArray = scan(recursive);
         setChildren(nodeArray, false);
     }
 
@@ -428,6 +354,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
         return false;
     }
 
+    public boolean isForceReload()
+    {
+        return forceReload;
+    }
+
     public boolean isLoaded()
     {
         return loaded;
@@ -458,79 +389,8 @@ public class NavTreeNode extends DefaultMutableTreeNode
             @Override
             protected List<NavTreeNode> doInBackground() throws Exception
             {
-                nodeArray = new ArrayList<NavTreeNode>();
                 myTuo = (NavTreeUserObject) getUserObject();
-                switch (myTuo.type)
-                {
-                    case NavTreeUserObject.BOOKMARKS:
-                        //logger.debug("bookmarks");
-                        break;
-                    case NavTreeUserObject.SYSTEM: // for completeness, hidden
-                        //logger.debug("system");
-                        break;
-                    case NavTreeUserObject.COLLECTION:
-                        //logger.debug("collection"); // root of collection
-                        break;
-                    case NavTreeUserObject.COMPUTER: // virtual node, not processed
-                        //logger.debug("computer");
-                        break;
-                    case NavTreeUserObject.DRIVE:
-                        if (myTuo.isDir)
-                        {
-                            if (myTuo.isRemote)
-                            {
-                                logger.info(context.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
-                                scanRemote(myTuo.path, nodeArray, false);
-                            }
-                            else
-                            {
-                                logger.info(context.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
-                                scan(new File(myTuo.path).getAbsoluteFile(), nodeArray, false);
-                            }
-                        }
-                        break;
-                    case NavTreeUserObject.HOME:
-                        File file = new File(myTuo.path);
-                        if (file.isDirectory())
-                        {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
-                            scan(file.getAbsoluteFile(), nodeArray, false);
-                        }
-                        break;
-                    case NavTreeUserObject.LIBRARY:
-                        if (myTuo.sources != null && myTuo.sources.length > 0)
-                        {
-                            for (String path : myTuo.sources)
-                            {
-                                if (myTuo.isRemote)
-                                {
-                                    logger.info(context.cfg.gs("NavTreeNode.scanning.remote.library") + path);
-                                    scanRemote(path, nodeArray, false);
-                                }
-                                else
-                                {
-                                    logger.info(context.cfg.gs("NavTreeNode.scanning.local.library") + path);
-                                    scan(new File(path).getAbsoluteFile(), nodeArray, false);
-                                }
-                            }
-                        }
-                        break;
-                    case NavTreeUserObject.REAL:
-                        if (myTuo.isDir)
-                        {
-                            if (myTuo.isRemote)
-                            {
-                                logger.info(context.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
-                                scanRemote(myTuo.path, nodeArray, false);
-                            }
-                            else
-                            {
-                                logger.info(context.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
-                                scan(myTuo.file.getAbsoluteFile(), nodeArray, false);
-                            }
-                        }
-                        break;
-                }
+                nodeArray = scan(false);
                 return nodeArray;
             }
 
@@ -539,7 +399,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
             {
                 try
                 {
-                    if (myTuo.type != NavTreeUserObject.COMPUTER && myTuo.type != NavTreeUserObject.COLLECTION)
+                    if (myTuo.type != NavTreeUserObject.COLLECTION && myTuo.type != NavTreeUserObject.SYSTEM)
                     {
                         setChildren(get(), doLoadTable);
                     }
@@ -613,7 +473,100 @@ public class NavTreeNode extends DefaultMutableTreeNode
         loadStatus(); // set the left or right status message & properties
     }
 
-    protected void scan(File file, List<NavTreeNode> nodeArray, boolean recursive)
+    protected List<NavTreeNode> scan(boolean recursive)
+    {
+        NavTreeUserObject myTuo;
+        List<NavTreeNode> nodeArray;
+
+        nodeArray = new ArrayList<NavTreeNode>();
+        myTuo = (NavTreeUserObject) getUserObject();
+
+        try
+        {
+            switch (myTuo.type)
+            {
+                case NavTreeUserObject.BOOKMARKS:
+                    //logger.debug("bookmarks");
+                    break;
+                case NavTreeUserObject.SYSTEM: // for completeness, hidden
+                    //logger.debug("system");
+                    break;
+                case NavTreeUserObject.COLLECTION:
+                    //logger.debug("collection"); // root of collection
+                    break;
+                case NavTreeUserObject.COMPUTER: // expand all available drives
+                    //logger.debug("computer"); // local drives
+                    break;
+                case NavTreeUserObject.DRIVE: // a particular drive
+                    if (myTuo.isDir)
+                    {
+                        if (myTuo.isRemote)
+                        {
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
+                            scanRemote(myTuo.path, nodeArray, false);
+                        }
+                        else
+                        {
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
+                            scanLocal(new File(myTuo.path).getAbsoluteFile(), nodeArray, false);
+                        }
+                    }
+                    break;
+                case NavTreeUserObject.HOME:
+                    File file = new File(myTuo.path);
+                    if (file.isDirectory())
+                    {
+                        logger.info(context.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
+                        scanLocal(file.getAbsoluteFile(), nodeArray, false);
+                    }
+                    break;
+                case NavTreeUserObject.LIBRARY:
+                    if (myTuo.sources != null && myTuo.sources.length > 0)
+                    {
+                        for (String path : myTuo.sources)
+                        {
+                            if (myTuo.isRemote)
+                            {
+                                logger.info(context.cfg.gs("NavTreeNode.scanning.remote.library") + path);
+                                scanRemote(path, nodeArray, false);
+                            }
+                            else
+                            {
+                                logger.info(context.cfg.gs("NavTreeNode.scanning.local.library") + path);
+                                scanLocal(new File(path).getAbsoluteFile(), nodeArray, false);
+                            }
+                        }
+                    }
+                    break;
+                case NavTreeUserObject.REAL:
+                    if (myTuo.isDir)
+                    {
+                        if (myTuo.isRemote)
+                        {
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
+                            scanRemote(myTuo.path, nodeArray, false);
+                        }
+                        else
+                        {
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
+                            scanLocal(myTuo.file.getAbsoluteFile(), nodeArray, false);
+                        }
+                    }
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            String msg = context.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
+                    context.subscriberRepo.getLibraryData().libraries.description;
+            logger.error(msg);
+            context.fault = true;
+            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+        return nodeArray;
+    }
+
+    protected void scanLocal(File file, List<NavTreeNode> nodeArray, boolean recursive)
     {
         if (file.isDirectory())
         {
@@ -675,6 +628,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
             String msg = context.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
                     context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
             logger.error(msg);
+            context.fault = true;
             JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -730,11 +684,19 @@ public class NavTreeNode extends DefaultMutableTreeNode
             loadTable();
     }
 
+    public void setForceReload(boolean forceReload)
+    {
+        this.forceReload = forceReload;
+    }
+
     public void setLoaded(boolean loaded)
     {
         this.loaded = loaded;
         if (this.loaded)
+        {
+            setForceReload(false);
             setRefresh(false);
+        }
     }
 
     public void setMyStatus(JLabel myStatus)

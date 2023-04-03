@@ -559,8 +559,8 @@ public class MainFrame extends JFrame
         menuItemJunk = new JMenuItem();
         menuItemRenamer = new JMenuItem();
         menuItemExternalTools = new JMenuItem();
-        menuItem1 = new JMenuItem();
         menuItemPlexGenerator = new JMenuItem();
+        menuItem1 = new JMenuItem();
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
         menuStopTask = new JMenu();
@@ -1044,18 +1044,18 @@ public class MainFrame extends JFrame
                 menuItemExternalTools.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemExternalTools.displayedMnemonicIndex")));
                 menuTools.add(menuItemExternalTools);
 
-                //---- menuItem1 ----
-                menuItem1.setText("Handbrake");
-                menuItem1.setMargin(new Insets(2, 18, 2, 2));
-                menuItem1.setEnabled(false);
-                menuTools.add(menuItem1);
-
                 //---- menuItemPlexGenerator ----
                 menuItemPlexGenerator.setText(context.cfg.gs("Navigator.menu.PlexGenerator.text"));
                 menuItemPlexGenerator.setMnemonic(context.cfg.gs("Navigator.menu.PlexGenerator.mnemonic").charAt(0));
                 menuItemPlexGenerator.setEnabled(false);
                 menuItemPlexGenerator.setMargin(new Insets(2, 18, 2, 2));
                 menuTools.add(menuItemPlexGenerator);
+
+                //---- menuItem1 ----
+                menuItem1.setText("Handbrake");
+                menuItem1.setMargin(new Insets(2, 18, 2, 2));
+                menuItem1.setEnabled(false);
+                menuTools.add(menuItem1);
             }
             menuBarMain.add(menuTools);
 
@@ -3336,8 +3336,8 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemJunk;
     public JMenuItem menuItemRenamer;
     public JMenuItem menuItemExternalTools;
-    public JMenuItem menuItem1;
     public JMenuItem menuItemPlexGenerator;
+    public JMenuItem menuItem1;
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
     public JMenu menuStopTask;

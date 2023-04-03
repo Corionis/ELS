@@ -148,7 +148,7 @@ public class EmptyDirectoryFinderUI extends JDialog
             labelStatus.setText(context.cfg.gs("Z.deleted") + deletes);
             if (sourceTree != null)
             {
-                context.browser.rescanByObject(sourceTree);
+                context.browser.rescanByTreeOrTable(sourceTree);
             }
         }
     }

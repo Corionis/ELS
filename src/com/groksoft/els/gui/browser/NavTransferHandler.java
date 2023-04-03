@@ -402,7 +402,7 @@ public class NavTransferHandler extends TransferHandler
 
             // use a temporary (unsaved) Bookmark 'Goto Bookmark' method to scan the full tree path using the publisher System tree
             Bookmark bm = context.browser.bookmarkCreate("find-tuo", searchTree, repoName, libName, pathElements);
-            TreePath tp = context.browser.scanSelectPath(searchTree.getName(), bm.pathElements, false, false, true);
+            TreePath tp = context.browser.scanTreePath(searchTree.getName(), bm.pathElements, false, false, true);
             if (tp != null)
             {
                 NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();

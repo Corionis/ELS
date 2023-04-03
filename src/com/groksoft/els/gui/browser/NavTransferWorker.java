@@ -228,7 +228,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 directory = Utils.getLeftPath(directory, targetSep);
             }
         }
-        directory = Utils.pipe(directory);
         assert (directory.length() > 0);
 
         int dirPos = Utils.rightIndexOf(sourceTuo.path, sourceSep, (targetTuo.isDir ? 0 : depth));
@@ -236,8 +235,10 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         filename = Utils.pipe(filename);
 
         // put them together
+        directory = Utils.pipe(directory);
         path = directory + filename;
         path = Utils.unpipe(path, targetSep);
+        path = path.replace(":\\\\", ":\\");
 
         return path;
     }

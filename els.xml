@@ -3,7 +3,7 @@
 
     <target name="init">
         <property file="els.properties"/>
-        <echo message="ELS version ${els.version}" level="info"/>
+        <echo message="ELS version ${els.version.number}, ${els.version.name}" level="info"/>
         <echo message="${java.vendor} ${java.runtime.name} ${java.runtime.version}" level="info"/>
         <echo message="${ant.version}" level="info"/>
         <path id="class.path">
@@ -22,16 +22,17 @@
     <target name="stamp" depends="clean" description="Copy default locale amd set build stamp">
         <!-- Write the build timestamp -->
         <tstamp>
-            <format property="RIGHTNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
-            <format property="SHORTNOW" pattern="ddMMyyyyHHmm" locale="en,US"/>
+            <format property="STRINGNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
+            <format property="NUMBERNOW" pattern="ddMMyyyyHHmm" locale="en,US"/>
         </tstamp>
-        <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${RIGHTNOW}</echo>
+        <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${STRINGNOW}</echo>
         <!-- Write the version.info file -->
         <delete file="deploy/version.info" failonerror="false"/>
-        <echo file="deploy/version.info" append="false">${SHORTNOW}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${els.version}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${RIGHTNOW}${line.separator}</echo>
-        <echo message="Build stamp ${RIGHTNOW}" level="info"/>
+        <echo file="deploy/version.info" append="false">${NUMBERNOW}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${STRINGNOW}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${els.version.number}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${els.version.name}${line.separator}</echo>
+        <echo message="Build stamp ${NUMBERNOW}, ${STRINGNOW}" level="info"/>
         <!-- Copy the IDE default bundle to the en_US bundle -->
         <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
     </target>
@@ -86,7 +87,7 @@
         <copy file="artifacts/images/els-logo-98px.png" todir="out/tar/ELS/bin" preservelastmodified="true"/>
         <copy file="deploy/ELS.jar" todir="out/tar/ELS/bin" preservelastmodified="true"/>
         <untar dest="out/tar/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-linux.tar.gz" compression="gzip"/>
-        <tar destfile="deploy/ELS-${els.version}-Linux-${SHORTNOW}.tar.gz" compression="gzip">
+        <tar destfile="deploy/ELS-${els.version.name}-Linux-${NUMBERNOW}.tar.gz" compression="gzip">
             <tarfileset dir="out/tar" filemode="775">
                 <include name="ELS/ELS-Navigator.sh"/>
             </tarfileset>
@@ -110,7 +111,7 @@
         <copy file="artifacts/images/els-logo-98px.png" todir="out/zip/ELS/bin" preservelastmodified="true"/>
         <copy file="deploy/ELS.jar" todir="out/zip/ELS/bin" preservelastmodified="true"/>
         <unzip dest="out/zip/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-windows.zip"/>
-        <zip destfile="deploy/ELS-${els.version}-Windows-${SHORTNOW}.zip">
+        <zip destfile="deploy/ELS-${els.version.name}-Windows-${NUMBERNOW}.zip">
             <zipfileset dir="out/zip" includes="**/*"/>
         </zip>
     </target>

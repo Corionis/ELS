@@ -12,20 +12,16 @@ import org.apache.logging.log4j.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.net.SocketException;
 import java.net.URL;
 import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings(value = "unchecked")
@@ -157,7 +153,9 @@ public class Browser
             {
                 context.mainFrame.labelStatusMiddle.setText("");
                 JTable target = (JTable) mouseEvent.getSource();
+                NavTreeNode node = ((BrowserTableModel)target.getModel()).getNode();
                 target.requestFocus();
+
                 JTree eventTree = null;
                 switch (target.getName())
                 {
@@ -174,6 +172,7 @@ public class Browser
                         eventTree = context.mainFrame.treeSystemTwo;
                         break;
                 }
+
                 int row = target.getSelectedRow();
                 if (row >= 0)
                 {
@@ -183,11 +182,12 @@ public class Browser
                         boolean doubleClick = (mouseEvent.getClickCount() == 2);
                         context.mainFrame.textFieldLocation.setText(tuo.getPath());
                         printProperties(tuo);
+
                         if (doubleClick)
                         {
                             if (tuo.isDir)
                             {
-                                NavTreeNode node = tuo.node;
+                                node = tuo.node;
                                 TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
                                 eventTree.setSelectionPath(node.getTreePath());
                                 eventTree.scrollPathToVisible(node.getTreePath());
@@ -219,6 +219,8 @@ public class Browser
                         }
                     }
                 }
+                else
+                    eventTree.setSelectionPath(node.getTreePath());
             }
         };
 
@@ -289,7 +291,7 @@ public class Browser
                 // handle F5 Refresh
                 if (keyEvent.getKeyCode() == KeyEvent.VK_F5 && keyEvent.getModifiers() == 0)
                 {
-                    rescanByObject(keyEvent.getSource());
+                    rescanByTreeOrTable(keyEvent.getSource()); // same as Refresh menu
                 }
             }
 
@@ -547,7 +549,8 @@ public class Browser
             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
             int panelNo = context.browser.getPanelNumber(bookmark.panel);
             context.browser.selectPanelNumber(panelNo);
-            if (scanSelectPath(panelName, bookmark.pathElements, true, false, false) == null)
+            TreePath tp = scanTreePath(panelName, bookmark.pathElements, true, false, false);
+            if (tp == null)
             {
                 String pe = Utils.concatStringArray(bookmark.pathElements, "/");
                 JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Browser.bookmark.location.not.found") + pe,
@@ -833,7 +836,7 @@ public class Browser
                 switch (styleOne)
                 {
                     case STYLE_COLLECTION_ALL:
-                        styleCollectionAll(tree, repo, remote, true, recursive);
+                        styleCollection(tree, repo, remote, true, recursive);
                         break;
                     case STYLE_COLLECTION_AZ:
                         break;
@@ -861,7 +864,8 @@ public class Browser
             switch (styleTwo)
             {
                 case STYLE_SYSTEM_ALL:
-                    root = styleSystemAll(tree, repo, remote, true, recursive);
+                    root = styleComputer(tree, repo, remote, true, recursive);
+                    styleHome(tree, repo, remote, true, recursive);
                     break;
                 default:
                     break;
@@ -916,6 +920,70 @@ public class Browser
         }
         assert (active > -1);
         return active;
+    }
+
+    public ArrayList<TreePath> getCombinedTreePaths(JTree sourceTree)
+    {
+        TreePath rootPath = ((NavTreeNode) sourceTree.getModel().getRoot()).getTreePath();
+        Enumeration<TreePath> expandedDescendants = sourceTree.getExpandedDescendants(rootPath);
+        TreePath[] treePaths = sourceTree.getSelectionPaths();
+        ArrayList<TreePath> combinedPaths = new ArrayList<>();
+
+        // add expanded directory nodes
+        if (expandedDescendants != null)
+        {
+            while (expandedDescendants.hasMoreElements())
+            {
+                TreePath tp = expandedDescendants.nextElement();
+                NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                int type = ntn.getUserObject().type;
+                if (ntn.getUserObject().isDir && type != NavTreeUserObject.COLLECTION && type != NavTreeUserObject.SYSTEM)
+                    combinedPaths.add(tp);
+            }
+        }
+
+        // add selected directory nodes
+        if (treePaths != null && treePaths.length > 0)
+        {
+            for (TreePath tp : treePaths)
+            {
+                NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
+                int type = ntn.getUserObject().type;
+                if (ntn.getUserObject().isDir && type != NavTreeUserObject.COLLECTION && type != NavTreeUserObject.SYSTEM)
+                {
+                    boolean duplicate = false;
+                    for (TreePath combined : combinedPaths)
+                    {
+                        if (Utils.compareTreePaths(tp, combined) == 0)
+                        {
+                            duplicate = true;
+                            break;
+                        }
+                    }
+                    if (!duplicate) // avoid scanning the same place more than once
+                        combinedPaths.add(tp);
+                }
+            }
+        }
+
+        // anything to do?
+        if (combinedPaths.size() > 0)
+        {
+            // sort TreePaths
+            combinedPaths.sort(new Comparator<TreePath>()
+            {
+                @Override
+                public int compare(TreePath tp1, TreePath tp2)
+                {
+                    return Utils.compareTreePaths(tp1, tp2);
+                }
+            });
+
+            // compress list to longest paths
+            combinedPaths = Utils.compressTreePaths(combinedPaths);
+        }
+
+        return combinedPaths;
     }
 
     public long getFreespace(NavTreeUserObject tuo) throws Exception
@@ -1505,7 +1573,7 @@ public class Browser
                 switch (styleOne)
                 {
                     case STYLE_COLLECTION_ALL:
-                        styleCollectionAll(tree, repo, remote, false, false);
+                        styleCollection(tree, repo, remote, false, false);
                         break;
                     case STYLE_COLLECTION_AZ:
                         break;
@@ -1533,13 +1601,15 @@ public class Browser
             switch (styleTwo)
             {
                 case STYLE_SYSTEM_ALL:
-                    root = styleSystemAll(tree, repo, remote, false, false);
+                    root = styleComputer(tree, repo, remote, false, false);
+                    styleHome(tree, repo, remote, false, false); // must be after styleComputer()
                     break;
                 default:
                     break;
             }
             ((NavTreeModel) tree.getModel()).reload();
             root.loadTable();
+            root.selectMe();
         }
         catch (Exception e)
         {
@@ -1750,28 +1820,44 @@ public class Browser
     {
         if (tree != null)
         {
-            tree.setEnabled(false);
-            TreePath rootPath = ((NavTreeNode) tree.getModel().getRoot()).getTreePath();
-            Enumeration<TreePath> expandedDescendants = tree.getExpandedDescendants(rootPath);
-            TreePath[] paths = tree.getSelectionPaths();
+       //     tree.setEnabled(false);
+
+            TreePath[] treePaths = tree.getSelectionPaths();
+            ArrayList<TreePath> combinedPaths = getCombinedTreePaths(tree);
+
             ((NavTreeModel) tree.getModel()).reload();
+
+            // LEFTOFF translate old combinedPaths (that DO NOT EXIST) to newly scanned paths
+            //  * clone scanTreePath() logic to update TreePaths from old to new objects
+            //    + They SHOULD exist, but skip anything that's missing
+
             tree.setExpandsSelectedPaths(true);
-            if (expandedDescendants != null)
+            tree.setScrollsOnExpand(true);
+            for (TreePath tp : combinedPaths)
             {
-                while (expandedDescendants.hasMoreElements())
-                {
-                    TreePath tp = expandedDescendants.nextElement();
-                    tree.expandPath(tp);
-                }
+                NavTreeNode oldNtn = (NavTreeNode) tp.getLastPathComponent();
+//                NavTreeNode newNtn =
+                tree.expandPath(tp);
             }
-            if (paths != null && paths.length > 0)
-                tree.setSelectionPaths(paths);
-            ((NavTreeNode) tree.getModel().getRoot()).sort();
+
+/*
+            if (treePaths != null && treePaths.length > 0)
+            {
+                tree.setSelectionPaths(treePaths);
+//                for (int i = 0; i < treePaths.length; ++i)
+//                {
+//                    TreePath tp = treePaths[i];
+//                    tree.setSelectionPath(tp);
+//                }
+            }
+*/
+
+//////            selectedNode.loadTable();
             tree.setEnabled(true);
         }
     }
 
-    public void rescanByObject(Object object)
+    public void rescanByTreeOrTable(Object object)
     {
         JTree sourceTree = null;
         if (object instanceof JTree)
@@ -1783,42 +1869,51 @@ public class Browser
             JTable sourceTable = (JTable) object;
             sourceTree = ((BrowserTableModel) sourceTable.getModel()).getNode().getMyTree();
         }
+        assert (sourceTree != null);
 
-        TreePath rootPath = ((NavTreeNode) sourceTree.getModel().getRoot()).getTreePath();
-        Enumeration<TreePath> expandedDescendants = sourceTree.getExpandedDescendants(rootPath);
-        TreePath[] paths = sourceTree.getSelectionPaths();
-
-        if (expandedDescendants != null)
+        ArrayList<TreePath> combinedPaths = getCombinedTreePaths(sourceTree);
+        if (combinedPaths.size() > 0)
         {
-            while (expandedDescendants.hasMoreElements())
+            for (TreePath tp : combinedPaths)
             {
-                TreePath tp = expandedDescendants.nextElement();
-                NavTreeNode ntn = (NavTreeNode) tp.getLastPathComponent();
-                if (ntn.getUserObject().isDir && ntn.getUserObject().type != NavTreeUserObject.COLLECTION)
+                for (int i = 0; i < tp.getPathCount(); ++i)
                 {
-                    scanSelectPath(sourceTree.getName(), Utils.getTreePathStrings(tp), false, true, false);
+                    NavTreeNode ntn = (NavTreeNode) tp.getPathComponent(i);
+                    ntn.setForceReload(true);
                 }
             }
+
+            // scan each
+            for (TreePath combined : combinedPaths)
+            {
+                scanTreePath(sourceTree.getName(), Utils.getTreePathStringArray(combined), false, true, false);
+            }
         }
+
         refreshTree(sourceTree);
     }
 
-    public TreePath scanSelectPath(String panelName, String[] pathElements, boolean doTable, boolean forceScan, boolean fullTreePath)
+    public TreePath scanTreePath(String panelName, String[] pathElements, boolean doTable, boolean forceScan, boolean fullTreePath)
     {
         TreePath treePath = null;
         if (panelName != null && panelName.length() > 0 && pathElements != null && pathElements.length > 0)
         {
             // determine which
-            JTree tree;
+            boolean remote = false;
+            Repository repo;
             JTable table;
+            JTree tree;
             panelName = panelName.toLowerCase();
             if (panelName.endsWith("one")) // publisher collection or system
             {
+                repo = context.publisherRepo;
                 tree = panelName.contains("collection") ? context.mainFrame.treeCollectionOne : context.mainFrame.treeSystemOne;
                 table = panelName.contains("collection") ? context.mainFrame.tableCollectionOne : context.mainFrame.tableSystemOne;
             }
             else // subscriber collection or system
             {
+                remote = context.cfg.isRemoteSession();
+                repo = context.subscriberRepo;
                 tree = panelName.contains("collection") ? context.mainFrame.treeCollectionTwo : context.mainFrame.treeSystemTwo;
                 table = panelName.contains("collection") ? context.mainFrame.tableCollectionTwo : context.mainFrame.tableSystemTwo;
             }
@@ -1829,13 +1924,13 @@ public class Browser
             NavTreeNode node = (NavTreeNode) tree.getModel().getRoot();
             nodes[nodeIndex++] = node;
 
-            // find or scan each path segment
+            // walk the pathElements and find or scan each segment
             NavTreeNode next;
             int occurrence = 1;
             for (int i = 1; i < pathElements.length; ++i)
             {
                 next = node.findChildName(pathElements[i], occurrence);
-                if (next != null && (!forceScan)) // || node.getUserObject().type == NavTreeUserObject.COLLECTION))
+                if (next != null && (!forceScan || (forceScan && !next.isForceReload())))
                 {
                     nodes[nodeIndex++] = next;
                     node = next;
@@ -1845,14 +1940,21 @@ public class Browser
                     if (next != null) // must be forceScan
                     {
                         if (next.getUserObject().isDir)
-                            next.deepScanChildren(false);
+                        {
+                            if (next.getUserObject().type == NavTreeUserObject.COMPUTER && forceScan)
+                                styleComputer(tree, repo, remote, false, false);
+                            else if (next.getUserObject().type == NavTreeUserObject.HOME && forceScan)
+                                styleHome(tree, repo, remote, false, false);
+                            else
+                                next.deepScanChildren(false);
+                        }
                     }
                     else
-                    // if a directory scan it
-                    if (node.getUserObject().isDir)
-                    {
-                        node.deepScanChildren(false);
-                    }
+                        // if a directory scan it
+                        if (node.getUserObject().isDir)
+                        {
+                            node.deepScanChildren(false);
+                        }
                     // search again
                     next = node.findChildName(pathElements[i]);
                     if (next != null)
@@ -1881,27 +1983,20 @@ public class Browser
                 }
             }
 
-            // resize & shuffle if element(s) missing
+            // resize & shorten if component not found in path, i.e. drill-in as far as possible, use what was found
             if (nodeIndex != pathElements.length)
             {
-                logger.warn("####### Scan elements size mismatch, a segment was not found");
-
-/*
                 NavTreeNode[] shorter = new NavTreeNode[nodeIndex];
                 for (int k = 0; k < nodeIndex; ++k)
                     shorter[k] = nodes[k];
                 nodes = new NavTreeNode[nodeIndex];
                 for (int k = 0; k < nodeIndex; ++k)
                     nodes[k] = shorter[k];
-*/
-
-                // QUESTION Is this right?
-                return null;  // #########################################################################
-
-
+                for (int k = nodeIndex; k < pathElements.length; ++k)
+                    logger.warn("! Could not find " + pathElements[k]);
             }
 
-            // remove last segment if it's a file but not being shown, or a directory in the table
+            // remove last segment if it's a file and not being shown or is a directory in the table
             if (!fullTreePath && !nodes[nodeIndex - 1].getUserObject().isDir && context.preferences.isHideFilesInTree())
             {
                 NavTreeNode[] navNodes = new NavTreeNode[nodeIndex - 1];
@@ -1912,19 +2007,15 @@ public class Browser
             else
                 treePath = new TreePath(nodes);
 
-            // expand, scroll to and select the node tree
+            // load if necessary
             if (!node.isLoaded())
                 node.deepScanChildren(false);
-
-            if (doTable)
-            {
-                tree.setSelectionPath(treePath);
-                tree.scrollPathToVisible(treePath);
-            }
 
             // highlight last item if it's a table
             if (doTable)
             {
+                tree.setSelectionPath(treePath);
+                tree.scrollPathToVisible(treePath);
                 if (panelName.startsWith("table"))
                 {
                     int panelNo = context.browser.getPanelNumber(panelName);
@@ -2074,7 +2165,7 @@ public class Browser
         return root;
     }
 
-    private void styleCollectionAll(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive) throws Exception
+    private void styleCollection(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive)
     {
         NavTreeModel model = (NavTreeModel) tree.getModel();
         NavTreeNode root = (NavTreeNode) model.getRoot();
@@ -2092,72 +2183,119 @@ public class Browser
         root.setLoaded(true);
     }
 
-    private NavTreeNode styleSystemAll(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive) throws Exception
+    private NavTreeNode styleComputer(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive)
     {
-        // setup new invisible root for Computer, Home & Bookmarks
-        NavTreeNode root = new NavTreeNode(context, repo, tree);
-        NavTreeUserObject tuo = new NavTreeUserObject(root, context.cfg.gs("Browser.system"), NavTreeUserObject.SYSTEM, remote);
-        root.setNavTreeUserObject(tuo);
-        NavTreeModel model = new NavTreeModel(root, true);
-        model.activateFilter(context.preferences.isHideFilesInTree());
-        tree.setShowsRootHandles(true);
-        tree.setRootVisible(false);
-        tree.setLargeModel(true);
-        tree.setCellRenderer(new NavTreeCellRenderer(context));
-        tree.setModel(model);
-
-        // add Computer node
-        NavTreeNode rootNode = new NavTreeNode(context, repo, tree);
-        tuo = new NavTreeUserObject(rootNode, context.cfg.gs("Browser.computer"), NavTreeUserObject.COMPUTER, remote);
-        rootNode.setNavTreeUserObject(tuo);
-        root.add(rootNode);
-        if (remote && tree.getName().equalsIgnoreCase("treeSystemTwo"))
+        NavTreeNode computerNode;
+        NavTreeNode hiddenRoot;
+        NavTreeUserObject tuo;
+        if (!(tree.getModel() instanceof NavTreeModel))
         {
-            NavTreeNode node = new NavTreeNode(context, repo, tree);
-            tuo = new NavTreeUserObject(node, "/", "/", NavTreeUserObject.DRIVE, remote);
-            node.setNavTreeUserObject(tuo);
-            rootNode.add(node);
-            if (deep)
-                node.deepScanChildren(recursive);
-            else
-                node.loadChildren(false);
+            // setup new invisible root for Computer/Home
+            hiddenRoot = new NavTreeNode(context, repo, tree);
+            tuo = new NavTreeUserObject(hiddenRoot, context.cfg.gs("Browser.system"), NavTreeUserObject.SYSTEM, remote);
+            hiddenRoot.setNavTreeUserObject(tuo);
+            NavTreeModel model = new NavTreeModel(hiddenRoot, true);
+            model.activateFilter(context.preferences.isHideFilesInTree());
+            tree.setShowsRootHandles(true);
+            tree.setRootVisible(false);
+            tree.setLargeModel(true);
+            tree.setCellRenderer(new NavTreeCellRenderer(context));
+            tree.setModel(model);
+
+            // add Computer node
+            computerNode = new NavTreeNode(context, repo, tree);
+            tuo = new NavTreeUserObject(computerNode, context.cfg.gs("Browser.computer"), NavTreeUserObject.COMPUTER, remote);
+            computerNode.setNavTreeUserObject(tuo);
+            hiddenRoot.add(computerNode);
         }
         else
         {
-            // get all available storage drives
-            File[] rootPaths;
-            FileSystemView fsv = FileSystemView.getFileSystemView();
-            rootPaths = File.listRoots();
-            for (int i = 0; i < rootPaths.length; ++i)
+            hiddenRoot = (NavTreeNode) tree.getModel().getRoot();
+            computerNode = hiddenRoot.findChildName(context.cfg.gs("Browser.computer"));
+            computerNode.removeAllChildren();
+            tuo = computerNode.getUserObject();
+        }
+
+        NavTreeNode driveNode;
+        if (repo.getLibraryData().libraries.flavor.toLowerCase().equals("windows"))
+        {
+            String driveList = null;
+            if (remote)
             {
-                File drive = rootPaths[i];
-                NavTreeNode node = new NavTreeNode(context, repo, tree);
-                tuo = new NavTreeUserObject(node, drive.getPath(), drive.getAbsolutePath(), NavTreeUserObject.DRIVE, false);
-                node.setNavTreeUserObject(tuo);
-                rootNode.add(node);
+                try
+                {
+                    driveList = context.clientStty.roundTrip("drives", context.cfg.gs("NavTreeNode.requesting.windows.drives.list"), 5000);
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Browser.could.not.retrieve.list.of.remote.drives") + e.getMessage(),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    return null;
+                }
+            }
+            else
+                driveList = Utils.getLocalHardDrives();
+
+            String[] roots = driveList.split("\\|");
+            for (int i = 0; i < roots.length; ++i)
+            {
+                String drive = roots[i];
+                String path = "/" + drive.replaceAll("\\\\", "/");
+                driveNode = new NavTreeNode(context, repo, tree);
+                tuo = new NavTreeUserObject(driveNode, drive, path, NavTreeUserObject.DRIVE, remote);
+                driveNode.setNavTreeUserObject(tuo);
+                computerNode.add(driveNode);
                 if (deep)
-                    node.deepScanChildren(recursive);
+                    driveNode.deepScanChildren(recursive);
                 else
-                    node.loadChildren(false);
+                    driveNode.loadChildren(false);
             }
         }
-        rootNode.setLoaded(true);
+        else
+        {
+            driveNode = new NavTreeNode(context, repo, tree);
+            tuo = new NavTreeUserObject(driveNode, "/", "/", NavTreeUserObject.DRIVE, remote);
+            driveNode.setNavTreeUserObject(tuo);
+            computerNode.add(driveNode);
+            if (deep)
+                driveNode.deepScanChildren(recursive);
+            else
+                driveNode.loadChildren(false);
+        }
 
+        computerNode.setLoaded(true);
+        hiddenRoot.setLoaded(true);
+        return computerNode;
+    }
+
+    private NavTreeNode styleHome(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive)
+    {
+        NavTreeNode homeNode = null;
+        NavTreeNode hiddenRoot = (NavTreeNode) tree.getModel().getRoot();
         if (tree.getName().equalsIgnoreCase("treeSystemOne"))
         {
-            // add user's Home directory root node
-            NavTreeNode homeNode = new NavTreeNode(context, repo, tree);
-            tuo = new NavTreeUserObject(homeNode, context.cfg.gs("Browser.home"), System.getProperty("user.home"), NavTreeUserObject.HOME, false);
-            homeNode.setNavTreeUserObject(tuo);
-            root.add(homeNode);
+            homeNode = hiddenRoot.findChildName(context.cfg.gs("Browser.home"));
+            if (homeNode == null)
+            {
+                // add user's Home directory root node
+                homeNode = new NavTreeNode(context, repo, tree);
+                NavTreeUserObject tuo = new NavTreeUserObject(homeNode, context.cfg.gs("Browser.home"), System.getProperty("user.home"), NavTreeUserObject.HOME, remote);
+                homeNode.setNavTreeUserObject(tuo);
+                hiddenRoot.add(homeNode);
+            }
+            else
+            {
+                homeNode.removeAllChildren();
+            }
             if (deep)
                 homeNode.deepScanChildren(recursive);
             else
                 homeNode.loadChildren(false);
+            homeNode.setLoaded(true);
         }
-
-        root.setLoaded(true);
-        return root;
+        return homeNode;
     }
 
     public void toggleShowHiddenFiles()

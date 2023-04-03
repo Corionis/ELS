@@ -10,36 +10,24 @@
       ]
     },
     {
-      "name": "1942 - Bugs Bunny.mkv",
+      "name": "Bugs Bunny Does Another Interview - S02E02.mp4",
       "panel": "tableCollectionOne",
       "pathElements": [
         "Media Publisher",
         "TV Shows",
-        "A Bugs Show (2021)",
-        "Season 1",
-        "Specials",
-        "1942 - Bugs Bunny.mkv"
+        "R4 Bugs Bunny M1 M2",
+        "R4 eason 2",
+        "Bugs Bunny Does Another Interview - S02E02.mp4"
       ]
     },
     {
-      "name": "Bugs Bunny Season 1",
-      "panel": "tableCollectionTwo",
-      "pathElements": [
-        "Subscriber One",
-        "TV Shows",
-        "A Bugs Show (2021)",
-        "Season 1"
-      ]
-    },
-    {
-      "name": "Bugs What A Repeated Interview - S02e01.mp4",
+      "name": "cover.png",
       "panel": "tableCollectionOne",
       "pathElements": [
         "Media Publisher",
-        "TV Shows",
-        "A Bugs Show (2021)",
-        "Season 2",
-        "Bugs What A Repeated Interview - S02e01.mp4"
+        "Movies",
+        "Mission to Mars (2023)",
+        "cover.png"
       ]
     },
     {
@@ -54,41 +42,21 @@
       ]
     },
     {
-      "name": "More Virus.mp4",
-      "panel": "tableCollectionOne",
-      "pathElements": [
-        "Media Publisher",
-        "TV Shows",
-        "Virus (2021)",
-        "Virus.mp4"
-      ]
-    },
-    {
-      "name": "Pub: Bugs Bunny Season 2",
+      "name": "M4 D4 Renamer Tests",
       "panel": "treeCollectionOne",
       "pathElements": [
         "Media Publisher",
         "TV Shows",
-        "A Bugs Show (2021)",
-        "Season 2"
+        "M4 D4 Renamer Tests"
       ]
     },
     {
-      "name": "volmunger.txt",
-      "panel": "tableCollectionTwo",
-      "pathElements": [
-        "RockPlex",
-        "Music Videos",
-        "volmunger.txt"
-      ]
-    },
-    {
-      "name": "M4 Renamer Tests D4",
+      "name": "M3 Elmer Fudd M4",
       "panel": "treeCollectionOne",
       "pathElements": [
         "Media Publisher",
         "TV Shows",
-        "M4 Renamer Tests D4"
+        "M3 Elmer Fudd M4"
       ]
     }
   ]

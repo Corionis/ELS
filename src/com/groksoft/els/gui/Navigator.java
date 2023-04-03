@@ -466,7 +466,7 @@ public class Navigator
                             }
                             context.publisherRepo = context.main.readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                             context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
-                            context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo,false);
+                            context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
                         }
                         catch (Exception e)
                         {
@@ -1425,7 +1425,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                context.browser.rescanByObject(context.browser.lastComponent);
+                context.browser.rescanByTreeOrTable(context.browser.lastComponent); // same as F5
             }
         };
         context.mainFrame.menuItemRefresh.addActionListener(refreshAction);
@@ -2174,7 +2174,7 @@ public class Navigator
             {
                 context.clientStty.send("bye", "");
                 context.clientSftp.stopClient();
-                Thread.sleep(500);
+                Thread.sleep(1500);
             }
             catch (Exception e)
             {
@@ -2321,10 +2321,12 @@ public class Navigator
 
     public void stop()
     {
+        boolean closure = false;
         if (context.clientStty != null)
         {
             try
             {
+                closure = true;
                 context.clientSftp.stopClient();
                 if (context.clientStty.isConnected())
                 {
@@ -2356,26 +2358,41 @@ public class Navigator
             }
         }
 
-        try
+        if (context.statusStty != null && context.statusStty.isConnected())
         {
-            if (context.statusStty != null && context.statusStty.isConnected())
+            try
             {
+                closure = true;
                 if (quitRemoteHintStatusServer)
                     context.statusStty.send("quit", "Sending quit command to Hint Status Server");
                 else
                     context.statusStty.send("bye", "Sending bye command to Hint Status Server");
             }
+            catch (Exception e)
+            {
+                context.fault = true;
+                logger.error(Utils.getStackTrace(e));
+            }
         }
-        catch (Exception e)
+
+        // give the quit/bye commands a moment to be received
+        if (closure)
         {
-            context.fault = true;
-            logger.error(Utils.getStackTrace(e));
+            try
+            {
+                Thread.sleep(1500);
+            }
+            catch (Exception e)
+            {
+                // ignore
+            }
         }
 
         if (context.mainFrame != null)
         {
-            try // save the settings
+            try
             {
+                // save the settings
                 context.preferences.write(context);
             }
             catch (Exception e)

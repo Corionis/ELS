@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.*;
+import java.nio.file.FileStore;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,6 +27,7 @@ import java.security.Key;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +69,68 @@ public class Utils
             logger.error("Exception '" + e.getMessage() + "' getting usable space from " + location);
         }
         return space;
+    }
+
+    /**
+     * Compare two TreePaths
+     *
+     * @param tp1 TreePath 1
+     * @param tp2 TreePath 2
+     * @return -1 if 1 < 2, 0 if 1 == 2, 1 if 1 > 2
+     */
+    public static int compareTreePaths(TreePath tp1, TreePath tp2)
+    {
+        // compare each path component name
+        String[] sa1 = getTreePathStringArray(tp1);
+        String[] sa2 = getTreePathStringArray(tp2);
+        int max = Integer.min(sa1.length, sa2.length);
+        for (int i = 0; i < max; ++i)
+        {
+            int comp = sa1[i].compareTo(sa2[i]);
+            if (comp != 0)
+                return comp;
+        }
+
+        // compare lengths
+        if (tp1.getPathCount() < tp2.getPathCount())
+            return -1;
+        if (tp1.getPathCount() > tp2.getPathCount())
+            return 1;
+
+        return 0;
+    }
+
+    public static ArrayList<TreePath> compressTreePaths(ArrayList<TreePath> list)
+    {
+        // list MUST be sorted before calling this method
+
+        ArrayList<TreePath> compressedList = new ArrayList<>();
+
+        for (int i = 0; i < list.size(); ++i)
+        {
+            TreePath tp1 = list.get(i);
+            if (list.size() > i + 1)
+            {
+                TreePath tp2 = list.get(i + 1);
+                String[] sa1 = getTreePathStringArray(tp1);
+                String[] sa2 = getTreePathStringArray(tp2);
+                int max = Integer.min(sa1.length, sa2.length);
+                boolean match = true;
+                for (int j = 0; j < max; ++j)
+                {
+                    if (sa1[j].compareTo(sa2[j]) != 0)
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if (!match)
+                    compressedList.add(tp1);
+            }
+            else
+                compressedList.add(tp1);
+        }
+        return compressedList;
     }
 
     /**
@@ -349,6 +413,40 @@ public class Utils
     }
 
     /**
+     * Get list of local hard drives
+     * <br/>
+     * Empty drives such as a CD or DVD with no disc are not returned.
+     *
+     * @return Pipe-separated list of hard drives, e.g. C:\|D:\
+     */
+    public static String getLocalHardDrives()
+    {
+        File[] drives;
+        drives = File.listRoots();
+        String driveList = "";
+        for (int i = 0; i < drives.length; ++i)
+        {
+            File drive = drives[i];
+            boolean empty = false;
+            try
+            {
+                FileStore store = Files.getFileStore(drive.toPath());
+            }
+            catch (IOException ioe)
+            {
+                empty = true;
+            }
+            if (!empty)
+            {
+                if (i > 0)
+                    driveList += "|";
+                driveList += drive.getPath();
+            }
+        }
+        return driveList;
+    }
+
+    /**
      * Get the local system hostname
      *
      * @return Hostname or empty
@@ -484,22 +582,6 @@ public class Utils
         else
             os = "Linux";
         return os;
-    }
-
-    public static String[] getTreePathStrings(TreePath tp)
-    {
-        String[] ps = null;
-        if (tp.getPathCount() > 0)
-        {
-            ps = new String[tp.getPathCount()];
-            Object[] objs = tp.getPath();
-            for (int i = 0; i < tp.getPathCount(); ++i)
-            {
-                NavTreeNode node = (NavTreeNode) objs[i];
-                ps[i] = node.getUserObject().name;
-            }
-        }
-        return ps;
     }
 
     /**
@@ -686,6 +768,28 @@ public class Utils
         }
         location = Utils.getWorkingFile(location);
         return location;
+    }
+
+    /**
+     * Returns an ordered String array of the elements of a TreePath
+     *
+     * @param tp TreePath
+     * @return String[] of the elements of the TreePath
+     */
+    public static String[] getTreePathStringArray(TreePath tp)
+    {
+        String[] ps = null;
+        if (tp.getPathCount() > 0)
+        {
+            ps = new String[tp.getPathCount()];
+            Object[] objs = tp.getPath();
+            for (int i = 0; i < tp.getPathCount(); ++i)
+            {
+                NavTreeNode node = (NavTreeNode) objs[i];
+                ps[i] = node.getUserObject().name;
+            }
+        }
+        return ps;
     }
 
     /**
