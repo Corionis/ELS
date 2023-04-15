@@ -28,10 +28,6 @@ import com.groksoft.els.*;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.*;
-import org.apache.logging.log4j.core.Appender;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.AbstractConfiguration;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -166,7 +162,7 @@ public class Navigator
                     }
                     catch (IOException e)
                     {
-                        logger.error(context.cfg.gs("Z.exception") + e);
+                        logger.error(context.cfg.gs("Z.exception") + e.getMessage());
                         JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.exception") + Utils.getStackTrace(e), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -312,11 +308,7 @@ public class Navigator
             // set the GuiLogAppender context for a second invocation
             if (context.main.secondaryInvocation)
             {
-                LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-                AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-                LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-                Map<String, Appender> appenders = loggerConfig.getAppenders();
-                GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                GuiLogAppender appender = context.main.getGuiLogAppender();
                 appender.setContext(context);
                 // this causes the preBuffer to be appended to the Navigator Log panels
                 logger.info(context.cfg.gs("Navigator.secondary,context"));
@@ -1690,6 +1682,8 @@ public class Navigator
             }
         });
 
+        // see loadJobsMenu() for submenu of list of Jobs
+
         // -- System Menu
         // --------------------------------------------------------
 
@@ -2140,25 +2134,6 @@ public class Navigator
         }
     }
 
-    public void readPreferences()
-    {
-        try
-        {
-            Gson gson = new Gson();
-            String json = new String(Files.readAllBytes(Paths.get(context.preferences.getFullPath())));
-            Preferences prefs = gson.fromJson(json, context.preferences.getClass());
-            if (prefs != null)
-            {
-                context.preferences = gson.fromJson(json, context.preferences.getClass());
-                context.preferences.setContext(context);
-            }
-        }
-        catch (IOException e)
-        {
-            // file might not exist
-        }
-    }
-
     private boolean reconnectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
         // is this necessary?
@@ -2231,10 +2206,6 @@ public class Navigator
             @Override
             public void run()
             {
-                context.preferences = new Preferences(context);
-                context.preferences = context.preferences;
-                readPreferences();
-
                 // TODO Add as needed: Set command line overrides on Navigator Preferences
 
                 // preserve file times
@@ -2322,6 +2293,8 @@ public class Navigator
     public void stop()
     {
         boolean closure = false;
+        logger.info(context.cfg.gs("Main.disconnecting.and.shutting.down"));
+
         if (context.clientStty != null)
         {
             try
@@ -2413,11 +2386,7 @@ public class Navigator
             System.exit(context.fault ? 1 : 0);
         else
         {
-            LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-            AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-            LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-            Map<String, Appender> appenders = loggerConfig.getAppenders();
-            GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+            GuiLogAppender appender = context.main.getGuiLogAppender();
             appender.setContext(context.main.previousContext);
         }
     }

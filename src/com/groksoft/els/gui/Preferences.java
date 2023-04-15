@@ -1,22 +1,30 @@
 package com.groksoft.els.gui;
 
+import com.formdev.flatlaf.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 @SuppressWarnings(value = "unchecked")
 public class Preferences implements Serializable
 {
-    private String accentColor = "2675BF";
+    private transient Logger logger = LogManager.getLogger("applog");
+    public final String DEFAULT_ACCENT_COLOR = "2675BF";
+    private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
     private int appXpos = -1;
@@ -113,6 +121,7 @@ public class Preferences implements Serializable
     private int toolsRenamerXpos = -1;
     private int toolsRenamerYpos = -1;
     private transient Context context;
+    private transient LookAndFeel laf = null;
 
     /**
      * Constructor
@@ -478,6 +487,35 @@ public class Preferences implements Serializable
         return lookAndFeel;
     }
 
+    public LookAndFeel getLookAndFeelClass(int value)
+    {
+        switch (value)
+        {
+            // Built-in themes
+            case 1:
+                laf = new MetalLookAndFeel();
+                break;
+            case 2:
+                laf = new NimbusLookAndFeel();
+                break;
+            // FlatLaf themes
+            case 3:
+                laf = new FlatLightLaf();
+                break;
+            case 4:
+                laf = new FlatDarkLaf();
+                break;
+            case 5:
+                laf = new FlatIntelliJLaf();
+                break;
+            case 6:
+            default:
+                laf = new FlatDarculaLaf();
+                break;
+        }
+        return laf;
+    }
+
     public int getOperationDividerBottomSize()
     {
         return operationDividerBottomSize;
@@ -717,6 +755,48 @@ public class Preferences implements Serializable
     public int getToolsRenamerYpos()
     {
         return toolsRenamerYpos;
+    }
+
+    public void initLookAndFeel() throws Exception
+    {
+        if (laf == null)
+        {
+            try
+            {
+                UIManager.put("Tree.showDefaultIcons", true);
+                UIManager.put("ScrollBar.showButtons", true); // show scrollbar up/down buttons
+                UIManager.put("Component.hideMnemonics", false); // show/hide mnemonic letters
+                UIManager.put("TabbedPane.showTabSeparators", true); // separators between tabs
+//            UIManager.put( "TabbedPane.tabSeparatorsFullHeight", true );
+
+                if (context.preferences.getLookAndFeel() == 0)
+                {
+                    laf = getLookAndFeelClass(0);
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                }
+                else
+                {
+                    laf = getLookAndFeelClass(getLookAndFeel());
+                    UIManager.setLookAndFeel(laf);
+                }
+
+                // set accent color for current LaF
+                if (context.preferences.getAccentColor() == null || context.preferences.getAccentColor().length() < 1)
+                {
+                    context.preferences.setAccentColor(DEFAULT_ACCENT_COLOR);
+                }
+                String accent = context.preferences.getAccentColor();
+                FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + accent));
+                Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
+                FlatLaf.setup(lafClass.newInstance());
+                FlatLaf.updateUI();
+            }
+            catch (Exception e)
+            {
+                context.fault = true;
+                throw e;
+            }
+        }
     }
 
     public boolean isAutoRefresh()

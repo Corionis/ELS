@@ -201,7 +201,7 @@ public class Settings extends JDialog
             if (index == 0)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
-                UIManager.setLookAndFeel(context.mainFrame.getLookAndFeel(index));
+                UIManager.setLookAndFeel(context.preferences.getLookAndFeelClass(index));
 
             try
             {
@@ -271,7 +271,7 @@ public class Settings extends JDialog
         dateFormatTextField.setText(context.preferences.getDateFormat());
         if (context.preferences.getAccentColor() == null || context.preferences.getAccentColor().length() < 1)
         {
-            context.preferences.setAccentColor("2675BF");
+            context.preferences.setAccentColor(context.preferences.DEFAULT_ACCENT_COLOR);
         }
         textFieldAccentColor.setText(context.preferences.getAccentColor());
 
@@ -324,7 +324,7 @@ public class Settings extends JDialog
         context.preferences.setBinaryScale(scaleCheckBox.isSelected());
         context.preferences.setDateFormat(dateFormatTextField.getText());
         if (textFieldAccentColor.getText().length() == 0) // use default if empty
-            context.preferences.setAccentColor("2675BF");
+            context.preferences.setAccentColor(context.preferences.DEFAULT_ACCENT_COLOR);
         else
             context.preferences.setAccentColor(textFieldAccentColor.getText());
 

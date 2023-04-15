@@ -1,0 +1,98 @@
+{
+  "configName": "020 Multi-Renamer Publisher L",
+  "tasks": [
+    {
+      "configName": "Case change",
+      "internalName": "Renamer",
+      "publisherKey": "_ANY_SERVER_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": [
+        {
+          "name": "test/publisher/media/TV Shows/M4 D4 Renamer Tests",
+          "type": 6
+        }
+      ]
+    },
+    {
+      "configName": "Replace Amzn",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace SxxEyy",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace Webrip",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace [eztv.re]",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace double dashs",
+      "internalName": "Renamer",
+      "publisherKey": "",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace double dots",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace dot w/ space",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Replace multi-spaces",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Insert -S01E",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Numbering",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    }
+  ]
+}

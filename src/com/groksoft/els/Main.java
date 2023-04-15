@@ -1,6 +1,8 @@
 package com.groksoft.els;
 
+import com.google.gson.Gson;
 import com.groksoft.els.gui.Navigator;
+import com.groksoft.els.gui.Preferences;
 import com.groksoft.els.gui.SavedEnvironment;
 import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
@@ -12,7 +14,6 @@ import com.groksoft.els.stty.ClientStty;
 import com.groksoft.els.stty.ServeStty;
 import com.groksoft.els.stty.hintServer.Datastore;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
@@ -22,9 +23,14 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.List;
 
 import static com.groksoft.els.Configuration.*;
 
@@ -114,7 +120,7 @@ public class Main
                 {
                     throw new MungeException("Hint Status Server " + context.statusRepo.getLibraryData().libraries.description + " failed to connect");
                 }
-                String response = context.statusStty.receive("", 2000); // check the initial prompt
+                String response = context.statusStty.receive("", 5000); // check the initial prompt
                 if (!response.startsWith("CMD"))
                     throw new MungeException("Bad initial response from status server: " + context.statusRepo.getLibraryData().libraries.description);
             }
@@ -158,6 +164,16 @@ public class Main
             logger.error(Utils.getStackTrace(e));
         }
         return text;
+    }
+
+    public GuiLogAppender getGuiLogAppender()
+    {
+        LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+        AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
+        LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
+        Map<String, Appender> appenders = loggerConfig.getAppenders();
+        GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+        return appender;
     }
 
     /**
@@ -269,13 +285,7 @@ public class Main
                 LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false); //context.navigator == null ? true : false);
                 //LoggerContext loggerContext = (LoggerContext) LogManager.getContext(context.navigator == null ? true : false);
                 loggerContext.reconfigure();
-                AbstractConfiguration loggerContextConfiguration = (AbstractConfiguration) loggerContext.getConfiguration();
-                LoggerConfig loggerConfig = loggerContextConfiguration.getLoggerConfig("Console");
-                loggerConfig.setLevel(Level.toLevel(context.cfg.getConsoleLevel()));
-                loggerConfig = loggerContextConfiguration.getLoggerConfig("applog");
-                loggerConfig.setLevel(Level.toLevel(context.cfg.getDebugLevel()));
-                Map<String, Appender> appenders = loggerConfig.getAppenders();
-                GuiLogAppender appender = (GuiLogAppender) appenders.get("GuiLogAppender");
+                GuiLogAppender appender = getGuiLogAppender();
                 appender.setContext(context);
                 loggerContext.updateLoggers();
             }
@@ -298,6 +308,9 @@ public class Main
             if (cfgException != null)
                 throw cfgException;
 
+            context.preferences = new Preferences(context);
+            readPreferences();
+
             // attempt to load the language Java started with, default en_US
             Locale locale = Locale.getDefault();
             String lang = locale.getLanguage();
@@ -317,16 +330,15 @@ public class Main
             // an execution of this program can only be configured as one of these operations
             //
             logger.info("+------------------------------------------");
-            boolean defaultNavigator = false;
             switch (context.cfg.getOperation())
             {
                 // --- local execution, no -r|--remote option
                 case NOT_REMOTE:
                     if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
-                        defaultNavigator = true;
+                        context.cfg.defaultNavigator = true;
 
                     // handle -n|--navigator to display the Navigator
-                    if (defaultNavigator || context.cfg.isNavigator())
+                    if (context.cfg.defaultNavigator || context.cfg.isNavigator())
                     {
                         logger.info("ELS: Local Navigator, version " + context.cfg.getVersionStamp());
                         context.cfg.dump();
@@ -341,7 +353,7 @@ public class Main
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
                         }
 
-                        if (defaultNavigator && !context.cfg.isNavigator())
+                        if (context.cfg.defaultNavigator && !context.cfg.isNavigator())
                         {
                             context.cfg.setNavigator(true);
                             logger.warn("Publisher, subscriber and mode not defined. Defaulting to Navigator");
@@ -664,8 +676,8 @@ public class Main
                         }
                         try
                         {
-                            main.context.clientStty.roundTrip("quit", "Sending remote quit command", 2000);
-                            Thread.sleep(2000);
+                            main.context.clientStty.roundTrip("quit", "Sending remote quit command", 5000);
+                            Thread.sleep(3000);
                         }
                         catch (Exception e)
                         {
@@ -726,19 +738,19 @@ public class Main
             {
                 System.out.println(Utils.getStackTrace(e));
             }
-            if (context.cfg.isNavigator())
+
+            if (context.cfg.isNavigator() || context.cfg.defaultNavigator)
             {
-                if (context.navigator == null)
+                Component centerOn = null;
+                if (context.mainFrame != null)
+                    centerOn = context.mainFrame;
+                else
                 {
-                    try
-                    {
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    }
-                    catch (Exception ignoredEx)
-                    {
-                    }
+                    GuiLogAppender appender = getGuiLogAppender();
+                    if (appender.isStartupActive())
+                        centerOn = appender.getStartup();
                 }
-                JOptionPane.showMessageDialog(context != null ? context.mainFrame : null, e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(centerOn, e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
             }
 
             isListening = false; // force stop
@@ -755,7 +767,7 @@ public class Main
                     {
                         try
                         {
-                            main.context.clientStty.roundTrip("fault", "Sending remote fault command (1)", 2000);
+                            main.context.clientStty.roundTrip("fault", "Sending remote fault command (1)", 5000);
                         }
                         catch (Exception e)
                         {
@@ -786,7 +798,7 @@ public class Main
                     {
                         try // also done in Connection.run()
                         {
-                            logger.trace("shutdown hook");
+                            logger.info(context.cfg.gs("Main.disconnecting.and.shutting.down"));
 
                             // optionally command status server to quit
                             if (main.context.statusStty != null)
@@ -823,6 +835,25 @@ public class Main
             Runtime.getRuntime().halt(1);
         }
     } // process
+
+    public void readPreferences()
+    {
+        try
+        {
+            Gson gson = new Gson();
+            String json = new String(Files.readAllBytes(Paths.get(context.preferences.getFullPath())));
+            Preferences prefs = gson.fromJson(json, context.preferences.getClass());
+            if (prefs != null)
+            {
+                context.preferences = gson.fromJson(json, context.preferences.getClass());
+                context.preferences.setContext(context);
+            }
+        }
+        catch (IOException e)
+        {
+            // file might not exist
+        }
+    }
 
     /**
      * Read either a publisher or subscriber repository
@@ -910,8 +941,8 @@ public class Main
             {
                 if (!context.cfg.isQuitStatusServer() && context.statusStty.isConnected())
                 {
-                    context.statusStty.send("bye", "Sending bye command to Hint Server");
-                    Thread.sleep(2000);
+                    context.statusStty.send("bye", "Sending bye command to remote Hint Server");
+                    Thread.sleep(3000);
                 }
                 context.statusStty.disconnect();
                 context.statusStty = null;
@@ -921,7 +952,7 @@ public class Main
                 logger.trace("  sftp client");
                 context.clientSftp.stopClient();
                 context.clientSftp = null;
-                Thread.sleep(2000L);
+                Thread.sleep(3000L);
             }
             if (context.serveSftp != null)
             {

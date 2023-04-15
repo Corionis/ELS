@@ -72,11 +72,11 @@ public class Utils
     }
 
     /**
-     * Compare two TreePaths
+     * Compare two TreePaths for sorting
      *
-     * @param tp1 TreePath 1
-     * @param tp2 TreePath 2
-     * @return -1 if 1 < 2, 0 if 1 == 2, 1 if 1 > 2
+     * @param tp1 TreePath A
+     * @param tp2 TreePath B
+     * @return -1 if A < B, 0 if A == B, 1 if A > B
      */
     public static int compareTreePaths(TreePath tp1, TreePath tp2)
     {
@@ -1042,7 +1042,7 @@ public class Utils
             catch (IOException e)
             {
                 if (e.getMessage().toLowerCase().contains("connection reset"))
-                    logger.warn("connection closed by client");
+                    logger.warn("connection closed during read");
                 input = null;
                 throw e;
             }

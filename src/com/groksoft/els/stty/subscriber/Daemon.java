@@ -106,7 +106,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
             logger.trace("handshake");
             send("HELO", "");
 
-            String input = receive("", 2000);
+            String input = receive("", 5000);
             if (input != null && (input.equals("DribNit") || input.equals("DribNlt")))
             {
                 isTerminal = input.equals("DribNit");
@@ -119,7 +119,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 }
                 send(myKey, "");
 
-                input = receive("", 2000);
+                input = receive("", 5000);
                 // validate with Authorization Keys if specified
                 if (context.authKeys != null)
                 {
@@ -365,7 +365,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                                 // otherwise it must be -S so do not scan
                                 myRepo.exportItems(true);
-                                Thread.sleep(2000);
+                                Thread.sleep(3000);
                                 Path jsonPath = Paths.get(context.cfg.getExportCollectionFilename()).toAbsolutePath();
                                 response = new String(Files.readAllBytes(jsonPath));
                             }
@@ -504,7 +504,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                                 location = Utils.getTemporaryFilePrefix(myRepo, location) + ".json";
 
                                 exportLibrary(location);
-                                Thread.sleep(2000);
+                                Thread.sleep(3000);
                                 Path jsonPath = Paths.get(location).toAbsolutePath();
                                 response = new String(Files.readAllBytes(jsonPath));
                             }
@@ -535,7 +535,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                         if (theCommand.equalsIgnoreCase("quit") || theCommand.equalsIgnoreCase("exit"))
                         {
                             send("End-Execution", trace ? "send End-Execution" : "");
-                            Thread.sleep(2000);
+                            Thread.sleep(3000);
 
                             // if this is the first command or keep going is not enabled then stop
                             if (commandCount == 1 || !context.cfg.isKeepGoing())
@@ -718,7 +718,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                             if (!context.timeout)
                             {
                                 send(e.getMessage(), "Subscriber exception");
-                                Thread.sleep(2000);
+                                Thread.sleep(3000);
                             }
                         }
                         catch (Exception ex)

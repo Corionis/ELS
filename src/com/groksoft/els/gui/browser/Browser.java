@@ -128,7 +128,7 @@ public class Browser
                     }
 
                     NavTreeUserObject tuo = getSelectedUserObject(active);
-                    if (tuo != null)
+                    if (tuo != null && !context.fault)
                     {
                         context.mainFrame.textFieldLocation.setText(tuo.getPath());
                         printProperties(tuo);
@@ -153,7 +153,7 @@ public class Browser
             {
                 context.mainFrame.labelStatusMiddle.setText("");
                 JTable target = (JTable) mouseEvent.getSource();
-                NavTreeNode node = ((BrowserTableModel)target.getModel()).getNode();
+                NavTreeNode node = ((BrowserTableModel) target.getModel()).getNode();
                 target.requestFocus();
 
                 JTree eventTree = null;
@@ -1009,8 +1009,9 @@ public class Browser
                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                 else
                     JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Z.exception"),
+                            context.cfg.gs("Z.exception") + e.getMessage(),
                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                throw e;
             }
         }
         else
@@ -1273,7 +1274,7 @@ public class Browser
                 navStackPush(node);
                 if (!node.isLoaded())
                     node.loadChildren(true);
-                else
+                else // QUESTION is else right?
                     node.loadTable();
             }
         });
@@ -1787,6 +1788,7 @@ public class Browser
             }
             catch (Exception e)
             {
+                context.fault = true;
                 logger.error(Utils.getStackTrace(e));
             }
             printPropertiesInUse = false;
@@ -1820,39 +1822,85 @@ public class Browser
     {
         if (tree != null)
         {
-       //     tree.setEnabled(false);
+            JTable table = null;
+            int[] selectedRows = null;
+            ArrayList<NavTreeNode> selectedNodes = null;
 
-            TreePath[] treePaths = tree.getSelectionPaths();
+            tree.setEnabled(false);
+
+            // capture single selected tree item for table reload & table selection(s)
+            TreePath selectedPath = tree.getSelectionPath();
+            if (selectedPath != null)
+            {
+                table = ((NavTreeNode) selectedPath.getLastPathComponent()).getMyTable();
+                if (table != null)
+                {
+                    selectedRows = table.getSelectedRows();
+                    selectedNodes = new ArrayList<>();
+                    for (int i = 0; i < selectedRows.length; ++i)
+                    {
+                        NavTreeUserObject tuo = (NavTreeUserObject) ((BrowserTableModel) table.getModel()).getValueAt(selectedRows[i], 1);
+                        selectedNodes.add(tuo.node);
+                    }
+                }
+            }
+
+            // capture all tree selection(s)
+            TreePath[] selectedPaths = tree.getSelectionPaths();
+
+            // capture selected & expanded tree path(s)
             ArrayList<TreePath> combinedPaths = getCombinedTreePaths(tree);
 
+            // reload the tree
             ((NavTreeModel) tree.getModel()).reload();
 
-            // LEFTOFF translate old combinedPaths (that DO NOT EXIST) to newly scanned paths
-            //  * clone scanTreePath() logic to update TreePaths from old to new objects
-            //    + They SHOULD exist, but skip anything that's missing
+            // reset the tree paths to possible new objects
+            combinedPaths = resetTreePaths(tree, combinedPaths);
 
-            tree.setExpandsSelectedPaths(true);
+            // expand the tree paths
             tree.setScrollsOnExpand(true);
-            for (TreePath tp : combinedPaths)
+            tree.setExpandsSelectedPaths(true);
+            if (combinedPaths != null)
             {
-                NavTreeNode oldNtn = (NavTreeNode) tp.getLastPathComponent();
-//                NavTreeNode newNtn =
-                tree.expandPath(tp);
+                for (TreePath tp : combinedPaths)
+                {
+                    tree.expandPath(tp);
+                }
             }
 
-/*
-            if (treePaths != null && treePaths.length > 0)
+            // select previously-selected tree paths
+            if (selectedPaths != null && selectedPaths.length > 0)
             {
-                tree.setSelectionPaths(treePaths);
-//                for (int i = 0; i < treePaths.length; ++i)
-//                {
-//                    TreePath tp = treePaths[i];
-//                    tree.setSelectionPath(tp);
-//                }
+                selectedPaths = resetTreePaths(tree, selectedPaths); // reset the selected paths to possible new objects
+                if (selectedPaths != null && selectedPaths.length > 0)
+                    tree.setSelectionPaths(selectedPaths);
             }
-*/
 
-//////            selectedNode.loadTable();
+            // load the table for the single selected tree item
+            if (selectedPath != null)
+            {
+                selectedPath = resetTreePath(tree, selectedPath); // reset the single selected path to possible new object
+                if (selectedPath != null)
+                {
+                    tree.scrollPathToVisible(selectedPath);
+                    NavTreeNode selectedNode = (NavTreeNode) selectedPath.getLastPathComponent();
+                    selectedNode.loadTable();
+
+                    // select the previously-selected row(s) in the table
+                    if (selectedRows != null && selectedRows.length > 0 && selectedNodes != null)
+                    {
+                        table.clearSelection();
+                        selectedRows = resetTableSelections(table, selectedNodes);
+                        for (int i = 0; i < selectedRows.length; ++i)
+                        {
+                            if (selectedRows[i] < table.getRowCount() && selectedRows[i] >= 0)
+                                table.addRowSelectionInterval(selectedRows[i], selectedRows[i]);
+                        }
+                        table.scrollRectToVisible(new Rectangle((table.getCellRect(selectedRows[0], 0, true))));
+                    }
+                }
+            }
+
             tree.setEnabled(true);
         }
     }
@@ -1891,6 +1939,97 @@ public class Browser
         }
 
         refreshTree(sourceTree);
+    }
+
+    private int[] resetTableSelections(JTable table, ArrayList<NavTreeNode> selectedNodes)
+    {
+        int index = 0;
+        int[] selections = new int[selectedNodes.size()];
+        for (int i = 0; i < selectedNodes.size(); ++i)
+            selections[i] = -1;
+        for (NavTreeNode node : selectedNodes)
+        {
+            int row = findRowIndex(table, node.getUserObject().name);
+            if (row > 0)
+                selections[index++] = row;
+        }
+        return selections;
+    }
+
+    private TreePath resetTreePath(JTree tree, TreePath treePath)
+    {
+        ArrayList<TreePath> array = new ArrayList<>();
+        array.add(treePath);
+        array = resetTreePaths(tree, array);
+        if (array != null && array.size() > 0)
+        {
+            treePath = array.get(0);
+        }
+        else
+            treePath = null;
+        return treePath;
+    }
+
+    private TreePath[] resetTreePaths(JTree tree, TreePath[] treePathArray)
+    {
+        if (treePathArray != null && treePathArray.length > 0)
+        {
+            ArrayList<TreePath> treePaths = new ArrayList<>();
+
+            for (int i = 0; i < treePathArray.length; ++i)
+                treePaths.add(treePathArray[i]);
+
+            treePaths = resetTreePaths(tree, treePaths);
+
+            if (treePaths != null && treePaths.size() > 0)
+            {
+                treePathArray = new TreePath[treePaths.size()];
+                for (int i = 0; i < treePaths.size(); ++i)
+                    treePathArray[i] = treePaths.get(i);
+            }
+        }
+        return treePathArray;
+    }
+
+    private ArrayList<TreePath> resetTreePaths(JTree tree, ArrayList<TreePath> treePaths)
+    {
+        ArrayList<TreePath> reworkedPaths = null;
+        if (tree != null && treePaths.size() > 0)
+        {
+            reworkedPaths = new ArrayList<>();
+
+            for (int i = 0; i < treePaths.size(); ++i)
+            {
+                int nodeIndex = 0;
+                TreePath treePath = null;
+
+                TreePath tp = treePaths.get(i);
+                Object[] objs = tp.getPath();
+
+                NavTreeNode[] nodes = new NavTreeNode[tp.getPathCount()];
+                NavTreeNode node = (NavTreeNode) objs[0]; // the root is never recreated
+                nodes[nodeIndex++] = node;
+
+                String[] pathElements = Utils.getTreePathStringArray(tp);
+                NavTreeNode next;
+                int occurrence = 1;
+
+                // walk the pathElements and find each segment
+                for (int j = 1; j < pathElements.length; ++j)
+                {
+                    next = node.findChildName(pathElements[j], occurrence);
+                    assert (next != null); // must exist
+
+                    nodes[nodeIndex++] = next;
+                    node = next;
+                }
+
+                treePath = new TreePath(nodes);
+                if (treePath != null)
+                    reworkedPaths.add(treePath);
+            }
+        }
+        return reworkedPaths;
     }
 
     public TreePath scanTreePath(String panelName, String[] pathElements, boolean doTable, boolean forceScan, boolean fullTreePath)
@@ -2208,7 +2347,7 @@ public class Browser
             computerNode.setNavTreeUserObject(tuo);
             hiddenRoot.add(computerNode);
         }
-        else
+        else // already initialized
         {
             hiddenRoot = (NavTreeNode) tree.getModel().getRoot();
             computerNode = hiddenRoot.findChildName(context.cfg.gs("Browser.computer"));

@@ -50,7 +50,7 @@ public class RenamerTool extends AbstractTool
     private boolean option2 = false;
     private boolean option3 = false;
 
-    transient private int counter;
+    transient private int counter = -1;
     transient private boolean dataHasChanged = false; // used by GUI, dynamic
     transient private int renameCount = 0;
     transient private boolean isDryRun = false;
@@ -176,7 +176,7 @@ public class RenamerTool extends AbstractTool
                 int pc = StringUtils.countMatches(value, ".");
                 //  Which has more?
                 int m = (getSegment() == 2 ? 2 : 1);
-                String sep = (pc > m && pc > sc) ? "\\." : " "; // ????
+                String sep = (pc > m && pc > sc) ? "\\." : " "; // others????
 
                 String[] split = value.split(sep);
                 value = "";
@@ -185,10 +185,10 @@ public class RenamerTool extends AbstractTool
                     String word = split[i];
                     word = word.toLowerCase(context.cfg.bundle().getLocale());
                     String fc;
-                    if (word.length() == 1)
+                    if (word.length() < 2)
                         fc = word;
                     else
-                        fc = word.substring(0, 1);   // FIXME problem with multiple spaces????????????
+                        fc = word.substring(0, 1);
                     fc = fc.toUpperCase(context.cfg.bundle().getLocale());
                     word = fc + ((word.length() > 1) ? word.substring(1) : "");
                     value = value + (value.length() > 0 ? (sep != " " ? "." : " ") : "") + word; // ????
@@ -622,7 +622,9 @@ public class RenamerTool extends AbstractTool
                 filename = filename.substring(1);
                 hidden = true;
             }
-            String change = exec(filename); // execute the renamer sub-tool
+
+            // execute the renamer sub-tool
+            String change = exec(filename);
             if (hidden)
             {
                 change = "." + change;

@@ -78,7 +78,7 @@ public class SavedEnvironment
                     !task.getSubscriberKey().equals(Task.ANY_SERVER))
             {
                 task.connectRemote(context, context.publisherRepo, context.subscriberRepo);
-                Thread.sleep(2000); // wait for connection to be setup
+                Thread.sleep(3000); // wait for connection to be setup
             }
             else
             {

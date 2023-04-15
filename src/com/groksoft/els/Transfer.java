@@ -67,6 +67,8 @@ public class Transfer
         }
         else
         {
+            if (to.matches("^\\\\[a-zA-Z]:.*"))
+                to = to.substring(1);
             Path fromPath = Paths.get(from).toRealPath();
             Path toPath = Paths.get(to);
             File f = new File(to);
@@ -585,6 +587,8 @@ public class Transfer
         }
         else
         {
+            if (create.matches("^\\\\[a-zA-Z]:.*"))
+                create = create.substring(1);
             File f = new File(create);
             if (f != null)
             {
@@ -816,6 +820,8 @@ public class Transfer
         }
         else
         {
+            if (path.matches("^\\\\[a-zA-Z]:.*"))
+                path = path.substring(1);
             Path fromPath = Paths.get(path).toRealPath();
             Files.delete(fromPath);
         }
@@ -923,6 +929,8 @@ public class Transfer
         }
         else
         {
+            if (to.matches("^\\\\[a-zA-Z]:.*"))
+                to = to.substring(1);
             Files.move(Paths.get(from), Paths.get(to), StandardCopyOption.ATOMIC_MOVE);
         }
     }
@@ -1021,6 +1029,8 @@ public class Transfer
         }
         else
         {
+            if (path.matches("^\\\\[a-zA-Z]:.*"))
+                path = path.substring(1);
             Path file = Paths.get(path);
             FileTime ft = FileTime.fromMillis(millis);
             Files.setLastModifiedTime(file, ft);

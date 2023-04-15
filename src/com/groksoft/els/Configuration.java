@@ -42,6 +42,7 @@ public class Configuration
     private ResourceBundle currentBundle = null;
     private String debugLevel = "Debug";
     private boolean debugSet = false;
+    public boolean defaultNavigator = false;
     private int dryRun = -1;
     private int duplicateCheck = -1;
     private int emptyDirectoryCheck = -1;
@@ -1262,9 +1263,17 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // Single option letters remaining, case-sensitive:  C J M O R U V X Y Z
-        // Reserved: C configuration directory; O start on-demand; R operation???; M match dates; U user authorization
-        // Leaving single option letters, case-sensitive:  J M V X Y Z
+        // Single option letters remaining, case-sensitive:  J M O R U V X Y Z
+        // Reserved:
+        //   J jump-up on-demand (auto-start)
+        //   M match dates
+        //   O operation
+        //   R restrict hint processing
+        //   U user authorization
+        //   V update check
+        //   X execute an internal "shortcut" to handle long command lines
+        //   Y install update
+        // Leaving single option letters, case-sensitive: Z
 
         int index;
         originalArgs = args;

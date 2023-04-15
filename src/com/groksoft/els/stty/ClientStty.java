@@ -8,6 +8,7 @@ import com.groksoft.els.stty.gui.TerminalGui;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
@@ -204,6 +205,8 @@ public class ClientStty
         {
             public void run()
             {
+                String exceptionMessage = "";
+                String errorMessage = "";
                 try
                 {
                     sleep(40 * 1000); // offset this heartbeat timing
@@ -220,13 +223,15 @@ public class ClientStty
                 catch (InterruptedException e)
                 {
                     logger.trace("heartbeat interrupted");
-                    interrupt();
                 }
                 catch (Exception e)
                 {
-                    logger.error(Utils.getStackTrace(e));
                     context.fault = true;
+                    errorMessage = "(Hint Server) " + e.getMessage();
+                    exceptionMessage = Utils.getStackTrace(e);
+                    heartBeat.interrupt();
                 }
+                stopClient(errorMessage, exceptionMessage);
             }
         };
         logger.trace("starting heartbeat");
@@ -241,9 +246,9 @@ public class ClientStty
         if (heartBeat != null)
         {
             if (!heartBeatEnabled)
-                logger.warn("heartbeat already disabled");
+                logger.warn("Client heartbeat already disabled");
             else
-                logger.trace("heartbeat disabled");
+                logger.trace("Client heartbeat disabled");
             heartBeatEnabled = false;
         }
     }
@@ -336,18 +341,18 @@ public class ClientStty
     {
         boolean valid = false;
         logger.trace("handshake");
-        String input = receive("", 2000);
+        String input = receive("", 5000);
         if (input != null && input.equals("HELO"))
         {
             send((isTerminal ? "DribNit" : "DribNlt"), "");
 
-            input = receive("", 2000);
+            input = receive("", 5000);
             if (input.equals(theirRepo.getLibraryData().libraries.key))
             {
                 send(myKey, "");
 
                 // get the subscriber's flavor
-                input = receive("", 2000);
+                input = receive("", 5000);
                 try
                 {
                     // if Utils.getFileSeparator() does not throw an exception
@@ -402,7 +407,7 @@ public class ClientStty
                 {
                     logger.info("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
                     context.statusStty.send("quit", "");
-                    Thread.sleep(2000);
+                    Thread.sleep(3000);
                     context.statusStty.disconnect();
                     context.statusStty = null;
                 }
@@ -420,7 +425,7 @@ public class ClientStty
     /**
      * Receive a response from the other end
      *
-     * @param log Line to be logged, if any
+     * @param log     Line to be logged, if any
      * @param timeout Timeout for operationsUI in milliseconds
      * @return String of response text
      * @throws Exception
@@ -460,7 +465,7 @@ public class ClientStty
      * Retrieve remote data and store it in a file
      *
      * @param message The command to send
-     * @param log Line to be logged, if any
+     * @param log     Line to be logged, if any
      * @param timeout Timeout for operationsUI in milliseconds
      * @return The resulting date-stamped file path
      * @throws Exception
@@ -496,7 +501,7 @@ public class ClientStty
      * Make a round-trip to the other end by sending a command and receiving the response
      *
      * @param message The command to send
-     * @param log The line to be logged, if any
+     * @param log     The line to be logged, if any
      * @param timeout Timeout for operationsUI
      * @return String of the response
      * @throws Exception
@@ -512,7 +517,7 @@ public class ClientStty
      * Send a command to the other end
      *
      * @param message The command to send
-     * @param log Line to be logged, if any
+     * @param log     Line to be logged, if any
      * @throws Exception
      */
     public void send(String message, String log) throws Exception
@@ -542,6 +547,28 @@ public class ClientStty
 
         if (!message.equalsIgnoreCase("ping"))
             enableHeartBeat();
+    }
+
+    private void stopClient(String errorMessage, String exceptionMessage)
+    {
+        if (context.fault)
+        {
+            if (heartBeat.isAlive())
+                stopHeartBeat();
+            disconnect();
+            if (context.mainFrame != null && errorMessage.length() > 0)
+            {
+                JOptionPane.showMessageDialog(context.mainFrame, "Client Stty: " + errorMessage,
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
+            if (context.serveStty != null && context.serveStty.isAlive())
+            {
+                if (exceptionMessage.length() > 0)
+                    logger.error(context.cfg.gs("Z.fault") + exceptionMessage);
+                context.serveStty.requestStop();
+                context.serveStty.stopServer();
+            }
+        }
     }
 
     /**

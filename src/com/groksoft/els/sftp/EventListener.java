@@ -4,10 +4,9 @@ import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.sshd.server.session.ServerSession;
-import org.apache.sshd.server.subsystem.sftp.DirectoryHandle;
-import org.apache.sshd.server.subsystem.sftp.FileHandle;
-import org.apache.sshd.server.subsystem.sftp.Handle;
-import org.apache.sshd.server.subsystem.sftp.SftpEventListener;
+import org.apache.sshd.sftp.server.FileHandle;
+import org.apache.sshd.sftp.server.Handle;
+import org.apache.sshd.sftp.server.SftpEventListener;
 
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -16,9 +15,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Apache Mina sftp event listener<br/>
- * <p>
- * See: https://mina.apache.org/sshd-project/apidocs/org/apache/sshd/server/subsystem/sftp/SftpEventListener.html
+ * Apache Mina sftp event listener
  */
 
 public class EventListener implements SftpEventListener
@@ -76,7 +73,7 @@ public class EventListener implements SftpEventListener
     @Override
     public void initialized(ServerSession session, int version) throws IOException
     {
-        //logger.debug("Sftp: initialized");
+        //logger.trace("Sftp: initialized");
     }
 
     @Override
@@ -135,12 +132,6 @@ public class EventListener implements SftpEventListener
     public void opening(ServerSession session, String remoteHandle, Handle localHandle) throws IOException
     {
         //logger.debug("Sftp: opening");
-    }
-
-    @Override
-    public void read(ServerSession session, String remoteHandle, DirectoryHandle localHandle, Map<String, Path> entries) throws IOException
-    {
-        logger.trace("Sftp: read " + localHandle.getFile().toString());
     }
 
     @Override

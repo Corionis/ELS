@@ -174,7 +174,6 @@ public class Origins
                 String panel = origin.sourceTable.getName().toLowerCase();
                 if (panel.length() > 0)
                     context.browser.scanTreePath(panel, pathElements, true, false, false); // scan
-                context.browser.refreshTree(tree);
 
                 // select matching items in table
                 JTable table = origin.sourceTable;
@@ -186,6 +185,7 @@ public class Origins
                     row = origins.get(i).tableRow;
                     model.addSelectionInterval(row, row);
                 }
+                context.browser.refreshTree(tree);
                 table.requestFocus();
                 table.scrollRectToVisible(new Rectangle(table.getCellRect(row, row, true)));
             }

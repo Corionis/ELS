@@ -491,11 +491,11 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 case NavTreeUserObject.SYSTEM: // for completeness, hidden
                     //logger.debug("system");
                     break;
-                case NavTreeUserObject.COLLECTION:
-                    //logger.debug("collection"); // root of collection
+                case NavTreeUserObject.COLLECTION: // root of collection
+                    //logger.debug("collection");
                     break;
-                case NavTreeUserObject.COMPUTER: // expand all available drives
-                    //logger.debug("computer"); // local drives
+                case NavTreeUserObject.COMPUTER: // expand all local drives
+                    //logger.debug("computer");
                     break;
                 case NavTreeUserObject.DRIVE: // a particular drive
                     if (myTuo.isDir)
@@ -603,6 +603,22 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
                 if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
                 {
+
+/*
+                    TrustedInstaller        NT SERVICE                  Program Files
+
+                    SYSTEM                  NT Authority                   Users
+                    OWNER@                  GROUP@
+*/
+
+                    // exclude certain DOS/Windows "system" items; TODO Adjust excluded Windows items as necessary
+                    String longname = entry.getLongname();
+                    if (longname.matches("(?i).*OWNER\\@.*GROUP\\@.*") ||
+                        (longname.matches("(?i).*Administrators.*BUILTIN.*")) ||
+                        (longname.matches("(?i).*TrustedInstaller.*NT SERVICE.*") &&
+                                !(entry.getFilename().toLowerCase().startsWith("program files") || entry.getFilename().toLowerCase().equals("windows"))) )
+                        continue;
+
                     SftpATTRS a = entry.getAttrs();
                     NavTreeNode node = new NavTreeNode(context, myRepo, myTree);
                     NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),

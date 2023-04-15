@@ -54,8 +54,6 @@ public class JobsUI extends JDialog
     private Task currentTask = null;
     private ArrayList<Job> deletedJobs;
     private JobsUI jobsUi;
-    private boolean loadingCombo = false;
-    private File generatorLogFile = null;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;

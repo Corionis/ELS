@@ -6,7 +6,6 @@ import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.sshd.common.FactoryManager;
 import org.apache.sshd.common.session.Session;
 import org.apache.sshd.common.session.SessionDisconnectHandler;
 import org.apache.sshd.common.session.helpers.AbstractSession;
@@ -18,29 +17,24 @@ import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
-import org.apache.sshd.server.subsystem.sftp.SftpErrorStatusDataHandler;
-import org.apache.sshd.server.subsystem.sftp.SftpSubsystemEnvironment;
-import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
+import org.apache.sshd.sftp.server.SftpErrorStatusDataHandler;
+import org.apache.sshd.sftp.server.SftpSubsystemEnvironment;
+import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.security.PublicKey;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
-/*
+/**
  * SFTP server class
- *
- *  See:
- *  https://mina.apache.org/sshd-project
- *  https://github.com/apache/mina-sshd/blob/master/docs/sftp.md
- *
- *  https://javadoc.io/doc/org.apache.sshd
- *  https://javadoc.io/doc/org.apache.sshd/sshd-sftp/latest/index.html
+ * <br/>
+ *  See:<br/>
+ *  https://mina.apache.org/sshd-project  <br/>
+ *  https://github.com/apache/mina-sshd/blob/master/docs/sftp.md  <br/>
+ *  https://javadoc.io/doc/org.apache.sshd  <br/>
+ *  https://javadoc.io/doc/org.apache.sshd/sshd-sftp/latest/index.html  <br/>
  */
-
 public class ServeSftp implements SftpErrorStatusDataHandler
 {
     private Context context;
@@ -214,17 +208,21 @@ public class ServeSftp implements SftpErrorStatusDataHandler
                     return true;
                 }
             };
-
             sshd.setSessionDisconnectHandler(disconnector);
+
             // infinite inactivity time-out for sftp; timeouts in stty control process
             //int tout = theirRepo.getLibraryData().libraries.timeout * 60 * 1000;
             int tout = 0;
 
             logger.trace("Setting sftp idle timeout to " + tout);
-            sshd.getProperties().put(FactoryManager.IDLE_TIMEOUT, tout); // sftp idle time-out
-            Object o = sshd.getProperties().get(FactoryManager.IDLE_TIMEOUT);
+            Map<String, Object> p = sshd.getProperties();
+
+            // set the default idle timeout
+            sshd.getProperties().put("idle-timeout", tout); // sftp idle time-out
+            Object o = sshd.getProperties().get("idle-timeout");
             logger.trace("sftp idle timeout is " + o.toString());
 
+            // run the SFTP server
             sshd.start();
 
             // assemble listen IP(s)

@@ -7,6 +7,7 @@ import com.groksoft.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -63,6 +64,8 @@ public abstract class AbstractDaemon
         {
             public void run()
             {
+                String exceptionMessage = "";
+                String errorMessage = "";
                 try
                 {
                     sleep(20 * 1000); // offset this heartbeat timing
@@ -79,13 +82,15 @@ public abstract class AbstractDaemon
                 catch (InterruptedException e)
                 {
                     logger.trace("heartbeat interrupted");
-                    interrupt();
                 }
                 catch (Exception e)
                 {
-                    logger.error(Utils.getStackTrace(e));
                     context.fault = true;
+                    errorMessage = e.getMessage();
+                    exceptionMessage = Utils.getStackTrace(e);
+                    heartBeat.interrupt();
                 }
+                stopDaemon(errorMessage, exceptionMessage);
             }
         };
         logger.trace("starting heartbeat");
@@ -100,9 +105,9 @@ public abstract class AbstractDaemon
         if (heartBeat != null)
         {
             if (!heartBeatEnabled)
-                logger.warn("heartbeat already disabled");
+                logger.warn("Daemon heartbeat already disabled");
             else
-                logger.trace("heartbeat disabled");
+                logger.trace("Daemon heartbeat disabled");
             heartBeatEnabled = false;
         }
     }
@@ -250,6 +255,27 @@ public abstract class AbstractDaemon
         {
             logger.trace("stopping heartbeat thread");
             heartBeat.interrupt();
+        }
+    }
+
+    private void stopDaemon(String errorMessage, String exceptionMessage)
+    {
+        if (context.fault)
+        {
+            if (heartBeat.isAlive())
+                stopHeartBeat();
+            if (context.mainFrame != null && errorMessage.length() > 0)
+            {
+                JOptionPane.showMessageDialog(context.mainFrame, "Daemon Stty: " + errorMessage,
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            }
+            if (context.serveStty != null && context.serveStty.isAlive())
+            {
+                if (exceptionMessage.length() > 0)
+                    logger.error(context.cfg.gs("Z.fault") + exceptionMessage);
+                context.serveStty.requestStop();
+                context.serveStty.stopServer();
+            }
         }
     }
 

@@ -53,31 +53,7 @@ public class MainFrame extends JFrame
 
         try
         {
-            UIManager.put( "Tree.showDefaultIcons", true );
-            UIManager.put( "ScrollBar.showButtons", true ); // show scrollbar up/down buttons
-            UIManager.put( "Component.hideMnemonics", false ); // show/hide mnemonic letters
-            UIManager.put( "TabbedPane.showTabSeparators", true ); // separators between tabs
-//            UIManager.put( "TabbedPane.tabSeparatorsFullHeight", true );
-
-            if (context.preferences.getLookAndFeel() == 0)
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            else
-            {
-                laf = getLookAndFeel(context.preferences.getLookAndFeel());
-                UIManager.setLookAndFeel(laf);
-            }
-
-            // set accent color for current LaF
-            if (context.preferences.getAccentColor() == null || context.preferences.getAccentColor().length() < 1)
-            {
-                context.preferences.setAccentColor("2675BF");
-            }
-            String accent = context.preferences.getAccentColor();
-            FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + accent));
-            Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
-            FlatLaf.setup(lafClass.newInstance());
-            FlatLaf.updateUI();
-
+            context.preferences.initLookAndFeel();
             initComponents();
             setTitle(context.cfg.getNavigatorName());
             setBrowserTabs(-1);
@@ -388,35 +364,6 @@ public class MainFrame extends JFrame
             context.navigator.dialogJobs.requestFocus();
             context.navigator.dialogJobs.saveButton.requestFocus();
         }
-    }
-
-    public LookAndFeel getLookAndFeel(int value)
-    {
-        switch (value)
-        {
-            // Built-in themes
-            case 1:
-                laf = new MetalLookAndFeel();
-                break;
-            case 2:
-                laf = new NimbusLookAndFeel();
-                break;
-            // FlatLaf themes
-            case 3:
-                laf = new FlatLightLaf();
-                break;
-            case 4:
-                laf = new FlatDarkLaf();
-                break;
-            case 5:
-                laf = new FlatIntelliJLaf();
-                break;
-            case 6:
-            default:
-                laf = new FlatDarculaLaf();
-                break;
-        }
-        return laf;
     }
 
     private void menuItemFileQuitActionPerformed(ActionEvent e)

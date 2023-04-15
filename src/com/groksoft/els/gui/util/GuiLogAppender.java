@@ -2,6 +2,7 @@ package com.groksoft.els.gui.util;
 
 import com.groksoft.els.Context;
 
+import com.groksoft.els.gui.Startup;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
@@ -12,6 +13,8 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -20,6 +23,7 @@ public class GuiLogAppender extends AbstractAppender
 {
     private static ArrayList<String> preBuffer = null;
     private Context context = null;
+    private Startup startup = null;
 
     public GuiLogAppender(String name, Filter filter, Layout<? extends Serializable> layout, boolean ignoreExceptions)
     {
@@ -32,23 +36,15 @@ public class GuiLogAppender extends AbstractAppender
         byte[] data = getLayout().toByteArray(event);
         String line = new String(data).trim() + System.getProperty("line.separator");
 
-        if (context == null || context.mainFrame == null)
+        if (isGuiInitializing())
         {
-            if (preBuffer == null)
-                preBuffer = new ArrayList<String>();
-            preBuffer.add(line);
+            preBuffer(line);
+            showStartup(line);
         }
         else
         {
             if (preBuffer != null)
-            {
-                for (String preLine : preBuffer)
-                {
-                    if (preLine != null)
-                        appendGuiLogs(preLine);
-                }
-                preBuffer = null;
-            }
+                dumpPreBuffer();
             appendGuiLogs(line);
         }
     }
@@ -57,6 +53,40 @@ public class GuiLogAppender extends AbstractAppender
     {
         context.mainFrame.textAreaLog.append(line);
         context.mainFrame.textAreaOperationLog.append(line);
+    }
+
+    private void dumpPreBuffer()
+    {
+        hideStartup();
+        for (String preLine : preBuffer)
+        {
+            if (preLine != null)
+            {
+                appendGuiLogs(preLine);
+            }
+        }
+        preBuffer = null;
+    }
+
+    public Component getStartup()
+    {
+        return startup;
+    }
+
+    public boolean isStartupActive()
+    {
+        if (startup != null && startup.isVisible())
+            return true;
+        return false;
+    }
+
+    private void hideStartup()
+    {
+        if (startup != null)
+        {
+            startup.setVisible(false);
+        }
+        startup = null;
     }
 
     @PluginFactory
@@ -79,9 +109,73 @@ public class GuiLogAppender extends AbstractAppender
         return appender;
     }
 
+    private boolean isGuiInitializing()
+    {
+        if (context == null ||
+                context.navigator == null ||
+                context.mainFrame == null ||
+                context.mainFrame.textAreaLog == null ||
+                context.mainFrame.textAreaOperationLog == null )
+            return true;
+        return false;
+    }
+
+    private void preBuffer(String line)
+    {
+        if (preBuffer == null)
+            preBuffer = new ArrayList<String>();
+        preBuffer.add(line);
+    }
+
+    private void redraw()
+    {
+        Graphics gfx = startup.startupTextField.getGraphics();
+        if (gfx != null)
+            startup.startupTextField.update(gfx);
+        startup.startupTextField.repaint();
+        startup.repaint();
+    }
+
     public void setContext(Context context)
     {
         this.context = context;
+    }
+
+    public void showStartup(String msg)
+    {
+        if (context.cfg.defaultNavigator || context.cfg.isNavigator() && preBuffer != null)
+        {
+            if (isGuiInitializing())
+            {
+                if (startup == null)
+                {
+                    try
+                    {
+                        context.preferences.initLookAndFeel();
+                        startup = new Startup();
+                        if (startup != null)
+                        {
+                            startup.setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
+                            startup.setTitle(context.cfg.getNavigatorName());
+                            startup.labelVersion.setText("Version " + context.cfg.getVersion());
+                            if (context.preferences.getAppXpos() >= 0)
+                            {
+                                int x = context.preferences.getAppXpos() + (context.preferences.getAppWidth() / 2) - (startup.getWidth() / 2);
+                                int y = context.preferences.getAppYpos() + (context.preferences.getAppHeight() / 2) - (startup.getHeight() / 2);
+                                startup.setLocation(x, y);
+                            }
+                            startup.setVisible(true);
+                        }
+                    }
+                    catch (Exception ignoredEx)
+                    {
+                    }
+                }
+
+                startup.startupTextField.setText(msg.substring(29));
+                redraw();
+            }
+        }
     }
 
     @Override
