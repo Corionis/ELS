@@ -48,8 +48,8 @@ public class MainFrame extends JFrame
 
     public MainFrame(Context context)
     {
+        context.mainFrame = this;
         this.context = context;
-        this.context.mainFrame = this;
 
         try
         {

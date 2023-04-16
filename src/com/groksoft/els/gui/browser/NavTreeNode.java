@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.*;
 import java.io.File;
 import java.util.*;
 import java.util.List;
@@ -596,6 +597,8 @@ public class NavTreeNode extends DefaultMutableTreeNode
     {
         try
         {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
             Vector listing = context.clientSftp.listDirectory(target);
             logger.info(Utils.formatInteger(listing.size()) + context.cfg.gs("NavTreeNode.received.entries.from") + target);
             for (int i = 0; i < listing.size(); ++i)
@@ -603,20 +606,16 @@ public class NavTreeNode extends DefaultMutableTreeNode
                 ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
                 if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
                 {
-
-/*
-                    TrustedInstaller        NT SERVICE                  Program Files
-
-                    SYSTEM                  NT Authority                   Users
-                    OWNER@                  GROUP@
-*/
-
                     // exclude certain DOS/Windows "system" items; TODO Adjust excluded Windows items as necessary
                     String longname = entry.getLongname();
                     if (longname.matches("(?i).*OWNER\\@.*GROUP\\@.*") ||
                         (longname.matches("(?i).*Administrators.*BUILTIN.*")) ||
                         (longname.matches("(?i).*TrustedInstaller.*NT SERVICE.*") &&
-                                !(entry.getFilename().toLowerCase().startsWith("program files") || entry.getFilename().toLowerCase().equals("windows"))) )
+                                !(entry.getFilename().toLowerCase().startsWith("program files") || entry.getFilename().toLowerCase().equals("windows"))) ||
+                        entry.getFilename().equals("BOOTNXT") ||
+                        entry.getFilename().equals("ProgramData") ||
+                        entry.getFilename().equals("$Recycle.Bin") ||
+                        entry.getFilename().equals("Documents and Settings") )
                         continue;
 
                     SftpATTRS a = entry.getAttrs();
@@ -641,12 +640,14 @@ public class NavTreeNode extends DefaultMutableTreeNode
         }
         catch (Exception e)
         {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             String msg = context.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
                     context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
             logger.error(msg);
-            context.fault = true;
-            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            Component centerOn = (context.mainFrame != null) ? context.mainFrame : null;
+            JOptionPane.showMessageDialog(centerOn, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
+        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     public void selectMe()

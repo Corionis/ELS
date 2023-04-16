@@ -2287,6 +2287,7 @@ public class Browser
                             context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
         }
         context.mainFrame.buttonHintTracking.setToolTipText(tt);
+        context.browser.hintTrackingEnabled = enabled;
     }
 
     private NavTreeNode setCollectionRoot(Repository repo, JTree tree, String title, boolean remote)

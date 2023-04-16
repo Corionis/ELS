@@ -438,7 +438,7 @@ public class Main
                         context.clientStty = new ClientStty(context, true, true);
                         if (context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                         {
-                            context.clientStty.guiSession();
+                            context.clientStty.terminalSession();
                             isListening = true; // fake listener to wait for shutdown
                         }
                         else
@@ -562,7 +562,7 @@ public class Main
                         context.clientStty = new ClientStty(context, true, true);
                         if (context.clientStty.connect(context.subscriberRepo, context.publisherRepo))
                         {
-                            context.clientStty.guiSession();
+                            context.clientStty.terminalSession();
                             isListening = true; // fake listener to wait for shutdown
                         }
                         else

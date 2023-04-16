@@ -61,7 +61,6 @@ public class ClientStty
     public long availableSpace(String location) throws Exception
     {
         long space = 0L;
-        //String response = roundTrip("space \"" + location + "\"", "Available space check: " + location, 5000);
         String response = roundTrip("space \"" + location + "\"", "", 5000);
         if (response != null && response.length() > 0)
         {
@@ -227,6 +226,7 @@ public class ClientStty
                 catch (Exception e)
                 {
                     context.fault = true;
+                    context.browser.setHintTrackingButton(false);
                     errorMessage = "(Hint Server) " + e.getMessage();
                     exceptionMessage = Utils.getStackTrace(e);
                     heartBeat.interrupt();
@@ -315,20 +315,6 @@ public class ClientStty
     public Repository getTheirRepo()
     {
         return theirRepo;
-    }
-
-    /**
-     * Start an interactive GUI terminal session
-     *
-     * @return
-     * @throws Exception
-     */
-    public int guiSession() throws Exception
-    {
-        int returnValue = 0;
-        gui = new TerminalGui(this, context.cfg, in, out);
-        returnValue = gui.run(myRepo, theirRepo);
-        return returnValue;
     }
 
     /**
@@ -581,6 +567,20 @@ public class ClientStty
             logger.trace("stopping heartbeat thread");
             heartBeat.interrupt();
         }
+    }
+
+    /**
+     * Start an interactive GUI terminal session
+     *
+     * @return
+     * @throws Exception
+     */
+    public int terminalSession() throws Exception
+    {
+        int returnValue = 0;
+        gui = new TerminalGui(this, context.cfg, in, out);
+        returnValue = gui.run(myRepo, theirRepo);
+        return returnValue;
     }
 
 }

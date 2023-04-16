@@ -214,10 +214,8 @@ public class ServeSftp implements SftpErrorStatusDataHandler
             //int tout = theirRepo.getLibraryData().libraries.timeout * 60 * 1000;
             int tout = 0;
 
-            logger.trace("Setting sftp idle timeout to " + tout);
-            Map<String, Object> p = sshd.getProperties();
-
             // set the default idle timeout
+            logger.trace("Setting sftp idle timeout to " + tout);
             sshd.getProperties().put("idle-timeout", tout); // sftp idle time-out
             Object o = sshd.getProperties().get("idle-timeout");
             logger.trace("sftp idle timeout is " + o.toString());

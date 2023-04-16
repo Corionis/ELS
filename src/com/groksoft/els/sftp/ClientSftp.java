@@ -105,7 +105,7 @@ public class ClientSftp
         pathname = Utils.pipe(pathname);
         String[] parts = pathname.split("\\|");
 
-        String sep = theirRepo.getSeparator();
+        String sep = "/";
         String whole = "";
         for (int i = 0; i < parts.length - 1; ++i)
         {
@@ -117,7 +117,7 @@ public class ClientSftp
                     // don't try to create a Windows root directory, e.g. C:\
                     if (theirRepo.getLibraryData().libraries.flavor.equalsIgnoreCase(Libraries.WINDOWS)) // && parts[i].length() == 2)
                     {
-                        whole = parts[i];
+                        whole = sep + parts[i];
                         continue;
                     }
                 }
