@@ -24,3 +24,5 @@ hs_err_pid*
 /mock/test/
 /mock/tools/
 /out
+/mock/capture/
+/mock/capture-ds/

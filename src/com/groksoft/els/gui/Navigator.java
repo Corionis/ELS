@@ -860,7 +860,7 @@ public class Navigator
 
                             // connect to the hint tracker or status server
                             context.main.connectHintServer(context.publisherRepo);
-                            context.browser.setHintTrackingButton(true);
+                            context.browser.toggleHints(true);
                         }
                         catch (Exception e)
                         {

@@ -59,24 +59,24 @@ in the Version-4.0.0 branch for on-going change information.
    * Done: Works with local or remote subscriber.
      * Done: When in listener mode ELS may also be accessed with a standard SFTP tool such as Filezilla.
    * Done: Optional automatic ELS Hint creation based on actions.
-   * Various purpose-built tools for curating a media collection.
-     * Duplicate Finder
-     * Empty Directory Finder
+   * Done: Various purpose-built tools for curating a media collection.
+     * Done: Duplicate Finder
+     * Done: Empty Directory Finder
      * Done: Junk Remover
-     * Renamer
+     * Done: Renamer
    * Done: Tools may be combined into jobs.
      * Done: Creation of command line to execute jobs. Useful for Linux
        cron jobs or Windows Task Scheduler tasks.
      * Done: Jobs may include other Jobs.
    * Done: Jobs may be executed from the command line 
    * External tools supported.
-   * Navigator Backup tab is for creation of ELS back-up tools that may be combined into jobs.
+   * Navigator Operations tab is for creation of ELS back-up tools that may be combined into jobs.
    * Navigator Libraries tab is for editing of publisher, subscriber, 
      and hint management JSON files.
    * Done: Secure remote operation. End-point cross authentication, all communication is encrypted.
    * Add an inetd option for listener configurations so they may be started dynamically on-demand.
    * Fully internationalized - **translations requested**.
-   * Embedded JRE.
+   * Done: Embedded JRE.
    * Windows installer.
    * Linux install packages.
    * Built-in updater.

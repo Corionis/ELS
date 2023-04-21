@@ -92,6 +92,21 @@ public class NavTreeNode extends DefaultMutableTreeNode
         return object;
     }
 
+    public ArrayList<NavTreeUserObject> addChildUserObjectsToList(ArrayList<NavTreeUserObject> list)
+    {
+        for (int i = 0; i < getChildCount(); ++i)
+        {
+            NavTreeNode child = (NavTreeNode) getChildAt(i, false, false);
+            NavTreeUserObject tuo = child.getUserObject();
+            list.add(tuo);
+            if (tuo.isDir)
+            {
+                list = child.addChildUserObjectsToList(list);
+            }
+        }
+        return list;
+    }
+
     public int deepGetFileCount()
     {
         int count = 0;
@@ -504,12 +519,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         if (myTuo.isRemote)
                         {
                             logger.info(context.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
-                            scanRemote(myTuo.path, nodeArray, false);
+                            scanRemote(myTuo.path, nodeArray, recursive);
                         }
                         else
                         {
                             logger.info(context.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
-                            scanLocal(new File(myTuo.path).getAbsoluteFile(), nodeArray, false);
+                            scanLocal(new File(myTuo.path).getAbsoluteFile(), nodeArray, recursive);
                         }
                     }
                     break;
@@ -518,7 +533,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     if (file.isDirectory())
                     {
                         logger.info(context.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
-                        scanLocal(file.getAbsoluteFile(), nodeArray, false);
+                        scanLocal(file.getAbsoluteFile(), nodeArray, recursive);
                     }
                     break;
                 case NavTreeUserObject.LIBRARY:
@@ -529,12 +544,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                             if (myTuo.isRemote)
                             {
                                 logger.info(context.cfg.gs("NavTreeNode.scanning.remote.library") + path);
-                                scanRemote(path, nodeArray, false);
+                                scanRemote(path, nodeArray, recursive);
                             }
                             else
                             {
                                 logger.info(context.cfg.gs("NavTreeNode.scanning.local.library") + path);
-                                scanLocal(new File(path).getAbsoluteFile(), nodeArray, false);
+                                scanLocal(new File(path).getAbsoluteFile(), nodeArray, recursive);
                             }
                         }
                     }
@@ -545,12 +560,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                         if (myTuo.isRemote)
                         {
                             logger.info(context.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
-                            scanRemote(myTuo.path, nodeArray, false);
+                            scanRemote(myTuo.path, nodeArray, recursive);
                         }
                         else
                         {
                             logger.info(context.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
-                            scanLocal(myTuo.file.getAbsoluteFile(), nodeArray, false);
+                            scanLocal(myTuo.file.getAbsoluteFile(), nodeArray, recursive);
                         }
                     }
                     break;
@@ -614,7 +629,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                                 !(entry.getFilename().toLowerCase().startsWith("program files") || entry.getFilename().toLowerCase().equals("windows"))) ||
                         entry.getFilename().equals("BOOTNXT") ||
                         entry.getFilename().equals("ProgramData") ||
-                        entry.getFilename().equals("$Recycle.Bin") ||
+                        entry.getFilename().equalsIgnoreCase("$Recycle.Bin") ||
                         entry.getFilename().equals("Documents and Settings") )
                         continue;
 

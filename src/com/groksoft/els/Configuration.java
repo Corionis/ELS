@@ -312,7 +312,7 @@ public class Configuration
         }
         if (!getRemoteType().equalsIgnoreCase("-"))
         {
-            logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType());
+            logger.info(SHORT, "  cfg: -r Remote session type = " + getRemoteType() + " " + getRemoteTypeName(getOperation()));
         }
         if (getSubscriberLibrariesFileName().length() > 0)
         {
@@ -753,6 +753,50 @@ public class Configuration
                 break;
         }
         return op;
+    }
+
+    /**
+     * Gets remote type long name based on operation
+     *
+     * @return the remote type long name from the command line
+     */
+    public String getRemoteTypeName(int operation)
+    {
+        String name = "-";
+        switch (operation)
+        {
+            case NOT_REMOTE: // 0
+                name = "Not remote";
+                break;
+            case PUBLISHER_LISTENER: // 4
+                name = "Publisher listener";
+                break;
+            case PUBLISHER_MANUAL: // 3
+                name = "Publisher manual";
+                break;
+            case PUBLISH_REMOTE: // 1
+                name = "Publisher remote";
+                break;
+            case SUBSCRIBER_LISTENER: // 2
+                name = "Subscriber listener";
+                break;
+            case SUBSCRIBER_TERMINAL: // 5
+                name = "Subscriber terminal";
+                break;
+            case STATUS_SERVER: // 6
+                name = "Status server";
+                break;
+            case STATUS_SERVER_FORCE_QUIT: // 7
+                name = "Status server force quit";
+                break;
+            case JOB_PROCESS:
+                name = "Job";
+                break;
+            case SUBSCRIBER_LISTENER_FORCE_QUIT: // 9
+                name = "Subscriber listener force quit";
+                break;
+        }
+        return name;
     }
 
     /**
@@ -1273,7 +1317,7 @@ public class Configuration
         //   V update check
         //   X execute an internal "shortcut" to handle long command lines
         //   Y install update
-        // Leaving single option letters, case-sensitive: Z
+        //   Z verify connectivity (only)
 
         int index;
         originalArgs = args;

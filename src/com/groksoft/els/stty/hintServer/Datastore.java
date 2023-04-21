@@ -188,6 +188,12 @@ public class Datastore
 
         // scan the status datastore (repository)
         context.statusRepo.scan(statusLibrary.name);
+
+        Library lib = context.statusRepo.getLibrary(statusLibrary.name);
+        int count = 0;
+        if (lib != null && lib.items != null)
+            count = lib.items.size();
+        logger.info("Status datastore contains " + count + " items");
     }
 
     /**

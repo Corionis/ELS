@@ -230,18 +230,15 @@ public class ClientSftp
             jSession = jsch.getSession(user, hostname, hostport);
             jSession.setConfig("StrictHostKeyChecking", "no");
             jSession.setPassword(password);
+
             // Could implement strict key checking if more security is needed
             //jsch.setKnownHosts("known_hosts");
             //jsch.addIdentity("id_rsa");
 
             jSession.connect(60000); // sftp session connection time-out, 60 secs
 
-            //jSession.setTimeout(theirRepo.getLibraryData().libraries.timeout * 60 * 1000); // inactivity time-out
+            //jSession.setTimeout(theirRepo.getLibraryData().libraries.timeout * 60 * 1000); // inactivity time-out; NOW handled per-operation
             logger.trace("client sftp timeout is " + jSession.getTimeout());
-
-            // If this is a remote Navigator session then "keep alive" the connection
-            //if (cfg.isRemoteSession() && cfg.isNavigator())
-            //    jSession.setServerAliveInterval(500000); // Navigator keep alive time-out
         }
         catch (Exception e)
         {

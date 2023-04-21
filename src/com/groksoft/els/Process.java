@@ -541,6 +541,10 @@ public class Process
                 {
                     munge();
                 }
+                else
+                {
+                    logger.warn("Something missing? Make sure publisher, subscriber and targets are specified for backup operation");
+                }
             }
 
             // clean-up ELS Hints on subscriber
