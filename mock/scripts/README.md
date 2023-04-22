@@ -151,6 +151,7 @@ two collections match during the backup operation. If not an exception is thrown
 made with Hints, and optionally Hint Tracking, enabled are automatically marked as Done.
 
  * ``reset`` : Reset the test/ directory
+ * ``090-23_Navigator-local`` : Navigator to create Hints
  * ``040-01_Hints-publisher`` : Run Hints on publisher, once, if not Done by Navigator
  * ``reset`` : Reset the test/ directory
  * ``040-22_Publisher-dryrun`` : Run once, results & copies _will be wrong_ because hints not processed

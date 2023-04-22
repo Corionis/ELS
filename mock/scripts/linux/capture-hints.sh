@@ -36,31 +36,38 @@ if [[ $* == *"-c"* ]]; then
     fi
 fi
 
-if [[ $* == *"-d"* ]]; then
-    echo 'Changing Done to For in .els files'
-    cd ../capture
-    find . -type f -name '*.els' -exec sed --in-place -e 's/Done/For/i' "{}" \;
-
-    if [ -d ../datastore ]; then
-        cd ../capture-ds
-        find . -type f -name '*.els' -exec sed --in-place -e 's/Done/For/i' "{}" \;
-    fi
-    cd ..
-fi
-
 if [[ $* == *"-r"* ]]; then
     cd "$base"
     ./reset.sh -f
 
-    cd ../../capture
-    echo 'Copying .els files back'
-    find . -name "*.els" -exec cp -p "{}" "../test/{}" \;
+    cd ../..
+    if [ -d capture ]; then
+        echo 'Copying .els files to test'
+        cd capture
+        find . -name "*.els" -exec cp -p "{}" "../test/{}" \;
+    fi
 
     cd ..
-    if [ -e capture-ds ]; then
+    if [ -d capture-ds ]; then
+        echo 'Copying .els files to datastore'
         mkdir datastore
         cp -rp capture-ds/* datastore/
     fi
+fi
+
+if [[ $* == *"-d"* ]]; then
+    cd "$base"
+    echo 'Changing Done to For in .els files'
+
+    cd ../../test
+    find . -type f -name '*.els' -exec sed --in-place -e 's/Done/For/i' "{}" \;
+
+    cd ..
+    if [ -d datastore ]; then
+        cd datastore
+        find . -type f -name '*.els' -exec sed --in-place -e 's/Done/For/i' "{}" \;
+    fi
+    cd ..
 fi
 
 cd "$base"
