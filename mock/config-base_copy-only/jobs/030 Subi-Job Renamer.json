@@ -2,7 +2,7 @@
   "configName": "030 Subi-Job Renamer",
   "tasks": [
     {
-      "configName": "20 Renamer Tests",
+      "configName": "020 Multi-Renamer Publisher L",
       "internalName": "jobs",
       "publisherKey": "",
       "subscriberKey": "",

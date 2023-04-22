@@ -1986,7 +1986,7 @@ public class Browser
                     next = node.findChildName(pathElements[j], occurrence);
                     if (next == null)
                     {
-                        nodes = null;
+                        nodes = null; // skip any path not found, a delete operation
                         break;
                     }
                     nodes[nodeIndex++] = next;

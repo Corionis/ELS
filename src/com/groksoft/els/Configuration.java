@@ -94,6 +94,7 @@ public class Configuration
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerForceQuit, JobProcess, SubscriberListenerForceQuit
     }
+
     /**
      * Constructor
      */
@@ -1314,7 +1315,7 @@ public class Configuration
         //   O operation
         //   R restrict hint processing
         //   U user authorization
-        //   V update check
+        //   V check for updates
         //   X execute an internal "shortcut" to handle long command lines
         //   Y install update
         //   Z verify connectivity (only)

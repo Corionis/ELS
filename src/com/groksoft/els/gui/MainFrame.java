@@ -1,6 +1,5 @@
 package com.groksoft.els.gui;
 
-import com.formdev.flatlaf.*;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.browser.BrowserTableModel;
@@ -14,13 +13,10 @@ import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicLabelUI;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Collections;
 
 /**
  * Navigator graphical user interface main JFrame.
@@ -486,14 +482,14 @@ public class MainFrame extends JFrame
         menuItemCut = new JMenuItem();
         menuItemPaste = new JMenuItem();
         menuItemDelete = new JMenuItem();
-        menuItemFind = new JMenuItem();
-        menuItemFindNext = new JMenuItem();
         menuItemNewFolder = new JMenuItem();
         menuItemRename = new JMenuItem();
         menuItemTouch = new JMenuItem();
+        menuItemFind = new JMenuItem();
+        menuItemFindNext = new JMenuItem();
         menuView = new JMenu();
-        menuItemRefresh = new JMenuItem();
         menuItemProgress = new JMenuItem();
+        menuItemRefresh = new JMenuItem();
         menuItemAutoRefresh = new JCheckBoxMenuItem();
         menuItemShowHidden = new JCheckBoxMenuItem();
         menuItemWordWrap = new JCheckBoxMenuItem();
@@ -510,7 +506,6 @@ public class MainFrame extends JFrame
         menuItem1 = new JMenuItem();
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
-        menuStopTask = new JMenu();
         menuSystem = new JMenu();
         menuItemSettings = new JMenuItem();
         menuItemAuthKeys = new JMenuItem();
@@ -871,19 +866,6 @@ public class MainFrame extends JFrame
                 menuEdit.add(menuItemDelete);
                 menuEdit.addSeparator();
 
-                //---- menuItemFind ----
-                menuItemFind.setText(context.cfg.gs("Navigator.menu.Find.text"));
-                menuItemFind.setMnemonic(context.cfg.gs("Navigator.menu.Find.mnemonic").charAt(0));
-                menuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
-                menuEdit.add(menuItemFind);
-
-                //---- menuItemFindNext ----
-                menuItemFindNext.setText(context.cfg.gs("Navigator.menuItemFindNext.text"));
-                menuItemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
-                menuItemFindNext.setMnemonic(context.cfg.gs("Navigator.menuItemFindNext.mnemonic").charAt(0));
-                menuEdit.add(menuItemFindNext);
-                menuEdit.addSeparator();
-
                 //---- menuItemNewFolder ----
                 menuItemNewFolder.setText(context.cfg.gs("Navigator.menu.New.folder.text"));
                 menuItemNewFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
@@ -900,6 +882,19 @@ public class MainFrame extends JFrame
                 menuItemTouch.setText(context.cfg.gs("Navigator.menu.Touch.text"));
                 menuItemTouch.setMnemonic(context.cfg.gs("Navigator.menu.Touch.mnemonic").charAt(0));
                 menuEdit.add(menuItemTouch);
+                menuEdit.addSeparator();
+
+                //---- menuItemFind ----
+                menuItemFind.setText(context.cfg.gs("Navigator.menu.Find.text"));
+                menuItemFind.setMnemonic(context.cfg.gs("Navigator.menu.Find.mnemonic").charAt(0));
+                menuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+                menuEdit.add(menuItemFind);
+
+                //---- menuItemFindNext ----
+                menuItemFindNext.setText(context.cfg.gs("Navigator.menuItemFindNext.text"));
+                menuItemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+                menuItemFindNext.setMnemonic(context.cfg.gs("Navigator.menuItemFindNext.mnemonic").charAt(0));
+                menuEdit.add(menuItemFindNext);
             }
             menuBarMain.add(menuEdit);
 
@@ -908,16 +903,16 @@ public class MainFrame extends JFrame
                 menuView.setText(context.cfg.gs("Navigator.menu.View.text"));
                 menuView.setMnemonic(context.cfg.gs("Navigator.menu.View.mnemonic").charAt(0));
 
+                //---- menuItemProgress ----
+                menuItemProgress.setText(context.cfg.gs("Navigator.menu.Progress.text"));
+                menuItemProgress.setMnemonic(context.cfg.gs("Navigator.menu.Progress.mnemonic").charAt(0));
+                menuView.add(menuItemProgress);
+
                 //---- menuItemRefresh ----
                 menuItemRefresh.setText(context.cfg.gs("Navigator.menu.Refresh.text"));
                 menuItemRefresh.setMnemonic(context.cfg.gs("Navigator.menuItemRefresh.mnemonic").charAt(0));
                 menuItemRefresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
                 menuView.add(menuItemRefresh);
-
-                //---- menuItemProgress ----
-                menuItemProgress.setText(context.cfg.gs("Navigator.menu.Progress.text"));
-                menuItemProgress.setMnemonic(context.cfg.gs("Navigator.menu.Progress.mnemonic").charAt(0));
-                menuView.add(menuItemProgress);
                 menuView.addSeparator();
 
                 //---- menuItemAutoRefresh ----
@@ -1015,15 +1010,6 @@ public class MainFrame extends JFrame
                 menuItemJobsManage.setText(context.cfg.gs("Navigator.menu.JobsManage.text"));
                 menuItemJobsManage.setMnemonic(context.cfg.gs("Navigator.menu.JobsManage.mnemonic").charAt(0));
                 menuJobs.add(menuItemJobsManage);
-
-                //======== menuStopTask ========
-                {
-                    menuStopTask.setText(context.cfg.gs("Navigator.menuStopTask.text"));
-                    menuStopTask.setMnemonic(context.cfg.gs("Navigator.menuStopTask.mnemonic").charAt(0));
-                    menuStopTask.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuStopTask.displayedMnemonicIndex")));
-                    menuStopTask.setEnabled(false);
-                }
-                menuJobs.add(menuStopTask);
                 menuJobs.addSeparator();
             }
             menuBarMain.add(menuJobs);
@@ -3263,14 +3249,14 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemCut;
     public JMenuItem menuItemPaste;
     public JMenuItem menuItemDelete;
-    public JMenuItem menuItemFind;
-    public JMenuItem menuItemFindNext;
     public JMenuItem menuItemNewFolder;
     public JMenuItem menuItemRename;
     public JMenuItem menuItemTouch;
+    public JMenuItem menuItemFind;
+    public JMenuItem menuItemFindNext;
     public JMenu menuView;
-    public JMenuItem menuItemRefresh;
     public JMenuItem menuItemProgress;
+    public JMenuItem menuItemRefresh;
     public JCheckBoxMenuItem menuItemAutoRefresh;
     public JCheckBoxMenuItem menuItemShowHidden;
     public JCheckBoxMenuItem menuItemWordWrap;
@@ -3287,7 +3273,6 @@ public class MainFrame extends JFrame
     public JMenuItem menuItem1;
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
-    public JMenu menuStopTask;
     public JMenu menuSystem;
     public JMenuItem menuItemSettings;
     public JMenuItem menuItemAuthKeys;

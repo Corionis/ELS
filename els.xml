@@ -16,6 +16,12 @@
     <target name="clean" depends="init">
         <delete dir="out" failonerror="false"/>
         <mkdir dir="out"/>
+        <delete failonerror="false">
+            <fileset dir="deploy">
+                <include name="*.tar.gz"/>
+                <include name="*.zip"/>
+            </fileset>
+        </delete>
     </target>
 
     <!-- Build stamp and copy locales to default -->

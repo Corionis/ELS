@@ -2091,30 +2091,15 @@ new FormModel {
 						name: "separator6"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemFind"
-						"text": new FormMessage( null, "Navigator.menu.Find.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.Find.mnemonic" )
-						"accelerator": &KeyStroke4 static javax.swing.KeyStroke getKeyStroke( 70, 130, false )
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemFindNext"
-						"text": new FormMessage( null, "Navigator.menuItemFindNext.text" )
-						"accelerator": &KeyStroke5 static javax.swing.KeyStroke getKeyStroke( 114, 0, false )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemFindNext.mnemonic" )
-					} )
-					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separator9"
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemNewFolder"
 						"text": new FormMessage( null, "Navigator.menu.New.folder.text" )
-						"accelerator": &KeyStroke6 static javax.swing.KeyStroke getKeyStroke( 118, 0, false )
+						"accelerator": &KeyStroke4 static javax.swing.KeyStroke getKeyStroke( 118, 0, false )
 						"mnemonic": new FormMessage( null, "Navigator.menu.New.folder.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRename"
 						"text": new FormMessage( null, "Navigator.menu.Rename.text" )
-						"accelerator": &KeyStroke7 static javax.swing.KeyStroke getKeyStroke( 113, 0, false )
+						"accelerator": &KeyStroke5 static javax.swing.KeyStroke getKeyStroke( 113, 0, false )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Rename.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
@@ -2122,21 +2107,36 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Touch.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Touch.mnemonic" )
 					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator9"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemFind"
+						"text": new FormMessage( null, "Navigator.menu.Find.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Find.mnemonic" )
+						"accelerator": &KeyStroke6 static javax.swing.KeyStroke getKeyStroke( 70, 130, false )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemFindNext"
+						"text": new FormMessage( null, "Navigator.menuItemFindNext.text" )
+						"accelerator": &KeyStroke7 static javax.swing.KeyStroke getKeyStroke( 114, 0, false )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemFindNext.mnemonic" )
+					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
 					name: "menuView"
 					"text": new FormMessage( null, "Navigator.menu.View.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menu.View.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemProgress"
+						"text": new FormMessage( null, "Navigator.menu.Progress.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Progress.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemRefresh"
 						"text": new FormMessage( null, "Navigator.menu.Refresh.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemRefresh.mnemonic" )
 						"accelerator": &KeyStroke8 static javax.swing.KeyStroke getKeyStroke( 116, 0, false )
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemProgress"
-						"text": new FormMessage( null, "Navigator.menu.Progress.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.Progress.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator3"
@@ -2234,13 +2234,6 @@ new FormModel {
 						name: "menuItemJobsManage"
 						"text": new FormMessage( null, "Navigator.menu.JobsManage.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.JobsManage.mnemonic" )
-					} )
-					add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
-						name: "menuStopTask"
-						"text": new FormMessage( null, "Navigator.menuStopTask.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menuStopTask.mnemonic" )
-						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuStopTask.displayedMnemonicIndex" )
-						"enabled": false
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separatorJobs1"
@@ -2411,13 +2404,13 @@ new FormModel {
 				name: "popupMenuItemNewFolder"
 				"text": new FormMessage( null, "Navigator.popupMenu.NewFolder.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenu.NewFolder.mnemonic" )
-				"accelerator": #KeyStroke6
+				"accelerator": #KeyStroke4
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemRename"
 				"text": new FormMessage( null, "Navigator.popupMenu.Rename.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Rename.mnemonic" )
-				"accelerator": #KeyStroke7
+				"accelerator": #KeyStroke5
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemTouch"
@@ -2435,13 +2428,13 @@ new FormModel {
 				name: "popupMenuItemFindNext"
 				"text": new FormMessage( null, "Navigator.popupMenuItemFindNext.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemFindNext.mnemonic" )
-				"accelerator": #KeyStroke5
+				"accelerator": #KeyStroke7
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemFind"
 				"text": new FormMessage( null, "Navigator.popupMenuItemFind.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemFind.mnemonic" )
-				"accelerator": #KeyStroke4
+				"accelerator": #KeyStroke6
 			} )
 			add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 				name: "separator12"
@@ -2486,13 +2479,13 @@ new FormModel {
 				name: "popupMenuItemOperationFindNext"
 				"text": new FormMessage( null, "Navigator.popupMenuItemOperationFindNext.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemOperationFindNext.mnemonic" )
-				"accelerator": #KeyStroke5
+				"accelerator": #KeyStroke7
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemOperationFind"
 				"text": new FormMessage( null, "Navigator.popupMenuItemOperationFind.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemOperationFind.mnemonic" )
-				"accelerator": #KeyStroke4
+				"accelerator": #KeyStroke6
 			} )
 			add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 				name: "separator14"
