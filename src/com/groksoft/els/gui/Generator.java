@@ -492,7 +492,7 @@ public class Generator
         JSeparator horizontalLine = new JSeparator(SwingConstants.HORIZONTAL);
 
         // setup copy panel
-        generatedTextField.setPreferredSize(new Dimension(500, 30));
+        generatedTextField.setPreferredSize(new Dimension(530, 30));
         String logDir = context.cfg.getLogFilePath();
         logFile = new File(logDir + configName + ".log");
         String generated = generate(tool,

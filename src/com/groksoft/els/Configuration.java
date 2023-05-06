@@ -1308,15 +1308,14 @@ public class Configuration
      */
     public void parseCommandLine(String[] args) throws MungeException
     {
-        // Single option letters remaining, case-sensitive:  J M O R U V X Y Z
         // Reserved:
-        //   J jump-up on-demand (auto-start)
+        //   J jump-up on-demand (auto-start, inetd)
         //   M match dates
         //   O operation
         //   R restrict hint processing
-        //   U user authorization
-        //   V check for updates
-        //   X execute an internal "shortcut" to handle long command lines
+        //   U check for updates
+        //   V user authentication & authorization
+        //   X execute an internal command to handle long command lines
         //   Y install update
         //   Z verify connectivity (only)
 

@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @SuppressWarnings(value = "unchecked")
+
 public class RenamerUI extends JDialog
 {
     private String[] cardNames = {"cardCaseChange", "cardInsert", "cardNumbering", "cardRemove", "cardReplace"};
@@ -129,7 +130,7 @@ public class RenamerUI extends JDialog
                         loadOptions(currentConfigIndex);
                         updateState();
                         processTable();
-                     }
+                    }
                 }
             }
         });
@@ -840,6 +841,21 @@ public class RenamerUI extends JDialog
 
     private void processTerminated(Task task, RenamerTool renamer)
     {
+        // reset and reload relevant trees
+        if (!isDryRun) // && task.getTool().renameCount > 0)
+        {
+            if (!isSubscriber)
+            {
+                context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false, false);
+                context.browser.deepScanSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false, false);
+            }
+            else
+            {
+                context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
+                context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
+            }
+        }
+
         if (context.progress != null)
             context.progress.done();
 

@@ -135,13 +135,21 @@ public class EmptyDirectoryFinderUI extends JDialog
                         }
                         catch (Exception ex)
                         {
+                            empty.isSelected = false;
                             String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(ex);
                             logger.error(msg, true);
                             JOptionPane.showMessageDialog(this, msg, this.getTitle(), JOptionPane.ERROR_MESSAGE);
                         }
                         ++deletes;
-                        empties.remove(i);
                     }
+                }
+            }
+            for (int i = empties.size() - 1; i >= 0; --i)
+            {
+                Empty empty = empties.get(i);
+                if (empty.isSelected)
+                {
+                    empties.remove(i);
                 }
             }
             etm.fireTableDataChanged();

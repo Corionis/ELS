@@ -6,7 +6,7 @@ import javax.swing.*;
 /**
  * Startup dialog
  * <br/>
- * Just definition. See GuiLogAppender for implementation.
+ * Just definition. See com.groksoft.els.gui.util.GuiLogAppender for implementation.
  */
 public class Startup extends JFrame 
 {

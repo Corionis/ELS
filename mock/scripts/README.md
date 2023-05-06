@@ -22,39 +22,23 @@ ELS is composed of several different capabilities:
 
 Tests are *generally* organized in increasing options and functionality.
 
- 00-    Basic Functionality
-
- 10-    Local Backup
-
- 20-    Remote Backup
-
- 30-    Interactive terminals
-
- 40-    Local Hints
-
- 50-    Remote Hints
-
- 60-    Local Hint Tracker - Local Backup
-
- 62-    Local Hint Tracker - Remote Backup
-
- 70-    Remote Hint Server - Local Backup
-
- 72-    Remote Hint Server - Remote Backup
-
- 80-    Navigator - Local Backup
-
- 82-    Navigator - Remote Backup
-
- 90-    Navigator - Local Hint Tracker - Local Backup
-
- 92-    Navigator - Local Hint Tracker - Remote Backup
-
-100-    Navigator - Remote Hint Server - Local Backup
-
-102-    Navigator - Remote Hint Server - Remote Backup
-
-110-    Jobs
+ [000-00  Basic Functionality](#000-00--basic-functionality)<br/>
+ [010-00  Local Backup](#010-00--local-backup)<br/>
+ [020-00  Remote Backup](#020-00--remote-backup)<br/>
+ [030-00  Interactive Terminals](#030-00--interactive-terminals)<br/>
+ [040-00  Local Hints](#040-00--local-hints)<br/>
+ [050-00  Remote Hints](#050-00--remote-hints)<br/>
+ [060-00  Local Hint Tracker - Local Backup](#060-00--local-hint-tracker---local-backup)<br/>
+ [062-00  Local Hint Tracker - Remote Backup](#062-00--local-hint-tracker---remote-backup)<br/>
+ [070-00  Remote Hint Server - Local Backup](#070-00--remote-hint-server---local-backup)<br/>
+ [072-00  Remote Hint Server - Remote Backup](#072-00--remote-hint-server---remote-backup)<br/>
+ [080-00 Navigator - Local Backup](#080-00--navigator---local-backup)<br/>
+ [082-00  Navigator - Remote Backup](#082-00--navigator---remote-backup)<br/>
+ [090-00  Navigator - Local Hint Tracker - Local Backup](#090-00--navigator---local-hint-tracker---local-backup)<br/>
+ [092-00  Navigator - Local Hint Tracker - Remote Backup](#092-00--navigator---local-hint-tracker---remote-backup)<br/>
+ [100-00  Navigator - Remote Hint Server - Local Backup](#100-00--navigator---remote-hint-server---local-backup)<br/>
+ [102-00  Navigator - Remote Hint Server - Remote Backup](#102-00--navigator---remote-hint-server---remote-backup)<br/>
+ [110-00  Jobs](#110-00--jobs)
 
 
 ## Test Utility Scripts
@@ -298,26 +282,26 @@ This permutation tests with both a remote Hint Server and remote backup.
 Note: All test/ directory .els files should be gone and the test/hints/datastore/ directory should be empty
  
 
-### 080-00 Navigator - Local Backup
+### 080-00  Navigator - Local Backup
 
 Run one at a time for basic local Navigator functionality.
 
  * ``080-01_Navigator-no-args`` : ELS with no arguments
  * ``080-02_Navigator-navigator`` : With --navigator option only
  * ``080-03_Navigator-publisher-only`` :: With a publisher
- * ``080-23_Navigator-local`` : With publisher as a Collection and local subscriber
- * ``080-33_Navigator-workstation`` : With publisher as a Workstation and local subscriber
+ * ``080-26_Navigator-local`` : With publisher as a Collection and local subscriber
+ * ``080-27_Navigator-workstation`` : With publisher as a Workstation and local subscriber
 
 
 ### 082-00  Navigator - Remote Backup
 
  * ``082-21_Subscriber-One-listener`` : Start a subscriber listener
- * ``082-23_Navigator-remote`` : Navigator with publisher as Collection and remote subscriber
+ * ``082-26_Navigator-remote`` : Navigator with publisher as Collection and remote subscriber
 
 
 ### 090-00  Navigator - Local Hint Tracker - Local Backup
 
- * ``090-23_Navigator-local`` : Navigator
+ * ``090-26_Navigator-hint-keys`` : Navigator
  * Run test series "_Testing Navigator with Hints & Hint Tracking_" below
  * Run series ``060-00 Local Hint Tracker - Local Backup`` to process Hints
 
@@ -325,14 +309,14 @@ Run one at a time for basic local Navigator functionality.
 ### 092-00  Navigator - Local Hint Tracker - Remote Backup
 
  * ``092-21_Subscriber-One-listener`` : Subscriber One listener
- * ``092-23_Navigator-remote`` : Navigator with remote Subscriber One
+ * ``092-26_Navigator-remote`` : Navigator with remote Subscriber One
  * Run series ``062-00 Local Hint Tracker - Remote Backup`` to process Hints
 
 
 ### 100-00  Navigator - Remote Hint Server - Local Backup
 
  * ``100-10_Status-Server-listener`` : Status Server listener
- * ``100-23_Navigator-remote-hints`` : Navigator with remote Hints
+ * ``100-26_Navigator-remote-hints`` : Navigator with remote Hints
  * Run series ``070-00 Remote Hint Server - Local Backup`` to process Hints
 
 
@@ -340,7 +324,7 @@ Run one at a time for basic local Navigator functionality.
 
  * ``102-10_Status-Server-listener`` : Status Server listener
  * ``102-21_Subscriber-One-listener-remote-hints`` : Subscriber One listener
- * ``102-23_Navigator-remote-hints`` : Navigator with remote Hints & Subscriber One
+ * ``102-26_Navigator-remote-hints`` : Navigator with remote Hints & Subscriber One
  * Run series ``072-00 Remote Hint Server - Remote Backup`` to process Hints
 
 

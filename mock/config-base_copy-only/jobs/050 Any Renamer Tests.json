@@ -9,7 +9,7 @@
       "subscriberRemote": true,
       "origins": [
         {
-          "name": "/home/plex/Plex/els-development/subscriber-one/media/Movies/Renamer Tests",
+          "location": "test/publisher/media/TV Shows/M4 D4 Renamer Tests",
           "type": 6
         }
       ]

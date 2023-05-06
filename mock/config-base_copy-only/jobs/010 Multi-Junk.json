@@ -9,7 +9,7 @@
       "subscriberRemote": false,
       "origins": [
         {
-          "name": "TV Shows",
+          "location": "TV Shows",
           "type": 5
         }
       ]
@@ -22,7 +22,7 @@
       "subscriberRemote": false,
       "origins": [
         {
-          "name": "TV Shows",
+          "location": "TV Shows",
           "type": 5
         }
       ]

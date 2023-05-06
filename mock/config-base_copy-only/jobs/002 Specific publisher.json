@@ -9,7 +9,7 @@
       "subscriberRemote": false,
       "origins": [
         {
-          "name": "Media Publisher",
+          "location": "Media Publisher",
           "type": 1
         }
       ]

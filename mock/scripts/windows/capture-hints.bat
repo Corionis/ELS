@@ -1,4 +1,5 @@
 @echo off
+REM
 REM Capture .els Hint files from test directory
 REM
 REM   -c  Capture .els files and datastore

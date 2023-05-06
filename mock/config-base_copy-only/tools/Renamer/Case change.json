@@ -3,7 +3,7 @@
   "internalName": "Renamer",
   "type": 0,
   "segment": 0,
-  "recursive": false,
+  "recursive": true,
   "filesOnly": false,
   "text1": "titlecase",
   "text2": "",

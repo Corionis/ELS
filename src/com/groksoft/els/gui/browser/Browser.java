@@ -189,6 +189,7 @@ public class Browser
                             {
                                 node = tuo.node;
                                 TreeSelectionEvent evt = new TreeSelectionEvent(node, node.getTreePath(), true, null, null);
+                                eventTree.setExpandsSelectedPaths(true);
                                 eventTree.setSelectionPath(node.getTreePath());
                                 eventTree.scrollPathToVisible(node.getTreePath());
                             }
@@ -220,7 +221,11 @@ public class Browser
                     }
                 }
                 else
+                {
+                    eventTree.setExpandsSelectedPaths(true);
                     eventTree.setSelectionPath(node.getTreePath());
+                    eventTree.scrollPathToVisible(node.getTreePath());
+                }
             }
         };
 
@@ -364,6 +369,7 @@ public class Browser
                         }
                         if (tuo.isDir)
                         {
+                            tree.setExpandsSelectedPaths(true);
                             tree.expandPath(tuo.node.getTreePath());
                             tree.setSelectionPath(tuo.node.getTreePath());
                             tree.scrollPathToVisible(tuo.node.getTreePath());
@@ -1837,9 +1843,14 @@ public class Browser
             // select previously-selected tree paths
             if (selectedPaths != null && selectedPaths.length > 0)
             {
+                tree.setExpandsSelectedPaths(true);
                 selectedPaths = resetTreePaths(tree, selectedPaths); // reset the selected paths to possible new objects
                 if (selectedPaths != null && selectedPaths.length > 0)
+                {
+                    tree.setExpandsSelectedPaths(true);
                     tree.setSelectionPaths(selectedPaths);
+                    tree.scrollPathToVisible(selectedPaths[selectedPaths.length - 1]);
+                }
             }
 
             // load the table for the single selected tree item
@@ -2125,6 +2136,7 @@ public class Browser
             // highlight last item if it's a table
             if (doTable)
             {
+                tree.setExpandsSelectedPaths(true);
                 tree.setSelectionPath(treePath);
                 tree.scrollPathToVisible(treePath);
                 if (panelName.startsWith("table"))

@@ -668,8 +668,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
     public void selectMe()
     {
         myTree.requestFocus();
-        myTree.scrollPathToVisible(getTreePath());
+        myTree.setExpandsSelectedPaths(true);
         myTree.setSelectionPath(getTreePath());
+        myTree.scrollPathToVisible(getTreePath());
     }
 
     public void selectMyTab()

@@ -3,7 +3,7 @@
   "internalName": "Renamer",
   "type": 4,
   "segment": 0,
-  "recursive": false,
+  "recursive": true,
   "filesOnly": true,
   "text1": "(?i)-.+\\[eztv.re\\]",
   "text2": "",

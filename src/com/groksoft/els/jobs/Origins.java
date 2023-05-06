@@ -41,7 +41,7 @@ public class Origins
      * @param component The component calling this method, for message dialogs
      * @param origins The ArrayList of Origins to be added to
      * @param realOnly If the current AbstractTool accepts NavTreeUserObject.REAL items only
-     * @return ArrayList of Origins, or null if any selection is not valid
+     * @return boolean true if is Subscriber, else false
      * @throws MungeException with message "HANDLED_INTERNALLY" if a selection is not valid
      */
     public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins, boolean realOnly) throws MungeException
@@ -152,9 +152,9 @@ public class Origins
                     }
                 }
                 // select all tree path(s)
+                tree.setExpandsSelectedPaths(true);
                 tree.setSelectionPaths(paths);
                 tree.scrollPathToVisible(origins.get(origins.size() - 1).treePath);
-                context.browser.refreshTree(tree);
             }
             else if (origins.get(0).sourceTable != null) // table
             {
@@ -171,9 +171,15 @@ public class Origins
                     NavTreeNode node = (NavTreeNode) objs[j];
                     pathElements[j] = node.getUserObject().name;
                 }
+
                 String panel = origin.sourceTable.getName().toLowerCase();
                 if (panel.length() > 0)
                     context.browser.scanTreePath(panel, pathElements, true, false, false); // scan
+
+                // select tree path
+                tree.setExpandsSelectedPaths(true);
+                tree.setSelectionPath(tp);
+                tree.scrollPathToVisible(tp);
 
                 // select matching items in table
                 JTable table = origin.sourceTable;
@@ -185,7 +191,6 @@ public class Origins
                     row = origins.get(i).tableRow;
                     model.addSelectionInterval(row, row);
                 }
-                context.browser.refreshTree(tree);
                 table.requestFocus();
                 table.scrollRectToVisible(new Rectangle(table.getCellRect(row, row, true)));
             }

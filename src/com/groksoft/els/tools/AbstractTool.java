@@ -71,8 +71,6 @@ public abstract class AbstractTool implements Comparable, Serializable
         return getDisplayName() + ": " + getConfigName();
     }
 
-    abstract public ArrayList<String> getForwardPaths();
-
     public String getFullPath()
     {
         String path = getDirectoryPath() + System.getProperty("file.separator") +
@@ -175,8 +173,6 @@ public abstract class AbstractTool implements Comparable, Serializable
     {
         this.displayName = displayName;
     }
-
-    abstract public void setForwardPaths(ArrayList<String> forwardPaths);
 
     public void setIncludeInToolsList(boolean includeInToolsList)
     {

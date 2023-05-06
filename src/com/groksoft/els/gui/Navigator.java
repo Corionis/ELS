@@ -14,7 +14,8 @@ import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
 import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
-import com.groksoft.els.jobs.Task;
+import com.groksoft.els.jobs.Origin;
+import com.groksoft.els.jobs.Origins;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
@@ -76,6 +77,23 @@ public class Navigator
     {
         this.context = context;
         this.context.navigator = this;
+    }
+
+    public void disableComponent(boolean disable, Component component)
+    {
+        boolean enable = !disable;
+        component.setEnabled(enable);
+        if (component instanceof Container)
+        {
+            Component[] components = ((Container) component).getComponents();
+            if (components != null && components.length > 0)
+            {
+                for (Component comp : components)
+                {
+                    disableComponent(disable, comp);
+                }
+            }
+        }
     }
 
     public void disableGui(boolean disable)
@@ -1949,7 +1967,7 @@ public class Navigator
 
     public void loadJobsMenu()
     {
-        final int OffsetCount = 3; // number of static Job menu items
+        final int OffsetCount = 2; // number of static Job menu items
 
         JMenu menu = context.mainFrame.menuJobs;
         int count = menu.getItemCount();
@@ -2056,68 +2074,103 @@ public class Navigator
             boolean isDryRun = checkbox.isSelected();
             if (reply == JOptionPane.YES_OPTION)
             {
-                ArrayList<Task> tasks = job.getTasks();
-                if (tasks.size() > 0)
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                context.navigator.disableComponent(false, context.mainFrame.getContentPane());
+                context.mainFrame.menuItemFileQuit.setEnabled(true);
+
+                // capture current selections
+                ArrayList<Origin> origins = new ArrayList<>();
+                try
                 {
-                    worker = job.process(context, context.mainFrame, context.cfg.getNavigatorName(), job, isDryRun);
-                    if (worker != null)
-                    {
-                        remoteJobRunning = true;
-                        disableGui(true);
-                        worker.addPropertyChangeListener(new PropertyChangeListener()
-                        {
-                            @Override
-                            public void propertyChange(PropertyChangeEvent e)
-                            {
-                                if (e.getPropertyName().equals("state"))
-                                {
-                                    if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                    {
-                                        processTerminated(job);
-                                    }
-                                }
-                            }
-                        });
-                        worker.execute();
-                    }
-                    else
-                        processTerminated(job);
+                    Origins.makeOriginsFromSelected(context, context.mainFrame, origins, false);
                 }
+                catch (Exception e)
+                {
+                    if (!e.getMessage().equals("HANDLED_INTERNALLY"))
+                    {
+                        String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                        if (context.navigator != null)
+                        {
+                            logger.error(msg);
+                            JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                        }
+                        else
+                            logger.error(msg);
+                    }
+                }
+
+                worker = job.process(context, context.mainFrame, context.cfg.getNavigatorName(), job, isDryRun);
+                if (worker != null)
+                {
+                    remoteJobRunning = true;
+                    disableGui(true);
+                    worker.addPropertyChangeListener(new PropertyChangeListener()
+                    {
+                        @Override
+                        public void propertyChange(PropertyChangeEvent e)
+                        {
+                            if (e.getPropertyName().equals("state"))
+                            {
+                                if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                    processTerminated(job, origins, isDryRun);
+                            }
+                        }
+                    });
+                    worker.execute();
+                }
+                else
+                    processTerminated(job, origins, isDryRun);
             }
         }
         else
-        {
-            JOptionPane.showMessageDialog(context.mainFrame, status,
-                    context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-        }
+            JOptionPane.showMessageDialog(context.mainFrame, status, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
     }
 
-    private void processTerminated(Job job)
+    private void processTerminated(Job job, ArrayList<Origin> origins, boolean isDryRun)
     {
         try
         {
+            // reset and reload relevant trees
+            if (!isDryRun) // && task.getTool().renameCount > 0)
+            {
+                if (job.usesPublisher())
+                {
+                    if (context.progress != null)
+                        context.progress.update(context.cfg.gs("Navigator.scanning.publisher"));
+                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false, false);
+                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false, false);
+                }
+                if (job.usesSubscriber())
+                {
+                    if (context.progress != null)
+                        context.progress.update(context.cfg.gs("Navigator.scanning.subscriber"));
+                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
+                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
+                }
+            }
+
             if (context.progress != null)
                 context.progress.done();
 
-            reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
             remoteJobRunning = false;
-            context.browser.refreshTree(context.mainFrame.treeCollectionTwo);
-            context.browser.refreshTree(context.mainFrame.treeSystemTwo);
+            disableGui(false);
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+            Origins.setSelectedFromOrigins(context, context.mainFrame, origins);
+
+            reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
         }
         catch (Exception e)
         {
         }
+
         if (job.isRequestStop())
         {
             logger.info(job.getConfigName() + context.cfg.gs("Z.cancelled"));
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
         else
-        {
-            //logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
-        }
-        disableGui(false);
     }
 
     public void readBookmarks()
@@ -2134,7 +2187,7 @@ public class Navigator
         }
     }
 
-    private boolean reconnectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
+    public boolean reconnectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
         // is this necessary?
         if (context.cfg.isRemoteSession() && subscriberRepo != null &&
@@ -2252,22 +2305,6 @@ public class Navigator
         });
 
         return 0;
-    }
-
-    public void setComponentEnabled(boolean enabled, Component component)
-    {
-        component.setEnabled(enabled);
-        if (component instanceof Container)
-        {
-            Component[] components = ((Container) component).getComponents();
-            if (components != null && components.length > 0)
-            {
-                for (Component comp : components)
-                {
-                    setComponentEnabled(enabled, comp);
-                }
-            }
-        }
     }
 
     private void setQuitTerminate()

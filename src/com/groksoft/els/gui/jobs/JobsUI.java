@@ -510,7 +510,7 @@ public class JobsUI extends JDialog
 
                 if (currentTask.getSubscriberKey().length() > 0 &&
                         !currentTask.getSubscriberKey().equals(Task.ANY_SERVER) &&
-                        !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK)) // check publisher key
+                        !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK)) // check publisher key used to indicate last task
                 {
                     selectedCombo = id - 2;
                     Repositories.Meta meta = repositories.find(currentTask.getSubscriberKey());
@@ -585,6 +585,7 @@ public class JobsUI extends JDialog
                 // what did they pick?
                 if (item.type == CACHED_LAST_TASK)
                 {
+                    // publisher key (only) is used to indicate last task
                     key = Task.CACHEDLASTTASK;
                     if (currentTask.getOrigins() != null && currentTask.getOrigins().size() > 0)
                         savedOrigins = currentTask.getOrigins();
@@ -607,7 +608,7 @@ public class JobsUI extends JDialog
                     if (index < 0)
                     {
                         String msg = (which == 0 ? context.cfg.gs("JobsUI.combo.select.publisher") :
-                                     (which == 1 ? context.cfg.gs("JobsUI.combo.select.subscriber") :
+                                (which == 1 ? context.cfg.gs("JobsUI.combo.select.subscriber") :
                                         context.cfg.gs("JobsUI.combo.select.publisher.or.subscriber")));
                         JOptionPane.showMessageDialog(this, msg,
                                 context.cfg.gs("JobsUI.title"), JOptionPane.INFORMATION_MESSAGE);
@@ -636,7 +637,7 @@ public class JobsUI extends JDialog
                 // populate task data
                 if (item.type == CACHED_LAST_TASK)
                 {
-                    currentTask.setPublisherKey(key);
+                    currentTask.setPublisherKey(key); // use publisher key only to indicate last task
                     currentTask.setSubscriberRemote(false);
                     currentTask.setSubscriberKey("");
                     currentJob.setDataHasChanged();
@@ -693,26 +694,7 @@ public class JobsUI extends JDialog
         if (index >= 0)
         {
             Job job = (Job) configModel.getValueAt(index, 0);
-            String status = job.validate(context.cfg);
-            if (status.length() == 0)
-            {
-                // make dialog pieces
-                String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
-                JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
-                checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
-                checkbox.setSelected(true);
-                Object[] params = {message, checkbox};
-
-                // confirm run of job
-                int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
-                isDryRun = checkbox.isSelected();
-                if (reply == JOptionPane.YES_OPTION)
-                {
-                    process(job, isDryRun);
-                }
-            }
-            else
-                JOptionPane.showMessageDialog(this, status, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+            processJob(job);
         }
     }
 
@@ -1235,6 +1217,8 @@ public class JobsUI extends JDialog
 
         currentTask = task;
         enableDisableOrigins(currentTask.isOriginPathsAllowed(context));
+
+        // publisher key (only) is used to indicate last task
         if (currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
         {
             loadPubSubs(currentTask);
@@ -1262,7 +1246,7 @@ public class JobsUI extends JDialog
                 {
                     Origin origin = currentTask.getOrigins().get(i);
                     String ot = getOriginType(origin.getType());
-                    String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + origin.getName();
+                    String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + origin.getLocation();
                     model.addElement(id);
                 }
                 if (listOrigins.getModel().getSize() > 0)
@@ -1394,51 +1378,117 @@ public class JobsUI extends JDialog
         return null;
     }
 
-    private void process(Job job, boolean isDryRun)
+    private void processJob(Job job)
     {
-        ArrayList<Task> tasks = job.getTasks();
-        if (tasks.size() > 0)
+        // validate job tasks and origins
+        String status = job.validate(context.cfg);
+        if (status.length() == 0)
         {
-            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            context.navigator.setComponentEnabled(false, getContentPane());
-            cancelButton.setEnabled(true);
-            cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            labelHelp.setEnabled(true);
-            labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            // make dialog pieces
+            String message = java.text.MessageFormat.format(context.cfg.gs("JobsUI.run.as.defined"), job.getConfigName());
+            JCheckBox checkbox = new JCheckBox(context.cfg.gs("Navigator.dryrun"));
+            checkbox.setToolTipText(context.cfg.gs("Navigator.dryrun.tooltip"));
+            checkbox.setSelected(true);
+            Object[] params = {message, checkbox};
 
-            worker = job.process(context, this, this.getTitle(), job, isDryRun);
-            if (worker != null)
+            // confirm run of job
+            int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("JobsUI.title"), JOptionPane.YES_NO_OPTION);
+            isDryRun = checkbox.isSelected();
+            if (reply == JOptionPane.YES_OPTION)
             {
-                workerRunning = true;
-                context.navigator.disableGui(true);
-                worker.addPropertyChangeListener(new PropertyChangeListener()
+                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                context.navigator.disableComponent(true, getContentPane());
+                cancelButton.setEnabled(true);
+                cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                labelHelp.setEnabled(true);
+                labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+                // capture current selections
+                ArrayList<Origin> origins = new ArrayList<>();
+                try
                 {
-                    @Override
-                    public void propertyChange(PropertyChangeEvent e)
+                    Origins.makeOriginsFromSelected(context, this, origins, false);
+                }
+                catch (Exception e)
+                {
+                    if (!e.getMessage().equals("HANDLED_INTERNALLY"))
                     {
-                        if (e.getPropertyName().equals("state"))
+                        String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                        if (context.navigator != null)
                         {
-                            if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                processTerminated(job);
+                            logger.error(msg);
+                            JOptionPane.showMessageDialog(this, msg, context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
                         }
+                        else
+                            logger.error(msg);
                     }
-                });
-                worker.execute();
+                }
+
+                worker = job.process(context, this, this.getTitle(), job, isDryRun);
+                if (worker != null)
+                {
+                    workerRunning = true;
+                    context.navigator.disableGui(true);
+                    worker.addPropertyChangeListener(new PropertyChangeListener()
+                    {
+                        @Override
+                        public void propertyChange(PropertyChangeEvent e)
+                        {
+                            if (e.getPropertyName().equals("state"))
+                            {
+                                if (e.getNewValue() == SwingWorker.StateValue.DONE)
+                                    processTerminated(job, origins);
+                            }
+                        }
+                    });
+                    worker.execute();
+                }
+                else
+                    processTerminated(job, origins);
             }
-            else
-                processTerminated(job);
         }
+        else
+            JOptionPane.showMessageDialog(this, status, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
     }
 
-    private void processTerminated(Job job)
+    private void processTerminated(Job job, ArrayList<Origin> origins)
     {
-        if (context.progress != null)
-            context.progress.done();
+        try
+        {
+            // reset and reload relevant trees
+            if (!isDryRun) // && task.getTool().renameCount > 0)
+            {
+                if (job.usesPublisher())
+                {
+                    if (context.progress != null)
+                        context.progress.update(context.cfg.gs("Navigator.scanning.publisher"));
+                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false, false);
+                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false, false);
+                }
+                if (job.usesSubscriber())
+                {
+                    if (context.progress != null)
+                        context.progress.update(context.cfg.gs("Navigator.scanning.subscriber"));
+                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
+                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
+                }
+            }
 
-        context.navigator.disableGui(false);
-        context.navigator.setComponentEnabled(true, getContentPane());
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        workerRunning = false;
+            if (context.progress != null)
+                context.progress.done();
+
+            workerRunning = false;
+            context.navigator.disableGui(false);
+            context.navigator.disableComponent(false, getContentPane());
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+            Origins.setSelectedFromOrigins(context, this, origins);
+
+            context.navigator.reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
+        }
+        catch (Exception e)
+        {
+        }
 
         if (job.isRequestStop())
         {
@@ -1446,9 +1496,7 @@ public class JobsUI extends JDialog
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
         else
-        {
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
-        }
     }
 
     private boolean saveConfigurations()

@@ -32,7 +32,7 @@ public class Task implements Comparable, Serializable
     transient private Context context = null;
     transient private AbstractTool currentTool = null;
     transient private boolean dual = true;
-    transient private Task lastTask = null;
+    transient private Task previousTask = null;
     transient private Repository pubRepo;
     transient private boolean realOnly = false;
     transient private Repository subRepo;
@@ -347,9 +347,10 @@ public class Task implements Comparable, Serializable
             // get repositories or paths
             if (useCachedLastTask(context)) // not an Operations tool
             {
-                pubRepo = lastTask.pubRepo;
-                subRepo = lastTask.subRepo;
-                setSubscriberRemote(lastTask.subscriberRemote);
+                pubRepo = previousTask.pubRepo;
+                subRepo = previousTask.subRepo;
+                setSubscriberRemote(previousTask.subscriberRemote);
+                setOrigins(previousTask.getOrigins());
             }
             else
             {
@@ -365,7 +366,8 @@ public class Task implements Comparable, Serializable
                 {
                     pubRepo = getRepo(context, getPublisherKey(), true);
                     subRepo = getRepo(context, getSubscriberKey(), false);
-                    type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
+                //    type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
+                    type = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteSession())) ? "P" : "-";
 
                     context.cfg.setRemoteType(type);
                     context.cfg.setPublishOperation(false);  // TODO Change when OperationsUI tool added
@@ -389,13 +391,15 @@ public class Task implements Comparable, Serializable
 
                 currentTool.processTool(context, pubPath, subPath, dryRun);
             }
-            else
+            else // other tools
             {
                 if (pubRepo == null && subRepo == null)
                     throw new MungeException(context.cfg.gs("Task.no.repository.is.loaded"));
 
-                currentTool.processTool(context, pubRepo, subRepo, origins, dryRun, useCachedLastTask(context) ? lastTask : null);
+                currentTool.processTool(context, pubRepo, subRepo, origins, dryRun, useCachedLastTask(context) ? previousTask : null);
             }
+            if (currentTool.isRequestStop())
+                return false;
         }
         else
             throw new MungeException(context.cfg.gs("Task.tool.not.found") + getInternalName() + ":" + getConfigName());
@@ -442,9 +446,9 @@ public class Task implements Comparable, Serializable
             // get repositories or paths
             if (useCachedLastTask(context)) // not an Operations tool
             {
-                pubRepo = lastTask.pubRepo;
-                subRepo = lastTask.subRepo;
-                setSubscriberRemote(lastTask.subscriberRemote);
+                pubRepo = previousTask.pubRepo;
+                subRepo = previousTask.subRepo;
+                setSubscriberRemote(previousTask.subscriberRemote);
             }
             else
             {
@@ -512,9 +516,9 @@ public class Task implements Comparable, Serializable
         this.origins = origins;
     }
 
-    public void setLastTask(Task lastTask)
+    public void setPreviousTask(Task previousTask)
     {
-        this.lastTask = lastTask;
+        this.previousTask = previousTask;
     }
 
     public void setPublisherKey(String publisherKey)
@@ -539,7 +543,8 @@ public class Task implements Comparable, Serializable
 
     public boolean useCachedLastTask(Context context)
     {
-        if (isCachedLastTask(context) && lastTask != null && publisherKey.equalsIgnoreCase(CACHEDLASTTASK))
+        // publisher key (only) is used to indicate last task
+        if (isCachedLastTask(context) && previousTask != null && publisherKey.equalsIgnoreCase(CACHEDLASTTASK))
             return true;
         return false;
     }

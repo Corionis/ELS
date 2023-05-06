@@ -2,7 +2,7 @@ Various ramblings on the notions and goodies of ELS.
 
 ## Purpose
 
-Provide a purpose-built tool for the back-up and curation of home media collections
+Provide a purpose-built tool for the back-up and curation of media collections
 spanning multiple storage devices.
 
 Entertainment Library Synchronizer (ELS) started as a command line back-up tool that
@@ -45,4 +45,14 @@ It all depends on what is needed and how ELS is configured.
 There is the Plex Profile Generator that is included in the ELS distribution. It is
 included primarily because it happens to be the home media system we use. It is not
 an endorsement of any particular product, although Plex is great.
+
+## ELS and Streaming Media Assets
+
+ELS is also not specific to home media systems. It is a library and title-based system
+that allows any library to grow across multiple storage devices. If you create for YouTube,
+Tiktok, Instagram, Vimeo, Twitch or your Mom 'n Dad managing and backing-up your work is
+critical.
+
+ELS is platform and media independent. Libraries and files may be organized in any way
+that makes sense for your situation.
 

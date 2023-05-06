@@ -5,7 +5,6 @@
 #   -c  Capture .els files and datastore
 #   -d  Change captured .els files status from Done to For
 #   -r  Reset test data and restore .els files into it
-#
 
 base=$PWD
 cd "$base"

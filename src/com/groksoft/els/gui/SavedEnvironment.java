@@ -98,10 +98,10 @@ public class SavedEnvironment
                 }
             }
 
-            if (context != null && context.browser != null)
-            {
-                context.browser.refreshAll();
-            }
+//            if (context != null && context.browser != null)
+//            {
+//                context.browser.refreshAll();
+//            }
         }
         catch (Exception e)
         {

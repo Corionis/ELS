@@ -277,21 +277,15 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         return displayName;
     }
 
-    @Override
-    public ArrayList<String> getForwardPaths()
+    public Cards getCard()
     {
-        return null;
+        return card;
     }
 
     @Override
     public String getInternalName()
     {
         return internalName;
-    }
-
-    public Cards getCard()
-    {
-        return card;
     }
 
     public Configuration.Operations getOperation()
@@ -619,12 +613,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public void setDataHasChanged(boolean sense)
     {
         dataHasChanged = sense;
-    }
-
-    @Override
-    public void setForwardPaths(ArrayList<String> forwardPaths)
-    {
-        // nop
     }
 
     public void setOptAuthKeys(String optAuthKeys)

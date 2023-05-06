@@ -12,8 +12,6 @@ import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Vector;
 import java.util.regex.Pattern;
 
 public class RenamerTool extends AbstractTool
@@ -56,8 +53,6 @@ public class RenamerTool extends AbstractTool
     transient private boolean isDryRun = false;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private Repository repo; // this tool only uses one repo
-    transient private ArrayList<String> physicalPaths;
-    transient private ArrayList<String> forwardPaths;
     // @formatter:on
 
     /**
@@ -276,65 +271,6 @@ public class RenamerTool extends AbstractTool
         return value;
     }
 
-    private int expandOrigins(ArrayList<Origin> origins, Task lastTask) throws MungeException
-    {
-        int count = 0;
-
-        // this tool only uses one repository
-        if (repo == null)
-            return -1;
-
-        if (lastTask != null)
-        {
-            physicalPaths = lastTask.getTool().getForwardPaths();
-            count = physicalPaths.size();
-        }
-        else
-        {
-            for (Origin origin : origins)
-            {
-                if (origin.getType() == NavTreeUserObject.COLLECTION)
-                {
-                    if (origin.getName().length() > 0)
-                    {
-                        if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getName()))
-                            throw new MungeException((getCfg().gs("Renamer.task.definition.and.loaded.repository.do.not.match")));
-                    }
-                    // process in the order defined in the JSON
-                    for (Library lib : repo.getLibraryData().libraries.bibliography)
-                    {
-                        for (String source : lib.sources)
-                        {
-                            physicalPaths.add(source);
-                            ++count;
-                        }
-                    }
-                }
-                else if (origin.getType() == NavTreeUserObject.LIBRARY)
-                {
-                    for (Library lib : repo.getLibraryData().libraries.bibliography)
-                    {
-                        if (lib.name.equalsIgnoreCase(origin.getName()))
-                        {
-                            for (String source : lib.sources)
-                            {
-                                physicalPaths.add(source);
-                                ++count;
-                            }
-                        }
-                    }
-                }
-                else if (origin.getType() == NavTreeUserObject.REAL)
-                {
-                    physicalPaths.add(origin.getName());
-                    ++count;
-                }
-            }
-        }
-
-        return count;
-    }
-
     public String getConfigName()
     {
         return configName;
@@ -343,11 +279,6 @@ public class RenamerTool extends AbstractTool
     public String getDisplayName()
     {
         return displayName;
-    }
-
-    public ArrayList<String> getForwardPaths()
-    {
-        return forwardPaths;
     }
 
     public String getInternalName()
@@ -480,12 +411,9 @@ public class RenamerTool extends AbstractTool
     /**
      * Process the tool with the metadata provided
      * <br/>
-     * Uses the junkList across the toolPaths added by addToolPaths() and the dryRun setting.
-     * The addToolPaths() method must be called first.
-     * <br/>
      * Used by a Job & the Run button of the tool
      */
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task previousTask) throws Exception
     {
         reset();
         isDryRun = dryRun;
@@ -496,49 +424,134 @@ public class RenamerTool extends AbstractTool
         // this tool only uses one repository
         repo = (publisherRepo != null) ? publisherRepo : subscriberRepo;
 
-        // expand origins into physical physical paths
-        int count = expandOrigins(origins, lastTask);
-        if (physicalPaths == null || physicalPaths.size() == 0)
-            return;
+        if (previousTask != null)
+        {
+            origins = previousTask.getOrigins(); //.getTool().getUpdatedOrigins();
+        }
 
         // only subscribers can be remote
         if (subscriberRepo != null && getCfg().isRemoteSession())
             setIsRemote(true);
 
-        for (String path : physicalPaths)
+        for (int i = 0; i < origins.size(); ++i)
         {
             if (isRequestStop())
                 break;
+
+            Origin origin =  origins.get(i);
+            String path = origin.getLocation();
             String rem = isRemote() ? getCfg().gs("Z.remote.uppercase") : "";
             logger.info(getDisplayName() + ", " + getConfigName() + ": " + rem + "\"" + path + "\"");
 
-            scanForRenames(path, true);
-        }
-
-        if (context.navigator != null)
-        {
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
-
-            // reset and reload relevant trees
-            if (!isDryRun && renameCount > 0)
+            if (origin.getType() == NavTreeUserObject.COLLECTION)
             {
-                if (!repo.isSubscriber())
+                if (origin.getLocation().length() > 0)
                 {
-                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false, false);
-                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false, false);
+                    if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getLocation()))
+                        throw new MungeException((getCfg().gs("Renamer.task.definition.and.loaded.repository.do.not.match")));
                 }
-                else
+                // process in the order defined in the JSON
+                for (Library lib : repo.getLibraryData().libraries.bibliography)
                 {
-                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, isRemote(), false);
-                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, isRemote(), false);
+                    for (String source : lib.sources)
+                    {
+                        scan(source, true, false); // cannot rename, return value ignored
+                    }
+                }
+            }
+            else if (origin.getType() == NavTreeUserObject.LIBRARY)
+            {
+                for (Library lib : repo.getLibraryData().libraries.bibliography)
+                {
+                    if (lib.name.equalsIgnoreCase(origin.getLocation()))
+                    {
+                        // process in the order defined in the JSON
+                        for (String source : lib.sources)
+                        {
+                            scan(source, true, false); // cannot rename, return value ignored
+                        }
+                    }
+                }
+            }
+            else if (origin.getType() == NavTreeUserObject.REAL)
+            {
+                // process the single item
+                String change = scan(path, true, true);
+                if (!origin.getLocation().equals(change))
+                {
+                    origin.setLocation(change);
                 }
             }
         }
-        else
+
+        logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
+    }
+
+    private String scan(String path, boolean isFirst, boolean isRenameAllowed)
+    {
+        try
         {
-            logger.info(getDisplayName() + ", " + getConfigName() + ": " + renameCount + (isDryRun ? getCfg().gs("Z.dry.run") : ""));
+            File[] files;
+            if (isRemote())
+            {
+                logger.fatal("not implemented yet");
+            }
+            else
+            {
+                File loc = new File(path);
+                if (loc.isDirectory())
+                {
+                    if (isRenameAllowed)
+                    {
+                        String change = rename(loc.getAbsolutePath(), loc.getName(), true);
+                        if (!path.equals(change))
+                        {
+                            path = change;
+                            loc = new File(path);
+                        }
+                    }
+
+                    isFirst = false;
+                    files = FileSystemView.getFileSystemView().getFiles(loc.getAbsoluteFile(), false);
+                }
+                else
+                {
+                    files = new File[1];
+                    files[0] = loc;
+                }
+
+                for (int i = 0; i < files.length; ++i)
+                {
+                    if (isRequestStop())
+                        break;
+
+                    File entry = files[i];
+                    if (entry.isDirectory() && isRecursive())
+                    {
+                        scan(entry.getAbsolutePath(), false, true);
+                    }
+                    else
+                    {
+                        String change = rename(entry.getAbsolutePath(), entry.getName(), entry.isDirectory());
+                        if (!path.equals(change) && isFirst)
+                            path = change;
+                    }
+                }
+            }
         }
-        logger.info(getConfigName() + context.cfg.gs("Z.completed"));
+        catch (Exception e)
+        {
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            if (context.navigator != null)
+            {
+                logger.error(msg);
+                JOptionPane.showMessageDialog(context.mainFrame, e.getMessage(), getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
+            }
+            else
+                logger.error(msg);
+            requestStop();
+        }
+        return path;
     }
 
     @Override
@@ -614,9 +627,12 @@ public class RenamerTool extends AbstractTool
 
     private String rename(String fullpath, String filename, boolean isDirectory) throws Exception
     {
-        boolean hidden = false;
-        if (!isDirectory || !isFilesOnly())
+        if (!isDirectory || (isDirectory && !isFilesOnly()))
         {
+            boolean hidden = false;
+            if (context.navigator != null && context.progress != null)
+                context.progress.update(" " + filename);
+
             if (filename.startsWith(".") && filename.length() > 1)
             {
                 filename = filename.substring(1);
@@ -624,7 +640,8 @@ public class RenamerTool extends AbstractTool
             }
 
             // execute the renamer sub-tool
-            String change = exec(filename);
+            String change = exec(filename); //      <------------------------------------------
+
             if (hidden)
             {
                 change = "." + change;
@@ -641,7 +658,8 @@ public class RenamerTool extends AbstractTool
                     context.mainFrame.labelStatusMiddle.setText(getCfg().gs("Z.count") + renameCount);
                 if (!isDryRun)
                 {
-                    getContext().transfer.rename(fullpath, newPath, isRemote());
+                    // perform rename
+                    getContext().transfer.rename(fullpath, newPath, isRemote()); //     <------------------------------------------
                     fullpath = newPath;
                     logger.info("  " + getCfg().gs("Z.renamed") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
                 }
@@ -649,9 +667,9 @@ public class RenamerTool extends AbstractTool
                 {
                     logger.info("  " + getCfg().gs("Z.would.rename") + "\"" + filename + "\"" + getCfg().gs("Z.to") + "\"" + change + "\"");
                 }
+                filename = change;
             }
         }
-        forwardPaths.add(fullpath);
         return fullpath;
     }
 
@@ -660,178 +678,8 @@ public class RenamerTool extends AbstractTool
         counter = -1;
         renameCount = 0;
         resetStop();
-        physicalPaths = new ArrayList<>();
-        forwardPaths = new ArrayList<String>();
         if (logger == null)
             logger = LogManager.getLogger("applog");
-    }
-
-    public void resetOptions()
-    {
-        text1 = "";
-        text2 = "";
-        text3 = "";
-        option1 = false;
-        option2 = false;
-        option3 = false;
-    }
-
-    private void scanForRenames(String path, boolean topLevel)
-    {
-        boolean firstDir = false;
-
-        if (isRemote())
-        {
-            try
-            {
-                boolean pathIsDir = false;
-                SftpATTRS attrs = getContext().clientSftp.stat(path);
-                if (attrs.isDir() && topLevel)
-                {
-                    pathIsDir = true;
-                    String filename = FilenameUtils.getName(path);
-                    if (context.navigator != null && context.progress != null)
-                    {
-                        context.progress.update(" " + filename);
-                    }
-                    String change = rename(path, filename, true);
-                    boolean changed = !path.equals(change);
-                    path = change;
-                    if (!isRecursive())
-                        return;
-                }
-                else if (attrs.isDir())
-                    pathIsDir = true;
-
-                Vector listing = getContext().clientSftp.listDirectory(path);
-                for (int i = 0; i < listing.size(); ++i)
-                {
-                    if (isRequestStop())
-                        break;
-                    ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
-                    if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
-                    {
-                        attrs = entry.getAttrs();
-                        String filename = entry.getFilename();
-                        String fullpath = path + (pathIsDir ? repo.getSeparator() + entry.getFilename() : "");
-                        if (context.navigator != null && context.progress != null)
-                        {
-                            context.progress.update(" " + fullpath);
-                        }
-
-                        if (!attrs.isDir())
-                        {
-                            String change = rename(fullpath, filename, false); // change & rename
-                            boolean changed = !fullpath.equals(change);
-                            fullpath = change;
-                        }
-                        if (attrs.isDir() && isRecursive())
-                        {
-                            scanForRenames(fullpath, false);
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                String msg = getCfg().gs("Z.exception") + " " + Utils.getStackTrace(e);
-                if (context.navigator != null)
-                {
-                    logger.error(msg);
-                    JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
-                }
-                else
-                    logger.error(msg);
-                requestStop();
-            }
-        }
-        else // is local
-        {
-            try
-            {
-                File[] files;
-                File file = new File(path);
-                if (file.isDirectory() && topLevel)
-                {
-                    firstDir = true;
-                    File[] more = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), false);
-                    files = new File[more.length + 1];
-                    files[0] = file;
-                    for (int i = 0; i < more.length; ++i)
-                    {
-                        files[i + 1] = more[i];
-                    }
-                }
-                else if (file.isDirectory())
-                {
-                    files = FileSystemView.getFileSystemView().getFiles(file.getAbsoluteFile(), false);
-                }
-                else
-                {
-                    files = new File[1];
-                    files[0] = file;
-                }
-
-                String fullpath = "";
-                boolean rescan = true;
-                while (rescan)
-                {
-                    for (int i = 0; i < files.length; ++i)
-                    {
-                        rescan = false;
-                        if (isRequestStop())
-                            break;
-
-                        File entry = files[i];
-                        String filename = entry.getName();
-                        boolean isDir = entry.isDirectory();
-                        if (context.navigator != null && context.progress != null)
-                        {
-                            context.progress.update(" " + filename);
-                        }
-                        fullpath = entry.getAbsolutePath();
-
-                        boolean changed = false;
-                        if (!isDir)
-                        {
-                            String change = rename(fullpath, filename, isDir); // change & rename
-                            changed = !fullpath.equals(change);
-                            fullpath = change;
-                        }
-                        if (isDir && !firstDir && isRecursive())
-                        {
-                            scanForRenames(fullpath, false);
-                        }
-                        else if (isDir && firstDir && changed)
-                        {
-                            rescan = true;
-                            break;
-                        }
-                        firstDir = false;
-                    }
-                    if (rescan)
-                    {
-                        if (!isRecursive())
-                            return;
-                        firstDir = false;
-                        File dir = new File(fullpath);
-                        files = FileSystemView.getFileSystemView().getFiles(dir, false);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                if (context.navigator != null)
-                {
-                    logger.error(msg);
-                    JOptionPane.showMessageDialog(context.mainFrame, msg, getCfg().gs("Renamer.title"), JOptionPane.ERROR_MESSAGE);
-                }
-                else
-                    logger.error(msg);
-                requestStop();
-            }
-        }
     }
 
     public void setConfigName(String configName)
@@ -854,9 +702,9 @@ public class RenamerTool extends AbstractTool
         this.filesOnly = filesOnly;
     }
 
-    public void setForwardPaths(ArrayList<String> forwardPaths)
+    public void setIsRecursive(boolean recursive)
     {
-        this.forwardPaths = forwardPaths;
+        this.recursive = recursive;
     }
 
     public void setOption1(boolean option1)
@@ -884,11 +732,6 @@ public class RenamerTool extends AbstractTool
             this.option3 = option3;
             setDataHasChanged();
         }
-    }
-
-    public void setIsRecursive(boolean recursive)
-    {
-        this.recursive = recursive;
     }
 
     public void setSegment(int segment)

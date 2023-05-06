@@ -1308,7 +1308,7 @@ public class OperationsUI
     private void process()
     {
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        context.navigator.setComponentEnabled(false, context.mainFrame.panelOperationTop);
+        context.navigator.disableComponent(false, context.mainFrame.panelOperationTop);
         context.mainFrame.buttonOperationCancel.setEnabled(true);
         context.mainFrame.buttonOperationCancel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         context.mainFrame.labelOperationHelp.setEnabled(true);
@@ -1356,7 +1356,7 @@ public class OperationsUI
             context.progress.done();
 
         context.navigator.disableGui(false);
-        context.navigator.setComponentEnabled(true, context.mainFrame.panelOperationTop);
+        context.navigator.disableComponent(true, context.mainFrame.panelOperationTop);
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
 

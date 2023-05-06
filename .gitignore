@@ -8,7 +8,6 @@
 hs_err_pid*
 
 /.idea/workspace.xml
-/artifacts/document/! Private.md
 /deploy/ELS-nav.jar
 /deploy/Thumbs.db
 /mock/*.json

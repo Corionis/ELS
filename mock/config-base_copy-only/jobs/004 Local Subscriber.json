@@ -9,7 +9,7 @@
       "subscriberRemote": false,
       "origins": [
         {
-          "name": "Movies",
+          "location": "Movies",
           "type": 5
         }
       ]

@@ -9,7 +9,7 @@
       "subscriberRemote": false,
       "origins": [
         {
-          "name": "test/publisher/media/TV Shows/M4 D4 Renamer Tests",
+          "location": "test/publisher/media/TV Shows/M4 D4 Renamer Tests",
           "type": 6
         }
       ]
@@ -49,7 +49,7 @@
     {
       "configName": "Replace double dashs",
       "internalName": "Renamer",
-      "publisherKey": "",
+      "publisherKey": "_CACHEDLASTTASK_",
       "subscriberKey": "",
       "subscriberRemote": false,
       "origins": []
@@ -72,22 +72,6 @@
     },
     {
       "configName": "Replace multi-spaces",
-      "internalName": "Renamer",
-      "publisherKey": "_CACHEDLASTTASK_",
-      "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
-    },
-    {
-      "configName": "Insert -S01E",
-      "internalName": "Renamer",
-      "publisherKey": "_CACHEDLASTTASK_",
-      "subscriberKey": "",
-      "subscriberRemote": false,
-      "origins": []
-    },
-    {
-      "configName": "Numbering",
       "internalName": "Renamer",
       "publisherKey": "_CACHEDLASTTASK_",
       "subscriberKey": "",

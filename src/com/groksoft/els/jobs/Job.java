@@ -34,9 +34,8 @@ public class Job extends AbstractTool implements Comparable, Serializable
     transient Context context;
     transient Task currentTask = null;
     transient private boolean dataHasChanged = false;
-    transient private ArrayList<String> forwardPaths;
     transient private Logger logger = LogManager.getLogger("applog");
-    transient private Task lastTask = null;
+    transient private Task previousTask = null;
     transient private final boolean realOnly = false;
     transient private boolean stop = false;
 
@@ -83,11 +82,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
         String path = getDirectoryPath() + System.getProperty("file.separator") +
                 Utils.scrubFilename(getConfigName()) + ".json";
         return path;
-    }
-
-    public ArrayList<String> getForwardPaths()
-    {
-        return forwardPaths;
     }
 
     @Override
@@ -140,7 +134,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     }
 
     @Override
-    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
+    public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task previousTask) throws Exception
     {
         // to satisfy AbstractTool, not used
     }
@@ -292,7 +286,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
     {
         int result = 0;
         stop = false;
-        forwardPaths = new ArrayList<String>();
 
         if (job.getTasks() != null && job.getTasks().size() > 0)
         {
@@ -311,26 +304,27 @@ public class Job extends AbstractTool implements Comparable, Serializable
 
                     // run it
                     subJob.processJob(context, subJob, isDryRun);
-                    //logger.info(getConfigName() + context.cfg.gs("Z.completed"));
-                    if (subJob.lastTask != null)
-                        lastTask = subJob.lastTask;
+                    if (subJob.previousTask != null)
+                        previousTask = subJob.previousTask;
 
                     logger.info(context.cfg.gs("Job.continuing.job") + job.getConfigName() + ((isDryRun) ? context.cfg.gs("Z.dry.run") : ""));
                 }
                 else // regular task
                 {
-                    if (lastTask != null && currentTask.isCachedLastTask(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
-                        currentTask.setLastTask(lastTask);
+                    // publisher key (only) is used to indicate cached last task
+                    if (previousTask != null && currentTask.isCachedLastTask(context) && currentTask.getPublisherKey().equalsIgnoreCase(Task.CACHEDLASTTASK))
+                        currentTask.setPreviousTask(previousTask);
 
                     // run it
                     if (!currentTask.process(context, isDryRun))
                         requestStop();
 
                     if (currentTask.isCachedLastTask(context))
-                        lastTask = currentTask;
+                        previousTask = currentTask;
                 }
-                logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
             }
+
+            logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
             context.savedEnvironment.restore(currentTask);
         }
         else
@@ -359,11 +353,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
         dataHasChanged = state;
     }
 
-    public void setForwardPaths(ArrayList<String> forwardPaths)
-    {
-        this.forwardPaths = forwardPaths;
-    }
-
     public void setTasks(ArrayList<Task> tasks)
     {
         this.tasks = tasks;
@@ -373,6 +362,26 @@ public class Job extends AbstractTool implements Comparable, Serializable
     public String toString()
     {
         return configName;
+    }
+
+    public boolean usesPublisher()
+    {
+        for (Task task : tasks)
+        {
+            if (task.getPublisherKey() != null && task.getPublisherKey().length() > 0)
+                return true;
+        }
+        return false;
+    }
+
+    public boolean usesSubscriber()
+    {
+        for (Task task : tasks)
+        {
+            if (task.getSubscriberKey() != null && task.getSubscriberKey().length() > 0)
+                return true;
+        }
+        return false;
     }
 
     public String validate(Configuration cfg)
@@ -412,6 +421,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
         {
             for (Task task : getTasks())
             {
+                // publisher key (only) is used to indicate cached last task
                 if (task.isSubscriberRemote() &&
                         !task.getPublisherKey().equals(Task.CACHEDLASTTASK) &&
                         !context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))

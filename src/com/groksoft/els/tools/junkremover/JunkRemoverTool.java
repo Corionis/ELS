@@ -84,9 +84,9 @@ public class JunkRemoverTool extends AbstractTool
         {
             if (origin.getType() == NavTreeUserObject.COLLECTION)
             {
-                if (origin.getName().length() > 0)
+                if (origin.getLocation().length() > 0)
                 {
-                    if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getName()))
+                    if (!repo.getLibraryData().libraries.description.equalsIgnoreCase(origin.getLocation()))
                         throw new MungeException((context.cfg.gs("JunkRemover.task.definition.and.loaded.repository.do.not.match")));
                 }
                 // process in the order defined in the JSON
@@ -103,7 +103,7 @@ public class JunkRemoverTool extends AbstractTool
             {
                 for (Library lib : repo.getLibraryData().libraries.bibliography)
                 {
-                    if (lib.name.equalsIgnoreCase(origin.getName()))
+                    if (lib.name.equalsIgnoreCase(origin.getLocation()))
                     {
                         for (String source : lib.sources)
                         {
@@ -115,7 +115,7 @@ public class JunkRemoverTool extends AbstractTool
             }
             else if (origin.getType() == NavTreeUserObject.REAL)
             {
-                toolPaths.add(origin.getName());
+                toolPaths.add(origin.getLocation());
                 ++count;
             }
         }
@@ -147,11 +147,6 @@ public class JunkRemoverTool extends AbstractTool
     public String getDisplayName()
     {
         return displayName;
-    }
-
-    public ArrayList<String> getForwardPaths()
-    {
-        return null;
     }
 
     @Override
@@ -507,10 +502,6 @@ public class JunkRemoverTool extends AbstractTool
     public void setDataHasChanged(boolean state)
     {
         dataHasChanged = state;
-    }
-
-    public void setForwardPaths(ArrayList<String> forwardPaths)
-    {
     }
 
     public void setJunkList(ArrayList<JunkItem> junkList)

@@ -16,12 +16,6 @@
     <target name="clean" depends="init">
         <delete dir="out" failonerror="false"/>
         <mkdir dir="out"/>
-        <delete failonerror="false">
-            <fileset dir="deploy">
-                <include name="*.tar.gz"/>
-                <include name="*.zip"/>
-            </fileset>
-        </delete>
     </target>
 
     <!-- Build stamp and copy locales to default -->
@@ -45,6 +39,8 @@
 
     <!-- Compile ELS -->
     <target name="compile" depends="stamp">
+        <delete dir="out" failonerror="false"/>
+        <mkdir dir="out"/>
         <mkdir dir="out/jar"/>
         <javac destdir="out/jar" classpathref="class.path" includeantruntime="false" debug="on">
             <src path="src"/>
@@ -85,6 +81,11 @@
 
     <!-- Build Linux .tar.gz -->
     <target name="linux" depends="jar" description="Build Linux .tar.gz">
+        <delete failonerror="false">
+            <fileset dir="deploy">
+                <include name="*.tar.gz"/>
+            </fileset>
+        </delete>
         <mkdir dir="out/tar/ELS"/>
         <copy todir="out/tar/ELS" preservelastmodified="true">
             <fileset dir="artifacts/stage/linux"/>
@@ -109,6 +110,11 @@
 
     <!-- Build Windows .zip -->
     <target name="windows" depends="jar" description="Build Windows .zip">
+        <delete failonerror="false">
+            <fileset dir="deploy">
+                <include name="*.zip"/>
+            </fileset>
+        </delete>
         <mkdir dir="out/zip/ELS"/>
         <copy todir="out/zip/ELS" preservelastmodified="true">
             <fileset dir="artifacts/stage/windows"/>

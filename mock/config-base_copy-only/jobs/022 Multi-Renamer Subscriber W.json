@@ -9,7 +9,7 @@
       "subscriberRemote": false,
       "origins": [
         {
-          "name": "test\\subscriber-one\\media\\TV Shows\\M4 D4 Renamer Tests",
+          "location": "test\\subscriber-one\\media\\TV Shows\\M4 D4 Renamer Tests",
           "type": 6
         }
       ]

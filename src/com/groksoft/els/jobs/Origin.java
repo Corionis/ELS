@@ -7,14 +7,12 @@ import javax.swing.tree.TreePath;
 
 public class Origin
 {
-    private String name;
+    private String location;
     private int type;
 
     transient NavTreeUserObject tuo;
-    
     transient JTree sourceTree = null;
     transient TreePath treePath = null;
-    
     transient JTable sourceTable = null;
     transient int tableRow = -1;
 
@@ -27,7 +25,7 @@ public class Origin
         this.sourceTree = sourceTree;
         this.treePath = treePath;
         this.tuo = tuo;
-        this.name = tuo.getPath();
+        this.location = tuo.getPath();
         this.type = tuo.type;
     }
 
@@ -37,7 +35,7 @@ public class Origin
         this.treePath = treePath;
         this.tableRow = tableRow;
         this.tuo = tuo;
-        this.name = tuo.getPath();
+        this.location = tuo.getPath();
         this.type = tuo.type;
     }
 
@@ -49,14 +47,14 @@ public class Origin
         o.sourceTable = this.sourceTable;
         o.tableRow = this.tableRow;
         o.tuo = this.tuo;
-        o.name = this.name;
+        o.location = this.location;
         o.type = this.type;
         return o;
     }
 
-    public String getName()
+    public String getLocation()
     {
-        return name;
+        return location;
     }
 
     public int getType()
@@ -64,9 +62,9 @@ public class Origin
         return type;
     }
 
-    public void setName(String name)
+    public void setLocation(String location)
     {
-        this.name = name;
+        this.location = location;
     }
 
     public void setType(int type)
