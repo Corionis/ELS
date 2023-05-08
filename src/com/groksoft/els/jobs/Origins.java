@@ -35,6 +35,50 @@ public class Origins
         return false;
     }
 
+    public static ArrayList<Origin>[] makeAllOrigins(Context context, Component component) throws MungeException
+    {
+        JTree baseTree = null;
+        JTable baseTable = null;
+        ArrayList<Origin>[] originsArray = new ArrayList[8];
+
+        Object object = context.browser.lastComponent;
+        if (object instanceof JTree)
+            baseTree = (JTree) object;
+        else if (object instanceof JTable)
+            baseTable = (JTable) object;
+
+        context.mainFrame.treeCollectionOne.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[0], false);
+
+        context.mainFrame.tableCollectionOne.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[1], false);
+
+        context.mainFrame.treeSystemOne.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[2], false);
+
+        context.mainFrame.tableSystemOne.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[3], false);
+
+        context.mainFrame.treeCollectionTwo.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[4], false);
+
+        context.mainFrame.tableCollectionTwo.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[5], false);
+
+        context.mainFrame.treeSystemTwo.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[6], false);
+
+        context.mainFrame.tableSystemTwo.requestFocus();
+        makeOriginsFromSelected(context, component, originsArray[7], false);
+
+        if (baseTree != null)
+            baseTree.requestFocus();
+        else if (baseTable != null)
+            baseTable.requestFocus();
+
+        return originsArray;
+    }
+
     /**
      * Create an ArrayList of Origins from items selected in the Browser
      *
@@ -113,6 +157,50 @@ public class Origins
         return isSubscriber;
     }
 
+    public static void setAllOrigins(Context context, Component component, ArrayList<Origin>[] originsArray) throws MungeException
+    {
+        JTree baseTree = null;
+        JTable baseTable = null;
+
+        if (originsArray.length != 8)
+            throw new MungeException("setAllOrigins logic fault");
+
+        Object object = context.browser.lastComponent;
+        if (object instanceof JTree)
+            baseTree = (JTree) object;
+        else if (object instanceof JTable)
+            baseTable = (JTable) object;
+
+        context.mainFrame.treeCollectionOne.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[0]);
+
+        context.mainFrame.tableCollectionOne.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[1]);
+
+        context.mainFrame.treeSystemOne.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[2]);
+
+        context.mainFrame.tableSystemOne.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[3]);
+
+        context.mainFrame.treeCollectionTwo.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[4]);
+
+        context.mainFrame.tableCollectionTwo.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[5]);
+
+        context.mainFrame.treeSystemTwo.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[6]);
+
+        context.mainFrame.tableSystemTwo.requestFocus();
+        setSelectedFromOrigins(context, component, originsArray[7]);
+
+        if (baseTree != null)
+            baseTree.requestFocus();
+        else if (baseTable != null)
+            baseTable.requestFocus();
+    }
+
     /**
      * Restore previous selected items based on an ArrayList of Origins
      *
@@ -130,6 +218,7 @@ public class Origins
             {
                 tree = origins.get(0).sourceTree;
                 TreePath[] paths = new TreePath[origins.size()];
+
                 // assemble tree path(s) and scan to each
                 for (int i = 0; i < origins.size(); ++i)
                 {
@@ -151,10 +240,13 @@ public class Origins
                             paths[i] = op;
                     }
                 }
+
                 // select all tree path(s)
                 tree.setExpandsSelectedPaths(true);
                 tree.setSelectionPaths(paths);
                 tree.scrollPathToVisible(origins.get(origins.size() - 1).treePath);
+                tree.setAnchorSelectionPath(origins.get(origins.size() - 1).treePath);
+                tree.requestFocus();
             }
             else if (origins.get(0).sourceTable != null) // table
             {
@@ -174,12 +266,17 @@ public class Origins
 
                 String panel = origin.sourceTable.getName().toLowerCase();
                 if (panel.length() > 0)
-                    context.browser.scanTreePath(panel, pathElements, true, false, false); // scan
+                {
+                    TreePath op = context.browser.scanTreePath(panel, pathElements, true, false, false); // scan
+                    if (op != null)
+                        tp = op;
+                }
 
                 // select tree path
                 tree.setExpandsSelectedPaths(true);
                 tree.setSelectionPath(tp);
                 tree.scrollPathToVisible(tp);
+                tree.setAnchorSelectionPath(tp);
 
                 // select matching items in table
                 JTable table = origin.sourceTable;
@@ -191,8 +288,9 @@ public class Origins
                     row = origins.get(i).tableRow;
                     model.addSelectionInterval(row, row);
                 }
-                table.requestFocus();
+
                 table.scrollRectToVisible(new Rectangle(table.getCellRect(row, row, true)));
+                table.requestFocus();
             }
         }
     }

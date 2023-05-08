@@ -1530,6 +1530,7 @@ public class MainFrame extends JFrame
                             textAreaLog.setComponentPopupMenu(popupMenuLog);
                             textAreaLog.setVerifyInputWhenFocusTarget(false);
                             textAreaLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
+                            textAreaLog.setWrapStyleWord(true);
                             scrollPaneLog.setViewportView(textAreaLog);
                         }
                         tabbedPaneNavigatorBottom.addTab(context.cfg.gs("Navigator.scrollPane.Log.tab.title"), scrollPaneLog);
@@ -3041,6 +3042,7 @@ public class MainFrame extends JFrame
                             textAreaOperationLog.setComponentPopupMenu(popupMenuOperationLog);
                             textAreaOperationLog.setVerifyInputWhenFocusTarget(false);
                             textAreaOperationLog.setFont(new Font("Courier 10 Pitch", Font.PLAIN, 12));
+                            textAreaOperationLog.setWrapStyleWord(true);
                             scrollPaneOperationLog.setViewportView(textAreaOperationLog);
                         }
                         tabbedPaneOperationBottom.addTab(context.cfg.gs("Operations.scrollPaneLog.tab.title"), scrollPaneOperationLog);

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.0.3.0.246" Java: "17.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.0.4.0.266" Java: "17.0.6" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -421,6 +421,7 @@ new FormModel {
 									"componentPopupMenu": new FormReference( "popupMenuLog" )
 									"verifyInputWhenFocusTarget": false
 									"font": new java.awt.Font( "Courier 10 Pitch", 0, 12 )
+									"wrapStyleWord": true
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Navigator.scrollPane.Log.tab.title" )
@@ -1942,6 +1943,7 @@ new FormModel {
 									"componentPopupMenu": new FormReference( "popupMenuOperationLog" )
 									"verifyInputWhenFocusTarget": false
 									"font": new java.awt.Font( "Courier 10 Pitch", 0, 12 )
+									"wrapStyleWord": true
 								} )
 							}, new FormLayoutConstraints( null ) {
 								"title": new FormMessage( null, "Operations.scrollPaneLog.tab.title" )

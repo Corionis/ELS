@@ -12,6 +12,8 @@ import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.SftpATTRS;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -26,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 public class RenamerTool extends AbstractTool
@@ -492,11 +495,54 @@ public class RenamerTool extends AbstractTool
         try
         {
             File[] files;
+            boolean pathIsDir = false;
             if (isRemote())
             {
-                logger.fatal("not implemented yet");
+                Vector listing;
+                SftpATTRS attrs = context.clientSftp.stat(path);
+                if (attrs.isDir())
+                {
+                    if (isRenameAllowed)
+                    {
+                        String fileName = FilenameUtils.getName(path);
+                        String change = rename(path, fileName, true);
+                        if (!path.equals(change))
+                        {
+                            path = change;
+                        }
+                    }
+                    isFirst = false;
+                    pathIsDir = true;
+                }
+
+                listing = context.clientSftp.listDirectory(path);
+                for (int i = 0; i < listing.size(); ++i)
+                {
+                    if (isRequestStop())
+                        break;
+
+                    ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
+                    if (entry.getFilename().equals(".") || entry.getFilename().equals(".."))
+                        continue;
+
+                    String fullpath = path + (pathIsDir ? repo.getSeparator() + entry.getFilename() : "");
+                    attrs = entry.getAttrs();
+                    if (attrs.isDir() && isRecursive())
+                    {
+                        scan(fullpath, false, true);
+                    }
+                    else
+                    {
+                        String change = rename(fullpath, entry.getFilename(), attrs.isDir());
+                        if (!path.equals(change) && isFirst)
+                        {
+                            path = change;
+                            isFirst = false;
+                        }
+                    }
+                }
             }
-            else
+            else // is local
             {
                 File loc = new File(path);
                 if (loc.isDirectory())
@@ -510,7 +556,6 @@ public class RenamerTool extends AbstractTool
                             loc = new File(path);
                         }
                     }
-
                     isFirst = false;
                     files = FileSystemView.getFileSystemView().getFiles(loc.getAbsoluteFile(), false);
                 }
@@ -534,7 +579,10 @@ public class RenamerTool extends AbstractTool
                     {
                         String change = rename(entry.getAbsolutePath(), entry.getName(), entry.isDirectory());
                         if (!path.equals(change) && isFirst)
+                        {
                             path = change;
+                            isFirst = false;
+                        }
                     }
                 }
             }

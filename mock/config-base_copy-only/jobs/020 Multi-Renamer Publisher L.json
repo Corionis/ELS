@@ -77,6 +77,22 @@
       "subscriberKey": "",
       "subscriberRemote": false,
       "origins": []
+    },
+    {
+      "configName": "Insert -S01E",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Numbering",
+      "internalName": "Renamer",
+      "publisherKey": "_CACHEDLASTTASK_",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
     }
   ]
 }

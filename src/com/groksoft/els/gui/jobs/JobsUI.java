@@ -1456,7 +1456,7 @@ public class JobsUI extends JDialog
         try
         {
             // reset and reload relevant trees
-            if (!isDryRun) // && task.getTool().renameCount > 0)
+            if (!isDryRun)
             {
                 if (job.usesPublisher())
                 {
@@ -1483,6 +1483,7 @@ public class JobsUI extends JDialog
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
             Origins.setSelectedFromOrigins(context, this, origins);
+            this.requestFocus();
 
             context.navigator.reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
         }

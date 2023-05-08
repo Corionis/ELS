@@ -2131,7 +2131,7 @@ public class Navigator
         try
         {
             // reset and reload relevant trees
-            if (!isDryRun) // && task.getTool().renameCount > 0)
+            if (!isDryRun)
             {
                 if (job.usesPublisher())
                 {

@@ -368,7 +368,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     {
         for (Task task : tasks)
         {
-            if (task.getPublisherKey() != null && task.getPublisherKey().length() > 0)
+            if (task.getPublisherKey() != null && task.getPublisherKey().length() > 0 && !task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 return true;
         }
         return false;
