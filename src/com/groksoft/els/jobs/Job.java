@@ -324,8 +324,11 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 }
             }
 
-            logger.info(job.getConfigName() + context.cfg.gs("Z.completed"));
             context.savedEnvironment.restore(currentTask);
+
+            logger.info(context.cfg.gs("Job.completed.job") +
+                    job.getConfigName()+ ((isDryRun) ? context.cfg.gs("Z.dry.run") : "") +
+                    context.cfg.gs("Z.completed"));
         }
         else
             throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + ": " + job.getConfigName());

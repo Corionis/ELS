@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class Origins
 {
-    transient private static Logger logger = LogManager.getLogger("applog");
+    private static Logger logger = LogManager.getLogger("applog");
 
     /**
      * Determine if NavTreeUserObject is a valid selection
@@ -29,17 +29,20 @@ public class Origins
 
         if (!realOnly && (tuo.type == NavTreeUserObject.COLLECTION ||
                 tuo.type == NavTreeUserObject.LIBRARY ||
+                tuo.type == NavTreeUserObject.DRIVE ||
                 tuo.type == NavTreeUserObject.REAL))
             return true;
 
         return false;
     }
 
-    public static ArrayList<Origin>[] makeAllOrigins(Context context, Component component) throws MungeException
+    public static ArrayList<ArrayList<Origin>> makeAllOrigins(Context context, Component component) throws MungeException
     {
         JTree baseTree = null;
         JTable baseTable = null;
-        ArrayList<Origin>[] originsArray = new ArrayList[8];
+        ArrayList<ArrayList<Origin>> originsArray = new ArrayList<ArrayList<Origin>>(8);
+        for (int i = 0; i < 8; ++i)
+            originsArray.add(i, new ArrayList<Origin>());
 
         Object object = context.browser.lastComponent;
         if (object instanceof JTree)
@@ -47,29 +50,21 @@ public class Origins
         else if (object instanceof JTable)
             baseTable = (JTable) object;
 
-        context.mainFrame.treeCollectionOne.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[0], false);
+        makeOriginsFromSelected(context, component, originsArray.get(0), false, context.mainFrame.treeCollectionOne);
 
-        context.mainFrame.tableCollectionOne.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[1], false);
+        makeOriginsFromSelected(context, component, originsArray.get(1), false, context.mainFrame.tableCollectionOne);
 
-        context.mainFrame.treeSystemOne.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[2], false);
+        makeOriginsFromSelected(context, component, originsArray.get(2), false, context.mainFrame.treeSystemOne);
 
-        context.mainFrame.tableSystemOne.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[3], false);
+        makeOriginsFromSelected(context, component, originsArray.get(3), false, context.mainFrame.tableSystemOne);
 
-        context.mainFrame.treeCollectionTwo.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[4], false);
+        makeOriginsFromSelected(context, component, originsArray.get(4), false, context.mainFrame.treeCollectionTwo);
 
-        context.mainFrame.tableCollectionTwo.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[5], false);
+        makeOriginsFromSelected(context, component, originsArray.get(5), false, context.mainFrame.tableCollectionTwo);
 
-        context.mainFrame.treeSystemTwo.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[6], false);
+        makeOriginsFromSelected(context, component, originsArray.get(6), false, context.mainFrame.treeSystemTwo);
 
-        context.mainFrame.tableSystemTwo.requestFocus();
-        makeOriginsFromSelected(context, component, originsArray[7], false);
+        makeOriginsFromSelected(context, component, originsArray.get(7), false, context.mainFrame.tableSystemTwo);
 
         if (baseTree != null)
             baseTree.requestFocus();
@@ -90,11 +85,25 @@ public class Origins
      */
     public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins, boolean realOnly) throws MungeException
     {
+        return makeOriginsFromSelected(context, component, origins, realOnly, context.browser.lastComponent);
+    }
+
+    /**
+     * Create an ArrayList of Origins from items selected in a Browser component
+     *
+     * @param component The component calling this method, for message dialogs
+     * @param origins The ArrayList of Origins to be added to
+     * @param realOnly If the current AbstractTool accepts NavTreeUserObject.REAL items only
+     * @param fromComponent The component to capture selections from, a tree or table
+     * @return boolean true if is Subscriber, else false
+     * @throws MungeException with message "HANDLED_INTERNALLY" if a selection is not valid
+     */
+    public static boolean makeOriginsFromSelected(Context context, Component component, ArrayList<Origin> origins, boolean realOnly, Object fromComponent) throws MungeException
+    {
         boolean isSubscriber = false;
-        Object object = context.browser.lastComponent;
-        if (object instanceof JTree)
+        if (fromComponent instanceof JTree)
         {
-            JTree sourceTree = (JTree) object;
+            JTree sourceTree = (JTree) fromComponent;
             int row = sourceTree.getLeadSelectionRow();
             if (row > -1)
             {
@@ -130,9 +139,9 @@ public class Origins
                 }
             }
         }
-        else if (object instanceof JTable)
+        else if (fromComponent instanceof JTable)
         {
-            JTable sourceTable = (JTable) object;
+            JTable sourceTable = (JTable) fromComponent;
             int row = sourceTable.getSelectedRow();
             if (row > -1)
             {
@@ -154,15 +163,17 @@ public class Origins
                 }
             }
         }
+        else
+            throw new MungeException("fromComponent unknown; logic fault");
         return isSubscriber;
     }
 
-    public static void setAllOrigins(Context context, Component component, ArrayList<Origin>[] originsArray) throws MungeException
+    public static void setAllOrigins(Context context, Component component, ArrayList<ArrayList<Origin>> originsArray) throws MungeException
     {
         JTree baseTree = null;
         JTable baseTable = null;
 
-        if (originsArray.length != 8)
+        if (originsArray.size() != 8)
             throw new MungeException("setAllOrigins logic fault");
 
         Object object = context.browser.lastComponent;
@@ -171,29 +182,21 @@ public class Origins
         else if (object instanceof JTable)
             baseTable = (JTable) object;
 
-        context.mainFrame.treeCollectionOne.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[0]);
+        setSelectedFromOrigins(context, component, originsArray.get(0));
 
-        context.mainFrame.tableCollectionOne.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[1]);
+        setSelectedFromOrigins(context, component, originsArray.get(1));
 
-        context.mainFrame.treeSystemOne.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[2]);
+        setSelectedFromOrigins(context, component, originsArray.get(2));
 
-        context.mainFrame.tableSystemOne.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[3]);
+        setSelectedFromOrigins(context, component, originsArray.get(3));
 
-        context.mainFrame.treeCollectionTwo.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[4]);
+        setSelectedFromOrigins(context, component, originsArray.get(4));
 
-        context.mainFrame.tableCollectionTwo.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[5]);
+        setSelectedFromOrigins(context, component, originsArray.get(5));
 
-        context.mainFrame.treeSystemTwo.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[6]);
+        setSelectedFromOrigins(context, component, originsArray.get(6));
 
-        context.mainFrame.tableSystemTwo.requestFocus();
-        setSelectedFromOrigins(context, component, originsArray[7]);
+        setSelectedFromOrigins(context, component, originsArray.get(7));
 
         if (baseTree != null)
             baseTree.requestFocus();

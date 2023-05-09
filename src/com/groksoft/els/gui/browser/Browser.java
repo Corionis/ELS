@@ -130,7 +130,7 @@ public class Browser
                     NavTreeUserObject tuo = getSelectedUserObject(active);
                     if (tuo != null && !context.fault)
                     {
-                        context.mainFrame.textFieldLocation.setText(tuo.getPath());
+                        context.mainFrame.textFieldLocation.setText(tuo.getDisplayPath());
                         printProperties(tuo);
                     }
                 }
@@ -180,7 +180,7 @@ public class Browser
                     if (tuo != null)
                     {
                         boolean doubleClick = (mouseEvent.getClickCount() == 2);
-                        context.mainFrame.textFieldLocation.setText(tuo.getPath());
+                        context.mainFrame.textFieldLocation.setText(tuo.getDisplayPath());
                         printProperties(tuo);
 
                         if (doubleClick)
@@ -2347,7 +2347,8 @@ public class Browser
             {
                 try
                 {
-                    driveList = context.clientStty.roundTrip("drives", context.cfg.gs("NavTreeNode.requesting.windows.drives.list"), 5000);
+                    logger.info(context.cfg.gs("NavTreeNode.requesting.windows.drives.list"));
+                    driveList = context.clientStty.roundTrip("drives", null, 5000);
                 }
                 catch (Exception e)
                 {

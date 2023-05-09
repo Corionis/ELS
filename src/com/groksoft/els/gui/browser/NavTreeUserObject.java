@@ -23,7 +23,6 @@ public class NavTreeUserObject implements Comparable
     public static final int REAL = 6; // physical file or directory
     public static final int SYSTEM = 7; // hidden; holds System tab Computer, Bookmarks, etc.
 
-    //private Context context;
     public String name = "";
     public String path = "";
     public int type = REAL;
@@ -50,7 +49,6 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = type;
-        //this.context = ntn.context;
     }
 
     // A local file or directory
@@ -73,7 +71,6 @@ public class NavTreeUserObject implements Comparable
         {
             this.size = -1L;
         }
-        //this.context = ntn.context;
     }
 
     // A collection of libraries
@@ -85,7 +82,6 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = LIBRARY;
-        //this.context = ntn.context;
     }
 
     // A DRIVE or HOME
@@ -97,7 +93,6 @@ public class NavTreeUserObject implements Comparable
         this.isDir = true;
         this.isRemote = remote;
         this.type = type;
-        //this.context = ntn.context;
     }
 
     // A remote file or directory
@@ -116,7 +111,6 @@ public class NavTreeUserObject implements Comparable
         this.isHidden = name.startsWith(".");
         this.isRemote = true;
         this.type = REAL;
-        //this.context = ntn.context;
     }
 
     @Override
@@ -153,13 +147,30 @@ public class NavTreeUserObject implements Comparable
         tuo.isHidden = this.isHidden;
         tuo.mtime = this.mtime;
         tuo.name = this.name;
-        tuo.node = null;
+        tuo.node = this.node;
         tuo.path = this.path;
         tuo.isRemote = this.isRemote;
         tuo.size = this.size;
         tuo.sources = this.sources;
         tuo.type = this.type;
         return tuo;
+    }
+
+    public String getDisplayPath()
+    {
+        String path = getPath();
+        if (node != null)
+        {
+            String os = node.getMyRepo().getLibraryData().libraries.flavor;
+            boolean isWindows = os.equalsIgnoreCase("windows") ? true : false;
+            if (isWindows && path.length() > 1 && path.startsWith("/"))
+            {
+                path = path.substring(1);
+                path = path.replaceAll("/", "\\\\");
+                path = path.replaceAll("\\\\\\\\", "\\\\");
+            }
+        }
+        return path;
     }
 
     public String getItemPath(String library, String path)

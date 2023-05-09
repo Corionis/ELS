@@ -454,7 +454,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
         NavTreeUserObject tuo = getUserObject();
         if (tuo != null)
         {
-            context.mainFrame.textFieldLocation.setText(tuo.getPath());
+            context.mainFrame.textFieldLocation.setText(tuo.getDisplayPath());
             context.browser.printProperties(tuo);
         }
     }
@@ -518,21 +518,21 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     {
                         if (myTuo.isRemote)
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.path);
-                            scanRemote(myTuo.path, nodeArray, recursive);
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.drive") + myTuo.getDisplayPath());
+                            scanRemote(myTuo, myTuo.getPath(), nodeArray, recursive);
                         }
                         else
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.path);
-                            scanLocal(new File(myTuo.path).getAbsoluteFile(), nodeArray, recursive);
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.drive") + myTuo.getDisplayPath());
+                            scanLocal(new File(myTuo.getPath()).getAbsoluteFile(), nodeArray, recursive);
                         }
                     }
                     break;
                 case NavTreeUserObject.HOME:
-                    File file = new File(myTuo.path);
+                    File file = new File(myTuo.getPath());
                     if (file.isDirectory())
                     {
-                        logger.info(context.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.path);
+                        logger.info(context.cfg.gs("NavTreeNode.scanning.home.directory") + myTuo.getDisplayPath());
                         scanLocal(file.getAbsoluteFile(), nodeArray, recursive);
                     }
                     break;
@@ -544,7 +544,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                             if (myTuo.isRemote)
                             {
                                 logger.info(context.cfg.gs("NavTreeNode.scanning.remote.library") + path);
-                                scanRemote(path, nodeArray, recursive);
+                                scanRemote(myTuo, path, nodeArray, recursive);
                             }
                             else
                             {
@@ -559,12 +559,12 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     {
                         if (myTuo.isRemote)
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.path);
-                            scanRemote(myTuo.path, nodeArray, recursive);
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.remote.directory") + myTuo.getDisplayPath());
+                            scanRemote(myTuo, myTuo.getPath(), nodeArray, recursive);
                         }
                         else
                         {
-                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.file.getAbsolutePath());
+                            logger.info(context.cfg.gs("NavTreeNode.scanning.local.directory") + myTuo.getDisplayPath());
                             scanLocal(myTuo.file.getAbsoluteFile(), nodeArray, recursive);
                         }
                     }
@@ -608,14 +608,14 @@ public class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
-    protected void scanRemote(String target, List<NavTreeNode> nodeArray, boolean recursive)
+    protected void scanRemote(NavTreeUserObject myTuo, String target, List<NavTreeNode> nodeArray, boolean recursive)
     {
         try
         {
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
             Vector listing = context.clientSftp.listDirectory(target);
-            logger.info(Utils.formatInteger(listing.size()) + context.cfg.gs("NavTreeNode.received.entries.from") + target);
+            logger.info(Utils.formatInteger(listing.size()) + context.cfg.gs("NavTreeNode.received.entries.from") + myTuo.getDisplayPath());
             for (int i = 0; i < listing.size(); ++i)
             {
                 ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);

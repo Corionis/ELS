@@ -52,24 +52,25 @@ import java.util.*;
 public class Navigator
 {
     public Bookmarks bookmarks;
+    private int bottomSizeBrowser;
+    private int bottomSizeOperations;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
+    public RenamerUI dialogRenamer = null;
     private Settings dialogSettings = null;
     public Job[] jobs;
     private int lastFindPosition = 0;
     private String lastFindString = "";
     private int lastFindTab = -1;
-    public boolean showHintTrackingButton = false;
-    private int bottomSizeBrowser;
-    private int bottomSizeOperations;
+    private transient Logger logger = LogManager.getLogger("applog");
+    private ArrayList<ArrayList<Origin>> originsArray = null;
     private boolean quitRemoteHintStatusServer = false;
     private boolean quitRemoteSubscriber = false;
     private boolean remoteJobRunning = false;
-    public RenamerUI dialogRenamer = null;
-    private transient Logger logger = LogManager.getLogger("applog");
+    public boolean showHintTrackingButton = false;
     public SwingWorker<Void, Void> worker;
 
 
@@ -2079,10 +2080,9 @@ public class Navigator
                 context.mainFrame.menuItemFileQuit.setEnabled(true);
 
                 // capture current selections
-                ArrayList<Origin> origins = new ArrayList<>();
                 try
                 {
-                    Origins.makeOriginsFromSelected(context, context.mainFrame, origins, false);
+                    originsArray = Origins.makeAllOrigins(context, context.mainFrame);
                 }
                 catch (Exception e)
                 {
@@ -2112,21 +2112,21 @@ public class Navigator
                             if (e.getPropertyName().equals("state"))
                             {
                                 if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                    processTerminated(job, origins, isDryRun);
+                                    processTerminated(job, isDryRun);
                             }
                         }
                     });
                     worker.execute();
                 }
                 else
-                    processTerminated(job, origins, isDryRun);
+                    processTerminated(job, isDryRun);
             }
         }
         else
             JOptionPane.showMessageDialog(context.mainFrame, status, context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
     }
 
-    private void processTerminated(Job job, ArrayList<Origin> origins, boolean isDryRun)
+    private void processTerminated(Job job, boolean isDryRun)
     {
         try
         {
@@ -2156,7 +2156,8 @@ public class Navigator
             disableGui(false);
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
-            Origins.setSelectedFromOrigins(context, context.mainFrame, origins);
+            if (originsArray != null && originsArray.size() == 8)
+                Origins.setAllOrigins(context, context.mainFrame, originsArray);
 
             reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
         }

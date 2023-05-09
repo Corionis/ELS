@@ -57,6 +57,7 @@ public class JobsUI extends JDialog
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
+    private ArrayList<ArrayList<Origin>> originsArray = null;
     private ArrayList<Origin> savedOrigins = null;
     private Tools toolsHandler;
     private ArrayList<AbstractTool> toolList;
@@ -157,7 +158,7 @@ public class JobsUI extends JDialog
         });
 
         // setup the publisher/subscriber Task Origins table
-        Border border = buttonPub.getBorder(); // context.mainFrame.textFieldLocation.getBorder();
+        Border border = buttonPub.getBorder();
         panelPubSub.setBorder(border);
 
         loadConfigurations();
@@ -1404,10 +1405,9 @@ public class JobsUI extends JDialog
                 labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
                 // capture current selections
-                ArrayList<Origin> origins = new ArrayList<>();
                 try
                 {
-                    Origins.makeOriginsFromSelected(context, this, origins, false);
+                    originsArray = Origins.makeAllOrigins(context, context.mainFrame);
                 }
                 catch (Exception e)
                 {
@@ -1437,21 +1437,21 @@ public class JobsUI extends JDialog
                             if (e.getPropertyName().equals("state"))
                             {
                                 if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                    processTerminated(job, origins);
+                                    processTerminated(job);
                             }
                         }
                     });
                     worker.execute();
                 }
                 else
-                    processTerminated(job, origins);
+                    processTerminated(job);
             }
         }
         else
             JOptionPane.showMessageDialog(this, status, context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
     }
 
-    private void processTerminated(Job job, ArrayList<Origin> origins)
+    private void processTerminated(Job job)
     {
         try
         {
@@ -1482,9 +1482,10 @@ public class JobsUI extends JDialog
             context.navigator.disableComponent(false, getContentPane());
             setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
-            Origins.setSelectedFromOrigins(context, this, origins);
-            this.requestFocus();
+            if (originsArray != null && originsArray.size() == 8)
+                Origins.setAllOrigins(context, context.mainFrame, originsArray);
 
+            this.requestFocus();
             context.navigator.reconnectRemote(context, context.publisherRepo, context.subscriberRepo);
         }
         catch (Exception e)
