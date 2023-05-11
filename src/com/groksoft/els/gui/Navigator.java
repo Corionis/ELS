@@ -228,9 +228,6 @@ public class Navigator
     {
         context.main.loadLocale(context.preferences.getLocale());
 
-        context.savedEnvironment = new SavedEnvironment(context);
-        context.savedEnvironment.save();
-
         if (context.cfg.getPublisherCollectionFilename().length() > 0)
         {
             context.preferences.setLastIsWorkstation(false);
@@ -354,6 +351,10 @@ public class Navigator
 */
 
         }
+
+        context.savedEnvironment = new SavedEnvironment(context);
+        context.savedEnvironment.save();
+
         return !context.fault;
     }
 

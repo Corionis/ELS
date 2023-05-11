@@ -3,7 +3,6 @@ package com.groksoft.els;
 import com.google.gson.Gson;
 import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.gui.Preferences;
-import com.groksoft.els.gui.SavedEnvironment;
 import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.repository.HintKeys;
@@ -709,7 +708,6 @@ public class Main
                     // setup the hint status server if defined
                     connectHintServer(context.publisherRepo);
 
-                    context.savedEnvironment = new SavedEnvironment(context);
                     context.transfer = new Transfer(context);
                     context.transfer.initialize();
 

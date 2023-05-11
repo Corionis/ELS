@@ -1,0 +1,21 @@
+{
+  "configName": "504 Sub+Pub",
+  "tasks": [
+    {
+      "configName": "Subscriber Listener",
+      "internalName": "Operations",
+      "publisherKey": "_ANY_SERVER_",
+      "subscriberKey": "_ANY_SERVER_",
+      "subscriberRemote": true,
+      "origins": []
+    },
+    {
+      "configName": "Remote Publish",
+      "internalName": "Operations",
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
+      "subscriberRemote": true,
+      "origins": []
+    }
+  ]
+}

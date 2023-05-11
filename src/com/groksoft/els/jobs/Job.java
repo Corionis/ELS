@@ -6,7 +6,6 @@ import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.Progress;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
 import org.apache.logging.log4j.LogManager;
@@ -15,8 +14,6 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -231,25 +228,6 @@ public class Job extends AbstractTool implements Comparable, Serializable
      */
     public SwingWorker<Void, Void> process(Context context, Component comp, String title, Job job, boolean isDryRun)
     {
-        // create a fresh dialog
-        // TODO factors controlling whether to display the progress dialog may need adjusting
-/*
-        if (context.progress == null || !context.progress.isBeingUsed())
-        {
-            ActionListener cancel = new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
-                {
-                    requestStop();
-                }
-            };
-            context.progress = new Progress(context, comp, cancel, isDryRun);
-            context.progress.display();
-        }
-        else
-*/
-
         if (context.progress != null && context.progress.isBeingUsed())
         {
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
