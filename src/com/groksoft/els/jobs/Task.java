@@ -356,8 +356,10 @@ public class Task implements Comparable, Serializable
             {
                 if (currentTool instanceof OperationsTool)
                 {
-                    pubPath = getRepoPath(getPublisherKey());
-                    subPath = getRepoPath(getSubscriberKey());
+                    pubRepo = getRepo(context, getPublisherKey(), true);
+                    subRepo = getRepo(context, getSubscriberKey(), false);
+                    pubPath = pubRepo.getJsonFilename();
+                    subPath = subRepo.getJsonFilename();
                     pubRepo = null;
                     subRepo = null;
                     context.nestedProcesses = true;

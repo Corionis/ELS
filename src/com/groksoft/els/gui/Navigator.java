@@ -2130,6 +2130,8 @@ public class Navigator
     {
         try
         {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
             // reset and reload relevant trees
             if (!isDryRun)
             {
@@ -2154,7 +2156,6 @@ public class Navigator
 
             remoteJobRunning = false;
             disableGui(false);
-            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
             if (originsArray != null && originsArray.size() == 8)
                 Origins.setAllOrigins(context, context.mainFrame, originsArray);

@@ -449,7 +449,9 @@ public class NavTreeNode extends DefaultMutableTreeNode
         if (myStatus != null)
         {
             int count = getChildCount(false, true);
-            myStatus.setText(Utils.formatInteger(count) + (count > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
+            myStatus.setText(Utils.formatInteger(count) + " " +
+                    (myRepo.isPublisher() ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) +
+                    (count > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
         }
         NavTreeUserObject tuo = getUserObject();
         if (tuo != null)
@@ -577,6 +579,7 @@ public class NavTreeNode extends DefaultMutableTreeNode
                     context.subscriberRepo.getLibraryData().libraries.description;
             logger.error(msg);
             context.fault = true;
+            nodeArray = null;
             JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
         return nodeArray;
@@ -608,59 +611,47 @@ public class NavTreeNode extends DefaultMutableTreeNode
         }
     }
 
-    protected void scanRemote(NavTreeUserObject myTuo, String target, List<NavTreeNode> nodeArray, boolean recursive)
+    protected void scanRemote(NavTreeUserObject myTuo, String target, List<NavTreeNode> nodeArray, boolean recursive) throws Exception
     {
-        try
-        {
-            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            Vector listing = context.clientSftp.listDirectory(target);
-            logger.info(Utils.formatInteger(listing.size()) + context.cfg.gs("NavTreeNode.received.entries.from") + myTuo.getDisplayPath());
-            for (int i = 0; i < listing.size(); ++i)
+        Vector listing = context.clientSftp.listDirectory(target);
+        logger.info(Utils.formatInteger(listing.size()) + context.cfg.gs("NavTreeNode.received.entries.from") + myTuo.getDisplayPath());
+        for (int i = 0; i < listing.size(); ++i)
+        {
+            ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
+            if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
             {
-                ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) listing.get(i);
-                if (!entry.getFilename().equals(".") && !entry.getFilename().equals(".."))
-                {
-                    // exclude certain DOS/Windows "system" items; TODO Adjust excluded Windows items as necessary
-                    String longname = entry.getLongname();
-                    if (longname.matches("(?i).*OWNER\\@.*GROUP\\@.*") ||
+                // exclude certain DOS/Windows "system" items; TODO Adjust excluded Windows items as necessary
+                String longname = entry.getLongname();
+                if (longname.matches("(?i).*OWNER\\@.*GROUP\\@.*") ||
                         (longname.matches("(?i).*Administrators.*BUILTIN.*")) ||
                         (longname.matches("(?i).*TrustedInstaller.*NT SERVICE.*") &&
                                 !(entry.getFilename().toLowerCase().startsWith("program files") || entry.getFilename().toLowerCase().equals("windows"))) ||
                         entry.getFilename().equals("BOOTNXT") ||
                         entry.getFilename().equals("ProgramData") ||
                         entry.getFilename().equalsIgnoreCase("$Recycle.Bin") ||
-                        entry.getFilename().equals("Documents and Settings") )
-                        continue;
+                        entry.getFilename().equals("Documents and Settings"))
+                    continue;
 
-                    SftpATTRS a = entry.getAttrs();
-                    NavTreeNode node = new NavTreeNode(context, myRepo, myTree);
-                    NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
-                            target + context.subscriberRepo.getSeparator() + entry.getFilename(),
-                            a.getSize(), a.getMTime(), a.isDir());
-                    node.setNavTreeUserObject(tuo);
-                    if (!a.isDir())
-                        node.setVisible(false);
-                    else
+                SftpATTRS a = entry.getAttrs();
+                NavTreeNode node = new NavTreeNode(context, myRepo, myTree);
+                NavTreeUserObject tuo = new NavTreeUserObject(node, entry.getFilename(),
+                        target + context.subscriberRepo.getSeparator() + entry.getFilename(),
+                        a.getSize(), a.getMTime(), a.isDir());
+                node.setNavTreeUserObject(tuo);
+                if (!a.isDir())
+                    node.setVisible(false);
+                else
+                {
+                    if (recursive)
                     {
-                        if (recursive)
-                        {
-                            node.deepScanChildren(recursive);
-                            node.setLoaded(true);
-                        }
+                        node.deepScanChildren(recursive);
+                        node.setLoaded(true);
                     }
-                    nodeArray.add(node);
                 }
+                nodeArray.add(node);
             }
-        }
-        catch (Exception e)
-        {
-            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            String msg = context.cfg.gs("NavTreeNode.could.not.retrieve.listing.from") +
-                    context.subscriberRepo.getLibraryData().libraries.description + ": " + target;
-            logger.error(msg);
-            Component centerOn = (context.mainFrame != null) ? context.mainFrame : null;
-            JOptionPane.showMessageDialog(centerOn, msg, context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }

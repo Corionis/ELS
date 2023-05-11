@@ -833,20 +833,51 @@ public class Browser
 
     public void deepScanCollectionTree(JTree tree, Repository repo, boolean remote, boolean recursive)
     {
-        try
+        if (!context.fault)
         {
-            NavTreeNode root = setCollectionRoot(repo, tree, repo.getLibraryData().libraries.description, remote);
-            if (repo.getLibraryData().libraries.bibliography != null)
+            try
             {
-                Arrays.sort(repo.getLibraryData().libraries.bibliography);
-                switch (styleOne)
+                NavTreeNode root = setCollectionRoot(repo, tree, repo.getLibraryData().libraries.description, remote);
+                if (repo.getLibraryData().libraries.bibliography != null)
                 {
-                    case STYLE_COLLECTION_ALL:
-                        styleCollection(tree, repo, remote, true, recursive);
-                        break;
-                    case STYLE_COLLECTION_AZ:
-                        break;
-                    case STYLE_COLLECTION_SOURCES:
+                    Arrays.sort(repo.getLibraryData().libraries.bibliography);
+                    switch (styleOne)
+                    {
+                        case STYLE_COLLECTION_ALL:
+                            styleCollection(tree, repo, remote, true, recursive);
+                            break;
+                        case STYLE_COLLECTION_AZ:
+                            break;
+                        case STYLE_COLLECTION_SOURCES:
+                            break;
+                        default:
+                            break;
+                    }
+                    ((NavTreeModel) tree.getModel()).reload();
+                    root.loadTable();
+                }
+            }
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+                context.fault = true;
+            }
+        }
+    }
+
+    public void deepScanSystemTree(JTree tree, Repository repo, boolean remote, boolean recursive)
+    {
+        if (!context.fault)
+        {
+            try
+            {
+                NavTreeNode root = null;
+                switch (styleTwo)
+                {
+                    case STYLE_SYSTEM_ALL:
+                        root = styleComputer(tree, repo, remote, true, recursive);
+                        if (!context.fault)
+                            styleHome(tree, repo, remote, true, recursive);
                         break;
                     default:
                         break;
@@ -854,35 +885,11 @@ public class Browser
                 ((NavTreeModel) tree.getModel()).reload();
                 root.loadTable();
             }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-            context.fault = true;
-        }
-    }
-
-    public void deepScanSystemTree(JTree tree, Repository repo, boolean remote, boolean recursive)
-    {
-        try
-        {
-            NavTreeNode root = null;
-            switch (styleTwo)
+            catch (Exception e)
             {
-                case STYLE_SYSTEM_ALL:
-                    root = styleComputer(tree, repo, remote, true, recursive);
-                    styleHome(tree, repo, remote, true, recursive);
-                    break;
-                default:
-                    break;
+                logger.error(Utils.getStackTrace(e));
+                context.fault = true;
             }
-            ((NavTreeModel) tree.getModel()).reload();
-            root.loadTable();
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-            context.fault = true;
         }
     }
 
@@ -2018,7 +2025,7 @@ public class Browser
     public TreePath scanTreePath(String panelName, String[] pathElements, boolean doTable, boolean forceScan, boolean fullTreePath)
     {
         TreePath treePath = null;
-        if (panelName != null && panelName.length() > 0 && pathElements != null && pathElements.length > 0)
+        if (panelName != null && panelName.length() > 0 && pathElements != null && pathElements.length > 0 && !context.fault)
         {
             // determine which
             boolean remote = false;

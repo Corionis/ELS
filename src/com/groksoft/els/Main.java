@@ -72,7 +72,7 @@ public class Main
     }
 
     /**
-     * Main application Job task for Operations constructor
+     * Main application Job for Operations task constructor
      */
     public Main(String[] args, Context context, String operationName)
     {
@@ -289,7 +289,7 @@ public class Main
                 appender.setContext(context);
                 loggerContext.updateLoggers();
             }
-            else // carry-over previous Context log values
+            else // carry-over selected previous Context values
             {
                 context.cfg.setConsoleLevel(previousContext.cfg.getConsoleLevel());
                 context.cfg.setDebugLevel(previousContext.cfg.getDebugLevel());

@@ -199,6 +199,12 @@ upgrading for changes, additions and enhancements.
     processing and make sure for any Hint Tracking being used, local or remote, the datastore is
     empty.
 
+### Operational Notes
+
+ 1. When running Navigator with a remote Subscriber and executing a backup Job, that would normally stop
+    the listener when done, be sure to start the remote subscriber listener with the
+    -g | --listener-keep-going option to avoid a connection fault.
+
 ### Developer Notes
 
  1. The ELS Navigator was built using [JFormDesigner](https://www.formdev.com/jformdesigner/doc/).<br/> 

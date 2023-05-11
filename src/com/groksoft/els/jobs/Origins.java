@@ -16,27 +16,7 @@ public class Origins
 {
     private static Logger logger = LogManager.getLogger("applog");
 
-    /**
-     * Determine if NavTreeUserObject is a valid selection
-     * @param tuo NavTreeUserObject to check
-     * @param realOnly If the current AbstractTool accepts NavTreeUserObject.REAL items only
-     * @return true if valid, otherwise false
-     */
-    private static boolean isValidOrigin(NavTreeUserObject tuo, boolean realOnly)
-    {
-        if (realOnly && tuo.type == NavTreeUserObject.REAL)
-            return true;
-
-        if (!realOnly && (tuo.type == NavTreeUserObject.COLLECTION ||
-                tuo.type == NavTreeUserObject.LIBRARY ||
-                tuo.type == NavTreeUserObject.DRIVE ||
-                tuo.type == NavTreeUserObject.REAL))
-            return true;
-
-        return false;
-    }
-
-    public static ArrayList<ArrayList<Origin>> makeAllOrigins(Context context, Component component) throws MungeException
+     public static ArrayList<ArrayList<Origin>> makeAllOrigins(Context context, Component component) throws MungeException
     {
         JTree baseTree = null;
         JTable baseTable = null;
@@ -127,13 +107,6 @@ public class Origins
                         continue;
 
                     NavTreeUserObject tuo = ctn.getUserObject();
-                    if (!isValidOrigin(tuo, realOnly))
-                    {
-                        JOptionPane.showMessageDialog(component, context.cfg.gs("Z.invalid.selection") + tuo.name,
-                                context.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
-                        origins = null;
-                        throw new MungeException("HANDLED_INTERNALLY");
-                    }
                     isSubscriber = tuo.isSubscriber();
                     origins.add(new Origin(sourceTree, tp, tuo));
                 }
@@ -149,13 +122,6 @@ public class Origins
                 for (int i = 0; i < rows.length; ++i)
                 {
                     NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
-                    if (!isValidOrigin(tuo, realOnly))
-                    {
-                        JOptionPane.showMessageDialog(component, context.cfg.gs("Z.invalid.selection") + tuo.name,
-                                context.cfg.gs("Z.error"), JOptionPane.WARNING_MESSAGE);
-                        origins = null;
-                        throw new MungeException("HANDLED_INTERNALLY");
-                    }
                     isSubscriber = tuo.isSubscriber();
                     NavTreeNode ntn = (NavTreeNode) tuo.node.getMyTree().getLastSelectedPathComponent();
                     TreePath tp = ntn.getTreePath();

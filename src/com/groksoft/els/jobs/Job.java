@@ -233,6 +233,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
     {
         // create a fresh dialog
         // TODO factors controlling whether to display the progress dialog may need adjusting
+/*
         if (context.progress == null || !context.progress.isBeingUsed())
         {
             ActionListener cancel = new ActionListener()
@@ -247,6 +248,9 @@ public class Job extends AbstractTool implements Comparable, Serializable
             context.progress.display();
         }
         else
+*/
+
+        if (context.progress != null && context.progress.isBeingUsed())
         {
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
             return null;
@@ -282,7 +286,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
         return worker;
     }
 
-    public void processJob(Context context, Job job, boolean isDryRun) throws Exception
+    private void processJob(Context context, Job job, boolean isDryRun) throws Exception
     {
         int result = 0;
         stop = false;
@@ -324,6 +328,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
                 }
             }
 
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             context.savedEnvironment.restore(currentTask);
 
             logger.info(context.cfg.gs("Job.completed.job") +
@@ -426,6 +431,7 @@ public class Job extends AbstractTool implements Comparable, Serializable
             {
                 // publisher key (only) is used to indicate cached last task
                 if (task.isSubscriberRemote() &&
+                        !task.getPublisherKey().equals(Task.ANY_SERVER) &&
                         !task.getPublisherKey().equals(Task.CACHEDLASTTASK) &&
                         !context.subscriberRepo.getLibraryData().libraries.key.equals(task.getSubscriberKey()))
                     return true;

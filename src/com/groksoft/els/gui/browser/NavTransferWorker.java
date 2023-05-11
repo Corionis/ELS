@@ -101,7 +101,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
 
                 NavTreeNode sourceNode = sourceTuo.node;
                 sourceTree = sourceNode.getMyTree();
-                //sourceTable = sourceNode.getMyTable();
 
                 if (sourceTuo.isDir)
                 {
@@ -140,7 +139,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
     @Override
     protected void done()
     {
-        context.progress.done();
+        if (context.progress != null)
+            context.progress.done();
         context.mainFrame.labelStatusMiddle.setText(MessageFormat.format(context.cfg.gs("Transfer.of.complete"), filesToCopy));
 
         // reset the queue

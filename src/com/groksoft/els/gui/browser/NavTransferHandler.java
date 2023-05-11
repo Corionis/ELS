@@ -108,7 +108,7 @@ public class NavTransferHandler extends TransferHandler
     private JTable targetTable;
     private JTree targetTree;
     public static NavTransferWorker transferWorker = null; // singleton
-    public boolean transferWorkerRunning = false;
+    private boolean transferWorkerRunning = false;
 
     public NavTransferHandler(Context context)
     {

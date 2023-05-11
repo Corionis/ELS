@@ -1455,6 +1455,8 @@ public class JobsUI extends JDialog
     {
         try
         {
+            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
             // reset and reload relevant trees
             if (!isDryRun)
             {
@@ -1480,7 +1482,6 @@ public class JobsUI extends JDialog
             workerRunning = false;
             context.navigator.disableGui(false);
             context.navigator.disableComponent(false, getContentPane());
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 
             if (originsArray != null && originsArray.size() == 8)
                 Origins.setAllOrigins(context, context.mainFrame, originsArray);
