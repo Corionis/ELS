@@ -205,12 +205,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
             directory = context.transfer.getTarget(sourceRepo, targetTuo.name, batchSize, targetRepo, targetTuo.isRemote, sourceTuo.path);
-            if (directory != null && directory.length() > 0)
-            {
-                File physical = new File(directory);
-                directory = physical.getAbsolutePath();
-            }
-            else
+            if (directory == null || directory.length() == 0)
             {
                 throw new MungeException(MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
                         targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(targetTuo.size, false, context.cfg.getLongScale())));

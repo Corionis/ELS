@@ -226,8 +226,10 @@ public class ClientStty
                 catch (Exception e)
                 {
                     context.fault = true;
-                    context.browser.toggleHints(false);
-                    context.mainFrame.buttonHintTracking.setEnabled(false);
+                    if (context.browser != null)
+                        context.browser.toggleHints(false);
+                    if (context.mainFrame != null)
+                        context.mainFrame.buttonHintTracking.setEnabled(false);
                     errorMessage = "(Hint Server) " + e.getMessage();
                     exceptionMessage = Utils.getStackTrace(e);
                     heartBeat.interrupt();

@@ -365,7 +365,7 @@ public class Transfer
      *
      * @param sourceRepo the source publisher or subscriber repo
      * @param library    the publisher library.definition.name
-     * @param totalSize       the total size of item(s) to be copied
+     * @param totalSize  the total size of item(s) to be copied
      * @param targetRepo the target publisher or subscriber repo
      * @param itemPath   the getItemPath() value
      * @return the target
@@ -378,7 +378,7 @@ public class Transfer
         long minimum = 0L;
         Target target = null;
 
-        if (storageTargets != null)
+        if (storageTargets != null) // fixme What about locations here?
         {
             target = storageTargets.getLibraryTarget(library);
         }
