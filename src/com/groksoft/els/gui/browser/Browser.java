@@ -1502,10 +1502,13 @@ public class Browser
 
     private void initializeStatus(JTree tree)
     {
-        NavTreeModel model = (NavTreeModel) tree.getModel();
-        NavTreeNode root = (NavTreeNode) model.getRoot();
-        root.loadStatus();
-        root.selectMe();
+        if (tree != null)
+        {
+            NavTreeModel model = (NavTreeModel) tree.getModel();
+            NavTreeNode root = (NavTreeNode) model.getRoot();
+            root.loadStatus();
+            root.selectMe();
+        }
     }
 
     private void initializeToolbar()

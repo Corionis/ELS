@@ -446,18 +446,21 @@ public class NavTreeNode extends DefaultMutableTreeNode
 
     protected void loadStatus()
     {
-        if (myStatus != null)
+        if (myRepo != null)
         {
-            int count = getChildCount(false, true);
-            myStatus.setText(Utils.formatInteger(count) + " " +
-                    (myRepo.isPublisher() ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) +
-                    (count > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
-        }
-        NavTreeUserObject tuo = getUserObject();
-        if (tuo != null)
-        {
-            context.mainFrame.textFieldLocation.setText(tuo.getDisplayPath());
-            context.browser.printProperties(tuo);
+            if (myStatus != null)
+            {
+                int count = getChildCount(false, true);
+                myStatus.setText(Utils.formatInteger(count) + " " +
+                        (myRepo.isPublisher() ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) +
+                        (count > 1 ? context.cfg.gs("NavTreeNode.items") : context.cfg.gs("NavTreeNode.item")));
+            }
+            NavTreeUserObject tuo = getUserObject();
+            if (tuo != null)
+            {
+                context.mainFrame.textFieldLocation.setText(tuo.getDisplayPath());
+                context.browser.printProperties(tuo);
+            }
         }
     }
 

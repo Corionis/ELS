@@ -267,7 +267,7 @@ public class Main
                 cfgException = e; // configuration exception
             }
 
-            // setup the working directory & logger - once
+             // setup the working directory & logger - once
             if (!secondaryInvocation)
             {
                 context.cfg.configure(); // configure working directory & log path
