@@ -313,6 +313,7 @@ public class Settings extends JDialog
 
         // general
         context.preferences.setPreserveFileTimes(preserveFileTimestampsCheckBox.isSelected());
+        context.cfg.setPreserveDates(context.preferences.isPreserveFileTimes());
         context.preferences.setShowDeleteConfirmation(showDeleteConfirmationCheckBox.isSelected());
         context.preferences.setShowCcpConfirmation(showCcpConfirmationCheckBox.isSelected());
         context.preferences.setShowDnDConfirmation(showDndConfirmationCheckBox.isSelected());
@@ -322,6 +323,7 @@ public class Settings extends JDialog
         context.preferences.setLookAndFeel(lookFeelComboBox.getSelectedIndex());
         context.preferences.setLocale((String) localeComboBox.getSelectedItem());
         context.preferences.setBinaryScale(scaleCheckBox.isSelected());
+        context.cfg.setLongScale(context.preferences.isBinaryScale());
         context.preferences.setDateFormat(dateFormatTextField.getText());
         if (textFieldAccentColor.getText().length() == 0) // use default if empty
             context.preferences.setAccentColor(context.preferences.DEFAULT_ACCENT_COLOR);

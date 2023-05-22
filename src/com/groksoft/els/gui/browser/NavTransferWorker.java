@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -300,6 +301,8 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         toTuo.path = path;
         toTuo.isRemote = !targetIsPublisher && context.cfg.isRemoteSession();
         toTuo.file = new File(path);
+        if (!toTuo.isRemote || (toTuo.isRemote && !context.cfg.isPreserveDates()))
+            toTuo.fileTime = FileTime.fromMillis(toTuo.file.lastModified());
         toNode.setAllowsChildren(toTuo.isDir);
 
         // add the new node on the target

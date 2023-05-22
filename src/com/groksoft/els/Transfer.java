@@ -378,9 +378,9 @@ public class Transfer
         long minimum = 0L;
         Target target = null;
 
-        if (storageTargets != null) // fixme What about locations here?
+        if (storageTargets != null)
         {
-            target = storageTargets.getLibraryTarget(library);
+            target = storageTargets.getLibraryTarget(library); // storage targets override locations
         }
         if (target != null)
         {
@@ -716,10 +716,13 @@ public class Transfer
         {
             f.getParentFile().mkdirs();
         }
-        if (context.cfg.isPreserveDates() && filetime != null) // TODO Fix file time handling here
+        if (context.cfg.isPreserveDates() && filetime != null)
             Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
         else
+        {
             Files.move(fromPath, toPath, (overwrite) ? REPLACE_EXISTING : null);
+            touch(to, false);
+        }
     }
 
     /**
