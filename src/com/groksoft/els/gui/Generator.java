@@ -49,6 +49,10 @@ public class Generator
         JLabel labelTerminal = new JLabel();
         JCheckBox checkboxTerminal = new JCheckBox();
 
+        JPanel panelWarning = new JPanel();
+        panelTerminal.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JLabel labelWarning = new JLabel();
+
         // setup name panel
         labelName.setText(context.cfg.gs("Generator.shortcut.name"));
         panelName.add(labelName);
@@ -68,7 +72,14 @@ public class Generator
         panelTerminal.add(labelTerminal);
         panelTerminal.add(checkboxTerminal);
 
-        Object[] params = {panelName, panelComment, panelTerminal};
+        // warning panel
+        if (commandLine.length() > 260 && Utils.getOS().toLowerCase().equals("windows"))
+        {
+            labelWarning.setText(context.cfg.gs(("Generator.warning.command.line.may.be.too.long")));
+            panelWarning.add(labelWarning);
+        }
+
+        Object[] params = {panelName, panelComment, panelTerminal, panelWarning};
         int resp = JOptionPane.showConfirmDialog(owner, params, context.cfg.gs("Generator.shortcut.title"), JOptionPane.OK_CANCEL_OPTION);
         if (resp == JOptionPane.OK_OPTION)
         {
@@ -520,7 +531,7 @@ public class Generator
         });
         panelActions.add(copyButton);
         //
-        if (!(owner == context.mainFrame && Utils.getOS().toLowerCase().equals("windows")))
+        //if (!(owner == context.mainFrame && Utils.getOS().toLowerCase().equals("windows")))
         {
             shortcutButton.setText(context.cfg.gs("Generator.shortcut"));
             shortcutButton.setMnemonic(context.cfg.gs("Generator.shortcut.mnemonic").charAt(0));

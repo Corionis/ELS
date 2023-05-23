@@ -211,6 +211,9 @@ upgrading for changes, additions and enhancements.
     This inexpensive plug-in for IntelliJ allowed the creation of the Navigator
     much faster and with far fewer mistakes.
  
+ 2. For existing user-written scripts add the "-C ." option to set the working directory to the current
+    directory. See Command Line Changes, item 17.
+ 
 
 ## Version 3.1.0
 
