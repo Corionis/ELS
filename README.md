@@ -38,7 +38,7 @@ It's all built-in and free.
 
 ## Features
 
-**Note:** Versioin 4.0 is a work in progress. These are the planned features. Until this
+**Note:** Version 4.0 is a work in progress. These are the planned features. Until this
 notice is removed there is no guarantee what works or has been completed, or even
 what *will be completed*. Also "Done" means code complete. Bugs are *entirely possible*.
 
@@ -78,7 +78,7 @@ in the Version-4.0.0 branch for on-going change information.
    * Fully internationalized - **translations requested**.
    * Done: Embedded JRE.
    * Windows installer.
-   * Linux install packages.
+   * Done: Linux install packages.
    * Built-in updater.
    * Cool new modern web site.
    * ELS will always be free. A donation button on the web site(s) will be added eventually.

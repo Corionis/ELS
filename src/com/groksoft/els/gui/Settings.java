@@ -519,7 +519,7 @@ public class Settings extends JDialog
                                     .addGroup(generalPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(showTouchConfirmationLabel, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
                                         .addComponent(showTouchConfirmationCheckBox, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE))
-                                    .addContainerGap(163, Short.MAX_VALUE))
+                                    .addContainerGap(187, Short.MAX_VALUE))
                         );
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.generalPanel.tab.title"), generalPanel);
@@ -534,7 +534,6 @@ public class Settings extends JDialog
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
                             "System (Windows)",
-                            "Metal",
                             "Nimbus",
                             "Flat light",
                             "Flat dark",

@@ -178,10 +178,15 @@ upgrading for changes, additions and enhancements.
        authentication matches against all the keys. So a single subscriber listener can connect to 
        one or more remote ELS publishers or ELS Navigators concurrently.
        1. The current limit is 10 concurrent connections. 
-       2. This is the same technique used by the Hint Status Server.
+       2. This is the same technique used by the Hint Status Server using a Hint keys file.
     3. In either case if a connection is made and authentication fails the listener will fail and exit.
        1. This is to prevent hack attempts on listeners.
        2. May change in the future.
+    4. The reasons for separate listener authorization keys and hint keys:
+       1. A listener may want to allow Navigator sessions in addition to back-up systems.
+       2. Hint keys control:
+          1. Which back-up systems are setup to process hints.
+          2. Which systems are tracked and status maintained in the Hint datastore.
 
  8. Modified the code for methodical exit code status values. Exit code 0 is normal, 1 indicates a
     fault occurred. Exit code 130 is returned if Ctrl-C is hit on the command line. Useful for error

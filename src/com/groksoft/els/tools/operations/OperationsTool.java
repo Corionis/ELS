@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.groksoft.els.Configuration.Operations.StatusServer;
+
 public class OperationsTool extends AbstractTool implements Comparable, Serializable
 {
     // @formatter:off
@@ -29,7 +31,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
     public static final String SUBSYSTEM = "tools";
     public static enum Cards { Publisher, Listener, HintServer, Terminal, Quitter }
 
-    private String configName; // user name for this instance
+    private String configName; // user-specified name for this instance
     private String internalName = INTERNAL_NAME;
     private Configuration.Operations operation = Configuration.Operations.NotRemote;
     private Cards card = Cards.Publisher;
@@ -156,9 +158,6 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             case SubscriberTerminal:
                 sb.append(" " + (glo ? "--remote" : "-r") + " T");
                 break;
-            case JobProcess:
-                sb.append(" " + (glo ? "--remote" : "-r") + " J");
-                break;
             case NotRemote:
             case StatusServer:
             case StatusServerForceQuit:
@@ -167,15 +166,17 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         }
 
         // --- libraries
-        if (pubPath != null && pubPath.length() > 0)
-            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubPath + "\"");
-        if (subPath != null && subPath.length() > 0)
-            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
+        if (operation != StatusServer)
+        {
+            if (pubPath != null && pubPath.length() > 0)
+                sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubPath + "\"");
+            if (subPath != null && subPath.length() > 0)
+                sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
+        }
 
         // --- targets
         switch (operation)
         {
-            case JobProcess:
             case NotRemote:
             case PublisherListener:
             case PublishRemote:
@@ -536,6 +537,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         // create a fresh dialog
         if (context.progress == null || !context.progress.isBeingUsed())
         {
+/*
             ActionListener cancel = new ActionListener()
             {
                 @Override
@@ -546,6 +548,7 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             };
             context.progress = new Progress(context, context.mainFrame.panelOperationTop, cancel, ((dryRun) ? dryRun : optDryRun));
             context.progress.display();
+*/
         }
         else
         {
@@ -777,19 +780,19 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
 
     public void write() throws Exception
     {
-        setOptAuthKeys(context.main.makeLinuxWorkingDirectoryRelative(getOptAuthKeys()));
-        setOptBlacklist(context.main.makeLinuxWorkingDirectoryRelative(getOptBlacklist()));
-        setOptExportItems(context.main.makeLinuxWorkingDirectoryRelative(getOptExportItems()));
-        setOptExportText(context.main.makeLinuxWorkingDirectoryRelative(getOptExportText()));
-        setOptHints(context.main.makeLinuxWorkingDirectoryRelative(getOptHints()));
-        setOptHintServer(context.main.makeLinuxWorkingDirectoryRelative(getOptHintServer()));
-        setOptIpWhitelist(context.main.makeLinuxWorkingDirectoryRelative(getOptIpWhitelist()));
-        setOptKeys(context.main.makeLinuxWorkingDirectoryRelative(getOptKeys()));
-        setOptKeysOnly(context.main.makeLinuxWorkingDirectoryRelative(getOptKeysOnly()));
-        setOptMismatches(context.main.makeLinuxWorkingDirectoryRelative(getOptMismatches()));
-        setOptTargets(context.main.makeLinuxWorkingDirectoryRelative(getOptTargets()));
-        setOptWhatsNew(context.main.makeLinuxWorkingDirectoryRelative(getOptWhatsNew()));
-        setOptWhatsNewAll(context.main.makeLinuxWorkingDirectoryRelative(getOptWhatsNewAll()));
+        setOptAuthKeys(context.main.makeRelativeWorkingPath(getOptAuthKeys()));
+        setOptBlacklist(context.main.makeRelativeWorkingPath(getOptBlacklist()));
+        setOptExportItems(context.main.makeRelativeWorkingPath(getOptExportItems()));
+        setOptExportText(context.main.makeRelativeWorkingPath(getOptExportText()));
+        setOptHints(context.main.makeRelativeWorkingPath(getOptHints()));
+        setOptHintServer(context.main.makeRelativeWorkingPath(getOptHintServer()));
+        setOptIpWhitelist(context.main.makeRelativeWorkingPath(getOptIpWhitelist()));
+        setOptKeys(context.main.makeRelativeWorkingPath(getOptKeys()));
+        setOptKeysOnly(context.main.makeRelativeWorkingPath(getOptKeysOnly()));
+        setOptMismatches(context.main.makeRelativeWorkingPath(getOptMismatches()));
+        setOptTargets(context.main.makeRelativeWorkingPath(getOptTargets()));
+        setOptWhatsNew(context.main.makeRelativeWorkingPath(getOptWhatsNew()));
+        setOptWhatsNewAll(context.main.makeRelativeWorkingPath(getOptWhatsNewAll()));
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(this);

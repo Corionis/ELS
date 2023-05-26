@@ -396,11 +396,13 @@ public class OperationsUI
                         fileKeys = true;
                         break;
                     case "blacklist":
+                    case "blacklist3":
                         desc = context.cfg.gs("Operations.els.blacklist.file");
                         fileAny = true;
                         fileMustExist = true;
                         break;
                     case "ipwhitelist":
+                    case "ipwhitelist3":
                         desc = context.cfg.gs("Operations.els.ipwhitelist.file");
                         fileAny = true;
                         fileMustExist = true;
@@ -433,6 +435,7 @@ public class OperationsUI
                         break;
                     case "hintkeys":
                     case "hintkeys2":
+                    case "hintkeys3":
                         desc = context.cfg.gs("Operations.els.hint.keys.file");
                         fileAny = true;
                         fileMustExist = true;
@@ -440,16 +443,19 @@ public class OperationsUI
                         break;
                     case "hints":
                     case "hints2":
+                    case "hints3":
                         desc = context.cfg.gs("Operations.els.hints.server.file");
                         fileAny = true;
                         fileMustExist = true;
                         break;
+/*
                     case "log":
                     case "log2":
                         desc = context.cfg.gs("Operations.els.log.file");
                         fileAny = true;
                         fileMustExist = false;
                         break;
+*/
                 }
                 return desc;
             }
@@ -464,8 +470,14 @@ public class OperationsUI
             case "blacklist":
                 fileName = context.mainFrame.textFieldOperationBlacklist.getText();
                 break;
+            case "blacklist3":
+                fileName = context.mainFrame.textFieldOperationBlacklist3.getText();
+                break;
             case "ipwhitelist":
                 fileName = context.mainFrame.textFieldOperationIpWhitelist.getText();
+                break;
+            case "ipwhitelist3":
+                fileName = context.mainFrame.textFieldOperationIpWhitelist3.getText();
                 break;
             case "targets":
                 fileName = context.mainFrame.textFieldOperationTargets.getText();
@@ -491,11 +503,17 @@ public class OperationsUI
             case "hintkeys2":
                 fileName = context.mainFrame.textFieldOperationHintKeys2.getText();
                 break;
+            case "hintkeys3":
+                fileName = context.mainFrame.textFieldOperationHintKeys3.getText();
+                break;
             case "hints":
                 fileName = context.mainFrame.textFieldOperationHints.getText();
                 break;
             case "hints2":
                 fileName = context.mainFrame.textFieldOperationHints2.getText();
+                break;
+            case "hints3":
+                fileName = context.mainFrame.textFieldOperationHints3.getText();
                 break;
         }
 
@@ -565,9 +583,17 @@ public class OperationsUI
                         context.mainFrame.textFieldOperationBlacklist.setText(path);
                         context.mainFrame.textFieldOperationBlacklist.postActionEvent();
                         break;
+                    case "blacklist3":
+                        context.mainFrame.textFieldOperationBlacklist3.setText(path);
+                        context.mainFrame.textFieldOperationBlacklist3.postActionEvent();
+                        break;
                     case "ipwhitelist":
                         context.mainFrame.textFieldOperationIpWhitelist.setText(path);
                         context.mainFrame.textFieldOperationIpWhitelist.postActionEvent();
+                        break;
+                    case "ipwhitelist3":
+                        context.mainFrame.textFieldOperationIpWhitelist3.setText(path);
+                        context.mainFrame.textFieldOperationIpWhitelist3.postActionEvent();
                         break;
                     case "targets":
                         context.mainFrame.textFieldOperationTargets.setText(path);
@@ -601,6 +627,10 @@ public class OperationsUI
                         context.mainFrame.textFieldOperationHintKeys2.setText(path);
                         context.mainFrame.textFieldOperationHintKeys2.postActionEvent();
                         break;
+                    case "hintkeys3":
+                        context.mainFrame.textFieldOperationHintKeys3.setText(path);
+                        context.mainFrame.textFieldOperationHintKeys3.postActionEvent();
+                        break;
                     case "hints":
                         context.mainFrame.textFieldOperationHints.setText(path);
                         context.mainFrame.textFieldOperationHints.postActionEvent();
@@ -608,6 +638,10 @@ public class OperationsUI
                     case "hints2":
                         context.mainFrame.textFieldOperationHints2.setText(path);
                         context.mainFrame.textFieldOperationHints2.postActionEvent();
+                        break;
+                    case "hints3":
+                        context.mainFrame.textFieldOperationHints3.setText(path);
+                        context.mainFrame.textFieldOperationHints3.postActionEvent();
                         break;
                 }
             }
@@ -735,21 +769,19 @@ public class OperationsUI
         configItems.setTableHeader(null);
 
         // make Mode objects
-        //  * publisher has base objects
-        //  * listener has objects2
-// LEFTOFF Jobs should not be here or in Operations - Jobs are Jobs, this would allow infinite loops
-        modes = new Mode[11];
+        //  * publisher has base [objects]
+        //  * listener has [objects]2
+        //  * hint server has [objects]3
+        modes = new Mode[9];
         modes[0] = new Mode(context.cfg.gs("Operations.mode.localPublish"), OperationsTool.Cards.Publisher, Configuration.Operations.NotRemote);
         modes[1] = new Mode(context.cfg.gs("Operations.mode.remotePublish"), OperationsTool.Cards.Publisher, Configuration.Operations.PublishRemote);
         modes[2] = new Mode(context.cfg.gs("Operations.mode.subscriberListener"), OperationsTool.Cards.Listener, Configuration.Operations.SubscriberListener);
-        modes[3] = new Mode(context.cfg.gs("Operations.mode.job.publisher"), OperationsTool.Cards.Publisher, Configuration.Operations.JobProcess);
-        modes[4] = new Mode(context.cfg.gs("Operations.mode.job.subscriber"), OperationsTool.Cards.Listener, Configuration.Operations.JobProcess);
-        modes[5] = new Mode(context.cfg.gs("Operations.mode.hintServer"), OperationsTool.Cards.HintServer, Configuration.Operations.StatusServer);
-        modes[6] = new Mode(context.cfg.gs("Operations.mode.publisherTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.PublisherManual);
-        modes[7] = new Mode(context.cfg.gs("Operations.mode.publisherListener"), OperationsTool.Cards.Listener, Configuration.Operations.PublisherListener);
-        modes[8] = new Mode(context.cfg.gs("Operations.mode.subscriberTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.SubscriberTerminal);
-        modes[9] = new Mode(context.cfg.gs("Operations.mode.hintForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.StatusServerForceQuit);
-        modes[10] = new Mode(context.cfg.gs("Operations.mode.subscriberForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.SubscriberListenerForceQuit);
+        modes[3] = new Mode(context.cfg.gs("Operations.mode.hintServer"), OperationsTool.Cards.HintServer, Configuration.Operations.StatusServer);
+        modes[4] = new Mode(context.cfg.gs("Operations.mode.publisherTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.PublisherManual);
+        modes[5] = new Mode(context.cfg.gs("Operations.mode.publisherListener"), OperationsTool.Cards.Listener, Configuration.Operations.PublisherListener);
+        modes[6] = new Mode(context.cfg.gs("Operations.mode.subscriberTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.SubscriberTerminal);
+        modes[7] = new Mode(context.cfg.gs("Operations.mode.hintForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.StatusServerForceQuit);
+        modes[8] = new Mode(context.cfg.gs("Operations.mode.subscriberForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.SubscriberListenerForceQuit);
 
         // make New combobox
         comboBoxMode = new JComboBox<>();
@@ -1135,11 +1167,8 @@ public class OperationsUI
                     loadOptionsListener();
                     cardVar = 2;
                     break;
-                case JobProcess:
-                    loadOptionsPublisher();
-                    break;
                 case StatusServer:
-                    loadOptionsPublisher();
+                    loadOptionsHintServer();
                     break;
                 case PublisherManual:
                     break;
@@ -1157,6 +1186,39 @@ public class OperationsUI
             updateTextFieldToolTips(cardVar);
             loading = false;
         }
+    }
+
+    private void loadOptionsHintServer()
+    {
+        MainFrame mf = context.mainFrame;
+
+        // ### LEFT SIDE
+        // --- Hints
+        if (currentTool.getOptKeys().length() > 0)
+        {
+            mf.textFieldOperationHintKeys3.setText(currentTool.getOptKeys());
+        }
+        else
+        {
+            mf.textFieldOperationHintKeys3.setText("");
+        }
+
+        if (currentTool.getOptHintServer().length() > 0)
+        {
+            mf.textFieldOperationHints3.setText(currentTool.getOptHintServer());
+        }
+        else
+        {
+            mf.textFieldOperationHints3.setText("");
+        }
+
+        mf.checkBoxOperationKeepGoing3.setSelected(currentTool.isOptListenerKeepGoing());
+
+        mf.textFieldOperationBlacklist3.setText(currentTool.getOptBlacklist());
+        mf.textFieldOperationIpWhitelist3.setText(currentTool.getOptIpWhitelist());
+
+        // ### RIGHT SIDE
+        // none
     }
 
     private void loadOptionsListener()
@@ -1308,7 +1370,7 @@ public class OperationsUI
     private void process()
     {
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        context.navigator.disableComponent(false, context.mainFrame.panelOperationTop);
+        context.navigator.disableComponent(true, context.mainFrame.panelOperationTop);
         context.mainFrame.buttonOperationCancel.setEnabled(true);
         context.mainFrame.buttonOperationCancel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         context.mainFrame.labelOperationHelp.setEnabled(true);
@@ -1352,11 +1414,13 @@ public class OperationsUI
 
     private void processTerminated(OperationsTool operation)
     {
+/*
         if (context.progress != null)
             context.progress.done();
+*/
 
         context.navigator.disableGui(false);
-        context.navigator.disableComponent(true, context.mainFrame.panelOperationTop);
+        context.navigator.disableComponent(false, context.mainFrame.panelOperationTop);
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         workerRunning = false;
 
@@ -1419,7 +1483,7 @@ public class OperationsUI
 
     private void updateOnChange(Object source)
     {
-        int cardVar = 1;  // 1 publisher; 2 listener
+        int cardVar = 1;  // 1 publisher; 2 listener, 3 hint server
         String name = null;
         int selection = -1;
         if (source != null && currentTool != null && !loading)
@@ -1436,6 +1500,7 @@ public class OperationsUI
                         current = currentTool.getOptAuthKeys();
                         currentTool.setOptAuthKeys(tf.getText());
                         break;
+                    case "blacklist3":
                     case "blacklist":
                         current = currentTool.getOptBlacklist();
                         currentTool.setOptBlacklist(tf.getText());
@@ -1464,6 +1529,10 @@ public class OperationsUI
                             currentTool.setOptHintServer(tf.getText());
                         }
                         break;
+                    case "hints3":
+                        current = currentTool.getOptHintServer();
+                        currentTool.setOptHintServer(tf.getText());
+                        break;
                     case "hintkeys2":
                         cardVar = 2;
                     case "hintkeys":
@@ -1479,6 +1548,11 @@ public class OperationsUI
                             currentTool.setOptKeysOnly(tf.getText());
                         }
                         break;
+                    case "hintkeys3":
+                        current = currentTool.getOptKeys();
+                        currentTool.setOptKeys(tf.getText());
+                        break;
+                    case "ipwhitelist3":
                     case "ipwhitelist":
                         current = currentTool.getOptIpWhitelist();
                         currentTool.setOptIpWhitelist(tf.getText());
@@ -1554,8 +1628,9 @@ public class OperationsUI
                         state = currentTool.isOptIgnored();
                         currentTool.setOptIgnored(cb.isSelected());
                         break;
-                    case "keepgoing2":
                     case "keepgoing":
+                    case "keepgoing2":
+                    case "keepgoing3":
                         state = currentTool.isOptListenerKeepGoing();
                         currentTool.setOptListenerKeepGoing(cb.isSelected());
                         break;

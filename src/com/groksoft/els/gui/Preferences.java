@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.io.*;
@@ -22,8 +21,12 @@ import java.util.List;
 @SuppressWarnings(value = "unchecked")
 public class Preferences implements Serializable
 {
+    private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
+    private transient LookAndFeel laf = null;
     public final String DEFAULT_ACCENT_COLOR = "2675BF";
+    static final int CURRENT_SCHEMA = 1; // schema version, set in write()
+
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
@@ -71,8 +74,8 @@ public class Preferences implements Serializable
     private String locale = "";
     // The Look 'n Feel, 0-6
     // 0=System default look 'n feel - use for Windows,
-    // 1=MetalLookAndFeel, 2=NimbusLookAndFeel, 3=FlatLightLaf,
-    // 4=FlatDarkLaf, 5=FlatIntelliJLaf, 6=FlatDarculaLaf (default)
+    // 1=NimbusLookAndFeel, 2=FlatLightLaf,
+    // 3=FlatDarkLaf, 4=FlatIntelliJLaf, 5=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
     private int operationDividerBottomSize = 143;
     private int operationDividerConfigLocation = 142;
@@ -82,6 +85,7 @@ public class Preferences implements Serializable
     private int progressWidth = -1;
     private int progressXpos = -1;
     private int progressYpos = -1;
+    private int schema = 1;
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
     private boolean showDnDConfirmation = true;
@@ -101,7 +105,7 @@ public class Preferences implements Serializable
     private int systemTwoSizeWidth = 80;
     private int systemTwoSortColumn = 1;
     private int systemTwoSortDirection = 0;
-    private int tabPlacement = JTabbedPane.LEFT;
+    private int tabPlacement = JTabbedPane.TOP;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
     private int toolsDuplicateFinderXpos = -1;
@@ -120,8 +124,6 @@ public class Preferences implements Serializable
     private int toolsRenamerWidth = 570;
     private int toolsRenamerXpos = -1;
     private int toolsRenamerYpos = -1;
-    private transient Context context;
-    private transient LookAndFeel laf = null;
 
     /**
      * Constructor
@@ -493,23 +495,22 @@ public class Preferences implements Serializable
         {
             // Built-in themes
             case 1:
-                laf = new MetalLookAndFeel();
-                break;
-            case 2:
                 laf = new NimbusLookAndFeel();
                 break;
             // FlatLaf themes
-            case 3:
+            case 2:
                 laf = new FlatLightLaf();
                 break;
-            case 4:
+            case 3:
                 laf = new FlatDarkLaf();
                 break;
-            case 5:
+            case 4:
                 laf = new FlatIntelliJLaf();
                 break;
+            case 5:
             case 6:
             default:
+                setLookAndFeel(5);
                 laf = new FlatDarculaLaf();
                 break;
         }
@@ -549,6 +550,11 @@ public class Preferences implements Serializable
     public int getProgressYpos()
     {
         return progressYpos;
+    }
+
+    public int getSchema()
+    {
+        return schema;
     }
 
     public int getSystemOneDateWidth()
@@ -1353,6 +1359,8 @@ public class Preferences implements Serializable
     {
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+        schema = CURRENT_SCHEMA; // set current schema version
 
         // size & position
         appWidth = context.mainFrame.getWidth();

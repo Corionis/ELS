@@ -248,8 +248,9 @@ public class RenamerUI extends JDialog
                 if (index >= 0)
                 {
                     configItems.changeSelection(index, 0, false, false);
-                    loadOptions(index);
                 }
+                loadOptions(index);
+
                 configItems.requestFocus();
             }
         }
@@ -683,9 +684,13 @@ public class RenamerUI extends JDialog
         }
         else
         {
-            currentCard = panelCaseChangeCard;
-            ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, cardNames[0]);
-            labelRenameType.setText(displayNames[0]);
+            currentCard = panelGettingStarted;
+            ((CardLayout) panelOptionsCards.getLayout()).show(panelOptionsCards, "gettingStarted");
+            labelRenameType.setText("");
+            buttonCopy.setEnabled(false);
+            buttonDelete.setEnabled(false);
+            buttonRun.setEnabled(false);
+            buttonRefresh.setEnabled(false);
         }
     }
 
@@ -1249,6 +1254,8 @@ public class RenamerUI extends JDialog
         separator1 = new JSeparator();
         vSpacer2 = new JPanel(null);
         panelOptionsCards = new JPanel();
+        panelGettingStarted = new JPanel();
+        labelOperationGettingStarted = new JLabel();
         panelCaseChangeCard = new JPanel();
         radioButtonFirstUpperCase = new JRadioButton();
         radioButtonLowerCase = new JRadioButton();
@@ -1547,6 +1554,18 @@ public class RenamerUI extends JDialog
                                     {
                                         panelOptionsCards.setMaximumSize(new Dimension(32676, 92));
                                         panelOptionsCards.setLayout(new CardLayout());
+
+                                        //======== panelGettingStarted ========
+                                        {
+                                            panelGettingStarted.setLayout(new BorderLayout());
+
+                                            //---- labelOperationGettingStarted ----
+                                            labelOperationGettingStarted.setText(context.cfg.gs("Renamer.labelGettingStarted.text"));
+                                            labelOperationGettingStarted.setFont(labelOperationGettingStarted.getFont().deriveFont(labelOperationGettingStarted.getFont().getStyle() | Font.BOLD));
+                                            labelOperationGettingStarted.setHorizontalAlignment(SwingConstants.CENTER);
+                                            panelGettingStarted.add(labelOperationGettingStarted, BorderLayout.CENTER);
+                                        }
+                                        panelOptionsCards.add(panelGettingStarted, "gettingStarted");
 
                                         //======== panelCaseChangeCard ========
                                         {
@@ -2251,6 +2270,8 @@ public class RenamerUI extends JDialog
     public JSeparator separator1;
     public JPanel vSpacer2;
     public JPanel panelOptionsCards;
+    public JPanel panelGettingStarted;
+    public JLabel labelOperationGettingStarted;
     public JPanel panelCaseChangeCard;
     public JRadioButton radioButtonFirstUpperCase;
     public JRadioButton radioButtonLowerCase;

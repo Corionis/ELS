@@ -229,7 +229,7 @@ public class Main
         context.cfg.setCurrentBundle(ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + filePart));
     }
 
-    public String makeLinuxWorkingDirectoryRelative(String path)
+    public String makeRelativeWorkingPath(String path)
     {
         if (path != null && path.length() > 0)
         {

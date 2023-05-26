@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.0.1.0.199" Java: "17.0.5" encoding: "UTF-8"
+JFDML JFormDesigner: "8.0.5.0.268" Java: "17.0.6" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -31,7 +31,7 @@ new FormModel {
 						"tabPlacement": 2
 						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
 							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:180:p, space :p:12:p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp showDeleteConfirmationLabel:::p:180:p, space :p:12:p, comp showDeleteConfirmationCheckBox:::p:238:p}, seq l {comp showCcpConfirmationLabel:::p:180:p, space :p:12:p, comp showCcpConfirmationCheckBox:::p:238:p}, seq l {comp showDndConfirmationLabel:::p:180:p, space :p:12:p, comp showDndConfirmationCheckBox:::p:238:p}, seq l {comp showTouchConfirmationLabel:::p:180:p, space :p:12:p, comp showTouchConfirmationCheckBox:::p:238:p}}, space :::x}}"
-							"$verticalGroup": "par l {seq {space :0:0:p, par l {comp preserveFileTimestampsLabel:::p:36:p, comp preserveFileTimestampsCheckBox:::p:36:p}, space :0:0:p, par l {comp showDeleteConfirmationLabel:::p:36:p, comp showDeleteConfirmationCheckBox:::p:36:p}, space :0:0:p, par b {comp showCcpConfirmationLabel::b:p:36:p, comp showCcpConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showDndConfirmationLabel::b:p:36:p, comp showDndConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showTouchConfirmationLabel::b:p:36:p, comp showTouchConfirmationCheckBox::b:p:36:p}, space ::163:x}}"
+							"$verticalGroup": "par l {seq {space :0:0:p, par l {comp preserveFileTimestampsLabel:::p:36:p, comp preserveFileTimestampsCheckBox:::p:36:p}, space :0:0:p, par l {comp showDeleteConfirmationLabel:::p:36:p, comp showDeleteConfirmationCheckBox:::p:36:p}, space :0:0:p, par b {comp showCcpConfirmationLabel::b:p:36:p, comp showCcpConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showDndConfirmationLabel::b:p:36:p, comp showDndConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showTouchConfirmationLabel::b:p:36:p, comp showTouchConfirmationCheckBox::b:p:36:p}, space ::187:x}}"
 						} ) {
 							name: "generalPanel"
 							add( new FormComponent( "javax.swing.JLabel" ) {
@@ -87,7 +87,6 @@ new FormModel {
 								"model": new javax.swing.DefaultComboBoxModel {
 									selectedItem: "System (Windows)"
 									addElement( "System (Windows)" )
-									addElement( "Metal" )
 									addElement( "Nimbus" )
 									addElement( "Flat light" )
 									addElement( "Flat dark" )
