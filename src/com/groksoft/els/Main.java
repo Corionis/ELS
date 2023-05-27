@@ -545,13 +545,10 @@ public class Main
                     logger.info("ELS: Subscriber Terminal, version " + context.cfg.getVersionStamp());
                     context.cfg.dump();
 
-                    if (!context.cfg.isTargetsEnabled())
-                        throw new MungeException("Targets -t|-T required");
-
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.VALIDATE);
 
-                    // start clients & servers for -r L for get command
+                    // start clients
                     if (context.subscriberRepo.isInitialized() && context.publisherRepo.isInitialized())
                     {
                         // connect to the hint status server if defined

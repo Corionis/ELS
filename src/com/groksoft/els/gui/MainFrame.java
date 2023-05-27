@@ -749,7 +749,7 @@ public class MainFrame extends JFrame
         buttonOperationIpWhitelistFilePick3 = new JButton();
         vSpacer38 = new JPanel(null);
         panelCardTerminal = new JPanel();
-        label3 = new JLabel();
+        labelOperationsTerminal = new JLabel();
         panelCardQuit = new JPanel();
         label2 = new JLabel();
         panelOperationBottom = new JPanel();
@@ -3219,15 +3219,12 @@ public class MainFrame extends JFrame
                                         //======== panelCardTerminal ========
                                         {
                                             panelCardTerminal.setName("terminal");
-                                            panelCardTerminal.setLayout(new GridBagLayout());
-                                            ((GridBagLayout)panelCardTerminal.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                                            ((GridBagLayout)panelCardTerminal.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                            panelCardTerminal.setLayout(new BorderLayout());
 
-                                            //---- label3 ----
-                                            label3.setText("Terminal card");
-                                            panelCardTerminal.add(label3, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 4, 4), 0, 0));
+                                            //---- labelOperationsTerminal ----
+                                            labelOperationsTerminal.setText(context.cfg.gs("Navigator.labelOperationsTerminal.text"));
+                                            labelOperationsTerminal.setHorizontalAlignment(SwingConstants.CENTER);
+                                            panelCardTerminal.add(labelOperationsTerminal, BorderLayout.CENTER);
                                         }
                                         panelOperationCards.add(panelCardTerminal, "terminal");
 
@@ -3778,7 +3775,7 @@ public class MainFrame extends JFrame
     public JButton buttonOperationIpWhitelistFilePick3;
     public JPanel vSpacer38;
     public JPanel panelCardTerminal;
-    public JLabel label3;
+    public JLabel labelOperationsTerminal;
     public JPanel panelCardQuit;
     public JLabel label2;
     public JPanel panelOperationBottom;

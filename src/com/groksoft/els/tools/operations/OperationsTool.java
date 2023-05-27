@@ -3,7 +3,6 @@ package com.groksoft.els.tools.operations;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.groksoft.els.*;
-import com.groksoft.els.gui.Progress;
 import com.groksoft.els.gui.util.ArgumentTokenizer;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
@@ -13,8 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

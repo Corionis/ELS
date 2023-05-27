@@ -2098,19 +2098,16 @@ new FormModel {
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "hintserver"
 											} )
-											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-												"$columnSpecs": "0, 0, 0, 0, 0, 0, 0"
-												"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
-												"$alignTop": true
-												"$hGap": 4
-												"$vGap": 4
-											} ) {
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 												name: "panelCardTerminal"
 												"name": "terminal"
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "label3"
-													"text": "Terminal card"
-												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+													name: "labelOperationsTerminal"
+													"text": new FormMessage( null, "Navigator.labelOperationsTerminal.text" )
+													"horizontalAlignment": 0
+												}, new FormLayoutConstraints( class java.lang.String ) {
+													"value": "Center"
+												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "terminal"
 											} )
