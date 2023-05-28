@@ -92,7 +92,7 @@ public class Configuration
     public static enum Operations
     {
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
-        SubscriberTerminal, StatusServer, StatusServerForceQuit, SubscriberListenerForceQuit
+        SubscriberTerminal, StatusServer, StatusServerQuit, SubscriberListenerQuit
     }
 
     /**

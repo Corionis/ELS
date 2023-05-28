@@ -16,3 +16,4 @@ if [ ! -d output ]; then
 fi
 
 java -jar ../deploy/ELS.jar -C . -c debug -d debug --force-quit --hint-server libraries/hint-server.json -p libraries/publisher.json -F output/070-99_Quit-Status-Server.log
+

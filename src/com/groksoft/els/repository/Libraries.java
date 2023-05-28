@@ -20,6 +20,11 @@ public class Libraries
     public String description;
 
     /**
+     * The UUID of this system
+     */
+    public String key;
+
+    /**
      * The host for outgoing connections, [host name|IP address]:[port]
      * Default port is 50271 if not specified
      */
@@ -60,11 +65,6 @@ public class Libraries
      * If remote terminal session is allowed then true, else false
      */
     public Boolean terminal_allowed;
-
-    /**
-     * The UUID of this system
-     */
-    public String key;
 
     /**
      * Ignore patterns. Regular expressions are supported.

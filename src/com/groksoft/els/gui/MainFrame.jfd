@@ -1873,12 +1873,12 @@ new FormModel {
 											} ) {
 												name: "panelCardHintServer"
 												"name": "hintserver"
-												"preferredSize": new java.awt.Dimension( 824, 530 )
+												"preferredSize": &Dimension36 new java.awt.Dimension( 824, 530 )
 												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 													name: "vSpacer41"
-													"maximumSize": new java.awt.Dimension( 32767, 8 )
-													"minimumSize": new java.awt.Dimension( 12, 8 )
-													"preferredSize": new java.awt.Dimension( 10, 8 )
+													"maximumSize": &Dimension37 new java.awt.Dimension( 32767, 8 )
+													"minimumSize": &Dimension38 new java.awt.Dimension( 12, 8 )
+													"preferredSize": &Dimension39 new java.awt.Dimension( 10, 8 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 3
 												} )
@@ -2111,21 +2111,84 @@ new FormModel {
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "terminal"
 											} )
-											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-												"$columnSpecs": "0, 0, 0, 0, 0, 0, 0"
-												"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
-												"$alignTop": true
-												"$hGap": 4
-												"$vGap": 4
-											} ) {
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 												name: "panelCardQuit"
 												"name": "quit"
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "label2"
-													"text": "Quit card"
-												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+													name: "labelOperationsQuitter"
+													"text": new FormMessage( null, "Navigator.labelOperationsQuitter.text" )
+													"horizontalAlignment": 0
+												}, new FormLayoutConstraints( class java.lang.String ) {
+													"value": "Center"
+												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
 												"value": "quitter"
+											} )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+												"$columnSpecs": "0, 0, 0, 0, 0, 0, 0"
+												"$rowSpecs": "0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0"
+												"$hGap": 4
+												"$vGap": 4
+												"$alignTop": true
+											} ) {
+												name: "panelCardQuitHints"
+												"name": "hintserver"
+												"preferredSize": #Dimension36
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+													name: "vSpacer42"
+													"maximumSize": #Dimension37
+													"minimumSize": #Dimension38
+													"preferredSize": #Dimension39
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 3
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelOperationHintKeyServer6"
+													"text": new FormMessage( null, "Navigator.labelOperationHintKeyServer6.text" )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+												} )
+												add( new FormComponent( "javax.swing.JTextField" ) {
+													name: "textFieldOperationHints6"
+													"minimumSize": #Dimension32
+													"name": "hints6"
+													"maximumSize": #Dimension33
+													"preferredSize": #Dimension34
+													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "context.operationsUI.genericTextFieldFocusLost", true ) )
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+													"gridx": 1
+												} )
+												add( new FormComponent( "javax.swing.JButton" ) {
+													name: "buttonOperationHintsFilePick6"
+													"text": "..."
+													"font": #SwingDerivedFont1
+													"maximumSize": #Dimension22
+													"minimumSize": #Dimension23
+													"preferredSize": #Dimension24
+													"verticalTextPosition": 1
+													"iconTextGap": 0
+													"horizontalTextPosition": 10
+													"actionCommand": "hintsFilePick"
+													"toolTipText": new FormMessage( null, "Navigator.buttonOperationHintsFilePick6.toolTipText" )
+													"name": "hints6"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+													"gridx": 2
+												} )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+													name: "vSpacer43"
+													"minimumSize": #Dimension5
+													"preferredSize": #Dimension6
+													"maximumSize": #Dimension7
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 3
+													"gridy": 1
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "hintsquitter"
 											} )
 										} )
 									}, new FormLayoutConstraints( class java.lang.String ) {

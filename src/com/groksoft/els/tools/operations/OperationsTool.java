@@ -20,13 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.groksoft.els.Configuration.Operations.StatusServer;
+import static com.groksoft.els.Configuration.Operations.StatusServerQuit;
 
 public class OperationsTool extends AbstractTool implements Comparable, Serializable
 {
     // @formatter:off
     public static final String INTERNAL_NAME = "Operations";
     public static final String SUBSYSTEM = "tools";
-    public static enum Cards { Publisher, Listener, HintServer, Terminal, Quitter }
+    public static enum Cards { Publisher, Listener, HintServer, Terminal, SubscriberQuit, StatusQuit }
 
     private String configName; // user-specified name for this instance
     private String internalName = INTERNAL_NAME;
@@ -129,13 +130,25 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         // --- non-munging actions
         if (isOptNavigator() != defCfg.isNavigator())
             sb.append(" " + (glo ? "--navigator" : "-n"));
-        if (isOptForceQuit())
+        if (isOptForceQuit() || operation == StatusServerQuit)
             sb.append(" " + (glo ? "--force-quit" : "-Q"));
         if (isOptQuitStatus())
             sb.append(" " + (glo ? "--quit-status" : "-q"));
 
         if (isOptDryRun() != defCfg.isDryRun())
             sb.append(" " + (glo ? "--dry-run" : "-D"));
+
+        // --- hint keys
+        if (getOptKeys().length() > 0)
+            sb.append(" " + (glo ? "--keys" : "-k") + " \"" + getOptKeys() + "\"");
+        if (getOptKeysOnly().length() > 0)
+            sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + getOptKeysOnly() + "\"");
+
+        // --- hints & hint server
+        if (getOptHints().length() > 0)
+            sb.append(" " + (glo ? "--hints" : "-h") + " \"" + getOptHints() + "\"");
+        if (getOptHintServer().length() > 0)
+            sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + getOptHintServer() + "\"");
 
         // --- remote mode
         switch (operation)
@@ -157,8 +170,10 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
                 break;
             case NotRemote:
             case StatusServer:
-            case StatusServerForceQuit:
-            case SubscriberListenerForceQuit:
+            case StatusServerQuit:
+                break;
+            case SubscriberListenerQuit:
+                sb.append(" " + (glo ? "--listener-quit" : "-G"));
                 break;
         }
 
@@ -167,8 +182,11 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
         {
             if (pubPath != null && pubPath.length() > 0)
                 sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubPath + "\"");
-            if (subPath != null && subPath.length() > 0)
-                sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
+            if (operation != StatusServerQuit)
+            {
+                if (subPath != null && subPath.length() > 0)
+                    sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
+            }
         }
 
         // --- targets
@@ -178,29 +196,17 @@ public class OperationsTool extends AbstractTool implements Comparable, Serializ
             case PublisherListener:
             case PublishRemote:
             case SubscriberListener:
-            case SubscriberListenerForceQuit:
                 sb.append(" " + (glo ? "--targets" : "-t"));
                 if (getOptTargets().length() > 0)
                     sb.append(" \"" + getOptTargets() + "\"");
                 break;
             case PublisherManual:
             case StatusServer:
-            case StatusServerForceQuit:
+            case StatusServerQuit:
+            case SubscriberListenerQuit:
             case SubscriberTerminal:
                 break;
         }
-
-        // --- hint keys
-        if (getOptKeys().length() > 0)
-            sb.append(" " + (glo ? "--keys" : "-k") + " \"" + getOptKeys() + "\"");
-        if (getOptKeysOnly().length() > 0)
-            sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + getOptKeysOnly() + "\"");
-
-        // --- hints & hint server
-        if (getOptHints().length() > 0)
-            sb.append(" " + (glo ? "--hints" : "-h") + " \"" + getOptHints() + "\"");
-        if (getOptHintServer().length() > 0)
-            sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + getOptHintServer() + "\"");
 
         // --- security
         if (getOptAuthorize() != null && getOptAuthorize().length > 0)

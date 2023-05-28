@@ -658,8 +658,8 @@ public class Main
                     if (context.cfg.getSubscriberFilename() == null || context.cfg.getSubscriberFilename().length() == 0)
                         throw new MungeException("-G|--listener-quit requires a -s|-S subscriber JSON file");
 
-                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // no need to validate for this
-                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
+                    context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE); // who we are
+                    context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE); // listener to quit
 
                     // start client
                     if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
@@ -722,7 +722,7 @@ public class Main
         }
         catch (Exception e)
         {
-            if (context.navigator== null) // if not running as an Operation
+            if (context.navigator == null) // if not running as an Operation
                 context.fault = true;
 
             if (logger != null)
@@ -929,9 +929,9 @@ public class Main
     {
         logger.trace("stopServices()");
 
-        // logout from any hint status server if not shutting it down
         try
         {
+            // logout from any hint status server if not shutting it down
             if (context.statusStty != null)
             {
                 if (!context.cfg.isQuitStatusServer() && context.statusStty.isConnected())

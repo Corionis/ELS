@@ -444,6 +444,7 @@ public class OperationsUI
                     case "hints":
                     case "hints2":
                     case "hints3":
+                    case "hints6":
                         desc = context.cfg.gs("Operations.els.hints.server.file");
                         fileAny = true;
                         fileMustExist = true;
@@ -514,6 +515,9 @@ public class OperationsUI
                 break;
             case "hints3":
                 fileName = context.mainFrame.textFieldOperationHints3.getText();
+                break;
+            case "hints6":
+                fileName = context.mainFrame.textFieldOperationHints6.getText();
                 break;
         }
 
@@ -642,6 +646,10 @@ public class OperationsUI
                     case "hints3":
                         context.mainFrame.textFieldOperationHints3.setText(path);
                         context.mainFrame.textFieldOperationHints3.postActionEvent();
+                        break;
+                    case "hints6":
+                        context.mainFrame.textFieldOperationHints6.setText(path);
+                        context.mainFrame.textFieldOperationHints6.postActionEvent();
                         break;
                 }
             }
@@ -772,6 +780,7 @@ public class OperationsUI
         //  * publisher has base [objects]
         //  * listener has [objects]2
         //  * hint server has [objects]3
+        //  * hint quit has [objects]6
         modes = new Mode[9];
         modes[0] = new Mode(context.cfg.gs("Operations.mode.localPublish"), OperationsTool.Cards.Publisher, Configuration.Operations.NotRemote);
         modes[1] = new Mode(context.cfg.gs("Operations.mode.remotePublish"), OperationsTool.Cards.Publisher, Configuration.Operations.PublishRemote);
@@ -780,8 +789,8 @@ public class OperationsUI
         modes[4] = new Mode(context.cfg.gs("Operations.mode.publisherTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.PublisherManual);
         modes[5] = new Mode(context.cfg.gs("Operations.mode.publisherListener"), OperationsTool.Cards.Listener, Configuration.Operations.PublisherListener);
         modes[6] = new Mode(context.cfg.gs("Operations.mode.subscriberTerminal"), OperationsTool.Cards.Terminal, Configuration.Operations.SubscriberTerminal);
-        modes[7] = new Mode(context.cfg.gs("Operations.mode.hintForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.StatusServerForceQuit);
-        modes[8] = new Mode(context.cfg.gs("Operations.mode.subscriberForceQuit"), OperationsTool.Cards.Quitter, Configuration.Operations.SubscriberListenerForceQuit);
+        modes[7] = new Mode(context.cfg.gs("Operations.mode.hintForceQuit"), OperationsTool.Cards.StatusQuit, Configuration.Operations.StatusServerQuit);
+        modes[8] = new Mode(context.cfg.gs("Operations.mode.subscriberForceQuit"), OperationsTool.Cards.SubscriberQuit, Configuration.Operations.SubscriberListenerQuit);
 
         // make New combobox
         comboBoxMode = new JComboBox<>();
@@ -1178,9 +1187,10 @@ public class OperationsUI
                     break;
                 case SubscriberTerminal:
                     break;
-                case StatusServerForceQuit:
+                case StatusServerQuit:
+                    loadOptionsHintsQuit();
                     break;
-                case SubscriberListenerForceQuit:
+                case SubscriberListenerQuit:
                     break;
             }
             updateTextFieldToolTips(cardVar);
@@ -1216,6 +1226,24 @@ public class OperationsUI
 
         mf.textFieldOperationBlacklist3.setText(currentTool.getOptBlacklist());
         mf.textFieldOperationIpWhitelist3.setText(currentTool.getOptIpWhitelist());
+
+        // ### RIGHT SIDE
+        // none
+    }
+
+    private void loadOptionsHintsQuit()
+    {
+        MainFrame mf = context.mainFrame;
+
+        // ### LEFT SIDE
+        if (currentTool.getOptHintServer().length() > 0)
+        {
+            mf.textFieldOperationHints6.setText(currentTool.getOptHintServer());
+        }
+        else
+        {
+            mf.textFieldOperationHints6.setText("");
+        }
 
         // ### RIGHT SIDE
         // none
@@ -1483,7 +1511,7 @@ public class OperationsUI
 
     private void updateOnChange(Object source)
     {
-        int cardVar = 1;  // 1 publisher; 2 listener, 3 hint server
+        int cardVar = 1;  // 1 publisher; 2 listener, 3 hint server, 6 hint quit
         String name = null;
         int selection = -1;
         if (source != null && currentTool != null && !loading)
@@ -1530,6 +1558,7 @@ public class OperationsUI
                         }
                         break;
                     case "hints3":
+                    case "hints6":
                         current = currentTool.getOptHintServer();
                         currentTool.setOptHintServer(tf.getText());
                         break;

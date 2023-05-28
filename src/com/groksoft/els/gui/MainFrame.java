@@ -751,7 +751,13 @@ public class MainFrame extends JFrame
         panelCardTerminal = new JPanel();
         labelOperationsTerminal = new JLabel();
         panelCardQuit = new JPanel();
-        label2 = new JLabel();
+        labelOperationsQuitter = new JLabel();
+        panelCardQuitHints = new JPanel();
+        vSpacer42 = new JPanel(null);
+        labelOperationHintKeyServer6 = new JLabel();
+        textFieldOperationHints6 = new JTextField();
+        buttonOperationHintsFilePick6 = new JButton();
+        vSpacer43 = new JPanel(null);
         panelOperationBottom = new JPanel();
         labelOperationStatus = new JLabel();
         panelOperationBottomButtons = new JPanel();
@@ -3231,17 +3237,79 @@ public class MainFrame extends JFrame
                                         //======== panelCardQuit ========
                                         {
                                             panelCardQuit.setName("quit");
-                                            panelCardQuit.setLayout(new GridBagLayout());
-                                            ((GridBagLayout)panelCardQuit.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-                                            ((GridBagLayout)panelCardQuit.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                            panelCardQuit.setLayout(new BorderLayout());
 
-                                            //---- label2 ----
-                                            label2.setText("Quit card");
-                                            panelCardQuit.add(label2, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationsQuitter ----
+                                            labelOperationsQuitter.setText(context.cfg.gs("Navigator.labelOperationsQuitter.text"));
+                                            labelOperationsQuitter.setHorizontalAlignment(SwingConstants.CENTER);
+                                            panelCardQuit.add(labelOperationsQuitter, BorderLayout.CENTER);
+                                        }
+                                        panelOperationCards.add(panelCardQuit, "quitter");
+
+                                        //======== panelCardQuitHints ========
+                                        {
+                                            panelCardQuitHints.setName("hintserver");
+                                            panelCardQuitHints.setPreferredSize(new Dimension(824, 530));
+                                            panelCardQuitHints.setLayout(new GridBagLayout());
+                                            ((GridBagLayout)panelCardQuitHints.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                            ((GridBagLayout)panelCardQuitHints.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
+
+                                            //---- vSpacer42 ----
+                                            vSpacer42.setMaximumSize(new Dimension(32767, 8));
+                                            vSpacer42.setMinimumSize(new Dimension(12, 8));
+                                            vSpacer42.setPreferredSize(new Dimension(10, 8));
+                                            panelCardQuitHints.add(vSpacer42, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- labelOperationHintKeyServer6 ----
+                                            labelOperationHintKeyServer6.setText(context.cfg.gs("Navigator.labelOperationHintKeyServer6.text"));
+                                            panelCardQuitHints.add(labelOperationHintKeyServer6, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- textFieldOperationHints6 ----
+                                            textFieldOperationHints6.setMinimumSize(new Dimension(60, 30));
+                                            textFieldOperationHints6.setName("hints6");
+                                            textFieldOperationHints6.setMaximumSize(new Dimension(240, 30));
+                                            textFieldOperationHints6.setPreferredSize(new Dimension(240, 30));
+                                            textFieldOperationHints6.addFocusListener(new FocusAdapter() {
+                                                @Override
+                                                public void focusLost(FocusEvent e) {
+                                                    context.operationsUI.genericTextFieldFocusLost(e);
+                                                }
+                                            });
+                                            textFieldOperationHints6.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardQuitHints.add(textFieldOperationHints6, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- buttonOperationHintsFilePick6 ----
+                                            buttonOperationHintsFilePick6.setText("...");
+                                            buttonOperationHintsFilePick6.setFont(buttonOperationHintsFilePick6.getFont().deriveFont(buttonOperationHintsFilePick6.getFont().getStyle() | Font.BOLD));
+                                            buttonOperationHintsFilePick6.setMaximumSize(new Dimension(32, 24));
+                                            buttonOperationHintsFilePick6.setMinimumSize(new Dimension(32, 24));
+                                            buttonOperationHintsFilePick6.setPreferredSize(new Dimension(32, 24));
+                                            buttonOperationHintsFilePick6.setVerticalTextPosition(SwingConstants.TOP);
+                                            buttonOperationHintsFilePick6.setIconTextGap(0);
+                                            buttonOperationHintsFilePick6.setHorizontalTextPosition(SwingConstants.LEADING);
+                                            buttonOperationHintsFilePick6.setActionCommand("hintsFilePick");
+                                            buttonOperationHintsFilePick6.setToolTipText(context.cfg.gs("Navigator.buttonOperationHintsFilePick6.toolTipText"));
+                                            buttonOperationHintsFilePick6.setName("hints6");
+                                            buttonOperationHintsFilePick6.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardQuitHints.add(buttonOperationHintsFilePick6, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- vSpacer43 ----
+                                            vSpacer43.setMinimumSize(new Dimension(10, 30));
+                                            vSpacer43.setPreferredSize(new Dimension(20, 30));
+                                            vSpacer43.setMaximumSize(new Dimension(20, 30));
+                                            panelCardQuitHints.add(vSpacer43, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
                                         }
-                                        panelOperationCards.add(panelCardQuit, "quitter");
+                                        panelOperationCards.add(panelCardQuitHints, "hintsquitter");
                                     }
                                     scrollPaneOperationCards.setViewportView(panelOperationCards);
                                 }
@@ -3777,7 +3845,13 @@ public class MainFrame extends JFrame
     public JPanel panelCardTerminal;
     public JLabel labelOperationsTerminal;
     public JPanel panelCardQuit;
-    public JLabel label2;
+    public JLabel labelOperationsQuitter;
+    public JPanel panelCardQuitHints;
+    public JPanel vSpacer42;
+    public JLabel labelOperationHintKeyServer6;
+    public JTextField textFieldOperationHints6;
+    public JButton buttonOperationHintsFilePick6;
+    public JPanel vSpacer43;
     public JPanel panelOperationBottom;
     public JLabel labelOperationStatus;
     public JPanel panelOperationBottomButtons;
