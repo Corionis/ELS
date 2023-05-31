@@ -2122,7 +2122,7 @@ new FormModel {
 													"value": "Center"
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
-												"value": "quitter"
+												"value": "subscriberquit"
 											} )
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 												"$columnSpecs": "0, 0, 0, 0, 0, 0, 0"
@@ -2188,7 +2188,7 @@ new FormModel {
 													"gridy": 1
 												} )
 											}, new FormLayoutConstraints( class java.lang.String ) {
-												"value": "hintsquitter"
+												"value": "statusquit"
 											} )
 										} )
 									}, new FormLayoutConstraints( class java.lang.String ) {

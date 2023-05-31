@@ -3244,7 +3244,7 @@ public class MainFrame extends JFrame
                                             labelOperationsQuitter.setHorizontalAlignment(SwingConstants.CENTER);
                                             panelCardQuit.add(labelOperationsQuitter, BorderLayout.CENTER);
                                         }
-                                        panelOperationCards.add(panelCardQuit, "quitter");
+                                        panelOperationCards.add(panelCardQuit, "subscriberquit");
 
                                         //======== panelCardQuitHints ========
                                         {
@@ -3309,7 +3309,7 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
                                         }
-                                        panelOperationCards.add(panelCardQuitHints, "hintsquitter");
+                                        panelOperationCards.add(panelCardQuitHints, "statusquit");
                                     }
                                     scrollPaneOperationCards.setViewportView(panelOperationCards);
                                 }
