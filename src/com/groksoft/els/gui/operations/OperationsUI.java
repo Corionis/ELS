@@ -725,8 +725,43 @@ public class OperationsUI
 
     private void initNewCard()
     {
+        loading = true;
+        switch (currentTool.getOperation())
+        {
+            case NotRemote:
+            case PublishRemote:
+            case SubscriberListener:
+                currentTool.setOptKeys(context.cfg.getHintKeysFile());
+                if (context.cfg.getHintTrackerFilename().length() > 0)
+                {
+                    context.mainFrame.comboBoxOperationHintKeys.setSelectedIndex(0);
+                    currentTool.setOptHints(context.cfg.getHintTrackerFilename());
+                }
+                if (context.cfg.getHintsDaemonFilename().length() > 0)
+                {
+                    context.mainFrame.comboBoxOperationHintKeys.setSelectedIndex(1);
+                    currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
+                }
+                break;
+            case StatusServer:
+                currentTool.setOptKeys(context.cfg.getHintKeysFile());
+                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
+                break;
+            case PublisherManual:
+                break;
+            case PublisherListener:
+                break;
+            case SubscriberTerminal:
+                break;
+            case StatusServerQuit:
+                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
+                break;
+            case SubscriberListenerQuit:
+                break;
+        }
         currentTool.setDataHasChanged();
-
+        updateState();
+        loading = false;
     }
 
     public void initialize()
@@ -776,11 +811,12 @@ public class OperationsUI
         });
         configItems.setTableHeader(null);
 
-        // make Mode objects
+        // Make Mode objects
         //  * publisher has base [objects]
         //  * listener has [objects]2
         //  * hint server has [objects]3
         //  * hint quit has [objects]6
+        // See OperationsTool.Cards
         modes = new Mode[9];
         modes[0] = new Mode(context.cfg.gs("Operations.mode.localPublish"), OperationsTool.Cards.Publisher, Configuration.Operations.NotRemote);
         modes[1] = new Mode(context.cfg.gs("Operations.mode.remotePublish"), OperationsTool.Cards.Publisher, Configuration.Operations.PublishRemote);
@@ -1161,7 +1197,7 @@ public class OperationsUI
             int cardVar = 1;
             //OperationsTool.Cards cardName = modes[getModeOperationIndex()].card;
             ((CardLayout) context.mainFrame.panelOperationCards.getLayout()).show(context.mainFrame.panelOperationCards, currentTool.getCard().name().toLowerCase());
-            context.mainFrame.labelOperationMode.setText(modes[getModeOperationIndex()].name);
+            context.mainFrame.labelOperationMode.setText(modes[getModeOperationIndex()].description);
 
             // populate card
             switch (currentTool.getOperation())
@@ -1194,6 +1230,7 @@ public class OperationsUI
                     break;
             }
             updateTextFieldToolTips(cardVar);
+            updateState();
             loading = false;
         }
     }
@@ -1851,101 +1888,32 @@ public class OperationsUI
 
     private void updateState()
     {
-/*
-        if (currentCard == panelCaseChangeCard)
+        if (currentTool.getCard() == OperationsTool.Cards.Publisher)
         {
-        }
-        else if (currentCard == panelInsertCard)
-        {
-            if (currentOperation.isOption1())
+            if (currentTool.isOptDuplicates())
             {
-                checkBoxInsertAtEnd.setEnabled(false);
+                context.mainFrame.labelOperationCrossCheck.setEnabled(true);
+                context.mainFrame.checkBoxOperationCrossCheck.setEnabled(true);
             }
             else
             {
-                checkBoxInsertAtEnd.setEnabled(true);
-            }
-            if (currentOperation.isOption2())
-            {
-                textFieldInsertPosition.setEnabled(false);
-                checkBoxInsertFromEnd.setEnabled(false);
-                checkBoxInsertOverwrite.setEnabled(false);
-            }
-            else
-            {
-                textFieldInsertPosition.setEnabled(true);
-                checkBoxInsertFromEnd.setEnabled(true);
-                checkBoxInsertOverwrite.setEnabled(true);
-            }
-            setNumberFilter(textFieldInsertPosition);
-        }
-        else if (currentCard == panelNumberingCard)
-        {
-            if (currentOperation.isOption1())
-            {
-                checkBoxNumberingAtEnd.setEnabled(false);
-            }
-            else
-            {
-                checkBoxNumberingAtEnd.setEnabled(true);
-            }
-            if (currentOperation.isOption2())
-            {
-                textFieldNumberingPosition.setEnabled(false);
-                checkBoxNumberingFromEnd.setEnabled(false);
-                checkBoxNumberingOverwrite.setEnabled(false);
-            }
-            else
-            {
-                textFieldNumberingPosition.setEnabled(true);
-                checkBoxNumberingFromEnd.setEnabled(true);
-                checkBoxNumberingOverwrite.setEnabled(true);
-            }
-            setNumberFilter(textFieldNumberingStart);
-            setNumberFilter(textFieldNumberingZeros);
-            setNumberFilter(textFieldNumberingPosition);
-        }
-        else if (currentCard == panelRemoveCard)
-        {
-            if (currentOperation.isOption1())
-                textFieldFrom.setEnabled(false);
-            else
-                textFieldFrom.setEnabled(true);
-            setNumberFilter(textFieldFrom);
-            setNumberFilter(textFieldLength);
-        }
-        else if (currentCard == panelReplaceCard)
-        {
-            if (currentOperation.isOption1())
-            {
-                 checkBoxRegularExpr.setEnabled(true);
-                checkBoxCase.setEnabled(false);
-            }
-            else if (currentOperation.isOption2())
-            {
-                checkBoxRegularExpr.setEnabled(false);
-                checkBoxCase.setEnabled(true);
-            }
-            else
-            {
-                checkBoxRegularExpr.setEnabled(true);
-                checkBoxCase.setEnabled(true);
+                context.mainFrame.labelOperationCrossCheck.setEnabled(false);
+                context.mainFrame.checkBoxOperationCrossCheck.setEnabled(false);
             }
         }
-*/
     }
 
     // ================================================================================================================
 
     private class Mode
     {
-        String name;
+        String description;
         OperationsTool.Cards card;
         Configuration.Operations operation;
 
-        public Mode(String name, OperationsTool.Cards card, Configuration.Operations operation)
+        public Mode(String description, OperationsTool.Cards card, Configuration.Operations operation)
         {
-            this.name = name;
+            this.description = description;
             this.card = card;
             this.operation = operation;
         }
@@ -1953,7 +1921,7 @@ public class OperationsUI
         @Override
         public String toString()
         {
-            return name;
+            return description;
         }
     }
 

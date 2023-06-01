@@ -601,8 +601,11 @@ new FormModel {
 										"minimumSize": new java.awt.Dimension( 0, 0 )
 										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
 											name: "panelOperationCards"
+											"minimumSize": new java.awt.Dimension( 0, 0 )
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 												name: "panelCardGettingStarted"
+												"preferredSize": new java.awt.Dimension( 824, 542 )
+												"minimumSize": new java.awt.Dimension( 0, 0 )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelOperationGettingStarted"
 													"text": new FormMessage( null, "Operations.labelOperationGettingStarted.text" )
@@ -623,13 +626,26 @@ new FormModel {
 											} ) {
 												name: "panelCardPublisher"
 												"name": "publisher"
+												"minimumSize": new java.awt.Dimension( 0, 0 )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+													name: "hSpacer4"
+													"minimumSize": new java.awt.Dimension( 0, 0 )
+													"preferredSize": new java.awt.Dimension( 154, 10 )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 													name: "vSpacer3"
 													"preferredSize": new java.awt.Dimension( 10, 8 )
-													"minimumSize": new java.awt.Dimension( 12, 8 )
+													"minimumSize": new java.awt.Dimension( 2, 1 )
 													"maximumSize": new java.awt.Dimension( 32767, 8 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 3
+												} )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+													name: "hSpacer5"
+													"minimumSize": new java.awt.Dimension( 0, 0 )
+													"preferredSize": new java.awt.Dimension( 154, 10 )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 4
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelOperationNavigatorCheckbox"
@@ -641,6 +657,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationNavigator"
 													"name": "navigator"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationNavigator.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -676,6 +693,7 @@ new FormModel {
 																addElement( "Item 5" )
 																addElement( "Item 6" )
 															}
+															"toolTipText": new FormMessage( null, "Navigator.listOperationIncludeExclude.toolTipText" )
 														} )
 													} )
 													add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
@@ -879,16 +897,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationOverwrite"
-													"text": new FormMessage( null, "Operations.labelOperationOverwrite.text" )
+													name: "labelOperationDecimalScale"
+													"text": new FormMessage( null, "Operations.labelOperationDecimalScale.text" )
 													"minimumSize": &Dimension25 new java.awt.Dimension( 60, 16 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 4
 													"gridy": 5
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationOverwrite"
-													"name": "overwrite"
+													name: "checkBoxOperationDecimalScale"
+													"name": "decimalScale"
+													"toolTipText": new FormMessage( null, "Operations.checkBoxOperationDecimalScale.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -941,16 +960,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationPreservedDates"
-													"text": new FormMessage( null, "Operations.labelOperationPreservedDates.text" )
-													"minimumSize": &Dimension26 new java.awt.Dimension( 60, 16 )
+													name: "labelOperationDryRun"
+													"text": new FormMessage( null, "Operations.labelOperation.DryRun.text" )
+													"minimumSize": new java.awt.Dimension( 5260, 16 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-													"gridx": 4
 													"gridy": 6
+													"gridx": 4
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationPreserveDates"
-													"name": "preserveDates"
+													name: "checkBoxOperationDryRun"
+													"name": "dryRun"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationDryRun.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1003,17 +1023,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationDecimalScale"
-													"text": new FormMessage( null, "Operations.labelOperationDecimalScale.text" )
-													"minimumSize": &Dimension27 new java.awt.Dimension( 60, 16 )
+													name: "labelOperationNoBackfill"
+													"text": new FormMessage( null, "Operations.labelOperation.NoBackfill.text" )
+													"minimumSize": new java.awt.Dimension( 60, 16 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-													"gridx": 4
 													"gridy": 7
+													"gridx": 4
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationDecimalScale"
-													"name": "decimalScale"
-													"toolTipText": new FormMessage( null, "Operations.checkBoxOperationDecimalScale.toolTipText" )
+													name: "checkBoxOperationNoBackFill"
+													"name": "noBackFill"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationNoBackFill.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1029,16 +1049,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationDryRun"
-													"text": new FormMessage( null, "Operations.labelOperation.DryRun.text" )
-													"minimumSize": new java.awt.Dimension( 5260, 16 )
+													name: "labelOperationOverwrite"
+													"text": new FormMessage( null, "Operations.labelOperationOverwrite.text" )
+													"minimumSize": &Dimension26 new java.awt.Dimension( 60, 16 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 8
 													"gridx": 4
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationDryRun"
-													"name": "dryRun"
+													name: "checkBoxOperationOverwrite"
+													"name": "overwrite"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationOverwrite.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1060,10 +1081,10 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldOperationHintKeys"
-													"minimumSize": &Dimension28 new java.awt.Dimension( 60, 30 )
+													"minimumSize": &Dimension27 new java.awt.Dimension( 60, 30 )
 													"name": "hintKeys"
-													"maximumSize": &Dimension29 new java.awt.Dimension( 240, 30 )
-													"preferredSize": &Dimension30 new java.awt.Dimension( 240, 30 )
+													"maximumSize": &Dimension28 new java.awt.Dimension( 240, 30 )
+													"preferredSize": &Dimension29 new java.awt.Dimension( 240, 30 )
 													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "context.operationsUI.genericTextFieldFocusLost", true ) )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1098,16 +1119,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationNoBackfill"
-													"text": new FormMessage( null, "Operations.labelOperation.NoBackfill.text" )
-													"minimumSize": new java.awt.Dimension( 60, 16 )
+													name: "labelOperationPreservedDates"
+													"text": new FormMessage( null, "Operations.labelOperationPreservedDates.text" )
+													"minimumSize": &Dimension30 new java.awt.Dimension( 60, 16 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridy": 9
 													"gridx": 4
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationNoBackFill"
-													"name": "noBackFill"
+													name: "checkBoxOperationPreserveDates"
+													"name": "preserveDates"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationPreserveDates.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1177,6 +1199,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationValidate"
 													"name": "validate"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationValidate.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1192,6 +1215,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationKeepGoing"
 													"name": "keepgoing"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationKeepGoing.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -1216,6 +1240,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationQuitStatus"
 													"name": "quitstatusserver"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationQuitStatus.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -1241,6 +1266,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationDuplicates"
 													"name": "duplicates"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationDuplicates.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1267,6 +1293,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationCrossCheck"
 													"name": "crossCheck"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationCrossCheck.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1292,6 +1319,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationEmptyDirectories"
 													"name": "emptyDirectories"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationEmptyDirectories.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1327,6 +1355,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationIgnored"
 													"name": "ignored"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationIgnored.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1344,14 +1373,27 @@ new FormModel {
 											} ) {
 												name: "panelCardListener"
 												"name": "listener"
-												"preferredSize": new java.awt.Dimension( 824, 530 )
+												"preferredSize": new java.awt.Dimension( 824, 542 )
+												"minimumSize": new java.awt.Dimension( 0, 0 )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+													name: "hSpacer6"
+													"minimumSize": new java.awt.Dimension( 0, 0 )
+													"preferredSize": new java.awt.Dimension( 154, 10 )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
 												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 													name: "vSpacer40"
 													"preferredSize": new java.awt.Dimension( 10, 8 )
-													"minimumSize": new java.awt.Dimension( 12, 8 )
+													"minimumSize": new java.awt.Dimension( 2, 1 )
 													"maximumSize": new java.awt.Dimension( 32767, 8 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 3
+												} )
+												add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+													name: "hSpacer7"
+													"minimumSize": new java.awt.Dimension( 0, 0 )
+													"preferredSize": new java.awt.Dimension( 154, 10 )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 4
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelOperationTargets2"
@@ -1412,6 +1454,7 @@ new FormModel {
 															"name": "exclude"
 															"visibleRowCount": 5
 															"model": #DefaultListModel0
+															"toolTipText": new FormMessage( null, "Navigator.listOperationIncludeExclude.toolTipText" )
 														} )
 													} )
 													add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
@@ -1586,16 +1629,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationOverwrite2"
-													"text": new FormMessage( null, "Operations.labelOperation.Overwrite2.text" )
+													name: "labelOperationDecimalScale2"
+													"text": new FormMessage( null, "Operations.labelOperation.DecimalScale2.text" )
 													"minimumSize": #Dimension25
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 4
 													"gridy": 5
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationOverwrite2"
-													"name": "overwrite2"
+													name: "checkBoxOperationDecimalScale2"
+													"name": "decimalScale2"
+													"toolTipText": new FormMessage( null, "Operations.checkBoxOperationDecimalScale.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1647,16 +1691,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationPreservedDates2"
-													"text": new FormMessage( null, "Operations.labelOperation.PreservedDates2.text" )
+													name: "labelOperationOverwrite2"
+													"text": new FormMessage( null, "Operations.labelOperation.Overwrite2.text" )
 													"minimumSize": #Dimension26
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 4
 													"gridy": 6
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationPreserveDates2"
-													"name": "preserveDates2"
+													name: "checkBoxOperationOverwrite2"
+													"name": "overwrite2"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationOverwrite.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1672,17 +1717,17 @@ new FormModel {
 													"gridx": 3
 												} )
 												add( new FormComponent( "javax.swing.JLabel" ) {
-													name: "labelOperationDecimalScale2"
-													"text": new FormMessage( null, "Operations.labelOperation.DecimalScale2.text" )
-													"minimumSize": #Dimension27
+													name: "labelOperationPreservedDates2"
+													"text": new FormMessage( null, "Operations.labelOperation.PreservedDates2.text" )
+													"minimumSize": #Dimension30
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 4
 													"gridy": 7
 												} )
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
-													name: "checkBoxOperationDecimalScale2"
-													"name": "decimalScale2"
-													"toolTipText": new FormMessage( null, "Operations.checkBoxOperationDecimalScale2.toolTipText" )
+													name: "checkBoxOperationPreserveDates2"
+													"name": "preserveDates2"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationPreserveDates.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 5
@@ -1696,10 +1741,10 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldOperationHintKeys2"
-													"minimumSize": #Dimension28
+													"minimumSize": #Dimension27
 													"name": "hintKeys2"
-													"maximumSize": #Dimension29
-													"preferredSize": #Dimension30
+													"maximumSize": #Dimension28
+													"preferredSize": #Dimension29
 													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "context.operationsUI.genericTextFieldFocusLost", true ) )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1792,6 +1837,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationKeepGoing2"
 													"name": "keepgoing2"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationListenerKeepGoing.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -1873,12 +1919,13 @@ new FormModel {
 											} ) {
 												name: "panelCardHintServer"
 												"name": "hintserver"
-												"preferredSize": &Dimension36 new java.awt.Dimension( 824, 530 )
+												"preferredSize": new java.awt.Dimension( 824, 542 )
+												"minimumSize": new java.awt.Dimension( 0, 0 )
 												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 													name: "vSpacer41"
-													"maximumSize": &Dimension37 new java.awt.Dimension( 32767, 8 )
-													"minimumSize": &Dimension38 new java.awt.Dimension( 12, 8 )
-													"preferredSize": &Dimension39 new java.awt.Dimension( 10, 8 )
+													"maximumSize": &Dimension36 new java.awt.Dimension( 32767, 8 )
+													"minimumSize": &Dimension37 new java.awt.Dimension( 12, 8 )
+													"preferredSize": &Dimension38 new java.awt.Dimension( 10, 8 )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 3
 												} )
@@ -1890,10 +1937,10 @@ new FormModel {
 												} )
 												add( new FormComponent( "javax.swing.JTextField" ) {
 													name: "textFieldOperationHintKeys3"
-													"minimumSize": #Dimension28
+													"minimumSize": #Dimension27
 													"name": "hintKeys3"
-													"maximumSize": #Dimension29
-													"preferredSize": #Dimension30
+													"maximumSize": #Dimension28
+													"preferredSize": #Dimension29
 													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "context.operationsUI.genericTextFieldFocusLost", true ) )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
@@ -1982,6 +2029,7 @@ new FormModel {
 												add( new FormComponent( "javax.swing.JCheckBox" ) {
 													name: "checkBoxOperationKeepGoing3"
 													"name": "keepgoing3"
+													"toolTipText": new FormMessage( null, "Navigator.checkBoxOperationKeepGoing3.toolTipText" )
 													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "context.operationsUI.genericAction", true ) )
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 1
@@ -2101,6 +2149,8 @@ new FormModel {
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 												name: "panelCardTerminal"
 												"name": "terminal"
+												"minimumSize": new java.awt.Dimension( 0, 0 )
+												"preferredSize": new java.awt.Dimension( 824, 542 )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelOperationsTerminal"
 													"text": new FormMessage( null, "Navigator.labelOperationsTerminal.text" )
@@ -2114,6 +2164,8 @@ new FormModel {
 											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 												name: "panelCardQuit"
 												"name": "quit"
+												"minimumSize": new java.awt.Dimension( 0, 0 )
+												"preferredSize": new java.awt.Dimension( 824, 542 )
 												add( new FormComponent( "javax.swing.JLabel" ) {
 													name: "labelOperationsQuitter"
 													"text": new FormMessage( null, "Navigator.labelOperationsQuitter.text" )
@@ -2133,12 +2185,13 @@ new FormModel {
 											} ) {
 												name: "panelCardQuitHints"
 												"name": "hintserver"
-												"preferredSize": #Dimension36
+												"preferredSize": new java.awt.Dimension( 824, 542 )
+												"minimumSize": new java.awt.Dimension( 0, 0 )
 												add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
 													name: "vSpacer42"
-													"maximumSize": #Dimension37
-													"minimumSize": #Dimension38
-													"preferredSize": #Dimension39
+													"maximumSize": #Dimension36
+													"minimumSize": #Dimension37
+													"preferredSize": #Dimension38
 												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 													"gridx": 3
 												} )

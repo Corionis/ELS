@@ -602,7 +602,9 @@ public class MainFrame extends JFrame
         panelCardGettingStarted = new JPanel();
         labelOperationGettingStarted = new JLabel();
         panelCardPublisher = new JPanel();
+        hSpacer4 = new JPanel(null);
         vSpacer3 = new JPanel(null);
+        hSpacer5 = new JPanel(null);
         labelOperationNavigatorCheckbox = new JLabel();
         checkBoxOperationNavigator = new JCheckBox();
         vSpacer33 = new JPanel(null);
@@ -626,29 +628,29 @@ public class MainFrame extends JFrame
         textFieldOperationWhatsNew = new JTextField();
         buttonOperationWhatsNewFilePick = new JButton();
         vSpacer7 = new JPanel(null);
-        labelOperationOverwrite = new JLabel();
-        checkBoxOperationOverwrite = new JCheckBox();
+        labelOperationDecimalScale = new JLabel();
+        checkBoxOperationDecimalScale = new JCheckBox();
         labelOperationExportText = new JLabel();
         textFieldOperationExportText = new JTextField();
         buttonOperationExportTextFilePick = new JButton();
         vSpacer9 = new JPanel(null);
-        labelOperationPreservedDates = new JLabel();
-        checkBoxOperationPreserveDates = new JCheckBox();
+        labelOperationDryRun = new JLabel();
+        checkBoxOperationDryRun = new JCheckBox();
         labelOperationExportItems = new JLabel();
         textFieldOperationExportItems = new JTextField();
         buttonOperationExportItemsFilePick = new JButton();
         vSpacer10 = new JPanel(null);
-        labelOperationDecimalScale = new JLabel();
-        checkBoxOperationDecimalScale = new JCheckBox();
+        labelOperationNoBackfill = new JLabel();
+        checkBoxOperationNoBackFill = new JCheckBox();
         vSpacer11 = new JPanel(null);
-        labelOperationDryRun = new JLabel();
-        checkBoxOperationDryRun = new JCheckBox();
+        labelOperationOverwrite = new JLabel();
+        checkBoxOperationOverwrite = new JCheckBox();
         comboBoxOperationHintKeys = new JComboBox<>();
         textFieldOperationHintKeys = new JTextField();
         buttonOperationHintKeysFilePick = new JButton();
         vSpacer19 = new JPanel(null);
-        labelOperationNoBackfill = new JLabel();
-        checkBoxOperationNoBackFill = new JCheckBox();
+        labelOperationPreservedDates = new JLabel();
+        checkBoxOperationPreserveDates = new JCheckBox();
         comboBoxOperationHintsAndServer = new JComboBox<>();
         textFieldOperationHints = new JTextField();
         buttonOperationHintsFilePick = new JButton();
@@ -674,7 +676,9 @@ public class MainFrame extends JFrame
         labelOperationIgnored = new JLabel();
         checkBoxOperationIgnored = new JCheckBox();
         panelCardListener = new JPanel();
+        hSpacer6 = new JPanel(null);
         vSpacer40 = new JPanel(null);
+        hSpacer7 = new JPanel(null);
         labelOperationTargets2 = new JLabel();
         textFieldOperationTargets2 = new JTextField();
         buttonOperationTargetsFilePick2 = new JButton();
@@ -698,17 +702,17 @@ public class MainFrame extends JFrame
         textFieldOperationBlacklist = new JTextField();
         buttonOperationBlacklistFilePick = new JButton();
         vSpacer21 = new JPanel(null);
-        labelOperationOverwrite2 = new JLabel();
-        checkBoxOperationOverwrite2 = new JCheckBox();
+        labelOperationDecimalScale2 = new JLabel();
+        checkBoxOperationDecimalScale2 = new JCheckBox();
         labelOperationIpWhitelist = new JLabel();
         textFieldOperationIpWhitelist = new JTextField();
         buttonOperationIpWhitelistFilePick = new JButton();
         vSpacer22 = new JPanel(null);
+        labelOperationOverwrite2 = new JLabel();
+        checkBoxOperationOverwrite2 = new JCheckBox();
+        vSpacer23 = new JPanel(null);
         labelOperationPreservedDates2 = new JLabel();
         checkBoxOperationPreserveDates2 = new JCheckBox();
-        vSpacer23 = new JPanel(null);
-        labelOperationDecimalScale2 = new JLabel();
-        checkBoxOperationDecimalScale2 = new JCheckBox();
         labelOperationHintKeys = new JLabel();
         textFieldOperationHintKeys2 = new JTextField();
         buttonOperationHintKeysFilePick2 = new JButton();
@@ -1737,10 +1741,13 @@ public class MainFrame extends JFrame
 
                                     //======== panelOperationCards ========
                                     {
+                                        panelOperationCards.setMinimumSize(new Dimension(0, 0));
                                         panelOperationCards.setLayout(new CardLayout());
 
                                         //======== panelCardGettingStarted ========
                                         {
+                                            panelCardGettingStarted.setPreferredSize(new Dimension(824, 542));
+                                            panelCardGettingStarted.setMinimumSize(new Dimension(0, 0));
                                             panelCardGettingStarted.setLayout(new BorderLayout());
 
                                             //---- labelOperationGettingStarted ----
@@ -1754,15 +1761,30 @@ public class MainFrame extends JFrame
                                         //======== panelCardPublisher ========
                                         {
                                             panelCardPublisher.setName("publisher");
+                                            panelCardPublisher.setMinimumSize(new Dimension(0, 0));
                                             panelCardPublisher.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelCardPublisher.getLayout()).rowHeights = new int[] {0, 0, 28, 34, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                                             ((GridBagLayout)panelCardPublisher.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
+                                            //---- hSpacer4 ----
+                                            hSpacer4.setMinimumSize(new Dimension(0, 0));
+                                            hSpacer4.setPreferredSize(new Dimension(154, 10));
+                                            panelCardPublisher.add(hSpacer4, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
                                             //---- vSpacer3 ----
                                             vSpacer3.setPreferredSize(new Dimension(10, 8));
-                                            vSpacer3.setMinimumSize(new Dimension(12, 8));
+                                            vSpacer3.setMinimumSize(new Dimension(2, 1));
                                             vSpacer3.setMaximumSize(new Dimension(32767, 8));
                                             panelCardPublisher.add(vSpacer3, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- hSpacer5 ----
+                                            hSpacer5.setMinimumSize(new Dimension(0, 0));
+                                            hSpacer5.setPreferredSize(new Dimension(154, 10));
+                                            panelCardPublisher.add(hSpacer5, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -1775,6 +1797,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationNavigator ----
                                             checkBoxOperationNavigator.setName("navigator");
+                                            checkBoxOperationNavigator.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationNavigator.toolTipText"));
                                             checkBoxOperationNavigator.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationNavigator, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -1815,6 +1838,7 @@ public class MainFrame extends JFrame
                                                         @Override
                                                         public String getElementAt(int i) { return values[i]; }
                                                     });
+                                                    listOperationIncludeExclude.setToolTipText(context.cfg.gs("Navigator.listOperationIncludeExclude.toolTipText"));
                                                     scrollPaneOperationIncludeExclude.setViewportView(listOperationIncludeExclude);
                                                 }
                                                 panelOperationIncludeExcludeBox.add(scrollPaneOperationIncludeExclude);
@@ -2018,17 +2042,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationOverwrite ----
-                                            labelOperationOverwrite.setText(context.cfg.gs("Operations.labelOperationOverwrite.text"));
-                                            labelOperationOverwrite.setMinimumSize(new Dimension(60, 16));
-                                            panelCardPublisher.add(labelOperationOverwrite, new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationDecimalScale ----
+                                            labelOperationDecimalScale.setText(context.cfg.gs("Operations.labelOperationDecimalScale.text"));
+                                            labelOperationDecimalScale.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationDecimalScale, new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationOverwrite ----
-                                            checkBoxOperationOverwrite.setName("overwrite");
-                                            checkBoxOperationOverwrite.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(checkBoxOperationOverwrite, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationDecimalScale ----
+                                            checkBoxOperationDecimalScale.setName("decimalScale");
+                                            checkBoxOperationDecimalScale.setToolTipText(context.cfg.gs("Operations.checkBoxOperationDecimalScale.toolTipText"));
+                                            checkBoxOperationDecimalScale.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationDecimalScale, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2080,17 +2105,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationPreservedDates ----
-                                            labelOperationPreservedDates.setText(context.cfg.gs("Operations.labelOperationPreservedDates.text"));
-                                            labelOperationPreservedDates.setMinimumSize(new Dimension(60, 16));
-                                            panelCardPublisher.add(labelOperationPreservedDates, new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationDryRun ----
+                                            labelOperationDryRun.setText(context.cfg.gs("Operations.labelOperation.DryRun.text"));
+                                            labelOperationDryRun.setMinimumSize(new Dimension(5260, 16));
+                                            panelCardPublisher.add(labelOperationDryRun, new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationPreserveDates ----
-                                            checkBoxOperationPreserveDates.setName("preserveDates");
-                                            checkBoxOperationPreserveDates.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(checkBoxOperationPreserveDates, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationDryRun ----
+                                            checkBoxOperationDryRun.setName("dryRun");
+                                            checkBoxOperationDryRun.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationDryRun.toolTipText"));
+                                            checkBoxOperationDryRun.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationDryRun, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2142,18 +2168,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationDecimalScale ----
-                                            labelOperationDecimalScale.setText(context.cfg.gs("Operations.labelOperationDecimalScale.text"));
-                                            labelOperationDecimalScale.setMinimumSize(new Dimension(60, 16));
-                                            panelCardPublisher.add(labelOperationDecimalScale, new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationNoBackfill ----
+                                            labelOperationNoBackfill.setText(context.cfg.gs("Operations.labelOperation.NoBackfill.text"));
+                                            labelOperationNoBackfill.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationNoBackfill, new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationDecimalScale ----
-                                            checkBoxOperationDecimalScale.setName("decimalScale");
-                                            checkBoxOperationDecimalScale.setToolTipText(context.cfg.gs("Operations.checkBoxOperationDecimalScale.toolTipText"));
-                                            checkBoxOperationDecimalScale.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(checkBoxOperationDecimalScale, new GridBagConstraints(5, 7, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationNoBackFill ----
+                                            checkBoxOperationNoBackFill.setName("noBackFill");
+                                            checkBoxOperationNoBackFill.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationNoBackFill.toolTipText"));
+                                            checkBoxOperationNoBackFill.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationNoBackFill, new GridBagConstraints(5, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2165,17 +2191,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationDryRun ----
-                                            labelOperationDryRun.setText(context.cfg.gs("Operations.labelOperation.DryRun.text"));
-                                            labelOperationDryRun.setMinimumSize(new Dimension(5260, 16));
-                                            panelCardPublisher.add(labelOperationDryRun, new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationOverwrite ----
+                                            labelOperationOverwrite.setText(context.cfg.gs("Operations.labelOperationOverwrite.text"));
+                                            labelOperationOverwrite.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationOverwrite, new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationDryRun ----
-                                            checkBoxOperationDryRun.setName("dryRun");
-                                            checkBoxOperationDryRun.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(checkBoxOperationDryRun, new GridBagConstraints(5, 8, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationOverwrite ----
+                                            checkBoxOperationOverwrite.setName("overwrite");
+                                            checkBoxOperationOverwrite.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationOverwrite.toolTipText"));
+                                            checkBoxOperationOverwrite.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationOverwrite, new GridBagConstraints(5, 8, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2233,17 +2260,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationNoBackfill ----
-                                            labelOperationNoBackfill.setText(context.cfg.gs("Operations.labelOperation.NoBackfill.text"));
-                                            labelOperationNoBackfill.setMinimumSize(new Dimension(60, 16));
-                                            panelCardPublisher.add(labelOperationNoBackfill, new GridBagConstraints(4, 9, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationPreservedDates ----
+                                            labelOperationPreservedDates.setText(context.cfg.gs("Operations.labelOperationPreservedDates.text"));
+                                            labelOperationPreservedDates.setMinimumSize(new Dimension(60, 16));
+                                            panelCardPublisher.add(labelOperationPreservedDates, new GridBagConstraints(4, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationNoBackFill ----
-                                            checkBoxOperationNoBackFill.setName("noBackFill");
-                                            checkBoxOperationNoBackFill.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardPublisher.add(checkBoxOperationNoBackFill, new GridBagConstraints(5, 9, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationPreserveDates ----
+                                            checkBoxOperationPreserveDates.setName("preserveDates");
+                                            checkBoxOperationPreserveDates.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationPreserveDates.toolTipText"));
+                                            checkBoxOperationPreserveDates.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardPublisher.add(checkBoxOperationPreserveDates, new GridBagConstraints(5, 9, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2310,6 +2338,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationValidate ----
                                             checkBoxOperationValidate.setName("validate");
+                                            checkBoxOperationValidate.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationValidate.toolTipText"));
                                             checkBoxOperationValidate.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationValidate, new GridBagConstraints(5, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2324,6 +2353,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationKeepGoing ----
                                             checkBoxOperationKeepGoing.setName("keepgoing");
+                                            checkBoxOperationKeepGoing.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationKeepGoing.toolTipText"));
                                             checkBoxOperationKeepGoing.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationKeepGoing, new GridBagConstraints(1, 11, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2346,6 +2376,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationQuitStatus ----
                                             checkBoxOperationQuitStatus.setName("quitstatusserver");
+                                            checkBoxOperationQuitStatus.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationQuitStatus.toolTipText"));
                                             checkBoxOperationQuitStatus.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationQuitStatus, new GridBagConstraints(1, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2368,6 +2399,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationDuplicates ----
                                             checkBoxOperationDuplicates.setName("duplicates");
+                                            checkBoxOperationDuplicates.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationDuplicates.toolTipText"));
                                             checkBoxOperationDuplicates.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationDuplicates, new GridBagConstraints(5, 12, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2390,6 +2422,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationCrossCheck ----
                                             checkBoxOperationCrossCheck.setName("crossCheck");
+                                            checkBoxOperationCrossCheck.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationCrossCheck.toolTipText"));
                                             checkBoxOperationCrossCheck.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationCrossCheck, new GridBagConstraints(5, 13, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2412,6 +2445,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationEmptyDirectories ----
                                             checkBoxOperationEmptyDirectories.setName("emptyDirectories");
+                                            checkBoxOperationEmptyDirectories.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationEmptyDirectories.toolTipText"));
                                             checkBoxOperationEmptyDirectories.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationEmptyDirectories, new GridBagConstraints(5, 14, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2442,6 +2476,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationIgnored ----
                                             checkBoxOperationIgnored.setName("ignored");
+                                            checkBoxOperationIgnored.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationIgnored.toolTipText"));
                                             checkBoxOperationIgnored.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardPublisher.add(checkBoxOperationIgnored, new GridBagConstraints(5, 15, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2452,16 +2487,31 @@ public class MainFrame extends JFrame
                                         //======== panelCardListener ========
                                         {
                                             panelCardListener.setName("listener");
-                                            panelCardListener.setPreferredSize(new Dimension(824, 530));
+                                            panelCardListener.setPreferredSize(new Dimension(824, 542));
+                                            panelCardListener.setMinimumSize(new Dimension(0, 0));
                                             panelCardListener.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelCardListener.getLayout()).rowHeights = new int[] {0, 0, 28, 34, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                                             ((GridBagLayout)panelCardListener.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
 
+                                            //---- hSpacer6 ----
+                                            hSpacer6.setMinimumSize(new Dimension(0, 0));
+                                            hSpacer6.setPreferredSize(new Dimension(154, 10));
+                                            panelCardListener.add(hSpacer6, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
                                             //---- vSpacer40 ----
                                             vSpacer40.setPreferredSize(new Dimension(10, 8));
-                                            vSpacer40.setMinimumSize(new Dimension(12, 8));
+                                            vSpacer40.setMinimumSize(new Dimension(2, 1));
                                             vSpacer40.setMaximumSize(new Dimension(32767, 8));
                                             panelCardListener.add(vSpacer40, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0,
+                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                new Insets(0, 0, 4, 4), 0, 0));
+
+                                            //---- hSpacer7 ----
+                                            hSpacer7.setMinimumSize(new Dimension(0, 0));
+                                            hSpacer7.setPreferredSize(new Dimension(154, 10));
+                                            panelCardListener.add(hSpacer7, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2539,6 +2589,7 @@ public class MainFrame extends JFrame
                                                         @Override
                                                         public String getElementAt(int i) { return values[i]; }
                                                     });
+                                                    listOperationExclude.setToolTipText(context.cfg.gs("Navigator.listOperationIncludeExclude.toolTipText"));
                                                     scrollPaneOperationExclude.setViewportView(listOperationExclude);
                                                 }
                                                 panelOperationExcludeBox.add(scrollPaneOperationExclude);
@@ -2715,17 +2766,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationOverwrite2 ----
-                                            labelOperationOverwrite2.setText(context.cfg.gs("Operations.labelOperation.Overwrite2.text"));
-                                            labelOperationOverwrite2.setMinimumSize(new Dimension(60, 16));
-                                            panelCardListener.add(labelOperationOverwrite2, new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationDecimalScale2 ----
+                                            labelOperationDecimalScale2.setText(context.cfg.gs("Operations.labelOperation.DecimalScale2.text"));
+                                            labelOperationDecimalScale2.setMinimumSize(new Dimension(60, 16));
+                                            panelCardListener.add(labelOperationDecimalScale2, new GridBagConstraints(4, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationOverwrite2 ----
-                                            checkBoxOperationOverwrite2.setName("overwrite2");
-                                            checkBoxOperationOverwrite2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(checkBoxOperationOverwrite2, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationDecimalScale2 ----
+                                            checkBoxOperationDecimalScale2.setName("decimalScale2");
+                                            checkBoxOperationDecimalScale2.setToolTipText(context.cfg.gs("Operations.checkBoxOperationDecimalScale.toolTipText"));
+                                            checkBoxOperationDecimalScale2.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardListener.add(checkBoxOperationDecimalScale2, new GridBagConstraints(5, 5, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2776,17 +2828,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationPreservedDates2 ----
-                                            labelOperationPreservedDates2.setText(context.cfg.gs("Operations.labelOperation.PreservedDates2.text"));
-                                            labelOperationPreservedDates2.setMinimumSize(new Dimension(60, 16));
-                                            panelCardListener.add(labelOperationPreservedDates2, new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationOverwrite2 ----
+                                            labelOperationOverwrite2.setText(context.cfg.gs("Operations.labelOperation.Overwrite2.text"));
+                                            labelOperationOverwrite2.setMinimumSize(new Dimension(60, 16));
+                                            panelCardListener.add(labelOperationOverwrite2, new GridBagConstraints(4, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationPreserveDates2 ----
-                                            checkBoxOperationPreserveDates2.setName("preserveDates2");
-                                            checkBoxOperationPreserveDates2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(checkBoxOperationPreserveDates2, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationOverwrite2 ----
+                                            checkBoxOperationOverwrite2.setName("overwrite2");
+                                            checkBoxOperationOverwrite2.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationOverwrite.toolTipText"));
+                                            checkBoxOperationOverwrite2.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardListener.add(checkBoxOperationOverwrite2, new GridBagConstraints(5, 6, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2798,18 +2851,18 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- labelOperationDecimalScale2 ----
-                                            labelOperationDecimalScale2.setText(context.cfg.gs("Operations.labelOperation.DecimalScale2.text"));
-                                            labelOperationDecimalScale2.setMinimumSize(new Dimension(60, 16));
-                                            panelCardListener.add(labelOperationDecimalScale2, new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
+                                            //---- labelOperationPreservedDates2 ----
+                                            labelOperationPreservedDates2.setText(context.cfg.gs("Operations.labelOperation.PreservedDates2.text"));
+                                            labelOperationPreservedDates2.setMinimumSize(new Dimension(60, 16));
+                                            panelCardListener.add(labelOperationPreservedDates2, new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
-                                            //---- checkBoxOperationDecimalScale2 ----
-                                            checkBoxOperationDecimalScale2.setName("decimalScale2");
-                                            checkBoxOperationDecimalScale2.setToolTipText(context.cfg.gs("Operations.checkBoxOperationDecimalScale2.toolTipText"));
-                                            checkBoxOperationDecimalScale2.addActionListener(e -> context.operationsUI.genericAction(e));
-                                            panelCardListener.add(checkBoxOperationDecimalScale2, new GridBagConstraints(5, 7, 1, 1, 0.0, 0.0,
+                                            //---- checkBoxOperationPreserveDates2 ----
+                                            checkBoxOperationPreserveDates2.setName("preserveDates2");
+                                            checkBoxOperationPreserveDates2.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationPreserveDates.toolTipText"));
+                                            checkBoxOperationPreserveDates2.addActionListener(e -> context.operationsUI.genericAction(e));
+                                            panelCardListener.add(checkBoxOperationPreserveDates2, new GridBagConstraints(5, 7, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 4, 4), 0, 0));
 
@@ -2923,6 +2976,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationKeepGoing2 ----
                                             checkBoxOperationKeepGoing2.setName("keepgoing2");
+                                            checkBoxOperationKeepGoing2.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationListenerKeepGoing.toolTipText"));
                                             checkBoxOperationKeepGoing2.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardListener.add(checkBoxOperationKeepGoing2, new GridBagConstraints(1, 10, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -2989,7 +3043,8 @@ public class MainFrame extends JFrame
                                         //======== panelCardHintServer ========
                                         {
                                             panelCardHintServer.setName("hintserver");
-                                            panelCardHintServer.setPreferredSize(new Dimension(824, 530));
+                                            panelCardHintServer.setPreferredSize(new Dimension(824, 542));
+                                            panelCardHintServer.setMinimumSize(new Dimension(0, 0));
                                             panelCardHintServer.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelCardHintServer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                                             ((GridBagLayout)panelCardHintServer.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
@@ -3105,6 +3160,7 @@ public class MainFrame extends JFrame
 
                                             //---- checkBoxOperationKeepGoing3 ----
                                             checkBoxOperationKeepGoing3.setName("keepgoing3");
+                                            checkBoxOperationKeepGoing3.setToolTipText(context.cfg.gs("Navigator.checkBoxOperationKeepGoing3.toolTipText"));
                                             checkBoxOperationKeepGoing3.addActionListener(e -> context.operationsUI.genericAction(e));
                                             panelCardHintServer.add(checkBoxOperationKeepGoing3, new GridBagConstraints(1, 3, 1, 1, 0.0, 0.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -3225,6 +3281,8 @@ public class MainFrame extends JFrame
                                         //======== panelCardTerminal ========
                                         {
                                             panelCardTerminal.setName("terminal");
+                                            panelCardTerminal.setMinimumSize(new Dimension(0, 0));
+                                            panelCardTerminal.setPreferredSize(new Dimension(824, 542));
                                             panelCardTerminal.setLayout(new BorderLayout());
 
                                             //---- labelOperationsTerminal ----
@@ -3237,6 +3295,8 @@ public class MainFrame extends JFrame
                                         //======== panelCardQuit ========
                                         {
                                             panelCardQuit.setName("quit");
+                                            panelCardQuit.setMinimumSize(new Dimension(0, 0));
+                                            panelCardQuit.setPreferredSize(new Dimension(824, 542));
                                             panelCardQuit.setLayout(new BorderLayout());
 
                                             //---- labelOperationsQuitter ----
@@ -3249,7 +3309,8 @@ public class MainFrame extends JFrame
                                         //======== panelCardQuitHints ========
                                         {
                                             panelCardQuitHints.setName("hintserver");
-                                            panelCardQuitHints.setPreferredSize(new Dimension(824, 530));
+                                            panelCardQuitHints.setPreferredSize(new Dimension(824, 542));
+                                            panelCardQuitHints.setMinimumSize(new Dimension(0, 0));
                                             panelCardQuitHints.setLayout(new GridBagLayout());
                                             ((GridBagLayout)panelCardQuitHints.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
                                             ((GridBagLayout)panelCardQuitHints.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0E-4};
@@ -3696,7 +3757,9 @@ public class MainFrame extends JFrame
     public JPanel panelCardGettingStarted;
     public JLabel labelOperationGettingStarted;
     public JPanel panelCardPublisher;
+    public JPanel hSpacer4;
     public JPanel vSpacer3;
+    public JPanel hSpacer5;
     public JLabel labelOperationNavigatorCheckbox;
     public JCheckBox checkBoxOperationNavigator;
     public JPanel vSpacer33;
@@ -3720,29 +3783,29 @@ public class MainFrame extends JFrame
     public JTextField textFieldOperationWhatsNew;
     public JButton buttonOperationWhatsNewFilePick;
     public JPanel vSpacer7;
-    public JLabel labelOperationOverwrite;
-    public JCheckBox checkBoxOperationOverwrite;
+    public JLabel labelOperationDecimalScale;
+    public JCheckBox checkBoxOperationDecimalScale;
     public JLabel labelOperationExportText;
     public JTextField textFieldOperationExportText;
     public JButton buttonOperationExportTextFilePick;
     public JPanel vSpacer9;
-    public JLabel labelOperationPreservedDates;
-    public JCheckBox checkBoxOperationPreserveDates;
+    public JLabel labelOperationDryRun;
+    public JCheckBox checkBoxOperationDryRun;
     public JLabel labelOperationExportItems;
     public JTextField textFieldOperationExportItems;
     public JButton buttonOperationExportItemsFilePick;
     public JPanel vSpacer10;
-    public JLabel labelOperationDecimalScale;
-    public JCheckBox checkBoxOperationDecimalScale;
+    public JLabel labelOperationNoBackfill;
+    public JCheckBox checkBoxOperationNoBackFill;
     public JPanel vSpacer11;
-    public JLabel labelOperationDryRun;
-    public JCheckBox checkBoxOperationDryRun;
+    public JLabel labelOperationOverwrite;
+    public JCheckBox checkBoxOperationOverwrite;
     public JComboBox<String> comboBoxOperationHintKeys;
     public JTextField textFieldOperationHintKeys;
     public JButton buttonOperationHintKeysFilePick;
     public JPanel vSpacer19;
-    public JLabel labelOperationNoBackfill;
-    public JCheckBox checkBoxOperationNoBackFill;
+    public JLabel labelOperationPreservedDates;
+    public JCheckBox checkBoxOperationPreserveDates;
     public JComboBox<String> comboBoxOperationHintsAndServer;
     public JTextField textFieldOperationHints;
     public JButton buttonOperationHintsFilePick;
@@ -3768,7 +3831,9 @@ public class MainFrame extends JFrame
     public JLabel labelOperationIgnored;
     public JCheckBox checkBoxOperationIgnored;
     public JPanel panelCardListener;
+    public JPanel hSpacer6;
     public JPanel vSpacer40;
+    public JPanel hSpacer7;
     public JLabel labelOperationTargets2;
     public JTextField textFieldOperationTargets2;
     public JButton buttonOperationTargetsFilePick2;
@@ -3792,17 +3857,17 @@ public class MainFrame extends JFrame
     public JTextField textFieldOperationBlacklist;
     public JButton buttonOperationBlacklistFilePick;
     public JPanel vSpacer21;
-    public JLabel labelOperationOverwrite2;
-    public JCheckBox checkBoxOperationOverwrite2;
+    public JLabel labelOperationDecimalScale2;
+    public JCheckBox checkBoxOperationDecimalScale2;
     public JLabel labelOperationIpWhitelist;
     public JTextField textFieldOperationIpWhitelist;
     public JButton buttonOperationIpWhitelistFilePick;
     public JPanel vSpacer22;
+    public JLabel labelOperationOverwrite2;
+    public JCheckBox checkBoxOperationOverwrite2;
+    public JPanel vSpacer23;
     public JLabel labelOperationPreservedDates2;
     public JCheckBox checkBoxOperationPreserveDates2;
-    public JPanel vSpacer23;
-    public JLabel labelOperationDecimalScale2;
-    public JCheckBox checkBoxOperationDecimalScale2;
     public JLabel labelOperationHintKeys;
     public JTextField textFieldOperationHintKeys2;
     public JButton buttonOperationHintKeysFilePick2;

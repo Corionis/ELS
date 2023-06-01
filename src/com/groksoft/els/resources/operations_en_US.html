@@ -50,15 +50,16 @@ Respectively, the publisher and subscriber for execution come from:
   <li>From the defined Task Origins in a Job</li>
 </ul>
 
-Targets : Specifying a targets file - that describes libraries, their sources,
+<p>Targets : Specifying a targets file - that describes libraries, their sources,
 and the minimum free space for the library - is optional. It was the original
 way to define where new content would go and will continue to be supported.
 If targets are not specified ELS looks for "locations" defined in the library
-file. Locations describe minimum free space per storage location. See ###### for details.
-If those are not found the list of sources for the library in the library file
+file. Locations describe minimum free space per storage location.</p>
+
+<p>If those are not found the list of sources for the library in the library file
 is used with a default minimum free space of 10GB. In all cases the order of
 the definitions controls the order for searching where to place new content
-for that library.
+for that library.</p>
 
 <h3>Generate</h3>
 The Generate button creates a command line for executing the currently-selected

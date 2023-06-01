@@ -25,9 +25,11 @@ import static com.groksoft.els.Configuration.Operations.StatusServerQuit;
 public class OperationsTool extends AbstractTool implements Comparable, Serializable
 {
     // @formatter:off
+    // Elements match card names in lowercase
+    public static enum Cards { Publisher, Listener, HintServer, Terminal, SubscriberQuit, StatusQuit }
+
     public static final String INTERNAL_NAME = "Operations";
     public static final String SUBSYSTEM = "tools";
-    public static enum Cards { Publisher, Listener, HintServer, Terminal, SubscriberQuit, StatusQuit }
 
     private String configName; // user-specified name for this instance
     private String internalName = INTERNAL_NAME;

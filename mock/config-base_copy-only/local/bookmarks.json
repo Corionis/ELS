@@ -31,14 +31,12 @@
       ]
     },
     {
-      "name": "ELS",
-      "panel": "treeSystemOne",
+      "name": "M3 Elmer Fudd M4",
+      "panel": "treeCollectionOne",
       "pathElements": [
-        "System",
-        "Home",
-        "Work",
-        "groksoft",
-        "ELS"
+        "Media Publisher",
+        "TV Shows",
+        "M3 Elmer Fudd M4"
       ]
     },
     {
@@ -48,15 +46,6 @@
         "Media Publisher",
         "TV Shows",
         "M4 D4 Renamer Tests"
-      ]
-    },
-    {
-      "name": "M3 Elmer Fudd M4",
-      "panel": "treeCollectionOne",
-      "pathElements": [
-        "Media Publisher",
-        "TV Shows",
-        "M3 Elmer Fudd M4"
       ]
     }
   ]
