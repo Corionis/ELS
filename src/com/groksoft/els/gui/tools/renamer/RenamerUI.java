@@ -246,11 +246,9 @@ public class RenamerUI extends JDialog
                 currentConfigIndex = index;
                 configModel.fireTableDataChanged();
                 if (index >= 0)
-                {
                     configItems.changeSelection(index, 0, false, false);
-                }
-                loadOptions(index);
 
+                loadOptions(index);
                 configItems.requestFocus();
             }
         }
@@ -680,6 +678,10 @@ public class RenamerUI extends JDialog
                     break;
             }
 
+            buttonCopy.setEnabled(true);
+            buttonDelete.setEnabled(true);
+            buttonRun.setEnabled(true);
+            buttonRefresh.setEnabled(true);
             loading = false;
         }
         else

@@ -189,10 +189,9 @@ public class SleepUI extends JDialog
                     index = configModel.getRowCount() - 1;
                 configModel.fireTableDataChanged();
                 if (index >= 0)
-                {
                     configItems.changeSelection(index, 0, false, false);
-                    loadTime(index);
-                }
+
+                loadTime(index);
                 configItems.requestFocus();
             }
         }
@@ -355,6 +354,7 @@ public class SleepUI extends JDialog
 
         if (configModel.getRowCount() == 0)
         {
+            textFieldTime.setText("");
             buttonCopy.setEnabled(false);
             buttonDelete.setEnabled(false);
             buttonRun.setEnabled(false);
@@ -373,11 +373,17 @@ public class SleepUI extends JDialog
         {
             currentSleepTool = (SleepTool) configModel.getValueAt(index, 0);
             textFieldTime.setText(Integer.toString(currentSleepTool.getSleepTime()));
+            buttonCopy.setEnabled(true);
+            buttonDelete.setEnabled(true);
+            buttonRun.setEnabled(true);
         }
         else
         {
             currentSleepTool = null;
-            textFieldTime.setText("1");
+            textFieldTime.setText("");
+            buttonCopy.setEnabled(false);
+            buttonDelete.setEnabled(false);
+            buttonRun.setEnabled(false);
         }
     }
 

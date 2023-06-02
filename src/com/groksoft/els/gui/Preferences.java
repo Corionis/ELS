@@ -21,8 +21,9 @@ import java.util.List;
 @SuppressWarnings(value = "unchecked")
 public class Preferences implements Serializable
 {
-    static final int CURRENT_SCHEMA = 1; // schema version, set in write()
+    static final int SCHEMA = 1; // schema version, set in write()
     public final String DEFAULT_ACCENT_COLOR = "2675BF";
+    private int schema = 1;
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
@@ -81,7 +82,6 @@ public class Preferences implements Serializable
     private int progressWidth = -1;
     private int progressXpos = -1;
     private int progressYpos = -1;
-    private int schema = 1;
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
     private boolean showDnDConfirmation = true;
@@ -1414,7 +1414,7 @@ public class Preferences implements Serializable
         String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        schema = CURRENT_SCHEMA; // set current schema version
+        schema = SCHEMA; // set current schema version
 
         // size & position
         appWidth = context.mainFrame.getWidth();

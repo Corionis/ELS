@@ -507,6 +507,11 @@ public class JunkRemoverUI extends JDialog
             JunkTableModel model = (JunkTableModel) tableJunk.getModel();
             model.setTool(jrt);
             model.fireTableDataChanged();
+            buttonCopy.setEnabled(true);
+            buttonDelete.setEnabled(true);
+            buttonRun.setEnabled(true);
+            buttonAddRow.setEnabled(true);
+            buttonRemoveRow.setEnabled(true);
         }
         else
         {
@@ -517,6 +522,11 @@ public class JunkRemoverUI extends JDialog
             }
             model.setTool(null);
             model.fireTableDataChanged();
+            buttonCopy.setEnabled(false);
+            buttonDelete.setEnabled(false);
+            buttonRun.setEnabled(false);
+            buttonAddRow.setEnabled(false);
+            buttonRemoveRow.setEnabled(false);
         }
     }
 
