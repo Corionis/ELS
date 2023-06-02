@@ -23,7 +23,7 @@
         <!-- Write the build timestamp -->
         <tstamp>
             <format property="STRINGNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
-            <format property="NUMBERNOW" pattern="ddMMyyyyHHmm" locale="en,US"/>
+            <format property="NUMBERNOW" pattern="yyMMddHHmm" locale="en,US"/>
         </tstamp>
         <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${STRINGNOW}</echo>
         <!-- Write the version.info file -->

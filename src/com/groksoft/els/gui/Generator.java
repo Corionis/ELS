@@ -63,7 +63,7 @@ public class Generator
         // setup comment panel
         labelComment.setText(context.cfg.gs("Generator.shortcut.comment"));
         panelComment.add(labelComment);
-        fieldComment.setText("Launch " + name);
+        fieldComment.setText(context.cfg.gs("Generator.launch.els") + name);
         fieldComment.setPreferredSize(new Dimension(200, 30));
         panelComment.add(fieldComment);
 

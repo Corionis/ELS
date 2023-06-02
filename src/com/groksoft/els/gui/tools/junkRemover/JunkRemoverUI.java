@@ -261,13 +261,6 @@ public class JunkRemoverUI extends JDialog
         }
     }
 
-    private void actionSaveClicked(ActionEvent e)
-    {
-        saveConfigurations();
-        savePreferences();
-        setVisible(false);
-    }
-
     private void actionNewClicked(ActionEvent e)
     {
         if (tableJunk.isEditing())
@@ -366,6 +359,13 @@ public class JunkRemoverUI extends JDialog
             workerJrt = tool.clone();
             processSelected(workerJrt);
         }
+    }
+
+    private void actionSaveClicked(ActionEvent e)
+    {
+        saveConfigurations();
+        savePreferences();
+        setVisible(false);
     }
 
     private void adjustJunkTable()

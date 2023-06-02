@@ -18,7 +18,7 @@
   "optKeys": "",
   "optKeysOnly": "",
   "optMismatches": "",
-  "optNavigator": true,
+  "optNavigator": false,
   "optIgnored": false,
   "optOverwrite": false,
   "optQuitStatus": false,

@@ -15,6 +15,7 @@ import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.gui.util.RotatedIcon;
 import com.groksoft.els.gui.util.TextIcon;
+import com.groksoft.els.tools.sleep.SleepTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -722,11 +723,11 @@ public class JobsUI extends JDialog
 
             try
             {
-                // load Job tools first
+                // load Job tools
                 Jobs jobsHandler = new Jobs(context);
                 toolList = jobsHandler.loadAllJobs(); // creates the ArrayList
 
-                // then add all the other tools
+                // add all the other tools
                 Tools toolsHandler = new Tools();
                 toolList = toolsHandler.loadAllTools(context, null, toolList);
 
@@ -1227,7 +1228,7 @@ public class JobsUI extends JDialog
             buttonPub.setEnabled(true);
             enableDisableOrigins(false);
         }
-        else if (currentTask.getInternalName().equals(Job.INTERNAL_NAME))
+        else if (currentTask.getInternalName().equals(Job.INTERNAL_NAME) || currentTask.getInternalName().equals(SleepTool.INTERNAL_NAME))
         {
             loadPubSubs(null);
             labelOrigins.setEnabled(false);
@@ -1571,7 +1572,7 @@ public class JobsUI extends JDialog
         for (int i = 0; i < job.getTasks().size(); ++i)
         {
             Task task = job.getTasks().get(i);
-            if (!task.getInternalName().equals(Job.INTERNAL_NAME))
+            if (!task.getInternalName().equals(Job.INTERNAL_NAME) && !task.getInternalName().equals(SleepTool.INTERNAL_NAME))
             {
                 AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
                 if (tool != null)
@@ -1601,10 +1602,11 @@ public class JobsUI extends JDialog
                             job.getConfigName() + ", " + task.getConfigName(), context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
             }
-            else
+            else if (!task.getInternalName().equals(SleepTool.INTERNAL_NAME))
             {
                 Job subJob = job.load(task.getConfigName());
                 cachedFound = validateJob(subJob, true);
+                onlyFound = false;
             }
         }
         return (onlyFound) ? cachedFound : sense;

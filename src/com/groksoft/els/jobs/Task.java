@@ -464,8 +464,11 @@ public class Task implements Comparable, Serializable
                 }
                 else // other tools
                 {
-                    pubRepo = getRepo(context, getPublisherKey(), true);
-                    subRepo = getRepo(context, getSubscriberKey(), false);
+                    if (currentTool.isOriginPathsAllowed())
+                    {
+                        pubRepo = getRepo(context, getPublisherKey(), true);
+                        subRepo = getRepo(context, getSubscriberKey(), false);
+                    }
                 }
             }
 
@@ -479,7 +482,7 @@ public class Task implements Comparable, Serializable
             }
             else
             {
-                if (pubRepo == null && subRepo == null)
+                if (pubRepo == null && subRepo == null && currentTool.isOriginPathsAllowed())
                     throw new MungeException((context.cfg.gs("Task.no.repository.is.loaded")));
 
                 worker = currentTool.processToolThread(context, pubRepo, subRepo, origins, dryRun);

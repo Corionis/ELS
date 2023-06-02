@@ -6,6 +6,7 @@ import com.groksoft.els.Context;
 import com.groksoft.els.tools.operations.OperationsTool;
 import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import com.groksoft.els.tools.renamer.RenamerTool;
+import com.groksoft.els.tools.sleep.SleepTool;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
@@ -51,9 +52,9 @@ public class Tools
     {
         AbstractTool tool = null;
 
-        if (internalName.equals("Operations"))
+        if (internalName.equals(OperationsTool.INTERNAL_NAME))
         {
-            // begin OperationsUI
+            // begin Operations
             OperationsTool tmpTool = new OperationsTool(context);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
@@ -80,9 +81,9 @@ public class Tools
                     }
                 }
             }
-            // end OperationsUI
+            // end Operations
         }
-        else if (internalName.equals("JunkRemover"))
+        else if (internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
             // begin JunkRemover
             JunkRemoverTool tmpTool = new JunkRemoverTool(context);
@@ -113,14 +114,14 @@ public class Tools
             }
             // end JunkRemover
         }
-        else if (internalName.equals("Renamer"))
+        else if (internalName.equals(RenamerTool.INTERNAL_NAME))
         {
             // begin Renamer
             RenamerTool tmpTool = new RenamerTool(context);
             File toolDir = new File(tmpTool.getDirectoryPath());
             if (toolDir.exists() && toolDir.isDirectory())
             {
-                RenamerParser RenamerParser = new RenamerParser();
+                RenamerParser renamerParser = new RenamerParser();
                 File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
                 for (File entry : files)
                 {
@@ -129,7 +130,7 @@ public class Tools
                         String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
                         if (json != null)
                         {
-                            AbstractTool jrt = RenamerParser.parseTool(context, json);
+                            AbstractTool jrt = renamerParser.parseTool(context, json);
                             if (jrt != null)
                             {
                                 if (jrt.getConfigName().equalsIgnoreCase(configName))
@@ -143,6 +144,37 @@ public class Tools
                 }
             }
             // end Renamer
+        }
+        else if (internalName.equals(SleepTool.INTERNAL_NAME))
+        {
+            // begin SleepTool
+            SleepTool tmpTool = new SleepTool(context);
+            File toolDir = new File(tmpTool.getDirectoryPath());
+            if (toolDir.exists() && toolDir.isDirectory())
+            {
+                SleepParser sleepParser = new SleepParser();
+                File[] files = FileSystemView.getFileSystemView().getFiles(toolDir, false);
+                for (File entry : files)
+                {
+                    if (!entry.isDirectory())
+                    {
+                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
+                        if (json != null)
+                        {
+                            AbstractTool slp = sleepParser.parseTool(context, json);
+                            if (slp != null)
+                            {
+                                if (slp.getConfigName().equalsIgnoreCase(configName))
+                                {
+                                    tool = slp;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end SleepTool
         }
         else if (0 == 1)
         {
@@ -218,6 +250,16 @@ public class Tools
         }
         // end Renamer
 
+        // begin SleepUI Tool
+        if (internalName == null || internalName.equals(SleepTool.INTERNAL_NAME))
+        {
+            toolParser = new SleepParser();
+            SleepTool tmpSleep = new SleepTool(context);
+            toolDir = new File(tmpSleep.getDirectoryPath());
+            toolList = scanTools(context, toolList, toolParser, toolDir);
+        }
+        // end SleepUI Tool
+
         // TODO EXTEND+ Add other tool parsers here
 
         // sort the list
@@ -236,17 +278,21 @@ public class Tools
     public AbstractTool makeTempTool(String internalName, Context context)
     {
         AbstractTool tmpTool = null;
-        if (internalName.equals("Operations"))
+        if (internalName.equals(OperationsTool.INTERNAL_NAME))
         {
             tmpTool = new OperationsTool(context);
         }
-        else if (internalName.equals("JunkRemover"))
+        else if (internalName.equals(JunkRemoverTool.INTERNAL_NAME))
         {
             tmpTool = new JunkRemoverTool(context);
         }
-        else if (internalName.equals("Renamer"))
+        else if (internalName.equals(RenamerTool.INTERNAL_NAME))
         {
             tmpTool = new RenamerTool(context);
+        }
+        else if (internalName.equals(SleepTool.INTERNAL_NAME))
+        {
+            tmpTool = new SleepTool(context);
         }
         return tmpTool;
     }
@@ -388,6 +434,39 @@ public class Tools
             GsonBuilder builder = new GsonBuilder();
             builder.registerTypeAdapter(RenamerTool.class, new objInstanceCreator());
             RenamerTool tool = builder.create().fromJson(json, RenamerTool.class);
+            return tool;
+        }
+    }
+
+    //=================================================================================================================
+
+    /**
+     * ToolParserI implementation for the SleepTool
+     */
+    private class SleepParser implements ToolParserI
+    {
+        /**
+         * Parse a SleepTool
+         *
+         * @param context The Context
+         * @param json String of JSON to parse
+         * @return AbstractTool instance
+         */
+        @Override
+        public AbstractTool parseTool(Context context, String json)
+        {
+            class objInstanceCreator implements InstanceCreator
+            {
+                @Override
+                public Object createInstance(Type type)
+                {
+                    return new SleepTool(context);
+                }
+            };
+
+            GsonBuilder builder = new GsonBuilder();
+            builder.registerTypeAdapter(SleepTool.class, new objInstanceCreator());
+            SleepTool tool = builder.create().fromJson(json, SleepTool.class);
             return tool;
         }
     }

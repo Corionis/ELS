@@ -12,6 +12,7 @@ import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
+import com.groksoft.els.gui.tools.sleep.SleepUI;
 import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.jobs.Origin;
@@ -61,6 +62,7 @@ public class Navigator
     public JunkRemoverUI dialogJunkRemover = null;
     public RenamerUI dialogRenamer = null;
     private Settings dialogSettings = null;
+    public SleepUI dialogSleep = null;
     public Job[] jobs;
     private int lastFindPosition = 0;
     private String lastFindString = "";
@@ -1676,6 +1678,25 @@ public class Navigator
                 {
                     dialogJobs.toFront();
                     dialogRenamer.requestFocus();
+                }
+            }
+        });
+
+        // --- Sleep Tool
+        context.mainFrame.menuItemSleep.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogSleep == null || !dialogSleep.isShowing())
+                {
+                    dialogSleep = new SleepUI(context.mainFrame, context);
+                    dialogSleep.setVisible(true);
+                }
+                else
+                {
+                    dialogSleep.toFront();
+                    dialogSleep.requestFocus();
                 }
             }
         });

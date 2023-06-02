@@ -15,13 +15,12 @@ import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.io.File;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Job extends AbstractTool implements Comparable, Serializable
+public class Job extends AbstractTool
 {
     public static String INTERNAL_NAME = "jobs"; // must be lowercase
 

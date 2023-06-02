@@ -21,12 +21,8 @@ import java.util.List;
 @SuppressWarnings(value = "unchecked")
 public class Preferences implements Serializable
 {
-    private transient Context context;
-    private transient Logger logger = LogManager.getLogger("applog");
-    private transient LookAndFeel laf = null;
-    public final String DEFAULT_ACCENT_COLOR = "2675BF";
     static final int CURRENT_SCHEMA = 1; // schema version, set in write()
-
+    public final String DEFAULT_ACCENT_COLOR = "2675BF";
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
@@ -124,6 +120,14 @@ public class Preferences implements Serializable
     private int toolsRenamerWidth = 570;
     private int toolsRenamerXpos = -1;
     private int toolsRenamerYpos = -1;
+    private int toolsSleepDividerLocation = 142;
+    private int toolsSleepHeight = 470;
+    private int toolsSleepWidth = 570;
+    private int toolsSleepXpos = -1;
+    private int toolsSleepYpos = -1;
+    private transient Context context;
+    private transient Logger logger = LogManager.getLogger("applog");
+    private transient LookAndFeel laf = null;
 
     /**
      * Constructor
@@ -763,6 +767,31 @@ public class Preferences implements Serializable
         return toolsRenamerYpos;
     }
 
+    public int getToolsSleepDividerLocation()
+    {
+        return toolsSleepDividerLocation;
+    }
+
+    public int getToolsSleepHeight()
+    {
+        return toolsSleepHeight;
+    }
+
+    public int getToolsSleepWidth()
+    {
+        return toolsSleepWidth;
+    }
+
+    public int getToolsSleepXpos()
+    {
+        return toolsSleepXpos;
+    }
+
+    public int getToolsSleepYpos()
+    {
+        return toolsSleepYpos;
+    }
+
     public void initLookAndFeel() throws Exception
     {
         if (laf == null)
@@ -935,11 +964,6 @@ public class Preferences implements Serializable
         this.centerDividerOrientation = centerDividerOrientation;
     }
 
-    public void setContext(Context context)
-    {
-        this.context = context;
-    }
-
     public void setCollectionOneDateWidth(int collectionOneDateWidth)
     {
         this.collectionOneDateWidth = collectionOneDateWidth;
@@ -998,6 +1022,11 @@ public class Preferences implements Serializable
     public void setCollectionTwoSortDirection(int collectionTwoSortDirection)
     {
         this.collectionTwoSortDirection = collectionTwoSortDirection;
+    }
+
+    public void setContext(Context context)
+    {
+        this.context = context;
     }
 
     public void setDateFormat(String dateFormat)
@@ -1353,6 +1382,31 @@ public class Preferences implements Serializable
     public void setToolsRenamerYpos(int toolsRenamerYpos)
     {
         this.toolsRenamerYpos = toolsRenamerYpos;
+    }
+
+    public void setToolsSleepDividerLocation(int toolsSleepDividerLocation)
+    {
+        this.toolsSleepDividerLocation = toolsSleepDividerLocation;
+    }
+
+    public void setToolsSleepHeight(int toolsSleepHeight)
+    {
+        this.toolsSleepHeight = toolsSleepHeight;
+    }
+
+    public void setToolsSleepWidth(int toolsSleepWidth)
+    {
+        this.toolsSleepWidth = toolsSleepWidth;
+    }
+
+    public void setToolsSleepXpos(int toolsSleepXpos)
+    {
+        this.toolsSleepXpos = toolsSleepXpos;
+    }
+
+    public void setToolsSleepYpos(int toolsSleepYpos)
+    {
+        this.toolsSleepYpos = toolsSleepYpos;
     }
 
     public void write(Context context) throws Exception

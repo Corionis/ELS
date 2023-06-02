@@ -15,14 +15,13 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.groksoft.els.Configuration.Operations.StatusServer;
 import static com.groksoft.els.Configuration.Operations.StatusServerQuit;
 
-public class OperationsTool extends AbstractTool implements Comparable, Serializable
+public class OperationsTool extends AbstractTool
 {
     // @formatter:off
     // Elements match card names in lowercase

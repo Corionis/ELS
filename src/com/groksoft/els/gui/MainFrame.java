@@ -501,6 +501,7 @@ public class MainFrame extends JFrame
         menuItemEmptyFinder = new JMenuItem();
         menuItemJunk = new JMenuItem();
         menuItemRenamer = new JMenuItem();
+        menuItemSleep = new JMenuItem();
         menuItemExternalTools = new JMenuItem();
         menuItemPlexGenerator = new JMenuItem();
         menuItem1 = new JMenuItem();
@@ -1009,6 +1010,11 @@ public class MainFrame extends JFrame
                 menuItemRenamer.setText(context.cfg.gs("Navigator.menu.Renamer.text"));
                 menuItemRenamer.setMnemonic(context.cfg.gs("Navigator.menu.Renamer.mnemonic").charAt(0));
                 menuTools.add(menuItemRenamer);
+
+                //---- menuItemSleep ----
+                menuItemSleep.setText(context.cfg.gs("Navigator.menuItemSleep.text"));
+                menuItemSleep.setMnemonic(context.cfg.gs("Navigator.menuItemSleep.mnemonic").charAt(0));
+                menuTools.add(menuItemSleep);
                 menuTools.addSeparator();
 
                 //---- menuItemExternalTools ----
@@ -3476,7 +3482,7 @@ public class MainFrame extends JFrame
                 new Insets(0, 0, 0, 8), 0, 0));
         }
         contentPane.add(panelStatus, BorderLayout.SOUTH);
-        setSize(1025, 835);
+        pack();
         setLocationRelativeTo(getOwner());
 
         //======== popupMenuBrowser ========
@@ -3656,6 +3662,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemEmptyFinder;
     public JMenuItem menuItemJunk;
     public JMenuItem menuItemRenamer;
+    public JMenuItem menuItemSleep;
     public JMenuItem menuItemExternalTools;
     public JMenuItem menuItemPlexGenerator;
     public JMenuItem menuItem1;

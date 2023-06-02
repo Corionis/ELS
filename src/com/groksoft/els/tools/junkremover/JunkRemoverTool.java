@@ -72,6 +72,21 @@ public class JunkRemoverTool extends AbstractTool
         return ji;
     }
 
+    public JunkRemoverTool clone()
+    {
+        assert context != null;
+        JunkRemoverTool jrt = new JunkRemoverTool(context);
+        jrt.setConfigName(getConfigName());
+        jrt.setDisplayName(getDisplayName());
+        jrt.setDataHasChanged();
+        jrt.setIncludeInToolsList(this.isIncludeInToolsList());
+        jrt.isDryRun = this.isDryRun;
+        jrt.setIsRemote(this.isRemote());
+        jrt.setJunkList(getJunkList());
+        jrt.setIncludeInToolsList(isIncludeInToolsList());
+        return jrt;
+    }
+
     private int expandOrigins(ArrayList<Origin> origins) throws MungeException
     {
         int count = 0;
@@ -121,21 +136,6 @@ public class JunkRemoverTool extends AbstractTool
         }
 
         return count;
-    }
-
-    public JunkRemoverTool clone()
-    {
-        assert context != null;
-        JunkRemoverTool jrt = new JunkRemoverTool(context);
-        jrt.setConfigName(getConfigName());
-        jrt.setDisplayName(getDisplayName());
-        jrt.setDataHasChanged();
-        jrt.setIncludeInToolsList(this.isIncludeInToolsList());
-        jrt.isDryRun = this.isDryRun;
-        jrt.setIsRemote(this.isRemote());
-        jrt.setJunkList(getJunkList());
-        jrt.setIncludeInToolsList(isIncludeInToolsList());
-        return jrt;
     }
 
     public String getConfigName()

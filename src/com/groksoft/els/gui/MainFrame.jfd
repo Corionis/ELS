@@ -18,7 +18,6 @@ new FormModel {
 			"iconImage": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-98px.png" )
 			"defaultCloseOperation": 0
 			"locationByPlatform": true
-			"$sizePolicy": 1
 			"title": "ELS Navigator"
 			auxiliary() {
 				"JavaCodeGenerator.variableGetter": true
@@ -2566,6 +2565,11 @@ new FormModel {
 						name: "menuItemRenamer"
 						"text": new FormMessage( null, "Navigator.menu.Renamer.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Renamer.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemSleep"
+						"text": new FormMessage( null, "Navigator.menuItemSleep.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemSleep.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separatorTools1"
