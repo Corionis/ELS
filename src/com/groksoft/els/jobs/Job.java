@@ -305,8 +305,11 @@ public class Job extends AbstractTool
                 }
             }
 
-            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            context.savedEnvironment.restore(currentTask);
+            if (context.mainFrame != null)
+            {
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                context.savedEnvironment.restore(currentTask);
+            }
 
             logger.info(context.cfg.gs("Job.completed.job") +
                     job.getConfigName()+ ((isDryRun) ? context.cfg.gs("Z.dry.run") : "") +

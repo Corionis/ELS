@@ -128,7 +128,7 @@ public class SleepTool extends AbstractTool
     public void processTool(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun, Task lastTask) throws Exception
     {
         logger.info(getDisplayName() + ", " + getConfigName() + ": " + sleep);
-        Thread.sleep(sleep);
+        Thread.sleep(sleep * 1000 * 60);
         logger.info(getConfigName() + context.cfg.gs("Z.completed"));
     }
 

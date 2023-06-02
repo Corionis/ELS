@@ -358,8 +358,10 @@ public class Task implements Comparable, Serializable
                 {
                     pubRepo = getRepo(context, getPublisherKey(), true);
                     subRepo = getRepo(context, getSubscriberKey(), false);
-                    pubPath = pubRepo.getJsonFilename();
-                    subPath = subRepo.getJsonFilename();
+                    if (pubRepo != null)
+                        pubPath = pubRepo.getJsonFilename();
+                    if (subRepo != null)
+                        subPath = subRepo.getJsonFilename();
                     pubRepo = null;
                     subRepo = null;
                     context.nestedProcesses = true;
@@ -388,16 +390,10 @@ public class Task implements Comparable, Serializable
             // sanity check then run it
             if (currentTool instanceof OperationsTool)
             {
-                if (pubPath == null && subPath == null)
-                    throw new MungeException(context.cfg.gs("Task.no.repository.is.defined"));
-
                 currentTool.processTool(context, pubPath, subPath, dryRun);
             }
             else // other tools
             {
-                if (pubRepo == null && subRepo == null)
-                    throw new MungeException(context.cfg.gs("Task.no.repository.is.loaded"));
-
                 currentTool.processTool(context, pubRepo, subRepo, origins, dryRun, useCachedLastTask(context) ? previousTask : null);
             }
             if (currentTool.isRequestStop())
