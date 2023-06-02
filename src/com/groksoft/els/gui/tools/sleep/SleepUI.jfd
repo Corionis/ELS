@@ -52,18 +52,6 @@ new FormModel {
 								"toolTipText": "Delete a tool configuration"
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
 							} )
-							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
-								name: "hSpacerBeforeRun"
-								"minimumSize": new java.awt.Dimension( 22, 6 )
-								"preferredSize": new java.awt.Dimension( 22, 6 )
-							} )
-							add( new FormComponent( "javax.swing.JButton" ) {
-								name: "buttonRun"
-								"text": "Run ..."
-								"mnemonic": 82
-								"toolTipText": "Execute the selected configuration on the current Browser selection(s)"
-								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )
-							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
 							"value": "West"
 						} )

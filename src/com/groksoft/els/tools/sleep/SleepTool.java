@@ -10,7 +10,6 @@ import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
-import com.groksoft.els.tools.junkremover.JunkRemoverTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -154,54 +153,7 @@ public class SleepTool extends AbstractTool
     @Override
     public SwingWorker<Void, Void> processToolThread(Context context, Repository publisherRepo, Repository subscriberRepo, ArrayList<Origin> origins, boolean dryRun)
     {
-        // create a fresh dialog
-        if (context != null)
-        {
-            if (context.progress == null || !context.progress.isBeingUsed())
-            {
-                ActionListener cancel = new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        requestStop();
-                    }
-                };
-                context.progress = new Progress(context, context.mainFrame, cancel, isDryRun);
-                context.progress.display();
-            }
-            else
-            {
-                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-                return null;
-            }
-        }
-
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>()
-        {
-            @Override
-            protected Void doInBackground() throws Exception
-            {
-                try
-                {
-                    processTool(context, publisherRepo, subscriberRepo, origins, dryRun, null);
-                }
-                catch (Exception e)
-                {
-                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (context != null)
-                    {
-                        logger.error(msg);
-                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("SleepTool.sleep.tool"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                        logger.error(msg);
-                }
-                return null;
-            }
-        };
-        worker.execute();
-        return worker;
+        return null;
     }
 
     public boolean isDataChanged()

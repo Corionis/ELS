@@ -232,7 +232,6 @@ public class SleepUI extends JDialog
             {
                 buttonCopy.setEnabled(true);
                 buttonDelete.setEnabled(true);
-                buttonRun.setEnabled(true);
             }
 
             configItems.editCellAt(configModel.getRowCount() - 1, 0);
@@ -254,7 +253,6 @@ public class SleepUI extends JDialog
         {
             currentSleepTool = (SleepTool) configModel.getValueAt(index, 0);
             workerTool = currentSleepTool.clone();
-            processSelected(workerTool);
         }
     }
 
@@ -357,7 +355,6 @@ public class SleepUI extends JDialog
             textFieldTime.setText("");
             buttonCopy.setEnabled(false);
             buttonDelete.setEnabled(false);
-            buttonRun.setEnabled(false);
         }
         else
         {
@@ -375,7 +372,6 @@ public class SleepUI extends JDialog
             textFieldTime.setText(Integer.toString(currentSleepTool.getSleepTime()));
             buttonCopy.setEnabled(true);
             buttonDelete.setEnabled(true);
-            buttonRun.setEnabled(true);
         }
         else
         {
@@ -383,101 +379,6 @@ public class SleepUI extends JDialog
             textFieldTime.setText("");
             buttonCopy.setEnabled(false);
             buttonDelete.setEnabled(false);
-            buttonRun.setEnabled(false);
-        }
-    }
-
-    public void processSelected(SleepTool tool)
-    {
-        if (tool != null)
-        {
-            try
-            {
-                    // make dialog pieces
-                    String message = java.text.MessageFormat.format(context.cfg.gs("Sleep.run.sleep"), tool.getConfigName());
-                    Object[] params = {message};
-
-                    // confirm run of tool
-                    int reply = JOptionPane.showConfirmDialog(this, params, context.cfg.gs("Sleep.title"), JOptionPane.YES_NO_OPTION);
-                    if (reply == JOptionPane.YES_OPTION)
-                    {
-                        try
-                        {
-                            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                            setComponentEnabled(false);
-                            cancelButton.setEnabled(true);
-                            cancelButton.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            labelHelp.setEnabled(true);
-                            labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-                            Task task = new Task(tool.getInternalName(), tool.getConfigName());
-                            task.setOrigins(null);
-
-                            worker = task.process(context, tool, isDryRun);
-                            if (worker != null)
-                            {
-                                workerRunning = true;
-                                worker.addPropertyChangeListener(new PropertyChangeListener()
-                                {
-                                    @Override
-                                    public void propertyChange(PropertyChangeEvent e)
-                                    {
-                                        if (e.getPropertyName().equals("state"))
-                                        {
-                                            if (e.getNewValue() == SwingWorker.StateValue.DONE)
-                                                processTerminated(task, tool);
-                                        }
-                                    }
-                                });
-                            }
-                        }
-                        catch (Exception e)
-                        {
-                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                            if (context != null)
-                            {
-                                logger.error(msg);
-                                JOptionPane.showMessageDialog(context.navigator.dialogSleep, msg, context.cfg.gs("Sleep.title"), JOptionPane.ERROR_MESSAGE);
-                            }
-                            else
-                                logger.error(msg);
-                        }
-                    }
-
-            }
-            catch (Exception e)
-            {
-                if (!e.getMessage().equals("HANDLED_INTERNALLY"))
-                {
-                    String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                    if (context != null)
-                    {
-                        logger.error(msg);
-                        JOptionPane.showMessageDialog(context.navigator.dialogSleep, msg, context.cfg.gs("Sleep.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                    else
-                        logger.error(msg);
-                }
-            }
-        }
-    }
-    
-    private void processTerminated(Task task, SleepTool tool)
-    {
-        if (context.progress != null)
-            context.progress.done();
-
-        Origins.setSelectedFromOrigins(context, this, task.getOrigins());
-
-        setComponentEnabled(true);
-        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        workerRunning = false;
-        workerTool = null;
-
-        if (tool.isRequestStop())
-        {
-            logger.info(tool.getConfigName() + context.cfg.gs("Z.cancelled"));
-            context.mainFrame.labelStatusMiddle.setText(tool.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
     }
 
@@ -602,8 +503,6 @@ public class SleepUI extends JDialog
         buttonNew = new JButton();
         buttonCopy = new JButton();
         buttonDelete = new JButton();
-        hSpacerBeforeRun = new JPanel(null);
-        buttonRun = new JButton();
         panelHelp = new JPanel();
         labelHelp = new JLabel();
         splitPaneContent = new JSplitPane();
@@ -669,18 +568,6 @@ public class SleepUI extends JDialog
                         buttonDelete.setToolTipText("Delete a tool configuration");
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
-
-                        //---- hSpacerBeforeRun ----
-                        hSpacerBeforeRun.setMinimumSize(new Dimension(22, 6));
-                        hSpacerBeforeRun.setPreferredSize(new Dimension(22, 6));
-                        panelTopButtons.add(hSpacerBeforeRun);
-
-                        //---- buttonRun ----
-                        buttonRun.setText("Run ...");
-                        buttonRun.setMnemonic('R');
-                        buttonRun.setToolTipText("Execute the selected configuration on the current Browser selection(s)");
-                        buttonRun.addActionListener(e -> actionRunClicked(e));
-                        panelTopButtons.add(buttonRun);
                     }
                     panelTop.add(panelTopButtons, BorderLayout.WEST);
 
@@ -812,8 +699,6 @@ public class SleepUI extends JDialog
     private JButton buttonNew;
     private JButton buttonCopy;
     private JButton buttonDelete;
-    private JPanel hSpacerBeforeRun;
-    private JButton buttonRun;
     private JPanel panelHelp;
     private JLabel labelHelp;
     private JSplitPane splitPaneContent;
