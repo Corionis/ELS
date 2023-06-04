@@ -15,6 +15,7 @@ import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.gui.util.RotatedIcon;
 import com.groksoft.els.gui.util.TextIcon;
+import com.groksoft.els.tools.operations.OperationsTool;
 import com.groksoft.els.tools.sleep.SleepTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,6 +49,13 @@ public class JobsUI extends JDialog
     private static final int ANY_SUBSCRIBER = 3;
     private static final int LOCAL_SUBSCRIBER = 4;
     private static final int REMOTE_SUBSCRIBER = 5;
+
+    // PubSub enable/disable combinations
+    private final int WANT_CACHED = 0;
+    private final int WANT_NO_PUBSUB = 1;
+    private final int WANT_PUB = 2;
+    private final int WANT_PUBSUB = 3;
+    private final int WANT_PUBSUB_NO_ORIGINS = 4;
 
     private ConfigModel configModel;
     private Context context;
@@ -1009,24 +1017,6 @@ public class JobsUI extends JDialog
         return path;
     }
 
-    public Repositories getRepositories()
-    {
-        Repositories repositories = null;
-        try
-        {
-            repositories = new Repositories();
-            repositories.loadList(context);
-        }
-        catch (Exception e)
-        {
-            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-            logger.error(msg);
-            JOptionPane.showMessageDialog(this, msg,
-                    context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-        }
-        return repositories;
-    }
-
     public String getOriginType(int type)
     {
         switch (type)
@@ -1050,7 +1040,52 @@ public class JobsUI extends JDialog
             default:
                 return context.cfg.gs("NavTreeNode.unknown");
         }
+    }
 
+    /**
+     * Get task want for PubSub and Origins
+     *
+     * @param task Task
+     * @return WANT_*
+     * @throws Exception Possible exception loading a tool
+     * @see OperationsTool.Cards
+     */
+    private int getOriginWant(Task task) throws Exception
+    {
+        int want = -1;
+
+        if (task.getPublisherKey().equals(Task.CACHEDLASTTASK)) // publisher key (only) is used to indicate cached last task
+            want = WANT_CACHED;
+        else if (task.getInternalName().equals(Job.INTERNAL_NAME) ||
+                task.getInternalName().equals(SleepTool.INTERNAL_NAME) ||
+                (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool)task.getTool()).getCard().equals(OperationsTool.Cards.HintServer) ))
+            want = WANT_NO_PUBSUB;
+        else if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool)task.getTool()).getCard().equals(OperationsTool.Cards.StatusQuit))
+            want = WANT_PUB;
+        else if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME))
+            want = WANT_PUBSUB_NO_ORIGINS;
+        else
+            want = WANT_PUBSUB;
+
+        return want;
+    }
+
+    public Repositories getRepositories()
+    {
+        Repositories repositories = null;
+        try
+        {
+            repositories = new Repositories();
+            repositories.loadList(context);
+        }
+        catch (Exception e)
+        {
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            logger.error(msg);
+            JOptionPane.showMessageDialog(this, msg,
+                    context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+        }
+        return repositories;
     }
 
     private void listTasksMouseClicked(MouseEvent e)
@@ -1131,6 +1166,7 @@ public class JobsUI extends JDialog
                                         AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
                                         if (tool != null)
                                         {
+
                                             task.setDual(tool.isDualRepositories());
                                             task.setRealOnly(tool.isRealOnly());
                                             tasks.set(i, task);
@@ -1191,6 +1227,7 @@ public class JobsUI extends JDialog
                 for (int i = 0; i < currentJob.getTasks().size(); ++i)
                 {
                     Task task = currentJob.getTasks().get(i);
+                    task.setContext(context);
                     String i18n = task.getInternalName() + ".displayName";
                     i18n = context.cfg.gs(i18n);
                     if (i18n.length() == 0)
@@ -1220,41 +1257,62 @@ public class JobsUI extends JDialog
         currentTask = task;
         enableDisableOrigins(currentTask.isOriginPathsAllowed(context));
 
-        // publisher key (only) is used to indicate last task
-        if (currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
+        int want = -1;
+        try
         {
-            loadPubSubs(currentTask);
-            labelOrigins.setEnabled(true);
-            buttonPub.setEnabled(true);
-            enableDisableOrigins(false);
+            want = getOriginWant(currentTask);
         }
-        else if (currentTask.getInternalName().equals(Job.INTERNAL_NAME) || currentTask.getInternalName().equals(SleepTool.INTERNAL_NAME))
+        catch (Exception e)
         {
-            loadPubSubs(null);
-            labelOrigins.setEnabled(false);
-            buttonPub.setEnabled(false);
-            enableDisableOrigins(false);
+            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+            logger.error(msg);
+            JOptionPane.showMessageDialog(this, msg,
+                    context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
         }
-        else
-        {
-            loadPubSubs(currentTask);
-            buttonPub.setEnabled(true);
-            labelOrigins.setEnabled(true);
-            enableDisableOrigins(true);
 
-            if (currentTask.getOrigins().size() > 0)
-            {
-                for (int i = 0; i < currentTask.getOrigins().size(); ++i)
+        switch (want)
+        {
+            case WANT_CACHED:
+                loadPubSubs(currentTask);
+                labelOrigins.setEnabled(true);
+                buttonPub.setEnabled(true);
+                enableDisableOrigins(false);
+                break;
+            case WANT_NO_PUBSUB:
+                loadPubSubs(null);
+                labelOrigins.setEnabled(false);
+                buttonPub.setEnabled(false);
+                enableDisableOrigins(false);
+                break;
+            case WANT_PUB:
+                task.setDual(false);
+                loadPubSubs(currentTask);
+                labelOrigins.setEnabled(true);
+                buttonPub.setEnabled(true);
+                enableDisableOrigins(false);
+                break;
+            case WANT_PUBSUB:
+            case WANT_PUBSUB_NO_ORIGINS:
+                loadPubSubs(currentTask);
+                buttonPub.setEnabled(true);
+                labelOrigins.setEnabled(true);
+                enableDisableOrigins(want == WANT_PUBSUB ? true : false);
+
+                if (want == WANT_PUBSUB && currentTask.getOrigins().size() > 0)
                 {
-                    Origin origin = currentTask.getOrigins().get(i);
-                    String ot = getOriginType(origin.getType());
-                    String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + origin.getLocation();
-                    model.addElement(id);
+                    for (int i = 0; i < currentTask.getOrigins().size(); ++i)
+                    {
+                        Origin origin = currentTask.getOrigins().get(i);
+                        String ot = getOriginType(origin.getType());
+                        String id = getOriginType(origin.getType()) + (ot.length() > 0 ? ": " : "") + origin.getLocation();
+                        model.addElement(id);
+                    }
+                    if (listOrigins.getModel().getSize() > 0)
+                        listOrigins.setSelectedIndex(0);
                 }
-                if (listOrigins.getModel().getSize() > 0)
-                    listOrigins.setSelectedIndex(0);
-            }
+                break;
         }
+
         listOrigins.setModel(model);
     }
 

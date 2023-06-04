@@ -24,7 +24,20 @@ import static com.groksoft.els.Configuration.Operations.StatusServerQuit;
 public class OperationsTool extends AbstractTool
 {
     // @formatter:off
+
     // Elements match card names in lowercase
+    // Jobs PubSub handling. Origin paths always disabled for Operations
+    //  * Publisher & Subscriber
+    //     + Publisher
+    //     + Listener
+    //     + Terminal
+    //     + SubscriberQuit
+    //  * Publisher
+    //     + StatusQuit
+    //  * None, PubSub disabled
+    //     + HintServer
+    //
+    // @see JobsUI.getOriginWant()
     public static enum Cards { Publisher, Listener, HintServer, Terminal, SubscriberQuit, StatusQuit }
 
     public static final String INTERNAL_NAME = "Operations";

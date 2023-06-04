@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
-import com.groksoft.els.gui.Progress;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Task;
 import com.groksoft.els.repository.Repository;
@@ -14,8 +13,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

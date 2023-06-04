@@ -1,0 +1,29 @@
+{
+  "configName": "510 Hint Status Server",
+  "tasks": [
+    {
+      "configName": "Hint status server",
+      "internalName": "Operations",
+      "publisherKey": "",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "1 minute",
+      "internalName": "Sleep",
+      "publisherKey": "",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    },
+    {
+      "configName": "Hint server force quit",
+      "internalName": "Operations",
+      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "subscriberKey": "",
+      "subscriberRemote": false,
+      "origins": []
+    }
+  ]
+}

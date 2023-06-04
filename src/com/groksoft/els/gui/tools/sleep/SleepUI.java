@@ -4,8 +4,6 @@ import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.util.NumberFilter;
-import com.groksoft.els.jobs.Origins;
-import com.groksoft.els.jobs.Task;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
 import com.groksoft.els.tools.sleep.SleepTool;
@@ -14,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.*;
@@ -32,7 +28,6 @@ public class SleepUI extends JDialog
     private ArrayList<SleepTool> deletedTools;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
-    private boolean isDryRun;
     private NumberFilter numberFilter;
     private SwingWorker<Void, Void> worker;
     private SleepTool workerTool = null;

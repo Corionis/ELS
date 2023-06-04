@@ -2,11 +2,11 @@
   "configName": "503 Remote Publish Any",
   "tasks": [
     {
-      "configName": "Remote Publish",
+      "configName": "Remote publish",
       "internalName": "Operations",
       "publisherKey": "_ANY_SERVER_",
       "subscriberKey": "_ANY_SERVER_",
-      "subscriberRemote": true,
+      "subscriberRemote": false,
       "origins": []
     }
   ]

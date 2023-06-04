@@ -250,8 +250,14 @@ public class Task implements Comparable, Serializable
         return subscriberKey;
     }
 
-    public AbstractTool getTool()
+    public AbstractTool getTool() throws Exception
     {
+        if (currentTool == null)
+        {
+            if (tools == null)
+                this.tools = new Tools();
+            currentTool = tools.loadTool(context, getInternalName(), getConfigName());
+        }
         return currentTool;
     }
 
@@ -328,7 +334,7 @@ public class Task implements Comparable, Serializable
         if (logger == null)
             logger = LogManager.getLogger("applog");
 
-        currentTool = tools.loadTool(context, getInternalName(), getConfigName());
+        currentTool = getTool();
         if (currentTool != null)
         {
             if ((origins == null || origins.size() == 0) && !useCachedLastTask(context) && currentTool.isOriginPathsAllowed())
@@ -370,7 +376,6 @@ public class Task implements Comparable, Serializable
                 {
                     pubRepo = getRepo(context, getPublisherKey(), true);
                     subRepo = getRepo(context, getSubscriberKey(), false);
-                //    type = (isSubscriberRemote() || getSubscriberKey().equals(Task.ANY_SERVER)) ? "P" : "-";
                     type = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteSession())) ? "P" : "-";
 
                     context.cfg.setRemoteType(type);
@@ -500,6 +505,11 @@ public class Task implements Comparable, Serializable
     public void setConfigName(String configName)
     {
         this.configName = configName;
+    }
+
+    public void setContext(Context context)
+    {
+        this.context = context;
     }
 
     public void setDual(boolean dual)

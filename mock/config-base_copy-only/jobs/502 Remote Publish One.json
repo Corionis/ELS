@@ -2,9 +2,9 @@
   "configName": "502 Remote Publish One",
   "tasks": [
     {
-      "configName": "Remote Publish",
+      "configName": "Remote publish",
       "internalName": "Operations",
-      "publisherKey": "aa1673d4-5284-4a7d-86c9-3df20adace46",
+      "publisherKey": "_ANY_SERVER_",
       "subscriberKey": "bb12a499-97a6-44e1-8a91-4cc898e45849",
       "subscriberRemote": true,
       "origins": []
