@@ -21,6 +21,11 @@ on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** 
 See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for
 features, downloads and documentation.
 
+ELS version 4.0 has been in development since September of 2021. 4.0 is a large
+project that adds a powerful desktop application called the ELS Navigator. The
+new version is not complete however large portions are done and quite useful.
+See **[ELS Version 4.0.0](https://github.com/GrokSoft/ELS/tree/Version-4.0.0)**.
+
 ## Features
 
  * New ELS Hint Status Tracker to coordinate local hint status, new in 3.1.0.
