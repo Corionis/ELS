@@ -2,7 +2,7 @@
   "configName": "110 Rename \u0026 Dryrun",
   "tasks": [
     {
-      "configName": "020 Renamer Tests",
+      "configName": "020 Multi-Renamer Publisher L",
       "internalName": "jobs",
       "publisherKey": "",
       "subscriberKey": "",

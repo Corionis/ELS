@@ -1,11 +1,14 @@
 package com.groksoft.els.gui.jobs;
 
 import com.groksoft.els.Context;
+import com.groksoft.els.jobs.Conflict;
 import com.groksoft.els.jobs.Job;
+import com.groksoft.els.jobs.Jobs;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.io.File;
+import java.util.ArrayList;
 
 public class ConfigModel extends DefaultTableModel
 {
@@ -60,24 +63,70 @@ public class ConfigModel extends DefaultTableModel
                 Job tmp = find(name, job);
                 if (tmp != null)
                 {
+                    success = false;
                     JOptionPane.showMessageDialog(myDialog,
                             context.cfg.gs(("Z.that.configuration.already.exists")),
                             context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
                 }
+                else if (context.navigator.dialogJobs != null &&
+                        context.navigator.dialogJobs.checkForChanges() == true) // todo ??????????????????
+                {
+                    success = false;
+                    JOptionPane.showMessageDialog(myDialog,
+                            context.cfg.gs(("Please save Jobs changes before renaming this Job")),
+                            context.cfg.gs("JobsUI.title"), JOptionPane.WARNING_MESSAGE);
+                }
                 else
                 {
-                    // if the name changed add any existing file to deleted list
+                    // if the name changed ...
                     if (!job.getConfigName().equals(name))
                     {
-                        File file = new File(job.getFullPath());
-                        if (file.exists())
+                        // see if anything depends on the old name
+                        Jobs jobsHandler = new Jobs(context);
+                        int condition = jobsHandler.checkConflicts(myDialog, true, job);
+                        if (condition == 1)
                         {
-                            myDialog.getDeletedJobs().add(job.clone());
+                            // handle conflicts
+                            ArrayList<Conflict> conflicts = jobsHandler.getConflicts();
+
                         }
-                        job.setConfigName(name);
-                        job.setDataHasChanged();
+
+                        if (condition >= 0)
+                        {
+                            // see if that name is to be deleted
+                            boolean restored = false;
+                            for (Job dj : myDialog.getDeletedJobs())
+                            {
+                                if (dj.getConfigName().equals(name))
+                                {
+                                    // remove from delete list
+                                    myDialog.getDeletedJobs().remove(dj);
+                                    restored = true;
+                                    break;
+                                }
+                            }
+
+                            if (!restored)
+                            {
+                                // add to delete list if file exists
+                                File file = new File(job.getFullPath());
+                                if (file.exists())
+                                {
+                                    myDialog.getDeletedJobs().add(job.clone());
+                                }
+                            }
+
+                            job.setConfigName(name);
+                            job.setDataHasChanged();
+                            context.mainFrame.labelStatusMiddle.setText("");
+                            success = true;
+                        }
+                        else
+                        {
+                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.rename") + context.cfg.gs("Z.cancelled"));
+                            success = false;
+                        }
                     }
-                    success = true;
                 }
             }
         }

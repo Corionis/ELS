@@ -1058,7 +1058,7 @@ public class JobsUI extends JDialog
             want = WANT_CACHED;
         else if (task.getInternalName().equals(Job.INTERNAL_NAME) ||
                 task.getInternalName().equals(SleepTool.INTERNAL_NAME) ||
-                (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool)task.getTool()).getCard().equals(OperationsTool.Cards.HintServer) ))
+                (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool)task.getTool()).getCard().equals(OperationsTool.Cards.HintServer)))
             want = WANT_NO_PUBSUB;
         else if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool)task.getTool()).getCard().equals(OperationsTool.Cards.StatusQuit))
             want = WANT_PUB;
@@ -1169,6 +1169,7 @@ public class JobsUI extends JDialog
 
                                             task.setDual(tool.isDualRepositories());
                                             task.setRealOnly(tool.isRealOnly());
+                                            task.setContext(context);
                                             tasks.set(i, task);
                                         }
                                     }
