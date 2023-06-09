@@ -52,7 +52,6 @@ public class GuiLogAppender extends AbstractAppender
     private void appendGuiLogs(String line)
     {
         context.mainFrame.textAreaLog.append(line);
-        context.mainFrame.textAreaOperationLog.append(line);
     }
 
     private void dumpPreBuffer()
@@ -114,8 +113,7 @@ public class GuiLogAppender extends AbstractAppender
         if (context == null ||
                 context.navigator == null ||
                 context.mainFrame == null ||
-                context.mainFrame.textAreaLog == null ||
-                context.mainFrame.textAreaOperationLog == null )
+                context.mainFrame.textAreaLog == null )
             return true;
         return false;
     }

@@ -301,7 +301,7 @@ public class Generator
         if (tool instanceof Job)
             return context.cfg.gs("JobsUI.title");
         if (tool instanceof OperationsTool)
-            return context.cfg.gs("Operations.title");
+            return context.cfg.gs("OperationsUI.title");
         return "unknown";
     }
 

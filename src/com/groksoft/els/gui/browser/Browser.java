@@ -1184,7 +1184,6 @@ public class Browser
             {
                 super.componentResized(componentEvent);
                 context.preferences.fixBrowserDivider(context, -1);
-                context.preferences.fixOperationsDivider(context, -1);
             }
         });
         //
@@ -1195,17 +1194,6 @@ public class Browser
             {
                 super.componentResized(componentEvent);
                 context.preferences.setBrowserBottomSize(componentEvent.getComponent().getHeight());
-            }
-        });
-
-        // handle setting the size of the Operations bottom window using the divider location
-        context.mainFrame.tabbedPaneOperationBottom.addComponentListener(new ComponentAdapter()
-        {
-            @Override
-            public void componentResized(ComponentEvent componentEvent)
-            {
-                super.componentResized(componentEvent);
-                context.preferences.setOperationDividerBottomSize(componentEvent.getComponent().getHeight());
             }
         });
 

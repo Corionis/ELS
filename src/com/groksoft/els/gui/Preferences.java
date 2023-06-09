@@ -23,7 +23,6 @@ public class Preferences implements Serializable
 {
     static final int SCHEMA = 1; // schema version, set in write()
     public final String DEFAULT_ACCENT_COLOR = "2675BF";
-    private int schema = 1;
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
@@ -75,13 +74,12 @@ public class Preferences implements Serializable
     // 3=FlatDarkLaf, 4=FlatIntelliJLaf, 5=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
     private int operationDividerBottomSize = 143;
-    private int operationDividerConfigLocation = 142;
-    private int operationDividerLocation = 500;
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
     private int progressXpos = -1;
     private int progressYpos = -1;
+    private int schema = 1;
     private boolean showCcpConfirmation = true;
     private boolean showDeleteConfirmation = true;
     private boolean showDnDConfirmation = true;
@@ -102,6 +100,7 @@ public class Preferences implements Serializable
     private int systemTwoSortColumn = 1;
     private int systemTwoSortDirection = 0;
     private int tabPlacement = JTabbedPane.TOP;
+    private int toolOperationsDividerConfigLocation = 142;
     private int toolsDuplicateFinderHeight = 470;
     private int toolsDuplicateFinderWidth = 570;
     private int toolsDuplicateFinderXpos = -1;
@@ -115,6 +114,10 @@ public class Preferences implements Serializable
     private int toolsJunkRemoverWidth = 570;
     private int toolsJunkRemoverXpos = -1;
     private int toolsJunkRemoverYpos = -1;
+    private int toolsOperationsHeight = 470;
+    private int toolsOperationsWidth = 570;
+    private int toolsOperationsXpos = -1;
+    private int toolsOperationsYpos = -1;
     private int toolsRenamerDividerLocation = 142;
     private int toolsRenamerHeight = 470;
     private int toolsRenamerWidth = 570;
@@ -280,23 +283,6 @@ public class Preferences implements Serializable
                 setTableSort(context.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
             }
         }
-    }
-
-    /**
-     * Fix (set) the position of the Operations bottom divider
-     *
-     * @param context
-     * @param bottomSize If < 0 use the bottomSize from Preferences
-     */
-    public void fixOperationsDivider(Context context, int bottomSize)
-    {
-        if (bottomSize < 0)
-            bottomSize = context.preferences.getOperationDividerBottomSize();
-
-        int whole = context.mainFrame.splitPaneOperation.getHeight();
-        int divider = context.mainFrame.splitPaneOperation.getDividerSize();
-        int pos = whole - divider - bottomSize;
-        context.mainFrame.splitPaneOperation.setDividerLocation(pos);
     }
 
     public String getAccentColor()
@@ -526,16 +512,6 @@ public class Preferences implements Serializable
         return operationDividerBottomSize;
     }
 
-    public int getOperationDividerConfigLocation()
-    {
-        return operationDividerConfigLocation;
-    }
-
-    public int getOperationDividerLocation()
-    {
-        return operationDividerLocation;
-    }
-
     public int getProgressHeight()
     {
         return progressHeight;
@@ -677,6 +653,11 @@ public class Preferences implements Serializable
         return sortMeta;
     }
 
+    public int getToolOperationsDividerConfigLocation()
+    {
+        return toolOperationsDividerConfigLocation;
+    }
+
     public int getToolsDuplicateFinderHeight()
     {
         return toolsDuplicateFinderHeight;
@@ -740,6 +721,26 @@ public class Preferences implements Serializable
     public int getToolsJunkRemoverYpos()
     {
         return toolsJunkRemoverYpos;
+    }
+
+    public int getToolsOperationsHeight()
+    {
+        return toolsOperationsHeight;
+    }
+
+    public int getToolsOperationsWidth()
+    {
+        return toolsOperationsWidth;
+    }
+
+    public int getToolsOperationsXpos()
+    {
+        return toolsOperationsXpos;
+    }
+
+    public int getToolsOperationsYpos()
+    {
+        return toolsOperationsYpos;
     }
 
     public int getToolsRenamerDividerLocation()
@@ -1149,16 +1150,6 @@ public class Preferences implements Serializable
         this.operationDividerBottomSize = operationDividerBottomSize;
     }
 
-    public void setOperationDividerConfigLocation(int operationDividerConfigLocation)
-    {
-        this.operationDividerConfigLocation = operationDividerConfigLocation;
-    }
-
-    public void setOperationDividerLocation(int operationDividerLocation)
-    {
-        this.operationDividerLocation = operationDividerLocation;
-    }
-
     public void setPreserveFileTimes(boolean preserveFileTimes)
     {
         this.preserveFileTimes = preserveFileTimes;
@@ -1294,6 +1285,11 @@ public class Preferences implements Serializable
         rowSorter.setSortKeys(list);
     }
 
+    public void setToolOperationsDividerConfigLocation(int toolOperationsDividerConfigLocation)
+    {
+        this.toolOperationsDividerConfigLocation = toolOperationsDividerConfigLocation;
+    }
+
     public void setToolsDuplicateFinderHeight(int toolsDuplicateFinderHeight)
     {
         this.toolsDuplicateFinderHeight = toolsDuplicateFinderHeight;
@@ -1357,6 +1353,26 @@ public class Preferences implements Serializable
     public void setToolsJunkRemoverYpos(int toolsJunkRemoverYpos)
     {
         this.toolsJunkRemoverYpos = toolsJunkRemoverYpos;
+    }
+
+    public void setToolsOperationsHeight(int toolsOperationsHeight)
+    {
+        this.toolsOperationsHeight = toolsOperationsHeight;
+    }
+
+    public void setToolsOperationsWidth(int toolsOperationsWidth)
+    {
+        this.toolsOperationsWidth = toolsOperationsWidth;
+    }
+
+    public void setToolsOperationsXpos(int toolsOperationsXpos)
+    {
+        this.toolsOperationsXpos = toolsOperationsXpos;
+    }
+
+    public void setToolsOperationsYpos(int toolsOperationsYpos)
+    {
+        this.toolsOperationsYpos = toolsOperationsYpos;
     }
 
     public void setToolsRenamerDividerLocation(int toolsRenamerDividerLocation)
@@ -1454,9 +1470,6 @@ public class Preferences implements Serializable
 
         // all columns
         extractColumnSizes(context, null);
-
-        // other panels
-        context.operationsUI.savePreferences();
 
         // shorten paths relative to the working directory if possible
         String savedHintKeysOpenFile = getLastHintKeysOpenFile();

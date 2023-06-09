@@ -1,6 +1,5 @@
 package com.groksoft.els.gui;
 
-import com.groksoft.els.gui.operations.OperationsUI;
 import com.groksoft.els.gui.bookmarks.Bookmark;
 import com.groksoft.els.gui.bookmarks.Bookmarks;
 import com.groksoft.els.gui.browser.Browser;
@@ -11,6 +10,7 @@ import com.groksoft.els.gui.jobs.JobsUI;
 import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
+import com.groksoft.els.gui.tools.operations.OperationsUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
 import com.groksoft.els.gui.tools.sleep.SleepUI;
 import com.groksoft.els.gui.util.GuiLogAppender;
@@ -60,6 +60,7 @@ public class Navigator
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
+    public OperationsUI dialogOperations = null;
     public RenamerUI dialogRenamer = null;
     private Settings dialogSettings = null;
     public SleepUI dialogSleep = null;
@@ -110,7 +111,6 @@ public class Navigator
         }
 
         context.mainFrame.panelBrowserTop.setVisible(enable);
-        context.mainFrame.panelOperationTop.setVisible(enable);
 
         context.mainFrame.menuItemOpenPublisher.setEnabled(enable);
         context.mainFrame.menuItemOpenSubscriber.setEnabled(enable);
@@ -156,7 +156,6 @@ public class Navigator
         if (enable == true)
         {
             context.preferences.fixBrowserDivider(context, bottomSizeBrowser);
-            context.preferences.fixOperationsDivider(context, bottomSizeOperations);
         }
 
         // TODO context.mainFrame.menuItemUpdates.setEnabled(disable);
@@ -313,14 +312,12 @@ public class Navigator
         if (context.main.previousContext != null && context.main.previousContext.navigator != null)
             context.main.secondaryNavigator = true;
 
-        context.operationsUI = new OperationsUI(context);
         context.mainFrame = new MainFrame(context);
         if (!context.fault)
         {
             // setup the Main Menu and primary tabs
             initializeMainMenu();
             context.browser = new Browser(context);
-            context.operationsUI.initialize();
             // TODO Add Library tab content creation here
 
             // set the GuiLogAppender context for a second invocation
@@ -1058,10 +1055,8 @@ public class Navigator
                 if (lastFindString != null && lastFindString.length() > 0)
                 {
                     String content;
-                    if (lastFindTab == 0)
+                    //if (lastFindTab == 0)
                         content = context.mainFrame.textAreaLog.getText().toLowerCase();
-                    else
-                        content = context.mainFrame.textAreaOperationLog.getText().toLowerCase();
                     lastFindPosition = content.indexOf(lastFindString.toLowerCase(), 0);
                     if (lastFindPosition > 0)
                     {
@@ -1072,13 +1067,6 @@ public class Navigator
                             context.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
                             context.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
                         }
-                        else
-                        {
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
-                            context.mainFrame.textAreaOperationLog.requestFocus();
-                            context.mainFrame.textAreaOperationLog.setSelectionStart(lastFindPosition);
-                            context.mainFrame.textAreaOperationLog.setSelectionEnd(lastFindPosition + lastFindString.length());
-                        }
                         lastFindPosition += lastFindString.length();
                     }
                 }
@@ -1086,7 +1074,6 @@ public class Navigator
         };
         context.mainFrame.menuItemFind.addActionListener(findAction);
         context.mainFrame.popupMenuItemFind.addActionListener(findAction);
-        context.mainFrame.popupMenuItemOperationFind.addActionListener(findAction);
 
         // --- Find Next
         AbstractAction findNextAction = new AbstractAction()
@@ -1097,10 +1084,8 @@ public class Navigator
                 if (lastFindTab < 0 || lastFindString.length() == 0)
                     return;
                 String content;
-                if (lastFindTab == 0)
+                //if (lastFindTab == 0)
                     content = context.mainFrame.textAreaLog.getText().toLowerCase();
-                else
-                    content = context.mainFrame.textAreaOperationLog.getText().toLowerCase();
                 if (content != null && content.length() > 0)
                 {
                     lastFindPosition = content.indexOf(lastFindString.toLowerCase(), lastFindPosition);
@@ -1122,22 +1107,6 @@ public class Navigator
                             context.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
                             context.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
                         }
-                        else
-                        {
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
-                            context.mainFrame.textAreaOperationLog.requestFocus();
-                            try
-                            {
-                                Rectangle rect = context.mainFrame.textAreaOperationLog.modelToView(lastFindPosition);
-                                context.mainFrame.textAreaOperationLog.scrollRectToVisible(rect);
-                            }
-                            catch (Exception e)
-                            {
-                                System.out.println("bad scroll position");
-                            }
-                            context.mainFrame.textAreaOperationLog.setSelectionStart(lastFindPosition);
-                            context.mainFrame.textAreaOperationLog.setSelectionEnd(lastFindPosition + lastFindString.length());
-                        }
                         lastFindPosition += lastFindString.length();
                     }
                 }
@@ -1145,7 +1114,6 @@ public class Navigator
         };
         context.mainFrame.menuItemFindNext.addActionListener(findNextAction);
         context.mainFrame.popupMenuItemFindNext.addActionListener(findNextAction);
-        context.mainFrame.popupMenuItemOperationFindNext.addActionListener(findNextAction);
 
         // --- New Folder
         AbstractAction newFolderAction = new AbstractAction()
@@ -1512,22 +1480,16 @@ public class Navigator
                     selected = context.mainFrame.menuItemWordWrap.isSelected();
                 if (actionEvent.getSource() == context.mainFrame.popupCheckBoxMenuItemWordWrap)
                     selected = context.mainFrame.popupCheckBoxMenuItemWordWrap.isSelected();
-                if (actionEvent.getSource() == context.mainFrame.popupCheckBoxMenuItemOperationWordWrap)
-                    selected = context.mainFrame.popupCheckBoxMenuItemOperationWordWrap.isSelected();
                 context.mainFrame.menuItemWordWrap.setSelected(selected);
                 context.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(selected);
-                context.mainFrame.popupCheckBoxMenuItemOperationWordWrap.setSelected(selected);
                 context.mainFrame.textAreaLog.setLineWrap(context.mainFrame.menuItemWordWrap.isSelected());
-                context.mainFrame.textAreaOperationLog.setLineWrap(context.mainFrame.menuItemWordWrap.isSelected());
             }
         };
         // set initial state of Word Wrap Log
         context.mainFrame.menuItemWordWrap.setSelected(true);
         context.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(true);
-        context.mainFrame.popupCheckBoxMenuItemOperationWordWrap.setSelected(true);
         context.mainFrame.menuItemWordWrap.addActionListener(wordWrapAction);
         context.mainFrame.popupCheckBoxMenuItemWordWrap.addActionListener(wordWrapAction);
-        context.mainFrame.popupCheckBoxMenuItemOperationWordWrap.addActionListener(wordWrapAction);
 
         // -- Bookmarks Menu
         // --------------------------------------------------------
@@ -1659,6 +1621,25 @@ public class Navigator
                 {
                     dialogJunkRemover.toFront();
                     dialogJunkRemover.requestFocus();
+                }
+            }
+        });
+
+        // --- Operations Tool
+        context.mainFrame.menuItemOperations.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogOperations == null || !dialogOperations.isShowing())
+                {
+                    dialogOperations = new OperationsUI(context.mainFrame, context);
+                    dialogOperations.setVisible(true);
+                }
+                else
+                {
+                    dialogOperations.toFront();
+                    dialogOperations.requestFocus();
                 }
             }
         });
@@ -1901,41 +1882,6 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 JScrollBar vertical = context.mainFrame.scrollPaneLog.getVerticalScrollBar();
-                vertical.setValue(0);
-            }
-        });
-
-        // -- popup menu operations log tab
-        // --------------------------------------------------------
-
-        // --- Bottom
-        context.mainFrame.popupMenuItemOperationBottom.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                JScrollBar vertical = context.mainFrame.scrollPaneOperationLog.getVerticalScrollBar();
-                vertical.setValue(vertical.getMaximum());
-            }
-        });
-
-        // --- Clear
-        context.mainFrame.popupMenuItemOperationClear.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                context.mainFrame.textAreaOperationLog.setText("");
-            }
-        });
-
-        // --- Top
-        context.mainFrame.popupMenuItemOperationTop.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                JScrollBar vertical = context.mainFrame.scrollPaneOperationLog.getVerticalScrollBar();
                 vertical.setValue(0);
             }
         });

@@ -639,7 +639,7 @@ public class Settings extends JDialog
                         );
                     }
                     settingsTabbedPane.addTab(context.cfg.gs("Settings.appearance.tab.title"), apperancePanel);
-                    settingsTabbedPane.setMnemonicAt(1, context.cfg.gs("Settings.apperancePanel.tab.mnemonic").charAt(0));
+                    settingsTabbedPane.setMnemonicAt(1, context.cfg.gs("Settings.appearancePanel.tab.mnemonic").charAt(0));
 
                     //======== browserPanel ========
                     {
