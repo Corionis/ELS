@@ -15,10 +15,10 @@ is made whether it will fit in the original location as other episodes.
 If it will not fit it is copied to a matching target location for new
 content for that library.
 
-The pre-built executable and a Zip including examples are available
+The version 3.1.0 pre-built executable and a Zip including examples are available
 on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** page.
 
-See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for
+See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for version 3.1.0
 features, downloads and documentation.
 
 ELS version 4.0 has been in development since September of 2021. 4.0 is a large
