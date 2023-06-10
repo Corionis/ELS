@@ -21,8 +21,8 @@ on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** 
 See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for version 3.1.0
 features, downloads and documentation.
 
-ELS version 4.0 has been in development since September of 2021. 4.0 is a large
-project that adds a powerful desktop application called the ELS Navigator. The
+ELS version 4.0 has been in development since September of 2021. It is a large
+project that adds a powerful desktop application - ELS Navigator. The
 new version is not complete however large portions are done and quite useful.
 See **[ELS Version 4.0.0](https://github.com/GrokSoft/ELS/tree/Version-4.0.0)**.
 
