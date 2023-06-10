@@ -72,14 +72,13 @@ public class OperationsUI extends JDialog
         this.displayName = context.cfg.gs("OperationsUI.displayName");
         initComponents();
         initialize();
-        loadConfigurations();
     }
 
     private void actionCancelClicked(ActionEvent e)
     {
         if (workerRunning && worker != null)
         {
-            int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("OperationsUI.stop.running.operation"),
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("OperationsUI.stop.running.operation"),
                     "Z.cancel.run", JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
@@ -91,7 +90,7 @@ public class OperationsUI extends JDialog
         {
             if (checkForChanges())
             {
-                int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Z.cancel.all.changes"),
+                int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.cancel.all.changes"),
                         context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
                 if (reply == JOptionPane.YES_OPTION)
                 {
@@ -127,7 +126,7 @@ public class OperationsUI extends JDialog
             }
             else
             {
-                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.rename.the.existing") +
+                JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
                         rename, displayName, JOptionPane.WARNING_MESSAGE);
             }
         }
@@ -142,7 +141,7 @@ public class OperationsUI extends JDialog
 
             // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
 
-            int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
@@ -180,14 +179,14 @@ public class OperationsUI extends JDialog
         if (configItems.isEditing())
             configItems.getCellEditor().stopCellEditing();
         Generator generator = new Generator(context);
-        generator.showDialog(context.mainFrame, currentTool, currentTool.getConfigName());
+        generator.showDialog(this, currentTool, currentTool.getConfigName());
     }
 
     private void actionHelpClicked(MouseEvent e)
     {
         if (helpDialog == null)
         {
-            helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
+            helpDialog = new NavHelp(this, context.mainFrame, context,
                     context.cfg.gs("OperationsUI.help"), "operations_" + context.preferences.getLocale() + ".html");
         }
         if (!helpDialog.isVisible())
@@ -215,7 +214,7 @@ public class OperationsUI extends JDialog
             comboBoxMode.setSelectedIndex(0);
 
             // get ELS operationsUI/mode
-            int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, displayName, JOptionPane.OK_CANCEL_OPTION);
+            int opt = JOptionPane.showConfirmDialog(this, params, displayName, JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
                 currentTool = new OperationsTool(context);
@@ -247,7 +246,7 @@ public class OperationsUI extends JDialog
         }
         else
         {
-            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.rename.the.existing") +
+            JOptionPane.showMessageDialog(this, context.cfg.gs("Z.please.rename.the.existing") +
                     context.cfg.gs("Z.untitled"), displayName, JOptionPane.WARNING_MESSAGE);
         }
     }
@@ -291,7 +290,7 @@ public class OperationsUI extends JDialog
                     int count = indices.length;
 
                     // confirm deletions
-                    int reply = JOptionPane.showConfirmDialog(context.mainFrame,
+                    int reply = JOptionPane.showConfirmDialog(this,
                             MessageFormat.format(context.cfg.gs("OperationsUI.are.you.sure.you.want.delete.entries"), count), displayName,
                             JOptionPane.YES_NO_OPTION);
                     if (reply == JOptionPane.YES_OPTION)
@@ -326,7 +325,7 @@ public class OperationsUI extends JDialog
         {
             // confirm run of job
             String message = java.text.MessageFormat.format(context.cfg.gs("OperationsUI.run.as.defined"), currentTool.getConfigName());
-            int reply = JOptionPane.showConfirmDialog(context.mainFrame, message, context.cfg.gs("OperationsUI.title"), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(this, message, context.cfg.gs("OperationsUI.title"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerOperation = currentTool.clone();
@@ -456,14 +455,6 @@ public class OperationsUI extends JDialog
                         fileAny = true;
                         fileMustExist = true;
                         break;
-/*
-                    case "log":
-                    case "log2":
-                        desc = context.cfg.gs("OperationsUI.els.log.file");
-                        fileAny = true;
-                        fileMustExist = false;
-                        break;
-*/
                 }
                 return desc;
             }
@@ -552,7 +543,7 @@ public class OperationsUI extends JDialog
 
         while (true)
         {
-            int selection = fc.showOpenDialog(context.mainFrame);
+            int selection = fc.showOpenDialog(this);
             if (selection == JFileChooser.APPROVE_OPTION)
             {
 
@@ -562,14 +553,14 @@ public class OperationsUI extends JDialog
                 // sanity checks
                 if (file.isDirectory())
                 {
-                    JOptionPane.showMessageDialog(context.mainFrame,
+                    JOptionPane.showMessageDialog(this,
                             context.cfg.gs("Navigator.open.error.select.a.file.only"),
                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
                 if (fileMustExist && !file.exists())
                 {
-                    JOptionPane.showMessageDialog(context.mainFrame,
+                    JOptionPane.showMessageDialog(this,
                             context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
                             displayName, JOptionPane.ERROR_MESSAGE);
                     continue;
@@ -950,9 +941,9 @@ public class OperationsUI extends JDialog
 
             int opt = 0;
             if (button.getName().toLowerCase().equals("addincexc"))
-                opt = JOptionPane.showConfirmDialog(context.mainFrame, params1, displayName, JOptionPane.OK_CANCEL_OPTION);
+                opt = JOptionPane.showConfirmDialog(this, params1, displayName, JOptionPane.OK_CANCEL_OPTION);
             else if (button.getName().toLowerCase().equals("addexc"))
-                opt = JOptionPane.showConfirmDialog(context.mainFrame, params2, displayName, JOptionPane.OK_CANCEL_OPTION);
+                opt = JOptionPane.showConfirmDialog(this, params2, displayName, JOptionPane.OK_CANCEL_OPTION);
             if (opt == JOptionPane.YES_OPTION)
             {
                 java.util.List<String> selections = libJList.getSelectedValuesList();
@@ -993,7 +984,7 @@ public class OperationsUI extends JDialog
                         }
                         if (duplicate)
                         {
-                            JOptionPane.showMessageDialog(context.mainFrame,
+                            JOptionPane.showMessageDialog(this,
                                     name + context.cfg.gs("OperationsUI.is.a.duplicate"),
                                     displayName, JOptionPane.WARNING_MESSAGE);
                             continue;
@@ -1023,7 +1014,7 @@ public class OperationsUI extends JDialog
         {
             String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
             logger.error(msg);
-            JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, msg, displayName, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1105,7 +1096,7 @@ public class OperationsUI extends JDialog
             if (context != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, msg, displayName, JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);
@@ -1276,8 +1267,6 @@ public class OperationsUI extends JDialog
 
     private void loadOptionsHintsQuit()
     {
-        MainFrame mf = context.mainFrame;
-
         // ### LEFT SIDE
         if (currentTool.getOptHintServer().length() > 0)
         {
@@ -1294,8 +1283,6 @@ public class OperationsUI extends JDialog
 
     private void loadOptionsListener()
     {
-        MainFrame mf = context.mainFrame;
-
         // ### LEFT SIDE
         // --- General
         if (currentTool.getOptTargets().length() > 0)
@@ -1353,8 +1340,6 @@ public class OperationsUI extends JDialog
 
     private void loadOptionsPublisher()
     {
-        MainFrame mf = context.mainFrame;
-
         // ### LEFT SIDE
         // --- General
         checkBoxOperationNavigator.setSelected(currentTool.isOptNavigator());
@@ -1479,7 +1464,7 @@ public class OperationsUI extends JDialog
         }
         catch (Exception e)
         {
-            JOptionPane.showMessageDialog(context.mainFrame, Utils.getStackTrace(e), displayName, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, Utils.getStackTrace(e), displayName, JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1539,7 +1524,7 @@ public class OperationsUI extends JDialog
             if (context != null)
             {
                 logger.error(msg);
-                JOptionPane.showMessageDialog(context.mainFrame, msg, displayName, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, msg, displayName, JOptionPane.ERROR_MESSAGE);
             }
             else
                 logger.error(msg);

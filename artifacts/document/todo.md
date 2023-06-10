@@ -2,7 +2,8 @@
 # Project To Do
 
 ## To Do
- 1. Go through the embedded TODO and other tags.
+ 1. Re-write embedded help pages in Markdown then convert to HTML so the same files can
+    be used in the GitHub Wiki and new ELS web site.
  2. Go through ClientSftp and ClientStty for handling subscriber disconnects in Navigator.
  3. Logic problem when both publisher and subscriber use -s where the subscriber
     does not scan it's collection so operations fail with no items. 
@@ -24,17 +25,21 @@ If with a tracker mark as Done; test it a lot.
     executed in the correct order.
 
 
-## Operations Tab
+## Operations Tool
 
 ### Rules
 
  * If Hints or Hint Server (hint tracking) is enabled Hint Keys are required.
 
+### Issues
+
+ * In-GUI execution of multiple (background) operations and managing those threads & tasks
+ * How to handle -p|-P library or (edited) collection options, -s|-S same problem
+
 
 ## Red Flags
 
-! Make a pass over copy, move and rename for "if exists"
-  and the overwrite option ! 
+ * Make a pass over copy, move and rename for "if exists" and the overwrite option 
 
 
 ## Ideas
