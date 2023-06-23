@@ -167,8 +167,6 @@ public class SleepUI extends AbstractToolDialog
         {
             SleepTool tool = (SleepTool) configModel.getValueAt(index, 0);
 
-            // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
-
             int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)

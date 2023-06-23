@@ -234,6 +234,10 @@ public class Configuration
         {
             logger.info(SHORT, "  cfg: -c Console logging level = " + getConsoleLevel());
         }
+        if (workingDirectory.length() > 0)
+        {
+            logger.info(SHORT, "  cfg: -C Configuration directory = " + getWorkingDirectory());
+        }
         if (debugSet)
         {
             logger.info(SHORT, "  cfg: -d Debug logging level = " + getDebugLevel());
@@ -336,9 +340,6 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
         indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
         indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
-
-        if (context.trace)
-            logger.trace("Working directory: " + getWorkingDirectory());
     }
 
     /**

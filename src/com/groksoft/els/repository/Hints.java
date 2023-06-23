@@ -864,7 +864,7 @@ public class Hints
     {
         int MAX_TERMS = 4;
         String[] cmd = new String[MAX_TERMS]; // maximum number of terms in any command
-        StringTokenizer t = new StringTokenizer(line, "'\"");
+        StringTokenizer t = new StringTokenizer(line, "\"");
         if (!t.hasMoreTokens())
             return null;
 
