@@ -163,7 +163,6 @@ public class OperationsUI extends AbstractToolDialog
                         buttonRunOperation.setEnabled(false);
                         buttonGenerateOperation.setEnabled(false);
                         buttonOperationSave.setEnabled(false);
-                        buttonOperationCancel.setEnabled(false);
                         currentConfigIndex = 0;
                     }
                 }
@@ -228,7 +227,6 @@ public class OperationsUI extends AbstractToolDialog
                 buttonRunOperation.setEnabled(true);
                 buttonGenerateOperation.setEnabled(true);
                 buttonOperationSave.setEnabled(true);
-                buttonOperationCancel.setEnabled(true);
 
                 configModel.addRow(new Object[]{currentTool});
                 currentConfigIndex = configModel.getRowCount() - 1;
@@ -1107,7 +1105,6 @@ public class OperationsUI extends AbstractToolDialog
             buttonRunOperation.setEnabled(false);
             buttonGenerateOperation.setEnabled(false);
             buttonOperationSave.setEnabled(false);
-            buttonOperationCancel.setEnabled(false);
         }
         else
         {

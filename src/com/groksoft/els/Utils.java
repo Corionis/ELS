@@ -871,7 +871,7 @@ public class Utils
      * Is the path relative or absolute?
      *
      * @param path Path to check
-     * @return true if a relative path, false if an absolute path
+     * @return true if a relative path, false if an absolute fully-qualified path
      */
     public static boolean isRelativePath(String path)
     {

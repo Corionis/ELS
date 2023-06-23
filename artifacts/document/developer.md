@@ -5,6 +5,18 @@ either Oracle Java or the OpenJDK.
 ELS is developed using [JetBrains Intellij IDEA](https://www.jetbrains.com/idea/). Eclipse
 users can adapt the project easily.
 
+Designed using:
+  - JFormDesigner, https://www.formdev.com/jformdesigner/doc/
+
+With open source components from FormDev:
+  - FlatLaf look 'n feel, https://www.formdev.com/flatlaf/
+  - https://github.com/JFormDesigner/FlatLaf
+  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf
+
+See also:
+ - https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras
+ - https://github.com/JFormDesigner/svgSalamander
+
 In the interest of readability and extensibility some portions of ELS are written-out in "long hand" code.
 Heavy abstration and terse "denso-code" have been avoided, while other areas are
 more object-oriented. To that end many data elements do not have one or more layers

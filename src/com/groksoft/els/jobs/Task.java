@@ -379,7 +379,7 @@ public class Task implements Comparable, Serializable
                     remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteSession())) ? "P" : "-";
 
                     context.cfg.setRemoteType(remoteType);
-                    context.cfg.setPublishOperation(false);  // TODO Change when OperationsUI tool added
+                    context.cfg.setPublishOperation(remoteType.equals("p") ? true : false); // QUESTION Correct?
 
                     if (isSubscriberRemote())
                     {

@@ -56,7 +56,6 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         boolean error = false;
 
         // create a fresh dialog
-        // TODO factors controlling whether to display the progress dialog may need adjusting
         if (context.progress == null || !context.progress.isBeingUsed())
         {
             ActionListener cancelAction = new ActionListener()

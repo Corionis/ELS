@@ -2,6 +2,7 @@ package com.groksoft.els.repository;
 
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
+import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,7 +51,10 @@ public class HintKeys
 
     public void read(String file) throws Exception
     {
-        filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
+        if (Utils.isRelativePath(file))
+            filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
+        else
+            filename = file;
         BufferedReader br = new BufferedReader(new FileReader(filename));
         int count = 0;
         boolean foundPublisher = false;
