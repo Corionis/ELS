@@ -8,6 +8,8 @@ import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
+import com.groksoft.els.tools.operations.OperationsTool;
+import com.groksoft.els.tools.sleep.SleepTool;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +31,6 @@ public class Job extends AbstractTool
 
     transient Context context;
     transient Task currentTask = null;
-    transient private boolean dataHasChanged = false;
     transient private Logger logger = LogManager.getLogger("applog");
     transient private Task previousTask = null;
     transient private final boolean realOnly = false;
@@ -41,7 +42,6 @@ public class Job extends AbstractTool
         this.context = context;
         this.configName = name;
         this.tasks = new ArrayList<Task>();
-        this.dataHasChanged = false;
     }
 
     public Job clone()
@@ -316,7 +316,7 @@ public class Job extends AbstractTool
                     context.cfg.gs("Z.completed"));
         }
         else
-            throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + ": " + job.getConfigName());
+            throw new MungeException(context.cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName());
     }
 
     public void requestStop()
@@ -329,16 +329,6 @@ public class Job extends AbstractTool
     public void setConfigName(String configName)
     {
         this.configName = configName;
-    }
-
-    public void setDataHasChanged()
-    {
-        dataHasChanged = true;
-    }
-
-    public void setDataHasChanged(boolean state)
-    {
-        dataHasChanged = state;
     }
 
     public void setTasks(ArrayList<Task> tasks)
@@ -381,24 +371,47 @@ public class Job extends AbstractTool
             for (Task task : job.getTasks())
             {
                 // if not a Job or using cached task
-                if (!task.getInternalName().equals(getInternalName()) && !task.getPublisherKey().equals(Task.CACHEDLASTTASK))
+                if (!task.getInternalName().equals(Job.INTERNAL_NAME) &&
+                        !task.getInternalName().equals(SleepTool.INTERNAL_NAME) &&
+                        !task.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 {
-                    if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                    boolean skip = false;
+                    // if not certain Operations
+                    if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME))
                     {
-                        status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
-                        break;
+                        try
+                        {
+                            OperationsTool tool = (OperationsTool) task.getTool();
+                            if (tool.getOperation().equals(Configuration.Operations.StatusServer))
+                                skip = true;
+                        }
+                        catch (Exception e)
+                        {
+                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                            logger.error(msg);
+                            JOptionPane.showMessageDialog(context.mainFrame, msg,
+                                    context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
+                        }
                     }
-                    else if ((task.getOrigins() == null || task.getOrigins().size() == 0) && !task.getInternalName().equals("Operations"))
+                    if (!skip)
                     {
-                        status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
-                        break;
+                        if (task.getPublisherKey().length() == 0 && task.getSubscriberKey().length() == 0)
+                        {
+                            status = cfg.gs("JobsUI.task.has.no.publisher.and.or.subscriber") + task.getConfigName();
+                            break;
+                        }
+                        else if ((task.getOrigins() == null || task.getOrigins().size() == 0) && !task.getInternalName().equals("Operations"))
+                        {
+                            status = cfg.gs("JobsUI.task.has.no.origins") + task.getConfigName();
+                            break;
+                        }
                     }
                 }
             }
         }
         else
         {
-            status = cfg.gs("JobsUI.job.has.no.tasks");
+            status = cfg.gs("JobsUI.job.has.no.tasks") + job.getConfigName();
         }
         return status;
     }

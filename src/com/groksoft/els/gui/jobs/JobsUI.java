@@ -1,10 +1,6 @@
 package com.groksoft.els.gui.jobs;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.InstanceCreator;
 import com.groksoft.els.Context;
-import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.Generator;
 import com.groksoft.els.gui.NavHelp;
@@ -25,22 +21,18 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 @SuppressWarnings(value = "unchecked")
-public class JobsUI extends JDialog
+
+public class JobsUI extends AbstractToolDialog
 {
     // combobox element types
     private static final int CACHED_LAST_TASK = 0;
@@ -61,7 +53,6 @@ public class JobsUI extends JDialog
     private Context context;
     private Job currentJob = null;
     private Task currentTask = null;
-    private ArrayList<Job> deletedJobs;
     private JobsUI jobsUi;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
@@ -72,11 +63,6 @@ public class JobsUI extends JDialog
     private ArrayList<AbstractTool> toolList;
     private SwingWorker<Void, Void> worker;
     private boolean workerRunning = false;
-
-    private JobsUI()
-    {
-        // hide default constructor
-    }
 
     public JobsUI(Window owner, Context context)
     {
@@ -148,6 +134,7 @@ public class JobsUI extends JDialog
         // setup the left-side list of configurations
         configModel = new ConfigModel(context, this);
         configModel.setColumnCount(1);
+        configModel.setJobsConfigModel(configModel);
         configItems.setModel(configModel);
         configItems.getTableHeader().setUI(null);
         //
@@ -171,8 +158,7 @@ public class JobsUI extends JDialog
         panelPubSub.setBorder(border);
 
         loadConfigurations();
-        deletedJobs = new ArrayList<Job>();
-
+        context.navigator.enableDisableToolMenus(this, false);
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -243,16 +229,25 @@ public class JobsUI extends JDialog
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
-                job.setDataHasChanged();
-                deletedJobs.add(job);
-                configModel.removeRow(index);
-                if (index > configModel.getRowCount() - 1)
-                    index = configModel.getRowCount() - 1;
-                configModel.fireTableDataChanged();
-                if (index >= 0)
+                int answer = configModel.checkJobConflicts(job.getConfigName(), null, job.getInternalName(), false);
+                if (answer >= 0)
                 {
-                    configItems.changeSelection(index, 0, false, false);
-                    loadTasks(index);
+                    // add to delete list if file exists
+                    File file = new File(job.getFullPath());
+                    if (file.exists())
+                    {
+                        deletedTools.add(job);
+                    }
+
+                    configModel.removeRow(index);
+                    if (index > configModel.getRowCount() - 1)
+                        index = configModel.getRowCount() - 1;
+                    configModel.fireTableDataChanged();
+                    if (index >= 0)
+                    {
+                        configItems.changeSelection(index, 0, false, false);
+                        loadTasks(index);
+                    }
                 }
                 configItems.requestFocus();
             }
@@ -877,8 +872,8 @@ public class JobsUI extends JDialog
 
     public void cancelChanges()
     {
-        if (deletedJobs.size() > 0)
-            deletedJobs = new ArrayList<Job>();
+        if (deletedTools.size() > 0)
+            deletedTools = new ArrayList<AbstractTool>();
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -888,9 +883,9 @@ public class JobsUI extends JDialog
 
     public boolean checkForChanges()
     {
-        for (int i = 0; i < deletedJobs.size(); ++i)
+        for (int i = 0; i < deletedTools.size(); ++i)
         {
-            if (deletedJobs.get(i).isDataChanged())
+            if (deletedTools.get(i).isDataChanged())
                 return true;
         }
 
@@ -1005,11 +1000,6 @@ public class JobsUI extends JDialog
         return configItems;
     }
 
-    public ArrayList<Job> getDeletedJobs()
-    {
-        return deletedJobs;
-    }
-
     public String getFullPath(Job job)
     {
         String path = job.getDirectoryPath() + System.getProperty("file.separator") +
@@ -1058,9 +1048,9 @@ public class JobsUI extends JDialog
             want = WANT_CACHED;
         else if (task.getInternalName().equals(Job.INTERNAL_NAME) ||
                 task.getInternalName().equals(SleepTool.INTERNAL_NAME) ||
-                (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool)task.getTool()).getCard().equals(OperationsTool.Cards.HintServer)))
+                (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool) task.getTool()).getCard().equals(OperationsTool.Cards.HintServer)))
             want = WANT_NO_PUBSUB;
-        else if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool)task.getTool()).getCard().equals(OperationsTool.Cards.StatusQuit))
+        else if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME) && ((OperationsTool) task.getTool()).getCard().equals(OperationsTool.Cards.StatusQuit))
             want = WANT_PUB;
         else if (task.getInternalName().equals(OperationsTool.INTERNAL_NAME))
             want = WANT_PUBSUB_NO_ORIGINS;
@@ -1114,85 +1104,10 @@ public class JobsUI extends JDialog
 
     private void loadConfigurations()
     {
-        Job tmpJob = new Job(context, "temp");
-        File jobsDir = new File(tmpJob.getDirectoryPath());
-        if (jobsDir.exists())
-        {
-            toolsHandler = new Tools();
-            toolList = null;
-            try
-            {
-                toolList = toolsHandler.loadAllTools(context, null);
-            }
-            catch (Exception e)
-            {
-                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-                logger.error(msg);
-                JOptionPane.showMessageDialog(this, msg,
-                        context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-            }
+        toolsHandler = new Tools();
 
-            class objInstanceCreator implements InstanceCreator
-            {
-                @Override
-                public Object createInstance(java.lang.reflect.Type type)
-                {
-                    return new Job(context, "");
-                }
-            }
-            GsonBuilder builder = new GsonBuilder();
-            builder.registerTypeAdapter(Job.class, new objInstanceCreator());
+        configModel.loadJobsConfigurations(this, configModel);
 
-            ArrayList<Job> jobsArray = new ArrayList<>();
-            File[] files = FileSystemView.getFileSystemView().getFiles(jobsDir, false);
-            for (File entry : files)
-            {
-                if (!entry.isDirectory())
-                {
-                    try
-                    {
-                        String json = new String(Files.readAllBytes(Paths.get(entry.getAbsolutePath())));
-                        if (json != null && json.length() > 0)
-                        {
-                            Job job = builder.create().fromJson(json, Job.class);
-                            if (job != null)
-                            {
-                                if (toolList != null)
-                                {
-                                    ArrayList<Task> tasks = job.getTasks();
-                                    for (int i = 0; i < tasks.size(); ++i)
-                                    {
-                                        Task task = tasks.get(i);
-                                        AbstractTool tool = toolsHandler.getTool(toolList, task.getInternalName(), task.getConfigName());
-                                        if (tool != null)
-                                        {
-
-                                            task.setDual(tool.isDualRepositories());
-                                            task.setRealOnly(tool.isRealOnly());
-                                            task.setContext(context);
-                                            tasks.set(i, task);
-                                        }
-                                    }
-                                }
-                                jobsArray.add(job);
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        String msg = context.cfg.gs("Z.exception") + entry.getName() + " " + Utils.getStackTrace(e);
-                        logger.error(msg);
-                        JOptionPane.showMessageDialog(this, msg,
-                                context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            }
-            Collections.sort(jobsArray);
-            for (Job job : jobsArray)
-            {
-                configModel.addRow(new Object[]{job});
-            }
-        }
         if (configModel.getRowCount() == 0)
         {
             buttonCopy.setEnabled(false);
@@ -1564,48 +1479,7 @@ public class JobsUI extends JDialog
 
     private boolean saveConfigurations()
     {
-        boolean changed = false;
-        Job job = null;
-        try
-        {
-            // write/update changed tool JSON configuration files
-            for (int i = 0; i < configModel.getRowCount(); ++i)
-            {
-                job = (Job) configModel.getValueAt(i, 0);
-                if (job.isDataChanged())
-                {
-                    if (!validateJob(job, false))
-                        return false;
-                    write(job);
-                    changed = true;
-                    job.setDataHasChanged(false);
-                }
-            }
-
-            // remove any deleted jobs JSON configuration file
-            for (int i = 0; i < deletedJobs.size(); ++i)
-            {
-                job = deletedJobs.get(i);
-                File file = new File(job.getFullPath());
-                if (file.exists())
-                {
-                    file.delete();
-                    changed = true;
-                }
-                job.setDataHasChanged(false);
-            }
-
-            if (changed)
-                context.navigator.loadJobsMenu();
-        }
-        catch (Exception e)
-        {
-            String name = (job != null) ? job.getConfigName() + " " : " ";
-            logger.error(Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(this,
-                    context.cfg.gs("Z.error.writing") + name + e.getMessage(),
-                    context.cfg.gs("JobsUI.title"), JOptionPane.ERROR_MESSAGE);
-        }
+        configModel.saveJobsConfigurations(configModel);
         return true;
     }
 
@@ -1671,6 +1545,7 @@ public class JobsUI extends JDialog
         return (onlyFound) ? cachedFound : sense;
     }
 
+/*
     public void write(Job job) throws Exception
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -1691,10 +1566,20 @@ public class JobsUI extends JDialog
             throw new MungeException(context.cfg.gs("Z.error.writing") + getFullPath(job) + ": " + Utils.getStackTrace(fnf));
         }
     }
+*/
 
     private void windowClosing(WindowEvent e)
     {
         cancelButton.doClick();
+    }
+
+    private void windowDeactivated(WindowEvent e)
+    {
+    }
+
+    private void windowHidden(ComponentEvent e)
+    {
+        context.navigator.enableDisableToolMenus(this, true);
     }
 
     // ================================================================================================================
@@ -1777,6 +1662,12 @@ public class JobsUI extends JDialog
         //======== this ========
         setTitle(context.cfg.gs("JobsUI.title"));
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                windowHidden(e);
+            }
+        });
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {

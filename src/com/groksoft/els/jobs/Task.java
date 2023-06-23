@@ -37,7 +37,7 @@ public class Task implements Comparable, Serializable
     transient private boolean realOnly = false;
     transient private Repository subRepo;
     transient private Tools tools = null;
-    transient private String type;
+    transient private String remoteType;
 
     public Task(String internalName, String configName)
     {
@@ -376,9 +376,9 @@ public class Task implements Comparable, Serializable
                 {
                     pubRepo = getRepo(context, getPublisherKey(), true);
                     subRepo = getRepo(context, getSubscriberKey(), false);
-                    type = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteSession())) ? "P" : "-";
+                    remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteSession())) ? "P" : "-";
 
-                    context.cfg.setRemoteType(type);
+                    context.cfg.setRemoteType(remoteType);
                     context.cfg.setPublishOperation(false);  // TODO Change when OperationsUI tool added
 
                     if (isSubscriberRemote())

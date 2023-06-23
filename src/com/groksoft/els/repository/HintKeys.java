@@ -50,7 +50,7 @@ public class HintKeys
 
     public void read(String file) throws Exception
     {
-        filename = file;
+        filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
         BufferedReader br = new BufferedReader(new FileReader(filename));
         int count = 0;
         boolean foundPublisher = false;
@@ -105,7 +105,7 @@ public class HintKeys
                 throw new MungeException("The current subscriber key was not found in ELS keys file: " + file);
         }
 
-        logger.info("Read keys " + file + " successfully");
+        logger.info("Read Hint keys " + file + " successfully");
     }
 
     public class HintKey

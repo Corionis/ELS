@@ -6,6 +6,7 @@ import com.groksoft.els.gui.browser.Browser;
 import com.groksoft.els.gui.browser.NavTransferHandler;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.gui.jobs.AbstractToolDialog;
 import com.groksoft.els.gui.jobs.JobsUI;
 import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
@@ -158,7 +159,38 @@ public class Navigator
             context.preferences.fixBrowserDivider(context, bottomSizeBrowser);
         }
 
-        // TODO context.mainFrame.menuItemUpdates.setEnabled(disable);
+    }
+
+    public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
+    {
+        context.mainFrame.menuItemJunk.setEnabled(enable);
+        context.mainFrame.menuItemOperations.setEnabled(enable);
+        context.mainFrame.menuItemRenamer.setEnabled(enable);
+        context.mainFrame.menuItemSleep.setEnabled(enable);
+        context.mainFrame.menuItemJobsManage.setEnabled(enable);
+        if (!enable)
+        {
+            if (dialog instanceof JunkRemoverUI)
+            {
+                context.mainFrame.menuItemJunk.setEnabled(true);
+            }
+            else if (dialog instanceof OperationsUI)
+            {
+                context.mainFrame.menuItemOperations.setEnabled(true);
+            }
+            else if (dialog instanceof RenamerUI)
+            {
+                context.mainFrame.menuItemRenamer.setEnabled(true);
+            }
+            else if (dialog instanceof SleepUI)
+            {
+                context.mainFrame.menuItemSleep.setEnabled(true);
+            }
+            else if (dialog instanceof JobsUI)
+            {
+                context.mainFrame.menuItemJobsManage.setEnabled(true);
+            }
+        }
     }
 
     public boolean execExternalExe(String commandLine)
@@ -290,8 +322,11 @@ public class Navigator
             if (context.cfg.getHintKeysFile() != null && context.cfg.getHintKeysFile().length() > 0)
             {
                 // Get ELS hints keys & Tracker if specified
-                context.hintKeys = new HintKeys(context);
-                context.hintKeys.read(context.cfg.getHintKeysFile());
+                if (context.hintKeys == null)
+                {
+                    context.hintKeys = new HintKeys(context);
+                    context.hintKeys.read(context.cfg.getHintKeysFile());
+                }
                 context.hints = new Hints(context, context.hintKeys);
                 showHintTrackingButton = true;
 
@@ -1047,6 +1082,9 @@ public class Navigator
                     return;
                 }
 
+                if (context.mainFrame.textAreaLog.getSelectedText().length() > 0)
+                    lastFindString = context.mainFrame.textAreaLog.getSelectedText();
+
                 Object obj = JOptionPane.showInputDialog(context.mainFrame,
                         context.cfg.gs("Operations.find"),
                         name, JOptionPane.QUESTION_MESSAGE,
@@ -1081,7 +1119,7 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (lastFindTab < 0 || lastFindString.length() == 0)
+                if (lastFindTab < 0 || lastFindString == null || lastFindString.length() == 0)
                     return;
                 String content;
                 //if (lastFindTab == 0)
@@ -1657,7 +1695,7 @@ public class Navigator
                 }
                 else
                 {
-                    dialogJobs.toFront();
+                    dialogRenamer.toFront();
                     dialogRenamer.requestFocus();
                 }
             }

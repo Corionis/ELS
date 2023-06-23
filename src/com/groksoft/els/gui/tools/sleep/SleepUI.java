@@ -3,6 +3,8 @@ package com.groksoft.els.gui.tools.sleep;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.gui.jobs.AbstractToolDialog;
+import com.groksoft.els.gui.jobs.ConfigModel;
 import com.groksoft.els.gui.util.NumberFilter;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
@@ -20,23 +22,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.PlainDocument;
 
-public class SleepUI extends JDialog
+public class SleepUI extends AbstractToolDialog
 {
     private ConfigModel configModel;
     private Context context;
     private SleepTool currentSleepTool = null;
-    private ArrayList<SleepTool> deletedTools;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private NumberFilter numberFilter;
     private SwingWorker<Void, Void> worker;
     private SleepTool workerTool = null;
     private boolean workerRunning = false;
-
-    private SleepUI()
-    {
-        // hide default constructor
-    }
 
     public SleepUI(Window owner, Context context)
     {
@@ -103,9 +99,9 @@ public class SleepUI extends JDialog
         });
 
         loadConfigurations();
-        deletedTools = new ArrayList<SleepTool>();
         numberFilter = new NumberFilter();
         setNumberFilter(textFieldTime);
+        context.navigator.enableDisableToolMenus(this, false);
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -177,16 +173,27 @@ public class SleepUI extends JDialog
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
-                tool.setDataHasChanged();
-                deletedTools.add(tool);
-                configModel.removeRow(index);
-                if (index > configModel.getRowCount() - 1)
-                    index = configModel.getRowCount() - 1;
-                configModel.fireTableDataChanged();
-                if (index >= 0)
-                    configItems.changeSelection(index, 0, false, false);
+                int answer = configModel.checkJobConflicts(tool.getConfigName(), null, tool.getInternalName(), false);
+                if (answer >= 0)
+                {
+                    // add to delete list if file exists
+                    File file = new File(tool.getFullPath());
+                    if (file.exists())
+                    {
+                        deletedTools.add(tool);
+                    }
 
-                loadTime(index);
+                    tool.setDataHasChanged();
+                    configModel.removeRow(index);
+                    if (index > configModel.getRowCount() - 1)
+                        index = configModel.getRowCount() - 1;
+                    configModel.fireTableDataChanged();
+                    if (index >= 0)
+                    {
+                        configItems.changeSelection(index, 0, false, false);
+                        loadTime(index);
+                    }
+                }
                 configItems.requestFocus();
             }
         }
@@ -261,7 +268,7 @@ public class SleepUI extends JDialog
     public void cancelChanges()
     {
         if (deletedTools.size() > 0)
-            deletedTools = new ArrayList<SleepTool>();
+            deletedTools = new ArrayList<AbstractTool>();
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -311,11 +318,6 @@ public class SleepUI extends JDialog
         updateOnChange(e.getSource());
     }
 
-    public ArrayList<SleepTool> getDeletedTools()
-    {
-        return deletedTools;
-    }
-
     public JTable getConfigItems()
     {
         return configItems;
@@ -344,6 +346,8 @@ public class SleepUI extends JDialog
             else
                 logger.error(msg);
         }
+
+        configModel.loadJobsConfigurations(this, null);
 
         if (configModel.getRowCount() == 0)
         {
@@ -394,7 +398,7 @@ public class SleepUI extends JDialog
             // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
-                tool = deletedTools.get(i);
+                tool = (SleepTool) deletedTools.get(i);
                 File file = new File(tool.getFullPath());
                 if (file.exists())
                 {
@@ -402,6 +406,9 @@ public class SleepUI extends JDialog
                 }
                 tool.setDataHasChanged(false);
             }
+
+            // write/update changed Job JSON configuration files
+            configModel.saveJobsConfigurations(null);
         }
         catch (Exception e)
         {
@@ -481,9 +488,9 @@ public class SleepUI extends JDialog
         cancelButton.doClick();
     }
 
-    private void ActiontextFieldTimeKeyTyped(KeyEvent e)
+    private void windowHidden(ComponentEvent e)
     {
-
+        context.navigator.enableDisableToolMenus(this, true);
     }
 
     // ================================================================================================================
@@ -518,6 +525,12 @@ public class SleepUI extends JDialog
             @Override
             public void windowClosing(WindowEvent e) {
                 SleepUI.this.windowClosing(e);
+            }
+        });
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                windowHidden(e);
             }
         });
         Container contentPane = getContentPane();

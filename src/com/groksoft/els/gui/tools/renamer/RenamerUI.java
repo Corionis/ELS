@@ -7,6 +7,8 @@ import com.groksoft.els.Utils;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
+import com.groksoft.els.gui.jobs.AbstractToolDialog;
+import com.groksoft.els.gui.jobs.ConfigModel;
 import com.groksoft.els.gui.util.NumberFilter;
 import com.groksoft.els.gui.util.PathFilter;
 import com.groksoft.els.jobs.Origin;
@@ -36,7 +38,7 @@ import java.util.Set;
 
 @SuppressWarnings(value = "unchecked")
 
-public class RenamerUI extends JDialog
+public class RenamerUI extends AbstractToolDialog
 {
     private String[] cardNames = {"cardCaseChange", "cardInsert", "cardNumbering", "cardRemove", "cardReplace"};
     private String caseChangeActions = "firstupper lower titlecase upper";
@@ -47,7 +49,6 @@ public class RenamerUI extends JDialog
     private JPanel currentCard = null;
     private int currentConfigIndex = -1;
     private RenamerTool currentRenamer = null;
-    private ArrayList<RenamerTool> deletedTools;
     private String[] displayNames;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
@@ -59,11 +60,6 @@ public class RenamerUI extends JDialog
     private SwingWorker<Void, Void> worker;
     private RenamerTool workerRenamer = null;
     private boolean workerRunning = false;
-
-    private RenamerUI()
-    {
-        // hide default constructor
-    }
 
     public RenamerUI(Window owner, Context context)
     {
@@ -150,9 +146,9 @@ public class RenamerUI extends JDialog
 
         loadTable();
         loadConfigurations();
-        deletedTools = new ArrayList<RenamerTool>();
         numberFilter = new NumberFilter();
         pathFilter = new PathFilter();
+        context.navigator.enableDisableToolMenus(this, false);
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -230,25 +226,35 @@ public class RenamerUI extends JDialog
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
-            RenamerTool renamer = (RenamerTool) configModel.getValueAt(index, 0);
+            RenamerTool tool = (RenamerTool) configModel.getValueAt(index, 0);
 
             // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
 
-            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + renamer.getConfigName(),
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
-                renamer.setDataHasChanged();
-                deletedTools.add(renamer);
-                configModel.removeRow(index);
-                if (index > configModel.getRowCount() - 1)
-                    index = configModel.getRowCount() - 1;
-                currentConfigIndex = index;
-                configModel.fireTableDataChanged();
-                if (index >= 0)
-                    configItems.changeSelection(index, 0, false, false);
+                int answer = configModel.checkJobConflicts(tool.getConfigName(), null, tool.getInternalName(), false);
+                if (answer >= 0)
+                {
+                    // add to delete list if file exists
+                    File file = new File(tool.getFullPath());
+                    if (file.exists())
+                    {
+                        deletedTools.add(tool);
+                    }
 
-                loadOptions(index);
+                    configModel.removeRow(index);
+                    if (index > configModel.getRowCount() - 1)
+                        index = configModel.getRowCount() - 1;
+                    currentConfigIndex = index;
+                    configModel.fireTableDataChanged();
+                    if (index >= 0)
+                    {
+                        configItems.changeSelection(index, 0, false, false);
+                        loadOptions(index);
+                    }
+                }
                 configItems.requestFocus();
             }
         }
@@ -457,7 +463,7 @@ public class RenamerUI extends JDialog
     public void cancelChanges()
     {
         if (deletedTools.size() > 0)
-            deletedTools = new ArrayList<RenamerTool>();
+            deletedTools = new ArrayList<AbstractTool>();
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -512,11 +518,6 @@ public class RenamerUI extends JDialog
     private void genericTextFieldFocusLost(FocusEvent e)
     {
         updateOnChange(e.getSource());
-    }
-
-    public ArrayList<RenamerTool> getDeletedTools()
-    {
-        return deletedTools;
     }
 
     public JTable getConfigItems()
@@ -586,6 +587,8 @@ public class RenamerUI extends JDialog
             else
                 logger.error(msg);
         }
+
+        configModel.loadJobsConfigurations(this, null);
 
         if (configModel.getRowCount() == 0)
         {
@@ -930,7 +933,7 @@ public class RenamerUI extends JDialog
             // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
-                renamer = deletedTools.get(i);
+                renamer = (RenamerTool) deletedTools.get(i);
                 File file = new File(renamer.getFullPath());
                 if (file.exists())
                 {
@@ -938,6 +941,9 @@ public class RenamerUI extends JDialog
                 }
                 renamer.setDataHasChanged(false);
             }
+
+            // write/update changed Job JSON configuration files
+            configModel.saveJobsConfigurations(null);
         }
         catch (Exception e)
         {
@@ -1216,6 +1222,11 @@ public class RenamerUI extends JDialog
         cancelButton.doClick();
     }
 
+    private void windowHidden(ComponentEvent e)
+    {
+        context.navigator.enableDisableToolMenus(this, true);
+    }
+
     // ================================================================================================================
 
     // <editor-fold desc="Generated code (Fold)">
@@ -1327,6 +1338,12 @@ public class RenamerUI extends JDialog
             @Override
             public void windowClosing(WindowEvent e) {
                 RenamerUI.this.windowClosing(e);
+            }
+        });
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                windowHidden(e);
             }
         });
         Container contentPane = getContentPane();

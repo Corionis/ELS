@@ -4,8 +4,10 @@ import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.Generator;
-import com.groksoft.els.gui.MainFrame;
 import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.gui.jobs.AbstractToolDialog;
+import com.groksoft.els.gui.jobs.ConfigModel;
+import com.groksoft.els.jobs.Job;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
@@ -33,10 +35,7 @@ import javax.swing.filechooser.FileFilter;
 
 @SuppressWarnings(value = "unchecked")
 
-/**
- * Operations Tool
- */
-public class OperationsUI extends JDialog
+public class OperationsUI extends AbstractToolDialog
 {
     private JComboBox comboBoxMode;
     private JTable configItems;
@@ -44,13 +43,11 @@ public class OperationsUI extends JDialog
     private ConfigModel configModel;
     private int currentConfigIndex = -1;
     private OperationsTool currentTool;
-    private ArrayList<OperationsTool> deletedTools;
     private String displayName;
     private boolean fileAny = false;
     private boolean fileKeys = false;
     private boolean fileMustExist = false;
     private File lastFile;
-    private boolean lastIncluded = true;
     private JList<String> libJList = null;
     private NavHelp helpDialog;
     private boolean loading = false;
@@ -59,11 +56,6 @@ public class OperationsUI extends JDialog
     private SwingWorker<Void, Void> worker;
     private OperationsTool workerOperation = null;
     private boolean workerRunning = false;
-
-    private OperationsUI()
-    {
-        // hide default constructor
-    }
 
     public OperationsUI(Window owner, Context context)
     {
@@ -138,36 +130,42 @@ public class OperationsUI extends JDialog
         if (index >= 0)
         {
             OperationsTool tool = (OperationsTool) configModel.getValueAt(index, 0);
-
-            // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
-
             int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
-                tool.setDataHasChanged();
-                deletedTools.add(tool);
-                configModel.removeRow(index);
-                if (index > configModel.getRowCount() - 1)
-                    index = configModel.getRowCount() - 1;
-                currentConfigIndex = index;
-                configModel.fireTableDataChanged();
-                if (configModel.getRowCount() > 0)
+                int answer = configModel.checkJobConflicts(tool.getConfigName(), null, tool.getInternalName(), false);
+                if (answer >= 0)
                 {
-                    configItems.changeSelection(index, 0, false, false);
-                    loadOptions(index);
-                }
-                else
-                {
-                    ((CardLayout) panelOperationCards.getLayout()).show(panelOperationCards, "gettingStarted");
-                    labelOperationMode.setText("");
-                    buttonCopyOperation.setEnabled(false);
-                    buttonDeleteOperation.setEnabled(false);
-                    buttonRunOperation.setEnabled(false);
-                    buttonGenerateOperation.setEnabled(false);
-                    buttonOperationSave.setEnabled(false);
-                    buttonOperationCancel.setEnabled(false);
-                    currentConfigIndex = 0;
+                    // add to delete list if file exists
+                    File file = new File(tool.getFullPath());
+                    if (file.exists())
+                    {
+                        deletedTools.add(tool);
+                    }
+
+                    configModel.removeRow(index);
+                    if (index > configModel.getRowCount() - 1)
+                        index = configModel.getRowCount() - 1;
+                    currentConfigIndex = index;
+                    configModel.fireTableDataChanged();
+                    if (configModel.getRowCount() > 0)
+                    {
+                        configItems.changeSelection(index, 0, false, false);
+                        loadOptions(index);
+                    }
+                    else
+                    {
+                        ((CardLayout) panelOperationCards.getLayout()).show(panelOperationCards, "gettingStarted");
+                        labelOperationMode.setText("");
+                        buttonCopyOperation.setEnabled(false);
+                        buttonDeleteOperation.setEnabled(false);
+                        buttonRunOperation.setEnabled(false);
+                        buttonGenerateOperation.setEnabled(false);
+                        buttonOperationSave.setEnabled(false);
+                        buttonOperationCancel.setEnabled(false);
+                        currentConfigIndex = 0;
+                    }
                 }
                 configItems.requestFocus();
             }
@@ -343,10 +341,13 @@ public class OperationsUI extends JDialog
 
     public void cancelChanges()
     {
-        configModel.setRowCount(0);
-        configItems.revalidate();
-        loadConfigurations();
-        deletedTools = new ArrayList<OperationsTool>();
+        if (deletedTools.size() > 0)
+            deletedTools = new ArrayList<AbstractTool>();
+
+        for (int i = 0; i < configModel.getRowCount(); ++i)
+        {
+            ((Job) configModel.getValueAt(i, 0)).setDataHasChanged(false);
+        }
     }
 
     public boolean checkForChanges()
@@ -702,11 +703,6 @@ public class OperationsUI extends JDialog
         return configItems;
     }
 
-    public ArrayList<OperationsTool> getDeletedTools()
-    {
-        return deletedTools;
-    }
-
     private int getModeOperationIndex()
     {
         int index = -1;
@@ -856,7 +852,7 @@ public class OperationsUI extends JDialog
 
         initializeComboBoxes();
         loadConfigurations();
-        deletedTools = new ArrayList<OperationsTool>();
+        context.navigator.enableDisableToolMenus(this, false);
     }
 
     private void initializeComboBoxes()
@@ -1101,6 +1097,8 @@ public class OperationsUI extends JDialog
             else
                 logger.error(msg);
         }
+
+        configModel.loadJobsConfigurations(this, null);
 
         if (configModel.getRowCount() == 0)
         {
@@ -1470,11 +1468,6 @@ public class OperationsUI extends JDialog
 
     private void processTerminated(OperationsTool operation)
     {
-/*
-        if (context.progress != null)
-            context.progress.done();
-*/
-
         context.navigator.disableGui(false);
         context.navigator.disableComponent(false, this);
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1509,7 +1502,7 @@ public class OperationsUI extends JDialog
             // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
-                tool = deletedTools.get(i);
+                tool = (OperationsTool) deletedTools.get(i);
                 File file = new File(tool.getFullPath());
                 if (file.exists())
                 {
@@ -1517,6 +1510,9 @@ public class OperationsUI extends JDialog
                 }
                 tool.setDataHasChanged(false);
             }
+
+            // write/update changed Job JSON configuration files
+            configModel.saveJobsConfigurations(null);
         }
         catch (Exception e)
         {
@@ -1903,6 +1899,11 @@ public class OperationsUI extends JDialog
         buttonOperationCancel.doClick();
     }
 
+    private void windowHidden(ComponentEvent e)
+    {
+        context.navigator.enableDisableToolMenus(this, true);
+    }
+
     // ================================================================================================================
 
     private class Mode
@@ -2134,6 +2135,12 @@ public class OperationsUI extends JDialog
             @Override
             public void windowClosing(WindowEvent e) {
                 OperationsUI.this.windowClosing(e);
+            }
+        });
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                windowHidden(e);
             }
         });
         Container contentPane = getContentPane();

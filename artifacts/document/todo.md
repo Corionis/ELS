@@ -27,10 +27,6 @@ If with a tracker mark as Done; test it a lot.
 
 ## Operations Tool
 
-### Rules
-
- * If Hints or Hint Server (hint tracking) is enabled Hint Keys are required.
-
 ### Issues
 
  * In-GUI execution of multiple (background) operations and managing those threads & tasks
@@ -51,15 +47,6 @@ If with a tracker mark as Done; test it a lot.
    * Title counts for each Library
    * File counts
    * Additions, by date, month, quarter, year
-
-
-## Catch-22
-
-How to setup command-line options for a non-Operation tool, e.g. Renamer?
-* Possible solution:
-   * Currently a Renamer JOB uses the current configuration
-   * Setup a Job Operation to setup a configuration then runs the Renamer job
-   * Kinda weird ... but holds the command line paradigm
 
 
 ## Fragments

@@ -466,7 +466,6 @@ new FormModel {
 				name: "panelStatus"
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "labelStatusLeft"
-					"text": new FormMessage( null, "Navigator.label.StatusLeft.text" )
 					"horizontalAlignment": 2
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"hAlign": 2
@@ -476,7 +475,6 @@ new FormModel {
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "labelStatusMiddle"
 					"horizontalAlignment": 0
-					"text": "Status Middle"
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 1
 					"hAlign": 0
@@ -484,7 +482,6 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "labelStatusRight"
-					"text": new FormMessage( null, "Navigator.label.StatusRight.text" )
 					"horizontalAlignment": 4
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 2

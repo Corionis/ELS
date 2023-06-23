@@ -253,6 +253,7 @@ public class MainFrame extends JFrame
             {
                 textAreaLog.setFont(new Font("Courier New", Font.PLAIN, 13));
             }
+            textAreaLog.setDisabledTextColor(textAreaLog.getForeground());
 
             // add smart scroll to the logs
             // https://tips4java.wordpress.com/2013/03/03/smart-scrolling/
@@ -1402,7 +1403,6 @@ public class MainFrame extends JFrame
             panelStatus.setLayout(new GridBagLayout());
 
             //---- labelStatusLeft ----
-            labelStatusLeft.setText(context.cfg.gs("Navigator.label.StatusLeft.text"));
             labelStatusLeft.setHorizontalAlignment(SwingConstants.LEFT);
             panelStatus.add(labelStatusLeft, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
@@ -1410,13 +1410,11 @@ public class MainFrame extends JFrame
 
             //---- labelStatusMiddle ----
             labelStatusMiddle.setHorizontalAlignment(SwingConstants.CENTER);
-            labelStatusMiddle.setText("Status Middle");
             panelStatus.add(labelStatusMiddle, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
                 new Insets(0, 0, 0, 4), 0, 0));
 
             //---- labelStatusRight ----
-            labelStatusRight.setText(context.cfg.gs("Navigator.label.StatusRight.text"));
             labelStatusRight.setHorizontalAlignment(SwingConstants.RIGHT);
             panelStatus.add(labelStatusRight, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.VERTICAL,

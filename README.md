@@ -70,7 +70,7 @@ in the Version-4.0.0 branch for on-going change information.
      * Done: Jobs may include other Jobs.
    * Done: Jobs may be executed from the command line 
    * External tools supported.
-   * Done: Navigator Operations tab is for creation of ELS back-up tools that may be combined into jobs.
+   * Done: Navigator Operations tool is for creation of ELS back-up tools that may be combined into jobs.
    * Navigator Libraries tab is for editing of publisher, subscriber, 
      and hint management JSON files.
    * Done: Secure remote operation. End-point cross authentication, all communication is encrypted.

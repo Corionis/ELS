@@ -20,11 +20,12 @@ import java.util.ArrayList;
 public abstract class AbstractTool implements Comparable, Serializable
 {
     transient protected Context context;
+    transient protected boolean dataHasChanged = false;
     transient protected String displayName; // GUI i18n display name
     transient protected boolean includeInToolsList = true; // set by tool at runtime
-    transient private boolean isRemote;
+    transient protected boolean isRemote;
     transient protected boolean originPathsAllowed = true; // set by tool at runtime
-    transient private boolean stop = false;
+    transient protected boolean stop = false;
 
     private AbstractTool()
     {
@@ -37,7 +38,10 @@ public abstract class AbstractTool implements Comparable, Serializable
     public AbstractTool(Context context)
     {
         this.context = context;
+        this.dataHasChanged = false;
     }
+
+    abstract public Object clone();
 
     public int compareTo(Object o)
     {
@@ -85,6 +89,8 @@ public abstract class AbstractTool implements Comparable, Serializable
     abstract public boolean isCachedLastTask();
 
     abstract public boolean isDualRepositories();
+
+    abstract public boolean isDataChanged();
 
     public boolean isIncludeInToolsList()
     {
@@ -168,6 +174,16 @@ public abstract class AbstractTool implements Comparable, Serializable
     }
 
     abstract public void setConfigName(String configName);
+
+    public void setDataHasChanged()
+    {
+        dataHasChanged = true;
+    }
+
+    public void setDataHasChanged(boolean state)
+    {
+        dataHasChanged = state;
+    }
 
     public void setDisplayName(String displayName)
     {

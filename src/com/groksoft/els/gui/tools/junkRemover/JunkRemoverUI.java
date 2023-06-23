@@ -3,6 +3,8 @@ package com.groksoft.els.gui.tools.junkRemover;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.NavHelp;
+import com.groksoft.els.gui.jobs.AbstractToolDialog;
+import com.groksoft.els.gui.jobs.ConfigModel;
 import com.groksoft.els.jobs.Origin;
 import com.groksoft.els.jobs.Origins;
 import com.groksoft.els.jobs.Task;
@@ -26,11 +28,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class JunkRemoverUI extends JDialog
+public class JunkRemoverUI extends AbstractToolDialog
 {
     private ConfigModel configModel;
     private Context context;
-    private ArrayList<JunkRemoverTool> deletedTools;
     private Logger logger = LogManager.getLogger("applog");
     private NavHelp helpDialog;
     private boolean isDryRun;
@@ -38,11 +39,6 @@ public class JunkRemoverUI extends JDialog
     private SwingWorker<Void, Void> worker;
     private JunkRemoverTool workerJrt = null;
     private boolean workerRunning = false;
-
-    private JunkRemoverUI()
-    {
-        // hide default constructor
-    }
 
     public JunkRemoverUI(Window owner, Context context)
     {
@@ -110,7 +106,7 @@ public class JunkRemoverUI extends JDialog
 
         adjustJunkTable();
         loadConfigurations();
-        deletedTools = new ArrayList<JunkRemoverTool>();
+        context.navigator.enableDisableToolMenus(this, false);
     }
 
     private void actionAddRowClicked(ActionEvent e)
@@ -216,24 +212,30 @@ public class JunkRemoverUI extends JDialog
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
-            JunkRemoverTool jrt = (JunkRemoverTool) configModel.getValueAt(index, 0);
-
-            // TODO check if Tool is used in any Jobs, prompt user accordingly AND handle for rename too
-
-            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + jrt.getConfigName(),
+            JunkRemoverTool tool = (JunkRemoverTool) configModel.getValueAt(index, 0);
+            int reply = JOptionPane.showConfirmDialog(this, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + tool.getConfigName(),
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
-                jrt.setDataHasChanged();
-                deletedTools.add(jrt);
-                configModel.removeRow(index);
-                if (index > configModel.getRowCount() - 1)
-                    index = configModel.getRowCount() - 1;
-                configModel.fireTableDataChanged();
-                if (index >= 0)
+                int answer = configModel.checkJobConflicts(tool.getConfigName(), null, tool.getInternalName(), false);
+                if (answer >= 0)
                 {
-                    configItems.changeSelection(index, 0, false, false);
-                    loadJunkTable(index);
+                    // add to delete list if file exists
+                    File file = new File(tool.getFullPath());
+                    if (file.exists())
+                    {
+                        deletedTools.add(tool);
+                    }
+
+                    configModel.removeRow(index);
+                    if (index > configModel.getRowCount() - 1)
+                        index = configModel.getRowCount() - 1;
+                    configModel.fireTableDataChanged();
+                    if (index >= 0)
+                    {
+                        configItems.changeSelection(index, 0, false, false);
+                        loadJunkTable(index);
+                    }
                 }
                 configItems.requestFocus();
             }
@@ -402,7 +404,7 @@ public class JunkRemoverUI extends JDialog
         }
 
         if (deletedTools.size() > 0)
-            deletedTools = new ArrayList<JunkRemoverTool>();
+            deletedTools = new ArrayList<AbstractTool>();
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
@@ -449,11 +451,6 @@ public class JunkRemoverUI extends JDialog
         }
     }
 
-    public ArrayList<JunkRemoverTool> getDeletedTools()
-    {
-        return deletedTools;
-    }
-
     public JTable getConfigItems()
     {
         return configItems;
@@ -482,6 +479,8 @@ public class JunkRemoverUI extends JDialog
             else
                 logger.error(msg);
         }
+
+        configModel.loadJobsConfigurations(this, null);
 
         if (configModel.getRowCount() == 0)
         {
@@ -644,38 +643,36 @@ public class JunkRemoverUI extends JDialog
             logger.info(jrt.getConfigName() + context.cfg.gs("Z.cancelled"));
             context.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + context.cfg.gs("Z.cancelled"));
         }
-        else
-        {
-            //logger.info(jrt.getConfigName() + context.cfg.gs("Z.completed"));
-            //context.mainFrame.labelStatusMiddle.setText(jrt.getConfigName() + context.cfg.gs("Z.completed"));
-        }
     }
 
     private void saveConfigurations()
     {
-        JunkRemoverTool jrt = null;
+        JunkRemoverTool tool = null;
         try
         {
             // write/update changed tool JSON configuration files
             for (int i = 0; i < configModel.getRowCount(); ++i)
             {
-                jrt = (JunkRemoverTool) configModel.getValueAt(i, 0);
-                if (jrt.isDataChanged())
-                    jrt.write();
-                jrt.setDataHasChanged(false);
+                tool = (JunkRemoverTool) configModel.getValueAt(i, 0);
+                if (tool.isDataChanged())
+                    tool.write();
+                tool.setDataHasChanged(false);
             }
 
             // remove any deleted tools JSON configuration file
             for (int i = 0; i < deletedTools.size(); ++i)
             {
-                jrt = deletedTools.get(i);
-                File file = new File(jrt.getFullPath());
+                tool = (JunkRemoverTool) deletedTools.get(i);
+                File file = new File(tool.getFullPath());
                 if (file.exists())
                 {
                     file.delete();
                 }
-                jrt.setDataHasChanged(false);
+                tool.setDataHasChanged(false);
             }
+
+            // write/update changed Job JSON configuration files
+            configModel.saveJobsConfigurations(null);
         }
         catch (Exception e)
         {
@@ -723,6 +720,11 @@ public class JunkRemoverUI extends JDialog
     private void windowClosing(WindowEvent e)
     {
         cancelButton.doClick();
+    }
+
+    private void windowHidden(ComponentEvent e)
+    {
+        context.navigator.enableDisableToolMenus(this, true);
     }
 
     // ================================================================================================================
@@ -794,6 +796,12 @@ public class JunkRemoverUI extends JDialog
             @Override
             public void windowClosing(WindowEvent e) {
                 JunkRemoverUI.this.windowClosing(e);
+            }
+        });
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                windowHidden(e);
             }
         });
         Container contentPane = getContentPane();
