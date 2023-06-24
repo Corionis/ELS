@@ -344,7 +344,7 @@ public class OperationsUI extends AbstractToolDialog
 
         for (int i = 0; i < configModel.getRowCount(); ++i)
         {
-            ((Job) configModel.getValueAt(i, 0)).setDataHasChanged(false);
+            ((OperationsTool) configModel.getValueAt(i, 0)).setDataHasChanged(false);
         }
     }
 
