@@ -839,16 +839,16 @@ public class JunkRemoverUI extends AbstractToolDialog
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
-                        buttonCopy.setText(context.cfg.gs("JunkRemover.button.Copy.text"));
+                        buttonCopy.setText(context.cfg.gs("Navigator.buttonCopy.text"));
                         buttonCopy.setMnemonic(context.cfg.gs("JunkRemover.button.Copy.mnemonic").charAt(0));
-                        buttonCopy.setToolTipText(context.cfg.gs("JunkRemover.button.Copy.toolTipText"));
+                        buttonCopy.setToolTipText(context.cfg.gs("Navigator.buttonCopy.toolTipText"));
                         buttonCopy.addActionListener(e -> actionCopyClicked(e));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText(context.cfg.gs("JunkRemover.button.Delete.text"));
+                        buttonDelete.setText(context.cfg.gs("Navigator.buttonDelete.text"));
                         buttonDelete.setMnemonic(context.cfg.gs("JunkRemover.button.Delete.mnemonic").charAt(0));
-                        buttonDelete.setToolTipText(context.cfg.gs("JunkRemover.button.Delete.toolTipText"));
+                        buttonDelete.setToolTipText(context.cfg.gs("Navigator.buttonDelete.toolTipText"));
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
 
@@ -877,7 +877,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(context.cfg.gs("JunkRemover.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("JunkRemover.help"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {

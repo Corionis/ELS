@@ -163,7 +163,6 @@ public class Process
     {
         PrintWriter mismatchFile = null;
         PrintWriter whatsNewFile = null;
-        PrintWriter targetFile = null;
         String currentWhatsNew = "";
         String currLib = "";
         ArrayList<Item> group = new ArrayList<>();

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.0.1.0.199" Java: "17.0.5" encoding: "UTF-8"
+JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -72,7 +72,7 @@ new FormModel {
 								"preferredSize": new java.awt.Dimension( 32, 30 )
 								"minimumSize": new java.awt.Dimension( 32, 30 )
 								"maximumSize": new java.awt.Dimension( 32, 30 )
-								"toolTipText": new FormMessage( null, "DuplicateFinder.labelHelp.toolTipText" )
+								"toolTipText": new FormMessage( null, "DuplicateFinder.help" )
 								"cursor": new java.awt.Cursor( 12 )
 								"iconTextGap": 0
 								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )

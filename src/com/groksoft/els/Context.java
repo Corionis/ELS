@@ -2,6 +2,7 @@ package com.groksoft.els;
 
 import com.groksoft.els.gui.*;
 import com.groksoft.els.gui.browser.Browser;
+import com.groksoft.els.gui.libraries.LibrariesUI;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
@@ -45,6 +46,7 @@ public class Context
 
     // Navigator
     public Browser browser = null;
+    public LibrariesUI libraries;
     public MainFrame mainFrame = null;
     public Preferences preferences = null;
     public Progress progress = null;

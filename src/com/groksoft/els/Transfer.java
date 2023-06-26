@@ -358,7 +358,7 @@ public class Transfer
      * Gets a subscriber target
      * <p>
      * Will return the original directory where existing files are located if one
-     * exists and that location has enough space.
+     * exists, that location has enough space and back-fill is enabled.
      * <p>
      * Otherwise will return one of the subscriber targets for the library of the item
      * that has enough space to hold the item, otherwise an empty string is returned.

@@ -512,7 +512,7 @@ public class SleepUI extends AbstractToolDialog
         labelTime = new JLabel();
         textFieldTime = new JTextField();
         buttonBar = new JPanel();
-        okButton = new JButton();
+        saveButton = new JButton();
         cancelButton = new JButton();
 
         //======== this ========
@@ -562,16 +562,16 @@ public class SleepUI extends AbstractToolDialog
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
-                        buttonCopy.setText("Copy");
+                        buttonCopy.setText(context.cfg.gs("Navigator.buttonCopy.text"));
                         buttonCopy.setMnemonic('C');
-                        buttonCopy.setToolTipText("Copy an existing tool configuration");
+                        buttonCopy.setToolTipText(context.cfg.gs("Navigator.buttonCopy.toolTipText"));
                         buttonCopy.addActionListener(e -> actionCopyClicked(e));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText("Delete");
+                        buttonDelete.setText(context.cfg.gs("Navigator.buttonDelete.text"));
                         buttonDelete.setMnemonic('D');
-                        buttonDelete.setToolTipText("Delete a tool configuration");
+                        buttonDelete.setToolTipText(context.cfg.gs("Navigator.buttonDelete.toolTipText"));
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
                     }
@@ -588,7 +588,7 @@ public class SleepUI extends AbstractToolDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText("Tool help");
+                        labelHelp.setToolTipText(context.cfg.gs("Sleep.help"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {
@@ -675,10 +675,11 @@ public class SleepUI extends AbstractToolDialog
                 ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 85, 80};
                 ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
 
-                //---- okButton ----
-                okButton.setText(context.cfg.gs("Sleep.okButton.text"));
-                okButton.addActionListener(e -> actionSaveClicked(e));
-                buttonBar.add(okButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                //---- saveButton ----
+                saveButton.setText(context.cfg.gs("Z.save"));
+                saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                saveButton.addActionListener(e -> actionSaveClicked(e));
+                buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                     new Insets(0, 0, 0, 5), 0, 0));
 
@@ -698,23 +699,23 @@ public class SleepUI extends AbstractToolDialog
     }
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables  @formatter:off
-    private JPanel dialogPane;
-    private JPanel contentPanel;
-    private JPanel panelTop;
-    private JPanel panelTopButtons;
-    private JButton buttonNew;
-    private JButton buttonCopy;
-    private JButton buttonDelete;
-    private JPanel panelHelp;
-    private JLabel labelHelp;
-    private JSplitPane splitPaneContent;
-    private JScrollPane scrollPaneConfig;
-    private JTable configItems;
-    private JPanel panelOptions;
-    private JLabel labelTime;
-    private JTextField textFieldTime;
-    private JPanel buttonBar;
-    private JButton okButton;
-    private JButton cancelButton;
+    public JPanel dialogPane;
+    public JPanel contentPanel;
+    public JPanel panelTop;
+    public JPanel panelTopButtons;
+    public JButton buttonNew;
+    public JButton buttonCopy;
+    public JButton buttonDelete;
+    public JPanel panelHelp;
+    public JLabel labelHelp;
+    public JSplitPane splitPaneContent;
+    public JScrollPane scrollPaneConfig;
+    public JTable configItems;
+    public JPanel panelOptions;
+    public JLabel labelTime;
+    public JTextField textFieldTime;
+    public JPanel buttonBar;
+    public JButton saveButton;
+    public JButton cancelButton;
     // JFormDesigner - End of variables declaration  //GEN-END:variables  @formatter:on
 }

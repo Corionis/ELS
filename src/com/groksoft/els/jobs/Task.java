@@ -2,6 +2,7 @@ package com.groksoft.els.jobs;
 
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
+import com.groksoft.els.repository.RepoMeta;
 import com.groksoft.els.repository.Repositories;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.sftp.ClientSftp;
@@ -196,14 +197,14 @@ public class Task implements Comparable, Serializable
                     Repositories repositories = new Repositories();
                     repositories.loadList(context);
 
-                    Repositories.Meta meta;
+                    RepoMeta repoMeta;
                     if (key.length() > 0)
                     {
-                        meta = repositories.find(key);
-                        if (meta != null)
+                        repoMeta = repositories.find(key);
+                        if (repoMeta != null)
                         {
                             repo = new Repository(context, forPublisher ? Repository.PUBLISHER : Repository.SUBSCRIBER);
-                            repo.read(meta.path, true);
+                            repo.read(repoMeta.path, true);
                         }
                         else
                             throw new MungeException(key + context.cfg.gs("Z.not.found"));
@@ -231,13 +232,13 @@ public class Task implements Comparable, Serializable
         Repositories repositories = new Repositories();
         repositories.loadList(context);
 
-        Repositories.Meta meta;
+        RepoMeta repoMeta;
         if (key.length() > 0)
         {
-            meta = repositories.find(key);
-            if (meta != null)
+            repoMeta = repositories.find(key);
+            if (repoMeta != null)
             {
-                path = meta.path;
+                path = repoMeta.path;
             }
             else
                 throw new MungeException(key + context.cfg.gs("Z.not.found"));

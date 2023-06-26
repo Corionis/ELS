@@ -1,7 +1,7 @@
 package com.groksoft.els.gui;
 
 import javax.swing.border.*;
-import javax.swing.table.*;
+
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.browser.BrowserTableModel;
@@ -316,19 +316,40 @@ public class MainFrame extends JFrame
     private boolean changesCheckAll()
     {
         boolean changes = false;
-        if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
+        // TODO EXPAND+ Add other Tool checkForChanges() here
+        if (context.libraries != null && context.libraries.checkForChanges())
+            changes = true;
+        else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
+            changes = true;
+        else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
+            changes = true;
+        else if (context.navigator.dialogOperations != null && context.navigator.dialogOperations.checkForChanges())
             changes = true;
         else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
             changes = true;
-        else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
+        else if (context.navigator.dialogSleep != null && context.navigator.dialogSleep.checkForChanges())
             changes = true;
         return changes;
     }
 
     private void changesGotoUnsaved()
     {
-        boolean changes = false;
-        if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
+        // TODO EXPAND+ Add other Tool checkForChanges() here
+        if (context.libraries != null && context.libraries.checkForChanges())
+        {
+            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+            context.mainFrame.saveButton.requestFocus();
+        }
+        else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
+        {
+            context.navigator.dialogJobs.setVisible(true);
+            context.navigator.dialogJobs.toFront();
+            context.navigator.dialogJobs.requestFocus();
+            context.navigator.dialogJobs.toFront();
+            context.navigator.dialogJobs.requestFocus();
+            context.navigator.dialogJobs.saveButton.requestFocus();
+        }
+        else if (context.navigator.dialogJunkRemover != null && context.navigator.dialogJunkRemover.checkForChanges())
         {
             context.navigator.dialogJunkRemover.setVisible(true);
             context.navigator.dialogJunkRemover.toFront();
@@ -336,6 +357,15 @@ public class MainFrame extends JFrame
             context.navigator.dialogJunkRemover.toFront();
             context.navigator.dialogJunkRemover.requestFocus();
             context.navigator.dialogJunkRemover.saveButton.requestFocus();
+        }
+        else if (context.navigator.dialogOperations != null && context.navigator.dialogOperations.checkForChanges())
+        {
+            context.navigator.dialogOperations.setVisible(true);
+            context.navigator.dialogOperations.toFront();
+            context.navigator.dialogOperations.requestFocus();
+            context.navigator.dialogOperations.toFront();
+            context.navigator.dialogOperations.requestFocus();
+            context.navigator.dialogOperations.buttonOperationSave.requestFocus();
         }
         else if (context.navigator.dialogRenamer != null && context.navigator.dialogRenamer.checkForChanges())
         {
@@ -345,13 +375,13 @@ public class MainFrame extends JFrame
             context.navigator.dialogRenamer.requestFocus();
             context.navigator.dialogRenamer.saveButton.requestFocus();
         }
-        else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
+        else if (context.navigator.dialogSleep != null && context.navigator.dialogSleep.checkForChanges())
         {
-            context.navigator.dialogJobs.toFront();
-            context.navigator.dialogJobs.requestFocus();
-            context.navigator.dialogJobs.toFront();
-            context.navigator.dialogJobs.requestFocus();
-            context.navigator.dialogJobs.saveButton.requestFocus();
+            context.navigator.dialogSleep.toFront();
+            context.navigator.dialogSleep.requestFocus();
+            context.navigator.dialogSleep.toFront();
+            context.navigator.dialogSleep.requestFocus();
+            context.navigator.dialogSleep.saveButton.requestFocus();
         }
     }
 
@@ -453,72 +483,9 @@ public class MainFrame extends JFrame
         return true;
     }
 
-    private void actionNewClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionCopyClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionDeleteClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionRunClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionHelpClicked(MouseEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionSaveClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionCancelClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void configItemsMouseClicked(MouseEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionRecursiveClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionFilesOnlyClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionFilenameSegmentClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void cardShown(ComponentEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionCaseChangeClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void genericAction(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void tabKeyPressed(KeyEvent e) {
-        // TODO add your code here
-    }
-
-    private void genericTextFieldFocusLost(FocusEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionRefreshClicked(ActionEvent e) {
-        // TODO add your code here
+   private void cardShown(ComponentEvent e)
+   {
+        context.libraries.cardShown(e);
     }
 
     private void actionOriginAddClicked(ActionEvent e) {
@@ -537,7 +504,7 @@ public class MainFrame extends JFrame
         // TODO add your code here
     }
 
-    // ================================================================================================================
+  // ================================================================================================================
 
     // <editor-fold desc="Generated code (Fold)">
     // @formatter:off
@@ -654,19 +621,19 @@ public class MainFrame extends JFrame
         scrollPaneProperties = new JScrollPane();
         textAreaProperties = new JEditorPane();
         panelLibraries = new JPanel();
-        panelTop = new JPanel();
+        panelLibsTop = new JPanel();
         panelTopButtons = new JPanel();
         buttonNew = new JButton();
         buttonCopy = new JButton();
         buttonDelete = new JButton();
         panelHelp = new JPanel();
-        labelHelp = new JLabel();
-        splitPaneContent = new JSplitPane();
+        labelLibrariesHelp = new JLabel();
+        splitPaneLibs = new JSplitPane();
         scrollPaneConfig = new JScrollPane();
-        configItems = new JTable();
+        librariesConfigItems = new JTable();
         panelOptions = new JPanel();
         panelControls = new JPanel();
-        topOptions = new JPanel();
+        topType = new JPanel();
         vSpacer0 = new JPanel(null);
         panelLibraryType = new JPanel();
         hSpacer3 = new JPanel(null);
@@ -675,7 +642,8 @@ public class MainFrame extends JFrame
         vSpacer3 = new JPanel(null);
         separator13 = new JSeparator();
         vSpacer4 = new JPanel(null);
-        panelLibraryTypeCards = new JPanel();
+        tabbedPaneLibrarySpaces = new JTabbedPane();
+        generalTab = new JPanel();
         panelGettingStartedCard = new JPanel();
         labelOperationGettingStarted = new JLabel();
         panelLibraryCard = new JPanel();
@@ -683,31 +651,34 @@ public class MainFrame extends JFrame
         panelTargetsCard = new JPanel();
         panelXCard = new JPanel();
         panelYCard = new JPanel();
-        tabbedPaneLibrarySpaces = new JTabbedPane();
         bibliographyTab = new JPanel();
-        librariesSplit = new JSplitPane();
+        splitPanelBiblio = new JSplitPane();
         scrollPaneLibraries = new JScrollPane();
         tableLibraries = new JTable();
         panelSources = new JPanel();
+        panelSourcesTop = new JPanel();
         labelSpacer42 = new JLabel();
         labelSources = new JLabel();
-        scrollPane1 = new JScrollPane();
-        table1 = new JTable();
-        panel1 = new JPanel();
-        buttonAddOrigin = new JButton();
-        buttonOriginUp = new JButton();
-        buttonOriginDown = new JButton();
-        buttonRemoveOrigin = new JButton();
+        scrollPaneSources = new JScrollPane();
+        tableSources = new JTable();
+        panelSourceButtons = new JPanel();
+        buttonAddSource = new JButton();
+        buttonUpSource = new JButton();
+        buttonDownSource = new JButton();
+        buttonRemoveSource = new JButton();
         panelBiblioButtons = new JPanel();
-        buttonNewLibrary = new JButton();
+        buttonAddLibrary = new JButton();
+        buttonRemoveLibrary = new JButton();
         locationsTab = new JPanel();
         scrollPaneLocations = new JScrollPane();
         tableLocations = new JTable();
         panelLocButtons = new JPanel();
-        buttonNewLocation = new JButton();
-        buttonBar = new JPanel();
+        buttonAddSource2 = new JButton();
+        buttonRemoveSource2 = new JButton();
+        buttonBarLibs = new JPanel();
         saveButton = new JButton();
         cancelButton = new JButton();
+        vSpacer5 = new JPanel(null);
         panelStatus = new JPanel();
         labelStatusLeft = new JLabel();
         labelStatusMiddle = new JLabel();
@@ -1531,11 +1502,11 @@ public class MainFrame extends JFrame
                 {
                     panelLibraries.setLayout(new BorderLayout());
 
-                    //======== panelTop ========
+                    //======== panelLibsTop ========
                     {
-                        panelTop.setMinimumSize(new Dimension(140, 38));
-                        panelTop.setPreferredSize(new Dimension(614, 38));
-                        panelTop.setLayout(new BorderLayout());
+                        panelLibsTop.setMinimumSize(new Dimension(140, 38));
+                        panelLibsTop.setPreferredSize(new Dimension(614, 38));
+                        panelLibsTop.setLayout(new BorderLayout());
 
                         //======== panelTopButtons ========
                         {
@@ -1546,24 +1517,21 @@ public class MainFrame extends JFrame
                             buttonNew.setText(context.cfg.gs("Navigator.buttonNew.text"));
                             buttonNew.setMnemonic(context.cfg.gs("Navigator.buttonNew.mnemonic").charAt(0));
                             buttonNew.setToolTipText(context.cfg.gs("Navigator.buttonNew.toolTipText"));
-                            buttonNew.addActionListener(e -> actionNewClicked(e));
                             panelTopButtons.add(buttonNew);
 
                             //---- buttonCopy ----
                             buttonCopy.setText(context.cfg.gs("Navigator.buttonCopy.text"));
                             buttonCopy.setMnemonic(context.cfg.gs("Navigator.buttonCopy.mnemonic").charAt(0));
                             buttonCopy.setToolTipText(context.cfg.gs("Navigator.buttonCopy.toolTipText"));
-                            buttonCopy.addActionListener(e -> actionCopyClicked(e));
                             panelTopButtons.add(buttonCopy);
 
                             //---- buttonDelete ----
                             buttonDelete.setText(context.cfg.gs("Navigator.buttonDelete.text"));
                             buttonDelete.setMnemonic(context.cfg.gs("Navigator.buttonDelete.mnemonic").charAt(0));
                             buttonDelete.setToolTipText(context.cfg.gs("Navigator.buttonDelete.toolTipText"));
-                            buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                             panelTopButtons.add(buttonDelete);
                         }
-                        panelTop.add(panelTopButtons, BorderLayout.WEST);
+                        panelLibsTop.add(panelTopButtons, BorderLayout.WEST);
 
                         //======== panelHelp ========
                         {
@@ -1571,51 +1539,40 @@ public class MainFrame extends JFrame
                             panelHelp.setMinimumSize(new Dimension(0, 38));
                             panelHelp.setLayout(new FlowLayout(FlowLayout.RIGHT, 4, 4));
 
-                            //---- labelHelp ----
-                            labelHelp.setIcon(UIManager.getIcon("OptionPane.informationIcon"));
-                            labelHelp.setPreferredSize(new Dimension(32, 30));
-                            labelHelp.setMinimumSize(new Dimension(32, 30));
-                            labelHelp.setMaximumSize(new Dimension(32, 30));
-                            labelHelp.setToolTipText(context.cfg.gs("Navigator.labelHelp.toolTipText"));
-                            labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                            labelHelp.setIconTextGap(0);
-                            labelHelp.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseClicked(MouseEvent e) {
-                                    actionHelpClicked(e);
-                                }
-                            });
-                            panelHelp.add(labelHelp);
+                            //---- labelLibrariesHelp ----
+                            labelLibrariesHelp.setIcon(UIManager.getIcon("OptionPane.informationIcon"));
+                            labelLibrariesHelp.setPreferredSize(new Dimension(32, 30));
+                            labelLibrariesHelp.setMinimumSize(new Dimension(32, 30));
+                            labelLibrariesHelp.setMaximumSize(new Dimension(32, 30));
+                            labelLibrariesHelp.setToolTipText(context.cfg.gs("Navigator.labelLibrariesHelp.toolTipText"));
+                            labelLibrariesHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                            labelLibrariesHelp.setIconTextGap(0);
+                            panelHelp.add(labelLibrariesHelp);
                         }
-                        panelTop.add(panelHelp, BorderLayout.EAST);
+                        panelLibsTop.add(panelHelp, BorderLayout.EAST);
                     }
-                    panelLibraries.add(panelTop, BorderLayout.NORTH);
+                    panelLibraries.add(panelLibsTop, BorderLayout.NORTH);
 
-                    //======== splitPaneContent ========
+                    //======== splitPaneLibs ========
                     {
-                        splitPaneContent.setDividerLocation(142);
-                        splitPaneContent.setLastDividerLocation(142);
-                        splitPaneContent.setMinimumSize(new Dimension(140, 80));
+                        splitPaneLibs.setDividerLocation(142);
+                        splitPaneLibs.setLastDividerLocation(142);
+                        splitPaneLibs.setMinimumSize(new Dimension(140, 80));
+                        splitPaneLibs.setPreferredSize(new Dimension(1070, 592));
 
                         //======== scrollPaneConfig ========
                         {
                             scrollPaneConfig.setMinimumSize(new Dimension(140, 16));
                             scrollPaneConfig.setPreferredSize(new Dimension(142, 146));
 
-                            //---- configItems ----
-                            configItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                            configItems.setShowVerticalLines(false);
-                            configItems.setFillsViewportHeight(true);
-                            configItems.setShowHorizontalLines(false);
-                            configItems.addMouseListener(new MouseAdapter() {
-                                @Override
-                                public void mouseClicked(MouseEvent e) {
-                                    configItemsMouseClicked(e);
-                                }
-                            });
-                            scrollPaneConfig.setViewportView(configItems);
+                            //---- librariesConfigItems ----
+                            librariesConfigItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                            librariesConfigItems.setShowVerticalLines(false);
+                            librariesConfigItems.setFillsViewportHeight(true);
+                            librariesConfigItems.setShowHorizontalLines(false);
+                            scrollPaneConfig.setViewportView(librariesConfigItems);
                         }
-                        splitPaneContent.setLeftComponent(scrollPaneConfig);
+                        splitPaneLibs.setLeftComponent(scrollPaneConfig);
 
                         //======== panelOptions ========
                         {
@@ -1626,15 +1583,15 @@ public class MainFrame extends JFrame
                             {
                                 panelControls.setLayout(new BorderLayout());
 
-                                //======== topOptions ========
+                                //======== topType ========
                                 {
-                                    topOptions.setLayout(new BorderLayout());
+                                    topType.setLayout(new BorderLayout());
 
                                     //---- vSpacer0 ----
                                     vSpacer0.setPreferredSize(new Dimension(10, 2));
                                     vSpacer0.setMinimumSize(new Dimension(10, 2));
                                     vSpacer0.setMaximumSize(new Dimension(10, 2));
-                                    topOptions.add(vSpacer0, BorderLayout.NORTH);
+                                    topType.add(vSpacer0, BorderLayout.NORTH);
 
                                     //======== panelLibraryType ========
                                     {
@@ -1654,7 +1611,7 @@ public class MainFrame extends JFrame
                                         labelLibaryType.setMinimumSize(new Dimension(110, 16));
                                         panelLibraryType.add(labelLibaryType);
                                     }
-                                    topOptions.add(panelLibraryType, BorderLayout.WEST);
+                                    topType.add(panelLibraryType, BorderLayout.WEST);
 
                                     //======== panelCardBox ========
                                     {
@@ -1672,223 +1629,236 @@ public class MainFrame extends JFrame
                                         vSpacer4.setMaximumSize(new Dimension(32767, 2));
                                         vSpacer4.setPreferredSize(new Dimension(10, 2));
                                         panelCardBox.add(vSpacer4);
-
-                                        //======== panelLibraryTypeCards ========
-                                        {
-                                            panelLibraryTypeCards.setMaximumSize(new Dimension(32676, 184));
-                                            panelLibraryTypeCards.setPreferredSize(new Dimension(343, 184));
-                                            panelLibraryTypeCards.setMinimumSize(new Dimension(343, 184));
-                                            panelLibraryTypeCards.setLayout(new CardLayout());
-
-                                            //======== panelGettingStartedCard ========
-                                            {
-                                                panelGettingStartedCard.setLayout(new BorderLayout());
-
-                                                //---- labelOperationGettingStarted ----
-                                                labelOperationGettingStarted.setText(context.cfg.gs("Navigator.labelLibariesGettingStarted.text"));
-                                                labelOperationGettingStarted.setFont(labelOperationGettingStarted.getFont().deriveFont(labelOperationGettingStarted.getFont().getStyle() | Font.BOLD));
-                                                labelOperationGettingStarted.setHorizontalAlignment(SwingConstants.CENTER);
-                                                panelGettingStartedCard.add(labelOperationGettingStarted, BorderLayout.CENTER);
-                                            }
-                                            panelLibraryTypeCards.add(panelGettingStartedCard, "cardGettingStarted");
-
-                                            //======== panelLibraryCard ========
-                                            {
-                                                panelLibraryCard.addComponentListener(new ComponentAdapter() {
-                                                    @Override
-                                                    public void componentShown(ComponentEvent e) {
-                                                        cardShown(e);
-                                                    }
-                                                });
-                                                panelLibraryCard.setLayout(new GridBagLayout());
-                                                ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0};
-                                                ((GridBagLayout)panelLibraryCard.getLayout()).columnWeights = new double[] {1.0};
-                                                ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {1.0, 1.0, 1.0E-4};
-                                            }
-                                            panelLibraryTypeCards.add(panelLibraryCard, "cardLibrary");
-
-                                            //======== panelHintServerCard ========
-                                            {
-                                                panelHintServerCard.addComponentListener(new ComponentAdapter() {
-                                                    @Override
-                                                    public void componentShown(ComponentEvent e) {
-                                                        cardShown(e);
-                                                    }
-                                                });
-                                                panelHintServerCard.setLayout(new GridBagLayout());
-                                                ((GridBagLayout)panelHintServerCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                                                ((GridBagLayout)panelHintServerCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
-                                            }
-                                            panelLibraryTypeCards.add(panelHintServerCard, "cardNumbering");
-
-                                            //======== panelTargetsCard ========
-                                            {
-                                                panelTargetsCard.addComponentListener(new ComponentAdapter() {
-                                                    @Override
-                                                    public void componentShown(ComponentEvent e) {
-                                                        cardShown(e);
-                                                    }
-                                                });
-                                                panelTargetsCard.setLayout(new GridBagLayout());
-                                                ((GridBagLayout)panelTargetsCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                                                ((GridBagLayout)panelTargetsCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
-                                            }
-                                            panelLibraryTypeCards.add(panelTargetsCard, "cardTargets");
-
-                                            //======== panelXCard ========
-                                            {
-                                                panelXCard.addComponentListener(new ComponentAdapter() {
-                                                    @Override
-                                                    public void componentShown(ComponentEvent e) {
-                                                        cardShown(e);
-                                                    }
-                                                });
-                                                panelXCard.setLayout(new GridBagLayout());
-                                                ((GridBagLayout)panelXCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                                                ((GridBagLayout)panelXCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
-                                            }
-                                            panelLibraryTypeCards.add(panelXCard, "cardX");
-
-                                            //======== panelYCard ========
-                                            {
-                                                panelYCard.addComponentListener(new ComponentAdapter() {
-                                                    @Override
-                                                    public void componentShown(ComponentEvent e) {
-                                                        cardShown(e);
-                                                    }
-                                                });
-                                                panelYCard.setLayout(new GridBagLayout());
-                                                ((GridBagLayout)panelYCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
-                                                ((GridBagLayout)panelYCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
-                                            }
-                                            panelLibraryTypeCards.add(panelYCard, "cardY");
-                                        }
-                                        panelCardBox.add(panelLibraryTypeCards);
                                     }
-                                    topOptions.add(panelCardBox, BorderLayout.SOUTH);
+                                    topType.add(panelCardBox, BorderLayout.SOUTH);
                                 }
-                                panelControls.add(topOptions, BorderLayout.NORTH);
+                                panelControls.add(topType, BorderLayout.NORTH);
                             }
                             panelOptions.add(panelControls, BorderLayout.NORTH);
 
                             //======== tabbedPaneLibrarySpaces ========
                             {
 
+                                //======== generalTab ========
+                                {
+                                    generalTab.setMaximumSize(new Dimension(32676, 184));
+                                    generalTab.setPreferredSize(new Dimension(343, 184));
+                                    generalTab.setMinimumSize(new Dimension(343, 184));
+                                    generalTab.setLayout(new CardLayout());
+
+                                    //======== panelGettingStartedCard ========
+                                    {
+                                        panelGettingStartedCard.setLayout(new BorderLayout());
+
+                                        //---- labelOperationGettingStarted ----
+                                        labelOperationGettingStarted.setText(context.cfg.gs("Navigator.labelLibrariesGettingStarted.text"));
+                                        labelOperationGettingStarted.setFont(labelOperationGettingStarted.getFont().deriveFont(labelOperationGettingStarted.getFont().getStyle() | Font.BOLD));
+                                        labelOperationGettingStarted.setHorizontalAlignment(SwingConstants.CENTER);
+                                        panelGettingStartedCard.add(labelOperationGettingStarted, BorderLayout.CENTER);
+                                    }
+                                    generalTab.add(panelGettingStartedCard, "cardGettingStarted");
+
+                                    //======== panelLibraryCard ========
+                                    {
+                                        panelLibraryCard.addComponentListener(new ComponentAdapter() {
+                                            @Override
+                                            public void componentShown(ComponentEvent e) {
+                                                cardShown(e);
+                                            }
+                                        });
+                                        panelLibraryCard.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelLibraryCard.getLayout()).rowHeights = new int[] {0, 0, 0};
+                                        ((GridBagLayout)panelLibraryCard.getLayout()).columnWeights = new double[] {1.0};
+                                        ((GridBagLayout)panelLibraryCard.getLayout()).rowWeights = new double[] {1.0, 1.0, 1.0E-4};
+                                    }
+                                    generalTab.add(panelLibraryCard, "cardLibrary");
+
+                                    //======== panelHintServerCard ========
+                                    {
+                                        panelHintServerCard.addComponentListener(new ComponentAdapter() {
+                                            @Override
+                                            public void componentShown(ComponentEvent e) {
+                                                cardShown(e);
+                                            }
+                                        });
+                                        panelHintServerCard.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelHintServerCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                                        ((GridBagLayout)panelHintServerCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                                    }
+                                    generalTab.add(panelHintServerCard, "cardHintServer");
+
+                                    //======== panelTargetsCard ========
+                                    {
+                                        panelTargetsCard.addComponentListener(new ComponentAdapter() {
+                                            @Override
+                                            public void componentShown(ComponentEvent e) {
+                                                cardShown(e);
+                                            }
+                                        });
+                                        panelTargetsCard.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelTargetsCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                                        ((GridBagLayout)panelTargetsCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                                    }
+                                    generalTab.add(panelTargetsCard, "cardTargets");
+
+                                    //======== panelXCard ========
+                                    {
+                                        panelXCard.addComponentListener(new ComponentAdapter() {
+                                            @Override
+                                            public void componentShown(ComponentEvent e) {
+                                                cardShown(e);
+                                            }
+                                        });
+                                        panelXCard.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelXCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                                        ((GridBagLayout)panelXCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                                    }
+                                    generalTab.add(panelXCard, "cardX");
+
+                                    //======== panelYCard ========
+                                    {
+                                        panelYCard.addComponentListener(new ComponentAdapter() {
+                                            @Override
+                                            public void componentShown(ComponentEvent e) {
+                                                cardShown(e);
+                                            }
+                                        });
+                                        panelYCard.setLayout(new GridBagLayout());
+                                        ((GridBagLayout)panelYCard.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
+                                        ((GridBagLayout)panelYCard.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                                    }
+                                    generalTab.add(panelYCard, "cardY");
+                                }
+                                tabbedPaneLibrarySpaces.addTab(context.cfg.gs("Navigator.generalTab.tab.title"), generalTab);
+
                                 //======== bibliographyTab ========
                                 {
                                     bibliographyTab.setLayout(new BorderLayout());
 
-                                    //======== librariesSplit ========
+                                    //======== splitPanelBiblio ========
                                     {
-                                        librariesSplit.setDividerLocation(201);
+                                        splitPanelBiblio.setDividerLocation(200);
 
                                         //======== scrollPaneLibraries ========
                                         {
                                             scrollPaneLibraries.setViewportView(tableLibraries);
                                         }
-                                        librariesSplit.setLeftComponent(scrollPaneLibraries);
+                                        splitPanelBiblio.setLeftComponent(scrollPaneLibraries);
 
                                         //======== panelSources ========
                                         {
-                                            panelSources.setLayout(new GridBagLayout());
-                                            ((GridBagLayout)panelSources.getLayout()).columnWidths = new int[] {0, 0, 0};
-                                            ((GridBagLayout)panelSources.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0};
-                                            ((GridBagLayout)panelSources.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
-                                            ((GridBagLayout)panelSources.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0E-4};
+                                            panelSources.setLayout(new BorderLayout());
 
-                                            //---- labelSpacer42 ----
-                                            labelSpacer42.setText(" ");
-                                            panelSources.add(labelSpacer42, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 0, 0), 0, 0));
-
-                                            //---- labelSources ----
-                                            labelSources.setText(context.cfg.gs("Navigator.labelSources.text"));
-                                            labelSources.setFont(labelSources.getFont().deriveFont(labelSources.getFont().getStyle() | Font.BOLD, labelSources.getFont().getSize() + 1f));
-                                            labelSources.setHorizontalAlignment(SwingConstants.LEFT);
-                                            labelSources.setPreferredSize(new Dimension(200, 16));
-                                            labelSources.setMinimumSize(new Dimension(200, 16));
-                                            panelSources.add(labelSources, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 4, 0, 0), 0, 0));
-
-                                            //======== scrollPane1 ========
+                                            //======== panelSourcesTop ========
                                             {
-                                                scrollPane1.setMinimumSize(new Dimension(408, 20));
-                                                scrollPane1.setViewportView(table1);
-                                            }
-                                            panelSources.add(scrollPane1, new GridBagConstraints(0, 2, 2, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 0, 0), 0, 0));
+                                                panelSourcesTop.setLayout(new GridBagLayout());
+                                                ((GridBagLayout)panelSourcesTop.getLayout()).columnWidths = new int[] {0, 0};
+                                                ((GridBagLayout)panelSourcesTop.getLayout()).rowHeights = new int[] {0, 0, 0};
+                                                ((GridBagLayout)panelSourcesTop.getLayout()).columnWeights = new double[] {0.0, 1.0E-4};
+                                                ((GridBagLayout)panelSourcesTop.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
-                                            //======== panel1 ========
+                                                //---- labelSpacer42 ----
+                                                labelSpacer42.setText(" ");
+                                                panelSourcesTop.add(labelSpacer42, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                                                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                    new Insets(0, 0, 0, 0), 0, 0));
+
+                                                //---- labelSources ----
+                                                labelSources.setText(context.cfg.gs("Navigator.labelSources.text"));
+                                                labelSources.setFont(labelSources.getFont().deriveFont(labelSources.getFont().getStyle() | Font.BOLD, labelSources.getFont().getSize() + 1f));
+                                                labelSources.setHorizontalAlignment(SwingConstants.LEFT);
+                                                labelSources.setPreferredSize(new Dimension(200, 16));
+                                                labelSources.setMinimumSize(new Dimension(200, 16));
+                                                panelSourcesTop.add(labelSources, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                                                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                                                    new Insets(0, 4, 0, 0), 0, 0));
+                                            }
+                                            panelSources.add(panelSourcesTop, BorderLayout.NORTH);
+
+                                            //======== scrollPaneSources ========
                                             {
-                                                panel1.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
-
-                                                //---- buttonAddOrigin ----
-                                                buttonAddOrigin.setText(context.cfg.gs("Navigator.buttonAddOrigin.text"));
-                                                buttonAddOrigin.setFont(buttonAddOrigin.getFont().deriveFont(buttonAddOrigin.getFont().getSize() - 2f));
-                                                buttonAddOrigin.setPreferredSize(new Dimension(78, 24));
-                                                buttonAddOrigin.setMinimumSize(new Dimension(78, 24));
-                                                buttonAddOrigin.setMaximumSize(new Dimension(78, 24));
-                                                buttonAddOrigin.setMnemonic(context.cfg.gs("Navigator.buttonAddOrigin.mnemonic").charAt(0));
-                                                buttonAddOrigin.setToolTipText(context.cfg.gs("Navigator.buttonAddOrigin.toolTipText"));
-                                                buttonAddOrigin.addActionListener(e -> actionOriginAddClicked(e));
-                                                panel1.add(buttonAddOrigin);
-
-                                                //---- buttonOriginUp ----
-                                                buttonOriginUp.setText("^");
-                                                buttonOriginUp.setMaximumSize(new Dimension(24, 24));
-                                                buttonOriginUp.setMinimumSize(new Dimension(24, 24));
-                                                buttonOriginUp.setPreferredSize(new Dimension(24, 24));
-                                                buttonOriginUp.setFont(buttonOriginUp.getFont().deriveFont(buttonOriginUp.getFont().getSize() - 2f));
-                                                buttonOriginUp.setToolTipText(context.cfg.gs("Navigator.buttonOriginUp.toolTipText"));
-                                                buttonOriginUp.addActionListener(e -> actionOriginUpClicked(e));
-                                                panel1.add(buttonOriginUp);
-
-                                                //---- buttonOriginDown ----
-                                                buttonOriginDown.setText("v");
-                                                buttonOriginDown.setFont(buttonOriginDown.getFont().deriveFont(buttonOriginDown.getFont().getSize() - 2f));
-                                                buttonOriginDown.setMaximumSize(new Dimension(24, 24));
-                                                buttonOriginDown.setMinimumSize(new Dimension(24, 24));
-                                                buttonOriginDown.setPreferredSize(new Dimension(24, 24));
-                                                buttonOriginDown.setToolTipText(context.cfg.gs("Navigator.buttonOriginDown.toolTipText"));
-                                                buttonOriginDown.addActionListener(e -> actionOriginDownClicked(e));
-                                                panel1.add(buttonOriginDown);
-
-                                                //---- buttonRemoveOrigin ----
-                                                buttonRemoveOrigin.setText(context.cfg.gs("Navigator.buttonRemoveOrigin.text"));
-                                                buttonRemoveOrigin.setFont(buttonRemoveOrigin.getFont().deriveFont(buttonRemoveOrigin.getFont().getSize() - 2f));
-                                                buttonRemoveOrigin.setPreferredSize(new Dimension(78, 24));
-                                                buttonRemoveOrigin.setMinimumSize(new Dimension(78, 24));
-                                                buttonRemoveOrigin.setMaximumSize(new Dimension(78, 24));
-                                                buttonRemoveOrigin.setMnemonic(context.cfg.gs("Navigator.buttonRemoveOrigin.mnemonic").charAt(0));
-                                                buttonRemoveOrigin.setToolTipText(context.cfg.gs("Navigator.buttonRemoveOrigin.toolTipText"));
-                                                buttonRemoveOrigin.addActionListener(e -> actionOriginRemoveClicked(e));
-                                                panel1.add(buttonRemoveOrigin);
+                                                scrollPaneSources.setMinimumSize(new Dimension(408, 20));
+                                                scrollPaneSources.setViewportView(tableSources);
                                             }
-                                            panelSources.add(panel1, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
-                                                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                                                new Insets(0, 0, 0, 0), 0, 0));
+                                            panelSources.add(scrollPaneSources, BorderLayout.CENTER);
+
+                                            //======== panelSourceButtons ========
+                                            {
+                                                panelSourceButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
+
+                                                //---- buttonAddSource ----
+                                                buttonAddSource.setText(context.cfg.gs("Navigator.buttonAddSource.text"));
+                                                buttonAddSource.setFont(buttonAddSource.getFont().deriveFont(buttonAddSource.getFont().getSize() - 2f));
+                                                buttonAddSource.setPreferredSize(new Dimension(78, 24));
+                                                buttonAddSource.setMinimumSize(new Dimension(78, 24));
+                                                buttonAddSource.setMaximumSize(new Dimension(78, 24));
+                                                buttonAddSource.setMnemonic(context.cfg.gs("Navigator.buttonAddSource.mnemonic").charAt(0));
+                                                buttonAddSource.setToolTipText(context.cfg.gs("Navigator.buttonAddSource.toolTipText"));
+                                                buttonAddSource.addActionListener(e -> actionOriginAddClicked(e));
+                                                panelSourceButtons.add(buttonAddSource);
+
+                                                //---- buttonUpSource ----
+                                                buttonUpSource.setText("^");
+                                                buttonUpSource.setMaximumSize(new Dimension(24, 24));
+                                                buttonUpSource.setMinimumSize(new Dimension(24, 24));
+                                                buttonUpSource.setPreferredSize(new Dimension(24, 24));
+                                                buttonUpSource.setFont(buttonUpSource.getFont().deriveFont(buttonUpSource.getFont().getSize() - 2f));
+                                                buttonUpSource.setToolTipText(context.cfg.gs("Navigator.buttonUpSource.toolTipText"));
+                                                buttonUpSource.addActionListener(e -> actionOriginUpClicked(e));
+                                                panelSourceButtons.add(buttonUpSource);
+
+                                                //---- buttonDownSource ----
+                                                buttonDownSource.setText("v");
+                                                buttonDownSource.setFont(buttonDownSource.getFont().deriveFont(buttonDownSource.getFont().getSize() - 2f));
+                                                buttonDownSource.setMaximumSize(new Dimension(24, 24));
+                                                buttonDownSource.setMinimumSize(new Dimension(24, 24));
+                                                buttonDownSource.setPreferredSize(new Dimension(24, 24));
+                                                buttonDownSource.setToolTipText(context.cfg.gs("Navigator.buttonDownSource.toolTipText"));
+                                                buttonDownSource.addActionListener(e -> actionOriginDownClicked(e));
+                                                panelSourceButtons.add(buttonDownSource);
+
+                                                //---- buttonRemoveSource ----
+                                                buttonRemoveSource.setText(context.cfg.gs("Navigator.buttonRemoveSource.text"));
+                                                buttonRemoveSource.setFont(buttonRemoveSource.getFont().deriveFont(buttonRemoveSource.getFont().getSize() - 2f));
+                                                buttonRemoveSource.setPreferredSize(new Dimension(78, 24));
+                                                buttonRemoveSource.setMinimumSize(new Dimension(78, 24));
+                                                buttonRemoveSource.setMaximumSize(new Dimension(78, 24));
+                                                buttonRemoveSource.setMnemonic(context.cfg.gs("Navigator.buttonRemoveSource.mnemonic").charAt(0));
+                                                buttonRemoveSource.setToolTipText(context.cfg.gs("Navigator.buttonRemoveSource.toolTipText"));
+                                                buttonRemoveSource.addActionListener(e -> actionOriginRemoveClicked(e));
+                                                panelSourceButtons.add(buttonRemoveSource);
+                                            }
+                                            panelSources.add(panelSourceButtons, BorderLayout.SOUTH);
                                         }
-                                        librariesSplit.setRightComponent(panelSources);
+                                        splitPanelBiblio.setRightComponent(panelSources);
                                     }
-                                    bibliographyTab.add(librariesSplit, BorderLayout.CENTER);
+                                    bibliographyTab.add(splitPanelBiblio, BorderLayout.CENTER);
 
                                     //======== panelBiblioButtons ========
                                     {
                                         panelBiblioButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
-                                        //---- buttonNewLibrary ----
-                                        buttonNewLibrary.setText(context.cfg.gs("Navigator.buttonNewLibrary.text"));
-                                        buttonNewLibrary.setFont(buttonNewLibrary.getFont().deriveFont(buttonNewLibrary.getFont().getSize() - 2f));
-                                        buttonNewLibrary.setPreferredSize(new Dimension(78, 24));
-                                        buttonNewLibrary.setMinimumSize(new Dimension(78, 24));
-                                        buttonNewLibrary.setMaximumSize(new Dimension(78, 24));
-                                        buttonNewLibrary.setMnemonic(context.cfg.gs("Navigator.buttonNewLibrary.mnemonic_2").charAt(0));
-                                        buttonNewLibrary.setToolTipText(context.cfg.gs("Navigator.buttonNewLibrary.toolTipText"));
-                                        buttonNewLibrary.addActionListener(e -> actionRefreshClicked(e));
-                                        panelBiblioButtons.add(buttonNewLibrary);
+                                        //---- buttonAddLibrary ----
+                                        buttonAddLibrary.setText(context.cfg.gs("Navigator.buttonAddLibrary.text"));
+                                        buttonAddLibrary.setFont(buttonAddLibrary.getFont().deriveFont(buttonAddLibrary.getFont().getSize() - 2f));
+                                        buttonAddLibrary.setPreferredSize(new Dimension(78, 24));
+                                        buttonAddLibrary.setMinimumSize(new Dimension(78, 24));
+                                        buttonAddLibrary.setMaximumSize(new Dimension(78, 24));
+                                        buttonAddLibrary.setMnemonic(context.cfg.gs("Navigator.buttonAddLibrary.mnemonic").charAt(0));
+                                        buttonAddLibrary.setToolTipText(context.cfg.gs("Navigator.buttonAddLibrary.toolTipText"));
+                                        buttonAddLibrary.addActionListener(e -> actionOriginAddClicked(e));
+                                        panelBiblioButtons.add(buttonAddLibrary);
+
+                                        //---- buttonRemoveLibrary ----
+                                        buttonRemoveLibrary.setText(context.cfg.gs("Navigator.buttonRemoveLibrary.text"));
+                                        buttonRemoveLibrary.setFont(buttonRemoveLibrary.getFont().deriveFont(buttonRemoveLibrary.getFont().getSize() - 2f));
+                                        buttonRemoveLibrary.setPreferredSize(new Dimension(78, 24));
+                                        buttonRemoveLibrary.setMinimumSize(new Dimension(78, 24));
+                                        buttonRemoveLibrary.setMaximumSize(new Dimension(78, 24));
+                                        buttonRemoveLibrary.setMnemonic(context.cfg.gs("Navigator.buttonRemoveLibrary.mnemonic").charAt(0));
+                                        buttonRemoveLibrary.setToolTipText(context.cfg.gs("Navigator.buttonRemoveLibrary.toolTipText"));
+                                        buttonRemoveLibrary.addActionListener(e -> actionOriginRemoveClicked(e));
+                                        panelBiblioButtons.add(buttonRemoveLibrary);
                                     }
                                     bibliographyTab.add(panelBiblioButtons, BorderLayout.SOUTH);
                                 }
@@ -1906,11 +1876,29 @@ public class MainFrame extends JFrame
 
                                     //======== panelLocButtons ========
                                     {
-                                        panelLocButtons.setLayout(new FlowLayout());
+                                        panelLocButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
-                                        //---- buttonNewLocation ----
-                                        buttonNewLocation.setText(context.cfg.gs("Navigator.buttonNewLocation.text"));
-                                        panelLocButtons.add(buttonNewLocation);
+                                        //---- buttonAddSource2 ----
+                                        buttonAddSource2.setText(context.cfg.gs("Navigator.buttonAddSource2.text"));
+                                        buttonAddSource2.setFont(buttonAddSource2.getFont().deriveFont(buttonAddSource2.getFont().getSize() - 2f));
+                                        buttonAddSource2.setPreferredSize(new Dimension(78, 24));
+                                        buttonAddSource2.setMinimumSize(new Dimension(78, 24));
+                                        buttonAddSource2.setMaximumSize(new Dimension(78, 24));
+                                        buttonAddSource2.setMnemonic(context.cfg.gs("Navigator.buttonAddSource2.mnemonic").charAt(0));
+                                        buttonAddSource2.setToolTipText(context.cfg.gs("Navigator.buttonAddSource2.toolTipText"));
+                                        buttonAddSource2.addActionListener(e -> actionOriginAddClicked(e));
+                                        panelLocButtons.add(buttonAddSource2);
+
+                                        //---- buttonRemoveSource2 ----
+                                        buttonRemoveSource2.setText(context.cfg.gs("Navigator.buttonRemoveSource2.text"));
+                                        buttonRemoveSource2.setFont(buttonRemoveSource2.getFont().deriveFont(buttonRemoveSource2.getFont().getSize() - 2f));
+                                        buttonRemoveSource2.setPreferredSize(new Dimension(78, 24));
+                                        buttonRemoveSource2.setMinimumSize(new Dimension(78, 24));
+                                        buttonRemoveSource2.setMaximumSize(new Dimension(78, 24));
+                                        buttonRemoveSource2.setMnemonic(context.cfg.gs("Navigator.buttonRemoveSource2.mnemonic").charAt(0));
+                                        buttonRemoveSource2.setToolTipText(context.cfg.gs("Navigator.buttonRemoveSource2.toolTipText"));
+                                        buttonRemoveSource2.addActionListener(e -> actionOriginRemoveClicked(e));
+                                        panelLocButtons.add(buttonRemoveSource2);
                                     }
                                     locationsTab.add(panelLocButtons, BorderLayout.SOUTH);
                                 }
@@ -1918,34 +1906,42 @@ public class MainFrame extends JFrame
                             }
                             panelOptions.add(tabbedPaneLibrarySpaces, BorderLayout.CENTER);
                         }
-                        splitPaneContent.setRightComponent(panelOptions);
+                        splitPaneLibs.setRightComponent(panelOptions);
                     }
-                    panelLibraries.add(splitPaneContent, BorderLayout.CENTER);
+                    panelLibraries.add(splitPaneLibs, BorderLayout.CENTER);
 
-                    //======== buttonBar ========
+                    //======== buttonBarLibs ========
                     {
-                        buttonBar.setBorder(new EmptyBorder(12, 0, 0, 0));
-                        buttonBar.setLayout(new GridBagLayout());
-                        ((GridBagLayout)buttonBar.getLayout()).columnWidths = new int[] {0, 82, 80};
-                        ((GridBagLayout)buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
+                        buttonBarLibs.setBorder(new EmptyBorder(12, 0, 0, 0));
+                        buttonBarLibs.setLayout(new GridBagLayout());
+                        ((GridBagLayout)buttonBarLibs.getLayout()).columnWidths = new int[] {0, 82, 80};
+                        ((GridBagLayout)buttonBarLibs.getLayout()).rowHeights = new int[] {0, 0, 0};
+                        ((GridBagLayout)buttonBarLibs.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
+                        ((GridBagLayout)buttonBarLibs.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0E-4};
 
                         //---- saveButton ----
-                        saveButton.setText(context.cfg.gs("Navigator.saveButton.text"));
-                        saveButton.setToolTipText(context.cfg.gs("Navigator.saveButton.toolTipText"));
-                        saveButton.addActionListener(e -> actionSaveClicked(e));
-                        buttonBar.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                        saveButton.setText(context.cfg.gs("Z.save"));
+                        saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
+                        buttonBarLibs.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 0, 2), 0, 0));
 
                         //---- cancelButton ----
-                        cancelButton.setText(context.cfg.gs("Navigator.cancelButton.text"));
-                        cancelButton.setToolTipText(context.cfg.gs("Navigator.cancelButton.toolTipText"));
-                        cancelButton.addActionListener(e -> actionCancelClicked(e));
-                        buttonBar.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                        cancelButton.setText(context.cfg.gs("Z.cancel"));
+                        cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
+                        buttonBarLibs.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                            new Insets(0, 0, 0, 0), 0, 0));
+
+                        //---- vSpacer5 ----
+                        vSpacer5.setMaximumSize(new Dimension(32767, 12));
+                        vSpacer5.setPreferredSize(new Dimension(10, 12));
+                        vSpacer5.setMinimumSize(new Dimension(12, 12));
+                        buttonBarLibs.add(vSpacer5, new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 0, 0), 0, 0));
                     }
-                    panelLibraries.add(buttonBar, BorderLayout.SOUTH);
+                    panelLibraries.add(buttonBarLibs, BorderLayout.SOUTH);
                 }
                 tabbedPaneMain.addTab(context.cfg.gs("Navigator.splitPane.Libraries.tab.title"), panelLibraries);
                 tabbedPaneMain.setMnemonicAt(1, context.cfg.gs("Navigator.splitPane.Libraries.tab.mnemonic").charAt(0));
@@ -2190,19 +2186,19 @@ public class MainFrame extends JFrame
     public JScrollPane scrollPaneProperties;
     public JEditorPane textAreaProperties;
     public JPanel panelLibraries;
-    public JPanel panelTop;
+    public JPanel panelLibsTop;
     public JPanel panelTopButtons;
     public JButton buttonNew;
     public JButton buttonCopy;
     public JButton buttonDelete;
     public JPanel panelHelp;
-    public JLabel labelHelp;
-    public JSplitPane splitPaneContent;
+    public JLabel labelLibrariesHelp;
+    public JSplitPane splitPaneLibs;
     public JScrollPane scrollPaneConfig;
-    public JTable configItems;
+    public JTable librariesConfigItems;
     public JPanel panelOptions;
     public JPanel panelControls;
-    public JPanel topOptions;
+    public JPanel topType;
     public JPanel vSpacer0;
     public JPanel panelLibraryType;
     public JPanel hSpacer3;
@@ -2211,7 +2207,8 @@ public class MainFrame extends JFrame
     public JPanel vSpacer3;
     public JSeparator separator13;
     public JPanel vSpacer4;
-    public JPanel panelLibraryTypeCards;
+    public JTabbedPane tabbedPaneLibrarySpaces;
+    public JPanel generalTab;
     public JPanel panelGettingStartedCard;
     public JLabel labelOperationGettingStarted;
     public JPanel panelLibraryCard;
@@ -2219,31 +2216,34 @@ public class MainFrame extends JFrame
     public JPanel panelTargetsCard;
     public JPanel panelXCard;
     public JPanel panelYCard;
-    public JTabbedPane tabbedPaneLibrarySpaces;
     public JPanel bibliographyTab;
-    public JSplitPane librariesSplit;
+    public JSplitPane splitPanelBiblio;
     public JScrollPane scrollPaneLibraries;
     public JTable tableLibraries;
     public JPanel panelSources;
+    public JPanel panelSourcesTop;
     public JLabel labelSpacer42;
     public JLabel labelSources;
-    public JScrollPane scrollPane1;
-    public JTable table1;
-    public JPanel panel1;
-    public JButton buttonAddOrigin;
-    public JButton buttonOriginUp;
-    public JButton buttonOriginDown;
-    public JButton buttonRemoveOrigin;
+    public JScrollPane scrollPaneSources;
+    public JTable tableSources;
+    public JPanel panelSourceButtons;
+    public JButton buttonAddSource;
+    public JButton buttonUpSource;
+    public JButton buttonDownSource;
+    public JButton buttonRemoveSource;
     public JPanel panelBiblioButtons;
-    public JButton buttonNewLibrary;
+    public JButton buttonAddLibrary;
+    public JButton buttonRemoveLibrary;
     public JPanel locationsTab;
     public JScrollPane scrollPaneLocations;
     public JTable tableLocations;
     public JPanel panelLocButtons;
-    public JButton buttonNewLocation;
-    public JPanel buttonBar;
+    public JButton buttonAddSource2;
+    public JButton buttonRemoveSource2;
+    public JPanel buttonBarLibs;
     public JButton saveButton;
     public JButton cancelButton;
+    public JPanel vSpacer5;
     public JPanel panelStatus;
     public JLabel labelStatusLeft;
     public JLabel labelStatusMiddle;

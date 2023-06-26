@@ -8,6 +8,7 @@ import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.jobs.AbstractToolDialog;
 import com.groksoft.els.gui.jobs.JobsUI;
+import com.groksoft.els.gui.libraries.LibrariesUI;
 import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
@@ -353,7 +354,7 @@ public class Navigator
             // setup the Main Menu and primary tabs
             initializeMainMenu();
             context.browser = new Browser(context);
-            // TODO Add Library tab content creation here
+            context.libraries = new LibrariesUI(context);
 
             // set the GuiLogAppender context for a second invocation
             if (context.main.secondaryInvocation)

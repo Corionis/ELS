@@ -7,7 +7,6 @@ import com.groksoft.els.gui.Generator;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.jobs.AbstractToolDialog;
 import com.groksoft.els.gui.jobs.ConfigModel;
-import com.groksoft.els.jobs.Job;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.tools.AbstractTool;
@@ -206,7 +205,7 @@ public class OperationsUI extends AbstractToolDialog
         if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
         {
             String message = context.cfg.gs("OperationsUI.mode.select.type");
-            String line = context.cfg.gs("Use Local/Remote publish for Navigator. ");
+            String line = context.cfg.gs(("OperationsUI.mode.select.use.local.remote.publish.for.navigator"));
             Object[] params = {message, line, comboBoxMode};
             comboBoxMode.setSelectedIndex(0);
 
@@ -337,7 +336,7 @@ public class OperationsUI extends AbstractToolDialog
         setVisible(false);
     }
 
-    public void cancelChanges()
+    private void cancelChanges()
     {
         if (deletedTools.size() > 0)
             deletedTools = new ArrayList<AbstractTool>();
@@ -395,7 +394,7 @@ public class OperationsUI extends AbstractToolDialog
                 switch (button.getName().toLowerCase())
                 {
                     case "authkeys":
-                        desc = context.cfg.gs("OperationsUI.els.authkeys.file");
+                        desc = context.cfg.gs("OperationsUI.els.auth.keys.file");
                         fileAny = false;
                         fileMustExist = true;
                         fileKeys = true;
@@ -408,7 +407,7 @@ public class OperationsUI extends AbstractToolDialog
                         break;
                     case "ipwhitelist":
                     case "ipwhitelist3":
-                        desc = context.cfg.gs("OperationsUI.els.ipwhitelist.file");
+                        desc = context.cfg.gs("OperationsUI.els.whitelist.file");
                         fileAny = true;
                         fileMustExist = true;
                         break;
@@ -715,47 +714,6 @@ public class OperationsUI extends AbstractToolDialog
         return index;
     }
 
-    private void initNewCard()
-    {
-        loading = true;
-        switch (currentTool.getOperation())
-        {
-            case NotRemote:
-            case PublishRemote:
-            case SubscriberListener:
-                currentTool.setOptKeys(context.cfg.getHintKeysFile());
-                if (context.cfg.getHintTrackerFilename().length() > 0)
-                {
-                    comboBoxOperationHintKeys.setSelectedIndex(0);
-                    currentTool.setOptHints(context.cfg.getHintTrackerFilename());
-                }
-                if (context.cfg.getHintsDaemonFilename().length() > 0)
-                {
-                    comboBoxOperationHintKeys.setSelectedIndex(1);
-                    currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
-                }
-                break;
-            case StatusServer:
-                currentTool.setOptKeys(context.cfg.getHintKeysFile());
-                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
-                break;
-            case PublisherManual:
-                break;
-            case PublisherListener:
-                break;
-            case SubscriberTerminal:
-                break;
-            case StatusServerQuit:
-                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
-                break;
-            case SubscriberListenerQuit:
-                break;
-        }
-        currentTool.setDataHasChanged();
-        updateState();
-        loading = false;
-    }
-
     public void initialize()
     {
         this.configItems = operationConfigItems;
@@ -896,6 +854,47 @@ public class OperationsUI extends AbstractToolDialog
             libJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             libJList.setSelectedIndex(0);
         }
+    }
+
+    private void initNewCard()
+    {
+        loading = true;
+        switch (currentTool.getOperation())
+        {
+            case NotRemote:
+            case PublishRemote:
+            case SubscriberListener:
+                currentTool.setOptKeys(context.cfg.getHintKeysFile());
+                if (context.cfg.getHintTrackerFilename().length() > 0)
+                {
+                    comboBoxOperationHintKeys.setSelectedIndex(0);
+                    currentTool.setOptHints(context.cfg.getHintTrackerFilename());
+                }
+                if (context.cfg.getHintsDaemonFilename().length() > 0)
+                {
+                    comboBoxOperationHintKeys.setSelectedIndex(1);
+                    currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
+                }
+                break;
+            case StatusServer:
+                currentTool.setOptKeys(context.cfg.getHintKeysFile());
+                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
+                break;
+            case PublisherManual:
+                break;
+            case PublisherListener:
+                break;
+            case SubscriberTerminal:
+                break;
+            case StatusServerQuit:
+                currentTool.setOptHintServer(context.cfg.getHintsDaemonFilename());
+                break;
+            case SubscriberListenerQuit:
+                break;
+        }
+        currentTool.setDataHasChanged();
+        updateState();
+        loading = false;
     }
 
     private void libraryPicker(JButton button)
@@ -2171,16 +2170,16 @@ public class OperationsUI extends AbstractToolDialog
                         panelTopOperationButtons.add(buttonNewOperation);
 
                         //---- buttonCopyOperation ----
-                        buttonCopyOperation.setText(context.cfg.gs("OperationsUI.buttonCopyOperation.text"));
+                        buttonCopyOperation.setText(context.cfg.gs("Navigator.buttonCopy.text"));
                         buttonCopyOperation.setMnemonic(context.cfg.gs("OperationsUI.buttonCopyOperation.mnemonic").charAt(0));
-                        buttonCopyOperation.setToolTipText(context.cfg.gs("OperationsUI.buttonCopyOperation.toolTipText"));
+                        buttonCopyOperation.setToolTipText(context.cfg.gs("Navigator.buttonCopy.toolTipText"));
                         buttonCopyOperation.addActionListener(e -> actionCopyClicked(e));
                         panelTopOperationButtons.add(buttonCopyOperation);
 
                         //---- buttonDeleteOperation ----
-                        buttonDeleteOperation.setText(context.cfg.gs("OperationsUI.buttonDeleteOperation.text"));
+                        buttonDeleteOperation.setText(context.cfg.gs("Navigator.buttonDelete.text"));
                         buttonDeleteOperation.setMnemonic(context.cfg.gs("OperationsUI.buttonDeleteOperation.mnemonic").charAt(0));
-                        buttonDeleteOperation.setToolTipText(context.cfg.gs("OperationsUI.buttonDeleteOperation.toolTipText"));
+                        buttonDeleteOperation.setToolTipText(context.cfg.gs("Navigator.buttonDelete.toolTipText"));
                         buttonDeleteOperation.addActionListener(e -> actionDeleteClicked(e));
                         panelTopOperationButtons.add(buttonDeleteOperation);
 
@@ -2221,7 +2220,7 @@ public class OperationsUI extends AbstractToolDialog
                         labelOperationHelp.setPreferredSize(new Dimension(32, 30));
                         labelOperationHelp.setMinimumSize(new Dimension(32, 30));
                         labelOperationHelp.setMaximumSize(new Dimension(32, 30));
-                        labelOperationHelp.setToolTipText(context.cfg.gs("OperationsUI.labelOperationHelp.toolTipText"));
+                        labelOperationHelp.setToolTipText(context.cfg.gs("OperationsUI.help"));
                         labelOperationHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelOperationHelp.setIconTextGap(0);
                         labelOperationHelp.addMouseListener(new MouseAdapter() {
@@ -2734,7 +2733,7 @@ public class OperationsUI extends AbstractToolDialog
                                         new Insets(0, 0, 4, 4), 0, 0));
 
                                     //---- labelOperationNoBackfill ----
-                                    labelOperationNoBackfill.setText(context.cfg.gs("OperationsUI.labelOperationNoBackfill.text"));
+                                    labelOperationNoBackfill.setText(context.cfg.gs("OperationsUI.labelOperationNoBackFill.text"));
                                     labelOperationNoBackfill.setMinimumSize(new Dimension(60, 16));
                                     panelCardPublisher.add(labelOperationNoBackfill, new GridBagConstraints(4, 7, 1, 1, 0.0, 0.0,
                                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,

@@ -6,6 +6,7 @@ import com.groksoft.els.gui.Generator;
 import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.jobs.*;
+import com.groksoft.els.repository.RepoMeta;
 import com.groksoft.els.repository.Repositories;
 import com.groksoft.els.tools.AbstractTool;
 import com.groksoft.els.tools.Tools;
@@ -492,8 +493,8 @@ public class JobsUI extends AbstractToolDialog
                         !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK))
                 {
                     selectedCombo = id - 1;
-                    Repositories.Meta meta = repositories.find(currentTask.getPublisherKey());
-                    if (meta != null)
+                    RepoMeta repoMeta = repositories.find(currentTask.getPublisherKey());
+                    if (repoMeta != null)
                         selectedList = repositories.indexOf(currentTask.getPublisherKey());
                 }
             }
@@ -518,8 +519,8 @@ public class JobsUI extends AbstractToolDialog
                         !currentTask.getPublisherKey().equals(Task.CACHEDLASTTASK)) // check publisher key used to indicate last task
                 {
                     selectedCombo = id - 2;
-                    Repositories.Meta meta = repositories.find(currentTask.getSubscriberKey());
-                    if (meta != null)
+                    RepoMeta repoMeta = repositories.find(currentTask.getSubscriberKey());
+                    if (repoMeta != null)
                     {
                         if (currentTask.isSubscriberRemote())
                             selectedCombo = id - 1;
@@ -1291,8 +1292,8 @@ public class JobsUI extends AbstractToolDialog
         }
         else
         {
-            Repositories.Meta meta = repositories.find(key);
-            if (meta != null)
+            RepoMeta repoMeta = repositories.find(key);
+            if (repoMeta != null)
             {
                 if (isRemote)
                     desc = context.cfg.gs("Z.remote.uppercase");
@@ -1301,7 +1302,7 @@ public class JobsUI extends AbstractToolDialog
                     if (!isPublisher)
                         desc = context.cfg.gs("Z.local.uppercase");
                 }
-                desc += (isPublisher ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) + ": " + meta.description;
+                desc += (isPublisher ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) + ": " + repoMeta.description;
             }
             else
                 desc = context.cfg.gs("Z.cannot.find") + key;
@@ -1706,16 +1707,16 @@ public class JobsUI extends AbstractToolDialog
                         panelTopButtons.add(buttonNew);
 
                         //---- buttonCopy ----
-                        buttonCopy.setText(context.cfg.gs("JobsUI.buttonCopy.text"));
+                        buttonCopy.setText(context.cfg.gs("Navigator.buttonCopy.text"));
                         buttonCopy.setMnemonic(context.cfg.gs("JobsUI.buttonCopy.mnemonic").charAt(0));
-                        buttonCopy.setToolTipText(context.cfg.gs("JobsUI.buttonCopy.toolTipText"));
+                        buttonCopy.setToolTipText(context.cfg.gs("Navigator.buttonCopy.toolTipText"));
                         buttonCopy.addActionListener(e -> actionCopyClicked(e));
                         panelTopButtons.add(buttonCopy);
 
                         //---- buttonDelete ----
-                        buttonDelete.setText(context.cfg.gs("JobsUI.buttonDelete.text"));
+                        buttonDelete.setText(context.cfg.gs("Navigator.buttonDelete.text"));
                         buttonDelete.setMnemonic(context.cfg.gs("JobsUI.buttonDelete.mnemonic").charAt(0));
-                        buttonDelete.setToolTipText(context.cfg.gs("JobsUI.buttonDelete.toolTipText"));
+                        buttonDelete.setToolTipText(context.cfg.gs("Navigator.buttonDelete.toolTipText"));
                         buttonDelete.addActionListener(e -> actionDeleteClicked(e));
                         panelTopButtons.add(buttonDelete);
 
@@ -1756,7 +1757,7 @@ public class JobsUI extends AbstractToolDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(context.cfg.gs("JobsUI.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("JobsUI.help"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {

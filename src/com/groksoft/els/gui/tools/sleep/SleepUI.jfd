@@ -8,6 +8,7 @@ new FormModel {
 		auxiliary() {
 			"JavaCodeGenerator.i18nGetBundleFormat": "context.cfg.bundle()"
 			"JavaCodeGenerator.i18nGetStringFormat": "context.cfg.gs(${key})"
+			"JavaCodeGenerator.defaultVariableModifiers": 1
 		}
 		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
 			name: "this"
@@ -41,16 +42,16 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonCopy"
-								"text": "Copy"
+								"text": new FormMessage( null, "Navigator.buttonCopy.text" )
 								"mnemonic": 67
-								"toolTipText": "Copy an existing tool configuration"
+								"toolTipText": new FormMessage( null, "Navigator.buttonCopy.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCopyClicked", true ) )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonDelete"
-								"text": "Delete"
+								"text": new FormMessage( null, "Navigator.buttonDelete.text" )
 								"mnemonic": 68
-								"toolTipText": "Delete a tool configuration"
+								"toolTipText": new FormMessage( null, "Navigator.buttonDelete.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
 							} )
 						}, new FormLayoutConstraints( class java.lang.String ) {
@@ -70,7 +71,7 @@ new FormModel {
 								"preferredSize": new java.awt.Dimension( 32, 30 )
 								"minimumSize": new java.awt.Dimension( 32, 30 )
 								"maximumSize": new java.awt.Dimension( 32, 30 )
-								"toolTipText": "Tool help"
+								"toolTipText": new FormMessage( null, "Sleep.help" )
 								"cursor": new java.awt.Cursor( 12 )
 								"iconTextGap": 0
 								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )
@@ -141,8 +142,9 @@ new FormModel {
 					name: "buttonBar"
 					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
 					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "okButton"
-						"text": new FormMessage( null, "Sleep.okButton.text" )
+						name: "saveButton"
+						"text": new FormMessage( null, "Z.save" )
+						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 1

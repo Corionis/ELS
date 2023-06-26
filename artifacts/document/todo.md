@@ -8,10 +8,23 @@
  3. Logic problem when both publisher and subscriber use -s where the subscriber
     does not scan it's collection so operations fail with no items. 
 
+## System Editors for Keys & IP Lists
+
+For Auth Keys test whether that key is all that is needed to make a connection, then 
+request subscriber collection.
+
+
+## Operations Tool
+
+### Issues
+
+* In-GUI execution of multiple (background) operations and managing those threads & tasks
+* How to handle -p|-P library or (edited) collection options, -s|-S same problem
+
 
 ## Hint Tracker / Hint Server in Navigator
 
-!! keys, local tracker, remote status server:
+### Keys, local tracker, remote status server:
 
 If only keys mark as For; with simple single-backup rigs it works; make
 sure it skips failures during a munge; with a later tracker or status server
@@ -19,18 +32,16 @@ update status accordingly.
 
 If with a tracker mark as Done; test it a lot.
 
+### Hint Processing Sequence
+
+The problem: If manual changes are made on a subscriber, such as a rename, the
+publisher will think the original file is missing and send it. Should processing
+be changed so publisher receives Hints from Subscriber before the munge operation?
+
 ### Hint Use Issues
 
  1. Multiple operations on the same item :: A rename, then move may not be
     executed in the correct order.
-
-
-## Operations Tool
-
-### Issues
-
- * In-GUI execution of multiple (background) operations and managing those threads & tasks
- * How to handle -p|-P library or (edited) collection options, -s|-S same problem
 
 
 ## Red Flags

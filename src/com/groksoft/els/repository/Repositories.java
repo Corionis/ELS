@@ -8,30 +8,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 @SuppressWarnings(value = "unchecked")
+
 public class Repositories
 {
     private boolean initialized = false;
-    private ArrayList<Meta> list = null;
+    private ArrayList<RepoMeta> list = null;
 
     public Repositories()
     {
     }
 
-    public Meta find(String key)
+    public RepoMeta find(String key)
     {
-        Meta meta = null;
+        RepoMeta repoMeta = null;
         if (list != null)
         {
-            for (Meta m : list)
+            for (RepoMeta m : list)
             {
                 if (m.key.equals(key))
                 {
-                    meta = m;
+                    repoMeta = m;
                     break;
                 }
             }
         }
-        return meta;
+        return repoMeta;
     }
 
     public String getDirectoryPath()
@@ -40,7 +41,7 @@ public class Repositories
         return path;
     }
 
-    public ArrayList<Meta> getList()
+    public ArrayList<RepoMeta> getList()
     {
         return list;
     }
@@ -52,7 +53,7 @@ public class Repositories
         {
             for (int i = 0; i < list.size(); ++i)
             {
-                Meta m = list.get(i);
+                RepoMeta m = list.get(i);
                 if (m.key.equals(key))
                 {
                     index = i;
@@ -63,7 +64,7 @@ public class Repositories
         return index;
     }
 
-    public ArrayList<Meta> loadList(Context context) throws Exception
+    public ArrayList<RepoMeta> loadList(Context context) throws Exception
     {
         File libDir = new File(getDirectoryPath());
         if (libDir.exists() && libDir.isDirectory())
@@ -76,13 +77,13 @@ public class Repositories
                     Repository repo = new Repository(context, 0);
                     if (repo.read(entry.getPath(), false))
                     {
-                        Meta meta = new Meta();
-                        meta.description = repo.getLibraryData().libraries.description;
-                        meta.key = repo.getLibraryData().libraries.key;
-                        meta.path = entry.getPath();
+                        RepoMeta repoMeta = new RepoMeta();
+                        repoMeta.description = repo.getLibraryData().libraries.description;
+                        repoMeta.key = repo.getLibraryData().libraries.key;
+                        repoMeta.path = entry.getPath();
                         if (list == null)
-                            list = new ArrayList<Meta>();
-                        list.add(meta);
+                            list = new ArrayList<RepoMeta>();
+                        list.add(repoMeta);
                     }
                 }
             }
@@ -91,22 +92,4 @@ public class Repositories
         return list;
     }
 
-    public class Meta implements Comparable
-    {
-        public String description;
-        public String key;
-        public String path;
-
-        @Override
-        public int compareTo(Object o)
-        {
-            return this.description.compareTo(((Meta)o).description);
-        }
-
-        @Override
-        public String toString()
-        {
-            return description;
-        }
-    }
 }

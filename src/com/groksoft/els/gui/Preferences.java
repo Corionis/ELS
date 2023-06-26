@@ -67,6 +67,8 @@ public class Preferences implements Serializable
     private String lastPublisherOpenPath = "";
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
+    private int librariesBiblioDividerLocation = 142;
+    private int librariesDividerLocation = 142;
     private String locale = "";
     // The Look 'n Feel, 0-6
     // 0=System default look 'n feel - use for Windows,
@@ -465,6 +467,20 @@ public class Preferences implements Serializable
     public String getLastSubscriberOpenPath()
     {
         return lastSubscriberOpenPath;
+    }
+
+    public int getLibrariesBiblioDividerLocation()
+    {
+        if (librariesBiblioDividerLocation == 0)
+            librariesBiblioDividerLocation = 142;
+        return librariesBiblioDividerLocation;
+    }
+
+    public int getLibrariesDividerLocation()
+    {
+        if (librariesDividerLocation == 0)
+            librariesDividerLocation = 142;
+        return librariesDividerLocation;
     }
 
     public String getLocale()
@@ -1133,6 +1149,16 @@ public class Preferences implements Serializable
     public void setLastSubscriberOpenPath(String lastSubscriberOpenPath)
     {
         this.lastSubscriberOpenPath = lastSubscriberOpenPath;
+    }
+
+    public void setLibrariesBiblioDividerLocation(int librariesBiblioDividerLocation)
+    {
+        this.librariesBiblioDividerLocation = librariesBiblioDividerLocation;
+    }
+
+    public void setLibrariesDividerLocation(int librariesDividerLocation)
+    {
+        this.librariesDividerLocation = librariesDividerLocation;
     }
 
     public void setLocale(String locale)

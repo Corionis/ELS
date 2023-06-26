@@ -9,6 +9,7 @@ import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -61,8 +62,7 @@ public class Repository
     {
         Repository noItems = new Repository(context, purpose);
         noItems.setJsonFilename(getJsonFilename());
-        noItems.libraryData = new LibraryData();
-        noItems.libraryData.libraries = new Libraries();
+        noItems.createStructure();
         noItems.libraryData.libraries.description = getLibraryData().libraries.description;
         noItems.libraryData.libraries.host = getLibraryData().libraries.host;
         noItems.libraryData.libraries.listen = getLibraryData().libraries.listen;
@@ -90,6 +90,27 @@ public class Repository
             noItems.libraryData.libraries.bibliography[i] = lib;
         }
         return noItems;
+    }
+
+    public void createLibrary(String name)
+    {
+        Library lib = new Library();
+        lib.name = name;
+        expandBibliography(lib);
+    }
+
+    public void createStructure()
+    {
+        libraryData = new LibraryData();
+        libraryData.libraries = new Libraries();
+    }
+
+    private void expandBibliography(Library lib)
+    {
+        Library[] expanded = new Library[libraryData.libraries.bibliography.length + 1];
+        System.arraycopy(libraryData.libraries.bibliography, 0, expanded, 0, libraryData.libraries.bibliography.length);
+        libraryData.libraries.bibliography = expanded;
+        libraryData.libraries.bibliography[expanded.length - 1] = lib;
     }
 
     /**
@@ -928,6 +949,27 @@ public class Repository
                     }
                 }
             }
+        }
+    }
+
+    public void write() throws Exception
+    {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(libraryData);
+        try
+        {
+            File f = new File(getJsonFilename());
+            if (f != null)
+            {
+                f.getParentFile().mkdirs();
+            }
+            PrintWriter outputStream = new PrintWriter(getJsonFilename());
+            outputStream.println(json);
+            outputStream.close();
+        }
+        catch (FileNotFoundException fnf)
+        {
+            throw new MungeException(context.cfg.gs("Z.error.writing") + getJsonFilename() + ": " + Utils.getStackTrace(fnf));
         }
     }
 }

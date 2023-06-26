@@ -44,16 +44,16 @@ new FormModel {
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonCopy"
-								"text": new FormMessage( null, "JobsUI.buttonCopy.text" )
+								"text": new FormMessage( null, "Navigator.buttonCopy.text" )
 								"mnemonic": new FormMessage( null, "JobsUI.buttonCopy.mnemonic" )
-								"toolTipText": new FormMessage( null, "JobsUI.buttonCopy.toolTipText" )
+								"toolTipText": new FormMessage( null, "Navigator.buttonCopy.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCopyClicked", true ) )
 							} )
 							add( new FormComponent( "javax.swing.JButton" ) {
 								name: "buttonDelete"
-								"text": new FormMessage( null, "JobsUI.buttonDelete.text" )
+								"text": new FormMessage( null, "Navigator.buttonDelete.text" )
 								"mnemonic": new FormMessage( null, "JobsUI.buttonDelete.mnemonic" )
-								"toolTipText": new FormMessage( null, "JobsUI.buttonDelete.toolTipText" )
+								"toolTipText": new FormMessage( null, "Navigator.buttonDelete.toolTipText" )
 								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
 							} )
 							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
@@ -97,7 +97,7 @@ new FormModel {
 								"preferredSize": new java.awt.Dimension( 32, 30 )
 								"minimumSize": new java.awt.Dimension( 32, 30 )
 								"maximumSize": new java.awt.Dimension( 32, 30 )
-								"toolTipText": new FormMessage( null, "JobsUI.labelHelp.toolTipText" )
+								"toolTipText": new FormMessage( null, "JobsUI.help" )
 								"cursor": new java.awt.Cursor( 12 )
 								"iconTextGap": 0
 								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )

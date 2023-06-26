@@ -528,7 +528,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                         labelHelp.setPreferredSize(new Dimension(32, 30));
                         labelHelp.setMinimumSize(new Dimension(32, 30));
                         labelHelp.setMaximumSize(new Dimension(32, 30));
-                        labelHelp.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.labelHelp.toolTipText"));
+                        labelHelp.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.help"));
                         labelHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         labelHelp.setIconTextGap(0);
                         labelHelp.addMouseListener(new MouseAdapter() {

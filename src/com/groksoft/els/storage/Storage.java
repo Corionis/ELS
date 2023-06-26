@@ -19,7 +19,6 @@ public class Storage
     public static final long MINIMUM_BYTES = 1073741824L;      // minimum minimum bytes
     private String jsonFilename = "";
     private transient Logger logger = LogManager.getLogger("applog");
-    // TargetData members
     private TargetData targetData = null;
 
     /**
