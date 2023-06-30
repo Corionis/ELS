@@ -880,6 +880,8 @@ public class JobsUI extends AbstractToolDialog
         {
             ((Job) configModel.getValueAt(i, 0)).setDataHasChanged(false);
         }
+
+        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.changes.cancelled"));
     }
 
     public boolean checkForChanges()

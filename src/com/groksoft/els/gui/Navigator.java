@@ -2412,6 +2412,7 @@ public class Navigator
             try
             {
                 // save the settings
+                context.libraries.savePreferences();
                 context.preferences.write(context);
             }
             catch (Exception e)

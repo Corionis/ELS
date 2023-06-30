@@ -47,7 +47,7 @@ public class Browser
     public boolean hintTrackingEnabled = false;
     private String keyBuffer = "";
     private long keyTime = 0L;
-    private transient Logger logger = LogManager.getLogger("applog");
+    private Logger logger = LogManager.getLogger("applog");
     private Stack<NavItem>[] navStack = new Stack[4];
     private int[] navStackIndex = {-1, -1, -1, -1};
     public NavTransferHandler navTransferHandler;

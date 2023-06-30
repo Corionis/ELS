@@ -468,6 +468,8 @@ public class RenamerUI extends AbstractToolDialog
             ((RenamerTool) configModel.getValueAt(i, 0)).reset();
             ((RenamerTool) configModel.getValueAt(i, 0)).setDataHasChanged(false);
         }
+
+        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.changes.cancelled"));
     }
 
     public boolean checkForChanges()

@@ -411,6 +411,8 @@ public class JunkRemoverUI extends AbstractToolDialog
             ((JunkRemoverTool) configModel.getValueAt(i, 0)).reset();
             ((JunkRemoverTool) configModel.getValueAt(i, 0)).setDataHasChanged(false);
         }
+
+        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.changes.cancelled"));
     }
 
     public boolean checkForChanges()
