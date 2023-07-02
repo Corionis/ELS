@@ -59,7 +59,7 @@ public class Libraries
     /**
      * Optional location for temp files generated and/or received
      */
-    public String temp_location = "";
+    public String temp_location = "output";
 
     /**
      * If remote terminal session is allowed then true, else false

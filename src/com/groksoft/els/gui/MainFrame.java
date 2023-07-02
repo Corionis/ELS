@@ -489,48 +489,21 @@ public class MainFrame extends JFrame
         context.libraries.cardShown(e);
     }
 
-    private void actionOriginAddClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionOriginUpClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionOriginDownClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionOriginRemoveClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void genericAction(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionOperationAddRowClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void actionOperationRemoveRowClicked(ActionEvent e) {
-        // TODO add your code here
-    }
-
     private void tabbedPaneMainStateChanged(ChangeEvent e)
     {
-/*
-        labelStatusLeft.setText("");
-        labelStatusMiddle.setText("");
-        labelStatusRight.setText("");
-
+        //labelStatusLeft.setText(" ");
+        labelStatusMiddle.setText(" ");
         int index = tabbedPaneMain.getSelectedIndex();
         if (index == 0)
         {
-//            context.browser.getSelectedUserObject()
-            // LEFTOFF
+
         }
-*/
+        else if (index == 1)
+        {
+            context.libraries.tabbedPaneLibrarySpacesStateChanged(null);
+        }
+        // TODO Add key mapping changes between tabs, e.g. Delete key
+        //labelStatusRight.setText(" ");
     }
 
   // ================================================================================================================
@@ -710,10 +683,10 @@ public class MainFrame extends JFrame
         checkBoxTerminalAllowed = new JCheckBox();
         vSpacer40 = new JPanel(null);
         labelIgnores = new JLabel();
-        panelOperationIncludeExcludeBox = new JPanel();
-        scrollPaneOperationIncludeExclude = new JScrollPane();
-        listOperationIncludeExclude = new JList<>();
-        panelOperationIncludeExcludeButtons = new JPanel();
+        panelLibrariesIgnorePatternsBox = new JPanel();
+        scrollPaneLibrariesIgnorePatterns = new JScrollPane();
+        listLibrariesIgnorePatterns = new JList<>();
+        panelLibrariesIgnorePatternsButtons = new JPanel();
         buttonLibrariesAddIgnore = new JButton();
         buttonLibrariesRemoveIgnore = new JButton();
         vSpacer41 = new JPanel(null);
@@ -748,10 +721,8 @@ public class MainFrame extends JFrame
         buttonAddLibrary = new JButton();
         buttonRemoveLibrary = new JButton();
         buttonBarLibs = new JPanel();
-        buttonLibrariesRefesh = new JButton();
         saveButton = new JButton();
         cancelButton = new JButton();
-        vSpacer5 = new JPanel(null);
         panelStatus = new JPanel();
         labelStatusLeft = new JLabel();
         labelStatusMiddle = new JLabel();
@@ -1658,6 +1629,8 @@ public class MainFrame extends JFrame
 
                                 //======== topType ========
                                 {
+                                    topType.setEnabled(false);
+                                    topType.setVisible(false);
                                     topType.setLayout(new BorderLayout());
 
                                     //---- vSpacer0 ----
@@ -1773,6 +1746,7 @@ public class MainFrame extends JFrame
                                         //---- textFieldKey ----
                                         textFieldKey.setPreferredSize(new Dimension(240, 30));
                                         textFieldKey.setName("key");
+                                        textFieldKey.setToolTipText(context.cfg.gs("Libraries.textFieldKey.toolTipText"));
                                         panelLibraryCard.add(textFieldKey, new GridBagConstraints(1, 1, 3, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1809,6 +1783,7 @@ public class MainFrame extends JFrame
 
                                         //---- textFieldHost ----
                                         textFieldHost.setName("host");
+                                        textFieldHost.setToolTipText(context.cfg.gs("Libraries.textFieldHost.toolTipText"));
                                         panelLibraryCard.add(textFieldHost, new GridBagConstraints(1, 2, 3, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1829,6 +1804,7 @@ public class MainFrame extends JFrame
 
                                         //---- textFieldListen ----
                                         textFieldListen.setName("listen");
+                                        textFieldListen.setToolTipText(context.cfg.gs("Libraries.textFieldListen.toolTipText"));
                                         panelLibraryCard.add(textFieldListen, new GridBagConstraints(1, 3, 3, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1851,6 +1827,7 @@ public class MainFrame extends JFrame
                                         textFieldTimeout.setName("timeout");
                                         textFieldTimeout.setPreferredSize(new Dimension(104, 30));
                                         textFieldTimeout.setMinimumSize(new Dimension(101104, 30));
+                                        textFieldTimeout.setToolTipText(context.cfg.gs("Libraries.textFieldTimeout.toolTipText"));
                                         panelLibraryCard.add(textFieldTimeout, new GridBagConstraints(1, 4, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1878,6 +1855,7 @@ public class MainFrame extends JFrame
                                         comboBoxFlavor.setName("flavor");
                                         comboBoxFlavor.setMinimumSize(new Dimension(104, 30));
                                         comboBoxFlavor.setPreferredSize(new Dimension(104, 30));
+                                        comboBoxFlavor.setToolTipText(context.cfg.gs("Libraries.comboBoxFlavor.toolTipText"));
                                         panelLibraryCard.add(comboBoxFlavor, new GridBagConstraints(1, 5, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1898,6 +1876,7 @@ public class MainFrame extends JFrame
 
                                         //---- checkBoxCase ----
                                         checkBoxCase.setName("case");
+                                        checkBoxCase.setToolTipText(context.cfg.gs("Libraries.checkBoxCase.toolTipText"));
                                         panelLibraryCard.add(checkBoxCase, new GridBagConstraints(1, 6, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1918,6 +1897,7 @@ public class MainFrame extends JFrame
 
                                         //---- checkBoxTempDated ----
                                         checkBoxTempDated.setName("tempdated");
+                                        checkBoxTempDated.setToolTipText(context.cfg.gs("Libraries.checkBoxTempDated.toolTipText"));
                                         panelLibraryCard.add(checkBoxTempDated, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1940,6 +1920,7 @@ public class MainFrame extends JFrame
                                         textFieldTempLocation.setPreferredSize(new Dimension(240, 30));
                                         textFieldTempLocation.setMaximumSize(new Dimension(240, 2147483647));
                                         textFieldTempLocation.setName("templocation");
+                                        textFieldTempLocation.setToolTipText(context.cfg.gs("Libraries.textFieldTempLocation.toolTipText"));
                                         panelLibraryCard.add(textFieldTempLocation, new GridBagConstraints(1, 8, 3, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1962,8 +1943,8 @@ public class MainFrame extends JFrame
                                         buttonLibrarySelectTempLocation.setIconTextGap(0);
                                         buttonLibrarySelectTempLocation.setHorizontalTextPosition(SwingConstants.LEADING);
                                         buttonLibrarySelectTempLocation.setActionCommand("generateUUID");
-                                        buttonLibrarySelectTempLocation.setToolTipText(context.cfg.gs("Navigator.buttonLibrarySelectTempLocation.toolTipText"));
-                                        buttonLibrarySelectTempLocation.setName("generate");
+                                        buttonLibrarySelectTempLocation.setToolTipText(context.cfg.gs("Libraries.buttonLibrarySelectTempLocation.toolTipText"));
+                                        buttonLibrarySelectTempLocation.setName("tempLocation");
                                         panelLibraryCard.add(buttonLibrarySelectTempLocation, new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                             new Insets(0, 0, 4, 0), 0, 0));
@@ -1976,6 +1957,7 @@ public class MainFrame extends JFrame
 
                                         //---- checkBoxTerminalAllowed ----
                                         checkBoxTerminalAllowed.setName("terminalallowed");
+                                        checkBoxTerminalAllowed.setToolTipText(context.cfg.gs("Libraries.checkBoxTerminalAllowed.toolTipText"));
                                         panelLibraryCard.add(checkBoxTerminalAllowed, new GridBagConstraints(1, 9, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -1994,19 +1976,19 @@ public class MainFrame extends JFrame
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
 
-                                        //======== panelOperationIncludeExcludeBox ========
+                                        //======== panelLibrariesIgnorePatternsBox ========
                                         {
-                                            panelOperationIncludeExcludeBox.setPreferredSize(new Dimension(240, 120));
-                                            panelOperationIncludeExcludeBox.setMinimumSize(new Dimension(168, 120));
-                                            panelOperationIncludeExcludeBox.setLayout(new BoxLayout(panelOperationIncludeExcludeBox, BoxLayout.Y_AXIS));
+                                            panelLibrariesIgnorePatternsBox.setPreferredSize(new Dimension(240, 120));
+                                            panelLibrariesIgnorePatternsBox.setMinimumSize(new Dimension(168, 120));
+                                            panelLibrariesIgnorePatternsBox.setLayout(new BoxLayout(panelLibrariesIgnorePatternsBox, BoxLayout.Y_AXIS));
 
-                                            //======== scrollPaneOperationIncludeExclude ========
+                                            //======== scrollPaneLibrariesIgnorePatterns ========
                                             {
 
-                                                //---- listOperationIncludeExclude ----
-                                                listOperationIncludeExclude.setName("ignorepatterns");
-                                                listOperationIncludeExclude.setVisibleRowCount(5);
-                                                listOperationIncludeExclude.setModel(new AbstractListModel<String>() {
+                                                //---- listLibrariesIgnorePatterns ----
+                                                listLibrariesIgnorePatterns.setName("ignorepatterns");
+                                                listLibrariesIgnorePatterns.setVisibleRowCount(5);
+                                                listLibrariesIgnorePatterns.setModel(new AbstractListModel<String>() {
                                                     String[] values = {
                                                         "Item 1",
                                                         "Item 2",
@@ -2020,14 +2002,14 @@ public class MainFrame extends JFrame
                                                     @Override
                                                     public String getElementAt(int i) { return values[i]; }
                                                 });
-                                                listOperationIncludeExclude.setToolTipText(context.cfg.gs("Navigator.listOperationIncludeExclude.toolTipText"));
-                                                scrollPaneOperationIncludeExclude.setViewportView(listOperationIncludeExclude);
+                                                listLibrariesIgnorePatterns.setToolTipText(context.cfg.gs("Libraries.listIgnorePatterns.toolTipText"));
+                                                scrollPaneLibrariesIgnorePatterns.setViewportView(listLibrariesIgnorePatterns);
                                             }
-                                            panelOperationIncludeExcludeBox.add(scrollPaneOperationIncludeExclude);
+                                            panelLibrariesIgnorePatternsBox.add(scrollPaneLibrariesIgnorePatterns);
 
-                                            //======== panelOperationIncludeExcludeButtons ========
+                                            //======== panelLibrariesIgnorePatternsButtons ========
                                             {
-                                                panelOperationIncludeExcludeButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
+                                                panelLibrariesIgnorePatternsButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 4, 2));
 
                                                 //---- buttonLibrariesAddIgnore ----
                                                 buttonLibrariesAddIgnore.setText(context.cfg.gs("Navigator.buttonLibrariesAddIgnore.text"));
@@ -2038,8 +2020,7 @@ public class MainFrame extends JFrame
                                                 buttonLibrariesAddIgnore.setMnemonic(context.cfg.gs("Navigator.buttonLibrariesAddIgnore.mnemonic").charAt(0));
                                                 buttonLibrariesAddIgnore.setToolTipText(context.cfg.gs("Navigator.buttonLibrariesAddIgnore.toolTipText"));
                                                 buttonLibrariesAddIgnore.setName("addincexc");
-                                                buttonLibrariesAddIgnore.addActionListener(e -> actionOperationAddRowClicked(e));
-                                                panelOperationIncludeExcludeButtons.add(buttonLibrariesAddIgnore);
+                                                panelLibrariesIgnorePatternsButtons.add(buttonLibrariesAddIgnore);
 
                                                 //---- buttonLibrariesRemoveIgnore ----
                                                 buttonLibrariesRemoveIgnore.setText(context.cfg.gs("Navigator.buttonLibrariesRemoveIgnore.text"));
@@ -2047,15 +2028,14 @@ public class MainFrame extends JFrame
                                                 buttonLibrariesRemoveIgnore.setPreferredSize(new Dimension(78, 24));
                                                 buttonLibrariesRemoveIgnore.setMinimumSize(new Dimension(78, 24));
                                                 buttonLibrariesRemoveIgnore.setMaximumSize(new Dimension(78, 24));
-                                                buttonLibrariesRemoveIgnore.setMnemonic(context.cfg.gs("Navigator.buttonLibrariesRemoveIgnore.mnemonic").charAt(0));
+                                                buttonLibrariesRemoveIgnore.setMnemonic(context.cfg.gs("Navigator.buttonLibrariesRemoveIgnore.mnemonic_2").charAt(0));
                                                 buttonLibrariesRemoveIgnore.setToolTipText(context.cfg.gs("Navigator.buttonLibrariesRemoveIgnore.toolTipText"));
                                                 buttonLibrariesRemoveIgnore.setName("removeincexc");
-                                                buttonLibrariesRemoveIgnore.addActionListener(e -> actionOperationRemoveRowClicked(e));
-                                                panelOperationIncludeExcludeButtons.add(buttonLibrariesRemoveIgnore);
+                                                panelLibrariesIgnorePatternsButtons.add(buttonLibrariesRemoveIgnore);
                                             }
-                                            panelOperationIncludeExcludeBox.add(panelOperationIncludeExcludeButtons);
+                                            panelLibrariesIgnorePatternsBox.add(panelLibrariesIgnorePatternsButtons);
                                         }
-                                        panelLibraryCard.add(panelOperationIncludeExcludeBox, new GridBagConstraints(1, 10, 3, 6, 0.0, 0.0,
+                                        panelLibraryCard.add(panelLibrariesIgnorePatternsBox, new GridBagConstraints(1, 10, 3, 6, 0.0, 0.0,
                                             GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
                                             new Insets(0, 0, 0, 4), 0, 0));
 
@@ -2126,6 +2106,7 @@ public class MainFrame extends JFrame
                                     generalTab.add(panelYCard, "cardY");
                                 }
                                 tabbedPaneLibrarySpaces.addTab(context.cfg.gs("Navigator.generalTab.tab.title"), generalTab);
+                                tabbedPaneLibrarySpaces.setMnemonicAt(0, context.cfg.gs("Navigator.generalTab.tab.mnemonic").charAt(0));
 
                                 //======== locationsTab ========
                                 {
@@ -2149,7 +2130,6 @@ public class MainFrame extends JFrame
                                         buttonAddLocation.setMaximumSize(new Dimension(78, 24));
                                         buttonAddLocation.setMnemonic(context.cfg.gs("Navigator.buttonAddLocation.mnemonic").charAt(0));
                                         buttonAddLocation.setToolTipText(context.cfg.gs("Navigator.buttonAddLocation.toolTipText"));
-                                        buttonAddLocation.addActionListener(e -> actionOriginAddClicked(e));
                                         panelLocButtons.add(buttonAddLocation);
 
                                         //---- buttonRemoveLocation ----
@@ -2160,12 +2140,12 @@ public class MainFrame extends JFrame
                                         buttonRemoveLocation.setMaximumSize(new Dimension(78, 24));
                                         buttonRemoveLocation.setMnemonic(context.cfg.gs("Navigator.buttonRemoveLocation.mnemonic").charAt(0));
                                         buttonRemoveLocation.setToolTipText(context.cfg.gs("Navigator.buttonRemoveLocation.toolTipText"));
-                                        buttonRemoveLocation.addActionListener(e -> actionOriginRemoveClicked(e));
                                         panelLocButtons.add(buttonRemoveLocation);
                                     }
                                     locationsTab.add(panelLocButtons, BorderLayout.SOUTH);
                                 }
                                 tabbedPaneLibrarySpaces.addTab(context.cfg.gs("Navigator.locationsTab.tab.title"), locationsTab);
+                                tabbedPaneLibrarySpaces.setMnemonicAt(1, context.cfg.gs("Navigator.locationsTab.tab.mnemonic").charAt(0));
 
                                 //======== bibliographyTab ========
                                 {
@@ -2253,7 +2233,6 @@ public class MainFrame extends JFrame
                                                 buttonAddSource.setMaximumSize(new Dimension(78, 24));
                                                 buttonAddSource.setMnemonic(context.cfg.gs("Navigator.buttonAddSource.mnemonic").charAt(0));
                                                 buttonAddSource.setToolTipText(context.cfg.gs("Navigator.buttonAddSource.toolTipText"));
-                                                buttonAddSource.addActionListener(e -> actionOriginAddClicked(e));
                                                 panelSourceButtons.add(buttonAddSource);
 
                                                 //---- buttonUpSource ----
@@ -2263,7 +2242,6 @@ public class MainFrame extends JFrame
                                                 buttonUpSource.setPreferredSize(new Dimension(24, 24));
                                                 buttonUpSource.setFont(buttonUpSource.getFont().deriveFont(buttonUpSource.getFont().getSize() - 2f));
                                                 buttonUpSource.setToolTipText(context.cfg.gs("Navigator.buttonUpSource.toolTipText"));
-                                                buttonUpSource.addActionListener(e -> actionOriginUpClicked(e));
                                                 panelSourceButtons.add(buttonUpSource);
 
                                                 //---- buttonDownSource ----
@@ -2273,7 +2251,6 @@ public class MainFrame extends JFrame
                                                 buttonDownSource.setMinimumSize(new Dimension(24, 24));
                                                 buttonDownSource.setPreferredSize(new Dimension(24, 24));
                                                 buttonDownSource.setToolTipText(context.cfg.gs("Navigator.buttonDownSource.toolTipText"));
-                                                buttonDownSource.addActionListener(e -> actionOriginDownClicked(e));
                                                 panelSourceButtons.add(buttonDownSource);
 
                                                 //---- buttonRemoveSource ----
@@ -2284,7 +2261,6 @@ public class MainFrame extends JFrame
                                                 buttonRemoveSource.setMaximumSize(new Dimension(78, 24));
                                                 buttonRemoveSource.setMnemonic(context.cfg.gs("Navigator.buttonRemoveSource.mnemonic").charAt(0));
                                                 buttonRemoveSource.setToolTipText(context.cfg.gs("Navigator.buttonRemoveSource.toolTipText"));
-                                                buttonRemoveSource.addActionListener(e -> actionOriginRemoveClicked(e));
                                                 panelSourceButtons.add(buttonRemoveSource);
                                             }
                                             panelSources.add(panelSourceButtons, BorderLayout.SOUTH);
@@ -2305,7 +2281,6 @@ public class MainFrame extends JFrame
                                         buttonAddLibrary.setMaximumSize(new Dimension(78, 24));
                                         buttonAddLibrary.setMnemonic(context.cfg.gs("Navigator.buttonAddLibrary.mnemonic").charAt(0));
                                         buttonAddLibrary.setToolTipText(context.cfg.gs("Navigator.buttonAddLibrary.toolTipText"));
-                                        buttonAddLibrary.addActionListener(e -> actionOriginAddClicked(e));
                                         panelBiblioButtons.add(buttonAddLibrary);
 
                                         //---- buttonRemoveLibrary ----
@@ -2316,12 +2291,12 @@ public class MainFrame extends JFrame
                                         buttonRemoveLibrary.setMaximumSize(new Dimension(78, 24));
                                         buttonRemoveLibrary.setMnemonic(context.cfg.gs("Navigator.buttonRemoveLibrary.mnemonic").charAt(0));
                                         buttonRemoveLibrary.setToolTipText(context.cfg.gs("Navigator.buttonRemoveLibrary.toolTipText"));
-                                        buttonRemoveLibrary.addActionListener(e -> actionOriginRemoveClicked(e));
                                         panelBiblioButtons.add(buttonRemoveLibrary);
                                     }
                                     bibliographyTab.add(panelBiblioButtons, BorderLayout.SOUTH);
                                 }
                                 tabbedPaneLibrarySpaces.addTab(context.cfg.gs("Navigator.bibliographyTab.tab.title"), bibliographyTab);
+                                tabbedPaneLibrarySpaces.setMnemonicAt(2, context.cfg.gs("Navigator.bibliographyTab.tab.mnemonic_2").charAt(0));
                             }
                             panelOptions.add(tabbedPaneLibrarySpaces, BorderLayout.CENTER);
                         }
@@ -2336,34 +2311,21 @@ public class MainFrame extends JFrame
                         buttonBarLibs.setMinimumSize(new Dimension(256, 42));
                         buttonBarLibs.setMaximumSize(new Dimension(2147483647, 42));
                         buttonBarLibs.setLayout(new GridBagLayout());
-                        ((GridBagLayout)buttonBarLibs.getLayout()).columnWidths = new int[] {0, 80, 80};
-                        ((GridBagLayout)buttonBarLibs.getLayout()).columnWeights = new double[] {1.0, 0.0, 0.0};
-
-                        //---- buttonLibrariesRefesh ----
-                        buttonLibrariesRefesh.setText(context.cfg.gs("Libraries.buttonLibrariesRefesh.text"));
-                        buttonBarLibs.add(buttonLibrariesRefesh, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
-                            new Insets(0, 8, 0, 0), 0, 0));
+                        ((GridBagLayout)buttonBarLibs.getLayout()).columnWidths = new int[] {80, 80};
 
                         //---- saveButton ----
-                        saveButton.setText(context.cfg.gs("Z.save"));
-                        saveButton.setToolTipText(context.cfg.gs("Z.save.toolTip.text"));
-                        buttonBarLibs.add(saveButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                        saveButton.setText(context.cfg.gs("Z.ok"));
+                        saveButton.setToolTipText(context.cfg.gs("Libraries.save.toolTip.text"));
+                        saveButton.setMnemonic(context.cfg.gs("Navigator.saveButton.mnemonic").charAt(0));
+                        buttonBarLibs.add(saveButton, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 0, 0), 0, 0));
 
                         //---- cancelButton ----
-                        cancelButton.setText(context.cfg.gs("Z.cancel"));
-                        cancelButton.setToolTipText(context.cfg.gs("Z.cancel.changes.toolTipText"));
-                        buttonBarLibs.add(cancelButton, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                            new Insets(0, 0, 0, 8), 0, 0));
-
-                        //---- vSpacer5 ----
-                        vSpacer5.setMaximumSize(new Dimension(32767, 12));
-                        vSpacer5.setPreferredSize(new Dimension(10, 12));
-                        vSpacer5.setMinimumSize(new Dimension(12, 12));
-                        buttonBarLibs.add(vSpacer5, new GridBagConstraints(0, 1, 3, 1, 0.0, 0.0,
+                        cancelButton.setText(context.cfg.gs("Libraries.undo"));
+                        cancelButton.setToolTipText(context.cfg.gs("Libraries.cancel.toolTip.text"));
+                        cancelButton.setMnemonic(context.cfg.gs("Navigator.cancelButton.mnemonic_2").charAt(0));
+                        buttonBarLibs.add(cancelButton, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                             new Insets(0, 0, 0, 0), 0, 0));
                     }
@@ -2382,21 +2344,25 @@ public class MainFrame extends JFrame
 
             //---- labelStatusLeft ----
             labelStatusLeft.setHorizontalAlignment(SwingConstants.LEFT);
+            labelStatusLeft.setIconTextGap(0);
             panelStatus.add(labelStatusLeft, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                 new Insets(0, 4, 0, 4), 0, 0));
 
             //---- labelStatusMiddle ----
             labelStatusMiddle.setHorizontalAlignment(SwingConstants.CENTER);
+            labelStatusMiddle.setHorizontalTextPosition(SwingConstants.CENTER);
+            labelStatusMiddle.setIconTextGap(0);
             panelStatus.add(labelStatusMiddle, new GridBagConstraints(1, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.VERTICAL,
                 new Insets(0, 0, 0, 4), 0, 0));
 
             //---- labelStatusRight ----
             labelStatusRight.setHorizontalAlignment(SwingConstants.RIGHT);
+            labelStatusRight.setIconTextGap(0);
             panelStatus.add(labelStatusRight, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
-                new Insets(0, 0, 0, 8), 0, 0));
+                new Insets(0, 0, 0, 4), 0, 0));
         }
         contentPane.add(panelStatus, BorderLayout.SOUTH);
         pack();
@@ -2672,10 +2638,10 @@ public class MainFrame extends JFrame
     public JCheckBox checkBoxTerminalAllowed;
     public JPanel vSpacer40;
     public JLabel labelIgnores;
-    public JPanel panelOperationIncludeExcludeBox;
-    public JScrollPane scrollPaneOperationIncludeExclude;
-    public JList<String> listOperationIncludeExclude;
-    public JPanel panelOperationIncludeExcludeButtons;
+    public JPanel panelLibrariesIgnorePatternsBox;
+    public JScrollPane scrollPaneLibrariesIgnorePatterns;
+    public JList<String> listLibrariesIgnorePatterns;
+    public JPanel panelLibrariesIgnorePatternsButtons;
     public JButton buttonLibrariesAddIgnore;
     public JButton buttonLibrariesRemoveIgnore;
     public JPanel vSpacer41;
@@ -2710,10 +2676,8 @@ public class MainFrame extends JFrame
     public JButton buttonAddLibrary;
     public JButton buttonRemoveLibrary;
     public JPanel buttonBarLibs;
-    public JButton buttonLibrariesRefesh;
     public JButton saveButton;
     public JButton cancelButton;
-    public JPanel vSpacer5;
     public JPanel panelStatus;
     public JLabel labelStatusLeft;
     public JLabel labelStatusMiddle;

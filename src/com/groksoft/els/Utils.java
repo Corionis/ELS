@@ -136,7 +136,7 @@ public class Utils
     /**
      * Concatenate the values of a String array into one String with optional divider
      *
-     * @param array Strings to concatenate
+     * @param array   Strings to concatenate
      * @param divider Optional divider String between each element
      * @return String The String array concatenated
      */
@@ -263,6 +263,7 @@ public class Utils
 
     /**
      * Format an integer as a hexadecimal string
+     *
      * @param value Integer to format
      * @param width Desired total width with leading zeros
      * @return Formatted hexadecimal string
@@ -292,9 +293,9 @@ public class Utils
     /**
      * Format a long number with byte, MB, GB and TB as applicable
      *
-     * @param value Long value to format
+     * @param value  Long value to format
      * @param isFull Full long list of B, KB, MB, etc. = true, short highest value = false
-     * @param scale Binary (1024) or decimal (1000) scale
+     * @param scale  Binary (1024) or decimal (1000) scale
      * @return String Formatting text
      */
     public static synchronized String formatLong(long value, boolean isFull, double scale)
@@ -726,7 +727,7 @@ public class Utils
      * <br/>
      * If the Repository temp_dated = true a formatted stamp is appended to the filename.
      *
-     * @param repo Repository with temp_dated defined
+     * @param repo     Repository with temp_dated defined
      * @param filename The left portion of the filename, no extension
      * @return String The filename with an optional date/time stamp appended, or not
      */
@@ -750,7 +751,8 @@ public class Utils
      * If the Repository temp_location is defined use that path, otherwise use
      * the current working directory. In either case any relative path is expanded
      * to be an fully-qualified path.
-     * @param repo Repository with temp_location defined
+     *
+     * @param repo     Repository with temp_location defined
      * @param filename The right portion of the filename
      * @return String The fully-qualified path
      */
@@ -759,13 +761,13 @@ public class Utils
         String location = filename;
         String path = "";
         if (repo.getLibraryData().libraries.temp_location != null && repo.getLibraryData().libraries.temp_location.length() > 0)
-        {
             path = repo.getLibraryData().libraries.temp_location;
-            String sep = repo.getSeparator();
-            if (!path.endsWith(sep))
-                path += sep;
-            location = path + filename;
-        }
+        else
+            path = "output";
+        String sep = repo.getSeparator();
+        if (!path.endsWith(sep))
+            path += sep;
+        location = path + filename;
         location = Utils.getWorkingFile(location);
         return location;
     }
@@ -823,7 +825,7 @@ public class Utils
     {
         if (icon instanceof ImageIcon)
         {
-            return ((ImageIcon)icon).getImage();
+            return ((ImageIcon) icon).getImage();
         }
         else
         {
@@ -973,7 +975,7 @@ public class Utils
     /**
      * Replace source path separators with pipe character for comparison
      *
-     * @param path Path to modify with pipe characters
+     * @param path      Path to modify with pipe characters
      * @param separator String separator to use
      * @return String Modified path
      * @throws MungeException
@@ -1121,8 +1123,8 @@ public class Utils
     /**
      * Find the right-side Nth occurrence of a character
      *
-     * @param value String to search
-     * @param find Character to find
+     * @param value               String to search
+     * @param find                Character to find
      * @param rightSideOccurrence Which occurrence to return, 0 = last segment only
      * @return Position in value of Nth occurrence of find character, or -1 if not found
      */
@@ -1143,6 +1145,7 @@ public class Utils
 
     /**
      * Scrub invalid filename characters from a filename
+     *
      * @param name Filename to scrub
      * @return Scrubbed filename, may be the same if there were no invalid characters
      */
@@ -1172,7 +1175,7 @@ public class Utils
     /**
      * Replace source pipe character with path separators
      *
-     * @param path Path to modify with pipe characters
+     * @param path      Path to modify with pipe characters
      * @param separator The separator string to use
      * @return String Modified path
      */

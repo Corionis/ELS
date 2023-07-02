@@ -1592,7 +1592,7 @@ public class Browser
     private void navBack()
     {
         NavItem ni = navStackPop();
-        if (ni.node != null)
+        if (ni != null && ni.node != null)
         {
             ni.node.selectMyTab();
             ni.node.selectMe(); // loads table

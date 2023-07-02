@@ -3,16 +3,14 @@ package com.groksoft.els.repository;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonWriter;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -954,8 +952,6 @@ public class Repository
 
     public void write() throws Exception
     {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String json = gson.toJson(libraryData);
         try
         {
             File f = new File(getJsonFilename());
@@ -963,9 +959,12 @@ public class Repository
             {
                 f.getParentFile().mkdirs();
             }
-            PrintWriter outputStream = new PrintWriter(getJsonFilename());
-            outputStream.println(json);
-            outputStream.close();
+
+            Gson gson = new GsonBuilder().serializeNulls().create();
+            JsonWriter jsonWriter = new JsonWriter(new FileWriter(getJsonFilename()));
+            jsonWriter.setIndent("    ");
+            gson.toJson(libraryData, LibraryData.class, jsonWriter);
+            jsonWriter.close();
         }
         catch (FileNotFoundException fnf)
         {

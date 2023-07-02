@@ -10,13 +10,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.UUID;
 
 /*
@@ -44,7 +49,11 @@ public class LibrariesUI
     private String currentLibraryName = "";
     protected ArrayList<LibMeta> deletedLibraries;
     private String displayName;
+    private boolean fileAny = false;
+    private boolean fileDirectoryOnly = false;
+    private boolean fileMustExist = false;
     private NavHelp helpDialog;
+    private File lastFile;
     private boolean loading = false;
     private Logger logger = LogManager.getLogger("applog");
     private MainFrame mf;
@@ -161,7 +170,7 @@ public class LibrariesUI
                 String description = context.cfg.gs("Libraries.generate.new.uuid.for") + libMeta.description;
                 String blank = "<html><body><br/></body></html>";
                 String message = context.cfg.gs("Libraries.this.will.overwrite.any.existing.uuid");
-                String question = context.cfg.gs("Are you sure?");
+                String question = context.cfg.gs("Z.are.you.sure");
                 Object[] params = {description, blank, message, question};
                 reply = JOptionPane.showConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
             }
@@ -197,6 +206,75 @@ public class LibrariesUI
         }
     }
 
+    private void actionIgnorePatternAdd(ActionEvent e)
+    {
+        currentConfigIndex = configItems.getSelectedRow();
+        if (currentConfigIndex >= 0)
+        {
+            String line1 = context.cfg.gs("Libraries.add.ignore.1");
+            String line2 = context.cfg.gs("Libraries.add.ignore.2");
+            String line3 = context.cfg.gs("Libraries.add.ignore.3");
+            String line4 = context.cfg.gs("Libraries.add.ignore.4");
+            String blank = "<html><body><br/></body></html>";
+            Object[] params = {line1, blank, line2, line3, blank, line4};
+            String pattern = JOptionPane.showInputDialog(mf, params, displayName, JOptionPane.PLAIN_MESSAGE);
+            //ConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
+            if (pattern != null && pattern.length() > 0)
+            {
+                LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+                int newSize = libMeta.repo.getLibraryData().libraries.ignore_patterns.length + 1;
+                String[] expanded = new String[newSize];
+                System.arraycopy(libMeta.repo.getLibraryData().libraries.ignore_patterns, 0, expanded,
+                        0, libMeta.repo.getLibraryData().libraries.ignore_patterns.length);
+                expanded[newSize - 1] = pattern;
+                libMeta.repo.getLibraryData().libraries.ignore_patterns = expanded;
+                libMeta.setDataHasChanged();
+                loadOptions();
+                mf.listLibrariesIgnorePatterns.setSelectionInterval(newSize - 1, newSize - 1);
+            }
+        }
+    }
+
+    private void actionIgnorePatternRemove(ActionEvent e)
+    {
+        currentConfigIndex = configItems.getSelectedRow();
+        if (currentConfigIndex >= 0)
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            if (libMeta.repo.getLibraryData().libraries.ignore_patterns.length > 0)
+            {
+                int[] selected = mf.listLibrariesIgnorePatterns.getSelectedIndices();
+                if (selected.length > 0)
+                {
+                    int reply = JOptionPane.showConfirmDialog(mf,
+                            MessageFormat.format(context.cfg.gs("Libraries.are.you.sure.remove.ignores"), selected.length), displayName,
+                            JOptionPane.YES_NO_OPTION);
+                    if (reply == JOptionPane.YES_OPTION)
+                    {
+                        String[] ignores = libMeta.repo.getLibraryData().libraries.ignore_patterns;
+                        ArrayList<String> contracted = new ArrayList<>();
+                        for (int i = 0; i < ignores.length; ++i)
+                        {
+                            contracted.add(ignores[i]);
+                        }
+                        for (int i = selected.length - 1; i >= 0; --i)
+                        {
+                            contracted.remove(selected[i]);
+                        }
+                        ignores = new String[contracted.size()];
+                        for (int i = 0; i < contracted.size(); ++i)
+                        {
+                            ignores[i] = contracted.get(i);
+                        }
+                        libMeta.repo.getLibraryData().libraries.ignore_patterns = ignores;
+                        libMeta.setDataHasChanged();
+                        loadOptions();
+                    }
+                }
+            }
+        }
+    }
+
     private void actionNewClicked(ActionEvent e)
     {
         if (configModel.find(context.cfg.gs("Z.untitled"), null) == null)
@@ -208,11 +286,13 @@ public class LibrariesUI
             // get ELS operationsUI/mode
 
             //------------------------------------------
-            // NOTE: Libraries was designed to use the
+            // NOTES: Libraries were designed to use the
             // generalTab cards but the panelLibraryCard
-            // is the only one implemented so far. So
+            // is the only card implemented so far.  So
             // the card selection logic is commented out
             // --> and some places assume that card only
+            // --> and mainframe.topType visible = false
+            // because it is unneeded with a single type
             //------------------------------------------
             //    int opt = JOptionPane.showConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
             //    if (opt == JOptionPane.YES_OPTION)
@@ -254,22 +334,25 @@ public class LibrariesUI
 
     private void actionSaveClicked(ActionEvent e)
     {
+        int cci = currentConfigIndex;
         saveConfigurations();
         savePreferences();
-    }
-
-    private void actionSelectTempLocation(ActionEvent e)
-    {
-
+        if (configModel.getRowCount() - 1 < cci)
+            cci = configModel.getRowCount() - 1;
+        configItems.setRowSelectionInterval(cci, cci);
     }
 
     private void cancelChanges()
     {
+        int cci = currentConfigIndex;
         if (deletedLibraries.size() > 0)
             deletedLibraries = new ArrayList<LibMeta>();
 
         configModel.setRowCount(0);
         loadConfigurations();
+        if (configModel.getRowCount() - 1 < cci)
+            cci = configModel.getRowCount() - 1;
+        configItems.setRowSelectionInterval(cci, cci);
 
         mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.cancelled"));
     }
@@ -296,6 +379,122 @@ public class LibrariesUI
             }
         }
         return false;
+    }
+
+    private void filePicker(JButton button)
+    {
+        JFileChooser fc = new JFileChooser();
+        fc.setFileHidingEnabled(false);
+        fc.setDialogTitle(button.getToolTipText());
+
+        fc.setFileFilter(new FileFilter()
+        {
+            @Override
+            public boolean accept(File file)
+            {
+                if (file.isDirectory())
+                    return true;
+                if (fileDirectoryOnly && !file.isDirectory())
+                    return false;
+                if (!fileAny)
+                    return (file.getName().toLowerCase().endsWith(".json"));
+                return true;
+            }
+
+            @Override
+            public String getDescription()
+            {
+                String desc = "";
+                switch (button.getName().toLowerCase())
+                {
+                    case "templocation":
+                        desc = context.cfg.gs("Libraries.temp.location");
+                        fileAny = true;
+                        fileDirectoryOnly = true;
+                        fileMustExist = true;
+                        //fc.setFileHidingEnabled(true);
+                        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                        break;
+                }
+                return desc;
+            }
+        });
+
+        String fileName = "";
+        switch (button.getName().toLowerCase())
+        {
+            case "templocation":
+                fileName = mf.textFieldTempLocation.getText();
+                fc.setAcceptAllFileFilterUsed(false);
+                break;
+        }
+
+        File dir;
+        File file;
+        if (fileName.length() > 0)
+        {
+            dir = new File(filePickerDirectory(fileName));
+            fc.setCurrentDirectory(dir.getAbsoluteFile());
+
+            file = new File(fileName);
+            fc.setSelectedFile(file);
+        }
+        else if (lastFile != null)
+        {
+            fc.setCurrentDirectory(lastFile);
+        }
+        else
+        {
+            // default to ELS home
+            fc.setCurrentDirectory(new File(context.cfg.getWorkingDirectory()));
+        }
+
+        fc.setDialogType(fileMustExist ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG);
+
+        while (true)
+        {
+            int selection = fc.showOpenDialog(mf);
+            if (selection == JFileChooser.APPROVE_OPTION)
+            {
+
+                lastFile = fc.getCurrentDirectory();
+                file = fc.getSelectedFile();
+
+                // sanity checks
+                if (!fileDirectoryOnly && file.isDirectory())
+                {
+                    JOptionPane.showMessageDialog(mf,
+                            context.cfg.gs("Navigator.open.error.select.a.file.only"),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                if (fileMustExist && !file.exists())
+                {
+                    JOptionPane.showMessageDialog(mf,
+                            context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
+                            displayName, JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
+                // make path relative if possible
+                String path = "";
+                if (file.getPath().startsWith(context.cfg.getWorkingDirectory()))
+                    path = file.getPath().substring(context.cfg.getWorkingDirectory().length() + 1);
+                else
+                    path = file.getPath();
+
+                // save value & fire updateOnChange()
+                switch (button.getName().toLowerCase())
+                {
+                    // textFieldOperation
+                    case "templocation":
+                        mf.textFieldTempLocation.setText(path);
+                        mf.textFieldTempLocation.postActionEvent();
+                        break;
+                }
+            }
+            break;
+        }
     }
 
     private String filePickerDirectory(String path)
@@ -393,6 +592,9 @@ public class LibrariesUI
         });
         configItems.setTableHeader(null);
 
+        // setup the right-side tab handler
+        mf.tabbedPaneLibrarySpaces.addChangeListener(e -> tabbedPaneLibrarySpacesStateChanged(e));
+
         // Make Mode objects
         //  * library
         //  * hint server
@@ -483,6 +685,7 @@ public class LibrariesUI
             }
         });
 
+        mf.comboBoxFlavor.addActionListener(e -> genericAction(e));
         mf.checkBoxCase.addActionListener(e -> genericAction(e));
 
         mf.checkBoxTempDated.addActionListener(e -> genericAction(e));
@@ -495,10 +698,12 @@ public class LibrariesUI
                 genericTextFieldFocusLost(e);
             }
         });
-        mf.buttonLibrarySelectTempLocation.addActionListener(e -> genericAction(e));
+        mf.buttonLibrarySelectTempLocation.addActionListener(e -> filePicker(mf.buttonLibrarySelectTempLocation));
 
         mf.checkBoxTerminalAllowed.addActionListener(e -> genericAction(e));
 
+        mf.buttonLibrariesAddIgnore.addActionListener(e -> actionIgnorePatternAdd(e));
+        mf.buttonLibrariesRemoveIgnore.addActionListener(e -> actionIgnorePatternRemove(e));
 
     }
 
@@ -530,7 +735,7 @@ public class LibrariesUI
 
     private void loadConfigurations()
     {
-        currentConfigIndex = -1;
+        currentConfigIndex = 0;
         Repositories repositories = getRepositories();
         for (RepoMeta repoMeta : repositories.getList())
         {
@@ -576,6 +781,7 @@ public class LibrariesUI
     {
         if (currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
         {
+            loading = true;
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
             ((CardLayout) mf.generalTab.getLayout()).show(mf.generalTab, libMeta.card.name());
 
@@ -586,8 +792,8 @@ public class LibrariesUI
             mf.textFieldListen.setText(libraries.listen);
             mf.textFieldTimeout.setText(Integer.toString(libraries.timeout));
             int index = libraries.flavor.toLowerCase().equals("linux") ? 0 :
-                    (libraries.flavor.toLowerCase().equals("mac") ? 1 :
-                            (libraries.flavor.toLowerCase().equals("windows") ? 2 : -1));
+                        (libraries.flavor.toLowerCase().equals("mac") ? 1 :
+                        (libraries.flavor.toLowerCase().equals("windows") ? 2 : -1));
             if (index < 0)
             {
                 // TODO
@@ -601,11 +807,36 @@ public class LibrariesUI
 
             if (libraries.terminal_allowed != null)
                 mf.checkBoxTerminalAllowed.setSelected(libraries.terminal_allowed);
+
             if (libraries.ignore_patterns != null)
             {
-                // TODO Ignore patterns, etc.
+                ArrayList<String> ignores = new ArrayList<>();
+                for (int i = 0; i < libraries.ignore_patterns.length; ++i)
+                {
+                    ignores.add(libraries.ignore_patterns[i]);
+                }
+
+                DefaultListModel<String> model = new DefaultListModel<String>();
+                if (ignores.size() > 0)
+                {
+                    Collections.sort(ignores);
+                    for (String element : ignores)
+                    {
+                        model.addElement(element);
+                    }
+                }
+                else
+                {
+                    mf.listLibrariesIgnorePatterns.removeAll();
+                    model.removeAllElements();
+                    model.clear();
+                }
+                mf.listLibrariesIgnorePatterns.setModel(model);
+                mf.scrollPaneLibrariesIgnorePatterns.setViewportView(mf.listLibrariesIgnorePatterns);
+                mf.listLibrariesIgnorePatterns.setSelectionInterval(0, 0);
             }
             updateState();
+            loading = false;
         }
     }
 
@@ -653,6 +884,12 @@ public class LibrariesUI
                 logger.error(msg);
         }
 
+        if (deletedLibraries.size() > 0)
+            deletedLibraries = new ArrayList<LibMeta>();
+
+        configModel.setRowCount(0);
+        loadConfigurations();
+
         mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.saved"));
     }
 
@@ -667,6 +904,23 @@ public class LibrariesUI
     {
         PlainDocument pd = (PlainDocument) field.getDocument();
         pd.setDocumentFilter(numberFilter);
+    }
+
+    public void tabbedPaneLibrarySpacesStateChanged(ChangeEvent changeEvent)
+    {
+        int index = mf.tabbedPaneLibrarySpaces.getSelectedIndex();
+        if (index == 0)
+        {
+            mf.generalTab.requestFocus();
+        }
+        else if (index == 1)
+        {
+            mf.locationsTab.requestFocus();
+        }
+        else if (index == 2)
+        {
+            mf.bibliographyTab.requestFocus();
+        }
     }
 
     private void updateOnChange(Object source)
@@ -735,6 +989,27 @@ public class LibrariesUI
                             break;
                     }
                     if (state != cb.isSelected())
+                    {
+                        libMeta.setDataHasChanged();
+                        updateState();
+                    }
+                }
+                else if (source instanceof JComboBox)
+                {
+                    JComboBox combo = (JComboBox) source;
+                    name = combo.getName();
+                    int current = -1;
+                    int index = combo.getSelectedIndex();
+                    String value = "";
+                    switch (name.toLowerCase())
+                    {
+                        case "flavor":
+                            current = libMeta.repo.getLibraryData().libraries.flavor.toLowerCase().equals("linux") ? 0 :
+                                     (libMeta.repo.getLibraryData().libraries.flavor.toLowerCase().equals("mac") ? 1 : 2);
+                            libMeta.repo.getLibraryData().libraries.flavor = (String) combo.getSelectedItem();
+                            break;
+                    }
+                    if (index != current)
                     {
                         libMeta.setDataHasChanged();
                         updateState();
