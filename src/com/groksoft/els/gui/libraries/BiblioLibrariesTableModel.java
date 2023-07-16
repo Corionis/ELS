@@ -2,6 +2,7 @@ package com.groksoft.els.gui.libraries;
 
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
+import com.groksoft.els.repository.Library;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -34,7 +35,9 @@ public class BiblioLibrariesTableModel extends DefaultTableModel
             {
                 try
                 {
-                    if (libMeta.repo.getLibrary((String) object) != null)
+                    Library lib = libMeta.repo.getLibrary((String) object);
+
+                    if (lib != null && lib != libMeta.repo.getLibraryData().libraries.bibliography[row])
                     {
                         JOptionPane.showMessageDialog(context.mainFrame,
                                 context.cfg.gs("Libraries.that.library.already.exists"),

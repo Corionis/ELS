@@ -113,6 +113,9 @@ public class LibrariesUI
         int index = configItems.getSelectedRow();
         if (index >= 0)
         {
+            if (context.mainFrame.librariesConfigItems.isEditing())
+                context.mainFrame.librariesConfigItems.getCellEditor().stopCellEditing();
+
             LibMeta libMeta = (LibMeta) configModel.getValueAt(index, 0);
             int reply = JOptionPane.showConfirmDialog(mf, context.cfg.gs("Z.are.you.sure.you.want.to.delete.configuration") + libMeta.description,
                     context.cfg.gs("Z.delete.configuration"), JOptionPane.YES_NO_OPTION);
@@ -124,10 +127,13 @@ public class LibrariesUI
                 {
                     deletedLibraries.add(libMeta);
                 }
+                libMeta.setDataHasChanged();
 
                 configModel.removeRow(index);
                 if (index > configModel.getRowCount() - 1)
                     index = configModel.getRowCount() - 1;
+                if (index < 0)
+                    index = 0;
                 currentConfigIndex = index;
                 configModel.fireTableDataChanged();
                 if (configModel.getRowCount() > 0)
@@ -137,11 +143,12 @@ public class LibrariesUI
                 }
                 else
                 {
-                    ((CardLayout) mf.tabbedPaneLibrarySpaces.getLayout()).show(mf.tabbedPaneLibrarySpaces, "cardGettingStarted");
+                    mf.tabbedPaneLibrarySpaces.setSelectedIndex(0);
+                    ((CardLayout) mf.generalTab.getLayout()).show(mf.generalTab, "cardGettingStarted");
+
                     mf.labelLibaryType.setText("");
                     mf.buttonCopy.setEnabled(false);
                     mf.buttonDelete.setEnabled(false);
-                    mf.saveButton.setEnabled(false);
                     currentConfigIndex = 0;
                 }
                 configItems.requestFocus();
@@ -343,8 +350,13 @@ public class LibrariesUI
                     libMeta.setDataHasChanged();
                     currentLibraryIndex = 0;
                     currentSourceIndex = 0;
-                    mf.tableBiblioLibraries.changeSelection(currentLocationIndex, 0, false, false);
-                    loadBibliographyTab();
+                    if (libraries.length == 0)
+                        biblioLibrariesTableModel.setRowCount(0);
+                    else
+                    {
+                        mf.tableBiblioLibraries.changeSelection(currentLocationIndex, 0, false, false);
+                        loadBibliographyTab();
+                    }
                 }
             }
         }
@@ -587,12 +599,17 @@ public class LibrariesUI
     {
         int cci = currentConfigIndex;
 
-        saveConfigurations();
+        boolean changes = saveConfigurations();
         savePreferences();
 
         if (configModel.getRowCount() - 1 < cci)
             cci = configModel.getRowCount() - 1;
         configItems.setRowSelectionInterval(cci, cci);
+
+        if (changes)
+            mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.saved"));
+        else
+            mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.none"));
     }
 
     private void actionSourcesAddClicked(ActionEvent e)
@@ -957,6 +974,8 @@ public class LibrariesUI
                 cancelChanges();
             }
         }
+        else
+            mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.nothing.to.undo"));
     }
 
     private void cancelChanges()
@@ -966,7 +985,9 @@ public class LibrariesUI
             deletedLibraries = new ArrayList<LibMeta>();
 
         configModel.setRowCount(0);
+        biblioLibrariesTableModel.setRowCount(0);
         loadConfigurations();
+
         if (configModel.getRowCount() - 1 < cci)
             cci = configModel.getRowCount() - 1;
         configItems.setRowSelectionInterval(cci, cci);
@@ -1605,9 +1626,11 @@ public class LibrariesUI
         {
             loading = true;
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
-            Library[] libraries = libMeta.repo.getLibraryData().libraries.bibliography;
-
             biblioLibrariesTableModel.setLibMeta(libMeta);
+
+            Library[] libraries = libMeta.repo.getLibraryData().libraries.bibliography;
+            if (!libMeta.isDataChanged() && libraries != null && libraries.length > 0)
+                Arrays.sort(libraries);
 
             if (libraries != null && libraries.length > 0)
             {
@@ -1687,9 +1710,10 @@ public class LibrariesUI
         }
     }
 
-    private void saveConfigurations()
+    private boolean saveConfigurations()
     {
         LibMeta libMeta = null;
+        boolean changes = false;
         try
         {
             // write/update changed tool JSON configuration files
@@ -1704,6 +1728,7 @@ public class LibrariesUI
                     }
                     Arrays.sort(libMeta.repo.getLibraryData().libraries.bibliography);
                     libMeta.repo.write();
+                    changes = true;
                 }
                 libMeta.setDataHasChanged(false);
             }
@@ -1718,6 +1743,7 @@ public class LibrariesUI
                     file.delete();
                 }
                 libMeta.setDataHasChanged(false);
+                changes = true;
             }
         }
         catch (Exception e)
@@ -1736,9 +1762,9 @@ public class LibrariesUI
             deletedLibraries = new ArrayList<LibMeta>();
 
         configModel.setRowCount(0);
+        biblioLibrariesTableModel.setRowCount(0);
         loadConfigurations();
-
-        mf.labelStatusMiddle.setText(context.cfg.gs("Libraries.libraries.changes.saved"));
+        return changes;
     }
 
     public void savePreferences()
@@ -1756,6 +1782,7 @@ public class LibrariesUI
 
     public void tabbedPaneLibrarySpacesStateChanged(ChangeEvent changeEvent)
     {
+        mf.labelStatusMiddle.setText(context.cfg.gs(""));
         int index = mf.tabbedPaneLibrarySpaces.getSelectedIndex();
         if (index == 0)
         {

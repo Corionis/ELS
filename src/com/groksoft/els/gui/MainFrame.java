@@ -1102,6 +1102,7 @@ public class MainFrame extends JFrame
                 menuItemDocumentation.setText(context.cfg.gs("Navigator.menu.Documentation.text"));
                 menuItemDocumentation.setMnemonic(context.cfg.gs("Navigator.menu.Documentation.mnemonic").charAt(0));
                 menuItemDocumentation.setToolTipText(context.cfg.gs("Navigator.menuItemDocumentation.toolTipText"));
+                menuItemDocumentation.setIcon(null);
                 menuHelp.add(menuItemDocumentation);
 
                 //---- menuItemGettingStarted ----
@@ -2153,7 +2154,7 @@ public class MainFrame extends JFrame
                                         buttonAddLocation.setPreferredSize(new Dimension(78, 24));
                                         buttonAddLocation.setMinimumSize(new Dimension(78, 24));
                                         buttonAddLocation.setMaximumSize(new Dimension(78, 24));
-                                        buttonAddLocation.setMnemonic(context.cfg.gs("Navigator.buttonAddLocation.mnemonic").charAt(0));
+                                        buttonAddLocation.setMnemonic(context.cfg.gs("Navigator.buttonAddLocation.mnemonic_2").charAt(0));
                                         buttonAddLocation.setToolTipText(context.cfg.gs("Navigator.buttonAddLocation.toolTipText"));
                                         buttonAddLocation.setMargin(new Insets(0, -10, 0, -10));
                                         panelLocButtons.add(buttonAddLocation);
@@ -2327,7 +2328,7 @@ public class MainFrame extends JFrame
                                         buttonAddLibrary.setPreferredSize(new Dimension(78, 24));
                                         buttonAddLibrary.setMinimumSize(new Dimension(78, 24));
                                         buttonAddLibrary.setMaximumSize(new Dimension(78, 24));
-                                        buttonAddLibrary.setMnemonic(context.cfg.gs("Navigator.buttonAddLibrary.mnemonic").charAt(0));
+                                        buttonAddLibrary.setMnemonic(context.cfg.gs("Navigator.buttonAddLibrary.mnemonic_2").charAt(0));
                                         buttonAddLibrary.setToolTipText(context.cfg.gs("Navigator.buttonAddLibrary.toolTipText"));
                                         buttonAddLibrary.setMargin(new Insets(0, -10, 0, -10));
                                         panelBiblioButtons.add(buttonAddLibrary);

@@ -59,7 +59,7 @@ public class ConfigModel extends DefaultTableModel
     private boolean updateListName(String name, int index)
     {
         boolean success = false;
-        if (index >= 0)
+        if (index >= 0 && index < getRowCount())
         {
             LibrariesUI.LibMeta libMeta = (LibrariesUI.LibMeta) getValueAt(index, 0);
             if (libMeta != null)

@@ -1061,7 +1061,7 @@ new FormModel {
 												"preferredSize": &Dimension11 new java.awt.Dimension( 78, 24 )
 												"minimumSize": &Dimension12 new java.awt.Dimension( 78, 24 )
 												"maximumSize": &Dimension13 new java.awt.Dimension( 78, 24 )
-												"mnemonic": new FormMessage( null, "Navigator.buttonAddLocation.mnemonic" )
+												"mnemonic": new FormMessage( null, "Navigator.buttonAddLocation.mnemonic_2" )
 												"toolTipText": new FormMessage( null, "Navigator.buttonAddLocation.toolTipText" )
 												"margin": new java.awt.Insets( 0, -10, 0, -10 )
 											} )
@@ -1246,7 +1246,7 @@ new FormModel {
 												"preferredSize": #Dimension11
 												"minimumSize": #Dimension12
 												"maximumSize": #Dimension13
-												"mnemonic": new FormMessage( null, "Navigator.buttonAddLibrary.mnemonic" )
+												"mnemonic": new FormMessage( null, "Navigator.buttonAddLibrary.mnemonic_2" )
 												"toolTipText": new FormMessage( null, "Navigator.buttonAddLibrary.toolTipText" )
 												"margin": new java.awt.Insets( 0, -10, 0, -10 )
 											} )
@@ -1684,6 +1684,7 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Documentation.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Documentation.mnemonic" )
 						"toolTipText": new FormMessage( null, "Navigator.menuItemDocumentation.toolTipText" )
+						"icon": sfield com.jformdesigner.model.FormObject NULL_VALUE
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGettingStarted"
