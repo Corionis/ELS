@@ -2208,6 +2208,7 @@ public class RenamerUI extends AbstractToolDialog
                             buttonRefresh.setMaximumSize(new Dimension(78, 24));
                             buttonRefresh.setMnemonic(context.cfg.gs("Renamer.buttonRefresh.mnemonic").charAt(0));
                             buttonRefresh.setToolTipText(context.cfg.gs("Z.refresh.tooltip.text"));
+                            buttonRefresh.setMargin(new Insets(0, -10, 0, -10));
                             buttonRefresh.addActionListener(e -> actionRefreshClicked(e));
                             panelOptionsButtons.add(buttonRefresh);
                         }

@@ -213,7 +213,7 @@ public class Repository
      * Do these Libraries have a particular Library?
      *
      * @param libraryName the library name
-     * @return the Library
+     * @return the Library, or null if not found
      */
     public Library getLibrary(String libraryName) throws MungeException
     {

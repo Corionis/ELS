@@ -151,6 +151,7 @@ new FormModel {
 									"maximumSize": new java.awt.Dimension( 78, 24 )
 									"mnemonic": new FormMessage( null, "JunkRemover.button.AddRow.mnemonic" )
 									"toolTipText": new FormMessage( null, "JunkRemover.button.AddRow.toolTipText" )
+									"margin": new java.awt.Insets( 0, -10, 0, -10 )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAddRowClicked", true ) )
 								} )
 								add( new FormComponent( "javax.swing.JButton" ) {
@@ -162,6 +163,7 @@ new FormModel {
 									"maximumSize": new java.awt.Dimension( 78, 24 )
 									"mnemonic": new FormMessage( null, "JunkRemover.button.RemoveRow.mnemonic" )
 									"toolTipText": new FormMessage( null, "JunkRemover.button.RemoveRow.toolTipText" )
+									"margin": new java.awt.Insets( 0, -10, 0, -10 )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRemoveRowClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {

@@ -293,6 +293,7 @@ new FormModel {
 												"maximumSize": &Dimension7 new java.awt.Dimension( 78, 24 )
 												"mnemonic": new FormMessage( null, "JobsUI.buttonAddOrigin.mnemonic" )
 												"toolTipText": new FormMessage( null, "JobsUI.buttonAddOrigin.toolTipText" )
+												"margin": new java.awt.Insets( 0, -10, 0, -10 )
 												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOriginAddClicked", true ) )
 											} )
 											add( new FormComponent( "javax.swing.JButton" ) {
@@ -324,6 +325,7 @@ new FormModel {
 												"maximumSize": &Dimension16 new java.awt.Dimension( 78, 24 )
 												"mnemonic": new FormMessage( null, "JobsUI.buttonRemoveOrigin.mnemonic_2" )
 												"toolTipText": new FormMessage( null, "JobsUI.buttonRemoveOrigin.toolTipText" )
+												"margin": new java.awt.Insets( 0, -10, 0, -10 )
 												addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionOriginRemoveClicked", true ) )
 											} )
 										}, new FormLayoutConstraints( class java.lang.String ) {
@@ -357,6 +359,7 @@ new FormModel {
 									"maximumSize": #Dimension7
 									"mnemonic": new FormMessage( null, "JobsUI.buttonAddTask.mnemonic" )
 									"toolTipText": new FormMessage( null, "JobsUI.buttonAddTask.toolTipText" )
+									"margin": new java.awt.Insets( 0, -10, 0, -10 )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTaskAddClicked", true ) )
 								} )
 								add( new FormComponent( "javax.swing.JButton" ) {
@@ -388,6 +391,7 @@ new FormModel {
 									"maximumSize": #Dimension16
 									"mnemonic": new FormMessage( null, "JobsUI.buttonRemoveTask.mnemonic" )
 									"toolTipText": new FormMessage( null, "JobsUI.buttonRemoveTask.toolTipText" )
+									"margin": new java.awt.Insets( 0, -10, 0, -10 )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionTaskRemoveClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {

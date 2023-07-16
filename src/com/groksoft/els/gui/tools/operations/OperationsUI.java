@@ -565,10 +565,18 @@ public class OperationsUI extends AbstractToolDialog
                             displayName, JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
+                if (fileMustExist && !file.canWrite())
+                {
+                    JOptionPane.showMessageDialog(this,
+                            context.cfg.gs("Navigator.open.error.file.not.writable") + file.getName(),
+                            displayName, JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+
 
                 // make path relative if possible
                 String path = "";
-                if (file.getPath().startsWith(context.cfg.getWorkingDirectory()))
+                if (!file.getPath().equals(context.cfg.getWorkingDirectory()) && file.getPath().startsWith(context.cfg.getWorkingDirectory()))
                     path = file.getPath().substring(context.cfg.getWorkingDirectory().length() + 1);
                 else
                     path = file.getPath();

@@ -565,6 +565,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                     buttonAll.setMaximumSize(new Dimension(78, 24));
                     buttonAll.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonAll.mnemonic").charAt(0));
                     buttonAll.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonAll.toolTipText"));
+                    buttonAll.setMargin(new Insets(0, -10, 0, -10));
                     buttonAll.addActionListener(e -> actionAllClicked(e));
                     panelOptionsButtons.add(buttonAll);
 
@@ -576,6 +577,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                     buttonNone.setMaximumSize(new Dimension(78, 24));
                     buttonNone.setMnemonic(context.cfg.gs("EmptyDirectoryFinder.buttonNone.mnemonic_2").charAt(0));
                     buttonNone.setToolTipText(context.cfg.gs("EmptyDirectoryFinder.buttonNone.toolTipText"));
+                    buttonNone.setMargin(new Insets(0, -10, 0, -10));
                     buttonNone.addActionListener(e -> actionNoneClicked(e));
                     panelOptionsButtons.add(buttonNone);
                 }

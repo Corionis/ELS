@@ -34,8 +34,23 @@
 <body>
 <h2>Libraries</h2>
 <p>Libraries define parameters and options for ELS library JSON files.</p>
+<br/>
+<b>Requires flushing out all the details.</b>
 
+<h3>Key Points</h3>
 
+<ol>
+  <li>General tab, Host is the hostname:port or IP address:port used by outside ELS systems to connect to this ELS instance.<br/><br/></li>
+  <li>General tab, Listen is the hostname:port or IP address:port listener operations use to listen for incoming connections. If not defined
+    Host is used.<br/><br/></li>
+  <li>General tab, Terminal allowed provides interactive access to an ELS instance when running in a listener mode. It is primarily used for
+    diagnostic purposes to test the STTY command channcel. The -a|--authorize [password] option is required to enable interactive access
+    for the listener.<br/><br/></li>
+  <li>Locations tab defines devices or partial paths used to check for available free storage space. Partial paths to their length should match
+    the beginning of the full paths used in Library sources.<br/><br/></li>
+  <li>Bibliography tab, Sources is the list of one or more storage devices or paths that comprise a library. The order of the sources
+    defines the order searched for available free space, depending on the run-time setting of "Back-fill".</li>
+</ol>
 
 <br/>
 <br/>

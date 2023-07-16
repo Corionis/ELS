@@ -511,6 +511,7 @@ public class Navigator
                                 context.cfg.setPublisherCollectionFilename(file.getAbsolutePath());
                                 context.cfg.setPublisherLibrariesFileName("");
                             }
+                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.publisherRepo = context.main.readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
                             context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
                             context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
@@ -645,6 +646,7 @@ public class Navigator
                             context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                             context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
                             context.cfg.setSubscriberCollectionFilename("");
+                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastIsRemote());
 
                             if (context.preferences.isLastIsRemote())
@@ -769,6 +771,7 @@ public class Navigator
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.hintKeys = new HintKeys(context);
+                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.hintKeys.read(context.cfg.getHintKeysFile());
                             if (!showHintTrackingButton)
                             {
@@ -914,6 +917,7 @@ public class Navigator
                             setQuitTerminate();
 
                             // connect to the hint tracker or status server
+                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.main.connectHintServer(context.publisherRepo);
                             context.browser.toggleHints(true);
                         }
@@ -998,11 +1002,14 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (context.browser.lastComponent != null)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    ActionEvent ev = new ActionEvent(context.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "copy");
-                    context.browser.lastComponent.requestFocus();
-                    context.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                    if (context.browser.lastComponent != null)
+                    {
+                        ActionEvent ev = new ActionEvent(context.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "copy");
+                        context.browser.lastComponent.requestFocus();
+                        context.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                    }
                 }
             }
         };
@@ -1015,11 +1022,14 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (context.browser.lastComponent != null)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    ActionEvent ev = new ActionEvent(context.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "cut");
-                    context.browser.lastComponent.requestFocus();
-                    context.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                    if (context.browser.lastComponent != null)
+                    {
+                        ActionEvent ev = new ActionEvent(context.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "cut");
+                        context.browser.lastComponent.requestFocus();
+                        context.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                    }
                 }
             }
         };
@@ -1032,11 +1042,14 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (context.browser.lastComponent != null)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    ActionEvent ev = new ActionEvent(context.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "paste");
-                    context.browser.lastComponent.requestFocus();
-                    context.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                    if (context.browser.lastComponent != null)
+                    {
+                        ActionEvent ev = new ActionEvent(context.browser.lastComponent, ActionEvent.ACTION_PERFORMED, "paste");
+                        context.browser.lastComponent.requestFocus();
+                        context.browser.lastComponent.getActionMap().get(ev.getActionCommand()).actionPerformed(ev);
+                    }
                 }
             }
         };
@@ -1049,16 +1062,19 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                Object object = context.browser.lastComponent;
-                if (object instanceof JTree)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    JTree sourceTree = (JTree) object;
-                    context.browser.deleteSelected(sourceTree);
-                }
-                else if (object instanceof JTable)
-                {
-                    JTable sourceTable = (JTable) object;
-                    context.browser.deleteSelected(sourceTable);
+                    Object object = context.browser.lastComponent;
+                    if (object instanceof JTree)
+                    {
+                        JTree sourceTree = (JTree) object;
+                        context.browser.deleteSelected(sourceTree);
+                    }
+                    else if (object instanceof JTable)
+                    {
+                        JTable sourceTable = (JTable) object;
+                        context.browser.deleteSelected(sourceTable);
+                    }
                 }
             }
         };
@@ -1071,42 +1087,45 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                String name;
-                lastFindTab = context.mainFrame.tabbedPaneMain.getSelectedIndex();
-                if (lastFindTab == 0)
-                    name = context.cfg.gs("Navigator.splitPane.Browser.tab.title");
-                else if (lastFindTab == 1)
-                    name = context.cfg.gs("Navigator.splitPane.Operations.tab.title");
-                else
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    lastFindTab = -1;
-                    return;
-                }
-
-                if (context.mainFrame.textAreaLog.getSelectedText().length() > 0)
-                    lastFindString = context.mainFrame.textAreaLog.getSelectedText();
-
-                Object obj = JOptionPane.showInputDialog(context.mainFrame,
-                        context.cfg.gs("Operations.find"),
-                        name, JOptionPane.QUESTION_MESSAGE,
-                        null, null, lastFindString);
-                lastFindString = (String) obj;
-                if (lastFindString != null && lastFindString.length() > 0)
-                {
-                    String content;
-                    //if (lastFindTab == 0)
-                        content = context.mainFrame.textAreaLog.getText().toLowerCase();
-                    lastFindPosition = content.indexOf(lastFindString.toLowerCase(), 0);
-                    if (lastFindPosition > 0)
+                    String name;
+                    lastFindTab = context.mainFrame.tabbedPaneMain.getSelectedIndex();
+                    if (lastFindTab == 0)
+                        name = context.cfg.gs("Navigator.splitPane.Browser.tab.title");
+                    else if (lastFindTab == 1)
+                        name = "";
+                    else
                     {
-                        if (lastFindTab == 0)
+                        lastFindTab = -1;
+                        return;
+                    }
+
+                    if (context.mainFrame.textAreaLog.getSelectedText().length() > 0)
+                        lastFindString = context.mainFrame.textAreaLog.getSelectedText();
+
+                    Object obj = JOptionPane.showInputDialog(context.mainFrame,
+                            context.cfg.gs("Operations.find"),
+                            name, JOptionPane.QUESTION_MESSAGE,
+                            null, null, lastFindString);
+                    lastFindString = (String) obj;
+                    if (lastFindString != null && lastFindString.length() > 0)
+                    {
+                        String content;
+                        //if (lastFindTab == 0)
+                        content = context.mainFrame.textAreaLog.getText().toLowerCase();
+                        lastFindPosition = content.indexOf(lastFindString.toLowerCase(), 0);
+                        if (lastFindPosition > 0)
                         {
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                            context.mainFrame.textAreaLog.requestFocus();
-                            context.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
-                            context.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                            if (lastFindTab == 0)
+                            {
+                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                                context.mainFrame.textAreaLog.requestFocus();
+                                context.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
+                                context.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                            }
+                            lastFindPosition += lastFindString.length();
                         }
-                        lastFindPosition += lastFindString.length();
                     }
                 }
             }
@@ -1120,33 +1139,36 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (lastFindTab < 0 || lastFindString == null || lastFindString.length() == 0)
-                    return;
-                String content;
-                //if (lastFindTab == 0)
-                    content = context.mainFrame.textAreaLog.getText().toLowerCase();
-                if (content != null && content.length() > 0)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    lastFindPosition = content.indexOf(lastFindString.toLowerCase(), lastFindPosition);
-                    if (lastFindPosition > 0)
+                    if (lastFindTab < 0 || lastFindString == null || lastFindString.length() == 0)
+                        return;
+                    String content;
+                    //if (lastFindTab == 0)
+                    content = context.mainFrame.textAreaLog.getText().toLowerCase();
+                    if (content != null && content.length() > 0)
                     {
-                        if (lastFindTab == 0)
+                        lastFindPosition = content.indexOf(lastFindString.toLowerCase(), lastFindPosition);
+                        if (lastFindPosition > 0)
                         {
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                            context.mainFrame.textAreaLog.requestFocus();
-                            try
+                            if (lastFindTab == 0)
                             {
-                                Rectangle rect = context.mainFrame.textAreaLog.modelToView(lastFindPosition);
-                                context.mainFrame.textAreaLog.scrollRectToVisible(rect);
+                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                                context.mainFrame.textAreaLog.requestFocus();
+                                try
+                                {
+                                    Rectangle rect = context.mainFrame.textAreaLog.modelToView(lastFindPosition);
+                                    context.mainFrame.textAreaLog.scrollRectToVisible(rect);
+                                }
+                                catch (Exception e)
+                                {
+                                    System.out.println("bad scroll position");
+                                }
+                                context.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
+                                context.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
                             }
-                            catch (Exception e)
-                            {
-                                System.out.println("bad scroll position");
-                            }
-                            context.mainFrame.textAreaLog.setSelectionStart(lastFindPosition);
-                            context.mainFrame.textAreaLog.setSelectionEnd(lastFindPosition + lastFindString.length());
+                            lastFindPosition += lastFindString.length();
                         }
-                        lastFindPosition += lastFindString.length();
                     }
                 }
             }
@@ -1160,130 +1182,133 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                boolean tooMany = false;
-                JTree tree = null;
-                NavTreeUserObject tuo = null;
-                Object object = context.browser.lastComponent;
-                if (object instanceof JTree)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    tree = (JTree) object;
-                }
-                else if (object instanceof JTable)
-                {
-                    tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
-                }
-                assert (tree != null);
-
-                TreePath[] paths = tree.getSelectionPaths();
-                if (paths.length == 1)
-                {
-                    NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
-                    tuo = ntn.getUserObject();
-                }
-                else if (paths.length == 0)
-                    return;
-                else
-                    tooMany = true;
-
-                if (!tooMany)
-                {
-                    // select source in library
-                    String path = context.browser.selectLibrarySource(tuo);
-                    if (path == null || path.length() < 1)
+                    boolean tooMany = false;
+                    JTree tree = null;
+                    NavTreeUserObject tuo = null;
+                    Object object = context.browser.lastComponent;
+                    if (object instanceof JTree)
                     {
-                        JOptionPane.showMessageDialog(context.mainFrame,
-                                context.cfg.gs("Navigator.menu.New.folder.cannot.create.new.folder.in.current.location"),
-                                context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-                        return;
+                        tree = (JTree) object;
                     }
-                    else if (path.equals("_cancelled_"))
-                        return;
-
-                    boolean error = false;
-                    String reply = "";
-                    if (path.length() > 0)
+                    else if (object instanceof JTable)
                     {
-                        reply = JOptionPane.showInputDialog(context.mainFrame,
-                                context.cfg.gs("Navigator.menu.New.folder.for") + path + ": ",
-                                context.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
-                        if (reply != null && reply.length() > 0)
-                        {
-                            NavTreeUserObject createdTuo = null;
-                            try
-                            {
-                                path = path + Utils.getSeparatorFromPath(path) + reply;
-                                String msg = context.cfg.gs("Navigator.menu.New.folder.creating") +
-                                        (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") + " " : "") +
-                                        context.cfg.gs("Navigator.menu.New.folder.directory") + ": " + path;
-                                logger.info(msg);
+                        tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+                    }
+                    assert (tree != null);
 
-                                if (context.transfer.makeDirs((tuo.isRemote ? path + Utils.getSeparatorFromPath(path) + "dummyfile.els" : path), true, tuo.isRemote))
+                    TreePath[] paths = tree.getSelectionPaths();
+                    if (paths.length == 1)
+                    {
+                        NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
+                        tuo = ntn.getUserObject();
+                    }
+                    else if (paths.length == 0)
+                        return;
+                    else
+                        tooMany = true;
+
+                    if (!tooMany)
+                    {
+                        // select source in library
+                        String path = context.browser.selectLibrarySource(tuo);
+                        if (path == null || path.length() < 1)
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.menu.New.folder.cannot.create.new.folder.in.current.location"),
+                                    context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
+                        else if (path.equals("_cancelled_"))
+                            return;
+
+                        boolean error = false;
+                        String reply = "";
+                        if (path.length() > 0)
+                        {
+                            reply = JOptionPane.showInputDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.menu.New.folder.for") + path + ": ",
+                                    context.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE);
+                            if (reply != null && reply.length() > 0)
+                            {
+                                NavTreeUserObject createdTuo = null;
+                                try
                                 {
-                                    // make tuo and add node
-                                    NavTreeNode createdNode = new NavTreeNode(context, tuo.node.getMyRepo(), tree);
-                                    if (tuo.isRemote)
+                                    path = path + Utils.getSeparatorFromPath(path) + reply;
+                                    String msg = context.cfg.gs("Navigator.menu.New.folder.creating") +
+                                            (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") + " " : "") +
+                                            context.cfg.gs("Navigator.menu.New.folder.directory") + ": " + path;
+                                    logger.info(msg);
+
+                                    if (context.transfer.makeDirs((tuo.isRemote ? path + Utils.getSeparatorFromPath(path) + "dummyfile.els" : path), true, tuo.isRemote))
                                     {
-                                        Thread.sleep(500L); // give the remote time to register new hint file
-                                        SftpATTRS attrs = context.clientSftp.stat(path);
-                                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null),
-                                                path, attrs.getSize(), attrs.getMTime(), true);
+                                        // make tuo and add node
+                                        NavTreeNode createdNode = new NavTreeNode(context, tuo.node.getMyRepo(), tree);
+                                        if (tuo.isRemote)
+                                        {
+                                            Thread.sleep(500L); // give the remote time to register new hint file
+                                            SftpATTRS attrs = context.clientSftp.stat(path);
+                                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null),
+                                                    path, attrs.getSize(), attrs.getMTime(), true);
+                                        }
+                                        else
+                                        {
+                                            createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null), new File(path));
+                                        }
+                                        createdNode.setNavTreeUserObject(createdTuo);
+                                        createdNode.setAllowsChildren(true);
+                                        createdNode.setVisible(true);
+                                        tuo.node.add(createdNode);
                                     }
                                     else
                                     {
-                                        createdTuo = new NavTreeUserObject(createdNode, Utils.getRightPath(path, null), new File(path));
+                                        error = true;
+                                        logger.error(context.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"));
+                                        JOptionPane.showMessageDialog(context.mainFrame,
+                                                context.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"),
+                                                context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
                                     }
-                                    createdNode.setNavTreeUserObject(createdTuo);
-                                    createdNode.setAllowsChildren(true);
-                                    createdNode.setVisible(true);
-                                    tuo.node.add(createdNode);
                                 }
-                                else
+                                catch (Exception e)
                                 {
-                                    error = true;
-                                    logger.error(context.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"));
+                                    logger.error(Utils.getStackTrace(e));
                                     JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs("Navigator.menu.New.folder.directory.not.created.check.permissions"),
-                                            context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                                            context.cfg.gs("Navigator.menu.New.folder.error.creating") +
+                                                    (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") + " " : "") +
+                                                    context.cfg.gs("Navigator.menu.New.folder.directory") + ": " +
+                                                    e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    error = true;
                                 }
-                            }
-                            catch (Exception e)
-                            {
-                                logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(context.mainFrame,
-                                        context.cfg.gs("Navigator.menu.New.folder.error.creating") +
-                                                (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") + " " : "") +
-                                                context.cfg.gs("Navigator.menu.New.folder.directory") + ": " +
-                                                e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                error = true;
-                            }
 
-                            if (!error)
-                            {
-                                context.browser.refreshByObject(tree);
-                                if (object instanceof JTree)
-                                    tuo.node.selectMe();
-                                else
+                                if (!error)
                                 {
-                                    // update table & select relevant row
-                                    tuo.node.loadTable();
-                                    if (createdTuo != null)
+                                    context.browser.refreshByObject(tree);
+                                    if (object instanceof JTree)
+                                        tuo.node.selectMe();
+                                    else
                                     {
-                                        int row = context.browser.findRowIndex((JTable) object, createdTuo);
-                                        if (row > -1)
+                                        // update table & select relevant row
+                                        tuo.node.loadTable();
+                                        if (createdTuo != null)
                                         {
-                                            ((JTable) object).setRowSelectionInterval(row, row);
+                                            int row = context.browser.findRowIndex((JTable) object, createdTuo);
+                                            if (row > -1)
+                                            {
+                                                ((JTable) object).setRowSelectionInterval(row, row);
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.menu.New.folder.please.select.a.single.destination.for.a.new.folder"),
-                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    else
+                    {
+                        JOptionPane.showMessageDialog(context.mainFrame,
+                                context.cfg.gs("Navigator.menu.New.folder.please.select.a.single.destination.for.a.new.folder"),
+                                context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         };
@@ -1296,119 +1321,122 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                int[] rows = {0};
-                boolean tooMany = false;
-                JTree tree = null;
-                NavTreeUserObject tuo = null;
-                Object object = context.browser.lastComponent;
-                if (object instanceof JTree)
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
                 {
-                    tree = (JTree) object;
-                    TreePath[] paths = tree.getSelectionPaths();
-                    if (paths.length == 1)
+                    int[] rows = {0};
+                    boolean tooMany = false;
+                    JTree tree = null;
+                    NavTreeUserObject tuo = null;
+                    Object object = context.browser.lastComponent;
+                    if (object instanceof JTree)
                     {
-                        NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
-                        tuo = ntn.getUserObject();
-                    }
-                    else if (paths.length == 0)
-                        return;
-                    else
-                        tooMany = true;
-                }
-                else if (object instanceof JTable)
-                {
-                    tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
-                    rows = ((JTable) object).getSelectedRows();
-                    if (rows.length == 1)
-                    {
-                        tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
-                    }
-                    else if (rows.length == 0)
-                        return;
-                    else
-                        tooMany = true;
-                }
-
-                if (!tooMany)
-                {
-                    String name = "";
-                    String path = "";
-                    if (tuo.type == NavTreeUserObject.REAL)
-                    {
-                        name = tuo.name;
-                        path = tuo.path;
-                    }
-                    else
-                    {
-                        JOptionPane.showMessageDialog(context.mainFrame,
-                                context.cfg.gs("Navigator.menu.Rename.cannot.rename.current.location"),
-                                context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-
-                    String reply = name;
-                    if (path.length() > 0)
-                    {
-
-                        Object obj = JOptionPane.showInputDialog(context.mainFrame,
-                                context.cfg.gs("Navigator.menu.Rename") + name + " " +
-                                        context.cfg.gs("Navigator.menu.Rename.to"),
-                                context.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
-                                null, null, reply);
-                        reply = (String) obj;
-                        if (reply != null && reply.length() > 0)
+                        tree = (JTree) object;
+                        TreePath[] paths = tree.getSelectionPaths();
+                        if (paths.length == 1)
                         {
-                            try
+                            NavTreeNode ntn = (NavTreeNode) paths[0].getLastPathComponent();
+                            tuo = ntn.getUserObject();
+                        }
+                        else if (paths.length == 0)
+                            return;
+                        else
+                            tooMany = true;
+                    }
+                    else if (object instanceof JTable)
+                    {
+                        tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+                        rows = ((JTable) object).getSelectedRows();
+                        if (rows.length == 1)
+                        {
+                            tuo = (NavTreeUserObject) ((JTable) object).getValueAt(rows[0], 1);
+                        }
+                        else if (rows.length == 0)
+                            return;
+                        else
+                            tooMany = true;
+                    }
+
+                    if (!tooMany)
+                    {
+                        String name = "";
+                        String path = "";
+                        if (tuo.type == NavTreeUserObject.REAL)
+                        {
+                            name = tuo.name;
+                            path = tuo.path;
+                        }
+                        else
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.menu.Rename.cannot.rename.current.location"),
+                                    context.cfg.getNavigatorName(), JOptionPane.WARNING_MESSAGE);
+                            return;
+                        }
+
+                        String reply = name;
+                        if (path.length() > 0)
+                        {
+
+                            Object obj = JOptionPane.showInputDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.menu.Rename") + name + " " +
+                                            context.cfg.gs("Navigator.menu.Rename.to"),
+                                    context.cfg.getNavigatorName(), JOptionPane.QUESTION_MESSAGE,
+                                    null, null, reply);
+                            reply = (String) obj;
+                            if (reply != null && reply.length() > 0)
                             {
-                                String to = Utils.getLeftPath(path, null);
-                                to = to + Utils.getSeparatorFromPath(path) + reply;
-                                context.transfer.rename(path, to, tuo.isRemote);
-
-                                NavTreeUserObject orig = (NavTreeUserObject) tuo.clone();
-                                orig.node = tuo.node;
-
-                                tuo.path = to;
-                                tuo.name = reply;
-                                if (tuo.file != null)
-                                {
-                                    tuo.file = new File(to);
-                                }
-
                                 try
                                 {
-                                    ((NavTransferHandler) tree.getTransferHandler()).exportHint("mv", orig, tuo);
+                                    String to = Utils.getLeftPath(path, null);
+                                    to = to + Utils.getSeparatorFromPath(path) + reply;
+                                    context.transfer.rename(path, to, tuo.isRemote);
+
+                                    NavTreeUserObject orig = (NavTreeUserObject) tuo.clone();
+                                    orig.node = tuo.node;
+
+                                    tuo.path = to;
+                                    tuo.name = reply;
+                                    if (tuo.file != null)
+                                    {
+                                        tuo.file = new File(to);
+                                    }
+
+                                    try
+                                    {
+                                        ((NavTransferHandler) tree.getTransferHandler()).exportHint("mv", orig, tuo);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        logger.error(Utils.getStackTrace(e));
+                                        JOptionPane.showMessageDialog(context.mainFrame,
+                                                context.cfg.gs("Navigator.error.writing.hint") + "  " +
+                                                        e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                    }
+
+                                    context.browser.refreshByObject(tree);
+                                    if (object instanceof JTree)
+                                        tuo.node.selectMe();
+                                    else
+                                        ((JTable) object).setRowSelectionInterval(rows[0], rows[0]);
                                 }
                                 catch (Exception e)
                                 {
                                     logger.error(Utils.getStackTrace(e));
                                     JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs("Navigator.error.writing.hint") + "  " +
-                                                    e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.cfg.gs("Navigator.menu.Rename.error.renaming") +
+                                                    (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") +
+                                                            " " : "") + name + ": " + e.getMessage(),
+                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                 }
-
-                                context.browser.refreshByObject(tree);
-                                if (object instanceof JTree)
-                                    tuo.node.selectMe();
-                                else
-                                    ((JTable) object).setRowSelectionInterval(rows[0], rows[0]);
-                            }
-                            catch (Exception e)
-                            {
-                                logger.error(Utils.getStackTrace(e));
-                                JOptionPane.showMessageDialog(context.mainFrame,
-                                        context.cfg.gs("Navigator.menu.Rename.error.renaming") +
-                                                (tuo.isRemote ? context.cfg.gs("Z.remote.lowercase") +
-                                                        " " : "") + name + ": " + e.getMessage(),
-                                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             }
                         }
                     }
-                }
-                else
-                {
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.menu.Rename.please.select.a.single.item.to.be.renamed"),
-                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    else
+                    {
+                        JOptionPane.showMessageDialog(context.mainFrame,
+                                context.cfg.gs("Navigator.menu.Rename.please.select.a.single.item.to.be.renamed"),
+                                context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }
         };
@@ -1446,7 +1474,10 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                context.browser.rescanByTreeOrTable(context.browser.lastComponent); // same as F5
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
+                {
+                    context.browser.rescanByTreeOrTable(context.browser.lastComponent); // same as F5
+                }
             }
         };
         context.mainFrame.menuItemRefresh.addActionListener(refreshAction);
@@ -1499,7 +1530,10 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                context.browser.toggleShowHiddenFiles();
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
+                {
+                    context.browser.toggleShowHiddenFiles();
+                }
             }
         });
         // set initial state of Show Hidden checkbox
@@ -1514,14 +1548,17 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                boolean selected = false;
-                if (actionEvent.getSource() == context.mainFrame.menuItemWordWrap)
-                    selected = context.mainFrame.menuItemWordWrap.isSelected();
-                if (actionEvent.getSource() == context.mainFrame.popupCheckBoxMenuItemWordWrap)
-                    selected = context.mainFrame.popupCheckBoxMenuItemWordWrap.isSelected();
-                context.mainFrame.menuItemWordWrap.setSelected(selected);
-                context.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(selected);
-                context.mainFrame.textAreaLog.setLineWrap(context.mainFrame.menuItemWordWrap.isSelected());
+                if (context.mainFrame.tabbedPaneMain.getSelectedIndex() == 0)
+                {
+                    boolean selected = false;
+                    if (actionEvent.getSource() == context.mainFrame.menuItemWordWrap)
+                        selected = context.mainFrame.menuItemWordWrap.isSelected();
+                    if (actionEvent.getSource() == context.mainFrame.popupCheckBoxMenuItemWordWrap)
+                        selected = context.mainFrame.popupCheckBoxMenuItemWordWrap.isSelected();
+                    context.mainFrame.menuItemWordWrap.setSelected(selected);
+                    context.mainFrame.popupCheckBoxMenuItemWordWrap.setSelected(selected);
+                    context.mainFrame.textAreaLog.setLineWrap(context.mainFrame.menuItemWordWrap.isSelected());
+                }
             }
         };
         // set initial state of Word Wrap Log

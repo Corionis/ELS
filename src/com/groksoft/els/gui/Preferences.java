@@ -68,7 +68,11 @@ public class Preferences implements Serializable
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
     private int librariesBiblioDividerLocation = 142;
+    private String librariesDefaultMinimum = "40";
+    private String librariesDefaultMinimumScale = "GB";
     private int librariesDividerLocation = 142;
+    private int librariesLocationColumnWidth = 300;
+    private int librariesMinimumSizeColumnWidth = 120;
     private String locale = "";
     // The Look 'n Feel, 0-6
     // 0=System default look 'n feel - use for Windows,
@@ -183,6 +187,12 @@ public class Preferences implements Serializable
                 systemTwoSizeWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).getWidth();
                 systemTwoDateWidth = context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).getWidth();
             }
+        }
+
+        if (table == null || table.getName().equalsIgnoreCase("tableLocations"))
+        {
+            librariesLocationColumnWidth = context.mainFrame.tableLocations.getColumnModel().getColumn(0).getWidth();
+            librariesMinimumSizeColumnWidth = context.mainFrame.tableLocations.getColumnModel().getColumn(1).getWidth();
         }
     }
 
@@ -476,11 +486,31 @@ public class Preferences implements Serializable
         return librariesBiblioDividerLocation;
     }
 
+    public String getLibrariesDefaultMinimum()
+    {
+        return librariesDefaultMinimum;
+    }
+
+    public String getLibrariesDefaultMinimumScale()
+    {
+        return librariesDefaultMinimumScale;
+    }
+
     public int getLibrariesDividerLocation()
     {
         if (librariesDividerLocation == 0)
             librariesDividerLocation = 142;
         return librariesDividerLocation;
+    }
+
+    public int getLibrariesLocationColumnWidth()
+    {
+        return librariesLocationColumnWidth;
+    }
+
+    public int getLibrariesMinimumSizeColumnWidth()
+    {
+        return librariesMinimumSizeColumnWidth;
     }
 
     public String getLocale()
@@ -1156,9 +1186,29 @@ public class Preferences implements Serializable
         this.librariesBiblioDividerLocation = librariesBiblioDividerLocation;
     }
 
+    public void setLibrariesDefaultMinimum(String librariesDefaultMinimum)
+    {
+        this.librariesDefaultMinimum = librariesDefaultMinimum;
+    }
+
+    public void setLibrariesDefaultMinimumScale(String librariesDefaultMinimumScale)
+    {
+        this.librariesDefaultMinimumScale = librariesDefaultMinimumScale;
+    }
+
     public void setLibrariesDividerLocation(int librariesDividerLocation)
     {
         this.librariesDividerLocation = librariesDividerLocation;
+    }
+
+    public void setLibrariesLocationColumnWidth(int librariesLocationColumnWidth)
+    {
+        this.librariesLocationColumnWidth = librariesLocationColumnWidth;
+    }
+
+    public void setLibrariesMinimumSizeColumnWidth(int librariesMinimumSizeColumnWidth)
+    {
+        this.librariesMinimumSizeColumnWidth = librariesMinimumSizeColumnWidth;
     }
 
     public void setLocale(String locale)
@@ -1466,10 +1516,6 @@ public class Preferences implements Serializable
         appYpos = location.y;
 
         // dividers
-//        int whole = context.form.splitPaneBrowser.getHeight();
-//        int divider = context.form.splitPaneBrowser.getDividerSize();
-//        int pos = whole - divider - context.preferences.getBrowserBottomSize();
-//        browserBottomSize = pos;
         centerDividerOrientation = context.mainFrame.splitPaneTwoBrowsers.getOrientation();
         centerDividerLocation = context.mainFrame.splitPaneTwoBrowsers.getDividerLocation();
 
@@ -1514,6 +1560,12 @@ public class Preferences implements Serializable
         setLastSubscriberOpenFile(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenFile(), false));
         String savedSubscriberOpenPath = getLastSubscriberOpenPath();
         setLastSubscriberOpenPath(context.main.getWorkingDirectoryRelative(getLastSubscriberOpenPath(), false));
+
+        // additions
+        if (librariesDefaultMinimum == null)
+            librariesDefaultMinimum = "40";
+        if (librariesDefaultMinimumScale == null)
+            librariesDefaultMinimumScale = "GB";
 
         json = gson.toJson(this);
         try

@@ -491,19 +491,34 @@ public class MainFrame extends JFrame
 
     private void tabbedPaneMainStateChanged(ChangeEvent e)
     {
-        //labelStatusLeft.setText(" ");
         labelStatusMiddle.setText(" ");
         int index = tabbedPaneMain.getSelectedIndex();
         if (index == 0)
         {
-
+            context.mainFrame.menuItemNewFolder.setEnabled(true);
+            context.mainFrame.menuItemRename.setEnabled(true);
+            context.mainFrame.menuItemTouch.setEnabled(true);
+            context.mainFrame.menuItemFind.setEnabled(true);
+            context.mainFrame.menuItemFindNext.setEnabled(true);
+            context.mainFrame.menuItemRefresh.setEnabled(true);
+            context.mainFrame.menuItemAutoRefresh.setEnabled(true);
+            context.mainFrame.menuItemShowHidden.setEnabled(true);
+            context.mainFrame.menuItemWordWrap.setEnabled(true);
         }
         else if (index == 1)
         {
             context.libraries.tabbedPaneLibrarySpacesStateChanged(null);
+
+            context.mainFrame.menuItemNewFolder.setEnabled(false);
+            context.mainFrame.menuItemRename.setEnabled(false);
+            context.mainFrame.menuItemTouch.setEnabled(false);
+            context.mainFrame.menuItemFind.setEnabled(false);
+            context.mainFrame.menuItemFindNext.setEnabled(false);
+            context.mainFrame.menuItemRefresh.setEnabled(false);
+            context.mainFrame.menuItemAutoRefresh.setEnabled(false);
+            context.mainFrame.menuItemShowHidden.setEnabled(false);
+            context.mainFrame.menuItemWordWrap.setEnabled(false);
         }
-        // TODO Add key mapping changes between tabs, e.g. Delete key
-        //labelStatusRight.setText(" ");
     }
 
   // ================================================================================================================
@@ -704,16 +719,17 @@ public class MainFrame extends JFrame
         splitPanelBiblio = new JSplitPane();
         panelBiblioLibraries = new JPanel();
         labelBiblioLibraries = new JLabel();
-        scrollPane1 = new JScrollPane();
-        list1 = new JList();
+        scrollPaneBiblioLibraries = new JScrollPane();
+        tableBiblioLibraries = new JTable();
         panelSources = new JPanel();
         panelSourcesTop = new JPanel();
         labelSpacer42 = new JLabel();
         labelSources = new JLabel();
         scrollPaneSources = new JScrollPane();
-        tableSources = new JTable();
+        listSources = new JList();
         panelSourceButtons = new JPanel();
         buttonAddSource = new JButton();
+        buttonAddMultiSource = new JButton();
         buttonUpSource = new JButton();
         buttonDownSource = new JButton();
         buttonRemoveSource = new JButton();
@@ -1545,6 +1561,7 @@ public class MainFrame extends JFrame
 
                 //======== panelLibraries ========
                 {
+                    panelLibraries.setFocusCycleRoot(true);
                     panelLibraries.setLayout(new BorderLayout());
 
                     //======== panelLibsTop ========
@@ -2020,6 +2037,7 @@ public class MainFrame extends JFrame
                                                 buttonLibrariesAddIgnore.setMnemonic(context.cfg.gs("Navigator.buttonLibrariesAddIgnore.mnemonic").charAt(0));
                                                 buttonLibrariesAddIgnore.setToolTipText(context.cfg.gs("Navigator.buttonLibrariesAddIgnore.toolTipText"));
                                                 buttonLibrariesAddIgnore.setName("addincexc");
+                                                buttonLibrariesAddIgnore.setMargin(new Insets(0, -10, 0, -10));
                                                 panelLibrariesIgnorePatternsButtons.add(buttonLibrariesAddIgnore);
 
                                                 //---- buttonLibrariesRemoveIgnore ----
@@ -2031,6 +2049,7 @@ public class MainFrame extends JFrame
                                                 buttonLibrariesRemoveIgnore.setMnemonic(context.cfg.gs("Navigator.buttonLibrariesRemoveIgnore.mnemonic_2").charAt(0));
                                                 buttonLibrariesRemoveIgnore.setToolTipText(context.cfg.gs("Navigator.buttonLibrariesRemoveIgnore.toolTipText"));
                                                 buttonLibrariesRemoveIgnore.setName("removeincexc");
+                                                buttonLibrariesRemoveIgnore.setMargin(new Insets(0, -10, 0, -10));
                                                 panelLibrariesIgnorePatternsButtons.add(buttonLibrariesRemoveIgnore);
                                             }
                                             panelLibrariesIgnorePatternsBox.add(panelLibrariesIgnorePatternsButtons);
@@ -2114,6 +2133,12 @@ public class MainFrame extends JFrame
 
                                     //======== scrollPaneLocations ========
                                     {
+
+                                        //---- tableLocations ----
+                                        tableLocations.setFillsViewportHeight(true);
+                                        tableLocations.setShowHorizontalLines(false);
+                                        tableLocations.setShowVerticalLines(false);
+                                        tableLocations.setName("tableLocations");
                                         scrollPaneLocations.setViewportView(tableLocations);
                                     }
                                     locationsTab.add(scrollPaneLocations, BorderLayout.CENTER);
@@ -2130,6 +2155,7 @@ public class MainFrame extends JFrame
                                         buttonAddLocation.setMaximumSize(new Dimension(78, 24));
                                         buttonAddLocation.setMnemonic(context.cfg.gs("Navigator.buttonAddLocation.mnemonic").charAt(0));
                                         buttonAddLocation.setToolTipText(context.cfg.gs("Navigator.buttonAddLocation.toolTipText"));
+                                        buttonAddLocation.setMargin(new Insets(0, -10, 0, -10));
                                         panelLocButtons.add(buttonAddLocation);
 
                                         //---- buttonRemoveLocation ----
@@ -2140,6 +2166,7 @@ public class MainFrame extends JFrame
                                         buttonRemoveLocation.setMaximumSize(new Dimension(78, 24));
                                         buttonRemoveLocation.setMnemonic(context.cfg.gs("Navigator.buttonRemoveLocation.mnemonic").charAt(0));
                                         buttonRemoveLocation.setToolTipText(context.cfg.gs("Navigator.buttonRemoveLocation.toolTipText"));
+                                        buttonRemoveLocation.setMargin(new Insets(0, -10, 0, -10));
                                         panelLocButtons.add(buttonRemoveLocation);
                                     }
                                     locationsTab.add(panelLocButtons, BorderLayout.SOUTH);
@@ -2174,11 +2201,17 @@ public class MainFrame extends JFrame
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(8, 4, 0, 0), 0, 0));
 
-                                            //======== scrollPane1 ========
+                                            //======== scrollPaneBiblioLibraries ========
                                             {
-                                                scrollPane1.setViewportView(list1);
+
+                                                //---- tableBiblioLibraries ----
+                                                tableBiblioLibraries.setFillsViewportHeight(true);
+                                                tableBiblioLibraries.setShowVerticalLines(false);
+                                                tableBiblioLibraries.setShowHorizontalLines(false);
+                                                tableBiblioLibraries.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                                                scrollPaneBiblioLibraries.setViewportView(tableBiblioLibraries);
                                             }
-                                            panelBiblioLibraries.add(scrollPane1, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
+                                            panelBiblioLibraries.add(scrollPaneBiblioLibraries, new GridBagConstraints(0, 1, 1, 1, 1.0, 1.0,
                                                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                                 new Insets(0, 0, 0, 0), 0, 0));
                                         }
@@ -2217,7 +2250,7 @@ public class MainFrame extends JFrame
                                             //======== scrollPaneSources ========
                                             {
                                                 scrollPaneSources.setMinimumSize(new Dimension(408, 20));
-                                                scrollPaneSources.setViewportView(tableSources);
+                                                scrollPaneSources.setViewportView(listSources);
                                             }
                                             panelSources.add(scrollPaneSources, BorderLayout.CENTER);
 
@@ -2233,7 +2266,21 @@ public class MainFrame extends JFrame
                                                 buttonAddSource.setMaximumSize(new Dimension(78, 24));
                                                 buttonAddSource.setMnemonic(context.cfg.gs("Navigator.buttonAddSource.mnemonic").charAt(0));
                                                 buttonAddSource.setToolTipText(context.cfg.gs("Navigator.buttonAddSource.toolTipText"));
+                                                buttonAddSource.setName("addSource");
+                                                buttonAddSource.setMargin(new Insets(0, -10, 0, -10));
                                                 panelSourceButtons.add(buttonAddSource);
+
+                                                //---- buttonAddMultiSource ----
+                                                buttonAddMultiSource.setText(context.cfg.gs("Navigator.buttonAddMultiSource.text"));
+                                                buttonAddMultiSource.setFont(buttonAddMultiSource.getFont().deriveFont(buttonAddMultiSource.getFont().getSize() - 2f));
+                                                buttonAddMultiSource.setPreferredSize(new Dimension(78, 24));
+                                                buttonAddMultiSource.setMinimumSize(new Dimension(78, 24));
+                                                buttonAddMultiSource.setMaximumSize(new Dimension(78, 24));
+                                                buttonAddMultiSource.setMnemonic(context.cfg.gs("Navigator.buttonAddMultiSource.mnemonic").charAt(0));
+                                                buttonAddMultiSource.setToolTipText(context.cfg.gs("Navigator.buttonAddMultiSource.toolTipText"));
+                                                buttonAddMultiSource.setName("addMultiSource");
+                                                buttonAddMultiSource.setMargin(new Insets(0, -10, 0, -10));
+                                                panelSourceButtons.add(buttonAddMultiSource);
 
                                                 //---- buttonUpSource ----
                                                 buttonUpSource.setText("^");
@@ -2261,6 +2308,7 @@ public class MainFrame extends JFrame
                                                 buttonRemoveSource.setMaximumSize(new Dimension(78, 24));
                                                 buttonRemoveSource.setMnemonic(context.cfg.gs("Navigator.buttonRemoveSource.mnemonic").charAt(0));
                                                 buttonRemoveSource.setToolTipText(context.cfg.gs("Navigator.buttonRemoveSource.toolTipText"));
+                                                buttonRemoveSource.setMargin(new Insets(0, -10, 0, -10));
                                                 panelSourceButtons.add(buttonRemoveSource);
                                             }
                                             panelSources.add(panelSourceButtons, BorderLayout.SOUTH);
@@ -2281,6 +2329,7 @@ public class MainFrame extends JFrame
                                         buttonAddLibrary.setMaximumSize(new Dimension(78, 24));
                                         buttonAddLibrary.setMnemonic(context.cfg.gs("Navigator.buttonAddLibrary.mnemonic").charAt(0));
                                         buttonAddLibrary.setToolTipText(context.cfg.gs("Navigator.buttonAddLibrary.toolTipText"));
+                                        buttonAddLibrary.setMargin(new Insets(0, -10, 0, -10));
                                         panelBiblioButtons.add(buttonAddLibrary);
 
                                         //---- buttonRemoveLibrary ----
@@ -2291,6 +2340,7 @@ public class MainFrame extends JFrame
                                         buttonRemoveLibrary.setMaximumSize(new Dimension(78, 24));
                                         buttonRemoveLibrary.setMnemonic(context.cfg.gs("Navigator.buttonRemoveLibrary.mnemonic").charAt(0));
                                         buttonRemoveLibrary.setToolTipText(context.cfg.gs("Navigator.buttonRemoveLibrary.toolTipText"));
+                                        buttonRemoveLibrary.setMargin(new Insets(0, -10, 0, -10));
                                         panelBiblioButtons.add(buttonRemoveLibrary);
                                     }
                                     bibliographyTab.add(panelBiblioButtons, BorderLayout.SOUTH);
@@ -2659,16 +2709,17 @@ public class MainFrame extends JFrame
     public JSplitPane splitPanelBiblio;
     public JPanel panelBiblioLibraries;
     public JLabel labelBiblioLibraries;
-    public JScrollPane scrollPane1;
-    public JList list1;
+    public JScrollPane scrollPaneBiblioLibraries;
+    public JTable tableBiblioLibraries;
     public JPanel panelSources;
     public JPanel panelSourcesTop;
     public JLabel labelSpacer42;
     public JLabel labelSources;
     public JScrollPane scrollPaneSources;
-    public JTable tableSources;
+    public JList listSources;
     public JPanel panelSourceButtons;
     public JButton buttonAddSource;
+    public JButton buttonAddMultiSource;
     public JButton buttonUpSource;
     public JButton buttonDownSource;
     public JButton buttonRemoveSource;

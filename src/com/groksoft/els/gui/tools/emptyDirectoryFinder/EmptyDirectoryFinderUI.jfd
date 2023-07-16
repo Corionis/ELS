@@ -106,6 +106,7 @@ new FormModel {
 							"maximumSize": new java.awt.Dimension( 78, 24 )
 							"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonAll.mnemonic" )
 							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonAll.toolTipText" )
+							"margin": new java.awt.Insets( 0, -10, 0, -10 )
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAllClicked", true ) )
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
@@ -117,6 +118,7 @@ new FormModel {
 							"maximumSize": new java.awt.Dimension( 78, 24 )
 							"mnemonic": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.mnemonic_2" )
 							"toolTipText": new FormMessage( null, "EmptyDirectoryFinder.buttonNone.toolTipText" )
+							"margin": new java.awt.Insets( 0, -10, 0, -10 )
 							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionNoneClicked", true ) )
 						} )
 					}, new FormLayoutConstraints( class java.lang.String ) {

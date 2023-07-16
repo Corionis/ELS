@@ -89,7 +89,7 @@ public class OperationsTool extends AbstractTool
     public OperationsTool(Context context)
     {
         super(context);
-        setDisplayName(getCfg().gs("Navigator.splitPane.Operations.tab.title"));
+        setDisplayName(getCfg().gs("OperationsUI.title"));
         this.originPathsAllowed = false;
     }
 
@@ -569,7 +569,7 @@ public class OperationsTool extends AbstractTool
         }
         else
         {
-            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.please.wait.for.the.current.operation.to.finish"), context.cfg.gs("OperationsUI.title"), JOptionPane.WARNING_MESSAGE);
             return null;
         }
 
@@ -589,7 +589,7 @@ public class OperationsTool extends AbstractTool
                     String msg = context.cfg.gs("Z.exception") + e.getMessage() + "; " + Utils.getStackTrace(e);
                     logger.error(msg);
                     if (context.navigator != null)
-                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("Navigator.splitPane.Operations.tab.title"), JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(context.mainFrame, msg, context.cfg.gs("OperationsUI.title"), JOptionPane.ERROR_MESSAGE);
                 }
                 return null;
             }

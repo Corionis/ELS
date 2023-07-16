@@ -745,6 +745,7 @@ new FormModel {
 									"maximumSize": new java.awt.Dimension( 78, 24 )
 									"mnemonic": new FormMessage( null, "Renamer.buttonRefresh.mnemonic" )
 									"toolTipText": new FormMessage( null, "Z.refresh.tooltip.text" )
+									"margin": new java.awt.Insets( 0, -10, 0, -10 )
 									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRefreshClicked", true ) )
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {

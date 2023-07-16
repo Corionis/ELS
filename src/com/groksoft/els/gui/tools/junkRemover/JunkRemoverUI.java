@@ -949,6 +949,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                             buttonAddRow.setMaximumSize(new Dimension(78, 24));
                             buttonAddRow.setMnemonic(context.cfg.gs("JunkRemover.button.AddRow.mnemonic").charAt(0));
                             buttonAddRow.setToolTipText(context.cfg.gs("JunkRemover.button.AddRow.toolTipText"));
+                            buttonAddRow.setMargin(new Insets(0, -10, 0, -10));
                             buttonAddRow.addActionListener(e -> actionAddRowClicked(e));
                             panelOptionsButtons.add(buttonAddRow);
 
@@ -960,6 +961,7 @@ public class JunkRemoverUI extends AbstractToolDialog
                             buttonRemoveRow.setMaximumSize(new Dimension(78, 24));
                             buttonRemoveRow.setMnemonic(context.cfg.gs("JunkRemover.button.RemoveRow.mnemonic").charAt(0));
                             buttonRemoveRow.setToolTipText(context.cfg.gs("JunkRemover.button.RemoveRow.toolTipText"));
+                            buttonRemoveRow.setMargin(new Insets(0, -10, 0, -10));
                             buttonRemoveRow.addActionListener(e -> actionRemoveRowClicked(e));
                             panelOptionsButtons.add(buttonRemoveRow);
                         }

@@ -1,6 +1,6 @@
 package com.groksoft.els.repository;
 
-public class Location
+public class Location implements Comparable
 {
     /**
      * The location, drive:[\path] or mount point.
@@ -14,4 +14,9 @@ public class Location
      */
     public String minimum;
 
+    @Override
+    public int compareTo(Object o)
+    {
+        return location.compareTo(((Location)o).location);
+    }
 }

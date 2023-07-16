@@ -1960,6 +1960,7 @@ public class JobsUI extends AbstractToolDialog
                                         buttonAddOrigin.setMaximumSize(new Dimension(78, 24));
                                         buttonAddOrigin.setMnemonic(context.cfg.gs("JobsUI.buttonAddOrigin.mnemonic").charAt(0));
                                         buttonAddOrigin.setToolTipText(context.cfg.gs("JobsUI.buttonAddOrigin.toolTipText"));
+                                        buttonAddOrigin.setMargin(new Insets(0, -10, 0, -10));
                                         buttonAddOrigin.addActionListener(e -> actionOriginAddClicked(e));
                                         panelOriginsButtons.add(buttonAddOrigin);
 
@@ -1991,6 +1992,7 @@ public class JobsUI extends AbstractToolDialog
                                         buttonRemoveOrigin.setMaximumSize(new Dimension(78, 24));
                                         buttonRemoveOrigin.setMnemonic(context.cfg.gs("JobsUI.buttonRemoveOrigin.mnemonic_2").charAt(0));
                                         buttonRemoveOrigin.setToolTipText(context.cfg.gs("JobsUI.buttonRemoveOrigin.toolTipText"));
+                                        buttonRemoveOrigin.setMargin(new Insets(0, -10, 0, -10));
                                         buttonRemoveOrigin.addActionListener(e -> actionOriginRemoveClicked(e));
                                         panelOriginsButtons.add(buttonRemoveOrigin);
                                     }
@@ -2016,6 +2018,7 @@ public class JobsUI extends AbstractToolDialog
                             buttonAddTask.setMaximumSize(new Dimension(78, 24));
                             buttonAddTask.setMnemonic(context.cfg.gs("JobsUI.buttonAddTask.mnemonic").charAt(0));
                             buttonAddTask.setToolTipText(context.cfg.gs("JobsUI.buttonAddTask.toolTipText"));
+                            buttonAddTask.setMargin(new Insets(0, -10, 0, -10));
                             buttonAddTask.addActionListener(e -> actionTaskAddClicked(e));
                             panelToolButtons.add(buttonAddTask);
 
@@ -2047,6 +2050,7 @@ public class JobsUI extends AbstractToolDialog
                             buttonRemoveTask.setMaximumSize(new Dimension(78, 24));
                             buttonRemoveTask.setMnemonic(context.cfg.gs("JobsUI.buttonRemoveTask.mnemonic").charAt(0));
                             buttonRemoveTask.setToolTipText(context.cfg.gs("JobsUI.buttonRemoveTask.toolTipText"));
+                            buttonRemoveTask.setMargin(new Insets(0, -10, 0, -10));
                             buttonRemoveTask.addActionListener(e -> actionTaskRemoveClicked(e));
                             panelToolButtons.add(buttonRemoveTask);
                         }
