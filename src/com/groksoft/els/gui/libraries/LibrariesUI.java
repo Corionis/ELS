@@ -381,7 +381,7 @@ public class LibrariesUI
 
             // location path
             JTextField locationPathTextField = new JTextField();
-            locationPathTextField.setEditable(false);
+            locationPathTextField.setEditable(true);
             locationPathTextField.setMinimumSize(new Dimension(360, 30));
             locationPathTextField.setPreferredSize(new Dimension(360, 30));
             controls.add(locationPathTextField, new GridBagConstraints(0, 1, 6, 1, 1.0, 0.0,
@@ -747,7 +747,7 @@ public class LibrariesUI
 
             // source path
             JTextField sourcePathTextField = new JTextField();
-            sourcePathTextField.setEditable(false);
+            sourcePathTextField.setEditable(true);
             sourcePathTextField.setMinimumSize(new Dimension(360, 30));
             sourcePathTextField.setPreferredSize(new Dimension(360, 30));
             controls.add(sourcePathTextField, new GridBagConstraints(0, 1, 6, 1, 1.0, 0.0,
