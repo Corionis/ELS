@@ -790,20 +790,20 @@ public class MainFrame extends JFrame
                 menuItemOpenPublisher.setText(context.cfg.gs("Navigator.menu.OpenPublisher.text"));
                 menuItemOpenPublisher.setMnemonic(context.cfg.gs("Navigator.menu.OpenPublisher.mnemonic").charAt(0));
                 menuItemOpenPublisher.setDisplayedMnemonicIndex(5);
-                menuItemOpenPublisher.setIcon(new ImageIcon(getClass().getResource("/publisher.png")));
+                menuItemOpenPublisher.setIcon(new ImageIcon(getClass().getResource("/open-publisher.png")));
                 menuFile.add(menuItemOpenPublisher);
 
                 //---- menuItemOpenSubscriber ----
                 menuItemOpenSubscriber.setText(context.cfg.gs("Navigator.menu.OpenSubscriber.text"));
                 menuItemOpenSubscriber.setMnemonic(context.cfg.gs("Navigator.menu.OpenSubscriber.mnemonic").charAt(0));
-                menuItemOpenSubscriber.setIcon(new ImageIcon(getClass().getResource("/subscriber.png")));
+                menuItemOpenSubscriber.setIcon(new ImageIcon(getClass().getResource("/open-subscriber.png")));
                 menuFile.add(menuItemOpenSubscriber);
 
                 //---- menuItemOpenHintKeys ----
                 menuItemOpenHintKeys.setText(context.cfg.gs("Navigator.menu.OpenHintKeys.text"));
                 menuItemOpenHintKeys.setSelected(true);
                 menuItemOpenHintKeys.setMnemonic(context.cfg.gs("Navigator.menu.OpenHintKeys.mnemonic").charAt(0));
-                menuItemOpenHintKeys.setIcon(new ImageIcon(getClass().getResource("/keys.png")));
+                menuItemOpenHintKeys.setIcon(new ImageIcon(getClass().getResource("/open-hint-keys.png")));
                 menuFile.add(menuItemOpenHintKeys);
 
                 //---- menuItemOpenHintTracking ----
@@ -811,7 +811,7 @@ public class MainFrame extends JFrame
                 menuItemOpenHintTracking.setSelected(true);
                 menuItemOpenHintTracking.setMnemonic(context.cfg.gs("Navigator.menuItemOpenHintTracking.mnemonic_2").charAt(0));
                 menuItemOpenHintTracking.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemOpenHintTracking.displayedMnemonicIndex")));
-                menuItemOpenHintTracking.setIcon(new ImageIcon(getClass().getResource("/hints.png")));
+                menuItemOpenHintTracking.setIcon(new ImageIcon(getClass().getResource("/open-hint-tracking.png")));
                 menuFile.add(menuItemOpenHintTracking);
                 menuFile.addSeparator();
 
@@ -890,7 +890,7 @@ public class MainFrame extends JFrame
                 //---- menuItemTouch ----
                 menuItemTouch.setText(context.cfg.gs("Navigator.menu.Touch.text"));
                 menuItemTouch.setMnemonic(context.cfg.gs("Navigator.menu.Touch.mnemonic").charAt(0));
-                menuItemTouch.setIcon(new ImageIcon(getClass().getResource("/time.png")));
+                menuItemTouch.setIcon(new ImageIcon(getClass().getResource("/touch.png")));
                 menuEdit.add(menuItemTouch);
                 menuEdit.addSeparator();
 
@@ -905,6 +905,7 @@ public class MainFrame extends JFrame
                 menuItemFindNext.setText(context.cfg.gs("Navigator.menuItemFindNext.text"));
                 menuItemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
                 menuItemFindNext.setMnemonic(context.cfg.gs("Navigator.menuItemFindNext.mnemonic").charAt(0));
+                menuItemFindNext.setIcon(new ImageIcon(getClass().getResource("/find-next.png")));
                 menuEdit.add(menuItemFindNext);
             }
             menuBarMain.add(menuEdit);
@@ -917,6 +918,7 @@ public class MainFrame extends JFrame
                 //---- menuItemProgress ----
                 menuItemProgress.setText(context.cfg.gs("Navigator.menu.Progress.text"));
                 menuItemProgress.setMnemonic(context.cfg.gs("Navigator.menu.Progress.mnemonic").charAt(0));
+                menuItemProgress.setIcon(new ImageIcon(getClass().getResource("/progress.png")));
                 menuView.add(menuItemProgress);
 
                 //---- menuItemRefresh ----
@@ -1072,12 +1074,14 @@ public class MainFrame extends JFrame
                 menuItemBlacklist.setText(context.cfg.gs("Navigator.menuItemBlacklist.text"));
                 menuItemBlacklist.setMnemonic(context.cfg.gs("Navigator.menuItemBlacklist.mnemonic").charAt(0));
                 menuItemBlacklist.setEnabled(false);
+                menuItemBlacklist.setIcon(new ImageIcon(getClass().getResource("/blacklist.png")));
                 menuSystem.add(menuItemBlacklist);
 
                 //---- menuItemWhitelist ----
                 menuItemWhitelist.setText(context.cfg.gs("Navigator.menuItemWhitelist.text"));
                 menuItemWhitelist.setEnabled(false);
                 menuItemWhitelist.setMnemonic(context.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
+                menuItemWhitelist.setIcon(new ImageIcon(getClass().getResource("/whitelist.png")));
                 menuSystem.add(menuItemWhitelist);
             }
             menuBarMain.add(menuSystem);
@@ -2464,6 +2468,7 @@ public class MainFrame extends JFrame
             popupMenuItemRefresh.setText(context.cfg.gs("Navigator.popupMenuItemRefresh.text"));
             popupMenuItemRefresh.setMnemonic(context.cfg.gs("Navigator.popupMenuItemRefresh.mnemonic").charAt(0));
             popupMenuItemRefresh.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+            popupMenuItemRefresh.setIcon(new ImageIcon(getClass().getResource("/refresh.png")));
             popupMenuBrowser.add(popupMenuItemRefresh);
             popupMenuBrowser.addSeparator();
 
@@ -2471,18 +2476,21 @@ public class MainFrame extends JFrame
             popupMenuItemCopy.setText(context.cfg.gs("Navigator.popupMenu.Copy.text"));
             popupMenuItemCopy.setMnemonic(context.cfg.gs("Navigator.popupMenu.Copy.mnemonic").charAt(0));
             popupMenuItemCopy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK));
+            popupMenuItemCopy.setIcon(new ImageIcon(getClass().getResource("/copy.png")));
             popupMenuBrowser.add(popupMenuItemCopy);
 
             //---- popupMenuItemCut ----
             popupMenuItemCut.setText(context.cfg.gs("Navigator.popupMenu.Cut.text"));
             popupMenuItemCut.setMnemonic(context.cfg.gs("Navigator.popupMenu.Cut.mnemonic").charAt(0));
             popupMenuItemCut.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.CTRL_DOWN_MASK));
+            popupMenuItemCut.setIcon(new ImageIcon(getClass().getResource("/cut.png")));
             popupMenuBrowser.add(popupMenuItemCut);
 
             //---- popupMenuItemPaste ----
             popupMenuItemPaste.setText(context.cfg.gs("Navigator.popupMenu.Paste.text"));
             popupMenuItemPaste.setMnemonic(context.cfg.gs("Navigator.popupMenu.Paste.mnemonic").charAt(0));
             popupMenuItemPaste.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
+            popupMenuItemPaste.setIcon(new ImageIcon(getClass().getResource("/paste.png")));
             popupMenuBrowser.add(popupMenuItemPaste);
             popupMenuBrowser.addSeparator();
 
@@ -2490,6 +2498,7 @@ public class MainFrame extends JFrame
             popupMenuItemDelete.setText(context.cfg.gs("Navigator.popupMenu.Delete.text"));
             popupMenuItemDelete.setMnemonic(context.cfg.gs("Navigator.popupMenu.Delete.mnemonic").charAt(0));
             popupMenuItemDelete.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+            popupMenuItemDelete.setIcon(new ImageIcon(getClass().getResource("/delete-x.png")));
             popupMenuBrowser.add(popupMenuItemDelete);
             popupMenuBrowser.addSeparator();
 
@@ -2497,17 +2506,20 @@ public class MainFrame extends JFrame
             popupMenuItemNewFolder.setText(context.cfg.gs("Navigator.popupMenu.NewFolder.text"));
             popupMenuItemNewFolder.setMnemonic(context.cfg.gs("Navigator.popupMenu.NewFolder.mnemonic").charAt(0));
             popupMenuItemNewFolder.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
+            popupMenuItemNewFolder.setIcon(new ImageIcon(getClass().getResource("/new-folder.png")));
             popupMenuBrowser.add(popupMenuItemNewFolder);
 
             //---- popupMenuItemRename ----
             popupMenuItemRename.setText(context.cfg.gs("Navigator.popupMenu.Rename.text"));
             popupMenuItemRename.setMnemonic(context.cfg.gs("Navigator.popupMenu.Rename.mnemonic").charAt(0));
             popupMenuItemRename.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
+            popupMenuItemRename.setIcon(new ImageIcon(getClass().getResource("/rename.png")));
             popupMenuBrowser.add(popupMenuItemRename);
 
             //---- popupMenuItemTouch ----
             popupMenuItemTouch.setText(context.cfg.gs("Navigator.popupMenu.Touch.text"));
             popupMenuItemTouch.setMnemonic(context.cfg.gs("Navigator.popupMenu.Touch.mnemonic").charAt(0));
+            popupMenuItemTouch.setIcon(new ImageIcon(getClass().getResource("/touch.png")));
             popupMenuBrowser.add(popupMenuItemTouch);
         }
 
@@ -2519,12 +2531,14 @@ public class MainFrame extends JFrame
             popupMenuItemFindNext.setText(context.cfg.gs("Navigator.popupMenuItemFindNext.text"));
             popupMenuItemFindNext.setMnemonic(context.cfg.gs("Navigator.popupMenuItemFindNext.mnemonic").charAt(0));
             popupMenuItemFindNext.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, 0));
+            popupMenuItemFindNext.setIcon(new ImageIcon(getClass().getResource("/find-next.png")));
             popupMenuLog.add(popupMenuItemFindNext);
 
             //---- popupMenuItemFind ----
             popupMenuItemFind.setText(context.cfg.gs("Navigator.popupMenuItemFind.text"));
             popupMenuItemFind.setMnemonic(context.cfg.gs("Navigator.popupMenuItemFind.mnemonic").charAt(0));
             popupMenuItemFind.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+            popupMenuItemFind.setIcon(new ImageIcon(getClass().getResource("/find.png")));
             popupMenuLog.add(popupMenuItemFind);
             popupMenuLog.addSeparator();
 
@@ -2532,18 +2546,21 @@ public class MainFrame extends JFrame
             popupMenuItemTop.setText(context.cfg.gs("Navigator.popupMenuItemTop.text"));
             popupMenuItemTop.setMnemonic(context.cfg.gs("Navigator.popupMenuItemTop.mnemonic").charAt(0));
             popupMenuItemTop.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_HOME, KeyEvent.CTRL_DOWN_MASK));
+            popupMenuItemTop.setIcon(new ImageIcon(getClass().getResource("/top.png")));
             popupMenuLog.add(popupMenuItemTop);
 
             //---- popupMenuItemBottom ----
             popupMenuItemBottom.setText(context.cfg.gs("Navigator.popupMenu.Bottom.text"));
             popupMenuItemBottom.setMnemonic(context.cfg.gs("Navigator.popupMenu.Bottom.mnemonic").charAt(0));
             popupMenuItemBottom.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_END, KeyEvent.CTRL_DOWN_MASK));
+            popupMenuItemBottom.setIcon(new ImageIcon(getClass().getResource("/bottom.png")));
             popupMenuLog.add(popupMenuItemBottom);
             popupMenuLog.addSeparator();
 
             //---- popupMenuItemClear ----
             popupMenuItemClear.setText(context.cfg.gs("Navigator.popupMenu.Clear.text"));
             popupMenuItemClear.setMnemonic(context.cfg.gs("Navigator.popupMenu.Clear.mnemonic").charAt(0));
+            popupMenuItemClear.setIcon(new ImageIcon(getClass().getResource("/clear.png")));
             popupMenuLog.add(popupMenuItemClear);
             popupMenuLog.addSeparator();
 
