@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -C . -c debug -d debug --auth-keys system/auth.keys --remote S -p libraries/publisher.json -s libraries/publisher.json -T -F output/082-31_Subscriber-listener-auth.log
+java -jar ../deploy/ELS.jar -C . -c debug -d debug --auth-keys system/authorization.keys --remote S -p libraries/publisher.json -s libraries/publisher.json -T -F output/082-31_Subscriber-listener-auth.log
 

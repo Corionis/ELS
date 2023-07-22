@@ -7,7 +7,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 /**
@@ -27,6 +29,7 @@ public class HintKeys
     public HintKeys(Context context)
     {
         this.context = context;
+        this.keys = new ArrayList<>();
     }
 
     public HintKey findKey(String uuid)
@@ -112,10 +115,27 @@ public class HintKeys
         logger.info("Read Hint keys " + file + " successfully");
     }
 
-    public class HintKey
+    public void setFilename(String filename)
     {
-        public String name;
-        public String uuid;
+        this.filename = filename;
+    }
+
+    public void write(String header) throws Exception
+    {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
+        bw.write(header);
+        bw.write("");
+        for (int i = 0; i < keys.size(); ++i)
+        {
+            HintKey hintKey = keys.get(i);
+            if (hintKey.name != null && hintKey.name.length() > 0 && hintKey.uuid != null && hintKey.uuid.length() > 0)
+            {
+                String line = hintKey.name + "       " + hintKey.uuid + System.getProperty("line.separator");
+                bw.write(line);
+            }
+        }
+        bw.write(System.getProperty("line.separator"));
+        bw.close();
     }
 
 }

@@ -4,7 +4,7 @@ import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.bookmarks.Bookmark;
-import com.groksoft.els.repository.HintKeys;
+import com.groksoft.els.repository.HintKey;
 import com.groksoft.els.repository.Library;
 import com.groksoft.els.repository.Repository;
 import com.jcraft.jsch.SftpATTRS;
@@ -356,7 +356,7 @@ public class NavTransferHandler extends TransferHandler
                             throw new MungeException("logic fault: cannot find parent library of relevant item");
                         String lib = node.getUserObject().name;
                         String itemPath = sourceTuo.getItemPath(lib, hintPath);
-                        HintKeys.HintKey key = context.hintKeys.findKey(sourceTuo.getRepo().getLibraryData().libraries.key);
+                        HintKey key = context.hintKeys.findKey(sourceTuo.getRepo().getLibraryData().libraries.key);
                         if (key == null)
                             throw new MungeException("Repository not found in ELS keys " + context.hintKeys.getFilename() + " matching key in " + sourceTuo.getRepo().getLibraryData().libraries.description);
                         String backup = key.name;

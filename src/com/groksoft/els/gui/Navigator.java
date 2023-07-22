@@ -9,6 +9,7 @@ import com.groksoft.els.gui.browser.NavTreeUserObject;
 import com.groksoft.els.gui.jobs.AbstractToolDialog;
 import com.groksoft.els.gui.jobs.JobsUI;
 import com.groksoft.els.gui.libraries.LibrariesUI;
+import com.groksoft.els.gui.system.FileEditor;
 import com.groksoft.els.gui.tools.duplicateFinder.DuplicateFinderUI;
 import com.groksoft.els.gui.tools.emptyDirectoryFinder.EmptyDirectoryFinderUI;
 import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
@@ -60,6 +61,7 @@ public class Navigator
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
+    public FileEditor fileeditor = null;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
     public OperationsUI dialogOperations = null;
@@ -1801,6 +1803,54 @@ public class Navigator
                     dialogSettings.toFront();
                     dialogSettings.requestFocus();
                 }
+            }
+        });
+
+        context.mainFrame.menuItemAuthKeys.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (fileeditor != null && fileeditor.isVisible())
+                    fileeditor.requestFocus();
+                else
+                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.Authorization);
+            }
+        });
+
+        context.mainFrame.menuItemHintKeys.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (fileeditor != null && fileeditor.isVisible())
+                    fileeditor.requestFocus();
+                else
+                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.HintKeys);
+            }
+        });
+
+        context.mainFrame.menuItemBlacklist.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (fileeditor != null && fileeditor.isVisible())
+                    fileeditor.requestFocus();
+                else
+                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.BlackList);
+            }
+        });
+
+        context.mainFrame.menuItemWhitelist.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (fileeditor != null && fileeditor.isVisible())
+                    fileeditor.requestFocus();
+                else
+                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.WhiteList);
             }
         });
 

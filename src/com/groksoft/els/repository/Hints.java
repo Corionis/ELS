@@ -93,7 +93,7 @@ public class Hints
      */
     private boolean execute(Repository repo, Item item, List<String> lines) throws Exception
     {
-        HintKeys.HintKey hintKey;
+        HintKey hintKey;
         boolean libAltered = false;
         String statusLine;
 
@@ -230,10 +230,10 @@ public class Hints
      * @return Hints.Hintkey of matching UUID
      * @throws Exception if not found
      */
-    private HintKeys.HintKey findHintKey(Repository repo) throws Exception
+    private HintKey findHintKey(Repository repo) throws Exception
     {
         // find the ELS key for this repo
-        HintKeys.HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
+        HintKey hintKey = keys.findKey(repo.getLibraryData().libraries.key);
         if (hintKey == null)
         {
             throw new MungeException("Repository not found in ELS keys " + keys.getFilename() + " matching key in " + repo.getLibraryData().libraries.description);
@@ -544,7 +544,7 @@ public class Hints
 
                             // check if the publisher has Done or Seen this hint
                             // this is important prior to a operationsUI run to avoid duplicates, etc.
-                            HintKeys.HintKey hintKey = findHintKey(context.publisherRepo);
+                            HintKey hintKey = findHintKey(context.publisherRepo);
                             String statusLine = findNameLine(lines, hintKey.name);
                             if (statusLine == null || (!statusLine.toLowerCase().startsWith("done ") && !statusLine.toLowerCase().startsWith("seen ")))
                                 throw new MungeException("Publisher must execute hints locally; Status has not Done or Seen hint: " + item.getFullPath());
@@ -980,9 +980,9 @@ public class Hints
         boolean isPub = false;
 
         // find the ELS keys
-        HintKeys.HintKey pubHintKey = findHintKey(context.publisherRepo);
-        HintKeys.HintKey subHintKey = findHintKey(context.subscriberRepo);
-        HintKeys.HintKey itemHintKey;
+        HintKey pubHintKey = findHintKey(context.publisherRepo);
+        HintKey subHintKey = findHintKey(context.subscriberRepo);
+        HintKey itemHintKey;
         if (repo == context.publisherRepo)
         {
             itemHintKey = pubHintKey;
@@ -1427,7 +1427,7 @@ public class Hints
     {
         String currentStat = "";
         List<String> lines = readHintUpdated(item);
-        HintKeys.HintKey hintKey = findHintKey(context.subscriberRepo);
+        HintKey hintKey = findHintKey(context.subscriberRepo);
         String line = findNameLine(lines, hintKey.name);
         if (line != null)
         {
@@ -1605,8 +1605,8 @@ public class Hints
                 StringBuilder sb = new StringBuilder();
                 sb.append("# Created " + new Date().toString() + "\n");
 
-                ArrayList<HintKeys.HintKey> keys = context.hintKeys.get();
-                for (HintKeys.HintKey key : keys)
+                ArrayList<HintKey> keys = context.hintKeys.get();
+                for (HintKey key : keys)
                 {
                     if (key.uuid.equalsIgnoreCase(sourceKey))
                         sb.append("Done " + key.name + "\n");

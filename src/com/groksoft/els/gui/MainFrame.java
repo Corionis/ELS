@@ -1058,14 +1058,12 @@ public class MainFrame extends JFrame
                 //---- menuItemAuthKeys ----
                 menuItemAuthKeys.setText(context.cfg.gs("Navigator.menuItemAuthKeys.text"));
                 menuItemAuthKeys.setMnemonic(context.cfg.gs("Navigator.menuItemAuthKeys.mnemonic").charAt(0));
-                menuItemAuthKeys.setEnabled(false);
                 menuItemAuthKeys.setIcon(new ImageIcon(getClass().getResource("/auth-keys.png")));
                 menuSystem.add(menuItemAuthKeys);
 
                 //---- menuItemHintKeys ----
                 menuItemHintKeys.setText(context.cfg.gs("Navigator.menuItemHintKeys.text"));
                 menuItemHintKeys.setMnemonic(context.cfg.gs("Navigator.menuItemHintKeys.mnemonic").charAt(0));
-                menuItemHintKeys.setEnabled(false);
                 menuItemHintKeys.setIcon(new ImageIcon(getClass().getResource("/hint-keys.png")));
                 menuSystem.add(menuItemHintKeys);
                 menuSystem.addSeparator();
@@ -1073,13 +1071,11 @@ public class MainFrame extends JFrame
                 //---- menuItemBlacklist ----
                 menuItemBlacklist.setText(context.cfg.gs("Navigator.menuItemBlacklist.text"));
                 menuItemBlacklist.setMnemonic(context.cfg.gs("Navigator.menuItemBlacklist.mnemonic").charAt(0));
-                menuItemBlacklist.setEnabled(false);
                 menuItemBlacklist.setIcon(new ImageIcon(getClass().getResource("/blacklist.png")));
                 menuSystem.add(menuItemBlacklist);
 
                 //---- menuItemWhitelist ----
                 menuItemWhitelist.setText(context.cfg.gs("Navigator.menuItemWhitelist.text"));
-                menuItemWhitelist.setEnabled(false);
                 menuItemWhitelist.setMnemonic(context.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
                 menuItemWhitelist.setIcon(new ImageIcon(getClass().getResource("/whitelist.png")));
                 menuSystem.add(menuItemWhitelist);

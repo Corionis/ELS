@@ -47,6 +47,10 @@ public class Preferences implements Serializable
     private int collectionTwoSortDirection = 0;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
+    private int fileEditorHeight = 365;
+    private int fileEditorWidth = 425;
+    private int fileEditorXpos = -1;
+    private int fileEditorYpos = -1;
     private boolean generateLongOptions = false;
     private boolean hideFilesInTree = true;
     private boolean hideHiddenFiles = true;
@@ -400,6 +404,26 @@ public class Preferences implements Serializable
     public String getDateFormat()
     {
         return dateFormat;
+    }
+
+    public int getFileEditorHeight()
+    {
+        return fileEditorHeight;
+    }
+
+    public int getFileEditorWidth()
+    {
+        return fileEditorWidth;
+    }
+
+    public int getFileEditorXpos()
+    {
+        return fileEditorXpos;
+    }
+
+    public int getFileEditorYpos()
+    {
+        return fileEditorYpos;
     }
 
     public String getFullPath()
@@ -1079,6 +1103,26 @@ public class Preferences implements Serializable
     public void setDateFormat(String dateFormat)
     {
         this.dateFormat = dateFormat;
+    }
+
+    public void setFileEditorHeight(int fileEditorHeight)
+    {
+        this.fileEditorHeight = fileEditorHeight;
+    }
+
+    public void setFileEditorWidth(int fileEditorWidth)
+    {
+        this.fileEditorWidth = fileEditorWidth;
+    }
+
+    public void setFileEditorXpos(int fileEditorXpos)
+    {
+        this.fileEditorXpos = fileEditorXpos;
+    }
+
+    public void setFileEditorYpos(int fileEditorYpos)
+    {
+        this.fileEditorYpos = fileEditorYpos;
     }
 
     public void setGenerateLongOptions(boolean generateLongOptions)

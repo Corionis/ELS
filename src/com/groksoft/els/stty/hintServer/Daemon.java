@@ -2,6 +2,7 @@ package com.groksoft.els.stty.hintServer;
 
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
+import com.groksoft.els.repository.HintKey;
 import com.groksoft.els.repository.HintKeys;
 import com.groksoft.els.repository.Hints;
 import com.groksoft.els.repository.Repository;
@@ -94,7 +95,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
                 input = receive("", 5000);
                 // validate with Hint Keys
-                HintKeys.HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
+                HintKey connectedKey = context.hintKeys.findKey(input);  // look for matching key in hints keys file
                 if (connectedKey != null)
                 {
                     // send my flavor

@@ -1063,6 +1063,107 @@ public class JobsUI extends AbstractToolDialog
         return want;
     }
 
+    private String getPubSubDesc(Task task, boolean isPublisher, boolean isRemote, Repositories repositories, String key)
+    {
+        String desc = "";
+        if (key.trim().length() == 0)
+        {
+            if (task.isDual())
+            {
+                if (isPublisher)
+                    desc = context.cfg.gs("JobsUI.select.publisher");
+                else
+                    desc = context.cfg.gs("JobsUI.select.subscriber");
+            }
+            else
+                desc = context.cfg.gs("JobsUI.select.publisher.or.subscriber");
+        }
+        else if (key.equals(Task.CACHEDLASTTASK))
+        {
+            String name = context.cfg.gs("Z.not.found");
+            int taskIndex = findTaskIndex(task.getConfigName());
+            if (taskIndex >= 0)
+            {
+                String cachedName = findCachedLastTask(currentJob, taskIndex);
+                if (cachedName.length() > 0)
+                {
+                    name = cachedName;
+                }
+            }
+            desc = context.cfg.gs("JobsUI.cached.task") + name;
+        }
+        else if (key.equals(Task.ANY_SERVER))
+        {
+            if (isPublisher)
+                desc = context.cfg.gs("JobsUI.any.publisher");
+            else
+                desc = context.cfg.gs("JobsUI.any.subscriber");
+        }
+        else
+        {
+            RepoMeta repoMeta = repositories.find(key);
+            if (repoMeta != null)
+            {
+                if (isRemote)
+                    desc = context.cfg.gs("Z.remote.uppercase");
+                else
+                {
+                    if (!isPublisher)
+                        desc = context.cfg.gs("Z.local.uppercase");
+                }
+                desc += (isPublisher ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) + ": " + repoMeta.description;
+            }
+            else
+                desc = context.cfg.gs("Z.cannot.find") + key;
+        }
+        return desc;
+    }
+
+    public String getPubSubValue(Task task, int row, int column, Repositories repositories)
+    {
+        if (task != null)
+        {
+            if (column == 0)
+            {
+                if (task.isDual())
+                {
+                    if (row == 0)
+                        return getPubSubDesc(task, true, false, repositories, task.getPublisherKey());
+                    return getPubSubDesc(task, false, task.isSubscriberRemote(), repositories, task.getSubscriberKey());
+                }
+                else
+                {
+                    String key = "";
+                    boolean isPublisher = true;
+                    if (task.getPublisherKey().length() > 0)
+                        key = task.getPublisherKey();
+                    else if (task.getSubscriberKey().length() > 0)
+                    {
+                        isPublisher = false;
+                        key = task.getSubscriberKey();
+                    }
+                    return getPubSubDesc(task, isPublisher, (isPublisher ? false : task.isSubscriberRemote()), repositories, key);
+                }
+            }
+
+            if (column == 1)
+            {
+                String toolTip = "";
+                if (!task.isDual())
+                    toolTip = context.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
+                else
+                {
+                    if (row == 0)
+                        toolTip = context.cfg.gs("JobsUI.select.publisher.tooltip");
+                    else
+                        toolTip = context.cfg.gs("JobsUI.select.subscriber.tooltip");
+                }
+                return toolTip;
+            }
+        }
+        return null;
+    }
+
     public Repositories getRepositories()
     {
         Repositories repositories = null;
@@ -1254,107 +1355,6 @@ public class JobsUI extends AbstractToolDialog
             labelSub.setText(getPubSubValue(task, 1, 0, repositories));
             buttonSub.setToolTipText(getPubSubValue(task, 1, 1, repositories));
         }
-    }
-
-    private String getPubSubDesc(Task task, boolean isPublisher, boolean isRemote, Repositories repositories, String key)
-    {
-        String desc = "";
-        if (key.trim().length() == 0)
-        {
-            if (task.isDual())
-            {
-                if (isPublisher)
-                    desc = context.cfg.gs("JobsUI.select.publisher");
-                else
-                    desc = context.cfg.gs("JobsUI.select.subscriber");
-            }
-            else
-                desc = context.cfg.gs("JobsUI.select.publisher.or.subscriber");
-        }
-        else if (key.equals(Task.CACHEDLASTTASK))
-        {
-            String name = context.cfg.gs("Z.not.found");
-            int taskIndex = findTaskIndex(task.getConfigName());
-            if (taskIndex >= 0)
-            {
-                String cachedName = findCachedLastTask(currentJob, taskIndex);
-                if (cachedName.length() > 0)
-                {
-                    name = cachedName;
-                }
-            }
-            desc = context.cfg.gs("JobsUI.cached.task") + name;
-        }
-        else if (key.equals(Task.ANY_SERVER))
-        {
-            if (isPublisher)
-                desc = context.cfg.gs("JobsUI.any.publisher");
-            else
-                desc = context.cfg.gs("JobsUI.any.subscriber");
-        }
-        else
-        {
-            RepoMeta repoMeta = repositories.find(key);
-            if (repoMeta != null)
-            {
-                if (isRemote)
-                    desc = context.cfg.gs("Z.remote.uppercase");
-                else
-                {
-                    if (!isPublisher)
-                        desc = context.cfg.gs("Z.local.uppercase");
-                }
-                desc += (isPublisher ? context.cfg.gs("Z.publisher") : context.cfg.gs("Z.subscriber")) + ": " + repoMeta.description;
-            }
-            else
-                desc = context.cfg.gs("Z.cannot.find") + key;
-        }
-        return desc;
-    }
-
-    public String getPubSubValue(Task task, int row, int column, Repositories repositories)
-    {
-        if (task != null)
-        {
-            if (column == 0)
-            {
-                if (task.isDual())
-                {
-                    if (row == 0)
-                        return getPubSubDesc(task, true, false, repositories, task.getPublisherKey());
-                    return getPubSubDesc(task, false, task.isSubscriberRemote(), repositories, task.getSubscriberKey());
-                }
-                else
-                {
-                    String key = "";
-                    boolean isPublisher = true;
-                    if (task.getPublisherKey().length() > 0)
-                        key = task.getPublisherKey();
-                    else if (task.getSubscriberKey().length() > 0)
-                    {
-                        isPublisher = false;
-                        key = task.getSubscriberKey();
-                    }
-                    return getPubSubDesc(task, isPublisher, (isPublisher ? false : task.isSubscriberRemote()), repositories, key);
-                }
-            }
-
-            if (column == 1)
-            {
-                String toolTip = "";
-                if (!task.isDual())
-                    toolTip = context.cfg.gs("JobsUI.select.publisher.or.subscriber.tooltip");
-                else
-                {
-                    if (row == 0)
-                        toolTip = context.cfg.gs("JobsUI.select.publisher.tooltip");
-                    else
-                        toolTip = context.cfg.gs("JobsUI.select.subscriber.tooltip");
-                }
-                return toolTip;
-            }
-        }
-        return null;
     }
 
     private void processJob(Job job)

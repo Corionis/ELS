@@ -63,8 +63,7 @@ public class LibrariesUI
     private Mode[] modes;
     private NumberFilter numberFilter;
 
-    public static enum Cards
-    {Library, HintServer, Targets}
+    public static enum Cards {Library, HintServer, Targets}
 
     private LibrariesUI()
     {

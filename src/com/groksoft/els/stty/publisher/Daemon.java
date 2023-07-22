@@ -16,8 +16,6 @@ import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -90,7 +88,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 // validate with Authorization Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKeys.HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
                     if (connectedKey != null)
                     {
                         // send my flavor

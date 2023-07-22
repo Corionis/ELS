@@ -1637,14 +1637,12 @@ new FormModel {
 						name: "menuItemAuthKeys"
 						"text": new FormMessage( null, "Navigator.menuItemAuthKeys.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemAuthKeys.mnemonic" )
-						"enabled": false
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/auth-keys.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemHintKeys"
 						"text": new FormMessage( null, "Navigator.menuItemHintKeys.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemHintKeys.mnemonic" )
-						"enabled": false
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/hint-keys.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -1654,13 +1652,11 @@ new FormModel {
 						name: "menuItemBlacklist"
 						"text": new FormMessage( null, "Navigator.menuItemBlacklist.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemBlacklist.mnemonic" )
-						"enabled": false
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/blacklist.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemWhitelist"
 						"text": new FormMessage( null, "Navigator.menuItemWhitelist.text" )
-						"enabled": false
 						"mnemonic": new FormMessage( null, "Navigator.menuItemWhitelist.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/whitelist.png" )
 					} )

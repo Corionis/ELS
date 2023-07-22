@@ -3,10 +3,7 @@ package com.groksoft.els.stty.subscriber;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.groksoft.els.*;
-import com.groksoft.els.repository.HintKeys;
-import com.groksoft.els.repository.Hints;
-import com.groksoft.els.repository.Library;
-import com.groksoft.els.repository.Repository;
+import com.groksoft.els.repository.*;
 import com.groksoft.els.stty.ServeStty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -123,7 +120,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 // validate with Authorization Keys if specified
                 if (context.authKeys != null)
                 {
-                    HintKeys.HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
+                    HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
                     if (connectedKey != null)
                     {
                         // send my flavor
