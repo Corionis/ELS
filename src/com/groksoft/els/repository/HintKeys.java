@@ -3,13 +3,12 @@ package com.groksoft.els.repository;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -122,20 +121,24 @@ public class HintKeys
 
     public void write(String header) throws Exception
     {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(filename));
-        bw.write(header);
-        bw.write("");
+        String base = FilenameUtils.getFullPathNoEndSeparator(filename);
+        File outdir = new File(base);
+        outdir.mkdirs();
+
+        BufferedWriter fw = new BufferedWriter(new FileWriter(filename));
+        fw.write(header);
+        fw.write(System.getProperty("line.separator"));
         for (int i = 0; i < keys.size(); ++i)
         {
             HintKey hintKey = keys.get(i);
             if (hintKey.name != null && hintKey.name.length() > 0 && hintKey.uuid != null && hintKey.uuid.length() > 0)
             {
-                String line = hintKey.name + "       " + hintKey.uuid + System.getProperty("line.separator");
-                bw.write(line);
+                String line = hintKey.name + "\t\t" + hintKey.uuid + System.getProperty("line.separator");
+                fw.write(line);
             }
         }
-        bw.write(System.getProperty("line.separator"));
-        bw.close();
+        fw.write(System.getProperty("line.separator"));
+        fw.close();
     }
 
 }

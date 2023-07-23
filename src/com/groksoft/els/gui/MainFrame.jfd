@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -497,7 +497,6 @@ new FormModel {
 									"preferredSize": new java.awt.Dimension( 32, 30 )
 									"minimumSize": new java.awt.Dimension( 32, 30 )
 									"maximumSize": new java.awt.Dimension( 32, 30 )
-									"toolTipText": new FormMessage( null, "Navigator.labelLibrariesHelp.toolTipText" )
 									"cursor": new java.awt.Cursor( 12 )
 									"iconTextGap": 0
 								} )
@@ -1560,6 +1559,9 @@ new FormModel {
 						name: "menuItemEmptyFinder"
 						"text": new FormMessage( null, "Navigator.menuItemEmptyFinder.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemEmptyFinder.mnemonic" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator14"
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemJunk"

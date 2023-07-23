@@ -8,11 +8,15 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.*;
 import javax.swing.border.*;
+
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.MainFrame;
+import com.groksoft.els.gui.NavHelp;
 import com.groksoft.els.repository.HintKey;
 import com.groksoft.els.repository.HintKeys;
+import com.groksoft.els.repository.RepoMeta;
+import com.groksoft.els.repository.Repositories;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,6 +36,7 @@ public class FileEditor extends JDialog
     private String description;
     private String displayName;
     private String fileName;
+    private NavHelp helpDialog;
     private String helpPrefix;
     private String helpTip;
     private HintKeys hintKeys = null;
@@ -39,7 +44,11 @@ public class FileEditor extends JDialog
     private Logger logger = LogManager.getLogger("applog");
     private MainFrame mf;
     private EditorTypes type;
-    public static enum EditorTypes {Authorization, HintKeys, BlackList, WhiteList};
+
+    public static enum EditorTypes
+    {Authorization, HintKeys, BlackList, WhiteList}
+
+    ;
 
     private FileEditor()
     {
@@ -57,6 +66,39 @@ public class FileEditor extends JDialog
         process();
     }
 
+    private void actionAddClicked(ActionEvent e)
+    {
+        switch (type)
+        {
+            case Authorization:
+            case HintKeys:
+                if (hintKeys.get().size() == 0 || hintKeys.get().get(hintKeys.get().size() - 1).name != null)
+                {
+                    HintKey hintKey = new HintKey();
+                    hintKeys.get().add(hintKey);
+                    dataTableModel.fireTableDataChanged();
+                }
+                tableContent.editCellAt(dataTableModel.getRowCount() - 1, 0);
+                tableContent.changeSelection(dataTableModel.getRowCount() - 1, dataTableModel.getRowCount() - 1, false, false);
+                tableContent.getEditorComponent().requestFocus();
+                ((JTextField) tableContent.getEditorComponent()).selectAll();
+                break;
+            case BlackList:
+            case WhiteList:
+                if (ipAddresses.size() == 0 || ipAddresses.get(ipAddresses.size() - 1) != null)
+                {
+                    ipAddresses.add("");
+                    dataTableModel.fireTableDataChanged();
+                }
+                tableContent.editCellAt(dataTableModel.getRowCount() - 1, 0);
+                tableContent.changeSelection(dataTableModel.getRowCount() - 1, dataTableModel.getRowCount() - 1, false, false);
+                tableContent.getEditorComponent().requestFocus();
+                ((JTextField) tableContent.getEditorComponent()).selectAll();
+                break;
+        }
+
+    }
+
     private void actionCancelClicked(ActionEvent e)
     {
         if (dataTableModel.isDataChanged())
@@ -65,12 +107,81 @@ public class FileEditor extends JDialog
                     context.cfg.gs("Z.cancel.changes"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
-                setMenuItems();
                 setVisible(false);
             }
         }
-        setVisible(false);
+        else
+        {
+            setVisible(false);
+        }
         setMenuItems();
+    }
+
+    private void actionHelpClicked(MouseEvent e)
+    {
+        if (helpDialog == null || !helpDialog.isVisible())
+        {
+            String title = "";
+            String helpName = "";
+            switch (type)
+            {
+                case Authorization:
+                    title = context.cfg.gs("FileEditor.labelHelpAuthorization.toolTipText");
+                    helpName = "authorization-keys_";
+                    break;
+                case HintKeys:
+                    title = context.cfg.gs("FileEditor.labelHelpHint.toolTipText");
+                    helpName = "hint-keys_";
+                    break;
+                case BlackList:
+                    title = context.cfg.gs("FileEditor.labelHelpBlacklist.toolTipText");
+                    helpName = "blacklist_";
+                    break;
+                case WhiteList:
+                    title = context.cfg.gs("FileEditor.labelHelpWhitelist.toolTipText");
+                    helpName = "whitelist_";
+                    break;
+            }
+            helpDialog = new NavHelp(this, this, context, title, helpName + context.preferences.getLocale() + ".html");
+        }
+        if (!helpDialog.isVisible())
+        {
+            // offset the help dialog from the parent dialog
+            Point loc = this.getLocation();
+            loc.x = loc.x + 32;
+            loc.y = loc.y + 32;
+            helpDialog.setLocation(loc);
+            helpDialog.setVisible(true);
+        }
+        else
+        {
+            helpDialog.toFront();
+        }
+    }
+
+    private void actionRemoveClicked(ActionEvent e)
+    {
+        int[] rows = tableContent.getSelectedRows();
+        if (rows.length > 0)
+        {
+            tableContent.requestFocus();
+            int count = rows.length;
+
+            // make dialog pieces
+            String message = java.text.MessageFormat.format(context.cfg.gs("FileEditor.remove.entries"), count);
+
+            // confirm deletions
+            int reply = JOptionPane.showConfirmDialog(this, message, displayName, JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION)
+            {
+                for (int i = rows.length - 1; i >= 0; --i)
+                {
+                    dataTableModel.removeRow(rows[i]);
+                }
+                dataTableModel.setDataHasChanged();
+                dataTableModel.fireTableDataChanged();
+            }
+        }
     }
 
     private void actionSaveClicked(ActionEvent e)
@@ -80,6 +191,18 @@ public class FileEditor extends JDialog
             savePreferences();
             setMenuItems();
             setVisible(false);
+        }
+    }
+
+    private void actionUuidClicked(ActionEvent e)
+    {
+        if (tableContent.getSelectedRows().length > 0)
+        {
+            Repositories repositories = getRepositories();
+            for (RepoMeta repoMeta : repositories.getList())
+            {
+                
+            }
         }
     }
 
@@ -100,6 +223,23 @@ public class FileEditor extends JDialog
         String path = getDirectoryPath() + System.getProperty("file.separator") +
                 Utils.scrubFilename(getConfigName());
         return path;
+    }
+
+    public Repositories getRepositories()
+    {
+        Repositories repositories = null;
+        try
+        {
+            repositories = new Repositories();
+            repositories.loadList(context);
+        }
+        catch (Exception e)
+        {
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            logger.error(msg);
+            JOptionPane.showMessageDialog(mf, msg, displayName, JOptionPane.ERROR_MESSAGE);
+        }
+        return repositories;
     }
 
     private String getSubsystem()
@@ -301,21 +441,51 @@ public class FileEditor extends JDialog
 
     private boolean saveContent()
     {
+        if (tableContent.isEditing())
+            tableContent.getCellEditor().stopCellEditing();
+
         if (dataTableModel.isDataChanged())
         {
             try
             {
-                String header;
+                String header = "";
+                switch (type)
+                {
+                    case Authorization:
+                        header = "# ELS Authorization Keys" + System.getProperty("line.separator");
+                        break;
+                    case HintKeys:
+                        header = "# ELS Hint Keys" + System.getProperty("line.separator");
+                        break;
+                    case BlackList:
+                        header = "# ELS Blacklist" + System.getProperty("line.separator");
+                        break;
+                    case WhiteList:
+                        header = "# ELS Whitelist" + System.getProperty("line.separator");
+                        break;
+                }
                 switch (type)
                 {
                     case Authorization:
                     case HintKeys:
-                        header = context.cfg.gs("");
+                        header += "#" + System.getProperty("line.separator") +
+                                "# Format: name uuid" + System.getProperty("line.separator") +
+                                "#" + System.getProperty("line.separator") +
+                                "#   Name is any shortname, no spaces." + System.getProperty("line.separator") +
+                                "#   UUID is the key from the library JSON file." + System.getProperty("line.separator") +
+                                "#" + System.getProperty("line.separator") +
+                                "# Use space/tab separators, no quotes." + System.getProperty("line.separator") +
+                                "#" + System.getProperty("line.separator");
                         hintKeys.write(header);
                         break;
                     case BlackList:
                     case WhiteList:
-                        header = context.cfg.gs("");
+                        header += "#" + System.getProperty("line.separator") +
+                                "# Format: xxx.xxx.xxx.xxx" + System.getProperty("line.separator") +
+                                "#" + System.getProperty("line.separator") +
+                                "#   A standard IPv4 address." + System.getProperty("line.separator") +
+                                "#   One address per line." + System.getProperty("line.separator") +
+                                "#" + System.getProperty("line.separator");
                         writeIpAddresses(header);
                         break;
                 }
@@ -324,6 +494,8 @@ public class FileEditor extends JDialog
             {
                 logger.error(Utils.getStackTrace(e));
             }
+
+
         }
         return true;
     }
@@ -351,11 +523,11 @@ public class FileEditor extends JDialog
         {
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
             bw.write(header);
-            bw.write("");
+            bw.write(System.getProperty("line.separator"));
             for (int i = 0; i < ipAddresses.size(); ++i)
             {
                 if (ipAddresses.get(i) != null && ipAddresses.get(i).length() > 0)
-                    bw.write(ipAddresses.get(i));
+                    bw.write(ipAddresses.get(i) + System.getProperty("line.separator"));
             }
             bw.write(System.getProperty("line.separator"));
             bw.close();
@@ -426,9 +598,14 @@ public class FileEditor extends JDialog
                 labelSystemHelp.setPreferredSize(new Dimension(32, 30));
                 labelSystemHelp.setMinimumSize(new Dimension(32, 30));
                 labelSystemHelp.setMaximumSize(new Dimension(32, 30));
-                labelSystemHelp.setToolTipText(bundle.getString("FileEditor.labelSystemHelp.toolTipText"));
                 labelSystemHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 labelSystemHelp.setIconTextGap(0);
+                labelSystemHelp.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        actionHelpClicked(e);
+                    }
+                });
                 contentPanel.add(labelSystemHelp, new GridBagConstraints(6, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.EAST, GridBagConstraints.VERTICAL,
                     new Insets(0, 0, 4, 0), 0, 0));
@@ -458,6 +635,7 @@ public class FileEditor extends JDialog
                     buttonAdd.setMnemonic(bundle.getString("FileEditor.buttonAdd.mnemonic").charAt(0));
                     buttonAdd.setToolTipText(bundle.getString("FileEditor.buttonAdd.toolTipText"));
                     buttonAdd.setMargin(new Insets(0, -10, 0, -10));
+                    buttonAdd.addActionListener(e -> actionAddClicked(e));
                     panelActionButtons.add(buttonAdd);
 
                     //---- buttonRemove ----
@@ -469,6 +647,7 @@ public class FileEditor extends JDialog
                     buttonRemove.setMnemonic(bundle.getString("FileEditor.buttonRemove.mnemonic").charAt(0));
                     buttonRemove.setToolTipText(bundle.getString("FileEditor.buttonRemove.toolTipText"));
                     buttonRemove.setMargin(new Insets(0, -10, 0, -10));
+                    buttonRemove.addActionListener(e -> actionRemoveClicked(e));
                     panelActionButtons.add(buttonRemove);
 
                     //---- hSpacer1 ----
@@ -485,6 +664,7 @@ public class FileEditor extends JDialog
                     buttonUuidList.setMnemonic('U');
                     buttonUuidList.setToolTipText(bundle.getString("FileEditor.buttonUuidList.toolTipText"));
                     buttonUuidList.setMargin(new Insets(0, -10, 0, -10));
+                    buttonUuidList.addActionListener(e -> actionUuidClicked(e));
                     panelActionButtons.add(buttonUuidList);
                 }
                 contentPanel.add(panelActionButtons, new GridBagConstraints(0, 11, 7, 1, 0.0, 0.0,

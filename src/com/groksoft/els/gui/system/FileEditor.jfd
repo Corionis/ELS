@@ -35,9 +35,9 @@ new FormModel {
 						"preferredSize": new java.awt.Dimension( 32, 30 )
 						"minimumSize": new java.awt.Dimension( 32, 30 )
 						"maximumSize": new java.awt.Dimension( 32, 30 )
-						"toolTipText": new FormMessage( null, "FileEditor.labelSystemHelp.toolTipText" )
 						"cursor": new java.awt.Cursor( 12 )
 						"iconTextGap": 0
+						addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridx": 6
 						"hAlign": 4
@@ -74,6 +74,7 @@ new FormModel {
 							"mnemonic": new FormMessage( null, "FileEditor.buttonAdd.mnemonic" )
 							"toolTipText": new FormMessage( null, "FileEditor.buttonAdd.toolTipText" )
 							"margin": new java.awt.Insets( 0, -10, 0, -10 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionAddClicked", true ) )
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "buttonRemove"
@@ -85,6 +86,7 @@ new FormModel {
 							"mnemonic": new FormMessage( null, "FileEditor.buttonRemove.mnemonic" )
 							"toolTipText": new FormMessage( null, "FileEditor.buttonRemove.toolTipText" )
 							"margin": &Insets0 new java.awt.Insets( 0, -10, 0, -10 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRemoveClicked", true ) )
 						} )
 						add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
 							name: "hSpacer1"
@@ -101,6 +103,7 @@ new FormModel {
 							"mnemonic": 85
 							"toolTipText": new FormMessage( null, "FileEditor.buttonUuidList.toolTipText" )
 							"margin": #Insets0
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionUuidClicked", true ) )
 						} )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridy": 11

@@ -1,4 +1,13 @@
 {
   "configName": "550 Navigator",
-  "tasks": []
+  "tasks": [
+    {
+      "configName": "Navigator",
+      "internalName": "Operations",
+      "publisherKey": "_ANY_SERVER_",
+      "subscriberKey": "_ANY_SERVER_",
+      "subscriberRemote": false,
+      "origins": []
+    }
+  ]
 }

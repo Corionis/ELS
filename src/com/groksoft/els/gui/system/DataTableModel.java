@@ -99,6 +99,15 @@ public class DataTableModel extends DefaultTableModel
         return dataChanged;
     }
 
+    @Override
+    public void removeRow(int row)
+    {
+        if (keys != null)
+            keys.remove(row);
+        if (ipAddresses != null)
+            ipAddresses.remove(row);
+    }
+
     public void setDataHasChanged()
     {
         this.dataChanged = true;

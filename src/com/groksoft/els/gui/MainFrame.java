@@ -984,6 +984,7 @@ public class MainFrame extends JFrame
                 menuItemEmptyFinder.setText(context.cfg.gs("Navigator.menuItemEmptyFinder.text"));
                 menuItemEmptyFinder.setMnemonic(context.cfg.gs("Navigator.menuItemEmptyFinder.mnemonic").charAt(0));
                 menuTools.add(menuItemEmptyFinder);
+                menuTools.addSeparator();
 
                 //---- menuItemJunk ----
                 menuItemJunk.setText(context.cfg.gs("Navigator.menu.Junk.text"));
@@ -1644,7 +1645,6 @@ public class MainFrame extends JFrame
                             labelLibrariesHelp.setPreferredSize(new Dimension(32, 30));
                             labelLibrariesHelp.setMinimumSize(new Dimension(32, 30));
                             labelLibrariesHelp.setMaximumSize(new Dimension(32, 30));
-                            labelLibrariesHelp.setToolTipText(context.cfg.gs("Navigator.labelLibrariesHelp.toolTipText"));
                             labelLibrariesHelp.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                             labelLibrariesHelp.setIconTextGap(0);
                             panelHelp.add(labelLibrariesHelp);

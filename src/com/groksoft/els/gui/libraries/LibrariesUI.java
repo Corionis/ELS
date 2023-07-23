@@ -1206,6 +1206,23 @@ public class LibrariesUI
         return deletedLibraries;
     }
 
+    private Repositories getRepositories()
+    {
+        Repositories repositories = null;
+        try
+        {
+            repositories = new Repositories();
+            repositories.loadList(context);
+        }
+        catch (Exception e)
+        {
+            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+            logger.error(msg);
+            JOptionPane.showMessageDialog(mf, msg, displayName, JOptionPane.ERROR_MESSAGE);
+        }
+        return repositories;
+    }
+
     private void initialize()
     {
         this.configItems = mf.librariesConfigItems;
@@ -1451,23 +1468,6 @@ public class LibrariesUI
         loading = true;
         updateState();
         loading = false;
-    }
-
-    public Repositories getRepositories()
-    {
-        Repositories repositories = null;
-        try
-        {
-            repositories = new Repositories();
-            repositories.loadList(context);
-        }
-        catch (Exception e)
-        {
-            String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-            logger.error(msg);
-            JOptionPane.showMessageDialog(mf, msg, displayName, JOptionPane.ERROR_MESSAGE);
-        }
-        return repositories;
     }
 
     private void loadConfigurations()

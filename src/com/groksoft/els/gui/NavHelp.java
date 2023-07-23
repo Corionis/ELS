@@ -26,6 +26,11 @@ public class NavHelp extends JDialog
     Context context;
     Component previous;
 
+    public NavHelp()
+    {
+
+    }
+
     public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename) {
         super(owner);
         previous = prev;

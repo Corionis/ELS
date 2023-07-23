@@ -60,7 +60,7 @@ public class OperationsUI extends AbstractToolDialog
     {
         super(owner);
         this.context = context;
-        this.displayName = context.cfg.gs("OperationsUI.displayName");
+        this.displayName = context.cfg.gs("Operations.displayName");
         initComponents();
         initialize();
     }
@@ -320,7 +320,7 @@ public class OperationsUI extends AbstractToolDialog
         {
             // confirm run of job
             String message = java.text.MessageFormat.format(context.cfg.gs("OperationsUI.run.as.defined"), currentTool.getConfigName());
-            int reply = JOptionPane.showConfirmDialog(this, message, context.cfg.gs("OperationsUI.title"), JOptionPane.YES_NO_OPTION);
+            int reply = JOptionPane.showConfirmDialog(this, message, context.cfg.gs("Operations.displayName"), JOptionPane.YES_NO_OPTION);
             if (reply == JOptionPane.YES_OPTION)
             {
                 workerOperation = currentTool.clone();
@@ -2134,7 +2134,7 @@ public class OperationsUI extends AbstractToolDialog
 
         //======== this ========
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        setTitle(context.cfg.gs("OperationsUI.title"));
+        setTitle(context.cfg.gs("Operations.displayName"));
         setName("operationsUI");
         setMinimumSize(new Dimension(150, 126));
         addWindowListener(new WindowAdapter() {
