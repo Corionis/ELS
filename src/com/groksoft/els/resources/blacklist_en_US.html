@@ -33,6 +33,16 @@
 </head>
 <body>
 <h2>Blacklist</h2>
+<p>The Blacklist is a simple list of IPv4 IP addresses that are <b>not</b> allowed to connect
+    to this instance when it is operating as a publisher or subscriber listener.</p>
+
+<p>The Whitelist, if defined, is evaluated first, then the Blacklist if defined. The
+    check is performed when a incoming connection is made but before the authentication
+    handshake is attempted between the systems. If the check fails the socket is
+    summarily closed and the occurrence is logged.</p>
+
+<p>NOTE: These options must be defined on the command line or in an Operation for them
+    to be used. The Navigator dialogs only edit the files.</p>
 
 </body>
 </html>

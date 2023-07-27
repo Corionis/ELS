@@ -51,6 +51,33 @@ public class Utils
     }
 
     /**
+     * Compact a String by removing all spaces and regex characters
+     *
+     * @param value String to clean
+     * @return String cleaned
+     */
+    public static String compactString(String value)
+    {
+        String bad = "\\.[]{}()<>*+-=!?^$| ";
+        String clean = "";
+        for (int i = 0; i < value.length(); ++i)
+        {
+            boolean skip = false;
+            for (int j = 0; j < bad.length(); ++j)
+            {
+                if (value.charAt(i) == bad.charAt(j))
+                {
+                    skip = true;
+                    break;
+                }
+            }
+            if (!skip)
+                clean = clean + value.charAt(i);
+        }
+        return clean;
+    }
+
+    /**
      * Available space on local target
      *
      * @param location the path to the target

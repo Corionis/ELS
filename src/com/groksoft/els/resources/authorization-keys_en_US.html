@@ -33,6 +33,19 @@
 </head>
 <body>
 <h2>Authorization Keys</h2>
+<p>Authorization Keys control what ELS instances are allowed to access this ELS instance. Those may
+    include publishers and Navigators. Note a subscriber is the same as a publisher.
+    Their role as a publisher or subscriber is controlled by which is defined for
+    the -p|-P and -s|-S options.</p>
+
+<p>An Authorization Key is the "key" element from a collection JSON file.<br/><br/></p>
+
+<h3>UUID List Button</h3>
+<p>The UUID List button present a list of known collection files and displays the
+"description" and "key" elements from each file found in the ELS ./libraries/ directory.</p>
+
+<p>NOTE: These options must be defined on the command line or in an Operation for them
+    to be used. The Navigator dialogs only edit the files.</p>
 
 </body>
 </html>

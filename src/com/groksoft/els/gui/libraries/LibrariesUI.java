@@ -688,44 +688,6 @@ public class LibrariesUI
         }
     }
 
-    private void actionSourcesRemove(ActionEvent e)
-    {
-        if (currentConfigIndex >= 0)
-        {
-            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
-            int[] rows = mf.listSources.getSelectedIndices();
-            if (rows.length > 0)
-            {
-                int reply = JOptionPane.showConfirmDialog(mf, java.text.MessageFormat.format(context.cfg.gs("Libraries.remove.sources.from.library"),
-                        rows.length,libMeta.description,libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].name),
-                        displayName, JOptionPane.YES_NO_OPTION);
-                if (reply == JOptionPane.YES_OPTION)
-                {
-                    String[] sources = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources;
-                    ArrayList<String> sourcesList = new ArrayList<>();
-                    for (int i = 0; i < sources.length; ++i)
-                    {
-                        sourcesList.add(sources[i]);
-                    }
-                    for (int i = rows.length - 1; i >= 0; --i)
-                    {
-                        sourcesList.remove(rows[i]);
-                    }
-                    sources = new String[sourcesList.size()];
-                    for (int i = 0; i < sourcesList.size(); ++i)
-                    {
-                        sources[i] = sourcesList.get(i);
-                    }
-                    libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources = sources;
-
-                    libMeta.setDataHasChanged();
-                    mf.tableLocations.changeSelection(currentLocationIndex, 0, false, false);
-                    loadSources();
-                }
-            }
-        }
-    }
-
     private void actionSourcesMultiClicked(ActionEvent e)
     {
         if (currentConfigIndex >= 0)
@@ -739,7 +701,6 @@ public class LibrariesUI
 
             // prompt
             JLabel prompt = new JLabel(context.cfg.gs(("Libraries.sources.multiple")));
-
             controls.add(prompt, new GridBagConstraints(0, 0, 7, 1, 1.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.BOTH,
                     new Insets(4, 0, 4, 4), 0, 0));
@@ -926,6 +887,44 @@ public class LibrariesUI
                             loadSources();
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private void actionSourcesRemove(ActionEvent e)
+    {
+        if (currentConfigIndex >= 0)
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            int[] rows = mf.listSources.getSelectedIndices();
+            if (rows.length > 0)
+            {
+                int reply = JOptionPane.showConfirmDialog(mf, java.text.MessageFormat.format(context.cfg.gs("Libraries.remove.sources.from.library"),
+                        rows.length,libMeta.description,libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].name),
+                        displayName, JOptionPane.YES_NO_OPTION);
+                if (reply == JOptionPane.YES_OPTION)
+                {
+                    String[] sources = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources;
+                    ArrayList<String> sourcesList = new ArrayList<>();
+                    for (int i = 0; i < sources.length; ++i)
+                    {
+                        sourcesList.add(sources[i]);
+                    }
+                    for (int i = rows.length - 1; i >= 0; --i)
+                    {
+                        sourcesList.remove(rows[i]);
+                    }
+                    sources = new String[sourcesList.size()];
+                    for (int i = 0; i < sourcesList.size(); ++i)
+                    {
+                        sources[i] = sourcesList.get(i);
+                    }
+                    libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex].sources = sources;
+
+                    libMeta.setDataHasChanged();
+                    mf.tableLocations.changeSelection(currentLocationIndex, 0, false, false);
+                    loadSources();
                 }
             }
         }

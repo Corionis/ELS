@@ -57,7 +57,6 @@ public class Navigator
 {
     public Bookmarks bookmarks;
     private int bottomSizeBrowser;
-    private int bottomSizeOperations;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
@@ -111,7 +110,6 @@ public class Navigator
         if (enable == false)
         {
             bottomSizeBrowser = context.preferences.getBrowserBottomSize();
-            bottomSizeOperations = context.preferences.getOperationDividerBottomSize();
         }
 
         context.mainFrame.panelBrowserTop.setVisible(enable);

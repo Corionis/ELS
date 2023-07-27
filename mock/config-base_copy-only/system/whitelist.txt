@@ -1,7 +1,10 @@
 # ELS Whitelist
 #
-# One IPv4 address per line
+# Format: xxx.xxx.xxx.xxx
+#
+#   A standard IPv4 address.
+#   One address per line.
+#
 
-# Test with 20-22_Publisher-dryrun
 127.0.0.1
 

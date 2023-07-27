@@ -45,10 +45,7 @@ public class FileEditor extends JDialog
     private MainFrame mf;
     private EditorTypes type;
 
-    public static enum EditorTypes
-    {Authorization, HintKeys, BlackList, WhiteList}
-
-    ;
+    public static enum EditorTypes {Authorization, HintKeys, BlackList, WhiteList};
 
     private FileEditor()
     {
@@ -196,13 +193,114 @@ public class FileEditor extends JDialog
 
     private void actionUuidClicked(ActionEvent e)
     {
-        if (tableContent.getSelectedRows().length > 0)
+        if (tableContent.getSelectedRows().length == 1)
         {
+            if (tableContent.isEditing())
+                tableContent.getCellEditor().stopCellEditing();
+
+            ArrayList<CollectionSelector> csList = new ArrayList<>();
             Repositories repositories = getRepositories();
-            for (RepoMeta repoMeta : repositories.getList())
+            if (repositories.getList().size() > 0)
             {
-                
+                JPanel controls = new JPanel();
+                GridBagLayout gridBagLayout = new GridBagLayout();
+                controls.setLayout(gridBagLayout);
+
+                // prompt
+                JLabel prompt = new JLabel(context.cfg.gs(("Select Collection UUID")));
+                controls.add(prompt, new GridBagConstraints(0, 0, 7, 1, 1.0, 0.0,
+                        GridBagConstraints.WEST, GridBagConstraints.BOTH,
+                        new Insets(4, 0, 4, 4), 0, 0));
+
+                // create table
+                JTable table = new JTable();
+                table.setCellSelectionEnabled(false);
+                table.setRowSelectionAllowed(true);
+                table.setColumnSelectionAllowed(false);
+                table.setFillsViewportHeight(true);
+                table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                table.setMinimumSize(new Dimension(530, 100));
+                table.setPreferredSize(new Dimension(530, 260));
+
+                for (int i = 0; i < repositories.getList().size(); ++i)
+                {
+                    RepoMeta repoMeta = repositories.getList().get(i);
+                    CollectionSelector cs = new CollectionSelector();
+                    cs.description = repoMeta.description;
+                    cs.key = repoMeta.key;
+                    csList.add(cs);
+                }
+
+                CollectionTableModel model = new CollectionTableModel(context, csList);
+                table.setModel(model);
+
+                JScrollPane scrollPane = new JScrollPane();
+                scrollPane.setMinimumSize(new Dimension(530, 100));
+                scrollPane.setPreferredSize(new Dimension(530, 260));
+
+                scrollPane.setViewportView(table);
+                controls.add(scrollPane, new GridBagConstraints(0, 1, 7, 4, 0.0, 0.0,
+                        GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                        new Insets(0, 4, 4, 4), 0, 0));
+
+                // prompt user
+                Object[] params = {controls};
+                int opt = JOptionPane.showConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
+                if (opt == JOptionPane.YES_OPTION)
+                {
+                    if (table.getSelectedRow() >= 0)
+                    {
+                        int index = tableContent.getSelectedRow();
+                        HintKey hk = hintKeys.get().get(index);
+                        if (hk.uuid != null && hk.uuid.length() > 0)
+                        {
+                            opt = JOptionPane.showConfirmDialog(this, "Overwrite existing UUID?", displayName, JOptionPane.OK_CANCEL_OPTION);
+                            if (opt != JOptionPane.YES_OPTION)
+                            {
+                                return;
+                            }
+                        }
+
+                        index = table.getSelectedRow();
+                        CollectionSelector cs = csList.get(index);
+
+                        boolean found = false;
+                        for (int i = 0; i < hintKeys.get().size(); ++i)
+                        {
+                            HintKey check = hintKeys.get().get(i);
+                            if (check.uuid != null && check.uuid.equals(cs.key))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found)
+                        {
+                            JOptionPane.showMessageDialog(this, "That Collection UUID Key is already defined", displayName, JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        else
+                        {
+                            hk.uuid = cs.key;
+
+                            if (hk.name == null || hk.name.length() == 0)
+                            {
+                                hk.name = Utils.compactString(cs.description);
+                            }
+
+                            dataTableModel.setDataHasChanged();
+                            dataTableModel.fireTableDataChanged();
+                        }
+                    }
+                }
             }
+            else
+            {
+                JOptionPane.showMessageDialog(this, "There are no Collections to choose from", displayName, JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(this, "Please select a single row to update", displayName, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -293,7 +391,7 @@ public class FileEditor extends JDialog
         {
             case Authorization:
                 displayName = context.cfg.gs("Authorization Keys");
-                description = context.cfg.gs("Library keys authorized to connect.");
+                description = context.cfg.gs("Collection keys authorized to connect.");
                 helpPrefix = "authorization";
                 buttonUuidList.setVisible(true);
                 mf.menuItemAuthKeys.setEnabled(true);
@@ -303,7 +401,7 @@ public class FileEditor extends JDialog
                 break;
             case HintKeys:
                 displayName = context.cfg.gs("Hint Keys");
-                description = context.cfg.gs("Library keys involved in processing Hints.");
+                description = context.cfg.gs("Collection keys involved in processing Hints.");
                 helpPrefix = "hintkeys";
                 buttonUuidList.setVisible(true);
                 mf.menuItemAuthKeys.setEnabled(false);
@@ -472,7 +570,7 @@ public class FileEditor extends JDialog
                                 "# Format: name uuid" + System.getProperty("line.separator") +
                                 "#" + System.getProperty("line.separator") +
                                 "#   Name is any shortname, no spaces." + System.getProperty("line.separator") +
-                                "#   UUID is the key from the library JSON file." + System.getProperty("line.separator") +
+                                "#   UUID is the key from the collection JSON file." + System.getProperty("line.separator") +
                                 "#" + System.getProperty("line.separator") +
                                 "# Use space/tab separators, no quotes." + System.getProperty("line.separator") +
                                 "#" + System.getProperty("line.separator");

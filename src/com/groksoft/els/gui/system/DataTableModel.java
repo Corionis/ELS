@@ -53,7 +53,7 @@ public class DataTableModel extends DefaultTableModel
                 return context.cfg.gs("IP Address");
             case 1:
                 if (keys != null)
-                    return context.cfg.gs("Library UUID");
+                    return context.cfg.gs("Collection UUID Key");
                 return "";
         }
         return context.cfg.gs("NavTreeNode.unknown");
