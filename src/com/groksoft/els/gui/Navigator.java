@@ -1212,7 +1212,7 @@ public class Navigator
                     if (!tooMany)
                     {
                         // select source in library
-                        String path = context.browser.selectLibrarySource(tuo);
+                        String path = selectLibrarySource(tuo);
                         if (path == null || path.length() < 1)
                         {
                             JOptionPane.showMessageDialog(context.mainFrame,
@@ -2399,6 +2399,59 @@ public class Navigator
         });
 
         return 0;
+    }
+
+    private String selectLibrarySource(NavTreeUserObject tuo)
+    {
+        String path = "";
+        if (tuo.type == NavTreeUserObject.REAL)
+            path = tuo.path;
+        else if (tuo.type == NavTreeUserObject.LIBRARY)
+        {
+            if (tuo.sources.length == 1)
+                path = tuo.sources[0];
+            else
+            {
+                try
+                {
+                    // make dialog pieces
+                    String message = java.text.MessageFormat.format(context.cfg.gs("Navigator.menu.New.folder.select.library.source"), tuo.sources.length, tuo.name);
+                    JList<String> sources = new JList<String>();
+                    DefaultListModel<String> listModel = new DefaultListModel<String>();
+                    sources.setModel(listModel);
+                    sources.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    for (String src : tuo.sources)
+                    {
+                        long space = context.transfer.getFreespace(src, tuo.isRemote);
+                        String line = src + "  " + Utils.formatLong(space, false, context.cfg.getLongScale()) + context.cfg.gs("Navigator.newFolder,free");
+                        listModel.addElement(line);
+                    }
+                    sources.setSelectedIndex(0);
+
+                    JScrollPane pane = new JScrollPane();
+                    pane.setViewportView(sources);
+                    sources.requestFocus();
+                    Object[] params = {message, pane};
+
+                    int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);
+                    if (opt == JOptionPane.YES_OPTION)
+                    {
+                        int index = sources.getSelectedIndex();
+                        path = tuo.sources[index];
+                    }
+                    else
+                    {
+                        path = "_cancelled_";
+                    }
+                }
+                catch (Exception e)
+                {
+                    logger.error(context.cfg.gs("Z.exception") + e.getMessage());
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Z.exception") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+        return path;
     }
 
     private void setQuitTerminate()

@@ -2163,49 +2163,6 @@ public class Browser
         return treePath;
     }
 
-    public String selectLibrarySource(NavTreeUserObject tuo)
-    {
-        String path = "";
-        if (tuo.type == NavTreeUserObject.REAL)
-            path = tuo.path;
-        else if (tuo.type == NavTreeUserObject.LIBRARY)
-        {
-            if (tuo.sources.length == 1)
-                path = tuo.sources[0];
-            else
-            {
-                // make dialog pieces
-                String message = java.text.MessageFormat.format(context.cfg.gs("Navigator.menu.New.folder.select.library.source"), tuo.sources.length, tuo.name);
-                JList<String> sources = new JList<String>();
-                DefaultListModel<String> listModel = new DefaultListModel<String>();
-                sources.setModel(listModel);
-                sources.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                for (String src : tuo.sources)
-                {
-                    listModel.addElement(src);
-                }
-                sources.setSelectedIndex(0);
-
-                JScrollPane pane = new JScrollPane();
-                pane.setViewportView(sources);
-                sources.requestFocus();
-                Object[] params = {message, pane};
-
-                int opt = JOptionPane.showConfirmDialog(context.mainFrame, params, context.cfg.getNavigatorName(), JOptionPane.OK_CANCEL_OPTION);
-                if (opt == JOptionPane.YES_OPTION)
-                {
-                    int index = sources.getSelectedIndex();
-                    path = sources.getSelectedValue();
-                }
-                else
-                {
-                    path = "_cancelled_";
-                }
-            }
-        }
-        return path;
-    }
-
     public void selectPanelNumber(int panelNo)
     {
         if (panelNo >= 0)
