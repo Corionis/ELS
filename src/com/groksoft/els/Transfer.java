@@ -238,15 +238,23 @@ public class Transfer
      * @param path
      * @return
      */
-    private long getLocationMinimum(String path)
+    private long getLocationMinimum(Repository targetRepo, String path)
     {
         long minimum = 0L;
-        for (Location loc : context.subscriberRepo.getLibraryData().libraries.locations)
+        if (targetRepo.getLibraryData().libraries.locations != null)
         {
-            if (path.startsWith(loc.location))
+            for (Location loc : targetRepo.getLibraryData().libraries.locations)
             {
-                minimum = Utils.getScaledValue(loc.minimum);
-                break;
+                boolean match = false;
+                if (Utils.isRelativePath(loc.location))
+                    match = path.contains(loc.location);
+                else
+                    match = path.startsWith(loc.location);
+                if (match)
+                {
+                    minimum = Utils.getScaledValue(loc.minimum);
+                    break;
+                }
             }
         }
         if (minimum < 1L)
@@ -355,7 +363,7 @@ public class Transfer
     }
 
     /**
-     * Gets a subscriber target
+     * Gets a target
      * <p>
      * Will return the original directory where existing files are located if one
      * exists, that location has enough space and back-fill is enabled.
@@ -364,7 +372,7 @@ public class Transfer
      * that has enough space to hold the item, otherwise an empty string is returned.
      *
      * @param sourceRepo the source publisher or subscriber repo
-     * @param library    the publisher library.definition.name
+     * @param library    the publisher library name
      * @param totalSize  the total size of item(s) to be copied
      * @param targetRepo the target publisher or subscriber repo
      * @param itemPath   the getItemPath() value
@@ -386,10 +394,6 @@ public class Transfer
         {
             minimum = Utils.getScaledValue(target.minimum);
         }
-        else
-        {
-            minimum = Storage.MINIMUM_BYTES;
-        }
 
         // see if there is an "original" directory the new content will fit in
         if (!context.cfg.isNoBackFill())
@@ -398,7 +402,7 @@ public class Transfer
             if (path != null)
             {
                 // check size of item(s) to be copied
-                if (itFits(path, isRemote, totalSize, minimum, target != null))
+                if (itFits(targetRepo, path, isRemote, totalSize, minimum, target != null))
                 {
                     logger.info(MessageFormat.format(context.cfg.gs("Transfer.using.original.storage.location"), itemPath, path));
                     //
@@ -420,7 +424,7 @@ public class Transfer
             {
                 candidate = target.locations[j];
                 // check size of item(s) to be copied
-                if (itFits(candidate, isRemote, totalSize, minimum, true))
+                if (itFits(targetRepo, candidate, isRemote, totalSize, minimum, true))
                 {
                     path = candidate;             // has space, use it
                     break;
@@ -433,15 +437,15 @@ public class Transfer
             if (lib != null)
             {
                 notFound = false;
-            }
-            for (int j = 0; j < lib.sources.length; ++j)
-            {
-                candidate = lib.sources[j];
-                // check size of item(s) to be copied
-                if (itFits(candidate, isRemote, totalSize, minimum, false))
+                for (int j = 0; j < lib.sources.length; ++j)
                 {
-                    path = candidate;             // has space, use it
-                    break;
+                    candidate = lib.sources[j];
+                    // check size of item(s) to be copied
+                    if (itFits(targetRepo, candidate, isRemote, totalSize, minimum, false))
+                    {
+                        path = candidate;             // has space, use it
+                        break;
+                    }
                 }
             }
         }
@@ -553,22 +557,24 @@ public class Transfer
     /**
      * Will the needed size fit?
      */
-    private boolean itFits(String path, boolean isRemote, long totalSize, long minimum, boolean hasTarget) throws Exception
+    public boolean itFits(Repository targetRepo, String path, boolean isRemote, long totalSize, long minimum, boolean hasTarget) throws Exception
     {
         boolean fits = false;
         long space = getFreespace(path, isRemote);
 
         if (!hasTarget) // provided targets file overrides subscriber file locations minimum values
         {
-            if (context.subscriberRepo.getLibraryData().libraries.locations != null &&
-                    context.subscriberRepo.getLibraryData().libraries.locations.length > 0) 
+            if (targetRepo.getLibraryData().libraries.locations != null &&
+                    targetRepo.getLibraryData().libraries.locations.length > 0)
             {
-                minimum = getLocationMinimum(path);
+                minimum = getLocationMinimum(targetRepo, path);
             }
+            else
+                minimum = Storage.MINIMUM_BYTES;
         }
 
         logger.info(MessageFormat.format(context.cfg.gs("Transfer.checking"), hasTarget ? 0 : 1, Utils.formatLong(totalSize, false, context.cfg.getLongScale()),
-                Utils.formatLong(minimum, false, context.cfg.getLongScale()), context.cfg.isRemoteSession() ? 0 : 1, path) + (Utils.formatLong(space, false, context.cfg.getLongScale())));
+                Utils.formatLong(minimum, false, context.cfg.getLongScale()), isRemote ? 0 : 1, path) + (Utils.formatLong(space, false, context.cfg.getLongScale())));
 
         if (space > (totalSize + minimum))
         {

@@ -88,8 +88,21 @@ public class Utils
         long space = 0;
         try
         {
-            File f = new File(location);
-            space = f.getUsableSpace();
+            while (true)
+            {
+                File f = new File(location);
+                if (f.exists())
+                {
+                    space = f.getUsableSpace();
+                    break;
+                }
+                else
+                {
+                    location = Utils.getLeftPath(location, Utils.getSeparatorFromPath(location));
+                    if (location.length() == 0)
+                        break;
+                }
+            }
         }
         catch (SecurityException e)
         {

@@ -202,13 +202,15 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         targetSep = targetRepo.getSeparator();
 
         // get the directory
+        boolean checkSpace = true;
         if (targetTuo.type == NavTreeUserObject.LIBRARY)
         {
+            checkSpace = false;
             directory = context.transfer.getTarget(sourceRepo, targetTuo.name, batchSize, targetRepo, targetTuo.isRemote, sourceTuo.path);
             if (directory == null || directory.length() == 0)
             {
                 throw new MungeException(MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
-                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(targetTuo.size, false, context.cfg.getLongScale())));
+                        targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(batchSize, false, context.cfg.getLongScale())));
             }
         }
         else if (targetTuo.type == NavTreeUserObject.DRIVE || targetTuo.type == NavTreeUserObject.HOME)
@@ -224,6 +226,12 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             }
         }
         assert (directory.length() > 0);
+
+        if (checkSpace && !context.transfer.itFits(targetRepo, directory, targetTuo.isRemote, batchSize, 0, false))
+        {
+            throw new MungeException(MessageFormat.format(context.cfg.gs("Transfer.no.space.on.any.target.location"),
+                    targetRepo.getLibraryData().libraries.description, targetTuo.name, Utils.formatLong(batchSize, false, context.cfg.getLongScale())));
+        }
 
         int dirPos = Utils.rightIndexOf(sourceTuo.path, sourceSep, (targetTuo.isDir ? 0 : depth));
         filename = sourceTuo.path.substring(dirPos);
@@ -341,13 +349,26 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                 }
             }
         }
+        catch (MungeException me)
+        {
+            if (!isCancelled() && !error)
+            {
+                String msg = context.cfg.gs("Browser.error") + me.getMessage();
+                logger.error(msg);
+                JOptionPane.showMessageDialog(context.mainFrame, msg,
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+
+            }
+            error = true;
+        }
         catch (Exception e)
         {
-            if (!isCancelled())
+            if (!isCancelled() && !error)
             {
                 logger.error(Utils.getStackTrace(e));
-                JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") + e,
-                        context.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.getMessage(),
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+
             }
             error = true;
         }
@@ -443,16 +464,29 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             }
 
             // update trees with progress so far, do again when done
+// LEFTOFF Flashing and too many free space calls !!!
             if (context.preferences.isAutoRefresh())
             {
                 context.browser.refreshTree(sourceTree);
                 context.browser.refreshTree(targetTree);
             }
         }
+        catch (MungeException me)
+        {
+            if (!isCancelled() && !error)
+            {
+                msg = context.cfg.gs("Browser.error") + me.getMessage();
+                logger.error(msg);
+                JOptionPane.showMessageDialog(context.mainFrame, msg,
+                        context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+
+            }
+            error = true;
+        }
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            if (!isCancelled())
+            if (!isCancelled() && !error)
             {
                 int reply = JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") +
                                 context.browser.navTransferHandler.getOperationText(action, true) + ": " + e.toString() + "\n\n" + context.cfg.gs("NavTransferHandler.continue"),

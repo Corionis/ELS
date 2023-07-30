@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.groksoft.els.*;
 import com.groksoft.els.repository.*;
 import com.groksoft.els.stty.ServeStty;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,13 +51,12 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
 
     public void exportLibrary(String filename) throws MungeException
     {
-        String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
+        File outFile = new File(filename);
+        outFile.getParentFile().mkdirs();
         logger.info("Writing library file " + filename);
         Repository repo = myRepo.cloneNoItems(); // clone with no items
-
-        json = gson.toJson(repo.getLibraryData());
+        String json = gson.toJson(repo.getLibraryData());
         try
         {
             PrintWriter outputStream = new PrintWriter(filename);

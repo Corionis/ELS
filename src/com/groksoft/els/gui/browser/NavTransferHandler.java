@@ -306,7 +306,7 @@ public class NavTransferHandler extends TransferHandler
     /**
      * Export a Hint to subscriber
      *
-     * @param act Action mv or rm
+     * @param act       Action mv or rm
      * @param sourceTuo Source NavTreeUserObject
      * @param targetTuo Target NavTreeUserObject
      * @throws Exception
@@ -446,7 +446,7 @@ public class NavTransferHandler extends TransferHandler
         boolean sense = false;
         String[] libraryElements = libraryPath.split(Utils.getSeparatorFromPath(libraryPath));
         int max = Integer.min(pathElements.length, libraryElements.length);
-        for (int i = 0; i < max ; )
+        for (int i = 0; i < max; )
         {
             if (!pathElements[i].equals(libraryElements[i]))
                 break;
@@ -743,8 +743,8 @@ public class NavTransferHandler extends TransferHandler
         {
             logger.error(Utils.getStackTrace(e));
             context.mainFrame.labelStatusMiddle.setText("");
-            JOptionPane.showConfirmDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.toString(),
-                    context.cfg.getNavigatorName(), JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Browser.error") + e.getMessage(),
+                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
 
         reset();
@@ -764,7 +764,7 @@ public class NavTransferHandler extends TransferHandler
         DataFlavor[] flavors = info.getTransferable().getTransferDataFlavors();
         Transferable data = info.getTransferable();
         boolean typeFound = false;
-        ArrayList<String > skipped = new ArrayList<>();
+        ArrayList<String> skipped = new ArrayList<>();
 
         for (int index = 0; index < flavors.length; index++)
         {
@@ -832,9 +832,9 @@ public class NavTransferHandler extends TransferHandler
      * Process the list of NavTreeUserObjects assembled with the singleton NavTransferWorker
      * <br/><br/>
      * The valid target types are:<br/>
-     *   * REAL local or remote files<br/>
-     *   * DRIVE and HOME<br/>
-     *   * LIBRARY using it's sources<br/>
+     * * REAL local or remote files<br/>
+     * * DRIVE and HOME<br/>
+     * * LIBRARY using it's sources<br/>
      * <br/>
      * Adds a new Batch to the NavTransferWorker queue and executes it if not running
      *

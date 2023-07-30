@@ -7,6 +7,7 @@ import com.google.gson.stream.JsonWriter;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
 import com.groksoft.els.Utils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -118,11 +119,12 @@ public class Repository
      */
     public void exportItems(boolean isCollection) throws MungeException
     {
-        String json;
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String where = Utils.getWorkingFile(context.cfg.getExportCollectionFilename());
+        File outFile = new File(where);
+        outFile.getParentFile().mkdirs();
         logger.info("Writing " + (isCollection ? "collection" : "library") + " file " + where);
-        json = gson.toJson(getLibraryData());
+        String json = gson.toJson(getLibraryData());
         try
         {
             PrintWriter outputStream = new PrintWriter(where);
@@ -143,6 +145,8 @@ public class Repository
     public void exportText() throws MungeException
     {
         String where = Utils.getWorkingFile(context.cfg.getExportTextFilename());
+        File outFile = new File(where);
+        outFile.getParentFile().mkdirs();
         logger.info("Writing text file " + where);
         try
         {
