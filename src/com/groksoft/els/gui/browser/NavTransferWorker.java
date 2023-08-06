@@ -464,10 +464,11 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
             }
 
             // update trees with progress so far, do again when done
-// LEFTOFF Flashing and too many free space calls !!!
             if (context.preferences.isAutoRefresh())
             {
-                context.browser.refreshTree(sourceTree);
+                if (action == TransferHandler.MOVE)
+                    context.browser.refreshTree(sourceTree);
+
                 context.browser.refreshTree(targetTree);
             }
         }

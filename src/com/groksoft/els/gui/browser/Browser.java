@@ -71,7 +71,6 @@ public class Browser
             {
                 String name = "";
                 Component active = focusEvent.getComponent();
-                //if (active.isEnabled())
                 name = active.getName();
                 if (name.length() > 0)
                 {
@@ -1196,6 +1195,33 @@ public class Browser
                 context.preferences.setBrowserBottomSize(componentEvent.getComponent().getHeight());
             }
         });
+        //
+        context.mainFrame.tabbedPaneNavigatorBottom.addChangeListener(new ChangeListener()
+        {
+            @Override
+            public void stateChanged(ChangeEvent changeEvent)
+            {
+                if (context.mainFrame.tabbedPaneNavigatorBottom.getSelectedIndex() == 1)
+                {
+                    Object object = lastComponent;
+                    JTree tree = null;
+                    if (object instanceof JTree)
+                    {
+                        tree = (JTree) object;
+                    }
+                    else if (object instanceof JTable)
+                    {
+                        tree = context.browser.navTransferHandler.getTargetTree((JTable) object);
+                    }
+                    if (tree != null)
+                    {
+                        NavTreeNode node = (NavTreeNode) tree.getLastSelectedPathComponent();
+                        if (node != null)
+                            printProperties(node.getUserObject());
+                    }
+                }
+            }
+        });
 
         // set default start location and related data
         initializeStatus(context.mainFrame.treeCollectionTwo);
@@ -1682,7 +1708,7 @@ public class Browser
 
     public void printProperties(NavTreeUserObject tuo)
     {
-        if (tuo == null || tuo.node == null || !tuo.node.isLoaded())
+        if (tuo == null || tuo.node == null || !tuo.node.isLoaded() || context.mainFrame.tabbedPaneNavigatorBottom.getSelectedIndex() != 1)
             return;
 
         if (!printPropertiesInUse)
