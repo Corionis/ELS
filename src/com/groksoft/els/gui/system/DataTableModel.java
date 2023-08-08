@@ -49,11 +49,11 @@ public class DataTableModel extends DefaultTableModel
         {
             case 0:
                 if (keys != null)
-                    return context.cfg.gs("Name");
-                return context.cfg.gs("IP Address");
+                    return context.cfg.gs(("FileEditor.name"));
+                return context.cfg.gs(("FileEditor.ip.address"));
             case 1:
                 if (keys != null)
-                    return context.cfg.gs("Collection UUID Key");
+                    return context.cfg.gs(("FileEditor.collection.uuid.key"));
                 return "";
         }
         return context.cfg.gs("NavTreeNode.unknown");

@@ -98,7 +98,7 @@ upgrading for changes, additions and enhancements.
     whitespace enclose it in quotations. In this mode the job controls ELS actions.
 
  6. Added option -A | --auth-keys for subscriber and publisher listeners. This is the same
-    format as Hint Keys. Authorization keys are used to authenticate both workstations and
+    format as Hint Keys. Authentication keys are used to authenticate both workstations and
     publishers instead of requiring a specific system defined by -s|S.
 
  7. Added option -g | --listener-keep-going. For a Publisher the "keep going" option skips
@@ -174,7 +174,7 @@ upgrading for changes, additions and enhancements.
     1. Normally the publisher and subscriber are specific.
        1. If a connection is made to a listener and it is not the specific system expected
           the listener will fail and exit.
-    2. However if the listener is running with the -A|--auth-keys Authorization Keys file option
+    2. However if the listener is running with the -A|--auth-keys Authentication Keys file option
        authentication matches against all the keys. So a single subscriber listener can connect to 
        one or more remote ELS publishers or ELS Navigators concurrently.
        1. The current limit is 10 concurrent connections. 
@@ -182,7 +182,7 @@ upgrading for changes, additions and enhancements.
     3. In either case if a connection is made and authentication fails the listener will fail and exit.
        1. This is to prevent hack attempts on listeners.
        2. May change in the future.
-    4. The reasons for separate listener authorization keys and hint keys:
+    4. The reasons for separate listener authentication keys and hint keys:
        1. A listener may want to allow Navigator sessions in addition to back-up systems.
        2. Hint keys control:
           1. Which back-up systems are setup to process hints.

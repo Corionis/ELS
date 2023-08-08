@@ -25,14 +25,6 @@ import java.io.File;
 import java.text.MessageFormat;
 import java.util.*;
 
-/*
-    QUESTION
-        + Targets?
-            = Research how they ACTUALLY work.
-            - Should Targets be a tab for a Library with a top check-box for enable?
-            - Or should Targets be removed entirely??
- */
-
 @SuppressWarnings(value = "unchecked")
 
 public class LibrariesUI
@@ -310,7 +302,7 @@ public class LibrariesUI
             }
             catch (MungeException e)
             {
-                // TODO
+                // should never happen
             }
         }
     }
@@ -881,7 +873,7 @@ public class LibrariesUI
                             }
                             catch (MungeException me)
                             {
-                                // TODO
+                                // should never happen
                             }
 
                             loadSources();
@@ -995,7 +987,7 @@ public class LibrariesUI
 
     public void cardShown(ComponentEvent e)
     {
-        // TODO add your code here
+        // other cards not implemented, but can be
     }
 
     public boolean checkForChanges()
@@ -1535,10 +1527,7 @@ public class LibrariesUI
             int index = libraries.flavor.toLowerCase().equals("linux") ? 0 :
                     (libraries.flavor.toLowerCase().equals("mac") ? 1 :
                             (libraries.flavor.toLowerCase().equals("windows") ? 2 : -1));
-            if (index < 0)
-            {
-                // TODO
-            }
+            assert(index >= 0);
             mf.comboBoxFlavor.setSelectedIndex(index);
             if (libraries.case_sensitive != null)
                 mf.checkBoxCase.setSelected(libraries.case_sensitive);

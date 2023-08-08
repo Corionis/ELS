@@ -239,7 +239,22 @@ public class OperationsTool extends AbstractTool
             sb.append(" " + (glo ? "--export-items" : "-i") + " \"" + getOptExportItems() + "\"");
 
         // --- include/exclude libraries
-        // TODO add include/exclude libraries
+        String[] libs = getOptLibrary();
+        if (libs != null && libs.length > 0)
+        {
+            for (int i = 0; i < libs.length; ++i)
+            {
+                sb.append(" " + (glo ? "--library" : "-l") + " \"" + libs[i] + "\"");
+            }
+        }
+        libs = getOptExclude();
+        if (libs != null && libs.length > 0)
+        {
+            for (int i = 0; i < libs.length; ++i)
+            {
+                sb.append(" " + (glo ? "--exclude" : "-L") + " \"" + libs[i] + "\"");
+            }
+        }
 
         // --- differences
         if (getOptMismatches().length() > 0)

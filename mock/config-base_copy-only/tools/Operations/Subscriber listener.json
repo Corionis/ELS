@@ -3,7 +3,7 @@
   "internalName": "Operations",
   "operation": "SubscriberListener",
   "card": "Listener",
-  "optAuthKeys": "system/authorization.keys",
+  "optAuthKeys": "system/authentication.keys",
   "optNoBackFill": false,
   "optBlacklist": "",
   "optDryRun": false,

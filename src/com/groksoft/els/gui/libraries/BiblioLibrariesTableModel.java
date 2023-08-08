@@ -51,7 +51,7 @@ public class BiblioLibrariesTableModel extends DefaultTableModel
                 }
                 catch (MungeException e)
                 {
-                    // TODO
+                    // should never happen
                 }
             }
         }

@@ -219,7 +219,7 @@ public class Configuration
 
         if (getAuthKeysFile().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -A Authorization Keys filename = " + getAuthKeysFile());
+            logger.info(SHORT, "  cfg: -A Authentication Keys filename = " + getAuthKeysFile());
         }
         if (getAuthorizedPassword().length() > 0)
         {
@@ -343,7 +343,7 @@ public class Configuration
     }
 
     /**
-     * Gets Authorization Keys filename
+     * Gets Authentication Keys filename
      *
      * @return String filename
      */
@@ -1327,7 +1327,7 @@ public class Configuration
         {
             switch (args[index])
             {
-                case "-A":                                              // authorization keys for publisher/subscriber listeners
+                case "-A":                                              // authentication keys for publisher/subscriber listeners
                 case "--auth-keys":
                     if (index <= args.length - 2)
                     {
@@ -1336,7 +1336,7 @@ public class Configuration
                     }
                     else
                     {
-                        throw new MungeException("Error: -A requires an ELS authorization keys filename");
+                        throw new MungeException("Error: -A requires an ELS authentication keys filename");
                     }
                     break;
                 case "-a":                                             // authorize mode password
@@ -1753,7 +1753,7 @@ public class Configuration
     }
 
     /**
-     * Set the Authorization Keys filename
+     * Set the Authentication Keys filename
      *
      * @param authKeysFile
      */

@@ -1812,7 +1812,7 @@ public class Navigator
                 if (fileeditor != null && fileeditor.isVisible())
                     fileeditor.requestFocus();
                 else
-                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.Authorization);
+                    fileeditor = new FileEditor(context, FileEditor.EditorTypes.Authentication);
             }
         });
 
@@ -2423,7 +2423,7 @@ public class Navigator
                     for (String src : tuo.sources)
                     {
                         long space = context.transfer.getFreespace(src, tuo.isRemote);
-                        String line = src + "  " + Utils.formatLong(space, false, context.cfg.getLongScale()) + context.cfg.gs("Navigator.newFolder,free");
+                        String line = src + "  " + Utils.formatLong(space, false, context.cfg.getLongScale()) + context.cfg.gs("Navigator.newFolder.free");
                         listModel.addElement(line);
                     }
                     sources.setSelectedIndex(0);

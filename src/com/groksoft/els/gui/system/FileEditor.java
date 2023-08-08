@@ -37,7 +37,6 @@ public class FileEditor extends JDialog
     private String displayName;
     private String fileName;
     private NavHelp helpDialog;
-    private String helpPrefix;
     private String helpTip;
     private HintKeys hintKeys = null;
     private ArrayList<String> ipAddresses = null;
@@ -45,7 +44,7 @@ public class FileEditor extends JDialog
     private MainFrame mf;
     private EditorTypes type;
 
-    public static enum EditorTypes {Authorization, HintKeys, BlackList, WhiteList};
+    public static enum EditorTypes {Authentication, HintKeys, BlackList, WhiteList};
 
     private FileEditor()
     {
@@ -67,7 +66,7 @@ public class FileEditor extends JDialog
     {
         switch (type)
         {
-            case Authorization:
+            case Authentication:
             case HintKeys:
                 if (hintKeys.get().size() == 0 || hintKeys.get().get(hintKeys.get().size() - 1).name != null)
                 {
@@ -122,9 +121,9 @@ public class FileEditor extends JDialog
             String helpName = "";
             switch (type)
             {
-                case Authorization:
-                    title = context.cfg.gs("FileEditor.labelHelpAuthorization.toolTipText");
-                    helpName = "authorization-keys_";
+                case Authentication:
+                    title = context.cfg.gs("FileEditor.labelHelpAuthentication.toolTipText");
+                    helpName = "authentication-keys_";
                     break;
                 case HintKeys:
                     title = context.cfg.gs("FileEditor.labelHelpHint.toolTipText");
@@ -207,7 +206,7 @@ public class FileEditor extends JDialog
                 controls.setLayout(gridBagLayout);
 
                 // prompt
-                JLabel prompt = new JLabel(context.cfg.gs(("Select Collection UUID")));
+                JLabel prompt = new JLabel(context.cfg.gs("FileEditor.select.collection.uuid"));
                 controls.add(prompt, new GridBagConstraints(0, 0, 7, 1, 1.0, 0.0,
                         GridBagConstraints.WEST, GridBagConstraints.BOTH,
                         new Insets(4, 0, 4, 4), 0, 0));
@@ -254,7 +253,7 @@ public class FileEditor extends JDialog
                         HintKey hk = hintKeys.get().get(index);
                         if (hk.uuid != null && hk.uuid.length() > 0)
                         {
-                            opt = JOptionPane.showConfirmDialog(this, "Overwrite existing UUID?", displayName, JOptionPane.OK_CANCEL_OPTION);
+                            opt = JOptionPane.showConfirmDialog(this, context.cfg.gs("FileEditor.overwrite.existing.uuid"), displayName, JOptionPane.OK_CANCEL_OPTION);
                             if (opt != JOptionPane.YES_OPTION)
                             {
                                 return;
@@ -276,7 +275,7 @@ public class FileEditor extends JDialog
                         }
                         if (found)
                         {
-                            JOptionPane.showMessageDialog(this, "That Collection UUID Key is already defined", displayName, JOptionPane.INFORMATION_MESSAGE);
+                            JOptionPane.showMessageDialog(this, context.cfg.gs("FileEditor.that.collection.uuid.key.is.already.defined"), displayName, JOptionPane.INFORMATION_MESSAGE);
                         }
                         else
                         {
@@ -295,12 +294,12 @@ public class FileEditor extends JDialog
             }
             else
             {
-                JOptionPane.showMessageDialog(this, "There are no Collections to choose from", displayName, JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, context.cfg.gs("FileEditor.there.are.no.collections.to.choose.from"), displayName, JOptionPane.INFORMATION_MESSAGE);
             }
         }
         else
         {
-            JOptionPane.showMessageDialog(this, "Please select a single row to update", displayName, JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, context.cfg.gs("FileEditor.please.select.a.single.row.to.update"), displayName, JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -389,10 +388,9 @@ public class FileEditor extends JDialog
 
         switch (type)
         {
-            case Authorization:
-                displayName = context.cfg.gs("Authorization Keys");
-                description = context.cfg.gs("Collection keys authorized to connect.");
-                helpPrefix = "authorization";
+            case Authentication:
+                displayName = context.cfg.gs(("FileEditor.authentication.keys"));
+                description = context.cfg.gs(("FileEditor.collection.keys.allowed.to.connect"));
                 buttonUuidList.setVisible(true);
                 mf.menuItemAuthKeys.setEnabled(true);
                 mf.menuItemHintKeys.setEnabled(false);
@@ -400,9 +398,8 @@ public class FileEditor extends JDialog
                 mf.menuItemWhitelist.setEnabled(false);
                 break;
             case HintKeys:
-                displayName = context.cfg.gs("Hint Keys");
-                description = context.cfg.gs("Collection keys involved in processing Hints.");
-                helpPrefix = "hintkeys";
+                displayName = context.cfg.gs(("FileEditor.hint.keys"));
+                description = context.cfg.gs(("FileEditor.collection.keys.involved.in.processing.hints"));
                 buttonUuidList.setVisible(true);
                 mf.menuItemAuthKeys.setEnabled(false);
                 mf.menuItemHintKeys.setEnabled(true);
@@ -410,9 +407,8 @@ public class FileEditor extends JDialog
                 mf.menuItemWhitelist.setEnabled(false);
                 break;
             case BlackList:
-                displayName = context.cfg.gs("Blacklist");
-                description = context.cfg.gs("IP addresses that may not connect.");
-                helpPrefix = "blacklist";
+                displayName = context.cfg.gs(("FileEditor.blacklist"));
+                description = context.cfg.gs(("FileEditor.ip.addresses.that.may.not.connect"));
                 buttonUuidList.setVisible(false);
                 mf.menuItemAuthKeys.setEnabled(false);
                 mf.menuItemHintKeys.setEnabled(false);
@@ -420,9 +416,8 @@ public class FileEditor extends JDialog
                 mf.menuItemWhitelist.setEnabled(false);
                 break;
             case WhiteList:
-                displayName = context.cfg.gs("Whitelist");
-                description = context.cfg.gs("IP addresses authorized to connect.");
-                helpPrefix = "whitelist";
+                displayName = context.cfg.gs(("FileEditor.whitelist"));
+                description = context.cfg.gs(("FileEditor.ip.addresses.allowed.to.connect"));
                 buttonUuidList.setVisible(false);
                 mf.menuItemAuthKeys.setEnabled(false);
                 mf.menuItemHintKeys.setEnabled(false);
@@ -446,7 +441,7 @@ public class FileEditor extends JDialog
 
         switch (type)
         {
-            case Authorization:
+            case Authentication:
                 hintKeys = readHintKeys();
                 break;
             case HintKeys:
@@ -471,8 +466,8 @@ public class FileEditor extends JDialog
         {
             switch (type)
             {
-                case Authorization:
-                    fileName = "authorization.keys";
+                case Authentication:
+                    fileName = "authentication.keys";
                     break;
                 case HintKeys:
                     fileName = "hint.keys";
@@ -533,7 +528,7 @@ public class FileEditor extends JDialog
         {
             logger.error(Utils.getStackTrace(e));
         }
-        logger.info("Read IP addresses " + fileName + " successfully");
+        logger.info(java.text.MessageFormat.format(context.cfg.gs("FileEditor.read.ip.addresses.0.successfully"), fileName));
         return ipAddresses;
     }
 
@@ -549,8 +544,8 @@ public class FileEditor extends JDialog
                 String header = "";
                 switch (type)
                 {
-                    case Authorization:
-                        header = "# ELS Authorization Keys" + System.getProperty("line.separator");
+                    case Authentication:
+                        header = "# ELS Authentication Keys" + System.getProperty("line.separator");
                         break;
                     case HintKeys:
                         header = "# ELS Hint Keys" + System.getProperty("line.separator");
@@ -564,7 +559,7 @@ public class FileEditor extends JDialog
                 }
                 switch (type)
                 {
-                    case Authorization:
+                    case Authentication:
                     case HintKeys:
                         header += "#" + System.getProperty("line.separator") +
                                 "# Format: name uuid" + System.getProperty("line.separator") +

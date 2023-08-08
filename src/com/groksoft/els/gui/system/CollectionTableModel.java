@@ -42,9 +42,9 @@ public class CollectionTableModel extends DefaultTableModel
         switch (column)
         {
             case 0:
-                return context.cfg.gs("Description");
+                return context.cfg.gs(("FileEditor.description"));
             case 1:
-                return context.cfg.gs("Collection UUID Key");
+                return context.cfg.gs(("FileEditor.collection.uuid.key"));
         }
         return context.cfg.gs("NavTreeNode.unknown");
     }

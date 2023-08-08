@@ -117,7 +117,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
                 send(myKey, "");
 
                 input = receive("", 5000);
-                // validate with Authorization Keys if specified
+                // validate with Authentication Keys if specified
                 if (context.authKeys != null)
                 {
                     HintKey connectedKey = context.authKeys.findKey(input);  // look for matching key in hints keys file
@@ -168,7 +168,7 @@ public class Daemon extends com.groksoft.els.stty.AbstractDaemon
         port = getSocket().getPort();
         address = getSocket().getInetAddress();
 
-        // Get ELS Authorization Keys if specified
+        // Get ELS Authentication Keys if specified
         try
         {
             if (context.cfg.getAuthKeysFile().length() > 0)
