@@ -1,6 +1,5 @@
 package com.groksoft.els;
 
-import com.google.gson.Gson;
 import com.groksoft.els.gui.Navigator;
 import com.groksoft.els.gui.Preferences;
 import com.groksoft.els.gui.util.GuiLogAppender;
@@ -24,10 +23,7 @@ import org.apache.sshd.common.util.io.IoUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
 
@@ -39,6 +35,7 @@ import static com.groksoft.els.Configuration.*;
 public class Main
 {
     public Main main;
+    public boolean navigatorSession = false;
     public Context context = new Context();
     private boolean isListening = false; // listener mode
     public String localeAbbrev; // abbreviation of locale, e.g. en_US
@@ -142,6 +139,30 @@ public class Main
     }
 
     /**
+     * Read the built-in build number
+     *
+     * @return Build number string
+     */
+    public String getBuildNumber()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() > 1)
+            {
+                text += lines.get(1);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+        }
+        return text;
+    }
+
+    /**
      * Read the built-in build stamp
      *
      * @return Build stamp string
@@ -153,7 +174,31 @@ public class Main
         {
             URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
             List<String> lines = IoUtils.readAllLines(url);
-            if (lines.size() > 0)
+            if (lines.size() > 1)
+            {
+                text += lines.get(2);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+        }
+        return text;
+    }
+
+    /**
+     * Read the built-in version
+     *
+     * @return Build version string
+     */
+    public String getBuildVersionName()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() > 1)
             {
                 text += lines.get(0);
             }
@@ -308,7 +353,7 @@ public class Main
                 throw cfgException;
 
             context.preferences = new Preferences(context);
-            readPreferences();
+            Utils.readPreferences(context);
 
             // attempt to load the language Java started with, default en_US
             Locale locale = Locale.getDefault();
@@ -339,7 +384,7 @@ public class Main
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.defaultNavigator || context.cfg.isNavigator())
                     {
-                        logger.info("ELS: Local Navigator, version " + context.cfg.getVersionStamp());
+                        logger.info("ELS: Local Navigator, version " + getBuildVersionName());
                         context.cfg.dump();
 
                         if (context.cfg.getPublisherFilename().length() > 0)
@@ -363,11 +408,14 @@ public class Main
 
                         context.navigator = new Navigator(main, context);
                         if (!context.fault)
+                        {
                             context.navigator.run();
+                            navigatorSession = true;
+                        }
                     }
                     else
                     {
-                        logger.info("ELS: Local Publish, version " + context.cfg.getVersionStamp());
+                        logger.info("ELS: Local Publish, version " + getBuildVersionName());
                         context.cfg.dump();
 
                         context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -391,7 +439,7 @@ public class Main
 
                 // --- -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS: Publisher Listener, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Publisher Listener, version " + getBuildVersionName());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -421,7 +469,7 @@ public class Main
 
                 // --- -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS: Publisher Terminal, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Publisher Terminal, version " + getBuildVersionName());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -458,9 +506,9 @@ public class Main
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.isNavigator())
-                        logger.info("ELS: Remote Navigator, version " + context.cfg.getVersionStamp());
+                        logger.info("ELS: Remote Navigator, version " + getBuildVersionName());
                     else
-                        logger.info("ELS: Remote Publish, version " + context.cfg.getVersionStamp());
+                        logger.info("ELS: Remote Publish, version " + getBuildVersionName());
 
                     context.cfg.dump();
 
@@ -492,7 +540,10 @@ public class Main
                         {
                             context.navigator = new Navigator(main, context);
                             if (!context.fault)
+                            {
                                 context.navigator.run();
+                                navigatorSession = true;
+                            }
                         }
                         else
                         {
@@ -509,7 +560,7 @@ public class Main
 
                 // --- -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS: Subscriber Listener, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Subscriber Listener, version " + getBuildVersionName());
                     context.cfg.dump();
 
                     if (!context.cfg.isTargetsEnabled())
@@ -542,7 +593,7 @@ public class Main
 
                 // --- -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS: Subscriber Terminal, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Subscriber Terminal, version " + getBuildVersionName());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
@@ -591,7 +642,7 @@ public class Main
 
                 // --- -H|--hint-server stand-alone hint status server
                 case STATUS_SERVER:
-                    logger.info("ELS: Hint Status Server, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Hint Status Server, version " + getBuildVersionName());
                     context.cfg.dump();
 
                     if (context.cfg.getHintKeysFile() == null || context.cfg.getHintKeysFile().length() == 0)
@@ -635,7 +686,7 @@ public class Main
 
                 // --- -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Hint Status Server Quit, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Hint Status Server Quit, version " + getBuildVersionName());
                     context.cfg.dump();
 
                     if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
@@ -652,7 +703,7 @@ public class Main
 
                 // --- -G|--listener-quit the remote subscriber
                 case SUBSCRIBER_LISTENER_FORCE_QUIT:
-                    logger.info("ELS: Subscriber Listener Quit, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Subscriber Listener Quit, version " + getBuildVersionName());
                     context.cfg.dump();
 
                     if (context.cfg.getSubscriberFilename() == null || context.cfg.getSubscriberFilename().length() == 0)
@@ -684,7 +735,7 @@ public class Main
 
                 // --- -j|--job to execute a Job
                 case JOB_PROCESS:
-                    logger.info("ELS: Job, version " + context.cfg.getVersionStamp());
+                    logger.info("ELS: Job, version " + getBuildVersionName());
 
                     context.cfg.dump();
 
@@ -820,7 +871,7 @@ public class Main
                         }
                     }
                 });
-                logger.trace("shutdown hook added");
+                logger.trace("listener shutdown hook added");
             }
         }
 
@@ -829,26 +880,8 @@ public class Main
             logger.error("Exiting with error code");
             Runtime.getRuntime().halt(1);
         }
+        logger.fatal("EXITING process");
     } // process
-
-    public void readPreferences()
-    {
-        try
-        {
-            Gson gson = new Gson();
-            String json = new String(Files.readAllBytes(Paths.get(context.preferences.getFullPath())));
-            Preferences prefs = gson.fromJson(json, context.preferences.getClass());
-            if (prefs != null)
-            {
-                context.preferences = gson.fromJson(json, context.preferences.getClass());
-                context.preferences.setContext(context);
-            }
-        }
-        catch (IOException e)
-        {
-            // file might not exist
-        }
-    }
 
     /**
      * Read either a publisher or subscriber repository

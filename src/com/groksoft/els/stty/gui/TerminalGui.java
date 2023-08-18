@@ -1,6 +1,7 @@
 package com.groksoft.els.stty.gui;
 
 import com.groksoft.els.Configuration;
+import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.repository.Repository;
 import com.groksoft.els.stty.ClientStty;
@@ -18,6 +19,7 @@ import java.io.DataOutputStream;
 
 public class TerminalGui implements WindowListener, ActionListener
 {
+    Context context;
     Configuration cfg = null;
     JTextField commandField;
     JFrame frame;
@@ -30,10 +32,11 @@ public class TerminalGui implements WindowListener, ActionListener
     private Repository myRepo;
     private Repository theirRepo;
 
-    public TerminalGui(ClientStty clientStty, Configuration cfg, DataInputStream in, DataOutputStream out)
+    public TerminalGui(ClientStty clientStty, Context context, DataInputStream in, DataOutputStream out)
     {
         this.terminal = clientStty;
-        this.cfg = cfg;
+        this.context = context;
+        this.cfg = context.cfg;
         this.in = in;
         this.out = out;
     }
@@ -110,7 +113,7 @@ public class TerminalGui implements WindowListener, ActionListener
 
     private int build()
     {
-        frame = new JFrame("ELS " + cfg.getVersion() + " connected to " + theirRepo.getLibraryData().libraries.description);
+        frame = new JFrame("ELS " + context.main.getBuildVersionName() + " connected to " + theirRepo.getLibraryData().libraries.description);
 //        try
 //        {
 //            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");

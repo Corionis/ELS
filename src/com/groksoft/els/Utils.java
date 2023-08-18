@@ -1,5 +1,7 @@
 package com.groksoft.els;
 
+import com.google.gson.Gson;
+import com.groksoft.els.gui.Preferences;
 import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
@@ -1026,6 +1028,30 @@ public class Utils
             separator = "\\\\";
         String p = path.replaceAll(separator, "|");
         return p;
+    }
+
+    /**
+     * Read the user Preferences file
+     *
+     * @param context The Context where it's preferences element will be populated
+     */
+    public static void readPreferences(Context context)
+    {
+        try
+        {
+            Gson gson = new Gson();
+            String json = new String(Files.readAllBytes(Paths.get(context.preferences.getFullPath())));
+            Preferences prefs = gson.fromJson(json, context.preferences.getClass());
+            if (prefs != null)
+            {
+                context.preferences = gson.fromJson(json, context.preferences.getClass());
+                context.preferences.setContext(context);
+            }
+        }
+        catch (IOException e)
+        {
+            // file might not exist
+        }
     }
 
     /**

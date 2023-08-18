@@ -17,16 +17,19 @@ if [ "$1" != "-f" ]; then
     fi
 fi
 
+rm -rf ./bin
 rm -rf ./datastore
 rm -rf ./jobs
 rm -rf ./libraries
 rm -rf ./local
 rm -rf ./output
+rm -rf ./rt
 rm -rf ./system
 rm -rf ./tools
 
 cp -rpv ./config-base_copy-only/* .
 cp -rpv ./linux-base_copy-only/* .
+cp -pv ../deploy/update.info .
 echo ""
 
 echo -e "Reset configuration done"

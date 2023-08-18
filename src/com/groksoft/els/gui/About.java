@@ -23,7 +23,7 @@ public class About extends JDialog
         this.context = context;
         initComponents();
 
-        labelVersion.setText("Version " + context.cfg.getVersion());
+        labelVersion.setText("Version " + context.main.getBuildVersionName());
         labelBuild.setText(context.main.getBuildStamp());
 
         ActionListener escListener = new AbstractAction()

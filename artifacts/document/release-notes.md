@@ -206,11 +206,15 @@ upgrading for changes, additions and enhancements.
 
 ### Operational Notes
 
- 1. When running Navigator with a remote Subscriber and executing a backup Job, that would normally stop
-    the listener when done, be sure to start the remote subscriber listener with the
-    -g | --listener-keep-going option to avoid a connection fault.
+ 1. When running Navigator with a remote Subscriber and executing a backup Job that would normally stop
+    the listener when done be sure to start the remote subscriber listener with the
+    -g | --listener-keep-going option to avoid a connection fault in Navigator when the backup is complete.
 
- 2. When running a backup operation or copying/moving content in Navigator the target path 
+ 2. When performing long copy/move operations multiple copy/paste and drag 'n drop operations
+    may be batched. Each operation is added to the existing batch(es) of running operations and
+    are processed in order.
+
+ 3. When running a backup operation or copying/moving content in Navigator the target path 
     is determined dynamically when the target is a library. Because of this the available
     free space is checked during the copy/move operation and cannot be checked before the
     copy/move begins.

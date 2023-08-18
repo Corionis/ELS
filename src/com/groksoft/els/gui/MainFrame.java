@@ -1156,7 +1156,6 @@ public class MainFrame extends JFrame
                 //---- menuItemUpdates ----
                 menuItemUpdates.setText(context.cfg.gs("Navigator.menuItemUpdates.text"));
                 menuItemUpdates.setMnemonic(context.cfg.gs("Navigator.menuItemUpdates.mnemonic").charAt(0));
-                menuItemUpdates.setEnabled(false);
                 menuItemUpdates.setIcon(new ImageIcon(getClass().getResource("/updates.png")));
                 menuHelp.add(menuItemUpdates);
 

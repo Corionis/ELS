@@ -1738,7 +1738,6 @@ new FormModel {
 						name: "menuItemUpdates"
 						"text": new FormMessage( null, "Navigator.menuItemUpdates.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemUpdates.mnemonic" )
-						"enabled": false
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/updates.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {

@@ -24,6 +24,7 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/sshd-core-2.10.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/sshd-mina-2.10.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/lib/sshd-sftp-2.10.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-compress-1.23.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

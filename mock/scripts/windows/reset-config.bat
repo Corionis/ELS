@@ -27,6 +27,7 @@ rmdir /s /q .\tools
 :NoDir
 xcopy /I /E .\config-base_copy-only .
 xcopy /I /E .\windows-base_copy-only .
+copy ..\deploy\update.info .
 echo Done
 goto JXT
 

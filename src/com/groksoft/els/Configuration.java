@@ -1,6 +1,7 @@
 package com.groksoft.els;
 
 import com.groksoft.els.gui.MainFrame;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -16,8 +17,10 @@ import java.util.*;
  */
 public class Configuration
 {
+    public static final String URL_PREFIX = "https://github.com/GrokSoft/ELS/raw/Version-4.0.0/deploy"; // TODO +Maintenance Adjust as needed
     public static final String ELS_ICON = "els-logo-98px";
     public static final String ELS_JAR = "ELS.jar";
+    public static final String ELS_UPDATE = "__els-update__";
     public static final int JOB_PROCESS = 8;
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
@@ -30,7 +33,6 @@ public class Configuration
     public static final int SUBSCRIBER_LISTENER_FORCE_QUIT = 9;
     public static final int SUBSCRIBER_TERMINAL = 5;
     private final String NAVIGATOR_NAME = "ELS Navigator";
-    private final String PROGRAM_VERSION = "4.0.0";
     private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
     private String authKeysFile = "";
     private String authorizedPassword = "";
@@ -856,24 +858,51 @@ public class Configuration
         return targetsFilename;
     }
 
-    /**
-     * Gets program version
-     *
-     * @return the version
-     */
-    public String getVersion()
+    public String getUpdateFilePath()
     {
-        return PROGRAM_VERSION;
+        String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
+        return System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Configuration.ELS_UPDATE + ext;
+    }
+
+    public String getUpdateTargetPath()
+    {
+        String path = Main.class.getResource("Main.class").toExternalForm();
+        if (path.startsWith("jar")) // if a Jar then same directory
+        {
+            try
+            {
+                path = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+                path = FilenameUtils.getPath(path);
+                if (path.endsWith("bin" + System.getProperty("file.separator")))
+                {
+                    path = path.substring(0, path.length() - 5);
+                }
+                if (path.endsWith(System.getProperty("file.separator")))
+                {
+                    path = path.substring(0, path.length() - 1);
+                }
+                path = System.getProperty("file.separator") + path;
+System.out.println("FROM JAR: " + path);
+            }
+            catch (Exception e)
+            {}
+        }
+        else
+        {
+            path = getWorkingDirectory(); // otherwise the working directory/bin
+System.out.println("FROM WORKING DIRECTORY: " + path);
+        }
+        return path;
     }
 
     /**
-     * Get program version, build stamp
+     * Gets the defauylt URL prefix for updates if update.info file not found
      *
-     * @return version, build stamp
+     * @return String Default URL prefix to deploy folder on GitHub
      */
-    public String getVersionStamp()
+    public String getUrlPrefix()
     {
-        return getVersion() + ", " + context.main.getBuildStamp();
+        return URL_PREFIX;
     }
 
     /**
@@ -1409,7 +1438,7 @@ public class Configuration
                     setDryRun(true);
                     break;
                 case "--dump-system":
-                    System.out.println("ELS version " + context.cfg.getVersionStamp() + System.getProperty("line.separator"));
+                    System.out.println("ELS version " + context.main.getBuildVersionName() + System.getProperty("line.separator"));
                     System.getProperties().list(System.out);
                     System.exit(1);
                     break;
@@ -1703,7 +1732,7 @@ public class Configuration
                     break;
                 case "--version":                                       // version
                     System.out.println("");
-                    System.out.println(PROGRAM_NAME + ", Version " + PROGRAM_VERSION + ", " + context.main.getBuildStamp());
+                    System.out.println(PROGRAM_NAME + ", Version " + context.main.getBuildVersionName() + ", " + context.main.getBuildStamp());
                     System.out.println("See the ELS wiki on GitHub for documentation at:");
                     System.out.println("  https://github.com/GrokSoft/ELS/wiki");
                     System.out.println("");

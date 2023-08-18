@@ -3,7 +3,7 @@
 
     <target name="init">
         <property file="els.properties"/>
-        <echo message="ELS version ${els.version.number}, ${els.version.name}" level="info"/>
+        <echo message="ELS version ${els.version.name}" level="info"/>
         <echo message="${java.vendor} ${java.runtime.name} ${java.runtime.version}" level="info"/>
         <echo message="${ant.version}" level="info"/>
         <path id="class.path">
@@ -25,14 +25,20 @@
             <format property="STRINGNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
             <format property="NUMBERNOW" pattern="yyMMddHHmm" locale="en,US"/>
         </tstamp>
-        <echo file="src/com/groksoft/els/resources/buildstamp.txt" append="false">${STRINGNOW}</echo>
         <!-- Write the version.info file -->
         <delete file="deploy/version.info" failonerror="false"/>
-        <echo file="deploy/version.info" append="false">${NUMBERNOW}${line.separator}</echo>
+        <echo file="deploy/version.info" append="false">${els.version.name}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${NUMBERNOW}${line.separator}</echo>
         <echo file="deploy/version.info" append="true">${STRINGNOW}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${els.version.number}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${els.version.name}${line.separator}</echo>
         <echo message="Build stamp ${NUMBERNOW}, ${STRINGNOW}" level="info"/>
+        <!-- Copy version.info to buildstamp.txt -->
+        <copy overwrite="true" file="deploy/version.info" tofile="src/com/groksoft/els/resources/buildstamp.txt"/>
+        <!-- Write the update.info file -->
+        <delete file="deploy/update.info" failonerror="false"/>
+        <echo file="deploy/update.info" append="false">${els.deploy.url}${line.separator}</echo>
+        <!-- Copy update.info to staging -->
+        <copy overwrite="true" file="deploy/update.info" tofile="artifacts/stage/linux/bin/update.info"/>
+        <copy overwrite="true" file="deploy/update.info" tofile="artifacts/stage/windows/bin/update.info"/>
         <!-- Copy the IDE default bundle to the en_US bundle -->
         <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
     </target>
@@ -72,7 +78,7 @@
     <!-- Build ELS.jar -->
     <target name="jar" depends="assemble" description="Build ELS.jar">
         <manifest file="out/jar/META-INF/MANIFEST.MF">
-            <attribute name="Main-Class" value="com.groksoft.els.Main"/>
+            <attribute name="Main-Class" value="com.groksoft.els.BootStrap"/>
         </manifest>
         <jar destfile="deploy/ELS.jar" manifest="out/jar/META-INF/MANIFEST.MF">
             <fileset dir="out/jar" includes="**/"/>
@@ -94,7 +100,7 @@
         <copy file="artifacts/images/els-logo-98px.png" todir="out/tar/ELS/bin" preservelastmodified="true"/>
         <copy file="deploy/ELS.jar" todir="out/tar/ELS/bin" preservelastmodified="true"/>
         <untar dest="out/tar/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-linux.tar.gz" compression="gzip"/>
-        <tar destfile="deploy/ELS-${els.version.name}-Linux-${NUMBERNOW}.tar.gz" compression="gzip">
+        <tar destfile="deploy/ELS-${els.version.name}-${NUMBERNOW}.tar.gz" compression="gzip">
             <tarfileset dir="out/tar" filemode="775">
                 <include name="ELS/ELS-Navigator.sh"/>
             </tarfileset>
@@ -123,7 +129,7 @@
         <copy file="artifacts/images/els-logo-98px.png" todir="out/zip/ELS/bin" preservelastmodified="true"/>
         <copy file="deploy/ELS.jar" todir="out/zip/ELS/bin" preservelastmodified="true"/>
         <unzip dest="out/zip/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-windows.zip"/>
-        <zip destfile="deploy/ELS-${els.version.name}-Windows-${NUMBERNOW}.zip">
+        <zip destfile="deploy/ELS-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/zip" includes="**/*"/>
         </zip>
     </target>

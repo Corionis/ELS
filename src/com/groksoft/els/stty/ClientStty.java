@@ -581,7 +581,7 @@ public class ClientStty
     public int terminalSession() throws Exception
     {
         int returnValue = 0;
-        gui = new TerminalGui(this, context.cfg, in, out);
+        gui = new TerminalGui(this, context, in, out);
         returnValue = gui.run(myRepo, theirRepo);
         return returnValue;
     }

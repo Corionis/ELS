@@ -49,6 +49,13 @@ be changed so publisher receives Hints from Subscriber before the munge operatio
  * Make a pass over copy, move and rename for "if exists" and the overwrite option 
 
 
+## New Web Site
+
+ * Point Documentation links from a new GitHub Pages site to the wiki
+ * Edit the wiki in the project:
+   * https://docs.github.com/en/communities/documenting-your-project-with-wikis/adding-or-editing-wiki-pages
+
+
 ## Ideas
 
  * Knob for "Show examples" then:

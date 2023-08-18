@@ -43,12 +43,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.Process;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -84,6 +83,127 @@ public class Navigator
     {
         this.context = context;
         this.context.navigator = this;
+    }
+
+    public void checkForUpdates()
+    {
+        try
+        {
+            // TODO:
+            //  + add tracking of running transfers, "Run" buttons and Jobs
+            //      + do not allow Check for Updates if anything is running
+
+            // TODO Move detect logic to separate method so a logger message can be shown at startup
+
+            String prefix;
+            boolean prompt = true;
+            ArrayList<String> version = new ArrayList<>();
+            URL url;
+//            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
+            // determine location to find update.info
+            String updateInfoPath = context.cfg.getUpdateTargetPath() + System.getProperty("file.separator") + "update.info";
+
+            // get update.info
+            // putting the ELS deploy URL prefix in a file allows it to be changed manually if necessary
+            File updateInfo = new File(updateInfoPath);
+            if (updateInfo.exists())
+            {
+                prefix = new String(Files.readAllBytes(Paths.get(updateInfoPath)));
+                prefix = prefix.trim();
+            }
+            else
+            {
+                logger.info("update.info not found: " + updateInfoPath);
+                prefix = context.cfg.getUrlPrefix(); // use the hardcoded URL
+            }
+
+            // download latest version.info
+            url = new URL(prefix + "/version.info");
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+            // TODO "local" try/catch to detect if URL does not exist :: Failure attempts to look-up latest release
+            String buf;
+            while ((buf = bufferedReader.readLine()) != null)
+            {
+                version.add(buf.trim());
+            }
+            bufferedReader.close();
+
+            if (version.size() < 1)
+            {
+                logger.info("no version data");
+
+                // LEFTOFF look-up latest release ???  Makes it GitHub-specific
+            }
+            else
+            {
+                // do the build numbers match?
+                if (version.get(1).equals(context.main.getBuildNumber()))
+                {
+                    prompt = false;
+                    logger.info("already have latest version");
+                }
+            }
+
+            if (prompt)
+            {
+                // TODO built nice dialog explaining situation, including any failure alternative
+
+                // download the update
+
+
+                //String updateUrl = prefix + "/" + ver
+// TODO put exact download name in version.info less extension
+//  + remove "Linux" & "Windows" from filename so they're identical up to the extension
+//  ? Is a Windows installer really needed??
+
+                // progress dialog
+
+
+                String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
+                String downloadUrl = prefix + "/" + version.get(0) + "-" + version.get(1) + ext;
+
+/*
+                url = new URL(downloadUrl);
+                // url = new URL("https://github.com/GrokSoft/ELS/raw/Version-4.0.0/deploy/ELS-4.0.0-development-Linux-2308081717.tar.gz");
+                URLConnection connection = url.openConnection();
+                String contentType = connection.getContentType();
+                //if (contentType)
+                int contentLength = connection.getContentLength();
+                InputStream raw = connection.getInputStream();
+                InputStream in = new BufferedInputStream(raw);
+                byte[] data = new byte[contentLength];
+                int count = 0;
+                int offset = 0;
+                while (offset < contentLength)
+                {
+                    count = in.read(data, offset, data.length - offset);
+                    if (count == -1)
+                        break;
+                    offset += count;
+                }
+                in.close();
+
+                String outPath = context.cfg.getUpdateFilePath();
+                FileOutputStream out = new FileOutputStream(outPath);
+                out.write(data);
+                out.flush();
+                out.close();
+*/
+
+                // Download complete, update and restart
+
+
+            }
+        }
+        catch (Exception e)
+        {
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+            logger.error("Error downloading update: " + e.getMessage());
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Error downloading update"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+        }
+
+        context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
     public void disableComponent(boolean disable, Component component)
@@ -1964,6 +2084,16 @@ public class Navigator
             }
         });
 
+        // --- Check for Updates
+        context.mainFrame.menuItemUpdates.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                checkForUpdates();
+            }
+        });
+
         // --- About
         context.mainFrame.menuItemAbout.addActionListener(new AbstractAction()
         {
@@ -2514,6 +2644,7 @@ public class Navigator
                 logger.error(Utils.getStackTrace(e));
             }
         }
+        context.clientStty = null;
 
         if (context.statusStty != null && context.statusStty.isConnected())
         {
@@ -2531,6 +2662,7 @@ public class Navigator
                 logger.error(Utils.getStackTrace(e));
             }
         }
+        context.statusStty = null;
 
         // give the quit/bye commands a moment to be received
         if (closure)
@@ -2568,7 +2700,10 @@ public class Navigator
 
         // end the Navigator Swing thread
         if (!context.main.secondaryNavigator)
+        {
+            logger.fatal("EXITING Navigator");
             System.exit(context.fault ? 1 : 0);
+        }
         else
         {
             GuiLogAppender appender = context.main.getGuiLogAppender();
