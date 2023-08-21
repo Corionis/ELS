@@ -161,9 +161,8 @@ public class Navigator
 
 
                 String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
-                String downloadUrl = prefix + "/" + version.get(0) + "-" + version.get(1) + ext;
+                String downloadUrl = prefix + "/ELS-" + version.get(0) + "-" + version.get(1) + ext;
 
-/*
                 url = new URL(downloadUrl);
                 // url = new URL("https://github.com/GrokSoft/ELS/raw/Version-4.0.0/deploy/ELS-4.0.0-development-Linux-2308081717.tar.gz");
                 URLConnection connection = url.openConnection();
@@ -189,7 +188,6 @@ public class Navigator
                 out.write(data);
                 out.flush();
                 out.close();
-*/
 
                 // Download complete, update and restart
 
@@ -199,8 +197,8 @@ public class Navigator
         catch (Exception e)
         {
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            logger.error("Error downloading update: " + e.getMessage());
-            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Error downloading update"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            logger.error("Error downloading update: " + Utils.getStackTrace(e));
+            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Error downloading update") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
 
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));

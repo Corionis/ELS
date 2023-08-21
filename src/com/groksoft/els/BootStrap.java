@@ -5,6 +5,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import javax.swing.*;
@@ -122,19 +123,21 @@ public class BootStrap
                 //@Override
                 //public void run()
                 {
+/*
                     dialog = new JDialog();
                     panel = new JPanel();
                     label = new JLabel("STATUS");
                     panel.add(label);
                     dialog.add(panel);
                     dialog.setVisible(true);
+*/
 
                     if (isWindows())
                         updateWindows();
                     else
                         updateLinux();
 
-                    dialog.setVisible(false);
+//                    dialog.setVisible(false);
                 }
             }   // );
         }
@@ -180,7 +183,7 @@ public class BootStrap
                 }
                 Path entryPath = outPath.resolve(name);
                 System.out.println(entryPath.toString());
-                label.setText(entryPath.toString());
+//                label.setText(entryPath.toString());
                 if (entry.isDirectory())
                 {
                     if (!Files.exists(entryPath))
@@ -219,7 +222,7 @@ public class BootStrap
             // https://commons.apache.org/proper/commons-compress
             Path path = Paths.get(updateFile);
             Path outPath = Paths.get(updateTargetPath);
-            ZipArchiveInputStream in = new ZipArchiveInputStream(new GzipCompressorInputStream(new BufferedInputStream(Files.newInputStream(path))));
+            ZipArchiveInputStream in = new ZipArchiveInputStream(new BufferedInputStream(Files.newInputStream(path)));
             ZipArchiveEntry entry = null;
             while ((entry = in.getNextZipEntry()) != null)
             {
@@ -234,7 +237,7 @@ public class BootStrap
                 }
                 Path entryPath = outPath.resolve(name);
                 System.out.println(entryPath.toString());
-                label.setText(entryPath.toString());
+//                label.setText(entryPath.toString());
                 if (entry.isDirectory())
                 {
                     if (!Files.exists(entryPath))

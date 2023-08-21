@@ -861,7 +861,13 @@ public class Configuration
     public String getUpdateFilePath()
     {
         String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
-        return System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") + Configuration.ELS_UPDATE + ext;
+        String path = System.getProperty("java.io.tmpdir");
+        if (path.endsWith(System.getProperty("file.separator")))
+        {
+            path = path.substring(0, path.length() - 1);
+        }
+        path += System.getProperty("file.separator") + Configuration.ELS_UPDATE + ext;
+        return path;
     }
 
     public String getUpdateTargetPath()
