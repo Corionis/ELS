@@ -6,6 +6,12 @@ import com.groksoft.els.gui.browser.NavTreeNode;
 import com.groksoft.els.repository.Libraries;
 import com.groksoft.els.repository.Repository;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,19 +26,15 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.*;
-import java.nio.file.FileStore;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
+import java.nio.file.attribute.PosixFilePermission;
 import java.security.Key;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -788,6 +790,21 @@ public class Utils
     }
 
     /**
+     * Get the local system temporary files directory
+     *
+     * @return String path to temp directory, no trailing separator
+     */
+    public static String getSystemTempDirectory()
+    {
+        String path = System.getProperty("java.io.tmpdir");
+        if (path.endsWith(System.getProperty("file.separator")))
+        {
+            path = path.substring(0, path.length() - 1);
+        }
+        return path;
+    }
+
+    /**
      * Get the left-side absolute path for a temporary file
      * <br/>
      * If the Repository temp_location is defined use that path, otherwise use
@@ -939,6 +956,65 @@ public class Utils
         path = pipe(path);
         path = unpipe(path, "/");
         return path;
+    }
+
+    /**
+     * Parse a String command line with quoted values
+     * <p><p>
+     * Parses individual arguments on whitespace and quoted
+     * values as separate arguments.
+     * <p><p>
+     * Does not use regular expressions so command lines with
+     * arguments containing regex characters are parsed correctly.
+     * <p><p>
+     * Wildcard expansion is not performed.
+     *
+     * @param commandLine String command line
+     * @return String[] of individual arguments and quoted values
+     */
+    public static String[] parseCommandLIne(String commandLine)
+    {
+        String arg = "";
+        ArrayList<String> list = new ArrayList<>();
+
+        int len = commandLine.length();
+        int i;
+        for (i = 0; i < commandLine.length(); ++i)
+        {
+            String c;
+            if (i < commandLine.length() - 1)
+                c = commandLine.substring(i, i + 1);
+            else
+                c = commandLine.substring(i);
+            if (c.equals("\""))
+            {
+                ++i;
+                while (i < commandLine.length() - 1)
+                {
+                    c = commandLine.substring(i, i + 1);
+                    if (c.equals("\""))
+                        break;
+                    arg += c;
+                    ++i;
+                }
+                list.add(arg);
+                arg = "";
+                ++i;
+            }
+            else if (c.equals(" ") || c.equals("\t"))
+            {
+                list.add(arg);
+                arg = "";
+            }
+            else
+                arg += c;
+        }
+
+        if (arg.length() > 0)
+            list.add(arg);
+
+        String[] results = list.toArray(new String[0]);
+        return results;
     }
 
     /**
@@ -1222,6 +1298,54 @@ public class Utils
     }
 
     /**
+     * Translate Linux mode to a set of Posix file permissions
+     *
+     * @param mode Integer of item mode
+     * @return Set<PosixFilePermission> of file permissions
+     */
+    public static Set<PosixFilePermission> translateModeToPosix(int mode)
+    {
+        Set<PosixFilePermission> perms = new HashSet<>();
+        if ((mode & 0001) > 0)
+        {
+            perms.add(PosixFilePermission.OTHERS_EXECUTE);
+        }
+        if ((mode & 0002) > 0)
+        {
+            perms.add(PosixFilePermission.OTHERS_WRITE);
+        }
+        if ((mode & 0004) > 0)
+        {
+            perms.add(PosixFilePermission.OTHERS_READ);
+        }
+        if ((mode & 0010) > 0)
+        {
+            perms.add(PosixFilePermission.GROUP_EXECUTE);
+        }
+        if ((mode & 0020) > 0)
+        {
+            perms.add(PosixFilePermission.GROUP_WRITE);
+        }
+        if ((mode & 0040) > 0)
+        {
+            perms.add(PosixFilePermission.GROUP_READ);
+        }
+        if ((mode & 0100) > 0)
+        {
+            perms.add(PosixFilePermission.OWNER_EXECUTE);
+        }
+        if ((mode & 0200) > 0)
+        {
+            perms.add(PosixFilePermission.OWNER_WRITE);
+        }
+        if ((mode & 0400) > 0)
+        {
+            perms.add(PosixFilePermission.OWNER_READ);
+        }
+        return perms;
+    }
+
+    /**
      * Replace source pipe character with path separators
      *
      * @param repo Repository of source of path
@@ -1236,6 +1360,132 @@ public class Utils
             separator = "\\\\";
         String p = path.replaceAll("\\|", separator);
         return p;
+    }
+
+    public static void unpackTar(String archive, String directory, JProgressBar progressBar)
+    {
+        // unpack well-defined archive tar.gz to use same download as users
+        try
+        {
+            // Apache Commons Compress
+            // https://commons.apache.org/proper/commons-compress
+            Path path = Paths.get(archive);
+            Path outPath = Paths.get(directory);
+
+            File file = new File(archive);
+            progressBar.setMaximum((int)FileUtils.sizeOf(file));
+
+            GzipCompressorInputStream gin = new GzipCompressorInputStream(new BufferedInputStream(Files.newInputStream(path)));
+            TarArchiveInputStream in = new TarArchiveInputStream(gin);
+            TarArchiveEntry entry = null;
+            while ((entry = in.getNextTarEntry()) != null)
+            {
+                long gcount = gin.getCompressedCount();
+                long gread = gin.getBytesRead();
+                long bread = in.getBytesRead();
+                logger.info("gcount: " + gcount + "  gread: " + gread + "  bread: " + bread);
+                if (gread != bread)
+                {
+                    logger.fatal("Bytes read and decompressed bytes do not match, archive corrupted");
+                    System.exit(1);
+                }
+
+                String name = entry.getName();
+                if (name.length() == 0)
+                    continue;
+                if (name.startsWith("ELS"))
+                {
+                    if (name.equals("ELS/"))
+                        continue;
+                    name = name.substring(4, name.length());
+                }
+
+                Path entryPath = outPath.resolve(name);
+                logger.info("  " + entryPath.toString());
+//                label.setText(entryPath.toString());
+                if (entry.isDirectory())
+                {
+                    if (!Files.exists(entryPath))
+                        Files.createDirectories(entryPath);
+                    Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
+                }
+                else
+                {
+                    Files.createDirectories(entryPath.getParent());
+//                    if (Files.exists(entryPath))
+//                        Files.delete(entryPath);
+                    Files.copy(in, entryPath, StandardCopyOption.REPLACE_EXISTING);
+
+                    Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
+
+                    int mode = entry.getMode();
+                    Set<PosixFilePermission> perms = translateModeToPosix(mode);
+                    Files.setPosixFilePermissions(entryPath, perms);
+
+                }
+            }
+            in.close();
+
+            // delete archive when done
+
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+        }
+    }
+
+    public static void unpackZip(String archive, String directory)
+    {
+        try
+        {
+            // Apache Commons Compress
+            // https://commons.apache.org/proper/commons-compress
+            Path path = Paths.get(archive);
+            Path outPath = Paths.get(directory);
+            ZipArchiveInputStream in = new ZipArchiveInputStream(new BufferedInputStream(Files.newInputStream(path)));
+            ZipArchiveEntry entry = null;
+            while ((entry = in.getNextZipEntry()) != null)
+            {
+                String name = entry.getName();
+                if (name.length() == 0)
+                    continue;
+                if (name.startsWith("ELS"))
+                {
+                    if (name.equals("ELS/"))
+                        continue;
+                    name = name.substring(4, name.length());
+                }
+                Path entryPath = outPath.resolve(name);
+                logger.info("  " + entryPath.toString());
+//                label.setText(entryPath.toString());
+                if (entry.isDirectory())
+                {
+                    if (!Files.exists(entryPath))
+                        Files.createDirectories(entryPath);
+                    Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
+                }
+                else
+                {
+                    Files.createDirectories(entryPath.getParent());
+//                    if (Files.exists(entryPath))
+//                        Files.delete(entryPath);
+                    Files.copy(in, entryPath, StandardCopyOption.REPLACE_EXISTING);
+//                    int mode = entry.getMode();
+//                    Files.setPosixFilePermissions(entryPath, );
+                    Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
+                }
+            }
+            in.close();
+
+
+            // delete archive when done
+
+        }
+        catch (Exception e)
+        {
+            logger.error(Utils.getStackTrace(e));
+        }
     }
 
     /**

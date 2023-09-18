@@ -18,14 +18,11 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.AbstractConfiguration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
-import org.apache.sshd.common.util.io.IoUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.net.URL;
 import java.util.*;
-import java.util.List;
 
 import static com.groksoft.els.Configuration.*;
 
@@ -45,9 +42,6 @@ public class Main
     public Date stamp = new Date(); // runtime stamp for this invocation
     public boolean secondaryInvocation = false;
     public boolean secondaryNavigator = false;
-
-    // TODO EXTEND+ Add new locales here; Potentially refactor to include files from a locales directory
-    public String[] availableLocales = {"en_US"}; // Array of built-in locale names;
 
     /**
      * Hide default constructor
@@ -138,78 +132,6 @@ public class Main
             }
     }
 
-    /**
-     * Read the built-in build number
-     *
-     * @return Build number string
-     */
-    public String getBuildNumber()
-    {
-        String text = "";
-        try
-        {
-            URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
-            List<String> lines = IoUtils.readAllLines(url);
-            if (lines.size() > 1)
-            {
-                text += lines.get(1);
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-        }
-        return text;
-    }
-
-    /**
-     * Read the built-in build stamp
-     *
-     * @return Build stamp string
-     */
-    public String getBuildStamp()
-    {
-        String text = "";
-        try
-        {
-            URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
-            List<String> lines = IoUtils.readAllLines(url);
-            if (lines.size() > 1)
-            {
-                text += lines.get(2);
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-        }
-        return text;
-    }
-
-    /**
-     * Read the built-in version
-     *
-     * @return Build version string
-     */
-    public String getBuildVersionName()
-    {
-        String text = "";
-        try
-        {
-            URL url = Thread.currentThread().getContextClassLoader().getResource("buildstamp.txt");
-            List<String> lines = IoUtils.readAllLines(url);
-            if (lines.size() > 1)
-            {
-                text += lines.get(0);
-            }
-        }
-        catch (Exception e)
-        {
-            logger.error(Utils.getStackTrace(e));
-        }
-        return text;
-    }
-
     public GuiLogAppender getGuiLogAppender()
     {
         LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
@@ -254,24 +176,6 @@ public class Main
                 path = Utils.unpipe(path, "/");
         }
         return path;
-    }
-
-    /**
-     * Load a locale and set current locale bundle
-     * <br/>
-     * Requires the abbreviated language_country part of the locale filename, e.g. en_US.
-     * It must be one of the built-in locale files. If not available en_US is used.
-     *
-     * @param filePart Locale file end
-     */
-    public void loadLocale(String filePart)
-    {
-        // load the language file if available
-        if (!Arrays.asList(availableLocales).contains(filePart))
-        {
-            filePart = "en_US"; // default locale
-        }
-        context.cfg.setCurrentBundle(ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + filePart));
     }
 
     public String makeRelativeWorkingPath(String path)
@@ -352,22 +256,23 @@ public class Main
             if (cfgException != null)
                 throw cfgException;
 
-            context.preferences = new Preferences(context);
+            context.preferences = new Preferences();
             Utils.readPreferences(context);
+            context.preferences.setContext(context);
 
             // attempt to load the language Java started with, default en_US
             Locale locale = Locale.getDefault();
             String lang = locale.getLanguage();
             String country = locale.getCountry();
             String filePart = lang + "_" + country;
-            loadLocale(filePart);
+            context.cfg.loadLocale(filePart);
             if (context.cfg.gs("Transfer.received.subscriber.commands").length() == 0)
             {
-                //logger.debug("local locale not supported, loading default");
-                loadLocale("-");
+                logger.trace("local locale not supported, loading default");
+                context.cfg.loadLocale("-");
             }
             else
-                //logger.debug("loaded locale: " + filePart);
+                //logger.trace("loaded locale: " + filePart);
             localeAbbrev = filePart;
 
             //
@@ -384,7 +289,7 @@ public class Main
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.defaultNavigator || context.cfg.isNavigator())
                     {
-                        logger.info("ELS: Local Navigator, version " + getBuildVersionName());
+                        logger.info("ELS: Local Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
 
                         if (context.cfg.getPublisherFilename().length() > 0)
@@ -415,7 +320,7 @@ public class Main
                     }
                     else
                     {
-                        logger.info("ELS: Local Publish, version " + getBuildVersionName());
+                        logger.info("ELS: Local Publish, version " + getBuildVersionName() + ", " + getBuildDate());
                         context.cfg.dump();
 
                         context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -439,7 +344,7 @@ public class Main
 
                 // --- -r L publisher listener for remote subscriber -r T connections
                 case PUBLISHER_LISTENER:
-                    logger.info("ELS: Publisher Listener, version " + getBuildVersionName());
+                    logger.info("ELS: Publisher Listener, version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -469,7 +374,7 @@ public class Main
 
                 // --- -r M publisher manual terminal to remote subscriber -r S
                 case PUBLISHER_MANUAL:
-                    logger.info("ELS: Publisher Terminal, version " + getBuildVersionName());
+                    logger.info("ELS: Publisher Terminal, version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -506,9 +411,9 @@ public class Main
                 case PUBLISH_REMOTE:
                     // handle -n|--navigator to display the Navigator
                     if (context.cfg.isNavigator())
-                        logger.info("ELS: Remote Navigator, version " + getBuildVersionName());
+                        logger.info("ELS: Remote Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
                     else
-                        logger.info("ELS: Remote Publish, version " + getBuildVersionName());
+                        logger.info("ELS: Remote Publish, version " + getBuildVersionName() + ", " + getBuildDate());
 
                     context.cfg.dump();
 
@@ -560,7 +465,7 @@ public class Main
 
                 // --- -r S subscriber listener for publisher -r P|M connections
                 case SUBSCRIBER_LISTENER:
-                    logger.info("ELS: Subscriber Listener, version " + getBuildVersionName());
+                    logger.info("ELS: Subscriber Listener, version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (!context.cfg.isTargetsEnabled())
@@ -593,7 +498,7 @@ public class Main
 
                 // --- -r T subscriber manual terminal to publisher -r L
                 case SUBSCRIBER_TERMINAL:
-                    logger.info("ELS: Subscriber Terminal, version " + getBuildVersionName());
+                    logger.info("ELS: Subscriber Terminal, version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.NO_VALIDATE);
@@ -642,7 +547,7 @@ public class Main
 
                 // --- -H|--hint-server stand-alone hint status server
                 case STATUS_SERVER:
-                    logger.info("ELS: Hint Status Server, version " + getBuildVersionName());
+                    logger.info("ELS: Hint Status Server, version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (context.cfg.getHintKeysFile() == null || context.cfg.getHintKeysFile().length() == 0)
@@ -686,7 +591,7 @@ public class Main
 
                 // --- -Q|--force-quit the hint status server remotely
                 case STATUS_SERVER_FORCE_QUIT:
-                    logger.info("ELS: Hint Status Server Quit, version " + getBuildVersionName());
+                    logger.info("ELS: Hint Status Server Quit, version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (context.cfg.getHintHandlerFilename() == null || context.cfg.getHintHandlerFilename().length() == 0)
@@ -703,7 +608,7 @@ public class Main
 
                 // --- -G|--listener-quit the remote subscriber
                 case SUBSCRIBER_LISTENER_FORCE_QUIT:
-                    logger.info("ELS: Subscriber Listener Quit, version " + getBuildVersionName());
+                    logger.info("ELS: Subscriber Listener Quit, version " + getBuildVersionName() + ", " + getBuildDate());
                     context.cfg.dump();
 
                     if (context.cfg.getSubscriberFilename() == null || context.cfg.getSubscriberFilename().length() == 0)
@@ -735,7 +640,7 @@ public class Main
 
                 // --- -j|--job to execute a Job
                 case JOB_PROCESS:
-                    logger.info("ELS: Job, version " + getBuildVersionName());
+                    logger.info("ELS: Job, version " + getBuildVersionName() + ", " + getBuildDate());
 
                     context.cfg.dump();
 
@@ -875,12 +780,33 @@ public class Main
             }
         }
 
+        // is this a restarted Navigator instance after being updated?
+        if (context.cfg.isNavigator() && (context.cfg.isUpdateSuccessful() || context.cfg.isUpdateFailed()))
+        {
+            try
+            {
+                // give the GUI time to come up
+                Thread.sleep(1500);
+            }
+            catch (Exception e)
+            {}
+            String logFilename = System.getProperty("java.io.tmpdir") + System.getProperty("file.separator") +
+                    "ELS_Updater" + System.getProperty("file.separator") + "ELS-Updater.log";
+            String message = context.cfg.isUpdateSuccessful() ?
+                    Configuration.PROGRAM_NAME + " " + context.cfg.gs("Navigator.updated") :
+                    java.text.MessageFormat.format(context.cfg.gs("Navigator.update.failed"), logFilename);
+            logger.info(message);
+            Object[] opts = {context.cfg.gs("Z.ok")};
+            JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update.status"),
+                    JOptionPane.PLAIN_MESSAGE, context.cfg.isUpdateSuccessful() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE,
+                    null, opts, opts[0]);
+        }
+
         if (main.context.fault)
         {
             logger.error("Exiting with error code");
             Runtime.getRuntime().halt(1);
         }
-        logger.fatal("EXITING process");
     } // process
 
     /**

@@ -28,8 +28,10 @@ __Features:__
         * Duplicate Finder
         * Empty Directory Finder
         * Junk Remover
+        * Operations
         * Renamer
-        * External tools supported
+        * Sleep
+        * External tools support
      * Named jobs of sequenced named tools to automate repetitive tasks
  * BackUp
      * Configure named ELS back-ups with different configurations

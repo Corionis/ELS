@@ -1,5 +1,6 @@
 package com.groksoft.els.gui.browser;
 
+import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.bookmarks.Bookmark;
@@ -20,6 +21,7 @@ import java.awt.event.*;
 import java.net.SocketException;
 import java.net.URL;
 import java.nio.file.attribute.FileTime;
+import java.security.Key;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -312,6 +314,15 @@ public class Browser
                 else if (keyEvent.getKeyChar() == KeyEvent.VK_ALT && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
                     refreshByObject(keyEvent.getSource());
+                }
+
+                // handle Ctrl-T to Touch the current selection(s)
+                else if (keyEvent.getKeyChar() == KeyEvent.VK_T && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                {
+                    for (ActionListener listener : context.mainFrame.menuItemUpdates.getActionListeners())
+                    {
+                        listener.actionPerformed(new ActionEvent(keyEvent.getSource(), ActionEvent.ACTION_PERFORMED, null));
+                    }
                 }
 
                 // handle Tab forward and backward

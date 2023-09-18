@@ -3,6 +3,7 @@ package com.groksoft.els.gui;
 import java.awt.event.*;
 
 import com.formdev.flatlaf.FlatLaf;
+import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
@@ -34,6 +35,7 @@ public class Settings extends JDialog
             + Default dry run in dialogs
             + Console & Debug log level
             + Log file
+            + Add beep option:    Toolkit.getDefaultToolkit().beep();
          Appearance
             + Show mnemonics
             + Show scrollbar up/down buttons
@@ -250,10 +252,10 @@ public class Settings extends JDialog
         // locale - add new locales to Preferences.availableLocales
         ComboBoxModel<String> model = localeComboBox.getModel();
         localeComboBox.setAutoscrolls(true);
-        if (context.main.availableLocales.length > 0)
+        if (Configuration.availableLocales.length > 0)
         {
             localeComboBox.removeAllItems();
-            for (String loc : context.main.availableLocales)
+            for (String loc : Configuration.availableLocales)
             {
                 localeComboBox.addItem(loc);
             }

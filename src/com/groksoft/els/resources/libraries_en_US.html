@@ -44,7 +44,7 @@
   <li>A Hint Server only uses one Location, one Library with one Source for it's datastore.<br/><br/></li>
   <li>General tab, Host is the hostname:port or IP address:port used by outside ELS systems to connect to this ELS instance.<br/><br/></li>
   <li>General tab, Listen is the hostname:port or IP address:port listener operations use to listen for incoming connections. If not defined
-    Host is used.<br/><br/></li>
+    Host is used. This setting is used with NAT or port forwarding to route incoming traffic to an inside system.<br/><br/></li>
   <li>General tab, Terminal allowed provides interactive access to an ELS instance when running in a listener mode. It is primarily used for
     diagnostic purposes to test the STTY command channcel. The -a|--authorize [password] option is required to enable interactive access
     for the listener.<br/><br/></li>

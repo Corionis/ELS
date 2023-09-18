@@ -1467,6 +1467,7 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.Touch.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Touch.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/touch.png" )
+						"accelerator": &KeyStroke6 static javax.swing.KeyStroke getKeyStroke( 84, 130, false )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator9"
@@ -1475,13 +1476,13 @@ new FormModel {
 						name: "menuItemFind"
 						"text": new FormMessage( null, "Navigator.menu.Find.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Find.mnemonic" )
-						"accelerator": &KeyStroke6 static javax.swing.KeyStroke getKeyStroke( 70, 130, false )
+						"accelerator": &KeyStroke7 static javax.swing.KeyStroke getKeyStroke( 70, 130, false )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/find.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemFindNext"
 						"text": new FormMessage( null, "Navigator.menuItemFindNext.text" )
-						"accelerator": &KeyStroke7 static javax.swing.KeyStroke getKeyStroke( 114, 0, false )
+						"accelerator": &KeyStroke8 static javax.swing.KeyStroke getKeyStroke( 114, 0, false )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemFindNext.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/find-next.png" )
 					} )
@@ -1500,7 +1501,7 @@ new FormModel {
 						name: "menuItemRefresh"
 						"text": new FormMessage( null, "Navigator.menu.Refresh.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemRefresh.mnemonic" )
-						"accelerator": &KeyStroke8 static javax.swing.KeyStroke getKeyStroke( 116, 0, false )
+						"accelerator": &KeyStroke9 static javax.swing.KeyStroke getKeyStroke( 116, 0, false )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/refresh.png" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -1523,7 +1524,7 @@ new FormModel {
 						name: "menuItemWordWrap"
 						"text": new FormMessage( null, "Navigator.menuItemWordWrap.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemWordWrap.mnemonic" )
-						"accelerator": &KeyStroke9 static javax.swing.KeyStroke getKeyStroke( 82, 130, false )
+						"accelerator": &KeyStroke10 static javax.swing.KeyStroke getKeyStroke( 82, 130, false )
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
@@ -1596,7 +1597,6 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemPlexGenerator"
 						"text": new FormMessage( null, "Navigator.menu.PlexGenerator.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.PlexGenerator.mnemonic" )
 						"enabled": false
 						"margin": new java.awt.Insets( 2, 18, 2, 2 )
 					} )
@@ -1627,15 +1627,6 @@ new FormModel {
 					"text": "System"
 					"mnemonic": new FormMessage( null, "Navigator.menuSystem.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemSettings"
-						"text": new FormMessage( null, "Navigator.menu.Settings.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.Settings.mnemonic" )
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/settings.png" )
-					} )
-					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
-						name: "separatorEdit1"
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemAuthKeys"
 						"text": new FormMessage( null, "Navigator.menuItemAuthKeys.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemAuthKeys.mnemonic" )
@@ -1661,6 +1652,15 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menuItemWhitelist.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menuItemWhitelist.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/whitelist.png" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separatorEdit1"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemSettings"
+						"text": new FormMessage( null, "Navigator.menu.Settings.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menu.Settings.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/settings.png" )
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
@@ -1731,6 +1731,11 @@ new FormModel {
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/github.png" )
 						"toolTipText": new FormMessage( null, "Navigator.menuItemGitHubProject.toolTipText" )
 					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemReleaseNotes"
+						"text": new FormMessage( null, "Navigator.menuItemReleaseNotes.text" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/release-notes.png" )
+					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator1"
 					} )
@@ -1754,12 +1759,12 @@ new FormModel {
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "popupMenuBrowser"
-			"preferredSize": new java.awt.Dimension( 180, 194 )
+			"preferredSize": new java.awt.Dimension( 204, 194 )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemRefresh"
 				"text": new FormMessage( null, "Navigator.popupMenuItemRefresh.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemRefresh.mnemonic" )
-				"accelerator": #KeyStroke8
+				"accelerator": #KeyStroke9
 				"icon": new com.jformdesigner.model.SwingIcon( 0, "/refresh.png" )
 			} )
 			add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -1818,10 +1823,11 @@ new FormModel {
 				"text": new FormMessage( null, "Navigator.popupMenu.Touch.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenu.Touch.mnemonic" )
 				"icon": new com.jformdesigner.model.SwingIcon( 0, "/touch.png" )
+				"accelerator": #KeyStroke6
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 1045, 95 )
-			"size": new java.awt.Dimension( 180, 194 )
+			"size": new java.awt.Dimension( 205, 194 )
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "popupMenuLog"
@@ -1830,14 +1836,14 @@ new FormModel {
 				name: "popupMenuItemFindNext"
 				"text": new FormMessage( null, "Navigator.popupMenuItemFindNext.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemFindNext.mnemonic" )
-				"accelerator": #KeyStroke7
+				"accelerator": #KeyStroke8
 				"icon": new com.jformdesigner.model.SwingIcon( 0, "/find-next.png" )
 			} )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemFind"
 				"text": new FormMessage( null, "Navigator.popupMenuItemFind.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupMenuItemFind.mnemonic" )
-				"accelerator": #KeyStroke6
+				"accelerator": #KeyStroke7
 				"icon": new com.jformdesigner.model.SwingIcon( 0, "/find.png" )
 			} )
 			add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
@@ -1873,7 +1879,7 @@ new FormModel {
 				name: "popupCheckBoxMenuItemWordWrap"
 				"text": new FormMessage( null, "Navigator.popupCheckBoxMenuItemWordWrap.text" )
 				"mnemonic": new FormMessage( null, "Navigator.popupCheckBoxMenuItemWordWrap.mnemonic" )
-				"accelerator": #KeyStroke9
+				"accelerator": #KeyStroke10
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 1045, 330 )

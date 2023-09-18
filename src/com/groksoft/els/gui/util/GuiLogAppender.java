@@ -1,5 +1,6 @@
 package com.groksoft.els.gui.util;
 
+import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 
 import com.groksoft.els.gui.Startup;
@@ -155,7 +156,7 @@ public class GuiLogAppender extends AbstractAppender
                         {
                             startup.setIconImage(new ImageIcon(getClass().getResource("/els-logo-98px.png")).getImage());
                             startup.setTitle(context.cfg.getNavigatorName());
-                            startup.labelVersion.setText("Version " + context.main.getBuildVersionName());
+                            startup.labelVersion.setText("Version " + Configuration.getBuildVersionName());
                             if (context.preferences.getAppXpos() >= 0)
                             {
                                 int x = context.preferences.getAppXpos() + (context.preferences.getAppWidth() / 2) - (startup.getWidth() / 2);

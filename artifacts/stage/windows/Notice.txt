@@ -1,0 +1,7 @@
+
+NOTICE
+==========================================
+Do not add any files or directories to either the bin/ or rt/
+directories. They are deleted and replaced when an update is
+installed.
+

@@ -22,7 +22,7 @@ rm -f ./*.log
 rm -f ./*received*.json
 rm -f ./*generated*.json
 
-cp -rpv ./media-base_copy-only ./test
+cp -rpv ./copy-only_media-base ./test
 echo ""
 
 echo -e "Reset test data done"

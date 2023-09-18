@@ -573,11 +573,11 @@ public class MainFrame extends JFrame
         menuJobs = new JMenu();
         menuItemJobsManage = new JMenuItem();
         menuSystem = new JMenu();
-        menuItemSettings = new JMenuItem();
         menuItemAuthKeys = new JMenuItem();
         menuItemHintKeys = new JMenuItem();
         menuItemBlacklist = new JMenuItem();
         menuItemWhitelist = new JMenuItem();
+        menuItemSettings = new JMenuItem();
         menuWindows = new JMenu();
         menuItemMaximize = new JMenuItem();
         menuItemMinimize = new JMenuItem();
@@ -589,6 +589,7 @@ public class MainFrame extends JFrame
         menuItemDocumentation = new JMenuItem();
         menuItemGettingStarted = new JMenuItem();
         menuItemGitHubProject = new JMenuItem();
+        menuItemReleaseNotes = new JMenuItem();
         menuItemUpdates = new JMenuItem();
         menuItemAbout = new JMenuItem();
         panelMain = new JPanel();
@@ -891,6 +892,7 @@ public class MainFrame extends JFrame
                 menuItemTouch.setText(context.cfg.gs("Navigator.menu.Touch.text"));
                 menuItemTouch.setMnemonic(context.cfg.gs("Navigator.menu.Touch.mnemonic").charAt(0));
                 menuItemTouch.setIcon(new ImageIcon(getClass().getResource("/touch.png")));
+                menuItemTouch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK));
                 menuEdit.add(menuItemTouch);
                 menuEdit.addSeparator();
 
@@ -1016,7 +1018,6 @@ public class MainFrame extends JFrame
 
                 //---- menuItemPlexGenerator ----
                 menuItemPlexGenerator.setText(context.cfg.gs("Navigator.menu.PlexGenerator.text"));
-                menuItemPlexGenerator.setMnemonic(context.cfg.gs("Navigator.menu.PlexGenerator.mnemonic").charAt(0));
                 menuItemPlexGenerator.setEnabled(false);
                 menuItemPlexGenerator.setMargin(new Insets(2, 18, 2, 2));
                 menuTools.add(menuItemPlexGenerator);
@@ -1049,13 +1050,6 @@ public class MainFrame extends JFrame
                 menuSystem.setText("System");
                 menuSystem.setMnemonic(context.cfg.gs("Navigator.menuSystem.mnemonic").charAt(0));
 
-                //---- menuItemSettings ----
-                menuItemSettings.setText(context.cfg.gs("Navigator.menu.Settings.text"));
-                menuItemSettings.setMnemonic(context.cfg.gs("Navigator.menu.Settings.mnemonic").charAt(0));
-                menuItemSettings.setIcon(new ImageIcon(getClass().getResource("/settings.png")));
-                menuSystem.add(menuItemSettings);
-                menuSystem.addSeparator();
-
                 //---- menuItemAuthKeys ----
                 menuItemAuthKeys.setText(context.cfg.gs("Navigator.menuItemAuthKeys.text"));
                 menuItemAuthKeys.setMnemonic(context.cfg.gs("Navigator.menuItemAuthKeys.mnemonic").charAt(0));
@@ -1080,6 +1074,13 @@ public class MainFrame extends JFrame
                 menuItemWhitelist.setMnemonic(context.cfg.gs("Navigator.menuItemWhitelist.mnemonic").charAt(0));
                 menuItemWhitelist.setIcon(new ImageIcon(getClass().getResource("/whitelist.png")));
                 menuSystem.add(menuItemWhitelist);
+                menuSystem.addSeparator();
+
+                //---- menuItemSettings ----
+                menuItemSettings.setText(context.cfg.gs("Navigator.menu.Settings.text"));
+                menuItemSettings.setMnemonic(context.cfg.gs("Navigator.menu.Settings.mnemonic").charAt(0));
+                menuItemSettings.setIcon(new ImageIcon(getClass().getResource("/settings.png")));
+                menuSystem.add(menuItemSettings);
             }
             menuBarMain.add(menuSystem);
 
@@ -1151,6 +1152,11 @@ public class MainFrame extends JFrame
                 menuItemGitHubProject.setIcon(new ImageIcon(getClass().getResource("/github.png")));
                 menuItemGitHubProject.setToolTipText(context.cfg.gs("Navigator.menuItemGitHubProject.toolTipText"));
                 menuHelp.add(menuItemGitHubProject);
+
+                //---- menuItemReleaseNotes ----
+                menuItemReleaseNotes.setText(context.cfg.gs("Navigator.menuItemReleaseNotes.text"));
+                menuItemReleaseNotes.setIcon(new ImageIcon(getClass().getResource("/release-notes.png")));
+                menuHelp.add(menuItemReleaseNotes);
                 menuHelp.addSeparator();
 
                 //---- menuItemUpdates ----
@@ -2457,7 +2463,7 @@ public class MainFrame extends JFrame
 
         //======== popupMenuBrowser ========
         {
-            popupMenuBrowser.setPreferredSize(new Dimension(180, 194));
+            popupMenuBrowser.setPreferredSize(new Dimension(204, 194));
 
             //---- popupMenuItemRefresh ----
             popupMenuItemRefresh.setText(context.cfg.gs("Navigator.popupMenuItemRefresh.text"));
@@ -2515,6 +2521,7 @@ public class MainFrame extends JFrame
             popupMenuItemTouch.setText(context.cfg.gs("Navigator.popupMenu.Touch.text"));
             popupMenuItemTouch.setMnemonic(context.cfg.gs("Navigator.popupMenu.Touch.mnemonic").charAt(0));
             popupMenuItemTouch.setIcon(new ImageIcon(getClass().getResource("/touch.png")));
+            popupMenuItemTouch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, KeyEvent.CTRL_DOWN_MASK));
             popupMenuBrowser.add(popupMenuItemTouch);
         }
 
@@ -2610,11 +2617,11 @@ public class MainFrame extends JFrame
     public JMenu menuJobs;
     public JMenuItem menuItemJobsManage;
     public JMenu menuSystem;
-    public JMenuItem menuItemSettings;
     public JMenuItem menuItemAuthKeys;
     public JMenuItem menuItemHintKeys;
     public JMenuItem menuItemBlacklist;
     public JMenuItem menuItemWhitelist;
+    public JMenuItem menuItemSettings;
     public JMenu menuWindows;
     public JMenuItem menuItemMaximize;
     public JMenuItem menuItemMinimize;
@@ -2626,6 +2633,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemGettingStarted;
     public JMenuItem menuItemGitHubProject;
+    public JMenuItem menuItemReleaseNotes;
     public JMenuItem menuItemUpdates;
     public JMenuItem menuItemAbout;
     public JPanel panelMain;

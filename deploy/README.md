@@ -1,33 +1,49 @@
 # Directory deploy
 
-This directory contains the latest build of ELS and some files
-required during development.
+This directory contains the latest build of ELS.
 
-The distributable files are:
+## Distributable Files
 
- * ELS.jar - The ELS software, _it's all built-in_.
- * ELS for Windows - An archive and batch file for Windows including a built-in JRE.
- * ELS for Linux - An archive and script for Linux & Mac including a built-in JRE.
-   * ELS has not been tested on Apple systems although provisions have
-     been made in the code for Apple macOS. Do not know if the
-     embedded JRE for Linux will run on a Mac where a separate distributable
-     file may (likely) be required. Input requested if interested.
- * The ELS* files are the distributables.
-   * Shortcut.exe and the els-logo files are in this directory to support the
-     development environment. They do not need to be downloaded.
+ | File                 | Description                             |
+ |----------------------|-----------------------------------------|
+ | ELS.jar              | The ELS software, _it's all built-in_.  |
+ | ELS-*.tar.gz         | Linux archive including built-in JRE.   |
+ | ELS-*.zip            | Windows archive including built-in JRE. |         
+
+ ## Files Used By ELS Navigator 
+
+_Note_: These files are not intended to be executed manually.
+
+ | File                 | Description                             |
+ |----------------------|-----------------------------------------|
+ | ELS_Updater.jar      | Updater for existing ELS installations. |
+ | ELS_Updater-*.tar.gz | Linux archive including built-in JRE.   |
+ | ELS_Updater-*.zip    | Windows archive including built-in JRE. |
+ | update.info          | Used to check for updates.              |
+ | version.info         | Downloaded for update parameters.       |
+
+### Note
+
+ELS has not been tested on Apple systems although provisions have
+been made in the code for Apple macOS.
 
 ## Installation
 
 Unpack the Linux or Windows archive in the desired location.
 
-Execute the script or batch file to start a basic Navigator desktop
+Execute the script or batch file in that directory to start a basic Navigator desktop
 application with no publisher or subscriber.
 
-## Upgrading
+## Updating
+
+Using ELS Navigator select Help then Check for Updates. 
+
+ELS Updater is an automated process and not intended to be executed manually.
+
+## For Users Of ELS _Prior to 4.0.0_ :
 
 ELS 4 uses a specific directory structure for libraries, tools, jobs, etc.
 
-For users of ELS _prior to 4.0.0_: 
 1. Ensure any Hints in-process are completed.
 2. Copy any previous library JSON files to the ELS 
    "[current working directory]/libraries/" AFTER running it the first 

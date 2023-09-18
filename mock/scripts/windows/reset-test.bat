@@ -5,7 +5,7 @@ set base=%~dp0
 cd /d "%base%"
 cd ..\..
 
-if not exist .\media-base_copy-only goto NoDir
+if not exist .\copy-only_media-base goto NoDir
 if "z%1" == "z-f" goto Execute
 echo/
 echo Reset Test Data
@@ -22,7 +22,7 @@ del /q .\*received*.json
 del /q .\*generated*.json
 
 :NoDir
-xcopy /I /E .\media-base_copy-only .\test
+xcopy /I /E .\copy-only_media-base .\test
 echo Done
 goto JXT
 

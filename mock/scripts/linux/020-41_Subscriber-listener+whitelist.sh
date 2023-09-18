@@ -15,5 +15,5 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -C . -c debug -d debug --ip-whitelist system/whitelist.txt --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/020-41_Subscriber-listener.log
+java -jar bin/ELS.jar -C . -c debug -d debug --ip-whitelist system/whitelist.txt --remote S -p libraries/publisher.json -s libraries/subscriber-one.json -T -F output/020-41_Subscriber-listener.log
 

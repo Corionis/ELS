@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="ELS Build" default="all" basedir=".">
+<project name="ELS Build" default="All" basedir=".">
 
     <target name="init">
         <property file="els.properties"/>
@@ -18,57 +18,74 @@
         <mkdir dir="out"/>
     </target>
 
-    <!-- Build stamp and copy locales to default -->
-    <target name="stamp" depends="clean" description="Copy default locale amd set build stamp">
-        <!-- Write the build timestamp -->
+    <target name="locale" depends="clean">
+        <!-- Copy the IDE default bundle to the en_US bundle used by ELS -->
+        <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
+    </target>
+
+    <target name="set-stamp" depends="locale">
         <tstamp>
             <format property="STRINGNOW" pattern="d MMMM yyyy, HH:mm zzz" locale="en,US"/>
             <format property="NUMBERNOW" pattern="yyMMddHHmm" locale="en,US"/>
         </tstamp>
+    </target>
+
+    <target name="write-version">
         <!-- Write the version.info file -->
         <delete file="deploy/version.info" failonerror="false"/>
         <echo file="deploy/version.info" append="false">${els.version.name}${line.separator}</echo>
         <echo file="deploy/version.info" append="true">${NUMBERNOW}${line.separator}</echo>
         <echo file="deploy/version.info" append="true">${STRINGNOW}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">ELS-${els.version.name}-${NUMBERNOW}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">ELS_Updater-${els.version.name}-${NUMBERNOW}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${els.changes.url}${line.separator}</echo>
+    </target>
+
+    <target name="append-flags" if="els.build.flags">
+        <!-- Append optional flags to the version.info file if set -->
+        <echo>${els.build.flags}${line.separator}</echo>
+        <echo file="deploy/version.info" append="true">${els.build.flags}${line.separator}</echo>
+    </target>
+
+    <!-- Build stamp -->
+    <target name="stamp" depends="set-stamp, write-version, append-flags">
         <echo message="Build stamp ${NUMBERNOW}, ${STRINGNOW}" level="info"/>
-        <!-- Copy version.info to buildstamp.txt -->
-        <copy overwrite="true" file="deploy/version.info" tofile="src/com/groksoft/els/resources/buildstamp.txt"/>
+        <!-- Copy version.info to internal resource version.info -->
+        <copy overwrite="true" file="deploy/version.info" tofile="src/com/groksoft/els/resources/version.info"/>
+        <copy overwrite="true" file="deploy/version.info" tofile="mock/bin/version.info"/>
         <!-- Write the update.info file -->
         <delete file="deploy/update.info" failonerror="false"/>
         <echo file="deploy/update.info" append="false">${els.deploy.url}${line.separator}</echo>
-        <!-- Copy update.info to staging -->
-        <copy overwrite="true" file="deploy/update.info" tofile="artifacts/stage/linux/bin/update.info"/>
-        <copy overwrite="true" file="deploy/update.info" tofile="artifacts/stage/windows/bin/update.info"/>
-        <!-- Copy the IDE default bundle to the en_US bundle -->
-        <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
+        <copy overwrite="true" file="deploy/update.info" tofile="mock/bin/update.info"/>
     </target>
 
+
+    <!-- ELS main program ========================================== -->
+    
     <!-- Compile ELS -->
-    <target name="compile" depends="stamp">
-        <delete dir="out" failonerror="false"/>
-        <mkdir dir="out"/>
-        <mkdir dir="out/jar"/>
-        <javac destdir="out/jar" classpathref="class.path" includeantruntime="false" debug="on">
+    <target name="els-compile" depends="stamp">
+        <mkdir dir="out/ELS/jar"/>
+        <javac destdir="out/ELS/jar" classpathref="class.path" includeantruntime="false" debug="on">
             <src path="src"/>
             <include name="**/*.java"/>
         </javac>
     </target>
 
     <!-- Assemble all the pieces to build the Jar -->
-    <target name="assemble" depends="compile">
-        <copy todir="out/jar/com/groksoft/els/locales" preservelastmodified="true">
+    <target name="els-assemble" depends="els-compile">
+        <copy todir="out/ELS/jar/com/groksoft/els/locales" preservelastmodified="true">
             <fileset dir="src/com/groksoft/els/locales"/>
         </copy>
-        <copy todir="out/jar/com/groksoft/els/resources" preservelastmodified="true">
+        <copy todir="out/ELS/jar/com/groksoft/els/resources" preservelastmodified="true">
             <fileset dir="src/com/groksoft/els/resources"/>
         </copy>
-        <copy todir="out/jar" preservelastmodified="true">
+        <copy todir="out/ELS/jar" preservelastmodified="true">
             <fileset dir="artifacts/images/"/>
             <fileset dir="src/com/groksoft/els/locales/"/>
             <fileset dir="src/com/groksoft/els/resources/"/>
         </copy>
-        <copy file="lib/log4j2.xml" todir="out/jar" preservelastmodified="true"/>
-        <unzip dest="out/jar">
+        <copy file="lib/log4j2.xml" todir="out/ELS/jar" preservelastmodified="true"/>
+        <unzip dest="out/ELS/jar">
             <fileset dir="lib">
                 <include name="**/*.jar"/>
             </fileset>
@@ -76,64 +93,162 @@
     </target>
 
     <!-- Build ELS.jar -->
-    <target name="jar" depends="assemble" description="Build ELS.jar">
-        <manifest file="out/jar/META-INF/MANIFEST.MF">
-            <attribute name="Main-Class" value="com.groksoft.els.BootStrap"/>
+    <target name="els-jar" depends="els-assemble">
+        <manifest file="out/ELS/jar/META-INF/MANIFEST.MF">
+            <attribute name="Main-Class" value="com.groksoft.els.Main"/>
         </manifest>
-        <jar destfile="deploy/ELS.jar" manifest="out/jar/META-INF/MANIFEST.MF">
-            <fileset dir="out/jar" includes="**/"/>
+        <jar destfile="deploy/ELS.jar" manifest="out/ELS/jar/META-INF/MANIFEST.MF">
+            <fileset dir="out/ELS/jar" includes="**/"/>
         </jar>
+        <copy overwrite="true" file="deploy/ELS.jar" tofile="mock/bin/ELS.jar"/>
     </target>
 
-    <!-- Build Linux .tar.gz -->
-    <target name="linux" depends="jar" description="Build Linux .tar.gz">
+    <!-- Build ELS Linux .tar.gz -->
+    <target name="els-linux" depends="els-jar">
         <delete failonerror="false">
             <fileset dir="deploy">
-                <include name="*.tar.gz"/>
+                <include name="ELS-*.tar.gz"/>
             </fileset>
         </delete>
-        <mkdir dir="out/tar/ELS"/>
-        <copy todir="out/tar/ELS" preservelastmodified="true">
-            <fileset dir="artifacts/stage/linux"/>
-        </copy>
-        <copy file="artifacts/images/els-logo-98px.ico" todir="out/tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.png" todir="out/tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="deploy/ELS.jar" todir="out/tar/ELS/bin" preservelastmodified="true"/>
-        <untar dest="out/tar/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-linux.tar.gz" compression="gzip"/>
-        <tar destfile="deploy/ELS-${els.version.name}-${NUMBERNOW}.tar.gz" compression="gzip">
-            <tarfileset dir="out/tar" filemode="775">
-                <include name="ELS/ELS-Navigator.sh"/>
-            </tarfileset>
-            <tarfileset dir="out/tar" filemode="775">
-                <include name="ELS/rt/bin/*"/>
-            </tarfileset>
-            <tarfileset dir="out/tar">
-                <exclude name="ELS/ELS-Navigator.sh"/>
-                <exclude name="ELS/rt/bin/*"/>
-            </tarfileset>
-        </tar>
+        <mkdir dir="out/ELS/tar/ELS"/>
+        <exec command="cp -rpf artifacts/stage/linux/ELS out/ELS/tar/" failonerror="true"/>
+        <copy file="mock/bin/update.info" tofile="out/ELS/tar/ELS/bin/update.info"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
+        <copy file="deploy/ELS.jar" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
+        <exec command="tar cvzf deploy/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/ELS/tar ELS"/>
     </target>
 
-    <!-- Build Windows .zip -->
-    <target name="windows" depends="jar" description="Build Windows .zip">
+    <!-- Build ELS Windows .zip -->
+    <target name="els-windows" depends="els-jar">
         <delete failonerror="false">
             <fileset dir="deploy">
-                <include name="*.zip"/>
+                <include name="ELS-*.zip"/>
             </fileset>
         </delete>
-        <mkdir dir="out/zip/ELS"/>
-        <copy todir="out/zip/ELS" preservelastmodified="true">
+        <mkdir dir="out/ELS/zip/ELS"/>
+        <copy todir="out/ELS/zip/ELS" preservelastmodified="true">
             <fileset dir="artifacts/stage/windows"/>
         </copy>
-        <copy file="artifacts/images/els-logo-98px.ico" todir="out/zip/ELS/bin" preservelastmodified="true"/>
-        <copy file="artifacts/images/els-logo-98px.png" todir="out/zip/ELS/bin" preservelastmodified="true"/>
-        <copy file="deploy/ELS.jar" todir="out/zip/ELS/bin" preservelastmodified="true"/>
-        <unzip dest="out/zip/ELS/rt" src="artifacts/stage/rt-archives/OpenJDK8-windows.zip"/>
+        <copy file="mock/bin/update.info" tofile="out/ELS/zip/ELS/bin/update.info"/>
+        <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
+        <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
+        <copy file="deploy/ELS.jar" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
         <zip destfile="deploy/ELS-${els.version.name}-${NUMBERNOW}.zip">
-            <zipfileset dir="out/zip" includes="**/*"/>
+            <zipfileset dir="out/ELS/zip" includes="**/*"/>
         </zip>
     </target>
 
-    <target name="all" depends="linux, windows" description="Build everything"/>
+    <target name="ELS" depends="els-linux, els-windows" description="Build ELS"/>
+
+
+    <!-- ELS Updater ========================================== -->
+
+    <!-- Compile Updater -->
+    <target name="updater-compile" depends="els-compile">
+        <mkdir dir="out/updater/jar"/>
+        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/gui/Preferences.class" tofile="out/updater/jar/com/groksoft/els/gui/Preferences.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/Configuration.class" tofile="out/updater/jar/com/groksoft/els/Configuration.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/Context.class" tofile="out/updater/jar/com/groksoft/els/Context.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/MungeException.class" tofile="out/updater/jar/com/groksoft/els/MungeException.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/Utils.class" tofile="out/updater/jar/com/groksoft/els/Utils.class"/>
+        <copy overwrite="true" file="deploy/version.info" tofile="out/updater/jar/com/groksoft/els/resources/version.info"/>
+        <javac destdir="out/updater/jar" classpathref="class.path" includeantruntime="false" debug="on">
+            <src path="updater/src"/>
+            <include name="**/*.java"/>
+        </javac>
+    </target>
+
+    <!-- Assemble all the pieces to build the Updater Jar -->
+    <target name="updater-assemble" depends="updater-compile">
+        <copy todir="out/updater/jar/com/groksoft/els/locales" preservelastmodified="true">
+            <fileset dir="src/com/groksoft/els/locales"/>
+        </copy>
+        <copy todir="out/updater/jar" preservelastmodified="true">
+            <file file="artifacts/images/els-logo-48px.png"/>
+            <fileset dir="src/com/groksoft/els/locales/"/>
+            <file file="deploy/version.info"/>
+        </copy>
+        <!-- copy the separate log4j2-updater.xml to log4j2.xml -->
+        <copy file="lib/log4j2-updater.xml" tofile="out/updater/jar/log4j2.xml" preservelastmodified="true"/>
+        <unzip dest="out/updater/jar">
+            <fileset dir="lib">
+                <include name="**/commons-compress-1.23.0.jar"/>
+                <include name="**/commons-io-2.11.0.jar"/>
+                <include name="**/commons-lang3-3.12.0.jar"/>
+                <include name="**/flatlaf-3.1.1.jar"/>
+                <include name="**/flatlaf-intellij-themes-3.1.1.jar"/>
+                <include name="**/gson-2.10.1.jar"/>
+                <include name="**/guava-32.0.1-jre.jar"/>
+                <include name="**/javax.activation-1.2.0.jar"/>
+                <include name="**/log4j-api-2.19.0.jar"/>
+                <include name="**/log4j-core-2.19.0.jar"/>
+                <include name="**/log4j-slf4j2-impl-2.19.0.jar"/>
+                <include name="**/slf4j-api-2.0.7.jar"/>
+                <include name="**/slf4j-simple-2.0.7.jar"/>
+                <include name="**/sshd-common-2.10.0.jar"/>
+            </fileset>
+        </unzip>
+    </target>
+
+    <!-- Build ELS-Updater.jar -->
+    <target name="updater-jar" depends="updater-assemble">
+        <manifest file="out/updater/jar/META-INF/MANIFEST.MF">
+            <attribute name="Main-Class" value="com.groksoft.els_updater.Main"/>
+        </manifest>
+        <jar destfile="deploy/ELS_Updater.jar" manifest="out/updater/jar/META-INF/MANIFEST.MF">
+            <fileset dir="out/updater/jar" includes="**/"/>
+        </jar>
+        <copy overwrite="true" file="deploy/ELS_Updater.jar" tofile="mock/bin/ELS_Updater.jar"/>
+    </target>
+
+    <!-- Build Updater Linux .tar.gz -->
+    <target name="updater-linux" depends="updater-jar">
+        <delete failonerror="false">
+            <fileset dir="deploy">
+                <include name="ELS_*.tar.gz"/>
+            </fileset>
+        </delete>
+        <mkdir dir="out/updater/tar/ELS_Updater"/>
+        <exec command="cp -rpf artifacts/stage/linux/ELS out/updater/tar/" failonerror="true"/>
+        <rename src="out/updater/tar/ELS" dest="out/updater/tar/ELS_Updater"/>
+        <delete file="out/updater/tar/ELS_Updater/ELS-Navigator.sh" failonerror="false"/>
+        <copy file="mock/bin/update.info" tofile="out/updater/tar/ELS_Updater/bin/update.info"/>
+        <copy file="deploy/ELS_Updater.jar" todir="out/updater/tar/ELS_Updater/bin" preservelastmodified="true" />
+        <exec command="tar cvzf deploy/ELS_Updater-${els.version.name}-${NUMBERNOW}.tar.gz -C out/updater/tar ELS_Updater"/>
+    </target>
+
+    <!-- Build Updater Windows .zip -->
+    <target name="updater-windows" depends="updater-jar">
+        <delete failonerror="false">
+            <fileset dir="deploy">
+                <include name="ELS_*.zip"/>
+            </fileset>
+        </delete>
+        <mkdir dir="out/updater/zip/ELS_Updater"/>
+        <copy todir="out/updater/zip/ELS_Updater" preservelastmodified="true">
+            <fileset dir="artifacts/stage/windows"/>
+        </copy>
+        <copy file="mock/bin/update.info" tofile="out/updater/zip/ELS_Updater/bin/update.info"/>
+        <copy file="deploy/ELS_Updater.jar" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
+        <delete file="out/updater/zip/ELS_Updater/ELS-Navigator.bat" failonerror="false"/>
+        <delete file="out/updater/zip/ELS_Updater/bin/Shortcut.exe" failonerror="false"/>
+        <zip destfile="deploy/ELS_Updater-${els.version.name}-${NUMBERNOW}.zip">
+            <zipfileset dir="out/updater/zip" includes="**/*"/>
+        </zip>
+    </target>
+
+    <target name="Updater" depends="updater-linux, updater-windows" description="Build Updater"/>
+
+
+    <!-- Primary Targets ========================================== -->
+
+    <target name="All" depends="ELS, Updater" description="Build all deliverables"/>
+
+    <target name="Linux" depends="els-linux, updater-linux" description="Build all Linux deliverables"/>
+
+    <target name="Windows" depends="els-windows, updater-windows" description="Build all Windows deliverables"/>
+
+    <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
 
 </project>

@@ -4,7 +4,7 @@ REM reset [-f]
 set base=%~dp0
 cd /d "%base%"
 
-if not exist .\media-base_copy-only goto NoDir
+if not exist .\copy-only_media-base goto NoDir
 if "z%1" == "z-f" goto NoDir
 echo/
 echo Reset Test Configuration and Data

@@ -6,8 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.apache.sshd.common.util.io.IoUtils;
 
 import java.io.File;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -17,13 +19,21 @@ import java.util.*;
  */
 public class Configuration
 {
-    public static final String URL_PREFIX = "https://github.com/GrokSoft/ELS/raw/Version-4.0.0/deploy"; // TODO +Maintenance Adjust as needed
+    public static final int BUILD_CHANGES_URL = 5;
+    public static final int BUILD_DATE = 2;
+    public static final int BUILD_ELS_DISTRO = 3;
+    public static final int BUILD_FLAGS = 6;
+    public static final int BUILD_NUMBER = 1;
+    public static final int BUILD_UPDATER_DISTRO = 4;
+    public static final int BUILD_VERSION_NAME = 0;
     public static final String ELS_ICON = "els-logo-98px";
     public static final String ELS_JAR = "ELS.jar";
     public static final String ELS_UPDATE = "__els-update__";
     public static final int JOB_PROCESS = 8;
+    public static final String NAVIGATOR_NAME = "ELS Navigator";
     public static final int NOT_REMOTE = 0;
     public static final int NOT_SET = -1;
+    public static final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
     public static final int PUBLISHER_LISTENER = 4;
     public static final int PUBLISHER_MANUAL = 3;
     public static final int PUBLISH_REMOTE = 1;
@@ -32,8 +42,10 @@ public class Configuration
     public static final int SUBSCRIBER_LISTENER = 2;
     public static final int SUBSCRIBER_LISTENER_FORCE_QUIT = 9;
     public static final int SUBSCRIBER_TERMINAL = 5;
-    private final String NAVIGATOR_NAME = "ELS Navigator";
-    private final String PROGRAM_NAME = "ELS : Entertainment Library Synchronizer";
+    public static final String URL_PREFIX = "https://raw.githubusercontent.com/GrokSoft/ELS/Version-4.0.0/deploy"; // TODO +Maintenance Adjust as needed
+    public static final int VERSION_SIZE = 6; // number of lines required in version.info
+    public static final String[] availableLocales = {"en_US"}; // TODO EXTEND+ Add new locales here; Potentially refactor to include files from a locales directory
+    public boolean defaultNavigator = false;
     private String authKeysFile = "";
     private String authorizedPassword = "";
     private String blacklist = "";
@@ -44,7 +56,6 @@ public class Configuration
     private ResourceBundle currentBundle = null;
     private String debugLevel = "Debug";
     private boolean debugSet = false;
-    public boolean defaultNavigator = false;
     private int dryRun = -1;
     private int duplicateCheck = -1;
     private int emptyDirectoryCheck = -1;
@@ -87,6 +98,8 @@ public class Configuration
     private String subscriberLibrariesFileName = "";
     private int targetsEnabled = -1;
     private String targetsFilename = "";
+    private boolean updateFailed = false;
+    private boolean updateSuccessful = false;
     private int validation = -1;
     private int whatsNewAll = -1;
     private String whatsNewFilename = "";
@@ -96,7 +109,6 @@ public class Configuration
         NotRemote, PublishRemote, SubscriberListener, PublisherManual, PublisherListener,
         SubscriberTerminal, StatusServer, StatusServerQuit, SubscriberListenerQuit
     }
-
     /**
      * Constructor
      */
@@ -345,6 +357,76 @@ public class Configuration
     }
 
     /**
+     * Generate the current Navigator command line
+     * <p>
+     * Some options are not used by Navigator.
+     *
+     * @return String command line
+     */
+    public String generateCurrentCommandline()
+    {
+        String java = context.cfg.getJavaExe();
+        String jar = context.cfg.getElsJar();
+        String consoleLevel = context.cfg.getConsoleLevel();
+        String debugLevel = context.cfg.getDebugLevel();
+        boolean overwriteLog = context.cfg.isLogOverwrite();
+        String log = context.cfg.getLogFileName();
+
+        String conf = "-C \"" + context.cfg.getWorkingDirectory() + "\" ";
+        String opts; // = ((OperationsTool) tool).generateCommandLine(context.cfg.getPublisherFilename(), context.cfg.getSubscriberFilename());
+
+        Configuration cc = context.cfg;
+        Configuration defCfg = new Configuration(context);
+        boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
+        StringBuilder sb = new StringBuilder();
+
+        // --- non-munging actions
+        sb.append(" " + (glo ? "--navigator" : "-n"));
+
+        if (cc.isDryRun() != defCfg.isDryRun())
+            sb.append(" " + (glo ? "--dry-run" : "-D"));
+
+        // --- hint keys
+        if (!cc.isHintSkipMainProcess() && cc.getHintKeysFile().length() > 0)
+            sb.append(" " + (glo ? "--keys" : "-k") + " \"" + cc.getHintKeysFile() + "\"");
+        if (cc.isHintSkipMainProcess() && cc.getHintKeysFile().length() > 0)
+            sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + cc.getHintKeysFile() + "\"");
+
+        // --- hints & hint server
+        if (cc.getHintTrackerFilename().length() > 0)
+            sb.append(" " + (glo ? "--hints" : "-h") + " \"" + cc.getHintTrackerFilename() + "\"");
+        if (cc.getHintsDaemonFilename().length() > 0)
+            sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + cc.getHintsDaemonFilename() + "\"");
+
+
+        // --- Remote
+        if (cc.isRemoteSession())
+            sb.append(" " + (glo ? "--remote" : "-r") + " P");
+
+        // --- libraries
+        if (cc.getPublisherFilename() != null && cc.getPublisherFilename().length() > 0)
+            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + cc.getPublisherFilename() + "\"");
+        if (cc.getSubscriberFilename() != null && cc.getSubscriberFilename().length() > 0)
+            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + cc.getSubscriberFilename() + "\"");
+
+        // --- options
+        if (!cc.isBinaryScale() != !defCfg.isBinaryScale())
+            sb.append(" " + (glo ? "--decimal-scale" : "-z"));
+        if (cc.isQuitSubscriberListener() != defCfg.isQuitSubscriberListener())
+            sb.append(" " + (glo ? "--listener-quit" : "-G"));
+        if (cc.isKeepGoing() != defCfg.isKeepGoing())
+            sb.append(" " + (glo ? "--listener-keep-going" : "-g"));
+        if (cc.isPreserveDates() != defCfg.isPreserveDates())
+            sb.append(" " + (glo ? "--preserve-dates" : "-y"));
+
+        opts = sb.toString().trim();
+
+        String overOpt = overwriteLog ? "-F" : "-f";
+        String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + opts + " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
+        return cmd;
+    }
+
+    /**
      * Gets Authentication Keys filename
      *
      * @return String filename
@@ -372,6 +454,174 @@ public class Configuration
     public String getBlacklist()
     {
         return blacklist;
+    }
+
+    /**
+     * Read the built-in build date
+     *
+     * @return Build changes URL, or "unknown"
+     */
+    public static String getBuildChangesUrl()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("version.info");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() >= BUILD_CHANGES_URL)
+            {
+                text = lines.get(BUILD_CHANGES_URL);
+            }
+        }
+        catch (Exception e)
+        {
+            text = "unknown";
+        }
+        return text;
+    }
+
+    /**
+     * Read the built-in build date
+     *
+     * @return Build stamp string, or "unknown"
+     */
+    public static String getBuildDate()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("version.info");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() >= BUILD_DATE)
+            {
+                text = lines.get(BUILD_DATE);
+            }
+        }
+        catch (Exception e)
+        {
+            text = "unknown";
+        }
+        return text;
+    }
+
+    /**
+     * Read the built-in ELS distribution name
+     *
+     * @return Build version string, or "unknown"
+     */
+    public static String getBuildElsDistro()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("version.info");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() >= BUILD_ELS_DISTRO)
+            {
+                text = lines.get(BUILD_ELS_DISTRO);
+            }
+        }
+        catch (Exception e)
+        {
+            text = "unknown";
+        }
+        return text;
+    }
+
+    /**
+     * Read built-in build flags
+     *
+     * @return Optional build flags or empty String
+     */
+    public static String getBuildFlags()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("version.info");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() >= BUILD_FLAGS)
+            {
+                text = lines.get(BUILD_FLAGS);
+            }
+        }
+        catch (Exception e)
+        {
+            text = "";
+        }
+        return text;
+    }
+
+    /**
+     * Read the built-in build number
+     *
+     * @return Build number string, or "unknown"
+     */
+    public static String getBuildNumber()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("version.info");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() >= BUILD_NUMBER)
+            {
+                text = lines.get(BUILD_NUMBER);
+            }
+        }
+        catch (Exception e)
+        {
+            text = "unknown";
+        }
+        return text;
+    }
+
+    /**
+     * Read the built-in updater distribution name
+     *
+     * @return Build version string, or "unknown"
+     */
+    public static String getBuildUpdaterDistro()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("version.info");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() >= BUILD_UPDATER_DISTRO)
+            {
+                text = lines.get(BUILD_UPDATER_DISTRO);
+            }
+        }
+        catch (Exception e)
+        {
+            text = "unknown";
+        }
+        return text;
+    }
+
+    /**
+     * Read the built-in simple version name
+     *
+     * @return Build version string, or "unknown"
+     */
+    public static String getBuildVersionName()
+    {
+        String text = "";
+        try
+        {
+            URL url = Thread.currentThread().getContextClassLoader().getResource("version.info");
+            List<String> lines = IoUtils.readAllLines(url);
+            if (lines.size() > BUILD_VERSION_NAME)
+            {
+                text = lines.get(BUILD_VERSION_NAME);
+            }
+        }
+        catch (Exception e)
+        {
+            text = "unknown";
+        }
+        return text;
     }
 
     /**
@@ -413,7 +663,9 @@ public class Configuration
      */
     public String getElsJar()
     {
-        return context.cfg.getElsJarPath() + System.getProperty("file.separator") + context.cfg.ELS_JAR;
+        return getInstalledPath() + System.getProperty("file.separator") +
+                "bin" + System.getProperty("file.separator") +
+                context.cfg.ELS_JAR;
     }
 
     /**
@@ -432,9 +684,9 @@ public class Configuration
         try
         {
             jarPath = new File(MainFrame.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-            if (jarPath.endsWith("ELS.jar"))
+            if (jarPath.endsWith(context.cfg.ELS_JAR))
             {
-                jarPath = jarPath.substring(0, jarPath.length() - "ELS.jar".length());
+                jarPath = jarPath.substring(0, jarPath.length() - context.cfg.ELS_JAR.length());
             }
             else // hack for development environment to be consistent with the install environment
             {
@@ -539,6 +791,36 @@ public class Configuration
         return path;
     }
 
+    public String getInstalledPath()
+    {
+        String path = Main.class.getResource("Main.class").toExternalForm();
+        if (path.startsWith("jar")) // if a Jar then same directory
+        {
+            try
+            {
+                path = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
+                path = FilenameUtils.getPath(path);
+                if (path.endsWith("bin" + System.getProperty("file.separator")))
+                {
+                    path = path.substring(0, path.length() - 5);
+                }
+                if (path.endsWith(System.getProperty("file.separator")))
+                {
+                    path = path.substring(0, path.length() - 1);
+                }
+                path = System.getProperty("file.separator") + path;
+            }
+            catch (Exception e)
+            {
+            }
+        }
+        else
+        {
+            path = getWorkingDirectory(); // otherwise the working directory/bin
+        }
+        return path;
+    }
+
     /**
      * Get IP address whitelist filename
      *
@@ -551,7 +833,10 @@ public class Configuration
 
     public String getJavaExe()
     {
-        String je = System.getProperty("java.home") + System.getProperty("file.separator") + "bin" + System.getProperty("file.separator") + "java";
+        String je = getInstalledPath() + System.getProperty("file.separator") +
+                "rt" + System.getProperty("file.separator") +
+                "bin" + System.getProperty("file.separator") +
+                "java";
         if (!Utils.isOsLinux())
             je += ".exe";
         return je;
@@ -858,49 +1143,6 @@ public class Configuration
         return targetsFilename;
     }
 
-    public String getUpdateFilePath()
-    {
-        String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
-        String path = System.getProperty("java.io.tmpdir");
-        if (path.endsWith(System.getProperty("file.separator")))
-        {
-            path = path.substring(0, path.length() - 1);
-        }
-        path += System.getProperty("file.separator") + Configuration.ELS_UPDATE + ext;
-        return path;
-    }
-
-    public String getUpdateTargetPath()
-    {
-        String path = Main.class.getResource("Main.class").toExternalForm();
-        if (path.startsWith("jar")) // if a Jar then same directory
-        {
-            try
-            {
-                path = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getPath();
-                path = FilenameUtils.getPath(path);
-                if (path.endsWith("bin" + System.getProperty("file.separator")))
-                {
-                    path = path.substring(0, path.length() - 5);
-                }
-                if (path.endsWith(System.getProperty("file.separator")))
-                {
-                    path = path.substring(0, path.length() - 1);
-                }
-                path = System.getProperty("file.separator") + path;
-System.out.println("FROM JAR: " + path);
-            }
-            catch (Exception e)
-            {}
-        }
-        else
-        {
-            path = getWorkingDirectory(); // otherwise the working directory/bin
-System.out.println("FROM WORKING DIRECTORY: " + path);
-        }
-        return path;
-    }
-
     /**
      * Gets the defauylt URL prefix for updates if update.info file not found
      *
@@ -943,7 +1185,10 @@ System.out.println("FROM WORKING DIRECTORY: " + path);
         String value = "";
         try
         {
-            value = currentBundle.getString(key);
+            if (currentBundle == null)
+                value = key;
+            else
+                value = currentBundle.getString(key);
         }
         catch (MissingResourceException e)
         {
@@ -1304,6 +1549,21 @@ System.out.println("FROM WORKING DIRECTORY: " + path);
         return targetsEnabled == 1 ? true : false;
     }
 
+    public boolean isUpdateFailed()
+    {
+        return updateFailed;
+    }
+
+    /**
+     * Is this a restarted instance after being updated?
+     *
+     * @return
+     */
+    public boolean isUpdateSuccessful()
+    {
+        return updateSuccessful;
+    }
+
     /**
      * Is a Hint Status Tracker or Status Server being used?
      *
@@ -1332,6 +1592,38 @@ System.out.println("FROM WORKING DIRECTORY: " + path);
     public boolean isWhatsNewAll()
     {
         return this.whatsNewAll == 1 ? true : false;
+    }
+
+    /**
+     * Load a locale and set current locale bundle
+     * <br/>
+     * Requires the abbreviated language_country part of the locale filename, e.g. en_US.
+     * It must be one of the built-in locale files. If not available en_US is used.
+     *
+     * @param filePart Locale file end
+     */
+    public void loadLocale(String filePart)
+    {
+        loadLocale(filePart, context.cfg);
+    }
+
+    /**
+     * Load a locale and set current locale bundle
+     * <br/>
+     * Requires the abbreviated language_country part of the locale filename, e.g. en_US.
+     * It must be one of the built-in locale files. If not available en_US is used.
+     *
+     * @param filePart Locale file end
+     * @param config   Configuration
+     */
+    public void loadLocale(String filePart, Configuration config)
+    {
+        // load the language file if available
+        if (!Arrays.asList(Configuration.availableLocales).contains(filePart))
+        {
+            filePart = "en_US"; // default locale
+        }
+        config.setCurrentBundle(ResourceBundle.getBundle("com.groksoft.els.locales.bundle_" + filePart));
     }
 
     /**
@@ -1444,7 +1736,7 @@ System.out.println("FROM WORKING DIRECTORY: " + path);
                     setDryRun(true);
                     break;
                 case "--dump-system":
-                    System.out.println("ELS version " + context.main.getBuildVersionName() + System.getProperty("line.separator"));
+                    System.out.println("ELS version " + getBuildVersionName() + ", " + getBuildDate() + System.getProperty("line.separator"));
                     System.getProperties().list(System.out);
                     System.exit(1);
                     break;
@@ -1732,13 +2024,19 @@ System.out.println("FROM WORKING DIRECTORY: " + path);
                 case "--duplicates":
                     setDuplicateCheck(true);
                     break;
+                case "--update-failed":
+                    setUpdateFailed(true);
+                    break;
+                case "--update-successful":
+                    setUpdateSuccessful();
+                    break;
                 case "-v":                                             // validation run
                 case "--validate":
                     setValidation(true);
                     break;
                 case "--version":                                       // version
                     System.out.println("");
-                    System.out.println(PROGRAM_NAME + ", Version " + context.main.getBuildVersionName() + ", " + context.main.getBuildStamp());
+                    System.out.println(PROGRAM_NAME + ", Version " + getBuildVersionName() + ", " + getBuildDate() + ", " + getBuildDate());
                     System.out.println("See the ELS wiki on GitHub for documentation at:");
                     System.out.println("  https://github.com/GrokSoft/ELS/wiki");
                     System.out.println("");
@@ -2265,6 +2563,19 @@ System.out.println("FROM WORKING DIRECTORY: " + path);
     public void setTargetsFilename(String targetsFilename)
     {
         this.targetsFilename = targetsFilename;
+    }
+
+    public void setUpdateFailed(boolean updateFailed)
+    {
+        this.updateFailed = updateFailed;
+    }
+
+    /**
+     * Sets the updateSuccessful flag provided by the Updater
+     */
+    public void setUpdateSuccessful()
+    {
+        updateSuccessful = true;
     }
 
     /**

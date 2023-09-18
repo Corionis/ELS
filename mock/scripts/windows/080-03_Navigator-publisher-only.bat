@@ -7,7 +7,7 @@ set name=%~n0
 
 cd ..\..
 
-java -jar ../deploy/ELS.jar -C . --navigator -c debug -d debug -p libraries/publisher.json -F output/080-03_Navigator-publisher-only.log %*
+java -jar bin/ELS.jar -C . --navigator -c debug -d debug -p libraries/publisher.json -F output/080-03_Navigator-publisher-only.log %*
 
 cd /d "%base%"
 

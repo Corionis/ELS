@@ -21,8 +21,8 @@ import java.util.List;
 @SuppressWarnings(value = "unchecked")
 public class Preferences implements Serializable
 {
-    static final int SCHEMA = 1; // schema version, set in write()
-    public final String DEFAULT_ACCENT_COLOR = "2675BF";
+    public static final int SCHEMA = 1; // schema version, set in write()
+    public static final String DEFAULT_ACCENT_COLOR = "2675BF";
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
@@ -142,14 +142,22 @@ public class Preferences implements Serializable
     private transient Logger logger = LogManager.getLogger("applog");
     private transient LookAndFeel laf = null;
 
+    public Preferences()
+    {
+
+    }
+
     /**
      * Constructor
      */
+/*
     public Preferences(Context context)
     {
         this.context = context;
-        this.context.preferences = this;
+        if (this.context != null)
+            this.context.preferences = this;
     }
+*/
 
     public void extractColumnSizes(Context context, JTable table)
     {
@@ -203,19 +211,19 @@ public class Preferences implements Serializable
     public void fixApplication(Context context)
     {
         // set position and size
-        if (context.preferences.getAppXpos() > -1)
-            context.mainFrame.setLocation(context.preferences.getAppXpos(), context.preferences.getAppYpos());
-        if (context.preferences.getAppWidth() > -1)
-            context.mainFrame.setSize(context.preferences.getAppWidth(), context.preferences.getAppHeight());
+        if (getAppXpos() > -1)
+            context.mainFrame.setLocation(getAppXpos(), getAppYpos());
+        if (getAppWidth() > -1)
+            context.mainFrame.setSize(getAppWidth(), getAppHeight());
 
         // dividers
         // the bottom divider is handler elsewhere
-        context.mainFrame.splitPaneTwoBrowsers.setOrientation(context.preferences.getCenterDividerOrientation());
-        context.mainFrame.splitPaneTwoBrowsers.setDividerLocation(context.preferences.getCenterDividerLocation());
-        context.mainFrame.splitPaneCollectionOne.setDividerLocation(context.preferences.getCollectionOneDividerLocation());
-        context.mainFrame.splitPaneCollectionTwo.setDividerLocation(context.preferences.getCollectionTwoDividerLocation());
-        context.mainFrame.splitPaneSystemOne.setDividerLocation(context.preferences.getSystemOneDividerLocation());
-        context.mainFrame.splitPaneSystemTwo.setDividerLocation(context.preferences.getSystemTwoDividerLocation());
+        context.mainFrame.splitPaneTwoBrowsers.setOrientation(getCenterDividerOrientation());
+        context.mainFrame.splitPaneTwoBrowsers.setDividerLocation(getCenterDividerLocation());
+        context.mainFrame.splitPaneCollectionOne.setDividerLocation(getCollectionOneDividerLocation());
+        context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
+        context.mainFrame.splitPaneSystemOne.setDividerLocation(getSystemOneDividerLocation());
+        context.mainFrame.splitPaneSystemTwo.setDividerLocation(getSystemTwoDividerLocation());
 
         fixColumnSizes(context, null);
     }
@@ -229,7 +237,7 @@ public class Preferences implements Serializable
     public void fixBrowserDivider(Context context, int bottomSize)
     {
         if (bottomSize < 0)
-            bottomSize = context.preferences.getBrowserBottomSize();
+            bottomSize = getBrowserBottomSize();
 
         int whole = context.mainFrame.splitPaneBrowser.getHeight();
         int divider = context.mainFrame.splitPaneBrowser.getDividerSize();
@@ -244,13 +252,13 @@ public class Preferences implements Serializable
         {
             if (context.mainFrame.tableCollectionOne.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneCollectionOne.setDividerLocation(context.preferences.getCollectionOneDividerLocation());
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getCollectionOneNameWidth());
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setWidth(context.preferences.getCollectionOneNameWidth());
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getCollectionOneSizeWidth());
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setWidth(context.preferences.getCollectionOneSizeWidth());
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getCollectionOneDateWidth());
-                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(context.preferences.getCollectionOneDateWidth());
+                context.mainFrame.splitPaneCollectionOne.setDividerLocation(getCollectionOneDividerLocation());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setPreferredWidth(getCollectionOneNameWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(1).setWidth(getCollectionOneNameWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setPreferredWidth(getCollectionOneSizeWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(2).setWidth(getCollectionOneSizeWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setPreferredWidth(getCollectionOneDateWidth());
+                context.mainFrame.tableCollectionOne.getColumnModel().getColumn(3).setWidth(getCollectionOneDateWidth());
                 setTableSort(context.mainFrame.tableCollectionOne, getCollectionOneSortColumn(), getCollectionOneSortDirection());
             }
         }
@@ -259,13 +267,13 @@ public class Preferences implements Serializable
         {
             if (context.mainFrame.tableCollectionTwo.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneCollectionTwo.setDividerLocation(context.preferences.getCollectionTwoDividerLocation());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getCollectionTwoNameWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setWidth(context.preferences.getCollectionTwoNameWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getCollectionTwoSizeWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setWidth(context.preferences.getCollectionTwoSizeWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getCollectionTwoDateWidth());
-                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(context.preferences.getCollectionTwoDateWidth());
+                context.mainFrame.splitPaneCollectionTwo.setDividerLocation(getCollectionTwoDividerLocation());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setPreferredWidth(getCollectionTwoNameWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(1).setWidth(getCollectionTwoNameWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setPreferredWidth(getCollectionTwoSizeWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(2).setWidth(getCollectionTwoSizeWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setPreferredWidth(getCollectionTwoDateWidth());
+                context.mainFrame.tableCollectionTwo.getColumnModel().getColumn(3).setWidth(getCollectionTwoDateWidth());
                 setTableSort(context.mainFrame.tableCollectionTwo, getCollectionTwoSortColumn(), getCollectionTwoSortDirection());
             }
         }
@@ -274,13 +282,13 @@ public class Preferences implements Serializable
         {
             if (context.mainFrame.tableSystemOne.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneSystemOne.setDividerLocation(context.preferences.getSystemOneDividerLocation());
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getSystemOneNameWidth());
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setWidth(context.preferences.getSystemOneNameWidth());
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getSystemOneSizeWidth());
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setWidth(context.preferences.getSystemOneSizeWidth());
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getSystemOneDateWidth());
-                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(context.preferences.getSystemOneDateWidth());
+                context.mainFrame.splitPaneSystemOne.setDividerLocation(getSystemOneDividerLocation());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setPreferredWidth(getSystemOneNameWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(1).setWidth(getSystemOneNameWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setPreferredWidth(getSystemOneSizeWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(2).setWidth(getSystemOneSizeWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setPreferredWidth(getSystemOneDateWidth());
+                context.mainFrame.tableSystemOne.getColumnModel().getColumn(3).setWidth(getSystemOneDateWidth());
                 setTableSort(context.mainFrame.tableSystemOne, getSystemOneSortColumn(), getSystemOneSortDirection());
             }
         }
@@ -289,13 +297,13 @@ public class Preferences implements Serializable
         {
             if (context.mainFrame.tableSystemTwo.getColumnModel().getColumnCount() == 4)
             {
-                context.mainFrame.splitPaneSystemTwo.setDividerLocation(context.preferences.getSystemTwoDividerLocation());
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setPreferredWidth(context.preferences.getSystemTwoNameWidth());
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setWidth(context.preferences.getSystemTwoNameWidth());
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setPreferredWidth(context.preferences.getSystemTwoSizeWidth());
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setWidth(context.preferences.getSystemTwoSizeWidth());
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setPreferredWidth(context.preferences.getSystemTwoDateWidth());
-                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(context.preferences.getSystemTwoDateWidth());
+                context.mainFrame.splitPaneSystemTwo.setDividerLocation(getSystemTwoDividerLocation());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setPreferredWidth(getSystemTwoNameWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(1).setWidth(getSystemTwoNameWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setPreferredWidth(getSystemTwoSizeWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(2).setWidth(getSystemTwoSizeWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setPreferredWidth(getSystemTwoDateWidth());
+                context.mainFrame.tableSystemTwo.getColumnModel().getColumn(3).setWidth(getSystemTwoDateWidth());
                 setTableSort(context.mainFrame.tableSystemTwo, getSystemTwoSortColumn(), getSystemTwoSortDirection());
             }
         }
@@ -875,7 +883,7 @@ public class Preferences implements Serializable
                 UIManager.put("TabbedPane.showTabSeparators", true); // separators between tabs
 //            UIManager.put( "TabbedPane.tabSeparatorsFullHeight", true );
 
-                if (context.preferences.getLookAndFeel() == 0)
+                if (getLookAndFeel() == 0)
                 {
                     laf = getLookAndFeelClass(0);
                     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -887,11 +895,11 @@ public class Preferences implements Serializable
                 }
 
                 // set accent color for current LaF
-                if (context.preferences.getAccentColor() == null || context.preferences.getAccentColor().length() < 1)
+                if (getAccentColor() == null || getAccentColor().length() < 1)
                 {
-                    context.preferences.setAccentColor(DEFAULT_ACCENT_COLOR);
+                    setAccentColor(DEFAULT_ACCENT_COLOR);
                 }
-                String accent = context.preferences.getAccentColor();
+                String accent = getAccentColor();
                 FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + accent));
                 Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
                 FlatLaf.setup(lafClass.newInstance());
@@ -1098,6 +1106,8 @@ public class Preferences implements Serializable
     public void setContext(Context context)
     {
         this.context = context;
+        if (this.context != null)
+            this.context.preferences = this;
     }
 
     public void setDateFormat(String dateFormat)

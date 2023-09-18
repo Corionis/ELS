@@ -2,6 +2,7 @@ package com.groksoft.els.gui;
 
 import java.awt.event.*;
 
+import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,8 +24,8 @@ public class About extends JDialog
         this.context = context;
         initComponents();
 
-        labelVersion.setText("Version " + context.main.getBuildVersionName());
-        labelBuild.setText(context.main.getBuildStamp());
+        labelVersion.setText("Version " + Configuration.getBuildVersionName());
+        labelBuild.setText(Configuration.getBuildDate());
 
         ActionListener escListener = new AbstractAction()
         {

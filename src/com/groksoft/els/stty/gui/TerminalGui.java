@@ -113,7 +113,7 @@ public class TerminalGui implements WindowListener, ActionListener
 
     private int build()
     {
-        frame = new JFrame("ELS " + context.main.getBuildVersionName() + " connected to " + theirRepo.getLibraryData().libraries.description);
+        frame = new JFrame("ELS " + Configuration.getBuildVersionName() + " connected to " + theirRepo.getLibraryData().libraries.description);
 //        try
 //        {
 //            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");

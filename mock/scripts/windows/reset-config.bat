@@ -5,7 +5,7 @@ set base=%~dp0
 cd /d "%base%"
 cd ..\..
 
-if not exist .\config-base_copy-only goto NoDir
+if not exist .\copy-only_config-base goto NoDir
 if "z%1" == "z-f" goto Execute
 echo/
 echo Reset Test Configuration
@@ -16,6 +16,7 @@ if "z%R%" == "zY" goto Execute
 goto Cancel
 
 :Execute
+rmdir /s /q .\bin
 rmdir /s /q .\datastore
 rmdir /s /q .\jobs
 rmdir /s /q .\libraries
@@ -25,8 +26,8 @@ rmdir /s /q .\system
 rmdir /s /q .\tools
 
 :NoDir
-xcopy /I /E .\config-base_copy-only .
-xcopy /I /E .\windows-base_copy-only .
+xcopy /I /E .\copy-only_config-base .
+xcopy /I /E .\copy-only_windows-base .
 copy ..\deploy\update.info .
 echo Done
 goto JXT

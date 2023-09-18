@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="080-26 Navigator local" type="Application" factoryName="Application" folderName="080-00 Navigator - Local Backup">
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.BootStrap" />
+    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . --navigator -c Info -d Info -P libraries/publisher.json -s libraries/subscriber-one.json -F output/080-26_Navigator-local.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />

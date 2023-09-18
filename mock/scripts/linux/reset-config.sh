@@ -23,13 +23,24 @@ rm -rf ./jobs
 rm -rf ./libraries
 rm -rf ./local
 rm -rf ./output
-rm -rf ./rt
+# rm -rf ./rt
 rm -rf ./system
 rm -rf ./tools
 
-cp -rpv ./config-base_copy-only/* .
-cp -rpv ./linux-base_copy-only/* .
-cp -pv ../deploy/update.info .
+cp -rpv ./copy-only_config-base/* .
+cp -rpv ./copy-only_linux-base/* .
+if [ -e ../deploy/ELS.jar ]; then
+    cp -pv ../deploy/ELS.jar bin
+fi
+if [ -e ../deploy/ELS_Updater.jar ]; then
+    cp -pv ../deploy/ELS_Updater.jar bin
+fi
+if [ -e ../deploy/update.info ]; then
+    cp -pv ../deploy/update.info bin
+fi
+if [ -e ../deploy/version.info ]; then
+    cp -pv ../deploy/version.info bin
+fi
 echo ""
 
 echo -e "Reset configuration done"

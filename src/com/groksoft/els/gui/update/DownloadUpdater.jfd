@@ -1,0 +1,113 @@
+JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.7" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": false
+	"i18n.bundlePackage": "com.groksoft.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "Updater"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.defaultVariableModifiers": 1
+		}
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": new FormMessage( null, "Z.downloading" )
+			"preferredSize": new java.awt.Dimension( 400, 134 )
+			"minimumSize": new java.awt.Dimension( 400, 134 )
+			"maximumSize": new java.awt.Dimension( 400, 134 )
+			"resizable": false
+			"alwaysOnTop": true
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosed", "actionWindowClosed", true ) )
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "actionWindowClosed", true ) )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+				"hgap": 0
+				"vgap": 0
+			} ) {
+				name: "panelTopSpacer"
+				"preferredSize": new java.awt.Dimension( 100, 8 )
+				"minimumSize": new java.awt.Dimension( 100, 8 )
+				"maximumSize": new java.awt.Dimension( 100, 8 )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "North"
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+				"hgap": 10
+				"vgap": 0
+			} ) {
+				name: "panelBanner"
+				"maximumSize": new java.awt.Dimension( 376, 48 )
+				"minimumSize": new java.awt.Dimension( 376, 48 )
+				"preferredSize": new java.awt.Dimension( 376, 48 )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "labelLogo"
+					"icon": new com.jformdesigner.model.SwingIcon( 0, "/els-logo-48px.png" )
+					"preferredSize": new java.awt.Dimension( 48, 48 )
+					"horizontalAlignment": 0
+				} )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "labelVersion"
+					"text": "Version 4.0.0-development"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+				"hgap": 0
+				"vgap": 0
+			} ) {
+				name: "panelControls"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "panelProgress"
+					"maximumSize": new java.awt.Dimension( 314, 36 )
+					"minimumSize": new java.awt.Dimension( 314, 36 )
+					"preferredSize": new java.awt.Dimension( 314, 36 )
+					"border": new javax.swing.border.EmptyBorder( 0, 4, 4, 4 )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "labelStatus"
+						"text": "Status shown here"
+						"horizontalTextPosition": 0
+						"horizontalAlignment": 2
+						"preferredSize": new java.awt.Dimension( 314, 20 )
+						"minimumSize": new java.awt.Dimension( 314, 20 )
+						"maximumSize": new java.awt.Dimension( 314, 20 )
+						"verticalAlignment": 1
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "North"
+					} )
+					add( new FormComponent( "javax.swing.JProgressBar" ) {
+						name: "progressBar"
+						"foreground": sfield java.awt.Color lightGray
+						"preferredSize": new java.awt.Dimension( 314, 8 )
+						"minimumSize": new java.awt.Dimension( 314, 8 )
+						"maximumSize": new java.awt.Dimension( 314, 8 )
+						"maximum": 1000
+						"focusable": false
+						"alignmentY": 1.5f
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
+					add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+						name: "vSpacer1"
+						"preferredSize": new java.awt.Dimension( 10, 3 )
+						"minimumSize": new java.awt.Dimension( 10, 3 )
+						"maximumSize": new java.awt.Dimension( 10, 3 )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "South"
+					} )
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "buttonCancel"
+					"text": new FormMessage( null, "Z.cancel" )
+					"toolTipText": new FormMessage( null, "Z.cancel.download" )
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancel", true ) )
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "South"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 400, 135 )
+		} )
+	}
+}

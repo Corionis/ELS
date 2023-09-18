@@ -751,6 +751,11 @@ public class NavTransferHandler extends TransferHandler
         return false;
     }
 
+    public boolean isTransferWorkerRunning()
+    {
+        return isTransferWorkerRunning();
+    }
+
     /**
      * Make the actionList of tuo objects from paths from the transferable data
      * <br/>

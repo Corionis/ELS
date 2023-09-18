@@ -2,11 +2,12 @@ ELS is written for Java version 1.8 to support older systems that might be used 
 The resulting jar is completely self-contained. ELS runs on any version 1.8 or newer of 
 either Oracle Java or the OpenJDK.
 
-ELS is developed using [JetBrains Intellij IDEA](https://www.jetbrains.com/idea/). Eclipse
+ELS is developed using [JetBrains Intellij IDEA](https://www.jetbrains.com/idea/). Eclipse and Netbeans
 users can adapt the project easily.
 
-Designed using:
+Built using:
   - JFormDesigner, https://www.formdev.com/jformdesigner/doc/
+  - Available for IntelliJ, Eclipse and Netbeans
 
 With open source components from FormDev:
   - FlatLaf look 'n feel, https://www.formdev.com/flatlaf/
@@ -18,7 +19,7 @@ See also:
  - https://github.com/JFormDesigner/svgSalamander
 
 In the interest of readability and extensibility some portions of ELS are written-out in "long hand" code.
-Heavy abstration and terse "denso-code" have been avoided, while other areas are
+Heavy abstraction and terse "denso-code" have been avoided, while other areas are
 more object-oriented. To that end many data elements do not have one or more layers
 of getters and setters. Instead the longer, direct, more descriptive and readable, 
 approach has been used (right or wrong).
@@ -77,11 +78,7 @@ deploy/ELS.jar exists:
 
 To build ELS from sources use Apache ant in the root of the project directory:
 
- 1. ```ant -f els.xml``` Build the ELS default target 'all' for Linux and Windows
- 2. ```ant -f els.xml stamp``` Sets the build stamp and copies the default locale
- 3. ```ant -f els.xml jar``` Build ELS.jar 
- 4. ```ant -f els.xml linux``` Build ELS .tar.gz for Linux
- 5. ```ant -f els.xml windows``` Build ELS .zip for Windows 
+ * ```ant -f els.xml``` Build the ELS default target 'all' for Linux and Windows
 
 In IntelliJ most/all Run configurations execute the els.xml _stamp_ ant target.
 Also, previous IntelliJ build configurations for Linux and Windows have
@@ -108,3 +105,21 @@ is cross-platform and builds all distributable files.
       * ISSUE case-sensitive
       * LEFTOFF case-sensitive, where we stopped for the nightdaynight
       * TEST case-sensitive
+
+## Contributing
+
+ELS has significant potential. There are ideas for future 4.x and 5.x releases. 
+
+As the huge leap from ELS 3 to 4, a 15x expansion of code with the Navigator desktop application,
+is completed, debugged and settles-down comments about usability, easy of use, reports on bugs, 
+anything, are requested please! There are too many permutations for the developer to thoroughly test.
+
+Will be looking for one or more enthusiastic contributors to eventually take-over this project
+and carry it into the future. I'm a retired 47-year engineer and scientist. ELS is a project of
+need and passion for cool tools and making neat stuff. Would love to find others who feel the
+same way.
+
+## Consulting
+
+If you would like help on your project leveraging ELS contact me by commenting on the 
+latest "General" Discussion item.

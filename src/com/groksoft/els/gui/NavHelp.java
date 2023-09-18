@@ -12,6 +12,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.List;
 import javax.swing.*;
@@ -28,9 +30,17 @@ public class NavHelp extends JDialog
 
     public NavHelp()
     {
-
     }
 
+    /**
+     * Display help or information
+     *
+     * @param owner Owner of this dialog
+     * @param prev Previous focused component
+     * @param context The Context
+     * @param title Title for dialog
+     * @param resourceFilename Internal resource filename or Internet URL
+     */
     public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename) {
         super(owner);
         previous = prev;
@@ -84,12 +94,27 @@ public class NavHelp extends JDialog
         String text = "";
         try
         {
-            URL url = Thread.currentThread().getContextClassLoader().getResource(resourceFilename);
-            List<String> lines = IoUtils.readAllLines(url);
-            for (int i = 0; i < lines.size(); ++i)
+            if (resourceFilename.startsWith("http"))
             {
-                text += lines.get(i) + "\n";
+                URL url = new URL(resourceFilename);
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+                String buf;
+                while ((buf = bufferedReader.readLine()) != null)
+                {
+                    text += buf.trim() + "\n";
+                }
+                bufferedReader.close();
             }
+            else
+            {
+                URL url = Thread.currentThread().getContextClassLoader().getResource(resourceFilename);
+                List<String> lines = IoUtils.readAllLines(url);
+                for (int i = 0; i < lines.size(); ++i)
+                {
+                    text += lines.get(i) + "\n";
+                }
+            }
+
             helpText.setText(text);
 
             // scroll to the top
@@ -105,7 +130,7 @@ public class NavHelp extends JDialog
         catch (Exception e)
         {
             logger.error(Utils.getStackTrace(e));
-            JOptionPane.showMessageDialog(this.getOwner(), context.cfg.gs("NavHelp.error.opening.help.file") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.getOwner(), context.cfg.gs("NavHelp.error.opening.help.file") + resourceFilename + ", " + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }
     }
 

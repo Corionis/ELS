@@ -15,4 +15,4 @@ if [ ! -d output ]; then
     mkdir output
 fi
 
-java -jar ../deploy/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -F output/000-03_Validate.log --validate
+java -jar bin/ELS.jar -C . -c debug -d debug -p libraries/publisher.json -F output/000-03_Validate.log --validate

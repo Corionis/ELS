@@ -16,6 +16,7 @@ import com.groksoft.els.gui.tools.junkRemover.JunkRemoverUI;
 import com.groksoft.els.gui.tools.operations.OperationsUI;
 import com.groksoft.els.gui.tools.renamer.RenamerUI;
 import com.groksoft.els.gui.tools.sleep.SleepUI;
+import com.groksoft.els.gui.update.DownloadUpdater;
 import com.groksoft.els.gui.util.GuiLogAppender;
 import com.groksoft.els.jobs.Job;
 import com.groksoft.els.jobs.Origin;
@@ -47,7 +48,6 @@ import java.io.*;
 import java.lang.Process;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -55,29 +55,30 @@ import java.util.*;
 public class Navigator
 {
     public Bookmarks bookmarks;
-    private int bottomSizeBrowser;
     public Context context;
     public DuplicateFinderUI dialogDuplicateFinder;
     public EmptyDirectoryFinderUI dialogEmptyDirectoryFinder;
-    public FileEditor fileeditor = null;
     public JobsUI dialogJobs = null;
     public JunkRemoverUI dialogJunkRemover = null;
     public OperationsUI dialogOperations = null;
     public RenamerUI dialogRenamer = null;
-    private Settings dialogSettings = null;
     public SleepUI dialogSleep = null;
+    public FileEditor fileeditor = null;
     public Job[] jobs;
+    public boolean showHintTrackingButton = false;
+    public SwingWorker<Void, Void> worker;
+    private int bottomSizeBrowser;
+    private Settings dialogSettings = null;
     private int lastFindPosition = 0;
     private String lastFindString = "";
     private int lastFindTab = -1;
-    private transient Logger logger = LogManager.getLogger("applog");
     private ArrayList<ArrayList<Origin>> originsArray = null;
     private boolean quitRemoteHintStatusServer = false;
     private boolean quitRemoteSubscriber = false;
     private boolean remoteJobRunning = false;
-    public boolean showHintTrackingButton = false;
-    public SwingWorker<Void, Void> worker;
-
+    private boolean updateAndRestart = false;
+    private String updaterExecutable = null;
+    private transient Logger logger = LogManager.getLogger("applog");
 
     public Navigator(Main main, Context context)
     {
@@ -85,24 +86,25 @@ public class Navigator
         this.context.navigator = this;
     }
 
-    public void checkForUpdates()
+    /**
+     * Check for updates
+     */
+    public boolean checkForUpdates(boolean checkOnly)
     {
+        boolean testMode = false; // local test mode without downloading update; files must be pre-staged
+        ArrayList<String> version = new ArrayList<>();
+
         try
         {
-            // TODO:
-            //  + add tracking of running transfers, "Run" buttons and Jobs
-            //      + do not allow Check for Updates if anything is running
-
-            // TODO Move detect logic to separate method so a logger message can be shown at startup
-
+            String message;
             String prefix;
-            boolean prompt = true;
-            ArrayList<String> version = new ArrayList<>();
-            URL url;
-//            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            URL url = null;
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            // determine location to find update.info
-            String updateInfoPath = context.cfg.getUpdateTargetPath() + System.getProperty("file.separator") + "update.info";
+            // set location to find update.info for the URL prefix
+            String updateInfoPath = context.cfg.getInstalledPath() + System.getProperty("file.separator") +
+                    "bin" + System.getProperty("file.separator") +
+                    "update.info";
 
             // get update.info
             // putting the ELS deploy URL prefix in a file allows it to be changed manually if necessary
@@ -114,84 +116,115 @@ public class Navigator
             }
             else
             {
-                logger.info("update.info not found: " + updateInfoPath);
                 prefix = context.cfg.getUrlPrefix(); // use the hardcoded URL
+                logger.info("update.info not found: " + updateInfoPath + ", using coded URL: " + prefix);
             }
 
-            // download latest version.info
-            url = new URL(prefix + "/version.info");
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
-            // TODO "local" try/catch to detect if URL does not exist :: Failure attempts to look-up latest release
-            String buf;
-            while ((buf = bufferedReader.readLine()) != null)
+            // download (or read in testMode) the latest version.info
+            String versionPath;
+            BufferedReader bufferedReader = null;
+            try
             {
-                version.add(buf.trim());
+                if (!testMode)
+                {
+                    versionPath = prefix + "/version.info";
+                    url = new URL(versionPath);
+                    bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
+                }
+                else // assume mock working directory
+                {
+                    versionPath = "bin/version.info";
+                    bufferedReader = new BufferedReader(new FileReader(versionPath));
+                }
+                String buf;
+                while ((buf = bufferedReader.readLine()) != null)
+                {
+                    version.add(buf.trim());
+                }
+                bufferedReader.close();
             }
-            bufferedReader.close();
-
-            if (version.size() < 1)
+            catch (Exception e)
             {
-                logger.info("no version data");
+                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                message = java.text.MessageFormat.format(context.cfg.gs("Navigator.version.info.not.found.cannot.continue"), updateInfoPath);
+                logger.info(message);
+                Object[] opts = {context.cfg.gs("Z.ok")};
+                JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                return false;
+            }
 
-                // LEFTOFF look-up latest release ???  Makes it GitHub-specific
+            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+
+            if (version.size() < Configuration.VERSION_SIZE)
+            {
+                message = java.text.MessageFormat.format(context.cfg.gs("Navigator.version.info.missing.or.malformed"), versionPath);
+                logger.info(message);
+                Object[] opts = {context.cfg.gs("Z.ok")};
+                JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+                        JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                return false;
             }
             else
             {
+                // get optional build flags
+                String flags = (version.size() > Configuration.VERSION_SIZE) ? version.get(Configuration.BUILD_FLAGS) : "";
+
                 // do the build numbers match?
-                if (version.get(1).equals(context.main.getBuildNumber()))
+                if (checkOnly) // automated check
                 {
-                    prompt = false;
-                    logger.info("already have latest version");
+                    if (flags.toLowerCase().contains("ignore") || version.get(Configuration.BUILD_NUMBER).equals(Configuration.getBuildNumber()))
+                        return false;
+                    return true;
                 }
-            }
 
-            if (prompt)
-            {
-                // TODO built nice dialog explaining situation, including any failure alternative
-
-                // download the update
-
-
-                //String updateUrl = prefix + "/" + ver
-// TODO put exact download name in version.info less extension
-//  + remove "Linux" & "Windows" from filename so they're identical up to the extension
-//  ? Is a Windows installer really needed??
-
-                // progress dialog
-
-
-                String ext = (Utils.getOS().equalsIgnoreCase("Windows") ? ".zip" : ".tar.gz");
-                String downloadUrl = prefix + "/ELS-" + version.get(0) + "-" + version.get(1) + ext;
-
-                url = new URL(downloadUrl);
-                // url = new URL("https://github.com/GrokSoft/ELS/raw/Version-4.0.0/deploy/ELS-4.0.0-development-Linux-2308081717.tar.gz");
-                URLConnection connection = url.openConnection();
-                String contentType = connection.getContentType();
-                //if (contentType)
-                int contentLength = connection.getContentLength();
-                InputStream raw = connection.getInputStream();
-                InputStream in = new BufferedInputStream(raw);
-                byte[] data = new byte[contentLength];
-                int count = 0;
-                int offset = 0;
-                while (offset < contentLength)
+                if (flags.toLowerCase().contains("ignore") || version.get(Configuration.BUILD_NUMBER).equals(Configuration.getBuildNumber())) // manual check
                 {
-                    count = in.read(data, offset, data.length - offset);
-                    if (count == -1)
-                        break;
-                    offset += count;
+                    // yes, up-to-date
+                    message = context.cfg.gs("Navigator.installed.up.to.date");
+                    logger.info(message);
+                    Object[] opts = {context.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opts, opts[0]);
+                    return false;
                 }
-                in.close();
+                else
+                {
+                    while (true)
+                    {
+                        // no, a new version is available
+                        message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.new.version"),
+                                Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
+                        Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
+                        int reply = JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+                                JOptionPane.PLAIN_MESSAGE, JOptionPane.INFORMATION_MESSAGE, null, opts, opts[0]);
 
-                String outPath = context.cfg.getUpdateFilePath();
-                FileOutputStream out = new FileOutputStream(outPath);
-                out.write(data);
-                out.flush();
-                out.close();
-
-                // Download complete, update and restart
-
-
+                        // proceed?
+                        if (reply == JOptionPane.YES_OPTION)
+                        {
+                            // execute the download and unpack procedure then execute the Updater
+                            new DownloadUpdater(this, version, prefix);
+                            break;
+                        }
+                        else if (reply == JOptionPane.CANCEL_OPTION)
+                        {
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                            NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
+                                    context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL));
+                            helpDialog.setModal(true);
+                            Point loc = context.mainFrame.getLocation();
+                            loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
+                            loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
+                            helpDialog.setLocation(loc);
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                            helpDialog.setVisible(true);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
             }
         }
         catch (Exception e)
@@ -199,9 +232,11 @@ public class Navigator
             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             logger.error("Error downloading update: " + Utils.getStackTrace(e));
             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Error downloading update") + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+            return false;
         }
 
         context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        return true;
     }
 
     public void disableComponent(boolean disable, Component component)
@@ -287,6 +322,7 @@ public class Navigator
         context.mainFrame.menuItemRenamer.setEnabled(enable);
         context.mainFrame.menuItemSleep.setEnabled(enable);
         context.mainFrame.menuItemJobsManage.setEnabled(enable);
+        context.mainFrame.menuItemUpdates.setEnabled(enable);
         if (!enable)
         {
             if (dialog instanceof JunkRemoverUI)
@@ -378,7 +414,7 @@ public class Navigator
      */
     private boolean initialize()
     {
-        context.main.loadLocale(context.preferences.getLocale());
+        context.cfg.loadLocale(context.preferences.getLocale());
 
         if (context.cfg.getPublisherCollectionFilename().length() > 0)
         {
@@ -1219,7 +1255,7 @@ public class Navigator
                         return;
                     }
 
-                    if (context.mainFrame.textAreaLog.getSelectedText().length() > 0)
+                    if (context.mainFrame.textAreaLog.getSelectedText() != null && context.mainFrame.textAreaLog.getSelectedText().length() > 0)
                         lastFindString = context.mainFrame.textAreaLog.getSelectedText();
 
                     Object obj = JOptionPane.showInputDialog(context.mainFrame,
@@ -2082,13 +2118,29 @@ public class Navigator
             }
         });
 
+        // --- Release Notes
+        context.mainFrame.menuItemReleaseNotes.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html");
+                helpDialog.setModal(true);
+                Point loc = context.mainFrame.getLocation();
+                loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
+                loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
+                helpDialog.setLocation(loc);
+                helpDialog.setVisible(true);
+            }
+        });
+
         // --- Check for Updates
         context.mainFrame.menuItemUpdates.addActionListener(new ActionListener()
         {
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                checkForUpdates();
+                checkForUpdates(false);
             }
         });
 
@@ -2137,6 +2189,11 @@ public class Navigator
                 vertical.setValue(0);
             }
         });
+    }
+
+    public boolean isUpdateAndRestart()
+    {
+        return updateAndRestart;
     }
 
     public void loadBookmarksMenu()
@@ -2507,11 +2564,18 @@ public class Navigator
                         listener.actionPerformed(new ActionEvent(context.mainFrame.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
                     }
 
-                    String os = Utils.getOS();
-                    logger.debug(context.cfg.gs("Navigator.detected.local.system.as") + os);
-                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.detected.local.system.as") + os);
+                    if (checkForUpdates(true))
+                    {
+                        logger.info(context.cfg.gs("Navigator.update.available"));
+                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.update.available"));
+                    }
+                    else
+                    {
+                        String os = Utils.getOS();
+                        logger.debug(context.cfg.gs("Navigator.detected.local.system.as") + os);
+                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.detected.local.system.as") + os);
+                    }
 
-                    logger.trace(context.cfg.gs("Navigator.displaying"));
                     context.mainFrame.setVisible(true);
 
                     context.preferences.fixBrowserDivider(context, -1);
@@ -2600,6 +2664,12 @@ public class Navigator
                 comp.setEnabled(disable);
             }
         }
+    }
+
+    public void setUpdateAndRestart(String updaterExecutable)
+    {
+        this.updaterExecutable = updaterExecutable;
+        this.updateAndRestart = true;
     }
 
     public void stop()
@@ -2699,7 +2769,30 @@ public class Navigator
         // end the Navigator Swing thread
         if (!context.main.secondaryNavigator)
         {
-            logger.fatal("EXITING Navigator");
+            if (isUpdateAndRestart())
+            {
+                try
+                {
+                    logger.info(context.cfg.gs("Navigator.starting.els.updater"));
+                    String commandLine = "\"" + Utils.getSystemTempDirectory() + System.getProperty("file.separator") +
+                            "ELS_Updater" + System.getProperty("file.separator") +
+                            "rt" + System.getProperty("file.separator") +
+                            "bin" + System.getProperty("file.separator") +
+                            "java" + (Utils.isOsLinux() ? "" : ".exe") + "\"" +
+                            " -jar " + "\"" + updaterExecutable + "\"";
+                    String[] args = Utils.parseCommandLIne(commandLine);
+                    Process proc = Runtime.getRuntime().exec(args);
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    String message = context.cfg.gs("Navigator.error.launching.els.updater") + e.getMessage();
+                    Object[] opts = {context.cfg.gs("Z.ok")};
+                    JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
+                            JOptionPane.PLAIN_MESSAGE, JOptionPane.ERROR_MESSAGE, null, opts, opts[0]);
+                    return;
+                }
+            }
             System.exit(context.fault ? 1 : 0);
         }
         else

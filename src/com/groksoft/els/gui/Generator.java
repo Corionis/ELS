@@ -1,5 +1,6 @@
 package com.groksoft.els.gui;
 
+import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.jobs.Job;
@@ -16,11 +17,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
+import static com.groksoft.els.Configuration.Operations.*;
+
 @SuppressWarnings(value = "unchecked")
 public class Generator
 {
-    private Context context;
     private String consoleLevel = "";
+    private Context context;
     private String debugLevel = "";
     private String generated = "";
     private File logFile = null;

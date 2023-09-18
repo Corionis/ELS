@@ -855,30 +855,15 @@ public class Hints
      * Parse a hint file command line
      *
      * @param line     Line to parse
-     * @param lineNo   The number of the line in the file
+     * @param lineNo   The number of the line in the file for error logging
      * @param expected The number of expected values
      * @return String[] of arguments
      * @throws Exception
      */
     private String[] parseCommand(String line, int lineNo, int expected) throws Exception
     {
-        int MAX_TERMS = 4;
-        String[] cmd = new String[MAX_TERMS]; // maximum number of terms in any command
-        StringTokenizer t = new StringTokenizer(line, "\"");
-        if (!t.hasMoreTokens())
-            return null;
-
-        int i = 0;
-        while (t.hasMoreTokens())
-        {
-            String term = t.nextToken().trim();
-            if (term.length() > 0)
-            {
-                cmd[i++] = term;
-                if (i >= MAX_TERMS)
-                    throw new MungeException("Too many terms");
-            }
-        }
+        String[] cmd = Utils.parseCommandLIne(line);
+        int i = cmd.length;
         if (i != expected)
             throw new MungeException("Malformed command, " + i + " is wrong number of terms, expecting " + expected + " for line " + lineNo);
         return cmd;
