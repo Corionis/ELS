@@ -1,5 +1,0 @@
-4.0.0-development
-2309012253
-1 September 2023, 22:53 MDT
-ELS-4.0.0-development-2309012253
-ELS-Updater-4.0.0-development-2309012253

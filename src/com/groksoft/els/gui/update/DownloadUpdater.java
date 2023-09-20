@@ -312,11 +312,11 @@ public class DownloadUpdater extends JFrame
                     String name = entry.getName();
                     if (name.length() == 0)
                         continue;
-                    if (name.startsWith("ELS"))
+                    if (name.startsWith("ELS_Updater"))
                     {
-                        if (name.equals("ELS/"))
+                        if (name.equals("ELS_Updater/"))
                             continue;
-                        name = name.substring(4, name.length());
+                        name = name.substring(12, name.length());
                     }
 
                     Path entryPath = outPath.resolve(name);
@@ -330,8 +330,6 @@ public class DownloadUpdater extends JFrame
                     else
                     {
                         Files.createDirectories(entryPath.getParent());
-//                    if (Files.exists(entryPath))
-//                        Files.delete(entryPath);
                         Files.copy(in, entryPath, StandardCopyOption.REPLACE_EXISTING);
 
                         Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
@@ -372,11 +370,11 @@ public class DownloadUpdater extends JFrame
                     String name = entry.getName();
                     if (name.length() == 0)
                         continue;
-                    if (name.startsWith("ELS"))
+                    if (name.startsWith("ELS_Updater"))
                     {
-                        if (name.equals("ELS/"))
+                        if (name.equals("ELS_Updater/"))
                             continue;
-                        name = name.substring(4, name.length());
+                        name = name.substring(12, name.length());
                     }
                     Path entryPath = outPath.resolve(name);
                     logger.info("  " + entryPath.toString());
@@ -389,12 +387,11 @@ public class DownloadUpdater extends JFrame
                     else
                     {
                         Files.createDirectories(entryPath.getParent());
-//                    if (Files.exists(entryPath))
-//                        Files.delete(entryPath);
                         Files.copy(in, entryPath, StandardCopyOption.REPLACE_EXISTING);
+                        Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
+
 //                    int mode = entry.getMode();
 //                    Files.setPosixFilePermissions(entryPath, );
-                        Files.setLastModifiedTime(entryPath, entry.getLastModifiedTime());
                         progressBar.setValue((int)zcount);
                     }
                 }
