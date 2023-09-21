@@ -134,6 +134,11 @@ public class Navigator
                 else // assume mock working directory
                 {
                     versionPath = "bin/version.info";
+                    String filename;
+                    if (Utils.isRelativePath(versionPath))
+                        filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + versionPath;
+                    else
+                        filename = versionPath;
                     bufferedReader = new BufferedReader(new FileReader(versionPath));
                 }
                 String buf;

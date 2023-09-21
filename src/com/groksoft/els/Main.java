@@ -21,7 +21,9 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.util.*;
 
 import static com.groksoft.els.Configuration.*;
@@ -124,12 +126,14 @@ public class Main
             }
         }
         else
+        {
             // Validate ELS hints keys if specified
-            if (context.cfg.getHintKeysFile().length() > 0) 
+            if (context.cfg.getHintKeysFile().length() > 0)
             {
                 context.hintKeys = new HintKeys(context);
                 context.hintKeys.read(context.cfg.getHintKeysFile());
             }
+        }
     }
 
     public GuiLogAppender getGuiLogAppender()
@@ -252,10 +256,6 @@ public class Main
             logger = LogManager.getLogger("applog");
             context.trace = context.cfg.getDebugLevel().trim().equalsIgnoreCase("trace") ? true : false;
 
-            // re-throw any configuration exception
-            if (cfgException != null)
-                throw cfgException;
-
             context.preferences = new Preferences();
             Utils.readPreferences(context);
             context.preferences.setContext(context);
@@ -274,6 +274,10 @@ public class Main
             else
                 //logger.trace("loaded locale: " + filePart);
             localeAbbrev = filePart;
+
+            // re-throw any configuration exception
+            if (cfgException != null)
+                throw cfgException;
 
             //
             // an execution of this program can only be configured as one of these operations

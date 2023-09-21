@@ -3,6 +3,7 @@ package com.groksoft.els.stty;
 import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.MungeException;
+import com.groksoft.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,30 +73,38 @@ public class Listener extends Thread
     private boolean isListed(Socket aSocket, boolean whiteList) throws IOException
     {
         boolean sense = whiteList;
-        String filename = (whiteList ? cfg.getIpWhitelist() : cfg.getBlacklist());
-        if (filename.length() > 0)
+        String file = (whiteList ? cfg.getIpWhitelist() : cfg.getBlacklist());
+        if (file != null && file.length() > 0)
         {
-            String inet = aSocket.getInetAddress().toString();
-            if (inet != null)
+            String filename;
+            if (Utils.isRelativePath(file))
+                filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
+            else
+                filename = file;
+            if (filename.length() > 0)
             {
-                sense = false;
-                inet = inet.replaceAll("/", "");
-                inet = inet.replaceAll("\\\\", "");
-                BufferedReader br = new BufferedReader(new FileReader(filename));
-                String line;
-                while ((line = br.readLine()) != null)
+                String inet = aSocket.getInetAddress().toString();
+                if (inet != null)
                 {
-                    line = line.trim();
-                    if (line.length() > 0 && !line.startsWith("#"))
+                    sense = false;
+                    inet = inet.replaceAll("/", "");
+                    inet = inet.replaceAll("\\\\", "");
+                    BufferedReader br = new BufferedReader(new FileReader(filename));
+                    String line;
+                    while ((line = br.readLine()) != null)
                     {
-                        if (inet.equals(line))
+                        line = line.trim();
+                        if (line.length() > 0 && !line.startsWith("#"))
                         {
-                            sense = true;
-                            break;
+                            if (inet.equals(line))
+                            {
+                                sense = true;
+                                break;
+                            }
                         }
                     }
+                    br.close();
                 }
-                br.close();
             }
         }
         return sense;
@@ -152,13 +161,13 @@ public class Listener extends Thread
             }
             catch (IOException e)
             {
-                logger.error(e);
+                logger.error(Utils.getStackTrace(e));
                 stop = true;
                 context.fault = true;
             }
             catch (MungeException e)
             {
-                logger.error(e);
+                logger.error(Utils.getStackTrace(e));
                 stop = true;
                 context.fault = true;
             }

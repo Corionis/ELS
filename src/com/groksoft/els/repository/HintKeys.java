@@ -111,7 +111,7 @@ public class HintKeys
                 throw new MungeException("The current subscriber key was not found in ELS keys file: " + file);
         }
 
-        logger.info("Read Hint keys " + file + " successfully");
+        logger.info("Read keys: " + file + " successfully");
     }
 
     public void setFilename(String filename)

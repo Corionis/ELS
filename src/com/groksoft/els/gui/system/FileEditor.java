@@ -614,6 +614,8 @@ public class FileEditor extends JDialog
     {
         if (ipAddresses != null)
         {
+            File file = new File(fileName);
+            file.getParentFile().mkdirs();
             BufferedWriter bw = new BufferedWriter(new FileWriter(fileName));
             bw.write(header);
             bw.write(System.getProperty("line.separator"));

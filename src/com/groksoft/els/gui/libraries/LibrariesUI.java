@@ -1469,29 +1469,32 @@ public class LibrariesUI
         currentLibraryIndex = 0;
         currentSourceIndex = 0;
         Repositories repositories = getRepositories();
-        for (RepoMeta repoMeta : repositories.getList())
+        if (repositories.getList() != null)
         {
-            LibMeta libMeta = new LibMeta();
-            libMeta.description = repoMeta.description;
-            libMeta.key = repoMeta.key;
-            libMeta.path = repoMeta.path;
-            libMeta.card = Cards.Library;   // only using Library right now
-            libMeta.dataHasChanged = false;
-
-            try
+            for (RepoMeta repoMeta : repositories.getList())
             {
-                // load each repo
-                libMeta.repo = new Repository(context, -1);
-                libMeta.repo.read(libMeta.path, false);
-            }
-            catch (Exception e)
-            {
-                String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
-                logger.error(msg);
-                JOptionPane.showMessageDialog(mf, msg, displayName, JOptionPane.ERROR_MESSAGE);
-            }
+                LibMeta libMeta = new LibMeta();
+                libMeta.description = repoMeta.description;
+                libMeta.key = repoMeta.key;
+                libMeta.path = repoMeta.path;
+                libMeta.card = Cards.Library;   // only using Library right now
+                libMeta.dataHasChanged = false;
 
-            configModel.addRow(new Object[]{libMeta});
+                try
+                {
+                    // load each repo
+                    libMeta.repo = new Repository(context, -1);
+                    libMeta.repo.read(libMeta.path, false);
+                }
+                catch (Exception e)
+                {
+                    String msg = context.cfg.gs("Z.exception") + Utils.getStackTrace(e);
+                    logger.error(msg);
+                    JOptionPane.showMessageDialog(mf, msg, displayName, JOptionPane.ERROR_MESSAGE);
+                }
+
+                configModel.addRow(new Object[]{libMeta});
+            }
         }
         loading = false;
 
@@ -1883,15 +1886,18 @@ public class LibrariesUI
 
     private void updateState()
     {
-        LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
-        if (libMeta.card == Cards.Library)
+        if (configModel.getRowCount()> 0)
         {
-        }
-        else if (libMeta.card == Cards.HintServer)
-        {
-        }
-        else if (libMeta.card == Cards.Targets)
-        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            if (libMeta.card == Cards.Library)
+            {
+            }
+            else if (libMeta.card == Cards.HintServer)
+            {
+            }
+            else if (libMeta.card == Cards.Targets)
+            {
+            }
         }
     }
 

@@ -224,8 +224,11 @@ public class Browser
                 else
                 {
                     eventTree.setExpandsSelectedPaths(true);
-                    eventTree.setSelectionPath(node.getTreePath());
-                    eventTree.scrollPathToVisible(node.getTreePath());
+                    if (node != null)
+                    {
+                        eventTree.setSelectionPath(node.getTreePath());
+                        eventTree.scrollPathToVisible(node.getTreePath());
+                    }
                 }
             }
         };

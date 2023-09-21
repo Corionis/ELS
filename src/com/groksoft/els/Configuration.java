@@ -281,7 +281,7 @@ public class Configuration
         }
         if (getIpWhitelist().length() > 0)
         {
-            logger.info(SHORT, "  cfg: -I IP whitelist filename = " + getExportCollectionFilename());
+            logger.info(SHORT, "  cfg: -I IP whitelist filename = " + getIpWhitelist());
         }
         if (getOperation() == JOB_PROCESS && getJobName().length() > 0)
         {
@@ -354,6 +354,7 @@ public class Configuration
         indicator(logger, SHORT, "  cfg: -x Cross-check = ", crossCheck);
         indicator(logger, SHORT, "  cfg: -y Preserve dates = ", preserveDates);
         indicator(logger, SHORT, "  cfg: -z Decimal scale = ", getLongScale() == 1024 ? -1 : 1);
+        logger.debug("Working directory: " + getWorkingDirectory());
     }
 
     /**
@@ -1659,6 +1660,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setAuthKeysFile(args[index + 1].trim());
+                        verifyFileExistence(getAuthKeysFile());
                         ++index;
                     }
                     else
@@ -1687,6 +1689,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setBlacklist(args[index + 1].trim());
+                        verifyFileExistence(getBlacklist());
                         ++index;
                     }
                     else
@@ -1712,6 +1715,7 @@ public class Configuration
                     {
                         // see configure()
                         this.workingDirectory = args[index + 1].trim();
+                        verifyFileExistence(getWorkingDirectory());
                         ++index;
                     }
                     else
@@ -1789,6 +1793,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setHintTrackerFilename(args[index + 1].trim());
+                        verifyFileExistence(getHintTrackerFilename());
                         ++index;
                         setPublishOperation(false);
                     }
@@ -1803,6 +1808,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setHintsDaemonFilename(args[index + 1].trim());
+                        verifyFileExistence(getHintsDaemonFilename());
                         ++index;
                         setPublishOperation(false);
                     }
@@ -1829,6 +1835,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setIplist(args[index + 1].trim());
+                        verifyFileExistence(getIpWhitelist());
                         ++index;
                     }
                     else
@@ -1855,6 +1862,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setHintKeysFile(args[index + 1].trim());
+                        verifyFileExistence(getHintKeysFile());
                         ++index;
                     }
                     else
@@ -1867,6 +1875,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setHintKeysFile(args[index + 1].trim());
+                        verifyFileExistence(getHintKeysFile());
                         ++index;
                         setHintSkipMainProcess(true);
                     }
@@ -1930,6 +1939,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setPublisherLibrariesFileName(args[index + 1].trim());
+                        verifyFileExistence(getPublisherLibrariesFileName());
                         ++index;
                     }
                     else
@@ -1942,6 +1952,7 @@ public class Configuration
                     if (index <= args.length - 2)
                     {
                         setPublisherCollectionFilename(args[index + 1].trim());
+                        verifyFileExistence(getPublisherCollectionFilename());
                         ++index;
                     }
                     else
@@ -1977,6 +1988,7 @@ public class Configuration
                         setForceCollection(false);
                         setRequestCollection(true);
                         setSubscriberLibrariesFileName(args[index + 1].trim());
+                        verifyFileExistence(getSubscriberLibrariesFileName());
                         ++index;
                     }
                     else
@@ -1991,6 +2003,7 @@ public class Configuration
                         setForceCollection(true);
                         setRequestCollection(false);
                         setSubscriberCollectionFilename(args[index + 1].trim());
+                        verifyFileExistence(getSubscriberCollectionFilename());
                         ++index;
                     }
                     else
@@ -2006,6 +2019,7 @@ public class Configuration
                     if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
                         setTargetsFilename(args[index + 1].trim());
+                        verifyFileExistence(getTargetsFilename());
                         ++index;
                     }
                     break;
@@ -2017,6 +2031,7 @@ public class Configuration
                     if (index <= args.length - 2 && !args[index + 1].startsWith("-"))
                     {
                         setTargetsFilename(args[index + 1].trim());
+                        verifyFileExistence(getTargetsFilename());
                         ++index;
                     }
                     break;
@@ -2618,6 +2633,25 @@ public class Configuration
     public void setWorkingDirectory(String workingDirectory)
     {
         this.workingDirectory = workingDirectory;
+    }
+
+    private void verifyFileExistence(String file) throws MungeException
+    {
+        String filename;
+        boolean isRelative = true;
+        if (file.matches("^[a-zA-Z]:.*"))  // cloned from Utils.isRelativePath()
+            isRelative = false;
+        if (file.startsWith("/") || file.startsWith("\\"))
+            isRelative = false;
+
+        if (isRelative)
+            filename = context.cfg.getWorkingDirectory() + System.getProperty("file.separator") + file;
+        else
+            filename = file;
+
+        File candidate = new File(filename);
+        if (!candidate.exists() || !candidate.canRead())
+            throw new MungeException("File not found or not readable: " + filename);
     }
 
 }
