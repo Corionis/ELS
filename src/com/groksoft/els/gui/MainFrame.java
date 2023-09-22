@@ -1142,7 +1142,6 @@ public class MainFrame extends JFrame
 
                 //---- menuItemGettingStarted ----
                 menuItemGettingStarted.setText(context.cfg.gs("Navigator.menuItemGettingStarted.text"));
-                menuItemGettingStarted.setEnabled(false);
                 menuItemGettingStarted.setIcon(new ImageIcon(getClass().getResource("/getting-started.png")));
                 menuHelp.add(menuItemGettingStarted);
 

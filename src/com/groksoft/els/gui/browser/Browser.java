@@ -1,6 +1,5 @@
 package com.groksoft.els.gui.browser;
 
-import com.groksoft.els.Configuration;
 import com.groksoft.els.Context;
 import com.groksoft.els.Utils;
 import com.groksoft.els.gui.bookmarks.Bookmark;
@@ -21,7 +20,6 @@ import java.awt.event.*;
 import java.net.SocketException;
 import java.net.URL;
 import java.nio.file.attribute.FileTime;
-import java.security.Key;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;

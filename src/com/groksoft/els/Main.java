@@ -21,9 +21,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.*;
 
 import static com.groksoft.els.Configuration.*;
@@ -294,6 +292,7 @@ public class Main
                     if (context.cfg.defaultNavigator || context.cfg.isNavigator())
                     {
                         logger.info("ELS: Local Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
+                        setPublisherSubscriber();
                         context.cfg.dump();
 
                         if (context.cfg.getPublisherFilename().length() > 0)
@@ -418,7 +417,7 @@ public class Main
                         logger.info("ELS: Remote Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
                     else
                         logger.info("ELS: Remote Publish, version " + getBuildVersionName() + ", " + getBuildDate());
-
+                    setPublisherSubscriber();
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -883,6 +882,18 @@ public class Main
         }
 
         return repo;
+    }
+
+    public void setPublisherSubscriber()
+    {
+        if (context.cfg.defaultNavigator || context.cfg.isNavigator())
+        {
+            if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
+            {
+                context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
+                context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
+            }
+        }
     }
 
     /**

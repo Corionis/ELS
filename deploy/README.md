@@ -27,6 +27,10 @@ _Note_: These files are not intended to be executed manually.
 ELS has not been tested on Apple systems although provisions have
 been made in the code for Apple macOS.
 
+At the simplest all that is needed to run ELS is ELS.jar and Java.
+The rest is for the convenience of the user and recommended for
+workstations users, as opposed to developers.
+
 ## Installation
 
 Unpack the Linux or Windows archive in the desired location.

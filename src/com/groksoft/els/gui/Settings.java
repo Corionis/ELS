@@ -30,12 +30,12 @@ public class Settings extends JDialog
 
     /*
         TODO
-         + Change from group layout to gridbag
+            + Change from group layout to gridbag
          General
             + Default dry run in dialogs
             + Console & Debug log level
-            + Log file
             + Add beep option:    Toolkit.getDefaultToolkit().beep();
+            + Use last publisher and subscriber if none specified (Preferences.useLastPublisherSubscriber)
          Appearance
             + Show mnemonics
             + Show scrollbar up/down buttons

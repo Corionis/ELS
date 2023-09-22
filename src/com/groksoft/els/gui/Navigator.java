@@ -2105,6 +2105,18 @@ public class Navigator
             }
         });
 
+        // --- Getting Started
+        context.mainFrame.menuItemGettingStarted.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
+                dialog.setTitle(context.cfg.gs("Navigator.getting.started"));
+                dialog.setVisible(true);
+            }
+        });
+
         // --- GitHub Project
         context.mainFrame.menuItemGitHubProject.addActionListener(new AbstractAction()
         {

@@ -138,13 +138,14 @@ public class Preferences implements Serializable
     private int toolsSleepWidth = 570;
     private int toolsSleepXpos = -1;
     private int toolsSleepYpos = -1;
+    private boolean useLastPublisherSubscriber = true;
+
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
     private transient LookAndFeel laf = null;
 
     public Preferences()
     {
-
     }
 
     /**
@@ -993,6 +994,11 @@ public class Preferences implements Serializable
         return sortReverse;
     }
 
+    public boolean isUseLastPublisherSubscriber()
+    {
+        return useLastPublisherSubscriber;
+    }
+
     public void setAccentColor(String accentColor)
     {
         this.accentColor = accentColor;
@@ -1553,6 +1559,11 @@ public class Preferences implements Serializable
     public void setToolsSleepYpos(int toolsSleepYpos)
     {
         this.toolsSleepYpos = toolsSleepYpos;
+    }
+
+    public void setuseLastPublisherSubscriber(boolean useLastPublisherSubscriber)
+    {
+        this.useLastPublisherSubscriber = useLastPublisherSubscriber;
     }
 
     public void write(Context context) throws Exception

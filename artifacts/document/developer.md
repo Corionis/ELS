@@ -108,14 +108,15 @@ is cross-platform and builds all distributable files.
 
 ## Contributing
 
-ELS has significant potential. There are ideas for future 4.x and 5.x releases. 
+ELS has significant potential. There are ideas for future 4.x and 5.x releases, some of which
+have been written-up in Issues for future Milestones.
 
 As the huge leap from ELS 3 to 4, a 15x expansion of code with the Navigator desktop application,
 is completed, debugged and settles-down comments about usability, easy of use, reports on bugs, 
 anything, are requested please! There are too many permutations for the developer to thoroughly test.
 
 Will be looking for one or more enthusiastic contributors to eventually take-over this project
-and carry it into the future. I'm a retired 47-year engineer and scientist. ELS is a project of
+and carry it into the future. I'm a retired near 50-year engineer and scientist. ELS is a project of
 need and passion for cool tools and making neat stuff. Would love to find others who feel the
 same way.
 

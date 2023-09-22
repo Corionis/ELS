@@ -1721,7 +1721,6 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGettingStarted"
 						"text": new FormMessage( null, "Navigator.menuItemGettingStarted.text" )
-						"enabled": false
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/getting-started.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
