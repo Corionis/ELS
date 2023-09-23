@@ -1706,6 +1706,13 @@ new FormModel {
 					"text": new FormMessage( null, "Navigator.menu.Help.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menu.Help.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemChangelist"
+						"text": new FormMessage( null, "Navigator.menuItemChangelist.text" )
+						"toolTipText": "Changelist for this version"
+						"mnemonic": new FormMessage( null, "Navigator.menuItemChangelist.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/changes.png" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemControls"
 						"text": new FormMessage( null, "Navigator.menu.Controls.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Controls.mnemonic" )
@@ -1722,6 +1729,7 @@ new FormModel {
 						name: "menuItemGettingStarted"
 						"text": new FormMessage( null, "Navigator.menuItemGettingStarted.text" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/getting-started.png" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemGettingStarted.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGitHubProject"
@@ -1734,6 +1742,7 @@ new FormModel {
 						name: "menuItemReleaseNotes"
 						"text": new FormMessage( null, "Navigator.menuItemReleaseNotes.text" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/release-notes.png" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemReleaseNotes.mnemonic" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator1"

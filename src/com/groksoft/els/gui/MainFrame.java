@@ -585,6 +585,7 @@ public class MainFrame extends JFrame
         menuItemSplitHorizontal = new JMenuItem();
         menuItemSplitVertical = new JMenuItem();
         menuHelp = new JMenu();
+        menuItemChangelist = new JMenuItem();
         menuItemControls = new JMenuItem();
         menuItemDocumentation = new JMenuItem();
         menuItemGettingStarted = new JMenuItem();
@@ -1127,6 +1128,13 @@ public class MainFrame extends JFrame
                 menuHelp.setText(context.cfg.gs("Navigator.menu.Help.text"));
                 menuHelp.setMnemonic(context.cfg.gs("Navigator.menu.Help.mnemonic").charAt(0));
 
+                //---- menuItemChangelist ----
+                menuItemChangelist.setText(context.cfg.gs("Navigator.menuItemChangelist.text"));
+                menuItemChangelist.setToolTipText("Changelist for this version");
+                menuItemChangelist.setMnemonic(context.cfg.gs("Navigator.menuItemChangelist.mnemonic").charAt(0));
+                menuItemChangelist.setIcon(new ImageIcon(getClass().getResource("/changes.png")));
+                menuHelp.add(menuItemChangelist);
+
                 //---- menuItemControls ----
                 menuItemControls.setText(context.cfg.gs("Navigator.menu.Controls.text"));
                 menuItemControls.setMnemonic(context.cfg.gs("Navigator.menu.Controls.mnemonic").charAt(0));
@@ -1143,6 +1151,7 @@ public class MainFrame extends JFrame
                 //---- menuItemGettingStarted ----
                 menuItemGettingStarted.setText(context.cfg.gs("Navigator.menuItemGettingStarted.text"));
                 menuItemGettingStarted.setIcon(new ImageIcon(getClass().getResource("/getting-started.png")));
+                menuItemGettingStarted.setMnemonic(context.cfg.gs("Navigator.menuItemGettingStarted.mnemonic").charAt(0));
                 menuHelp.add(menuItemGettingStarted);
 
                 //---- menuItemGitHubProject ----
@@ -1155,6 +1164,7 @@ public class MainFrame extends JFrame
                 //---- menuItemReleaseNotes ----
                 menuItemReleaseNotes.setText(context.cfg.gs("Navigator.menuItemReleaseNotes.text"));
                 menuItemReleaseNotes.setIcon(new ImageIcon(getClass().getResource("/release-notes.png")));
+                menuItemReleaseNotes.setMnemonic(context.cfg.gs("Navigator.menuItemReleaseNotes.mnemonic").charAt(0));
                 menuHelp.add(menuItemReleaseNotes);
                 menuHelp.addSeparator();
 
@@ -2628,6 +2638,7 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemSplitHorizontal;
     public JMenuItem menuItemSplitVertical;
     public JMenu menuHelp;
+    public JMenuItem menuItemChangelist;
     public JMenuItem menuItemControls;
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemGettingStarted;

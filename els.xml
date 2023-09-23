@@ -84,6 +84,7 @@
             <fileset dir="src/com/groksoft/els/locales/"/>
             <fileset dir="src/com/groksoft/els/resources/"/>
         </copy>
+        <copy file="deploy/changes.html" tofile="out/ELS/jar/changes_en_US.html" preservelastmodified="true"/>
         <copy file="lib/log4j2.xml" todir="out/ELS/jar" preservelastmodified="true"/>
         <unzip dest="out/ELS/jar">
             <fileset dir="lib">

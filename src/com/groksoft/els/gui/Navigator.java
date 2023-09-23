@@ -2075,6 +2075,18 @@ public class Navigator
         // -- Help Menu
         // --------------------------------------------------------
 
+        // --- Changelist
+        context.mainFrame.menuItemChangelist.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Settings.date.format.help.title"), "changes_" + context.preferences.getLocale() + ".html");
+                dialog.setTitle(context.cfg.gs("Navigator.changes.help.title"));
+                dialog.setVisible(true);
+            }
+        });
+
         // --- Controls
         context.mainFrame.menuItemControls.addActionListener(new AbstractAction()
         {

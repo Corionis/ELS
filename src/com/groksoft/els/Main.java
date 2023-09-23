@@ -890,6 +890,7 @@ public class Main
         {
             if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
             {
+                logger.debug("Defaulting to publisher and subscriber from preferences");
                 context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
                 context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
             }

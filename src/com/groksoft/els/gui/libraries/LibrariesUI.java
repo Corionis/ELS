@@ -31,7 +31,7 @@ public class LibrariesUI
 {
     private BiblioLibrariesTableModel biblioLibrariesTableModel;
     private JComboBox comboBoxMode;
-    private JTable configItems;
+    public JTable configItems;
     private Context context;
     private ConfigModel configModel;
     private int currentConfigIndex = -1;

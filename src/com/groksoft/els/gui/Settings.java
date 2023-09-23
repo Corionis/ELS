@@ -17,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.JTableHeader;
 
 /**
  * ELS Settings dialog
@@ -74,6 +76,30 @@ public class Settings extends JDialog
                     if (helpDialog != null && helpDialog.isVisible())
                         helpDialog.setVisible(false);
                     setVisible(false);
+
+/*
+                    javax.swing.SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                Thread.sleep(4000);
+                            }
+                            catch (Exception e)
+                            {}
+
+//                            JTableHeader head = new JTableHeader(new DefaultTableColumnModel());
+//                            context.libraries.configItems.setTableHeader(head);
+
+                            if (context.libraries.configItems.getTableHeader() != null)
+                                context.libraries.configItems.getTableHeader().setUI(null);
+                            context.libraries.configItems.setTableHeader(null);
+                            context.mainFrame.librariesConfigItems.setTableHeader(null);
+                        }
+                    });
+*/
                 }
             }
         });

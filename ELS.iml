@@ -10,6 +10,17 @@
       <excludeFolder url="file://$MODULE_DIR$/mock/output" />
       <excludeFolder url="file://$MODULE_DIR$/mock/test" />
       <excludeFolder url="file://$MODULE_DIR$/mock/test (copy)" />
+      <excludeFolder url="file://$MODULE_DIR$/artifacts/stage/linux/ELS/rt" />
+      <excludeFolder url="file://$MODULE_DIR$/artifacts/stage/windows/rt" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/bin" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/datastore" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/jobs" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/libraries" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/local" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/private" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/rt" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/system" />
+      <excludeFolder url="file://$MODULE_DIR$/mock/tools" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
