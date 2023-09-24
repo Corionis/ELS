@@ -1,4 +1,4 @@
-![ELS logo](https://github.com/GrokSoft/ELS/blob/master/artifacts/images/els-logo-98px.png)
+![ELS logo](https://github.com/Corionis/ELS/blob/master/artifacts/images/els-logo-98px.png)
 
 # ELS : Entertainment Library Synchronizer
 
@@ -16,15 +16,15 @@ If it will not fit it is copied to a matching target location for new
 content for that library.
 
 The version 3.1.0 pre-built executable and a Zip including examples are available
-on the **[ELS Wiki Downloads](https://github.com/GrokSoft/ELS/wiki/Downloads)** page.
+on the **[ELS Wiki Downloads](https://github.com/Corionis/ELS/wiki/Downloads)** page.
 
-See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for version 3.1.0
+See the **[ELS Wiki](https://github.com/Corionis/ELS/wiki)** for version 3.1.0
 features, downloads and documentation.
 
 ELS version 4.0 has been in development since September of 2021. It is a large
 project that adds a powerful desktop application - ELS Navigator. The
 new version is not complete however large portions are done and quite useful.
-See **[ELS Version 4.0.0](https://github.com/GrokSoft/ELS/tree/Version-4.0.0)**.
+See **[ELS Version 4.0.0](https://github.com/Corionis/ELS/tree/Version-4.0.0)**.
 
 ## Features
 
@@ -68,7 +68,7 @@ used.
 
 An add-on tool is available to generate a basic ELS JSON file from a
 [Plex Media Server](https://www.plex.tv), see the [ELS Plex
-Generator](https://github.com/GrokSoft/ELS-Plex-Generator). However ELS
+Generator](https://github.com/Corionis/ELS-Plex-Generator). However ELS
 will support any modern media system that uses the same directory structure.
 
 ELS can run locally with attached storage devices as a single process or
@@ -79,5 +79,5 @@ This software is written in Java and operates on Windows, Linux, and
 Apple systems. The media system and back-up do not have to be the same
 type.
 
-See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for
+See the **[ELS Wiki](https://github.com/Corionis/ELS/wiki)** for
 features, downloads and documentation.
