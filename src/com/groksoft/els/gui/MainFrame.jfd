@@ -1706,13 +1706,6 @@ new FormModel {
 					"text": new FormMessage( null, "Navigator.menu.Help.text" )
 					"mnemonic": new FormMessage( null, "Navigator.menu.Help.mnemonic" )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
-						name: "menuItemChangelist"
-						"text": new FormMessage( null, "Navigator.menuItemChangelist.text" )
-						"toolTipText": "Changelist for this version"
-						"mnemonic": new FormMessage( null, "Navigator.menuItemChangelist.mnemonic" )
-						"icon": new com.jformdesigner.model.SwingIcon( 0, "/changes.png" )
-					} )
-					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemControls"
 						"text": new FormMessage( null, "Navigator.menu.Controls.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Controls.mnemonic" )
@@ -1722,7 +1715,6 @@ new FormModel {
 						name: "menuItemDocumentation"
 						"text": new FormMessage( null, "Navigator.menu.Documentation.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Documentation.mnemonic" )
-						"toolTipText": new FormMessage( null, "Navigator.menuItemDocumentation.toolTipText" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/external-link.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
@@ -1736,7 +1728,15 @@ new FormModel {
 						"text": new FormMessage( null, "Navigator.menu.GitHubProject.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.GitHubProject.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/github.png" )
-						"toolTipText": new FormMessage( null, "Navigator.menuItemGitHubProject.toolTipText" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator15"
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemChangelist"
+						"text": new FormMessage( null, "Navigator.menuItemChangelist.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemChangelist.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/changes.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemReleaseNotes"

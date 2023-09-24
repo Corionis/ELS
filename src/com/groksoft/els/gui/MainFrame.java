@@ -41,6 +41,7 @@ import java.awt.event.*;
  *
  *  Menu icon color:  #3592C4
  *  Neby icon size:   10x10 px
+ *  Accent color:     #2675BF
  */
 public class MainFrame extends JFrame
 {
@@ -585,11 +586,11 @@ public class MainFrame extends JFrame
         menuItemSplitHorizontal = new JMenuItem();
         menuItemSplitVertical = new JMenuItem();
         menuHelp = new JMenu();
-        menuItemChangelist = new JMenuItem();
         menuItemControls = new JMenuItem();
         menuItemDocumentation = new JMenuItem();
         menuItemGettingStarted = new JMenuItem();
         menuItemGitHubProject = new JMenuItem();
+        menuItemChangelist = new JMenuItem();
         menuItemReleaseNotes = new JMenuItem();
         menuItemUpdates = new JMenuItem();
         menuItemAbout = new JMenuItem();
@@ -1128,13 +1129,6 @@ public class MainFrame extends JFrame
                 menuHelp.setText(context.cfg.gs("Navigator.menu.Help.text"));
                 menuHelp.setMnemonic(context.cfg.gs("Navigator.menu.Help.mnemonic").charAt(0));
 
-                //---- menuItemChangelist ----
-                menuItemChangelist.setText(context.cfg.gs("Navigator.menuItemChangelist.text"));
-                menuItemChangelist.setToolTipText("Changelist for this version");
-                menuItemChangelist.setMnemonic(context.cfg.gs("Navigator.menuItemChangelist.mnemonic").charAt(0));
-                menuItemChangelist.setIcon(new ImageIcon(getClass().getResource("/changes.png")));
-                menuHelp.add(menuItemChangelist);
-
                 //---- menuItemControls ----
                 menuItemControls.setText(context.cfg.gs("Navigator.menu.Controls.text"));
                 menuItemControls.setMnemonic(context.cfg.gs("Navigator.menu.Controls.mnemonic").charAt(0));
@@ -1144,7 +1138,6 @@ public class MainFrame extends JFrame
                 //---- menuItemDocumentation ----
                 menuItemDocumentation.setText(context.cfg.gs("Navigator.menu.Documentation.text"));
                 menuItemDocumentation.setMnemonic(context.cfg.gs("Navigator.menu.Documentation.mnemonic").charAt(0));
-                menuItemDocumentation.setToolTipText(context.cfg.gs("Navigator.menuItemDocumentation.toolTipText"));
                 menuItemDocumentation.setIcon(new ImageIcon(getClass().getResource("/external-link.png")));
                 menuHelp.add(menuItemDocumentation);
 
@@ -1158,8 +1151,14 @@ public class MainFrame extends JFrame
                 menuItemGitHubProject.setText(context.cfg.gs("Navigator.menu.GitHubProject.text"));
                 menuItemGitHubProject.setMnemonic(context.cfg.gs("Navigator.menu.GitHubProject.mnemonic").charAt(0));
                 menuItemGitHubProject.setIcon(new ImageIcon(getClass().getResource("/github.png")));
-                menuItemGitHubProject.setToolTipText(context.cfg.gs("Navigator.menuItemGitHubProject.toolTipText"));
                 menuHelp.add(menuItemGitHubProject);
+                menuHelp.addSeparator();
+
+                //---- menuItemChangelist ----
+                menuItemChangelist.setText(context.cfg.gs("Navigator.menuItemChangelist.text"));
+                menuItemChangelist.setMnemonic(context.cfg.gs("Navigator.menuItemChangelist.mnemonic").charAt(0));
+                menuItemChangelist.setIcon(new ImageIcon(getClass().getResource("/changes.png")));
+                menuHelp.add(menuItemChangelist);
 
                 //---- menuItemReleaseNotes ----
                 menuItemReleaseNotes.setText(context.cfg.gs("Navigator.menuItemReleaseNotes.text"));
@@ -2638,11 +2637,11 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemSplitHorizontal;
     public JMenuItem menuItemSplitVertical;
     public JMenu menuHelp;
-    public JMenuItem menuItemChangelist;
     public JMenuItem menuItemControls;
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemGettingStarted;
     public JMenuItem menuItemGitHubProject;
+    public JMenuItem menuItemChangelist;
     public JMenuItem menuItemReleaseNotes;
     public JMenuItem menuItemUpdates;
     public JMenuItem menuItemAbout;

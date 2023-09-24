@@ -2051,7 +2051,7 @@ public class Configuration
                     break;
                 case "--version":                                       // version
                     System.out.println("");
-                    System.out.println(PROGRAM_NAME + ", Version " + getBuildVersionName() + ", " + getBuildDate() + ", " + getBuildDate());
+                    System.out.println(PROGRAM_NAME + ", Version " + getBuildVersionName() + ", " + getBuildDate());
                     System.out.println("See the ELS wiki on GitHub for documentation at:");
                     System.out.println("  https://github.com/GrokSoft/ELS/wiki");
                     System.out.println("");

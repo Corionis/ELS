@@ -17,8 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.JTableHeader;
 
 /**
  * ELS Settings dialog
@@ -39,6 +37,7 @@ public class Settings extends JDialog
             + Add beep option:    Toolkit.getDefaultToolkit().beep();
             + Use last publisher and subscriber if none specified (Preferences.useLastPublisherSubscriber)
          Appearance
+            + Add "Default" button to Accent Color
             + Show mnemonics
             + Show scrollbar up/down buttons
          OperationsUI

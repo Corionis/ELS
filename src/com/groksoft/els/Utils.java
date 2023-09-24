@@ -41,6 +41,8 @@ import java.util.regex.Pattern;
 
 /**
  * Utils class of static utility methods
+ * <p>
+ * Requires logger to be initialized.
  */
 public class Utils
 {
