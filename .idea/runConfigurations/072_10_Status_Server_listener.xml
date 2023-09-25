@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="072-10_Status-Server-listener" type="Application" factoryName="Application" folderName="072-00 Remote Hint Server - Remote Backup">
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . -c debug -d debug --hint-server libraries/hint-server.json -K system/hint.keys -F output/072-10_Status-Server-listener.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />

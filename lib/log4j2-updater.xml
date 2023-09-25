@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration packages="com.groksoft.els_updater" status="WARN">
+<Configuration packages="com.corionis.els_updater" status="WARN">
     <Appenders>
         <RollingFile name="applog" fileName="${sys:logFilename}" filePattern="${sys:logFilename}.zip" append="true">
             <PatternLayout>

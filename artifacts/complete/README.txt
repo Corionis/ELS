@@ -20,4 +20,4 @@ few are shown in these example files.
 See the mock/scripts/ directory for several more examples of the various
 ways ELS may be executed.
 
-More information is available at:  https://github.com/GrokSoft/ELS/wiki
+More information is available at:  https://github.com/Corionis/ELS/wiki

@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="070-23 Publisher One backup" type="Application" factoryName="Application" folderName="070-00 Remote Hint Server - Local Backup">
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . --hint-server libraries/hint-server.json -k system/hint.keys -c debug -d debug -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/070-23_Publisher-One-backup_mismatches.txt -W output/070-23_Publisher-One-backup_whatsnew.txt -F output/070-23_Publisher-One-backup.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />

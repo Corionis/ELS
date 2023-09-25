@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="050-01 Hints publisher" type="Application" factoryName="Application" folderName="050-00 Remote Hints">
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . -K system/hint.keys -c debug -d debug -p libraries/publisher.json -T -F output/050-01_Hints-publisher.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />

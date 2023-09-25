@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="062-22_Publisher-One-dryrun" type="Application" factoryName="Application" folderName="062-00 Local Hint Tracker - Remote Backup">
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug -r P -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/062-22_Publisher-One-dryrun_mismatches.txt -W output/062-22_Publisher-One-dryrun_whatsnew.txt -F output/062-22_Publisher-One-dryrun.log --dry-run" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />

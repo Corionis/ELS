@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="070-31 Subscriber Two listener" type="Application" factoryName="Application" folderName="070-00 Remote Hint Server - Local Backup">
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . --hints libraries/hint-server.json -k system/hint.keys -c debug -d debug --remote S --authorize sharkbait -p libraries/publisher.json -S libraries/subscriber-two.json -T -F output/070-31_Subscriber-Two-listener.log" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />

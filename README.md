@@ -1,4 +1,4 @@
-![ELS logo](https://github.com/GrokSoft/ELS/blob/master/artifacts/images/els-logo-98px.png)
+![ELS logo](https://github.com/Corionis/ELS/blob/master/artifacts/images/els-logo-98px.png)
 
 # ELS : Entertainment Library Synchronizer
 
@@ -42,10 +42,10 @@ It's all built-in and free.
 notice is removed there is no guarantee what works or has been completed, or even
 what *will be completed*. Also "Done" means code complete. Bugs are *entirely possible*.
 
-See the [Developer](https://github.com/GrokSoft/ELS/blob/Version-4.0.0/artifacts/document/developer.md)
+See the [Developer](https://github.com/Corionis/ELS/blob/Version-4.0.0/artifacts/document/developer.md)
 notes in the Version-4.0.0 branch for information on how to run the Navigator. Pre-built Jars are available.
 
-See the [Release Notes](https://github.com/GrokSoft/ELS/blob/Version-4.0.0/artifacts/document/release-notes.md)
+See the [Release Notes](https://github.com/Corionis/ELS/blob/Version-4.0.0/artifacts/document/release-notes.md)
 in the Version-4.0.0 branch for on-going change information.
 
  * ELS Navigator added in version 4.0 is a powerful cross-platform desktop GUI application. It
@@ -125,7 +125,7 @@ used.
 
 An add-on tool is available to generate a basic ELS JSON file from a
 [Plex Media Server](https://www.plex.tv), see the [ELS Plex
-Generator](https://github.com/GrokSoft/ELS-Plex-Generator). However ELS
+Generator](https://github.com/Corionis/ELS-Plex-Generator). However ELS
 will support any modern media system that uses the same directory structure.
 
 ELS can run locally with attached storage devices as a single process or
@@ -136,5 +136,5 @@ This software is written in Java and operates on Windows, Linux, and
 Apple systems. The media system and back-up do not have to be the same
 type.
 
-See the **[ELS Wiki](https://github.com/GrokSoft/ELS/wiki)** for
+See the **[ELS Wiki](https://github.com/Corionis/ELS/wiki)** for
 features, downloads and documentation.

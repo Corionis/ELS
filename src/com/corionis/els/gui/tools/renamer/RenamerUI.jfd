@@ -1,0 +1,808 @@
+JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.corionis.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "Renamer"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetStringFormat": "context.cfg.gs(${key})"
+			"JavaCodeGenerator.i18nGetBundleFormat": "context.cfg.bundle()"
+			"JavaCodeGenerator.defaultVariableModifiers": 1
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": new FormMessage( null, "Renamer.title" )
+			"name": "renamerUI"
+			"minimumSize": new java.awt.Dimension( 150, 126 )
+			"defaultCloseOperation": 0
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "windowClosing", true ) )
+			addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentHidden", "windowHidden", true ) )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "dialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"preferredSize": new java.awt.Dimension( 630, 470 )
+				"minimumSize": new java.awt.Dimension( 150, 80 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+					name: "contentPanel"
+					"preferredSize": new java.awt.Dimension( 614, 470 )
+					"minimumSize": new java.awt.Dimension( 140, 120 )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+						name: "panelTop"
+						"minimumSize": new java.awt.Dimension( 140, 38 )
+						"preferredSize": new java.awt.Dimension( 614, 38 )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 0
+							"hgap": 2
+							"vgap": 4
+						} ) {
+							name: "panelTopButtons"
+							"minimumSize": new java.awt.Dimension( 140, 38 )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonNew"
+								"text": new FormMessage( null, "Renamer.button.New.text" )
+								"mnemonic": new FormMessage( null, "Renamer.button.New.mnemonic" )
+								"toolTipText": new FormMessage( null, "Renamer.button.New.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionNewClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonCopy"
+								"text": new FormMessage( null, "Navigator.buttonCopy.text" )
+								"mnemonic": new FormMessage( null, "Renamer.button.Copy.mnemonic" )
+								"toolTipText": new FormMessage( null, "Navigator.buttonCopy.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCopyClicked", true ) )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonDelete"
+								"text": new FormMessage( null, "Navigator.buttonDelete.text" )
+								"mnemonic": new FormMessage( null, "Renamer.button.Delete.mnemonic" )
+								"toolTipText": new FormMessage( null, "Navigator.buttonDelete.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionDeleteClicked", true ) )
+							} )
+							add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+								name: "hSpacerBeforeRun"
+								"minimumSize": new java.awt.Dimension( 22, 6 )
+								"preferredSize": new java.awt.Dimension( 22, 6 )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonRun"
+								"text": new FormMessage( null, "Renamer.button.Run.text" )
+								"mnemonic": new FormMessage( null, "Renamer.button.Run.mnemonic" )
+								"toolTipText": new FormMessage( null, "Renamer.button.Run.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRunClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "West"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+							"alignment": 2
+							"hgap": 4
+							"vgap": 4
+						} ) {
+							name: "panelHelp"
+							"preferredSize": new java.awt.Dimension( 40, 38 )
+							"minimumSize": new java.awt.Dimension( 0, 38 )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "labelHelp"
+								"icon": new com.jformdesigner.model.SwingIcon( 2, "OptionPane.informationIcon" )
+								"preferredSize": new java.awt.Dimension( 32, 30 )
+								"minimumSize": new java.awt.Dimension( 32, 30 )
+								"maximumSize": new java.awt.Dimension( 32, 30 )
+								"toolTipText": new FormMessage( null, "Renamer.help" )
+								"cursor": new java.awt.Cursor( 12 )
+								"iconTextGap": 0
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "actionHelpClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "East"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "North"
+					} )
+					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
+						name: "splitPaneContent"
+						"dividerLocation": 142
+						"lastDividerLocation": 142
+						"minimumSize": new java.awt.Dimension( 140, 80 )
+						add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+							name: "scrollPaneConfig"
+							"minimumSize": new java.awt.Dimension( 140, 16 )
+							"preferredSize": new java.awt.Dimension( 142, 146 )
+							add( new FormComponent( "javax.swing.JTable" ) {
+								name: "configItems"
+								"selectionMode": 0
+								"showVerticalLines": false
+								"fillsViewportHeight": true
+								"showHorizontalLines": false
+								addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "configItemsMouseClicked", true ) )
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "left"
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+							name: "panelOptions"
+							"minimumSize": new java.awt.Dimension( 0, 78 )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+								name: "panelControls"
+								add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+									name: "topOptions"
+									add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+										name: "vSpacer0"
+										"preferredSize": new java.awt.Dimension( 10, 2 )
+										"minimumSize": new java.awt.Dimension( 10, 2 )
+										"maximumSize": new java.awt.Dimension( 10, 2 )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "North"
+									} )
+									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+										"axis": 0
+									} ) {
+										name: "panelRenameType"
+										add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+											name: "hSpacer1"
+											"preferredSize": new java.awt.Dimension( 4, 10 )
+											"minimumSize": new java.awt.Dimension( 4, 12 )
+											"maximumSize": new java.awt.Dimension( 4, 32767 )
+										} )
+										add( new FormComponent( "javax.swing.JLabel" ) {
+											name: "labelRenameType"
+											"text": "Rename Type"
+											"maximumSize": new java.awt.Dimension( 110, 16 )
+											"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 1, false )
+											"preferredSize": new java.awt.Dimension( 110, 16 )
+											"minimumSize": new java.awt.Dimension( 110, 16 )
+										} )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "West"
+									} )
+									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+										"axis": 0
+									} ) {
+										name: "panelCbOpts"
+										"maximumSize": new java.awt.Dimension( 32767, 21 )
+										"minimumSize": new java.awt.Dimension( 120, 21 )
+										"preferredSize": new java.awt.Dimension( 240, 21 )
+										add( new FormComponent( "javax.swing.JCheckBox" ) {
+											name: "checkBoxRecursive"
+											"text": new FormMessage( null, "Renamer.checkBoxRecursive.text" )
+											"horizontalAlignment": 0
+											"toolTipText": new FormMessage( null, "Renamer.checkBoxRecursive.toolTipText" )
+											"actionCommand": "recursiveChanged"
+											"preferredSize": new java.awt.Dimension( 120, 21 )
+											"maximumSize": new java.awt.Dimension( 32767, 21 )
+											"minimumSize": new java.awt.Dimension( 80, 21 )
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRecursiveClicked", true ) )
+										} )
+										add( new FormComponent( "javax.swing.JCheckBox" ) {
+											name: "checkBoxFilesOnly"
+											"text": new FormMessage( null, "Renamer.checkBoxFilesOnly.text" )
+											"horizontalAlignment": 0
+											"alignmentX": 0.5f
+											"preferredSize": new java.awt.Dimension( 120, 21 )
+											"maximumSize": new java.awt.Dimension( 32767, 21 )
+											"actionCommand": "filesOnlyChanged"
+											"toolTipText": new FormMessage( null, "Renamer.checkBoxFilesOnly.toolTipText" )
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionFilesOnlyClicked", true ) )
+										} )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "Center"
+									} )
+									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+										"axis": 0
+									} ) {
+										name: "panelFilenameSegment"
+										"maximumSize": new java.awt.Dimension( 144, 30 )
+										add( new FormComponent( "javax.swing.JComboBox" ) {
+											name: "comboBoxFilenameSegment"
+											"model": new javax.swing.DefaultComboBoxModel {
+												selectedItem: "Name only"
+												addElement( "Name only" )
+												addElement( "Extension only" )
+												addElement( "Whole filename" )
+											}
+											addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionFilenameSegmentClicked", true ) )
+										} )
+										add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+											name: "hSpacer2"
+											"preferredSize": new java.awt.Dimension( 4, 10 )
+											"minimumSize": new java.awt.Dimension( 4, 10 )
+											"maximumSize": new java.awt.Dimension( 4, 10 )
+										} )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "East"
+									} )
+									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+										"axis": 1
+									} ) {
+										name: "panelCardBox"
+										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+											name: "vSpacer1"
+											"minimumSize": &Dimension0 new java.awt.Dimension( 12, 2 )
+											"maximumSize": &Dimension1 new java.awt.Dimension( 32767, 2 )
+											"preferredSize": &Dimension2 new java.awt.Dimension( 10, 2 )
+										} )
+										add( new FormComponent( "javax.swing.JSeparator" ) {
+											name: "separator1"
+										} )
+										add( new FormComponent( "com.jformdesigner.designer.wrapper.VSpacer" ) {
+											name: "vSpacer2"
+											"minimumSize": #Dimension0
+											"maximumSize": #Dimension1
+											"preferredSize": #Dimension2
+										} )
+										add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.CardLayout ) ) {
+											name: "panelOptionsCards"
+											"maximumSize": new java.awt.Dimension( 32676, 92 )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+												name: "panelGettingStarted"
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelOperationGettingStarted"
+													"text": new FormMessage( null, "Renamer.labelGettingStarted.text" )
+													"font": new com.jformdesigner.model.SwingDerivedFont( null, 1, 0, false )
+													"horizontalAlignment": 0
+												}, new FormLayoutConstraints( class java.lang.String ) {
+													"value": "Center"
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "gettingStarted"
+											} )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+												"columns": 2
+												"rows": 2
+											} ) {
+												name: "panelCaseChangeCard"
+												"preferredSize": new java.awt.Dimension( 328, 92 )
+												"minimumSize": new java.awt.Dimension( 328, 92 )
+												"maximumSize": new java.awt.Dimension( 32767, 92 )
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
+												add( new FormComponent( "javax.swing.JRadioButton" ) {
+													name: "radioButtonFirstUpperCase"
+													"text": new FormMessage( null, "Renamer.radioButtonFirstUpperCase.text" )
+													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
+													"horizontalAlignment": 0
+													"actionCommand": "firstupper"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
+												} )
+												add( new FormComponent( "javax.swing.JRadioButton" ) {
+													name: "radioButtonLowerCase"
+													"text": new FormMessage( null, "Renamer.radioButtonLowerCase.text" )
+													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
+													"horizontalAlignment": 0
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
+												} )
+												add( new FormComponent( "javax.swing.JRadioButton" ) {
+													name: "radioButtonTitleCase"
+													"text": new FormMessage( null, "Renamer.radioButtonTitleCase.text" )
+													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
+													"horizontalAlignment": 0
+													"actionCommand": "titlecase"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
+												} )
+												add( new FormComponent( "javax.swing.JRadioButton" ) {
+													name: "radioButtonUpperCase"
+													"text": new FormMessage( null, "Renamer.radioButtonUpperCase.text" )
+													"$buttonGroup": new FormReference( "buttonGroupChangeCase" )
+													"horizontalAlignment": 0
+													"actionCommand": "upper"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCaseChangeClicked", true ) )
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "cardCaseChange"
+											} )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+												"$columnSpecs": "0, 0"
+												"$rowSpecs": "0, 0, 0"
+												"$alignTop": true
+												"$hGap": 4
+											} ) {
+												name: "panelInsertCard"
+												"maximumSize": &Dimension3 new java.awt.Dimension( 32767, 92 )
+												"minimumSize": &Dimension4 new java.awt.Dimension( 328, 92 )
+												"preferredSize": &Dimension5 new java.awt.Dimension( 328, 92 )
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelTextToInsert"
+													"text": new FormMessage( null, "Renamer.labelTextToInsert.text" )
+													"horizontalAlignment": 4
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+												add( new FormComponent( "javax.swing.JTextField" ) {
+													name: "textFieldToInsert"
+													"preferredSize": &Dimension6 new java.awt.Dimension( 320, 30 )
+													"minimumSize": &Dimension7 new java.awt.Dimension( 50, 30 )
+													"toolTipText": new FormMessage( null, "Renamer.textFieldToInsert.toolTipText" )
+													"name": "text1"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelInsertPosition"
+													"text": new FormMessage( null, "Renamer.labelInsertPosition.text" )
+													"horizontalAlignment": 4
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+												} )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+													"axis": 0
+												} ) {
+													name: "panelInsertPostion"
+													add( new FormComponent( "javax.swing.JTextField" ) {
+														name: "textFieldInsertPosition"
+														"minimumSize": &Dimension8 new java.awt.Dimension( 96, 30 )
+														"preferredSize": &Dimension9 new java.awt.Dimension( 96, 30 )
+														"maximumSize": &Dimension10 new java.awt.Dimension( 96, 30 )
+														"toolTipText": new FormMessage( null, "Renamer.textFieldInsertPosition.toolTipText" )
+														"name": "text2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer3"
+														"minimumSize": &Dimension11 new java.awt.Dimension( 10, 10 )
+														"maximumSize": &Dimension12 new java.awt.Dimension( 10, 10 )
+													} )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxInsertFromEnd"
+														"text": new FormMessage( null, "Renamer.checkBoxInsertFromEnd.text" )
+														"toolTipText": new FormMessage( null, "Renamer.checkBoxInsertFromEnd.toolTipText" )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer7"
+														"minimumSize": #Dimension11
+														"maximumSize": #Dimension12
+													} )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxInsertAtEnd"
+														"text": new FormMessage( null, "Renamer.checkBoxInsertAtEnd.text" )
+														"toolTipText": new FormMessage( null, "Renamer.checkBoxInsertAtEnd.toolTipText" )
+														"name": "option2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 1
+												} )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+													"hgap": 8
+												} ) {
+													name: "panelInsertOther"
+													"preferredSize": &Dimension13 new java.awt.Dimension( 266, 30 )
+													"minimumSize": &Dimension14 new java.awt.Dimension( 266, 30 )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxInsertOverwrite"
+														"text": new FormMessage( null, "Renamer.checkBoxInsertOverwrite.text" )
+														"margin": new java.awt.Insets( 2, 6, 2, 2 )
+														"name": "option3"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 2
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "cardInsert"
+											} )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+												"$columnSpecs": "0, 0"
+												"$rowSpecs": "0, 0, 0"
+												"$alignTop": true
+												"$hGap": 4
+											} ) {
+												name: "panelNumberingCard"
+												"maximumSize": &Dimension15 new java.awt.Dimension( 32767, 92 )
+												"minimumSize": &Dimension16 new java.awt.Dimension( 328, 92 )
+												"preferredSize": &Dimension17 new java.awt.Dimension( 328, 92 )
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelStart"
+													"text": new FormMessage( null, "Renamer.labelStart.text" )
+													"horizontalAlignment": 4
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+													"axis": 0
+												} ) {
+													name: "panelNums"
+													add( new FormComponent( "javax.swing.JTextField" ) {
+														name: "textFieldNumberingStart"
+														"preferredSize": &Dimension18 new java.awt.Dimension( 96, 30 )
+														"minimumSize": &Dimension19 new java.awt.Dimension( 96, 30 )
+														"maximumSize": &Dimension20 new java.awt.Dimension( 96, 30 )
+														"text": "1"
+														"toolTipText": new FormMessage( null, "Renamer.textFieldNumberingStart.toolTipText" )
+														"name": "text1"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer5"
+														"minimumSize": &Dimension21 new java.awt.Dimension( 10, 10 )
+														"maximumSize": &Dimension22 new java.awt.Dimension( 32767, 10 )
+														"preferredSize": new java.awt.Dimension( 88, 10 )
+													} )
+													add( new FormComponent( "javax.swing.JLabel" ) {
+														name: "labelZeros"
+														"text": new FormMessage( null, "Renamer.labelZeros.text" )
+													} )
+													add( new FormComponent( "javax.swing.JTextField" ) {
+														name: "textFieldNumberingZeros"
+														"preferredSize": new java.awt.Dimension( 96, 30 )
+														"minimumSize": new java.awt.Dimension( 96, 30 )
+														"maximumSize": new java.awt.Dimension( 96, 30 )
+														"text": "1"
+														"toolTipText": new FormMessage( null, "Renamer.textFieldNumberingZeros.toolTipText" )
+														"name": "text2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelNumberingPosition"
+													"text": new FormMessage( null, "Renamer.labelNumberingPosition.text_2" )
+													"horizontalAlignment": 4
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+												} )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+													"axis": 0
+												} ) {
+													name: "panelNumberingPostion"
+													add( new FormComponent( "javax.swing.JTextField" ) {
+														name: "textFieldNumberingPosition"
+														"minimumSize": #Dimension8
+														"preferredSize": #Dimension9
+														"maximumSize": #Dimension10
+														"name": "text3"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer4"
+														"minimumSize": #Dimension11
+														"maximumSize": #Dimension12
+													} )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxNumberingFromEnd"
+														"text": new FormMessage( null, "Renamer.checkBoxNumberingFromEnd.text_2" )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer8"
+														"minimumSize": #Dimension11
+														"maximumSize": #Dimension12
+													} )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxNumberingAtEnd"
+														"text": new FormMessage( null, "Renamer.checkBoxNumberingAtEnd.text" )
+														"toolTipText": new FormMessage( null, "Renamer.checkBoxNumberingAtEnd.toolTipText" )
+														"name": "option2"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 1
+												} )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+													"hgap": 8
+												} ) {
+													name: "panelNumberingOther"
+													"preferredSize": #Dimension13
+													"minimumSize": #Dimension14
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxNumberingOverwrite"
+														"text": new FormMessage( null, "Renamer.checkBoxNumberingOverwrite.text_2" )
+														"margin": &Insets0 new java.awt.Insets( 2, 6, 2, 2 )
+														"name": "option3"
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 2
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "cardNumbering"
+											} )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+												"$columnSpecs": "0, 0"
+												"$rowSpecs": "0, 0, 0"
+												"$alignTop": true
+												"$hGap": 4
+											} ) {
+												name: "panelRemoveCard"
+												"maximumSize": #Dimension15
+												"minimumSize": #Dimension16
+												"preferredSize": #Dimension17
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelFrom"
+													"text": new FormMessage( null, "Renamer.labelFrom.text" )
+													"horizontalAlignment": 4
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+													"axis": 0
+												} ) {
+													name: "panelFrom"
+													add( new FormComponent( "javax.swing.JTextField" ) {
+														name: "textFieldFrom"
+														"preferredSize": #Dimension18
+														"minimumSize": #Dimension19
+														"maximumSize": #Dimension20
+														"text": "1"
+														"name": "text1"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													} )
+													add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+														name: "hSpacer6"
+														"minimumSize": #Dimension21
+														"maximumSize": #Dimension22
+														"preferredSize": new java.awt.Dimension( 217, 10 )
+														"focusable": false
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelLength"
+													"text": new FormMessage( null, "Renamer.labelLength.text" )
+													"horizontalAlignment": 4
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+												} )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) {
+													"axis": 0
+												} ) {
+													name: "panelLength"
+													add( new FormComponent( "javax.swing.JTextField" ) {
+														name: "textFieldLength"
+														"minimumSize": #Dimension8
+														"preferredSize": #Dimension9
+														"maximumSize": #Dimension10
+														"name": "text2"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 1
+												} )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+													"hgap": 8
+													"columns": 2
+												} ) {
+													name: "panelRemoveOther"
+													"preferredSize": new java.awt.Dimension( 98, 30 )
+													"minimumSize": new java.awt.Dimension( 98, 30 )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxRemoveFromEnd"
+														"text": new FormMessage( null, "Renamer.checkBoxRemoveFromEnd.text" )
+														"margin": new java.awt.Insets( 2, 6, 2, 6 )
+														"preferredSize": new java.awt.Dimension( 98, 21 )
+														"minimumSize": new java.awt.Dimension( 98, 21 )
+														"maximumSize": new java.awt.Dimension( 98, 21 )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 2
+													"hAlign": 2
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "cardRemove"
+											} )
+											add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+												"$columnSpecs": "0, 0"
+												"$rowSpecs": "0, 0, 0"
+												"$alignTop": true
+												"$hGap": 4
+											} ) {
+												name: "panelReplaceCard"
+												"maximumSize": #Dimension3
+												"minimumSize": #Dimension4
+												"preferredSize": #Dimension5
+												addEvent( new FormEvent( "java.awt.event.ComponentListener", "componentShown", "cardShown", true ) )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labelFind"
+													"text": new FormMessage( null, "Renamer.labelFind.text" )
+													"horizontalAlignment": 4
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+												add( new FormComponent( "javax.swing.JTextField" ) {
+													name: "textFieldFind"
+													"preferredSize": #Dimension6
+													"minimumSize": #Dimension7
+													"name": "text1"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+												} )
+												add( new FormComponent( "javax.swing.JLabel" ) {
+													name: "labeReplace"
+													"text": new FormMessage( null, "Renamer.labelReplace.text" )
+													"horizontalAlignment": 11
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+												} )
+												add( new FormComponent( "javax.swing.JTextField" ) {
+													name: "textFieldReplace"
+													"preferredSize": #Dimension6
+													"minimumSize": #Dimension7
+													"name": "text2"
+													addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+													addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "genericTextFieldFocusLost", true ) )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridy": 1
+													"gridx": 1
+												} )
+												add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+													"hgap": 8
+												} ) {
+													name: "panelReplaceOther"
+													"preferredSize": #Dimension13
+													"minimumSize": #Dimension14
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxRegularExpr"
+														"text": new FormMessage( null, "Renamer.checkBoxRegularExpr.text" )
+														"margin": new java.awt.Insets( 2, 6, 2, 6 )
+														"name": "option1"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													} )
+													add( new FormComponent( "javax.swing.JCheckBox" ) {
+														name: "checkBoxCase"
+														"text": new FormMessage( null, "Renamer.checkBoxCase.text" )
+														"margin": #Insets0
+														"name": "option2"
+														addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "genericAction", true ) )
+														addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "tabKeyPressed", true ) )
+													} )
+												}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+													"gridx": 1
+													"gridy": 2
+												} )
+											}, new FormLayoutConstraints( class java.lang.String ) {
+												"value": "cardReplace"
+											} )
+										} )
+									}, new FormLayoutConstraints( class java.lang.String ) {
+										"value": "South"
+									} )
+								}, new FormLayoutConstraints( class java.lang.String ) {
+									"value": "North"
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "North"
+							} )
+							add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+								name: "scrollPaneExamples"
+								add( new FormComponent( "javax.swing.JTable" ) {
+									name: "tableChanges"
+									"selectionMode": 0
+									"rowSelectionAllowed": false
+									"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector {
+										add( new java.util.Vector {
+											add( null )
+											add( null )
+										} )
+										add( new java.util.Vector {
+											add( null )
+											add( null )
+										} )
+									}, new java.util.Vector {
+										add( "Old Name" )
+										add( "New Name" )
+									}, new java.util.Vector {
+										add( null )
+										add( null )
+									}, new java.util.Vector {
+										add( null )
+										add( null )
+									}, new java.util.Vector {
+										add( null )
+										add( null )
+									} )
+									"fillsViewportHeight": true
+									"focusable": false
+									"toolTipText": new FormMessage( null, "Renamer.tableChanges.toolTipText" )
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "Center"
+							} )
+							add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+								"alignment": 0
+								"vgap": 2
+								"hgap": 4
+							} ) {
+								name: "panelOptionsButtons"
+								add( new FormComponent( "javax.swing.JButton" ) {
+									name: "buttonRefresh"
+									"text": new FormMessage( null, "Z.refresh" )
+									"font": new com.jformdesigner.model.SwingDerivedFont( null, 0, -2, false )
+									"preferredSize": new java.awt.Dimension( 78, 24 )
+									"minimumSize": new java.awt.Dimension( 78, 24 )
+									"maximumSize": new java.awt.Dimension( 78, 24 )
+									"mnemonic": new FormMessage( null, "Renamer.buttonRefresh.mnemonic" )
+									"toolTipText": new FormMessage( null, "Z.refresh.tooltip.text" )
+									"margin": new java.awt.Insets( 0, -10, 0, -10 )
+									addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionRefreshClicked", true ) )
+								} )
+							}, new FormLayoutConstraints( class java.lang.String ) {
+								"value": "South"
+							} )
+						}, new FormLayoutConstraints( class java.lang.String ) {
+							"value": "right"
+						} )
+					}, new FormLayoutConstraints( class java.lang.String ) {
+						"value": "Center"
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80, 80"
+					"$rowSpecs": "0"
+					"$hGap": 2
+					"$vGap": 5
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "saveButton"
+						"text": new FormMessage( null, "Z.save" )
+						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionSaveClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 0
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "cancelButton"
+						"text": new FormMessage( null, "Z.cancel" )
+						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "actionCancelClicked", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 630, 470 )
+		} )
+		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
+			name: "buttonGroupChangeCase"
+			auxiliary() {
+				"JavaCodeGenerator.variableLocal": false
+			}
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 486 )
+		} )
+	}
+}

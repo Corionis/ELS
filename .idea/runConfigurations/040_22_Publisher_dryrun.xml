@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="040-22 Publisher dryrun" type="Application" factoryName="Application" folderName="040-00 Local Hints">
-    <option name="MAIN_CLASS_NAME" value="com.groksoft.els.Main" />
+    <option name="MAIN_CLASS_NAME" value="com.corionis.els.Main" />
     <module name="ELS" />
     <option name="PROGRAM_PARAMETERS" value="-C . -k system/hint.keys -c debug -d debug -p libraries/publisher.json -s libraries/subscriber-one.json -T -m output/040-22_Publisher-dryrun_mismatches.txt -W output/040-22_Publisher-dryrun_whatsnew.txt -F output/040-22_Publisher-dryrun.log --dry-run" />
     <option name="VM_PARAMETERS" value="-Dlog4j.configurationFile=../lib/log4j2.xml" />

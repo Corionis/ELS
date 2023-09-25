@@ -17,6 +17,7 @@ fi
 if [ -d ../../output ]; then
     rm -f ../../output
 fi
+rm -f ../../bin/*.jar ../../bin/*.info
 rm -rf ../../datastore
 rm -rf ../../jobs
 rm -rf ../../libraries
@@ -25,6 +26,7 @@ rm -rf ../../output
 rm -rf ../../system
 rm -rf ../../test
 rm -rf ../../tools
+rm -f ../../*.sh ../../*.txt
 
 echo ""
 echo -e "Clear done"

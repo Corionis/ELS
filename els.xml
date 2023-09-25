@@ -20,7 +20,7 @@
 
     <target name="locale" depends="clean">
         <!-- Copy the IDE default bundle to the en_US bundle used by ELS -->
-        <copy overwrite="true" file="src/com/groksoft/els/locales/bundle.properties" tofile="src/com/groksoft/els/locales/bundle_en_US.properties"/>
+        <copy overwrite="true" file="src/com/corionis/els/locales/bundle.properties" tofile="src/com/corionis/els/locales/bundle_en_US.properties"/>
     </target>
 
     <target name="set-stamp" depends="locale">
@@ -51,7 +51,7 @@
     <target name="stamp" depends="set-stamp, write-version, append-flags">
         <echo message="Build stamp ${NUMBERNOW}, ${STRINGNOW}" level="info"/>
         <!-- Copy version.info to internal resource version.info -->
-        <copy overwrite="true" file="deploy/version.info" tofile="src/com/groksoft/els/resources/version.info"/>
+        <copy overwrite="true" file="deploy/version.info" tofile="src/com/corionis/els/resources/version.info"/>
         <copy overwrite="true" file="deploy/version.info" tofile="mock/bin/version.info"/>
         <!-- Write the update.info file -->
         <delete file="deploy/update.info" failonerror="false"/>
@@ -73,16 +73,16 @@
 
     <!-- Assemble all the pieces to build the Jar -->
     <target name="els-assemble" depends="els-compile">
-        <copy todir="out/ELS/jar/com/groksoft/els/locales" preservelastmodified="true">
-            <fileset dir="src/com/groksoft/els/locales"/>
+        <copy todir="out/ELS/jar/com/corionis/els/locales" preservelastmodified="true">
+            <fileset dir="src/com/corionis/els/locales"/>
         </copy>
-        <copy todir="out/ELS/jar/com/groksoft/els/resources" preservelastmodified="true">
-            <fileset dir="src/com/groksoft/els/resources"/>
+        <copy todir="out/ELS/jar/com/corionis/els/resources" preservelastmodified="true">
+            <fileset dir="src/com/corionis/els/resources"/>
         </copy>
         <copy todir="out/ELS/jar" preservelastmodified="true">
             <fileset dir="artifacts/images/"/>
-            <fileset dir="src/com/groksoft/els/locales/"/>
-            <fileset dir="src/com/groksoft/els/resources/"/>
+            <fileset dir="src/com/corionis/els/locales/"/>
+            <fileset dir="src/com/corionis/els/resources/"/>
         </copy>
         <copy file="deploy/changes.html" tofile="out/ELS/jar/changes_en_US.html" preservelastmodified="true"/>
         <copy file="lib/log4j2.xml" todir="out/ELS/jar" preservelastmodified="true"/>
@@ -96,7 +96,7 @@
     <!-- Build ELS.jar -->
     <target name="els-jar" depends="els-assemble">
         <manifest file="out/ELS/jar/META-INF/MANIFEST.MF">
-            <attribute name="Main-Class" value="com.groksoft.els.Main"/>
+            <attribute name="Main-Class" value="com.corionis.els.Main"/>
         </manifest>
         <jar destfile="deploy/ELS.jar" manifest="out/ELS/jar/META-INF/MANIFEST.MF">
             <fileset dir="out/ELS/jar" includes="**/"/>
@@ -148,12 +148,12 @@
     <!-- Compile Updater -->
     <target name="updater-compile" depends="els-compile">
         <mkdir dir="out/updater/jar"/>
-        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/gui/Preferences.class" tofile="out/updater/jar/com/groksoft/els/gui/Preferences.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/Configuration.class" tofile="out/updater/jar/com/groksoft/els/Configuration.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/Context.class" tofile="out/updater/jar/com/groksoft/els/Context.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/MungeException.class" tofile="out/updater/jar/com/groksoft/els/MungeException.class"/>
-        <copy overwrite="true" file="out/ELS/jar/com/groksoft/els/Utils.class" tofile="out/updater/jar/com/groksoft/els/Utils.class"/>
-        <copy overwrite="true" file="deploy/version.info" tofile="out/updater/jar/com/groksoft/els/resources/version.info"/>
+        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/gui/Preferences.class" tofile="out/updater/jar/com/corionis/els/gui/Preferences.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Configuration.class" tofile="out/updater/jar/com/corionis/els/Configuration.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Context.class" tofile="out/updater/jar/com/corionis/els/Context.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/MungeException.class" tofile="out/updater/jar/com/corionis/els/MungeException.class"/>
+        <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Utils.class" tofile="out/updater/jar/com/corionis/els/Utils.class"/>
+        <copy overwrite="true" file="deploy/version.info" tofile="out/updater/jar/com/corionis/els/resources/version.info"/>
         <javac destdir="out/updater/jar" classpathref="class.path" includeantruntime="false" debug="on">
             <src path="updater/src"/>
             <include name="**/*.java"/>
@@ -162,12 +162,12 @@
 
     <!-- Assemble all the pieces to build the Updater Jar -->
     <target name="updater-assemble" depends="updater-compile">
-        <copy todir="out/updater/jar/com/groksoft/els/locales" preservelastmodified="true">
-            <fileset dir="src/com/groksoft/els/locales"/>
+        <copy todir="out/updater/jar/com/corionis/els/locales" preservelastmodified="true">
+            <fileset dir="src/com/corionis/els/locales"/>
         </copy>
         <copy todir="out/updater/jar" preservelastmodified="true">
             <file file="artifacts/images/els-logo-48px.png"/>
-            <fileset dir="src/com/groksoft/els/locales/"/>
+            <fileset dir="src/com/corionis/els/locales/"/>
             <file file="deploy/version.info"/>
         </copy>
         <!-- copy the separate log4j2-updater.xml to log4j2.xml -->
@@ -195,7 +195,7 @@
     <!-- Build ELS-Updater.jar -->
     <target name="updater-jar" depends="updater-assemble">
         <manifest file="out/updater/jar/META-INF/MANIFEST.MF">
-            <attribute name="Main-Class" value="com.groksoft.els_updater.Main"/>
+            <attribute name="Main-Class" value="com.corionis.els_updater.Main"/>
         </manifest>
         <jar destfile="deploy/ELS_Updater.jar" manifest="out/updater/jar/META-INF/MANIFEST.MF">
             <fileset dir="out/updater/jar" includes="**/"/>

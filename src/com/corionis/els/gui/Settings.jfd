@@ -1,0 +1,273 @@
+JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
+
+new FormModel {
+	"i18n.autoExternalize": true
+	"i18n.bundlePackage": "com.corionis.els.locales"
+	"i18n.bundleName": "bundle"
+	"i18n.keyPrefix": "Settings"
+	contentType: "form/swing"
+	root: new FormRoot {
+		auxiliary() {
+			"JavaCodeGenerator.i18nGetStringFormat": "context.cfg.gs(${key})"
+			"JavaCodeGenerator.i18nGetBundleFormat": "context.cfg.bundle()"
+		}
+		add( new FormWindow( "javax.swing.JDialog", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+			name: "this"
+			"title": new FormMessage( null, "Settings.this.title" )
+			"minimumSize": new java.awt.Dimension( 100, 50 )
+			"name": "settingsDialog"
+			"resizable": false
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosed", "thisWindowClosed", true ) )
+			addEvent( new FormEvent( "java.awt.event.WindowListener", "windowClosing", "thisWindowClosing", true ) )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.BorderLayout ) ) {
+				name: "settingsDialogPane"
+				"border": new javax.swing.border.EmptyBorder( 12, 12, 12, 12 )
+				"minimumSize": new java.awt.Dimension( 500, 100 )
+				"preferredSize": new java.awt.Dimension( 570, 470 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
+					name: "settingsContentPanel"
+					add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
+						name: "settingsTabbedPane"
+						"tabPlacement": 2
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+							"$horizontalGroup": "par l {seq {space :::p, par l {seq {comp preserveFileTimestampsLabel:::p:180:p, space :p:12:p, comp preserveFileTimestampsCheckBox:::p:238:p}, seq l {comp showDeleteConfirmationLabel:::p:180:p, space :p:12:p, comp showDeleteConfirmationCheckBox:::p:238:p}, seq l {comp showCcpConfirmationLabel:::p:180:p, space :p:12:p, comp showCcpConfirmationCheckBox:::p:238:p}, seq l {comp showDndConfirmationLabel:::p:180:p, space :p:12:p, comp showDndConfirmationCheckBox:::p:238:p}, seq l {comp showTouchConfirmationLabel:::p:180:p, space :p:12:p, comp showTouchConfirmationCheckBox:::p:238:p}}, space :::x}}"
+							"$verticalGroup": "par l {seq {space :0:0:p, par l {comp preserveFileTimestampsLabel:::p:36:p, comp preserveFileTimestampsCheckBox:::p:36:p}, space :0:0:p, par l {comp showDeleteConfirmationLabel:::p:36:p, comp showDeleteConfirmationCheckBox:::p:36:p}, space :0:0:p, par b {comp showCcpConfirmationLabel::b:p:36:p, comp showCcpConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showDndConfirmationLabel::b:p:36:p, comp showDndConfirmationCheckBox::b:p:36:p}, space :0:0:p, par b {comp showTouchConfirmationLabel::b:p:36:p, comp showTouchConfirmationCheckBox::b:p:36:p}, space ::187:x}}"
+						} ) {
+							name: "generalPanel"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "preserveFileTimestampsLabel"
+								"text": new FormMessage( null, "Settings.preserveFileTimestampsLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "preserveFileTimestampsCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showDeleteConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showDeleteConfirmationLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showDeleteConfirmationCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showCcpConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showCcpConfirmationLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showCcpConfirmationCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showDndConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showDndConfirmationLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showDndConfirmationCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "showTouchConfirmationLabel"
+								"text": new FormMessage( null, "Settings.showTouchConfirmationLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "showTouchConfirmationCheckBox"
+							} )
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.generalPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.generalPanel.tab.mnemonic" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+							"$horizontalGroup": "par l {seq {space :::p, par l {seq {par l {comp lookFeelLabel::l:p:180:p, comp localeLabel::l:p:180:p, comp scaleLabel::l:p:180:p, seq l {comp dateFormatLabel:::p:96:p, space :p:12:p, comp dateInfoButton:::p::p}}, space :::p, par l {comp lookFeelComboBox::l:p:200:p, comp localeComboBox::l:p:200:p, comp scaleCheckBox::l:p:238:p, comp dateFormatTextField::l:p:200:p}}, seq l {comp accentColorButtonLabel:::p:180:p, space u:::p, comp textFieldAccentColor:::p:104:p, space :p:8:p, comp buttonChooseColor:::p::p}}, space ::17:x}}"
+							"$verticalGroup": "par l {seq l {space :0:0:p, par l {seq {comp lookFeelLabel:::p:36:p, space :0:0:p, comp localeLabel:::p:36:p, space :0:0:p, comp scaleLabel:::p:36:p, space :0:0:p, comp dateFormatLabel:::p:36:p}, seq {comp lookFeelComboBox:::p:36:p, space :0:0:p, comp localeComboBox:::p:36:p, space :0:0:p, comp scaleCheckBox:::p:36:p}, seq {space :p:111:p, par b {comp dateInfoButton::b:p::p, comp dateFormatTextField::b:p:36:p}}}, space :0:0:p, par b {comp accentColorButtonLabel::b:p:36:p, comp buttonChooseColor::b:p::p, comp textFieldAccentColor::b:p::p}, space :::p}}"
+						} ) {
+							name: "apperancePanel"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "lookFeelLabel"
+								"text": new FormMessage( null, "Settings.lookFeelLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JComboBox" ) {
+								name: "lookFeelComboBox"
+								"model": new javax.swing.DefaultComboBoxModel {
+									selectedItem: "System (Windows)"
+									addElement( "System (Windows)" )
+									addElement( "Nimbus" )
+									addElement( "Flat light" )
+									addElement( "Flat dark" )
+									addElement( "IntelliJ light" )
+									addElement( "IntelliJ dark" )
+								}
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "localeLabel"
+								"text": new FormMessage( null, "Settings.localeLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JComboBox" ) {
+								name: "localeComboBox"
+								"model": new javax.swing.DefaultComboBoxModel {
+									selectedItem: "en_US"
+									addElement( "en_US" )
+								}
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "scaleLabel"
+								"text": new FormMessage( null, "Settings.scaleLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "scaleCheckBox"
+								"toolTipText": new FormMessage( null, "Settings.scaleCheckBox.toolTipText" )
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "dateFormatLabel"
+								"text": new FormMessage( null, "Settings.dateFormatLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "dateFormatTextField"
+								"text": "yyyy-MM-dd hh:mm:ss aa"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "accentColorButtonLabel"
+								"text": new FormMessage( null, "Settings.accentColorLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "dateInfoButton"
+								"text": new FormMessage( null, "Settings.button.dateInfo.text" )
+								"toolTipText": new FormMessage( null, "Settings.button.dateInfo.text.tooltip" )
+							} )
+							add( new FormComponent( "javax.swing.JTextField" ) {
+								name: "textFieldAccentColor"
+								"toolTipText": new FormMessage( null, "Settings.textField.HintButtonColor.toolTipText" )
+							} )
+							add( new FormComponent( "javax.swing.JButton" ) {
+								name: "buttonChooseColor"
+								"text": new FormMessage( null, "Settings.button.ChooseColor.text" )
+								"toolTipText": new FormMessage( null, "Settings.button.ChooseColor.toolTipText" )
+								addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "chooseColor", true ) )
+							} )
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.appearance.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.appearancePanel.tab.mnemonic" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class org.jdesktop.layout.GroupLayout ) {
+							"$horizontalGroup": "par l {seq l {space :::p, par l {comp autoRefreshLabel::l:p:180:p, comp hideFilesInTreeLabel::l:p:180:p, comp hideHiddenFilesLabel::l:p:180:p, comp sortCaseSensitiveLabel::l:p:180:p, comp sortFoldersBeforeFilesLabel::l:p:180:p, comp sortReverseLabel::l:p:180:p, comp tabPlacementlabel::l:p:180:p}, space :p:12:p, par l {comp autoRefreshCheckBox::l:p:238:p, comp hideFilesInTreeCheckBox::l:p:238:p, comp hideHiddenFilesCheckBox::l:p:238:p, comp sortCaseSensitiveCheckBox::l:p:238:p, comp sortFoldersBeforeFilesCheckBox::l:p:238:p, comp sortReverseCheckBox::l:p:238:p, comp tabPlacementComboBox::l:p::p}, space :::x}}"
+							"$verticalGroup": "par l {seq {par l {seq {comp autoRefreshLabel:::p:36:p, space :0:0:p, comp hideFilesInTreeLabel:::p:36:p, space :0:0:p, comp hideHiddenFilesLabel:::p:36:p, space :0:0:p, comp sortCaseSensitiveLabel:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesLabel:::p:36:p, space :0:0:p, comp sortReverseLabel:::p:36:p}, seq {comp autoRefreshCheckBox:::p:36:p, space :0:0:p, comp hideFilesInTreeCheckBox:::p:36:p, space :0:0:p, comp hideHiddenFilesCheckBox:::p:36:p, space :0:0:p, comp sortCaseSensitiveCheckBox:::p:36:p, space :0:0:p, comp sortFoldersBeforeFilesCheckBox:::p:36:p, space :0:0:p, comp sortReverseCheckBox:::p:36:p}}, space :0:0:p, par b {comp tabPlacementlabel::b:p:36:p, comp tabPlacementComboBox::b:p::p}, space :::p}}"
+						} ) {
+							name: "browserPanel"
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "autoRefreshLabel"
+								"text": "Auto-refresh:"
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "autoRefreshCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "hideFilesInTreeLabel"
+								"text": new FormMessage( null, "Settings.hideFilesInTreeLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "hideFilesInTreeCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "hideHiddenFilesLabel"
+								"text": new FormMessage( null, "Settings.hideHiddenFilesLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "hideHiddenFilesCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "sortCaseSensitiveLabel"
+								"text": new FormMessage( null, "Settings.sortCaseSensitiveLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "sortCaseSensitiveCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "sortFoldersBeforeFilesLabel"
+								"text": new FormMessage( null, "Settings.sortFoldersBeforeFilesLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "sortFoldersBeforeFilesCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "sortReverseLabel"
+								"text": new FormMessage( null, "Settings.sortReverseLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JCheckBox" ) {
+								name: "sortReverseCheckBox"
+							} )
+							add( new FormComponent( "javax.swing.JLabel" ) {
+								name: "tabPlacementlabel"
+								"text": new FormMessage( null, "Settings.tabPlacementLabel.text" )
+							} )
+							add( new FormComponent( "javax.swing.JComboBox" ) {
+								name: "tabPlacementComboBox"
+								"model": new javax.swing.DefaultComboBoxModel {
+									selectedItem: "Top"
+									addElement( "Top" )
+									addElement( "Bottom" )
+									addElement( "Left" )
+									addElement( "Right" )
+								}
+								"preferredSize": new java.awt.Dimension( 100, 30 )
+							} )
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.browserPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.browserPanel.tab.mnemonic" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+							"columns": 2
+							"hgap": 2
+							"vgap": 2
+						} ) {
+							name: "operationsPanel"
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.operationsPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.operationsPanel.tab.mnemonic" )
+						} )
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridLayout ) {
+							"columns": 2
+							"hgap": 2
+							"vgap": 2
+						} ) {
+							name: "librariesPanel"
+						}, new FormLayoutConstraints( null ) {
+							"title": new FormMessage( null, "Settings.librariesPanel.tab.title" )
+							"mnemonic": new FormMessage( null, "Settings.librariesPanel.tab.mnemonic" )
+						} )
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "Center"
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0, 80, 80"
+					"$rowSpecs": "0"
+					"$hGap": 5
+					"$vGap": 5
+				} ) {
+					name: "buttonBar"
+					"border": new javax.swing.border.EmptyBorder( 12, 0, 0, 0 )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "okButton"
+						"text": new FormMessage( null, "Z.save" )
+						"toolTipText": new FormMessage( null, "Z.save.toolTip.text" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
+						"gridy": 0
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "cancelButton"
+						"text": new FormMessage( null, "Z.cancel" )
+						"toolTipText": new FormMessage( null, "Z.cancel.changes.toolTipText" )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 2
+						"gridy": 0
+					} )
+				}, new FormLayoutConstraints( class java.lang.String ) {
+					"value": "South"
+				} )
+			}, new FormLayoutConstraints( class java.lang.String ) {
+				"value": "Center"
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 570, 470 )
+		} )
+	}
+}
+
