@@ -121,13 +121,13 @@ public class Navigator
             }
 
             // download (or read in testMode) the latest version.info
-            String versionPath;
+            String versionPath = "";
             BufferedReader bufferedReader = null;
             try
             {
                 if (!testMode)
                 {
-                    versionPath = prefix + "/com/corionis/els/resources/version.info";
+                    versionPath = prefix + "/version.info";
                     url = new URL(versionPath);
                     bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
                 }
@@ -151,7 +151,7 @@ public class Navigator
             catch (Exception e)
             {
                 context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                message = java.text.MessageFormat.format(context.cfg.gs("Navigator.update.info.not.found"), updateInfoPath);
+                message = java.text.MessageFormat.format(context.cfg.gs("Navigator.update.info.not.found"), versionPath);
                 logger.info(message);
                 Object[] opts = {context.cfg.gs("Z.ok")};
                 JOptionPane.showOptionDialog(context.mainFrame, message, context.cfg.gs("Navigator.update"),
