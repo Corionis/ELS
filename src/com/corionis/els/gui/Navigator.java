@@ -928,6 +928,7 @@ public class Navigator
                         try
                         {
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
+                            context.preferences.setLastHintsInUse(true);
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.hintKeys = new HintKeys(context);
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
@@ -1062,6 +1063,7 @@ public class Navigator
                         try
                         {
                             context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
+                            context.preferences.setLastHintTrackingInUse(true);
 
                             if (context.preferences.isLastHintTrackingIsRemote())
                             {
@@ -2593,6 +2595,9 @@ public class Navigator
                         listener.actionPerformed(new ActionEvent(context.mainFrame.buttonHintTracking, ActionEvent.ACTION_PERFORMED, null));
                     }
 
+                    String os = Utils.getOS();
+                    logger.debug(context.cfg.gs("Navigator.detected.local.system.as") + os);
+
                     if (checkForUpdates(true))
                     {
                         logger.info(context.cfg.gs("Navigator.update.available"));
@@ -2600,9 +2605,8 @@ public class Navigator
                     }
                     else
                     {
-                        String os = Utils.getOS();
-                        logger.debug(context.cfg.gs("Navigator.detected.local.system.as") + os);
-                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.detected.local.system.as") + os);
+                        logger.info(context.cfg.gs("Navigator.installed.up.to.date"));
+                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date") + os);
                     }
 
                     context.mainFrame.setVisible(true);

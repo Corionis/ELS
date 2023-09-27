@@ -84,6 +84,55 @@ public class Main
         new Main(args);
     }
 
+    public void checkEmptyArguments()
+    {
+        if (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE)
+        {
+            if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
+                context.cfg.setDefaultNavigator(true);
+
+            if (context.cfg.isNavigator())
+            {
+                if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
+                {
+                    logger.trace("Defaulting to publisher and subscriber from preferences");
+                    context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
+                    context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
+                    if (context.preferences.isLastIsRemote())
+                    {
+                        try
+                        {
+                            context.cfg.setRemoteType("P");
+                        }
+                        catch (MungeException e)
+                        {
+                            // will not be thrown
+                        }
+                    }
+
+                    // hint keys
+                    if (context.preferences.isLastHintsInUse())
+                    {
+                        if (context.cfg.getHintKeysFile().length() == 0 && context.preferences.getLastHintKeysOpenFile().length() > 0)
+                        {
+                            context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
+
+                            // hint tracking, must have hint keys
+                            if (context.preferences.isLastHintTrackingInUse() && context.preferences.getLastHintTrackingOpenFile().length() > 0)
+                            {
+                                // hint daemon or tracker?
+                                if (context.preferences.isLastHintTrackingIsRemote())
+                                    context.cfg.setHintsDaemonFilename(context.preferences.getLastHintTrackingOpenFile());
+                                else
+                                    context.cfg.setHintTrackerFilename(context.preferences.getLastHintTrackingOpenFile());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Connect to or setup hint tracking, connect to hint server if specified
      * <br/>
@@ -122,6 +171,9 @@ public class Main
                 context.datastore = new Datastore(context);
                 context.datastore.initialize();
             }
+
+            if (context.cfg.isNavigator())
+                context.preferences.setLastHintTrackingInUse(true);
         }
         else
         {
@@ -130,6 +182,20 @@ public class Main
             {
                 context.hintKeys = new HintKeys(context);
                 context.hintKeys.read(context.cfg.getHintKeysFile());
+
+                if (context.cfg.isNavigator())
+                {
+                    context.preferences.setLastHintsInUse(true);
+                    context.preferences.setLastHintTrackingInUse(false);
+                }
+            }
+            else
+            {
+                if (context.cfg.isNavigator())
+                {
+                    context.preferences.setLastHintsInUse(false);
+                    context.preferences.setLastHintTrackingInUse(false);
+                }
             }
         }
     }
@@ -277,6 +343,9 @@ public class Main
             if (cfgException != null)
                 throw cfgException;
 
+            // use preferences for empty publisher/subscriber/hint server arguments for Navigator
+            checkEmptyArguments();
+
             //
             // an execution of this program can only be configured as one of these operations
             //
@@ -285,14 +354,10 @@ public class Main
             {
                 // --- local execution, no -r|--remote option
                 case NOT_REMOTE:
-                    if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
-                        context.cfg.defaultNavigator = true;
-
                     // handle -n|--navigator to display the Navigator
-                    if (context.cfg.defaultNavigator || context.cfg.isNavigator())
+                    if (context.cfg.isNavigator())
                     {
                         logger.info("ELS: Local Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
-                        setPublisherSubscriber();
                         context.cfg.dump();
 
                         if (context.cfg.getPublisherFilename().length() > 0)
@@ -303,12 +368,6 @@ public class Main
                         if (context.cfg.getSubscriberFilename().length() > 0)
                         {
                             context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
-                        }
-
-                        if (context.cfg.defaultNavigator && !context.cfg.isNavigator())
-                        {
-                            context.cfg.setNavigator(true);
-                            logger.warn("Publisher, subscriber and mode not defined. Defaulting to Navigator");
                         }
 
                         // setup the hint status server if defined
@@ -417,7 +476,6 @@ public class Main
                         logger.info("ELS: Remote Navigator, version " + getBuildVersionName() + ", " + getBuildDate());
                     else
                         logger.info("ELS: Remote Publish, version " + getBuildVersionName() + ", " + getBuildDate());
-                    setPublisherSubscriber();
                     context.cfg.dump();
 
                     context.publisherRepo = readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
@@ -693,7 +751,7 @@ public class Main
                 System.out.println(Utils.getStackTrace(e));
             }
 
-            if (context.cfg.isNavigator() || context.cfg.defaultNavigator)
+            if (context.cfg.isNavigator())
             {
                 Component centerOn = null;
                 if (context.mainFrame != null)
@@ -882,19 +940,6 @@ public class Main
         }
 
         return repo;
-    }
-
-    public void setPublisherSubscriber()
-    {
-        if (context.cfg.defaultNavigator || context.cfg.isNavigator())
-        {
-            if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
-            {
-                logger.debug("Defaulting to publisher and subscriber from preferences");
-                context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
-                context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
-            }
-        }
     }
 
     /**

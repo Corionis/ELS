@@ -21,8 +21,8 @@ import java.util.List;
 @SuppressWarnings(value = "unchecked")
 public class Preferences implements Serializable
 {
-    public static final int SCHEMA = 1; // schema version, set in write()
     public static final String DEFAULT_ACCENT_COLOR = "2675BF";
+    public static final int SCHEMA = 1; // schema version, set in write()
     private String accentColor = DEFAULT_ACCENT_COLOR;
     private int appHeight = 640;
     private int appWidth = 1024;
@@ -62,6 +62,8 @@ public class Preferences implements Serializable
     private int jobsYpos = -1;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
+    private boolean lastHintsInUse = false;
+    private boolean lastHintTrackingInUse = false;
     private boolean lastHintTrackingIsRemote = false;
     private String lastHintTrackingOpenFile = "";
     private String lastHintTrackingOpenPath = "";
@@ -139,11 +141,9 @@ public class Preferences implements Serializable
     private int toolsSleepXpos = -1;
     private int toolsSleepYpos = -1;
     private boolean useLastPublisherSubscriber = true;
-
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
     private transient LookAndFeel laf = null;
-
     public Preferences()
     {
     }
@@ -159,7 +159,6 @@ public class Preferences implements Serializable
             this.context.preferences = this;
     }
 */
-
     public void extractColumnSizes(Context context, JTable table)
     {
         if (table == null || table.getName().equalsIgnoreCase("tableCollectionOne"))
@@ -939,9 +938,19 @@ public class Preferences implements Serializable
         return hideHiddenFiles;
     }
 
+    public boolean isLastHintTrackingInUse()
+    {
+        return lastHintTrackingInUse;
+    }
+
     public boolean isLastHintTrackingIsRemote()
     {
         return lastHintTrackingIsRemote;
+    }
+
+    public boolean isLastHintsInUse()
+    {
+        return lastHintsInUse;
     }
 
     public boolean isLastIsRemote()
@@ -1196,6 +1205,11 @@ public class Preferences implements Serializable
         this.lastHintKeysOpenPath = lastHintKeysOpenPath;
     }
 
+    public void setLastHintTrackingInUse(boolean lastHintTrackingInUse)
+    {
+        this.lastHintTrackingInUse = lastHintTrackingInUse;
+    }
+
     public void setLastHintTrackingIsRemote(boolean lastHintTrackingIsRemote)
     {
         this.lastHintTrackingIsRemote = lastHintTrackingIsRemote;
@@ -1209,6 +1223,11 @@ public class Preferences implements Serializable
     public void setLastHintTrackingOpenPath(String lastHintTrackingOpenPath)
     {
         this.lastHintTrackingOpenPath = lastHintTrackingOpenPath;
+    }
+
+    public void setLastHintsInUse(boolean lastHintsInUse)
+    {
+        this.lastHintsInUse = lastHintsInUse;
     }
 
     public void setLastIsRemote(boolean lastIsRemote)

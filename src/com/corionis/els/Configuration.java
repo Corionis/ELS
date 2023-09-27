@@ -1238,6 +1238,11 @@ public class Configuration
         return crossCheck == 1 ? true : false;
     }
 
+    public boolean isDefaultNavigator()
+    {
+        return defaultNavigator;
+    }
+
     /**
      * Is dry run boolean
      *
@@ -2165,6 +2170,12 @@ public class Configuration
     {
         this.debugLevel = debugLevel;
         debugSet = true;
+    }
+
+    public void setDefaultNavigator(boolean defaultNavigator)
+    {
+        this.defaultNavigator = defaultNavigator;
+        this.setNavigator(true);
     }
 
     /**
