@@ -282,7 +282,7 @@ public class Main
         {
             if (!testMode)
             {
-                versionPath = prefix + "/com/corionis/els/resources/version.info";
+                versionPath = prefix + "/version.info";
                 URL url = new URL(versionPath);
                 bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
             }
