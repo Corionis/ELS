@@ -142,7 +142,7 @@ public class Main
                             path = readPreferences();
                             if (path.length() > 0)
                             {
-                                preferences.initLookAndFeel();
+                                preferences.initLookAndFeel(true);
                                 cfg.loadLocale(preferences.getLocale(), cfg);
                             }
                             else

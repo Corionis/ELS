@@ -36,6 +36,8 @@ communication is encrypted.
 
 It's all built-in and free.
 
+![els](https://github.com/Corionis/ELS/assets/21012251/1614765e-4b1a-468e-898b-3f5387475f78)
+
 ## Features
 
 **Note:** Version 4.0 is a work in progress. These are the planned features. Until this
