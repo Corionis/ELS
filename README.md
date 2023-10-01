@@ -36,7 +36,7 @@ communication is encrypted.
 
 It's all built-in and free.
 
-![els](https://github.com/Corionis/ELS/assets/21012251/1614765e-4b1a-468e-898b-3f5387475f78)
+![els-1](https://github.com/Corionis/ELS/assets/21012251/1f1337ef-f0f0-49a3-a741-98b1d46e55f4)
 
 ## Features
 
