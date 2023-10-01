@@ -8,6 +8,19 @@
  3. Logic problem when both publisher and subscriber use -s where the subscriber
     does not scan it's collection so operations fail with no items. 
 
+## Scenarios
+
+Create a series of scenarios describing how ELS can be used for various situations.
+
+ * Basic multi-volume back-up.
+ * ...
+ * With ELS 5 and user-level authentication and authorization a family rotation
+   back-up sequence:
+     * Each member can manage their libraries but can only display others, depending
+       on library share restrictions.
+     * Changes by each are propagated via Hints.
+     * Everyone backs-up everyone else.
+
 ## System Editors for Keys & IP Lists
 
 For Auth Keys test whether that key is all that is needed to make a connection, then 

@@ -71,8 +71,8 @@ To run the ELS Navigator GUI with the built-in test environment, assuming
 deploy/ELS.jar exists:
 
 1. Goto mock/scripts/<your O/S, linux/mac or windows>/
-2. Run reset.bat or reset.sh  that creates a mock/test environment
-3. Run ```80-10-Navigator-local.bat``` or ```80-10-Navigator-local.sh```
+2. Run reset.bat or reset.sh that creates a mock/test environment
+3. Run ```080-26_Navigator-local.bat``` or ```080-26_Navigator-local.sh```
 
 ## Building
 
