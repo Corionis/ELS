@@ -888,44 +888,6 @@ public class Preferences implements Serializable
             }
 
             FlatLaf.updateUI();
-
-            if (context != null && context.mainFrame != null && context.mainFrame.scrollPaneConfig != null)
-            {
-                if (context.mainFrame.scrollPaneConfig.getColumnHeader() == null)
-                    logger.info("pane header null");
-                else
-                    logger.info("pane header not null");
-
-                if (context.mainFrame.librariesConfigItems.getTableHeader() == null)
-                    logger.info("table header null");
-                else
-                    logger.info("table header not null");
-            }
-
-/*
-            // config table headers
-            if (context != null && context.mainFrame != null)
-            {
-                if (context.mainFrame.scrollPaneConfig != null)
-                    context.mainFrame.scrollPaneConfig.setColumnHeaderView(null);
-                if (context.mainFrame.scrollPaneBiblioLibraries != null)
-                    context.mainFrame.scrollPaneBiblioLibraries.setColumnHeaderView(null);
-
-                if (context.navigator != null)
-                {
-                    if (context.navigator.dialogJobs != null)
-                        context.navigator.dialogJobs.scrollPaneConfig.setColumnHeaderView(null);
-                    if (context.navigator.dialogJunkRemover != null)
-                        context.navigator.dialogJunkRemover.scrollPaneConfig.setColumnHeaderView(null);
-                    if (context.navigator.dialogOperations != null)
-                        context.navigator.dialogOperations.scrollPaneOperationConfig.setColumnHeaderView(null);
-                    if (context.navigator.dialogRenamer != null)
-                        context.navigator.dialogRenamer.scrollPaneConfig.setColumnHeaderView(null);
-                    if (context.navigator.dialogSleep != null)
-                        context.navigator.dialogSleep.scrollPaneConfig.setColumnHeaderView(null);
-                }
-            }
-*/
         }
         catch (Exception e)
         {
