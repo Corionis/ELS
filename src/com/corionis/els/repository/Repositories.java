@@ -75,7 +75,7 @@ public class Repositories
                 if (!entry.isDirectory())
                 {
                     Repository repo = new Repository(context, 0);
-                    if (repo.read(entry.getPath(), false))
+                    if (repo.read(entry.getPath(), "a", false))
                     {
                         RepoMeta repoMeta = new RepoMeta();
                         repoMeta.description = repo.getLibraryData().libraries.description;

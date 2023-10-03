@@ -137,7 +137,11 @@ public class JobsUI extends AbstractToolDialog
         configModel.setColumnCount(1);
         configModel.setJobsConfigModel(configModel);
         configItems.setModel(configModel);
+
         configItems.getTableHeader().setUI(null);
+        configItems.setTableHeader(null);
+        scrollPaneConfig.setColumnHeaderView(null);
+
         //
         ListSelectionModel lsm = configItems.getSelectionModel();
         lsm.addListSelectionListener(new ListSelectionListener()
@@ -160,6 +164,7 @@ public class JobsUI extends AbstractToolDialog
 
         loadConfigurations();
         context.navigator.enableDisableToolMenus(this, false);
+        context.mainFrame.labelStatusMiddle.setText("");
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -267,18 +272,21 @@ public class JobsUI extends AbstractToolDialog
         {
             helpDialog = new NavHelp(this, this, context, context.cfg.gs("JobsUI.help"), "jobs_" + context.preferences.getLocale() + ".html");
         }
-        if (!helpDialog.isVisible())
+        if (!helpDialog.fault)
         {
-            // offset the help dialog from the parent dialog
-            Point loc = this.getLocation();
-            loc.x = loc.x + 32;
-            loc.y = loc.y + 32;
-            helpDialog.setLocation(loc);
-            helpDialog.setVisible(true);
-        }
-        else
-        {
-            helpDialog.toFront();
+            if (!helpDialog.isVisible())
+            {
+                // offset the help dialog from the parent dialog
+                Point loc = this.getLocation();
+                loc.x = loc.x + 32;
+                loc.y = loc.y + 32;
+                helpDialog.setLocation(loc);
+                helpDialog.setVisible(true);
+            }
+            else
+            {
+                helpDialog.toFront();
+            }
         }
     }
 

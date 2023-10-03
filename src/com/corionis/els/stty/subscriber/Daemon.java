@@ -179,14 +179,6 @@ public class Daemon extends AbstractDaemon
                 context.authKeys = new HintKeys(context);
                 context.authKeys.read(context.cfg.getAuthKeysFile());
             }
-
-            // Get ELS hints keys & Tracker if specified
-            if (context.cfg.getHintKeysFile().length() > 0)
-            {
-                context.hintKeys = new HintKeys(context);
-                context.hintKeys.read(context.cfg.getHintKeysFile());
-                context.hints = new Hints(context, context.hintKeys);
-            }
         }
         catch (Exception e)
         {

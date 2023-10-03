@@ -25,8 +25,9 @@ import javax.swing.border.*;
 public class NavHelp extends JDialog
 {
     private transient Logger logger = LogManager.getLogger("applog");
-    Context context;
-    Component previous;
+    private Context context;
+    public boolean fault = false;
+    private Component previous;
 
     public NavHelp()
     {
@@ -41,7 +42,8 @@ public class NavHelp extends JDialog
      * @param title Title for dialog
      * @param resourceFilename Internal resource filename or Internet URL
      */
-    public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename) {
+    public NavHelp(Window owner, Component prev, Context context, String title, String resourceFilename)
+    {
         super(owner);
         previous = prev;
         this.context = context;
@@ -129,6 +131,7 @@ public class NavHelp extends JDialog
         }
         catch (Exception e)
         {
+            fault = true;
             logger.error(Utils.getStackTrace(e));
             JOptionPane.showMessageDialog(this.getOwner(), context.cfg.gs("NavHelp.error.opening.help.file") + resourceFilename + ", " + e.getMessage(), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
         }

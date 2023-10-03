@@ -145,14 +145,6 @@ public class Daemon extends AbstractDaemon
         long totalSize = 0L;
         ArrayList<Item> group = new ArrayList<>();
 
-        // Get ELS hints keys & Tracker if specified
-        if (context.cfg.getHintKeysFile().length() > 0)
-        {
-            context.hintKeys = new HintKeys(context);
-            context.hintKeys.read(context.cfg.getHintKeysFile());
-            context.hints = new Hints(context, context.hintKeys);
-        }
-
         // setup i/o
         context.transfer = new Transfer(context);
 

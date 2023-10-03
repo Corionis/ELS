@@ -336,12 +336,6 @@ public class Job extends AbstractTool
         this.tasks = tasks;
     }
 
-    @Override
-    public String toString()
-    {
-        return configName;
-    }
-
     public boolean usesPublisher()
     {
         for (Task task : tasks)

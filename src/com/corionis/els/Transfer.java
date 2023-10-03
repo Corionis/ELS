@@ -7,7 +7,6 @@ import com.corionis.els.repository.Location;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.storage.Storage;
 import com.corionis.els.storage.Target;
-import com.corionis.els.repository.*;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -966,7 +965,7 @@ public class Transfer
                 throw new MungeException(context.cfg.gs("Transfer.could.not.retrieve.remote.collection.file"));
             context.cfg.setSubscriberLibrariesFileName(""); // clear so the collection file will be used
             context.cfg.setSubscriberCollectionFilename(location);
-            context.subscriberRepo.read(context.cfg.getSubscriberCollectionFilename(), true);
+            context.subscriberRepo.read(context.cfg.getSubscriberCollectionFilename(), "Subscriber", true);
         }
     }
 
@@ -986,7 +985,7 @@ public class Transfer
                 throw new MungeException(context.cfg.gs("Transfer.could.not.retrieve.remote.library.file"));
             context.cfg.setSubscriberCollectionFilename(""); // clear so the library file will be used
             context.cfg.setSubscriberLibrariesFileName(location);
-            context.subscriberRepo.read(context.cfg.getSubscriberLibrariesFileName(), true);
+            context.subscriberRepo.read(context.cfg.getSubscriberLibrariesFileName(), "Subscriber", true);
         }
     }
 

@@ -179,18 +179,21 @@ public class LibrariesUI
             helpDialog = new NavHelp(mf, mf, context,
                     context.cfg.gs("Navigator.labelLibrariesHelp.toolTipText"), "libraries_" + context.preferences.getLocale() + ".html");
         }
-        if (!helpDialog.isVisible())
+        if (!helpDialog.fault)
         {
-            helpDialog.setVisible(true);
-            // offset the help dialog from the parent
-            Point loc = mf.getLocation();
-            loc.x = loc.x + 82;
-            loc.y = loc.y + 90;
-            helpDialog.setLocation(loc);
-        }
-        else
-        {
-            helpDialog.toFront();
+            if (!helpDialog.isVisible())
+            {
+                helpDialog.setVisible(true);
+                // offset the help dialog from the parent
+                Point loc = mf.getLocation();
+                loc.x = loc.x + 82;
+                loc.y = loc.y + 90;
+                helpDialog.setLocation(loc);
+            }
+            else
+            {
+                helpDialog.toFront();
+            }
         }
     }
 
@@ -1234,8 +1237,11 @@ public class LibrariesUI
         configModel = new ConfigModel(context, displayName, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
+
         configItems.getTableHeader().setUI(null);
         configItems.setTableHeader(null);
+        context.mainFrame.scrollPaneConfig.setColumnHeaderView(null);
+
         //
         ListSelectionModel lsm = configItems.getSelectionModel();
         lsm.addListSelectionListener(new ListSelectionListener()
@@ -1293,8 +1299,11 @@ public class LibrariesUI
         biblioLibrariesTableModel = new BiblioLibrariesTableModel(context, displayName, null);
         biblioLibrariesTableModel.setColumnCount(1);
         mf.tableBiblioLibraries.setModel(biblioLibrariesTableModel);
+
         mf.tableBiblioLibraries.getTableHeader().setUI(null);
         mf.tableBiblioLibraries.setTableHeader(null);
+        mf.scrollPaneBiblioLibraries.setColumnHeaderView(null);
+
         ListSelectionModel blsm = mf.tableBiblioLibraries.getSelectionModel();
         blsm.addListSelectionListener(new ListSelectionListener()
         {
@@ -1343,7 +1352,7 @@ public class LibrariesUI
 
         initializeControls();
         loadConfigurations();
-        mf.librariesConfigItems.requestFocus();
+        configItems.requestFocus();
     }
 
     private void initializeControls()
@@ -1484,7 +1493,7 @@ public class LibrariesUI
                 {
                     // load each repo
                     libMeta.repo = new Repository(context, -1);
-                    libMeta.repo.read(libMeta.path, false);
+                    libMeta.repo.read(libMeta.path, "a", false);
                 }
                 catch (Exception e)
                 {

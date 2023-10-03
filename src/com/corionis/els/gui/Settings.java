@@ -26,6 +26,7 @@ public class Settings extends JDialog
     private transient Logger logger = LogManager.getLogger("applog");
     private Context context;
     private NavHelp helpDialog;
+    private int laf;
     private Settings thisDialog;
 
     /*
@@ -57,6 +58,7 @@ public class Settings extends JDialog
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
+                context.preferences.setLookAndFeel(laf);
                 refreshLookAndFeel(context.preferences.getLookAndFeel());
                 if (helpDialog != null && helpDialog.isVisible())
                     helpDialog.setVisible(false);
@@ -74,31 +76,8 @@ public class Settings extends JDialog
                     refreshLookAndFeel(context.preferences.getLookAndFeel());
                     if (helpDialog != null && helpDialog.isVisible())
                         helpDialog.setVisible(false);
+
                     setVisible(false);
-
-/*
-                    javax.swing.SwingUtilities.invokeLater(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            try
-                            {
-                                Thread.sleep(4000);
-                            }
-                            catch (Exception e)
-                            {}
-
-//                            JTableHeader head = new JTableHeader(new DefaultTableColumnModel());
-//                            context.libraries.configItems.setTableHeader(head);
-
-                            if (context.libraries.configItems.getTableHeader() != null)
-                                context.libraries.configItems.getTableHeader().setUI(null);
-                            context.libraries.configItems.setTableHeader(null);
-                            context.mainFrame.librariesConfigItems.setTableHeader(null);
-                        }
-                    });
-*/
                 }
             }
         });
@@ -147,18 +126,21 @@ public class Settings extends JDialog
                 {
                     helpDialog = new NavHelp(owner, thisDialog, context, context.cfg.gs("Settings.date.format.help.title"), "formats_" + context.preferences.getLocale() + ".html");
                 }
-                if (!helpDialog.isVisible())
+                if (!helpDialog.fault)
                 {
-                    helpDialog.setVisible(true);
-                    // offset the help dialog from the Settings dialog
-                    Point loc = thisDialog.getLocation();
-                    loc.x = loc.x + 32;
-                    loc.y = loc.y + 32;
-                    helpDialog.setLocation(loc);
-                }
-                else
-                {
-                    helpDialog.toFront();
+                    if (!helpDialog.isVisible())
+                    {
+                        helpDialog.setVisible(true);
+                        // offset the help dialog from the Settings dialog
+                        Point loc = thisDialog.getLocation();
+                        loc.x = loc.x + 32;
+                        loc.y = loc.y + 32;
+                        helpDialog.setLocation(loc);
+                    }
+                    else
+                    {
+                        helpDialog.toFront();
+                    }
                 }
             }
         });
@@ -170,9 +152,9 @@ public class Settings extends JDialog
             {
                 JComboBox combobox = (JComboBox) actionEvent.getSource();
                 int index = combobox.getSelectedIndex();
-                if (Utils.getOS().equals("Linux") && index == 0) // System, for Windows, will fail on Linux
+                if (Utils.getOS().equals("Linux") && index == 0) // System, for Windows, will fail on Linux  TODO should this be removed?
                 {
-                    index = 6;
+                    index = 4;
                     combobox.setSelectedIndex(index);
                 }
                 refreshLookAndFeel(index);
@@ -192,6 +174,7 @@ public class Settings extends JDialog
             }
         });
 
+        laf = context.preferences.getLookAndFeel();
     }
 
     private void chooseColor(ActionEvent e) {
@@ -225,27 +208,8 @@ public class Settings extends JDialog
     {
         try
         {
-            if (index == 0)
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            else
-                UIManager.setLookAndFeel(context.preferences.getLookAndFeelClass(index));
-
-            try
-            {
-                // set accent color for current LaF
-                FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + context.preferences.getAccentColor()));
-                Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
-                FlatLaf.setup(lafClass.newInstance());
-                FlatLaf.updateUI();
-            }
-            catch (Exception e)
-            {
-                logger.error(Utils.getStackTrace(e));
-                JOptionPane.showMessageDialog(context.mainFrame,
-                        context.cfg.gs("Z.exception") + e.getMessage(),
-                        context.cfg.gs("Settings.this.title"), JOptionPane.ERROR_MESSAGE);
-
-            }
+            context.preferences.setLookAndFeel(index);
+            context.preferences.initLookAndFeel(false);
 
             for (Frame frame : Frame.getFrames())
             {
@@ -561,12 +525,14 @@ public class Settings extends JDialog
                         //---- lookFeelComboBox ----
                         lookFeelComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
                             "System (Windows)",
-                            "Nimbus",
                             "Flat light",
                             "Flat dark",
                             "IntelliJ light",
-                            "IntelliJ dark"
+                            "IntelliJ dark",
+                            "macOS light",
+                            "macOS dark"
                         }));
+                        lookFeelComboBox.setName("lafCombo");
 
                         //---- localeLabel ----
                         localeLabel.setText(context.cfg.gs("Settings.localeLabel.text"));
@@ -575,6 +541,7 @@ public class Settings extends JDialog
                         localeComboBox.setModel(new DefaultComboBoxModel<>(new String[] {
                             "en_US"
                         }));
+                        localeComboBox.setName("localeCombo");
 
                         //---- scaleLabel ----
                         scaleLabel.setText(context.cfg.gs("Settings.scaleLabel.text"));
@@ -700,6 +667,7 @@ public class Settings extends JDialog
                             "Right"
                         }));
                         tabPlacementComboBox.setPreferredSize(new Dimension(100, 30));
+                        tabPlacementComboBox.setName("tabPlacementCombo");
 
                         GroupLayout browserPanelLayout = new GroupLayout(browserPanel);
                         browserPanel.setLayout(browserPanelLayout);

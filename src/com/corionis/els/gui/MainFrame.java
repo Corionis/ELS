@@ -56,7 +56,7 @@ public class MainFrame extends JFrame
 
         try
         {
-            context.preferences.initLookAndFeel();
+//            context.preferences.initLookAndFeel();
             initComponents();
             setTitle(context.cfg.getNavigatorName());
             setBrowserTabs(-1);
@@ -1676,12 +1676,14 @@ public class MainFrame extends JFrame
                         {
                             scrollPaneConfig.setMinimumSize(new Dimension(140, 16));
                             scrollPaneConfig.setPreferredSize(new Dimension(142, 146));
+                            scrollPaneConfig.setName("librariesConfigScroll");
 
                             //---- librariesConfigItems ----
                             librariesConfigItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                             librariesConfigItems.setShowVerticalLines(false);
                             librariesConfigItems.setFillsViewportHeight(true);
                             librariesConfigItems.setShowHorizontalLines(false);
+                            librariesConfigItems.setName("librariesConfig");
                             scrollPaneConfig.setViewportView(librariesConfigItems);
                         }
                         splitPaneLibs.setLeftComponent(scrollPaneConfig);

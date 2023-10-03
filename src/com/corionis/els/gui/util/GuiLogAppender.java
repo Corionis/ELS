@@ -150,7 +150,7 @@ public class GuiLogAppender extends AbstractAppender
                 {
                     try
                     {
-                        context.preferences.initLookAndFeel();
+                        context.preferences.initLookAndFeel(true);
                         startup = new Startup();
                         if (startup != null)
                         {

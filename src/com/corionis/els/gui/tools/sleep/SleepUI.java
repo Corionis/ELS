@@ -81,7 +81,11 @@ public class SleepUI extends AbstractToolDialog
         configModel = new ConfigModel(context, this);
         configModel.setColumnCount(1);
         configItems.setModel(configModel);
+
         configItems.getTableHeader().setUI(null);
+        configItems.setTableHeader(null);
+        scrollPaneConfig.setColumnHeaderView(null);
+
         //
         ListSelectionModel lsm = configItems.getSelectionModel();
         lsm.addListSelectionListener(new ListSelectionListener()
@@ -102,6 +106,7 @@ public class SleepUI extends AbstractToolDialog
         numberFilter = new NumberFilter();
         setNumberFilter(textFieldTime);
         context.navigator.enableDisableToolMenus(this, false);
+        context.mainFrame.labelStatusMiddle.setText("");
     }
 
     private void actionCancelClicked(ActionEvent e)
@@ -203,18 +208,21 @@ public class SleepUI extends AbstractToolDialog
         {
             helpDialog = new NavHelp(this, this, context, context.cfg.gs("Sleep.help"), "sleep_" + context.preferences.getLocale() + ".html");
         }
-        if (!helpDialog.isVisible())
+        if (!helpDialog.fault)
         {
-            helpDialog.setVisible(true);
-            // offset the help dialog from the parent dialog
-            Point loc = this.getLocation();
-            loc.x = loc.x + 32;
-            loc.y = loc.y + 32;
-            helpDialog.setLocation(loc);
-        }
-        else
-        {
-            helpDialog.toFront();
+            if (!helpDialog.isVisible())
+            {
+                helpDialog.setVisible(true);
+                // offset the help dialog from the parent dialog
+                Point loc = this.getLocation();
+                loc.x = loc.x + 32;
+                loc.y = loc.y + 32;
+                helpDialog.setLocation(loc);
+            }
+            else
+            {
+                helpDialog.toFront();
+            }
         }
     }
 

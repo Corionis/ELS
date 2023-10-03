@@ -10,6 +10,7 @@ import com.corionis.els.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.io.*;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -667,7 +668,7 @@ public class Repository
      * @return boolean True if file is a valid ELS repository, false if not a repository
      * @throws MungeException the els exception
      */
-    public boolean read(String filename, boolean printLog) throws MungeException
+    public boolean read(String filename, String type, boolean printLog) throws MungeException
     {
         boolean valid = false;
         try
@@ -691,7 +692,20 @@ public class Repository
         }
         catch (IOException ioe)
         {
-            throw new MungeException("Exception while reading library " + filename + " trace: " + Utils.getStackTrace(ioe));
+            String msg = "Exception while reading " + type + " library:<br/>" + ioe.toString();
+            if (context.main.isStartupActive())
+            {
+                logger.error(msg);
+                int opt = JOptionPane.showConfirmDialog(context.main.getGuiLogAppender().getStartup(),
+                        "<html><body>" + msg + "<br/><br/>Continue?</body></html>",
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                if (opt == JOptionPane.YES_OPTION)
+                {
+                    context.fault = false;
+                    return false;
+                }
+            }
+            throw new MungeException(msg);
         }
         return valid;
     }

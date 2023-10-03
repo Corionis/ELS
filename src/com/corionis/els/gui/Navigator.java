@@ -26,7 +26,6 @@ import com.corionis.els.gui.system.FileEditor;
 import com.corionis.els.gui.update.DownloadUpdater;
 import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.repository.HintKeys;
-import com.corionis.els.repository.Hints;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -40,8 +39,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.*;
@@ -216,13 +214,16 @@ public class Navigator
                             context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context,
                                     context.cfg.gs("Navigator.recent.changes"), version.get(Configuration.BUILD_CHANGES_URL));
-                            helpDialog.setModal(true);
-                            Point loc = context.mainFrame.getLocation();
-                            loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
-                            loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
-                            helpDialog.setLocation(loc);
-                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            helpDialog.setVisible(true);
+                            if (!helpDialog.fault)
+                            {
+                                helpDialog.setModal(true);
+                                Point loc = context.mainFrame.getLocation();
+                                loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
+                                loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
+                                helpDialog.setLocation(loc);
+                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                helpDialog.setVisible(true);
+                            }
                         }
                         else
                         {
@@ -481,19 +482,9 @@ public class Navigator
 
             if (context.cfg.getHintKeysFile() != null && context.cfg.getHintKeysFile().length() > 0)
             {
-                // Get ELS hints keys & Tracker if specified
-                if (context.hintKeys == null)
-                {
-                    context.hintKeys = new HintKeys(context);
-                    context.hintKeys.read(context.cfg.getHintKeysFile());
-                }
-                context.hints = new Hints(context, context.hintKeys);
                 showHintTrackingButton = true;
-
-                File json = new File(context.cfg.getHintKeysFile());
-                String path = json.getAbsolutePath();
-                context.preferences.setLastHintKeysOpenFile(path);
-                context.preferences.setLastHintKeysOpenPath(FilenameUtils.getFullPathNoEndSeparator(path));
+                context.preferences.setLastHintKeysOpenFile(context.cfg.getHintKeysFile());
+                context.preferences.setLastHintKeysOpenPath(FilenameUtils.getFullPathNoEndSeparator(context.cfg.getHintKeysFile()));
             }
         }
         catch (Exception e)
@@ -927,8 +918,8 @@ public class Navigator
                         }
                         try
                         {
+                            context.preferences.setLastHintKeysIsUsed(true);
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
-                            context.preferences.setLastHintsInUse(true);
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.hintKeys = new HintKeys(context);
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
@@ -1062,8 +1053,8 @@ public class Navigator
                         }
                         try
                         {
-                            context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
                             context.preferences.setLastHintTrackingInUse(true);
+                            context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
 
                             if (context.preferences.isLastHintTrackingIsRemote())
                             {
@@ -1079,7 +1070,7 @@ public class Navigator
 
                             // connect to the hint tracker or status server
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                            context.main.connectHintServer(context.publisherRepo);
+                            context.main.setupHints(context.publisherRepo);
                             context.browser.toggleHints(true);
                         }
                         catch (Exception e)
@@ -2084,8 +2075,11 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Settings.date.format.help.title"), "changes_" + context.preferences.getLocale() + ".html");
-                dialog.setTitle(context.cfg.gs("Navigator.changes.help.title"));
-                dialog.setVisible(true);
+                if (!dialog.fault)
+                {
+                    dialog.setTitle(context.cfg.gs("Navigator.changes.help.title"));
+                    dialog.setVisible(true);
+                }
             }
         });
 
@@ -2096,8 +2090,11 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Settings.date.format.help.title"), "controls_" + context.preferences.getLocale() + ".html");
-                dialog.setTitle(context.cfg.gs("Navigator.controls.help.title"));
-                dialog.setVisible(true);
+                if (!dialog.fault)
+                {
+                    dialog.setTitle(context.cfg.gs("Navigator.controls.help.title"));
+                    dialog.setVisible(true);
+                }
             }
         });
 
@@ -2126,8 +2123,11 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.getting.started"), "gettingstarted_" + context.preferences.getLocale() + ".html");
-                dialog.setTitle(context.cfg.gs("Navigator.getting.started"));
-                dialog.setVisible(true);
+                if (!dialog.fault)
+                {
+                    dialog.setTitle(context.cfg.gs("Navigator.getting.started"));
+                    dialog.setVisible(true);
+                }
             }
         });
 
@@ -2156,12 +2156,15 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 NavHelp helpDialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Navigator.release.notes"), "releasenotes_" + context.preferences.getLocale() + ".html");
-                helpDialog.setModal(true);
-                Point loc = context.mainFrame.getLocation();
-                loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
-                loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
-                helpDialog.setLocation(loc);
-                helpDialog.setVisible(true);
+                if (!helpDialog.fault)
+                {
+                    helpDialog.setModal(true);
+                    Point loc = context.mainFrame.getLocation();
+                    loc.x = loc.x + (context.mainFrame.getWidth() / 2) - (helpDialog.getWidth() / 2);
+                    loc.y = loc.y + (context.mainFrame.getHeight() / 2) - (helpDialog.getHeight() / 2);
+                    helpDialog.setLocation(loc);
+                    helpDialog.setVisible(true);
+                }
             }
         });
 
@@ -2520,7 +2523,7 @@ public class Navigator
         }
 
         // connect to the hint status server if defined
-        context.main.connectHintServer(context.publisherRepo);
+        context.main.setupHints(context.publisherRepo);
 
         if (context.cfg.isRemoteSession())
         {

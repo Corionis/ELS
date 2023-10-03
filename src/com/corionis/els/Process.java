@@ -1,7 +1,5 @@
 package com.corionis.els;
 
-import com.corionis.els.repository.HintKeys;
-import com.corionis.els.repository.Hints;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import org.apache.logging.log4j.LogManager;
@@ -488,14 +486,6 @@ public class Process
                 context.transfer = new Transfer(context);
                 context.transfer.initialize();
                 isInitialized = true;
-            }
-
-            // Get ELS hints keys & Tracker if specified
-            if (context.cfg.getHintKeysFile().length() > 0) 
-            {
-                context.hintKeys = new HintKeys(context);
-                context.hintKeys.read(context.cfg.getHintKeysFile());
-                context.hints = new Hints(context, context.hintKeys);
             }
 
             // process ELS Hints locally, no subscriber, publisher's targets

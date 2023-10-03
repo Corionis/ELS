@@ -515,12 +515,14 @@ new FormModel {
 								name: "scrollPaneConfig"
 								"minimumSize": new java.awt.Dimension( 140, 16 )
 								"preferredSize": new java.awt.Dimension( 142, 146 )
+								"name": "librariesConfigScroll"
 								add( new FormComponent( "javax.swing.JTable" ) {
 									name: "librariesConfigItems"
 									"selectionMode": 0
 									"showVerticalLines": false
 									"fillsViewportHeight": true
 									"showHorizontalLines": false
+									"name": "librariesConfig"
 								} )
 							}, new FormLayoutConstraints( class java.lang.String ) {
 								"value": "left"

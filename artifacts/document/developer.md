@@ -80,6 +80,9 @@ To build ELS from sources use Apache ant in the root of the project directory:
 
  * ```ant -f els.xml``` Build the ELS default target 'all' for Linux and Windows
 
+That procedure is required to be run on Linux to capture Linux/Mac executable
+file permissions correctly.
+
 In IntelliJ most/all Run configurations execute the els.xml _stamp_ ant target.
 Also, previous IntelliJ build configurations for Linux and Windows have
 been removed in favor of the ant build script. The ant build script 

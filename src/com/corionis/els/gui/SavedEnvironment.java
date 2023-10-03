@@ -59,12 +59,12 @@ public class SavedEnvironment
         if (context.cfg.getPublisherFilename() != null && context.cfg.getPublisherFilename().length() > 0 && (pcfChanged || plfChanged))
         {
             context.publisherRepo = new Repository(context, Repository.PUBLISHER);
-            context.publisherRepo.read(context.cfg.getPublisherFilename(), true);
+            context.publisherRepo.read(context.cfg.getPublisherFilename(), "Publisher Subscriber", true);
         }
         if (context.cfg.getSubscriberFilename() != null && context.cfg.getSubscriberFilename().length() > 0 && (scfChanged || slfChanged))
         {
             context.subscriberRepo = new Repository(context, Repository.SUBSCRIBER);
-            context.subscriberRepo.read(context.cfg.getSubscriberFilename(), true);
+            context.subscriberRepo.read(context.cfg.getSubscriberFilename(), "Subscriber", true);
         }
 
         if (context.cfg.isRemoteSession() && task.getSubscriberKey().length() > 0 &&

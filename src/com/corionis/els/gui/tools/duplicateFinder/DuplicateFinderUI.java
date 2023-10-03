@@ -79,6 +79,7 @@ public class DuplicateFinderUI extends JDialog
         getRootPane().registerKeyboardAction(escListener, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         adjustDupesTable();
+        context.mainFrame.labelStatusMiddle.setText("");
     }
 
     private void actionCloseClicked(ActionEvent e)
@@ -115,18 +116,21 @@ public class DuplicateFinderUI extends JDialog
         {
             helpDialog = new NavHelp(this, this, context, context.cfg.gs("DuplicateFinder.help"), "duplicatefinder_" + context.preferences.getLocale() + ".html");
         }
-        if (!helpDialog.isVisible())
+        if (!helpDialog.fault)
         {
-            helpDialog.setVisible(true);
-            // offset the help dialog from the parent dialog
-            Point loc = this.getLocation();
-            loc.x = loc.x + 32;
-            loc.y = loc.y + 32;
-            helpDialog.setLocation(loc);
-        }
-        else
-        {
-            helpDialog.toFront();
+            if (!helpDialog.isVisible())
+            {
+                helpDialog.setVisible(true);
+                // offset the help dialog from the parent dialog
+                Point loc = this.getLocation();
+                loc.x = loc.x + 32;
+                loc.y = loc.y + 32;
+                helpDialog.setLocation(loc);
+            }
+            else
+            {
+                helpDialog.toFront();
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 package com.corionis.els.gui;
 
 import com.formdev.flatlaf.*;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.corionis.els.Context;
@@ -10,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -60,9 +61,9 @@ public class Preferences implements Serializable
     private int jobsWidth = 570;
     private int jobsXpos = -1;
     private int jobsYpos = -1;
+    private boolean lastHintKeysIsUsed = false;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
-    private boolean lastHintsInUse = false;
     private boolean lastHintTrackingInUse = false;
     private boolean lastHintTrackingIsRemote = false;
     private String lastHintTrackingOpenFile = "";
@@ -85,7 +86,6 @@ public class Preferences implements Serializable
     // 1=NimbusLookAndFeel, 2=FlatLightLaf,
     // 3=FlatDarkLaf, 4=FlatIntelliJLaf, 5=FlatDarculaLaf (default)
     private int lookAndFeel = 6;
-    private int operationDividerBottomSize = 143;
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;
@@ -143,7 +143,7 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
-    private transient LookAndFeel laf = null;
+    //private transient LookAndFeel laf = null;
     public Preferences()
     {
     }
@@ -557,39 +557,6 @@ public class Preferences implements Serializable
         return lookAndFeel;
     }
 
-    public LookAndFeel getLookAndFeelClass(int value)
-    {
-        switch (value)
-        {
-            // Built-in themes
-            case 1:
-                laf = new NimbusLookAndFeel();
-                break;
-            // FlatLaf themes
-            case 2:
-                laf = new FlatLightLaf();
-                break;
-            case 3:
-                laf = new FlatDarkLaf();
-                break;
-            case 4:
-                laf = new FlatIntelliJLaf();
-                break;
-            case 5:
-            case 6:
-            default:
-                setLookAndFeel(5);
-                laf = new FlatDarculaLaf();
-                break;
-        }
-        return laf;
-    }
-
-    public int getOperationDividerBottomSize()
-    {
-        return operationDividerBottomSize;
-    }
-
     public int getProgressHeight()
     {
         return progressHeight;
@@ -871,28 +838,16 @@ public class Preferences implements Serializable
         return toolsSleepYpos;
     }
 
-    public void initLookAndFeel() throws Exception
+    public void initLookAndFeel(boolean isInitial) throws Exception
     {
-        if (laf == null)
+        try
         {
-            try
+            if (isInitial) // not sure if this matters
             {
                 UIManager.put("Tree.showDefaultIcons", true);
                 UIManager.put("ScrollBar.showButtons", true); // show scrollbar up/down buttons
                 UIManager.put("Component.hideMnemonics", false); // show/hide mnemonic letters
                 UIManager.put("TabbedPane.showTabSeparators", true); // separators between tabs
-//            UIManager.put( "TabbedPane.tabSeparatorsFullHeight", true );
-
-                if (getLookAndFeel() == 0)
-                {
-                    laf = getLookAndFeelClass(0);
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                }
-                else
-                {
-                    laf = getLookAndFeelClass(getLookAndFeel());
-                    UIManager.setLookAndFeel(laf);
-                }
 
                 // set accent color for current LaF
                 if (getAccentColor() == null || getAccentColor().length() < 1)
@@ -901,15 +856,81 @@ public class Preferences implements Serializable
                 }
                 String accent = getAccentColor();
                 FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + accent));
-                Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
-                FlatLaf.setup(lafClass.newInstance());
-                FlatLaf.updateUI();
             }
-            catch (Exception e)
+
+            switch (getLookAndFeel())
             {
-                context.fault = true;
-                throw e;
+                // Built-in themes
+                case 0:
+                    UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+                    break;
+                // FlatLaf themes
+                case 1:
+                    FlatLightLaf.setup();
+                    break;
+                case 2:
+                    FlatDarkLaf.setup();
+                    break;
+                case 3:
+                    FlatIntelliJLaf.setup();
+                    break;
+                case 4:
+                default:
+                    setLookAndFeel(4);
+                    FlatDarculaLaf.setup();
+                    break;
+                case 5:
+                    FlatMacLightLaf.setup();
+                    break;
+                case 6:
+                    FlatMacDarkLaf.setup();
+                    break;
             }
+
+            FlatLaf.updateUI();
+
+            if (context != null && context.mainFrame != null && context.mainFrame.scrollPaneConfig != null)
+            {
+                if (context.mainFrame.scrollPaneConfig.getColumnHeader() == null)
+                    logger.info("pane header null");
+                else
+                    logger.info("pane header not null");
+
+                if (context.mainFrame.librariesConfigItems.getTableHeader() == null)
+                    logger.info("table header null");
+                else
+                    logger.info("table header not null");
+            }
+
+/*
+            // config table headers
+            if (context != null && context.mainFrame != null)
+            {
+                if (context.mainFrame.scrollPaneConfig != null)
+                    context.mainFrame.scrollPaneConfig.setColumnHeaderView(null);
+                if (context.mainFrame.scrollPaneBiblioLibraries != null)
+                    context.mainFrame.scrollPaneBiblioLibraries.setColumnHeaderView(null);
+
+                if (context.navigator != null)
+                {
+                    if (context.navigator.dialogJobs != null)
+                        context.navigator.dialogJobs.scrollPaneConfig.setColumnHeaderView(null);
+                    if (context.navigator.dialogJunkRemover != null)
+                        context.navigator.dialogJunkRemover.scrollPaneConfig.setColumnHeaderView(null);
+                    if (context.navigator.dialogOperations != null)
+                        context.navigator.dialogOperations.scrollPaneOperationConfig.setColumnHeaderView(null);
+                    if (context.navigator.dialogRenamer != null)
+                        context.navigator.dialogRenamer.scrollPaneConfig.setColumnHeaderView(null);
+                    if (context.navigator.dialogSleep != null)
+                        context.navigator.dialogSleep.scrollPaneConfig.setColumnHeaderView(null);
+                }
+            }
+*/
+        }
+        catch (Exception e)
+        {
+            context.fault = true;
+            throw e;
         }
     }
 
@@ -938,6 +959,11 @@ public class Preferences implements Serializable
         return hideHiddenFiles;
     }
 
+    public boolean isLastHintKeysIsUsed()
+    {
+        return lastHintKeysIsUsed;
+    }
+
     public boolean isLastHintTrackingInUse()
     {
         return lastHintTrackingInUse;
@@ -946,11 +972,6 @@ public class Preferences implements Serializable
     public boolean isLastHintTrackingIsRemote()
     {
         return lastHintTrackingIsRemote;
-    }
-
-    public boolean isLastHintsInUse()
-    {
-        return lastHintsInUse;
     }
 
     public boolean isLastIsRemote()
@@ -1195,6 +1216,11 @@ public class Preferences implements Serializable
         this.jobsYpos = jobsYpos;
     }
 
+    public void setLastHintKeysIsUsed(boolean lastHintKeysIsUsed)
+    {
+        this.lastHintKeysIsUsed = lastHintKeysIsUsed;
+    }
+
     public void setLastHintKeysOpenFile(String lastHintKeysOpenFile)
     {
         this.lastHintKeysOpenFile = lastHintKeysOpenFile;
@@ -1223,11 +1249,6 @@ public class Preferences implements Serializable
     public void setLastHintTrackingOpenPath(String lastHintTrackingOpenPath)
     {
         this.lastHintTrackingOpenPath = lastHintTrackingOpenPath;
-    }
-
-    public void setLastHintsInUse(boolean lastHintsInUse)
-    {
-        this.lastHintsInUse = lastHintsInUse;
     }
 
     public void setLastIsRemote(boolean lastIsRemote)
@@ -1298,11 +1319,6 @@ public class Preferences implements Serializable
     public void setLookAndFeel(int lookAndFeel)
     {
         this.lookAndFeel = lookAndFeel;
-    }
-
-    public void setOperationDividerBottomSize(int operationDividerBottomSize)
-    {
-        this.operationDividerBottomSize = operationDividerBottomSize;
     }
 
     public void setPreserveFileTimes(boolean preserveFileTimes)

@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.0.0.283" Java: "17.0.6" encoding: "UTF-8"
+JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.7" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -87,12 +87,14 @@ new FormModel {
 								"model": new javax.swing.DefaultComboBoxModel {
 									selectedItem: "System (Windows)"
 									addElement( "System (Windows)" )
-									addElement( "Nimbus" )
 									addElement( "Flat light" )
 									addElement( "Flat dark" )
 									addElement( "IntelliJ light" )
 									addElement( "IntelliJ dark" )
+									addElement( "macOS light" )
+									addElement( "macOS dark" )
 								}
+								"name": "lafCombo"
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "localeLabel"
@@ -104,6 +106,7 @@ new FormModel {
 									selectedItem: "en_US"
 									addElement( "en_US" )
 								}
+								"name": "localeCombo"
 							} )
 							add( new FormComponent( "javax.swing.JLabel" ) {
 								name: "scaleLabel"
@@ -205,6 +208,7 @@ new FormModel {
 									addElement( "Right" )
 								}
 								"preferredSize": new java.awt.Dimension( 100, 30 )
+								"name": "tabPlacementCombo"
 							} )
 						}, new FormLayoutConstraints( null ) {
 							"title": new FormMessage( null, "Settings.browserPanel.tab.title" )
@@ -270,4 +274,3 @@ new FormModel {
 		} )
 	}
 }
-

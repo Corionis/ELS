@@ -1,12 +1,10 @@
 package com.corionis.els.stty.hintServer;
 
 import com.corionis.els.repository.HintKey;
-import com.corionis.els.repository.Hints;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import com.corionis.els.repository.HintKeys;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -124,7 +122,6 @@ public class Daemon extends AbstractDaemon
      */
     public boolean process() throws Exception
     {
-        int attempts = 0;
         int commandCount = 0;
         String line;
         String basePrompt = ": ";
@@ -132,14 +129,6 @@ public class Daemon extends AbstractDaemon
 
         port = getSocket().getPort();
         address = getSocket().getInetAddress();
-
-        // Get ELS hints keys & Tracker if specified
-        if (context.cfg.getHintKeysFile().length() > 0)
-        {
-            context.hintKeys = new HintKeys(context);
-            context.hintKeys.read(context.cfg.getHintKeysFile());
-            context.hints = new Hints(context, context.hintKeys);
-        }
 
         // setup i/o
         getSocket().setKeepAlive(true); // keep alive to avoid time-out
