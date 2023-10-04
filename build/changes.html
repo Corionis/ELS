@@ -1,0 +1,106 @@
+<html>
+<head>
+    <style>
+        html, body {
+            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+        }
+
+        div {
+            margin-left: 10px;
+            margin-right: 4px;
+        }
+
+        table {
+            border-bottom: 1px solid;
+            margin: 0 4px 4px;
+            padding: 4px;
+            width: 100%;
+        }
+
+        th {
+            border-bottom: 1px solid ;
+            text-align: left;
+        }
+
+        td {
+            text-align: left;
+        }
+
+        ul {
+            margin-left: 22px;
+        }
+    </style>
+</head>
+<body>
+<h2>Recent Changes</h2>
+
+<p>The most recent changes to ELS. We may miss things but try not to.</p>
+
+<h3>4 October 2023</h3>
+<ul>
+    <li>Rearranged the ant build script:</li>
+    <ul>
+        <li>Changed rules to allow a Navigator to connect to a remote subscriber with only the General tab connection information.</li>
+        <li>Fixed bug that did not request a remote subscriber library using File, Open Subscriber.</li>
+        <li>Fixed bug where Hints were created for System tab operations. Hints are only only used in Libraries.</li>
+        <li>Fixed bug that did not reset the accent color to default if Setting, Appearance, Accent color was cleared.</li>
+        <li>Changed 'deploy' build directory to 'build'.</li>
+        <li>Added a 'deploy' target that <u>only</u> copies from 'build' to 'deploy' so deployments can be separate from
+            daily builds and incremental commits. Useful when switching between operating systems while testing.</li>
+        <li>Added an 'All-Deploy' target that builds 'All' then 'deploy'.</li>
+        <li>changes.html is edited in the 'build' directory between deployments.</li>
+    </ul>
+</ul>
+
+<h3>2 October 2023</h3>
+<ul>
+    <li>Made Navigator start-up more forgiving. ELS was originally a command line tool with rigid requirements.</li>
+    <li>Refactored Hint Keys, Hint Tracker and Hint Server setup.</li>
+    <li>Added macOS light & dark Look 'n Feel options in Settings, Appearance.</li>
+    <li>Fixed a bug when changing the Look 'n Feel that displayed an "A" on top of the various configuration name lists, e.g. left-side of Libraries, Jobs, etc.</li>
+</ul>
+
+<h3>27 September 2023</h3>
+<ul>
+    <li>Fixed Updater bug caused during move from GrokSoft to Corionis.</li>
+    <li>Fixed restoring publisher and subscriber (local or remote) if no arguments are given for the publisher and subscriber.</li>
+    <li>Added restoring Hint tracking if no publisher and subscriber are given.</li>
+    <li>Fixes bugs #120 and #121.</li>
+</ul>
+
+<h3>23 September 2023</h3>
+<ul>
+    <li>Added Help, Changelist to display the changes in the installed build.</li>
+    <li>Removed the rt directories from artifacts. Developers: Unpack the rt-archive files as needed.</li>
+    <ul>
+        <li>artifacts/stage/linux/ELS/rt/</li>
+        <li>artifacts/stage/windows/rt/</li>
+    </ul>
+</ul>
+
+<h3>22 September 2023</h3>
+<ul>
+    <li>For Navigator (only) added an option to use the last publisher and subscriber if <b>both</b> are not defined on the command line.</li>
+    <li>Added the bare beginnings of Help, Getting Started.</li>
+</ul>
+
+<h3>20 September 2023</h3>
+<ul>
+    <li>Fixed a variety of null pointers and rough spots when starting ELS Navigator with no configuration or libraries.</li>
+    <li>Further testing and tweaks required.</li>
+    <li>This is the startt of a "Getting Started" document as well.</li>
+</ul>
+
+<h3>18 September 2023</h3>
+<ul>
+    <li>Added "Check for Updates" in the Navigator under the Help menu.</li>
+    <li>Added a separate ELS Updater program used by "Check for Updates".</li>
+    <li>Added "Release Notes" to Navigator under the Help menu to show that version's notes.</li>
+    <li>Rearranged the deploy/ and mock/bin/ directories so development-time files are not in deploy/</li>
+    <li>Modified mock/scripts/ to use the Jar in mock/bin/.</li>
+    <li>Solved an issue when processing a Hint with a filename containing regex characters.</li>
+    <li>Added Ctrl-T as the keyboard accelerator for the Touch function.</li>
+</ul>
+
+</body>
+</html>

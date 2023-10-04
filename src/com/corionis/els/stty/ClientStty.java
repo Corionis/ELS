@@ -394,14 +394,14 @@ public class ClientStty
             {
                 if (isConnected())
                 {
-                    logger.info("Sending quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
+                    logger.info("Sending quit command to Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
                     context.statusStty.send("quit", "");
                     Thread.sleep(3000);
                     context.statusStty.disconnect();
                     context.statusStty = null;
                 }
                 else
-                    logger.warn("could not send quit command to hint status server: " + context.statusRepo.getLibraryData().libraries.description);
+                    logger.warn("could not send quit command to Hint Status Server: " + context.statusRepo.getLibraryData().libraries.description);
             }
             catch (Exception e)
             {

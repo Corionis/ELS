@@ -253,7 +253,7 @@ public class DownloadUpdater extends JFrame
                     FileUtils.deleteDirectory(dir);
                 }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
                 logger.error(Utils.getStackTrace(e));
                 message = context.cfg.gs("Z.exception" + e.getMessage());
@@ -271,7 +271,7 @@ public class DownloadUpdater extends JFrame
             buttonCancel.setEnabled(false);
 
             outPath = Utils.getSystemTempDirectory() + System.getProperty("file.separator") + "ELS_Updater";
-   // TODO         removeDirectory(outPath);
+            removeDirectory(outPath);
             if (Utils.isOsLinux())
                 unpackTar(outFile, outPath);
             else

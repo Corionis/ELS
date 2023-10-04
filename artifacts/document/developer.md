@@ -67,26 +67,40 @@ To run the ELS Navigator with a new (empty) or existing ELS configuration:
 
 ### Using a clone of the ELS GitHub repository:
 
-To run the ELS Navigator GUI with the built-in test environment, assuming
-deploy/ELS.jar exists:
+To run the ELS Navigator GUI with the built-in test environment without building:
 
-1. Goto mock/scripts/<your O/S, linux/mac or windows>/
-2. Run reset.bat or reset.sh that creates a mock/test environment
-3. Run ```080-26_Navigator-local.bat``` or ```080-26_Navigator-local.sh```
+ 1. Unpack the latest ELS from the deploy/ .tar.gz or .zip archive file into mock/ :
+     * Unpack only the contents inside the archive root directory ELS/
+        * Open the archive file
+        * Navigate into the ELS/ directory
+        * Highlight the contents
+        * Unpack them into the mock/ directory 
+     * When done there should be mock/bin/ and mock/rt/
+ 2. Goto mock/scripts/<_your O/S, linux/mac or windows_>/
+ 3. Run ```reset.bat``` or ```reset.sh``` that creates a mock/test environment
+ 4. Run ```080-26_Navigator-local.bat``` or ```080-26_Navigator-local.sh```
 
 ## Building
 
 To build ELS from sources use Apache ant in the root of the project directory:
 
- * ```ant -f els.xml``` Build the ELS default target 'all' for Linux and Windows
+ * ```ant -f els.xml``` Builds the ELS default target 'All' for Linux and Windows 
+   into the build/ directory for testing.
 
-That procedure is required to be run on Linux to capture Linux/Mac executable
-file permissions correctly.
+ * ```ant -f els.xml All-Deploy``` Builds the ELS default target 'All' for Linux and 
+   Windows then copies the distributables to the deploy/ directory used by ELS to
+   check for updates and download files.
+
+Currently full distribution builds must be executed on Linux to capture executable
+file permissions correctly. However other targets will build separately for Linux
+or Windows.
 
 In IntelliJ most/all Run configurations execute the els.xml _stamp_ ant target.
-Also, previous IntelliJ build configurations for Linux and Windows have
-been removed in favor of the ant build script. The ant build script 
-is cross-platform and builds all distributable files.
+
+Previous IntelliJ build configurations for Linux and Windows have been removed
+in favor of the ant build script. IntelliJ will build for debugging purposes.
+
+The changes.html file is edited in the 'build' directory between deployments.
 
 ## Developer Tips
 

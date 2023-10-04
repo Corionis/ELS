@@ -580,10 +580,10 @@ public class Process
                         else
                         {
                             if (!context.cfg.isKeepGoing())
-                                resp = context.clientStty.roundTrip("quit", "Sending quit command to remote", 5000);
+                                resp = context.clientStty.roundTrip("quit", "Sending quit command to remote subscriber", 5000);
                             else
                             {
-                                context.clientStty.send("bye", "Sending bye command to remote");
+                                context.clientStty.send("bye", "Sending bye command to remote subsciber");
                                 resp = "End-Execution";
                             }
                             Thread.sleep(3000);

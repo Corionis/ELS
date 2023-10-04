@@ -152,7 +152,7 @@ public class Settings extends JDialog
             {
                 JComboBox combobox = (JComboBox) actionEvent.getSource();
                 int index = combobox.getSelectedIndex();
-                if (Utils.getOS().equals("Linux") && index == 0) // System, for Windows, will fail on Linux  TODO should this be removed?
+                if (Utils.getOS().equals("Linux") && index == 0) // System, for Windows, will fail on Linux
                 {
                     index = 4;
                     combobox.setSelectedIndex(index);
@@ -317,7 +317,19 @@ public class Settings extends JDialog
         context.cfg.setLongScale(context.preferences.isBinaryScale());
         context.preferences.setDateFormat(dateFormatTextField.getText());
         if (textFieldAccentColor.getText().length() == 0) // use default if empty
+        {
             context.preferences.setAccentColor(context.preferences.DEFAULT_ACCENT_COLOR);
+            // set accent color for current LaF
+            FlatLaf.setGlobalExtraDefaults(Collections.singletonMap("@accentColor", "#" + context.preferences.getAccentColor()));
+            Class<? extends LookAndFeel> lafClass = UIManager.getLookAndFeel().getClass();
+            try
+            {
+                FlatLaf.setup(lafClass.newInstance());
+            }
+            catch (Exception e)
+            {}
+            FlatLaf.updateUI();
+        }
         else
             context.preferences.setAccentColor(textFieldAccentColor.getText());
 

@@ -313,7 +313,7 @@ public class NavTransferHandler extends TransferHandler
      */
     public synchronized void exportHint(String act, NavTreeUserObject sourceTuo, NavTreeUserObject targetTuo) throws Exception
     {
-        if (context.browser.isHintTrackingEnabled())
+        if (context.browser.isHintTrackingEnabled() && sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection"))
         {
             String hintPath = context.hints.writeHint(act, context.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
             if (hintPath.length() > 0)

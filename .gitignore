@@ -30,3 +30,7 @@ hs_err_pid*
 /mock/Notice.txt
 /artifacts/stage/windows/rt/
 /artifacts/stage/linux/ELS/rt/
+/build/*.info
+/build/*.jar
+/build/*.tar.gz
+/build/*.zip

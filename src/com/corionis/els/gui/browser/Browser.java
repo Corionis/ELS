@@ -1313,7 +1313,7 @@ public class Browser
                 navStackPush(node);
                 if (!node.isLoaded())
                     node.loadChildren(true);
-                else // QUESTION is else right?
+                else
                     node.loadTable();
             }
         });

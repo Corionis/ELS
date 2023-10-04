@@ -1041,7 +1041,7 @@ public class Main
             {
                 if (!context.cfg.isQuitStatusServer() && context.statusStty.isConnected())
                 {
-                    context.statusStty.send("bye", "Sending bye command to remote Hint Server");
+                    context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
                     Thread.sleep(3000);
                 }
                 context.statusStty.disconnect();

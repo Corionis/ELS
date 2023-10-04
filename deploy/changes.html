@@ -36,6 +36,22 @@
 
 <p>The most recent changes to ELS. We may miss things but try not to.</p>
 
+<h3>4 October 2023</h3>
+<ul>
+    <li>Rearranged the ant build script:</li>
+    <ul>
+        <li>Changed rules to allow a Navigator to connect to a remote subscriber with only the General tab connection information.</li>
+        <li>Fixed bug that did not request a remote subscriber library using File, Open Subscriber.</li>
+        <li>Fixed bug where Hints were created for System tab operations. Hints are only only used in Libraries.</li>
+        <li>Fixed bug that did not reset the accent color to default if Setting, Appearance, Accent color was cleared.</li>
+        <li>Changed 'deploy' build directory to 'build'.</li>
+        <li>Added a 'deploy' target that <u>only</u> copies from 'build' to 'deploy' so deployments can be separate from
+            daily builds and incremental commits. Useful when switching between operating systems while testing.</li>
+        <li>Added an 'All-Deploy' target that builds 'All' then 'deploy'.</li>
+        <li>changes.html is edited in the 'build' directory between deployments.</li>
+    </ul>
+</ul>
+
 <h3>2 October 2023</h3>
 <ul>
     <li>Made Navigator start-up more forgiving. ELS was originally a command line tool with rigid requirements.</li>

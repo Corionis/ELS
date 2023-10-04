@@ -321,7 +321,7 @@ public class MainFrame extends JFrame
     private boolean changesCheckAll()
     {
         boolean changes = false;
-        // TODO EXPAND+ Add other Tool checkForChanges() here
+        // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
             changes = true;
         else if (context.navigator.dialogJobs != null && context.navigator.dialogJobs.checkForChanges())
@@ -339,7 +339,7 @@ public class MainFrame extends JFrame
 
     private void changesGotoUnsaved()
     {
-        // TODO EXPAND+ Add other Tool checkForChanges() here
+        // TODO EXTEND+ Add other Tool checkForChanges() here
         if (context.libraries != null && context.libraries.checkForChanges())
         {
             context.mainFrame.tabbedPaneMain.setSelectedIndex(1);

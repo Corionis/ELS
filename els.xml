@@ -32,31 +32,31 @@
 
     <target name="write-version">
         <!-- Write the version.info file -->
-        <delete file="deploy/version.info" failonerror="false"/>
-        <echo file="deploy/version.info" append="false">${els.version.name}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${NUMBERNOW}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${STRINGNOW}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">ELS-${els.version.name}-${NUMBERNOW}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">ELS_Updater-${els.version.name}-${NUMBERNOW}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${els.changes.url}${line.separator}</echo>
+        <delete file="build/version.info" failonerror="false"/>
+        <echo file="build/version.info" append="false">${els.version.name}${line.separator}</echo>
+        <echo file="build/version.info" append="true">${NUMBERNOW}${line.separator}</echo>
+        <echo file="build/version.info" append="true">${STRINGNOW}${line.separator}</echo>
+        <echo file="build/version.info" append="true">ELS-${els.version.name}-${NUMBERNOW}${line.separator}</echo>
+        <echo file="build/version.info" append="true">ELS_Updater-${els.version.name}-${NUMBERNOW}${line.separator}</echo>
+        <echo file="build/version.info" append="true">${els.changes.url}${line.separator}</echo>
     </target>
 
     <target name="append-flags" if="els.build.flags">
         <!-- Append optional flags to the version.info file if set -->
         <echo>${els.build.flags}${line.separator}</echo>
-        <echo file="deploy/version.info" append="true">${els.build.flags}${line.separator}</echo>
+        <echo file="build/version.info" append="true">${els.build.flags}${line.separator}</echo>
     </target>
 
     <!-- Build stamp -->
     <target name="stamp" depends="set-stamp, write-version, append-flags">
         <echo message="Build stamp ${NUMBERNOW}, ${STRINGNOW}" level="info"/>
         <!-- Copy version.info to internal resource version.info -->
-        <copy overwrite="true" file="deploy/version.info" tofile="src/com/corionis/els/resources/version.info"/>
-        <copy overwrite="true" file="deploy/version.info" tofile="mock/bin/version.info"/>
+        <copy overwrite="true" file="build/version.info" tofile="src/com/corionis/els/resources/version.info" preservelastmodified="true"/>
+        <copy overwrite="true" file="build/version.info" tofile="mock/bin/version.info" preservelastmodified="true"/>
         <!-- Write the update.info file -->
-        <delete file="deploy/update.info" failonerror="false"/>
-        <echo file="deploy/update.info" append="false">${els.deploy.url}${line.separator}</echo>
-        <copy overwrite="true" file="deploy/update.info" tofile="mock/bin/update.info"/>
+        <delete file="build/update.info" failonerror="false"/>
+        <echo file="build/update.info" append="false">${els.deploy.url}${line.separator}</echo>
+        <copy overwrite="true" file="build/update.info" tofile="mock/bin/update.info" preservelastmodified="true"/>
     </target>
 
 
@@ -84,7 +84,7 @@
             <fileset dir="src/com/corionis/els/locales/"/>
             <fileset dir="src/com/corionis/els/resources/"/>
         </copy>
-        <copy file="deploy/changes.html" tofile="out/ELS/jar/changes_en_US.html" preservelastmodified="true"/>
+        <copy file="build/changes.html" tofile="out/ELS/jar/changes_en_US.html" preservelastmodified="true"/>
         <copy file="lib/log4j2.xml" todir="out/ELS/jar" preservelastmodified="true"/>
         <unzip dest="out/ELS/jar">
             <fileset dir="lib">
@@ -98,32 +98,32 @@
         <manifest file="out/ELS/jar/META-INF/MANIFEST.MF">
             <attribute name="Main-Class" value="com.corionis.els.Main"/>
         </manifest>
-        <jar destfile="deploy/ELS.jar" manifest="out/ELS/jar/META-INF/MANIFEST.MF">
+        <jar destfile="build/ELS.jar" manifest="out/ELS/jar/META-INF/MANIFEST.MF">
             <fileset dir="out/ELS/jar" includes="**/"/>
         </jar>
-        <copy overwrite="true" file="deploy/ELS.jar" tofile="mock/bin/ELS.jar"/>
+        <copy overwrite="true" file="build/ELS.jar" tofile="mock/bin/ELS.jar" preservelastmodified="true"/>
     </target>
 
     <!-- Build ELS Linux .tar.gz -->
     <target name="els-linux" depends="els-jar">
         <delete failonerror="false">
-            <fileset dir="deploy">
+            <fileset dir="build">
                 <include name="ELS-*.tar.gz"/>
             </fileset>
         </delete>
         <mkdir dir="out/ELS/tar/ELS"/>
         <exec command="cp -rpf artifacts/stage/linux/ELS out/ELS/tar/" failonerror="true"/>
-        <copy file="mock/bin/update.info" tofile="out/ELS/tar/ELS/bin/update.info"/>
+        <copy file="mock/bin/update.info" tofile="out/ELS/tar/ELS/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <copy file="deploy/ELS.jar" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
-        <exec command="tar cvzf deploy/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/ELS/tar ELS"/>
+        <copy file="build/ELS.jar" todir="out/ELS/tar/ELS/bin" preservelastmodified="true"/>
+        <exec command="tar cvzf build/ELS-${els.version.name}-${NUMBERNOW}.tar.gz -C out/ELS/tar ELS"/>
     </target>
 
     <!-- Build ELS Windows .zip -->
     <target name="els-windows" depends="els-jar">
         <delete failonerror="false">
-            <fileset dir="deploy">
+            <fileset dir="build">
                 <include name="ELS-*.zip"/>
             </fileset>
         </delete>
@@ -131,11 +131,11 @@
         <copy todir="out/ELS/zip/ELS" preservelastmodified="true">
             <fileset dir="artifacts/stage/windows"/>
         </copy>
-        <copy file="mock/bin/update.info" tofile="out/ELS/zip/ELS/bin/update.info"/>
+        <copy file="mock/bin/update.info" tofile="out/ELS/zip/ELS/bin/update.info" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.ico" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
         <copy file="artifacts/images/els-logo-98px.png" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
-        <copy file="deploy/ELS.jar" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
-        <zip destfile="deploy/ELS-${els.version.name}-${NUMBERNOW}.zip">
+        <copy file="build/ELS.jar" todir="out/ELS/zip/ELS/bin" preservelastmodified="true"/>
+        <zip destfile="build/ELS-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/ELS/zip" includes="**/*"/>
         </zip>
     </target>
@@ -153,7 +153,7 @@
         <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Context.class" tofile="out/updater/jar/com/corionis/els/Context.class"/>
         <copy overwrite="true" file="out/ELS/jar/com/corionis/els/MungeException.class" tofile="out/updater/jar/com/corionis/els/MungeException.class"/>
         <copy overwrite="true" file="out/ELS/jar/com/corionis/els/Utils.class" tofile="out/updater/jar/com/corionis/els/Utils.class"/>
-        <copy overwrite="true" file="deploy/version.info" tofile="out/updater/jar/com/corionis/els/resources/version.info"/>
+        <copy overwrite="true" file="build/version.info" tofile="out/updater/jar/com/corionis/els/resources/version.info"/>
         <javac destdir="out/updater/jar" classpathref="class.path" includeantruntime="false" debug="on">
             <src path="updater/src"/>
             <include name="**/*.java"/>
@@ -168,7 +168,7 @@
         <copy todir="out/updater/jar" preservelastmodified="true">
             <file file="artifacts/images/els-logo-48px.png"/>
             <fileset dir="src/com/corionis/els/locales/"/>
-            <file file="deploy/version.info"/>
+            <file file="build/version.info"/>
         </copy>
         <!-- copy the separate log4j2-updater.xml to log4j2.xml -->
         <copy file="lib/log4j2-updater.xml" tofile="out/updater/jar/log4j2.xml" preservelastmodified="true"/>
@@ -197,16 +197,16 @@
         <manifest file="out/updater/jar/META-INF/MANIFEST.MF">
             <attribute name="Main-Class" value="com.corionis.els_updater.Main"/>
         </manifest>
-        <jar destfile="deploy/ELS_Updater.jar" manifest="out/updater/jar/META-INF/MANIFEST.MF">
+        <jar destfile="build/ELS_Updater.jar" manifest="out/updater/jar/META-INF/MANIFEST.MF">
             <fileset dir="out/updater/jar" includes="**/"/>
         </jar>
-        <copy overwrite="true" file="deploy/ELS_Updater.jar" tofile="mock/bin/ELS_Updater.jar"/>
+        <copy overwrite="true" file="build/ELS_Updater.jar" tofile="mock/bin/ELS_Updater.jar" preservelastmodified="true"/>
     </target>
 
     <!-- Build Updater Linux .tar.gz -->
     <target name="updater-linux" depends="updater-jar">
         <delete failonerror="false">
-            <fileset dir="deploy">
+            <fileset dir="build">
                 <include name="ELS_*.tar.gz"/>
             </fileset>
         </delete>
@@ -214,15 +214,15 @@
         <exec command="cp -rpf artifacts/stage/linux/ELS out/updater/tar/" failonerror="true"/>
         <rename src="out/updater/tar/ELS" dest="out/updater/tar/ELS_Updater"/>
         <delete file="out/updater/tar/ELS_Updater/ELS-Navigator.sh" failonerror="false"/>
-        <copy file="mock/bin/update.info" tofile="out/updater/tar/ELS_Updater/bin/update.info"/>
-        <copy file="deploy/ELS_Updater.jar" todir="out/updater/tar/ELS_Updater/bin" preservelastmodified="true" />
-        <exec command="tar cvzf deploy/ELS_Updater-${els.version.name}-${NUMBERNOW}.tar.gz -C out/updater/tar ELS_Updater"/>
+        <copy file="mock/bin/update.info" tofile="out/updater/tar/ELS_Updater/bin/update.info" preservelastmodified="true"/>
+        <copy file="build/ELS_Updater.jar" todir="out/updater/tar/ELS_Updater/bin" preservelastmodified="true" />
+        <exec command="tar cvzf build/ELS_Updater-${els.version.name}-${NUMBERNOW}.tar.gz -C out/updater/tar ELS_Updater"/>
     </target>
 
     <!-- Build Updater Windows .zip -->
     <target name="updater-windows" depends="updater-jar">
         <delete failonerror="false">
-            <fileset dir="deploy">
+            <fileset dir="build">
                 <include name="ELS_*.zip"/>
             </fileset>
         </delete>
@@ -230,11 +230,11 @@
         <copy todir="out/updater/zip/ELS_Updater" preservelastmodified="true">
             <fileset dir="artifacts/stage/windows"/>
         </copy>
-        <copy file="mock/bin/update.info" tofile="out/updater/zip/ELS_Updater/bin/update.info"/>
-        <copy file="deploy/ELS_Updater.jar" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
+        <copy file="mock/bin/update.info" tofile="out/updater/zip/ELS_Updater/bin/update.info" preservelastmodified="true"/>
+        <copy file="build/ELS_Updater.jar" todir="out/updater/zip/ELS_Updater/bin" preservelastmodified="true"/>
         <delete file="out/updater/zip/ELS_Updater/ELS-Navigator.bat" failonerror="false"/>
         <delete file="out/updater/zip/ELS_Updater/bin/Shortcut.exe" failonerror="false"/>
-        <zip destfile="deploy/ELS_Updater-${els.version.name}-${NUMBERNOW}.zip">
+        <zip destfile="build/ELS_Updater-${els.version.name}-${NUMBERNOW}.zip">
             <zipfileset dir="out/updater/zip" includes="**/*"/>
         </zip>
     </target>
@@ -242,14 +242,38 @@
     <target name="Updater" depends="updater-linux, updater-windows" description="Build Updater"/>
 
 
+    <!-- Deployment ========================================== -->
+    <!-- The 'deploy' directory is where ELS gets updates -->
+    <target name="deploy">
+        <delete failonerror="false">
+            <fileset dir="deploy">
+                <include name="*.info"/>
+                <include name="*.jar"/>
+                <include name="*.tar.gz"/>
+                <include name="*.zip"/>
+            </fileset>
+        </delete>
+        <copy file="build/changes.html" todir="deploy" preservelastmodified="true"/>
+        <copy todir="deploy" preservelastmodified="true">
+            <fileset file="build/*.jar"/>
+            <fileset file="build/*.tar.gz"/>
+            <fileset file="build/*.zip"/>
+        </copy>
+        <copy file="build/update.info" todir="deploy" preservelastmodified="true"/>
+        <copy file="build/version.info" todir="deploy" preservelastmodified="true"/>
+    </target>
+
+
     <!-- Primary Targets ========================================== -->
 
     <target name="All" depends="ELS, Updater" description="Build all deliverables"/>
 
+    <target name="All-Deploy" depends="All, deploy" description="Build all deliverables and copy to deploy"/>
+
+    <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
+
     <target name="Linux" depends="els-linux, updater-linux" description="Build all Linux deliverables"/>
 
     <target name="Windows" depends="els-windows, updater-windows" description="Build all Windows deliverables"/>
-
-    <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
 
 </project>

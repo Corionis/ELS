@@ -1,6 +1,11 @@
 
 # Project To Do
 
+## Current Short-List
+
+ 1. Added Close for main items
+ 2. Fix Libraries Add for Locations and Sources 
+
 ## To Do
  1. Re-write embedded help pages in Markdown then convert to HTML so the same files can
     be used in the GitHub Wiki and new ELS web site.
@@ -20,11 +25,6 @@ Create a series of scenarios describing how ELS can be used for various situatio
        on library share restrictions.
      * Changes by each are propagated via Hints.
      * Everyone backs-up everyone else.
-
-## System Editors for Keys & IP Lists
-
-For Auth Keys test whether that key is all that is needed to make a connection, then 
-request subscriber collection.
 
 
 ## Operations Tool

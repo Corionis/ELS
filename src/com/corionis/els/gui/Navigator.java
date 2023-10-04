@@ -757,7 +757,7 @@ public class Navigator
 
                             try
                             {
-                                context.clientStty.send("bye", "Sending bye command to remote");
+                                context.clientStty.send("bye", "Sending bye command to remote subscriber");
                             }
                             catch (Exception e)
                             {
@@ -809,12 +809,16 @@ public class Navigator
                                             context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
                                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     context.cfg.setRemoteType("-");
+                                    context.fault = false;
                                     return;
                                 }
+
+                                context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Transfer.requesting.subscriber.library"));
                                 if (context.clientStty.checkBannerCommands())
                                 {
                                     logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
                                 }
+                                context.transfer.requestLibrary();
 
                                 // start the serveSftp client
                                 context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
@@ -824,11 +828,13 @@ public class Navigator
                                             context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
                                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                                     context.cfg.setRemoteType("-");
+                                    context.fault = false;
                                     return;
                                 }
                             }
 
                             // load the subscriber library
+                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.requesting.collection.data.from.remote"));
                             context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastIsRemote());
                             context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastIsRemote());
                         }
@@ -837,6 +843,7 @@ public class Navigator
                             JOptionPane.showMessageDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            context.fault = false;
                             break;
                         }
                     }
@@ -1528,7 +1535,6 @@ public class Navigator
                         String reply = name;
                         if (path.length() > 0)
                         {
-
                             Object obj = JOptionPane.showInputDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Rename") + name + " " +
                                             context.cfg.gs("Navigator.menu.Rename.to"),
@@ -2736,9 +2742,9 @@ public class Navigator
                             }
                         }
                         else if (quitRemoteSubscriber)
-                            context.clientStty.send("quit", "Sending quit command to subscriber");
+                            context.clientStty.send("quit", "Sending quit command to remote subscriber");
                         else
-                            context.clientStty.send("bye", "Sending bye command to subscriber");
+                            context.clientStty.send("bye", "Sending bye command to remote subscriber");
                     }
                 }
             }
@@ -2756,9 +2762,9 @@ public class Navigator
             {
                 closure = true;
                 if (quitRemoteHintStatusServer)
-                    context.statusStty.send("quit", "Sending quit command to Hint Status Server");
+                    context.statusStty.send("quit", "Sending quit command to remote Hint Status Server");
                 else
-                    context.statusStty.send("bye", "Sending bye command to Hint Status Server");
+                    context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
             }
             catch (Exception e)
             {
