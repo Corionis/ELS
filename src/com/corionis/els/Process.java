@@ -1,5 +1,6 @@
 package com.corionis.els;
 
+import com.corionis.els.repository.Hints;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import org.apache.logging.log4j.LogManager;
@@ -486,6 +487,11 @@ public class Process
                 context.transfer = new Transfer(context);
                 context.transfer.initialize();
                 isInitialized = true;
+            }
+
+            if (context.cfg.getHintKeysFile().length() > 0)
+            {
+                context.hints = new Hints(context, context.hintKeys);
             }
 
             // process ELS Hints locally, no subscriber, publisher's targets

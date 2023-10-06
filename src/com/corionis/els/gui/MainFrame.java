@@ -539,6 +539,11 @@ public class MainFrame extends JFrame
         menuItemOpenSubscriber = new JMenuItem();
         menuItemOpenHintKeys = new JMenuItem();
         menuItemOpenHintTracking = new JMenuItem();
+        menuItemClose = new JMenu();
+        menuItemClosePublisher = new JMenuItem();
+        menuItemCloseSubscriber = new JMenuItem();
+        menuItemCloseHintKeys = new JMenuItem();
+        menuItemCloseHintTracking = new JMenuItem();
         menuItemSaveLayout = new JMenuItem();
         menuItemQuitTerminate = new JMenuItem();
         menuItemFileQuit = new JMenuItem();
@@ -816,6 +821,36 @@ public class MainFrame extends JFrame
                 menuItemOpenHintTracking.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemOpenHintTracking.displayedMnemonicIndex")));
                 menuItemOpenHintTracking.setIcon(new ImageIcon(getClass().getResource("/open-hint-tracking.png")));
                 menuFile.add(menuItemOpenHintTracking);
+                menuFile.addSeparator();
+
+                //======== menuItemClose ========
+                {
+                    menuItemClose.setText(context.cfg.gs("Navigator.menuItemClose.text"));
+                    menuItemClose.setIcon(new ImageIcon(getClass().getResource("/close.png")));
+                    menuItemClose.setMnemonic(context.cfg.gs("Navigator.menuItemClose.mnemonic").charAt(0));
+
+                    //---- menuItemClosePublisher ----
+                    menuItemClosePublisher.setText(context.cfg.gs("Navigator.menuItemClosePublisher.text"));
+                    menuItemClosePublisher.setMnemonic(context.cfg.gs("Navigator.menuItemClosePublisher.mnemonic").charAt(0));
+                    menuItemClose.add(menuItemClosePublisher);
+
+                    //---- menuItemCloseSubscriber ----
+                    menuItemCloseSubscriber.setText(context.cfg.gs("Navigator.menuItemCloseSubscriber.text"));
+                    menuItemCloseSubscriber.setMnemonic(context.cfg.gs("Navigator.menuItemCloseSubscriber.mnemonic").charAt(0));
+                    menuItemClose.add(menuItemCloseSubscriber);
+
+                    //---- menuItemCloseHintKeys ----
+                    menuItemCloseHintKeys.setText(context.cfg.gs("Navigator.menuItemCloseHintKeys.text"));
+                    menuItemCloseHintKeys.setMnemonic(context.cfg.gs("Navigator.menuItemCloseHintKeys.mnemonic").charAt(0));
+                    menuItemClose.add(menuItemCloseHintKeys);
+
+                    //---- menuItemCloseHintTracking ----
+                    menuItemCloseHintTracking.setText(context.cfg.gs("Navigator.menuItemCloseHintTracking.text"));
+                    menuItemCloseHintTracking.setMnemonic(context.cfg.gs("Navigator.menuItemCloseHintTracking.mnemonic").charAt(0));
+                    menuItemCloseHintTracking.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemCloseHintTracking.displayedMnemonicIndex")));
+                    menuItemClose.add(menuItemCloseHintTracking);
+                }
+                menuFile.add(menuItemClose);
                 menuFile.addSeparator();
 
                 //---- menuItemSaveLayout ----
@@ -2391,7 +2426,6 @@ public class MainFrame extends JFrame
                                         buttonRemoveLibrary.setPreferredSize(new Dimension(78, 24));
                                         buttonRemoveLibrary.setMinimumSize(new Dimension(78, 24));
                                         buttonRemoveLibrary.setMaximumSize(new Dimension(78, 24));
-                                        buttonRemoveLibrary.setMnemonic(context.cfg.gs("Navigator.buttonRemoveLibrary.mnemonic").charAt(0));
                                         buttonRemoveLibrary.setToolTipText(context.cfg.gs("Navigator.buttonRemoveLibrary.toolTipText"));
                                         buttonRemoveLibrary.setMargin(new Insets(0, -10, 0, -10));
                                         panelBiblioButtons.add(buttonRemoveLibrary);
@@ -2592,6 +2626,11 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemOpenSubscriber;
     public JMenuItem menuItemOpenHintKeys;
     public JMenuItem menuItemOpenHintTracking;
+    public JMenu menuItemClose;
+    public JMenuItem menuItemClosePublisher;
+    public JMenuItem menuItemCloseSubscriber;
+    public JMenuItem menuItemCloseHintKeys;
+    public JMenuItem menuItemCloseHintTracking;
     public JMenuItem menuItemSaveLayout;
     public JMenuItem menuItemQuitTerminate;
     public JMenuItem menuItemFileQuit;

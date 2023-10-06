@@ -5,6 +5,7 @@ import com.corionis.els.gui.Preferences;
 import com.corionis.els.gui.util.GuiLogAppender;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.repository.HintKeys;
+import com.corionis.els.repository.Hints;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.sftp.ServeSftp;
@@ -87,11 +88,11 @@ public class Main
 
     public void checkEmptyArguments()
     {
-        if (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE)
-        {
-            if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
-                context.cfg.setDefaultNavigator(true);
+        if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0 && !context.cfg.isStatusServer())
+            context.cfg.setDefaultNavigator(true);
 
+        if (context.preferences.isUseLastPublisherSubscriber() && (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE))
+        {
             if (context.cfg.isNavigator())
             {
                 if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
@@ -792,7 +793,7 @@ public class Main
             try
             {
                 // give the GUI time to come up
-                Thread.sleep(1500);
+                Thread.sleep(4000);
             }
             catch (Exception e)
             {
@@ -912,6 +913,7 @@ public class Main
                 context.hintKeys = new HintKeys(context);
                 msg = "Exception while reading Hint Keys: ";
                 context.hintKeys.read(context.cfg.getHintKeysFile());
+                context.hints = new Hints(context, context.hintKeys);
                 if (context.cfg.isNavigator())
                     context.preferences.setLastHintKeysIsUsed(true);
 

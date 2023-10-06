@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.7" encoding: "UTF-8"
+JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -1258,7 +1258,6 @@ new FormModel {
 												"preferredSize": #Dimension14
 												"minimumSize": #Dimension15
 												"maximumSize": #Dimension16
-												"mnemonic": new FormMessage( null, "Navigator.buttonRemoveLibrary.mnemonic" )
 												"toolTipText": new FormMessage( null, "Navigator.buttonRemoveLibrary.toolTipText" )
 												"margin": new java.awt.Insets( 0, -10, 0, -10 )
 											} )
@@ -1384,6 +1383,36 @@ new FormModel {
 						"mnemonic": new FormMessage( null, "Navigator.menuItemOpenHintTracking.mnemonic_2" )
 						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemOpenHintTracking.displayedMnemonicIndex" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/open-hint-tracking.png" )
+					} )
+					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
+						name: "separator17"
+					} )
+					add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
+						name: "menuItemClose"
+						"text": new FormMessage( null, "Navigator.menuItemClose.text" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/close.png" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemClose.mnemonic" )
+						add( new FormComponent( "javax.swing.JMenuItem" ) {
+							name: "menuItemClosePublisher"
+							"text": new FormMessage( null, "Navigator.menuItemClosePublisher.text" )
+							"mnemonic": new FormMessage( null, "Navigator.menuItemClosePublisher.mnemonic" )
+						} )
+						add( new FormComponent( "javax.swing.JMenuItem" ) {
+							name: "menuItemCloseSubscriber"
+							"text": new FormMessage( null, "Navigator.menuItemCloseSubscriber.text" )
+							"mnemonic": new FormMessage( null, "Navigator.menuItemCloseSubscriber.mnemonic" )
+						} )
+						add( new FormComponent( "javax.swing.JMenuItem" ) {
+							name: "menuItemCloseHintKeys"
+							"text": new FormMessage( null, "Navigator.menuItemCloseHintKeys.text" )
+							"mnemonic": new FormMessage( null, "Navigator.menuItemCloseHintKeys.mnemonic" )
+						} )
+						add( new FormComponent( "javax.swing.JMenuItem" ) {
+							name: "menuItemCloseHintTracking"
+							"text": new FormMessage( null, "Navigator.menuItemCloseHintTracking.text" )
+							"mnemonic": new FormMessage( null, "Navigator.menuItemCloseHintTracking.mnemonic" )
+							"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemCloseHintTracking.displayedMnemonicIndex" )
+						} )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator2"

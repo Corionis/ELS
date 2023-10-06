@@ -15,6 +15,7 @@ import com.corionis.els.gui.tools.sleep.SleepUI;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
+import com.corionis.els.repository.Hints;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.stty.ClientStty;
@@ -35,6 +36,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.*;
 
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.tree.TreePath;
@@ -929,14 +932,15 @@ public class Navigator
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.hintKeys = new HintKeys(context);
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.hintKeys.read(context.cfg.getHintKeysFile());
+                            context.hints = new Hints(context, context.hintKeys);
                             if (!showHintTrackingButton)
                             {
                                 showHintTrackingButton = true;
                                 context.mainFrame.panelHintTracking.setVisible(true);
                                 context.mainFrame.buttonHintTracking.doClick();
                             }
+                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                         }
                         catch (Exception e)
                         {
@@ -1113,6 +1117,138 @@ public class Navigator
             }
         };
         context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
+
+        // --- Close ...
+        context.mainFrame.menuItemClose.addMenuListener(new MenuListener()
+        {
+            @Override
+            public void menuSelected(MenuEvent menuEvent)
+            {
+                if (context.publisherRepo != null && context.publisherRepo.isInitialized())
+                    context.mainFrame.menuItemClosePublisher.setVisible(true);
+                else
+                    context.mainFrame.menuItemClosePublisher.setVisible(false);
+
+                if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
+                    context.mainFrame.menuItemCloseSubscriber.setVisible(true);
+                else
+                    context.mainFrame.menuItemCloseSubscriber.setVisible(false);
+
+                if (context.hintKeys != null && context.cfg.getHintKeysFile().length() > 0)
+                    context.mainFrame.menuItemHintKeys.setVisible(true);
+                else
+                    context.mainFrame.menuItemCloseHintKeys.setVisible(false);
+
+                if (context.statusRepo != null && context.statusRepo.isInitialized())
+                    context.mainFrame.menuItemCloseHintTracking.setVisible(true);
+                else
+                    context.mainFrame.menuItemCloseHintTracking.setVisible(false);
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent menuEvent)
+            {
+            }
+
+            @Override
+            public void menuCanceled(MenuEvent menuEvent)
+            {
+            }
+        });
+
+        // --- Close Publisher ...
+        context.mainFrame.menuItemClosePublisher.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                        context.cfg.gs("Z.are.you.sure.you.want.to.close") + context.cfg.gs("Z.publisher"),
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                if (r == JOptionPane.YES_OPTION)
+                {
+                    NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionOne, context.cfg.gs("Browser.open.a.publisher"), false);
+                    root.loadTable();
+                    root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemOne, context.cfg.gs("Browser.open.a.publisher"), false);
+                    root.loadTable();
+                    context.publisherRepo = null;
+                }
+            }
+        });
+
+        // --- Close Subscriber ...
+        context.mainFrame.menuItemCloseSubscriber.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                        context.cfg.gs("Z.are.you.sure.you.want.to.close") + context.cfg.gs("Z.subscriber"),
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                if (r == JOptionPane.YES_OPTION)
+                {
+                    NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
+                    root.loadTable();
+                    root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
+                    root.loadTable();
+                    context.subscriberRepo = null;
+                }
+            }
+        });
+
+        // --- Close Hint Keys ...
+        context.mainFrame.menuItemCloseHintKeys.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                int r;
+                if (context.statusRepo != null && context.statusRepo.isInitialized())
+                {
+                    r = JOptionPane.showConfirmDialog(context.mainFrame,
+                            context.cfg.gs("Z.are.you.sure.you.want.to.quit.and.close") + context.cfg.gs("Z.hint.key"),
+                            context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                }
+                else
+                {
+                    r = JOptionPane.showConfirmDialog(context.mainFrame,
+                            context.cfg.gs("Z.are.you.sure.you.want.to.close") + context.cfg.gs("Z.hint.key"),
+                            context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                }
+                if (r == JOptionPane.YES_OPTION)
+                {
+                    context.hints = null;
+                    context.hintKeys = null;
+                    context.statusRepo = null;
+                    context.cfg.setHintKeysFile("");
+                    context.cfg.setHintTrackerFilename("");
+                    context.cfg.setHintsDaemonFilename("");
+                    context.preferences.setLastHintTrackingInUse(false);
+                    context.preferences.setLastHintKeysIsUsed(false);
+                    showHintTrackingButton = context.browser.resetHintTrackingButton();
+                }
+            }
+        });
+
+        // --- Close Hint Tracking ...
+        context.mainFrame.menuItemCloseHintTracking.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                int r = JOptionPane.showConfirmDialog(context.mainFrame,
+                        context.cfg.gs("Z.are.you.sure.you.want.to.close") + context.cfg.gs("Z.hint.tracker"),
+                        context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
+                if (r == JOptionPane.YES_OPTION)
+                {
+                    context.statusRepo = null;
+                    context.cfg.setHintTrackerFilename("");
+                    context.cfg.setHintsDaemonFilename("");
+                    context.preferences.setLastHintTrackingInUse(false);
+                    showHintTrackingButton = context.browser.resetHintTrackingButton();
+                }
+            }
+        });
 
         // --- Quit & Stop Remote(s)
         context.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()

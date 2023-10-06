@@ -1580,6 +1580,10 @@ public class LibrariesUI
             loading = false;
 
             loadLocationsTab();
+
+            if (context.mainFrame.librariesConfigItems.isEditing())
+                context.mainFrame.librariesConfigItems.getCellEditor().stopCellEditing();
+
             updateState();
         }
     }

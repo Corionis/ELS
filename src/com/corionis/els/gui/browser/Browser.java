@@ -1555,10 +1555,7 @@ public class Browser
             {
                 if (actionEvent.getActionCommand() != null && actionEvent.getActionCommand().equalsIgnoreCase("hints"))
                 {
-//                    if (context.mainFrame.panelHintTracking.isVisible())
-                    {
-                        toggleHints(!hintTrackingEnabled);
-                    }
+                    toggleHints(!hintTrackingEnabled);
                 }
             }
         });
@@ -1954,6 +1951,28 @@ public class Browser
         refreshTree(sourceTree);
     }
 
+    public boolean resetHintTrackingButton()
+    {
+        String tt = "";
+        tt = context.cfg.getHintsDaemonFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintServer.text") :
+                (context.cfg.getHintTrackerFilename().length() > 0 ? context.cfg.gs("Navigator.button.HintTracking.text") :
+                        (context.cfg.getHintKeysFile().length() > 0 ? context.cfg.gs("Navigator.button.HintsKeys.text") : ""));
+
+        if (tt.length() > 0)
+        {
+            context.mainFrame.buttonHintTracking.setText(tt);
+            context.mainFrame.panelHintTracking.setVisible(true);
+            hintTrackingEnabled = true;
+            return true;
+        }
+        else
+        {
+            context.mainFrame.panelHintTracking.setVisible(false);
+            hintTrackingEnabled = false;
+        }
+        return false;
+    }
+
     private int[] resetTableSelections(JTable table, ArrayList<NavTreeNode> selectedNodes)
     {
         int index = 0;
@@ -2266,7 +2285,7 @@ public class Browser
         context.mainFrame.buttonHintTracking.setToolTipText(tt);
     }
 
-    private NavTreeNode setCollectionRoot(Repository repo, JTree tree, String title, boolean remote)
+    public NavTreeNode setCollectionRoot(Repository repo, JTree tree, String title, boolean remote)
     {
         NavTreeNode root = new NavTreeNode(context, repo, tree);
         NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION, remote);
@@ -2279,6 +2298,11 @@ public class Browser
         tree.setLargeModel(true);
         tree.setModel(model);
         return root;
+    }
+
+    public void setHintTrackingEnabled(boolean sense)
+    {
+        hintTrackingEnabled = sense;
     }
 
     private void styleCollection(JTree tree, Repository repo, boolean remote, boolean deep, boolean recursive)
@@ -2304,7 +2328,7 @@ public class Browser
         NavTreeNode computerNode;
         NavTreeNode hiddenRoot;
         NavTreeUserObject tuo;
-        if (!(tree.getModel() instanceof NavTreeModel))
+        if (!(tree.getModel() instanceof NavTreeModel) || ((NavTreeNode)tree.getModel().getRoot()).isLoaded() == false)
         {
             // setup new invisible root for Computer/Home
             hiddenRoot = new NavTreeNode(context, repo, tree);
