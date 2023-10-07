@@ -113,7 +113,8 @@ public class Main
                     }
 
                     // hint keys
-                    if (context.cfg.getHintKeysFile().length() == 0 && context.preferences.getLastHintKeysOpenFile().length() > 0)
+                    if (context.cfg.getHintKeysFile().length() == 0 &&
+                            context.preferences.getLastHintKeysOpenFile().length() > 0 && context.preferences.isLastHintKeysInUse())
                     {
                         context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
 
@@ -915,7 +916,7 @@ public class Main
                 context.hintKeys.read(context.cfg.getHintKeysFile());
                 context.hints = new Hints(context, context.hintKeys);
                 if (context.cfg.isNavigator())
-                    context.preferences.setLastHintKeysIsUsed(true);
+                    context.preferences.setLastHintKeysInUse(true);
 
                 if (context.cfg.isUsingHintTracking())
                 {
@@ -991,7 +992,7 @@ public class Main
                 // no Hint Keys, Daemon or Tracker
                 if (context.cfg.isNavigator())
                 {
-                    context.preferences.setLastHintKeysIsUsed(false);
+                    context.preferences.setLastHintKeysInUse(false);
                     context.preferences.setLastHintTrackingInUse(false);
                 }
             }

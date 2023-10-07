@@ -61,7 +61,7 @@ public class Preferences implements Serializable
     private int jobsWidth = 570;
     private int jobsXpos = -1;
     private int jobsYpos = -1;
-    private boolean lastHintKeysIsUsed = false;
+    private boolean lastHintKeysInUse = false;
     private String lastHintKeysOpenFile = "";
     private String lastHintKeysOpenPath = "";
     private boolean lastHintTrackingInUse = false;
@@ -921,9 +921,9 @@ public class Preferences implements Serializable
         return hideHiddenFiles;
     }
 
-    public boolean isLastHintKeysIsUsed()
+    public boolean isLastHintKeysInUse()
     {
-        return lastHintKeysIsUsed;
+        return lastHintKeysInUse;
     }
 
     public boolean isLastHintTrackingInUse()
@@ -1178,9 +1178,9 @@ public class Preferences implements Serializable
         this.jobsYpos = jobsYpos;
     }
 
-    public void setLastHintKeysIsUsed(boolean lastHintKeysIsUsed)
+    public void setLastHintKeysInUse(boolean lastHintKeysInUse)
     {
-        this.lastHintKeysIsUsed = lastHintKeysIsUsed;
+        this.lastHintKeysInUse = lastHintKeysInUse;
     }
 
     public void setLastHintKeysOpenFile(String lastHintKeysOpenFile)

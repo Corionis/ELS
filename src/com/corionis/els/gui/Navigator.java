@@ -928,7 +928,7 @@ public class Navigator
                         }
                         try
                         {
-                            context.preferences.setLastHintKeysIsUsed(true);
+                            context.preferences.setLastHintKeysInUse(true);
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
                             context.hintKeys = new HintKeys(context);
@@ -1230,7 +1230,7 @@ public class Navigator
                     context.hints = null;
                     context.hintKeys = null;
                     context.cfg.setHintKeysFile("");
-                    context.preferences.setLastHintKeysIsUsed(false);
+                    context.preferences.setLastHintKeysInUse(false);
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
