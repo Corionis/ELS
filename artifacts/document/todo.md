@@ -3,8 +3,7 @@
 
 ## Current Short-List
 
- 1. Added Close for main items
- 2. Fix Libraries Add for Locations and Sources 
+ 1. Fix Libraries Add for Locations and Sources 
 
 ## To Do
  1. Re-write embedded help pages in Markdown then convert to HTML so the same files can

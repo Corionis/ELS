@@ -44,6 +44,10 @@ It's all built-in and free.
 notice is removed there is no guarantee what works or has been completed, or even
 what *will be completed*. Also "Done" means code complete. Bugs are *entirely possible*.
 
+See the [Changelist](https://htmlpreview.github.io/?https://github.com/Corionis/ELS/blob/Version-4.0.0/deploy/changes.html):link: for
+a list of the most recent changes in the developmental download files in the
+[deploy](https://github.com/Corionis/ELS/blob/Version-4.0.0/deploy/) directory.
+
 See the [Developer](https://github.com/Corionis/ELS/blob/Version-4.0.0/artifacts/document/developer.md)
 notes in the Version-4.0.0 branch for information on how to run the Navigator. Pre-built Jars are available.
 

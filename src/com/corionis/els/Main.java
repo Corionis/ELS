@@ -100,7 +100,7 @@ public class Main
                     logger.trace("Defaulting to publisher and subscriber from preferences");
                     context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
                     context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
-                    if (context.preferences.isLastIsRemote())
+                    if (context.preferences.isLastIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
                     {
                         try
                         {
@@ -756,7 +756,7 @@ public class Main
                     {
                         try // also done in Connection.run()
                         {
-                            logger.info(context.cfg.gs("Main.disconnecting.and.shutting.down"));
+                            logger.info(context.cfg.gs("Main.disconnecting"));
 
                             // optionally command status server to quit
                             if (main.context.statusStty != null)

@@ -749,7 +749,7 @@ public class Navigator
                     int selection = fc.showOpenDialog(context.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (context.cfg.isRemoteSession() && context.clientStty.isConnected())
+                        if (context.clientStty != null && context.cfg.isRemoteSession() && context.clientStty.isConnected())
                         {
                             int r = JOptionPane.showConfirmDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
@@ -1080,8 +1080,8 @@ public class Navigator
                             setQuitTerminate();
 
                             // connect to the hint tracker or status server
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.main.setupHints(context.publisherRepo);
+                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.toggleHints(true);
                         }
                         catch (Exception e)
@@ -1140,7 +1140,13 @@ public class Navigator
                     context.mainFrame.menuItemCloseHintKeys.setVisible(false);
 
                 if (context.statusRepo != null && context.statusRepo.isInitialized())
+                {
+                    if (context.statusStty != null && context.statusStty.isConnected())
+                        context.mainFrame.menuItemCloseHintTracking.setText(context.cfg.gs("Z.hint.server") + " ...");
+                    else
+                        context.mainFrame.menuItemCloseHintTracking.setText(context.cfg.gs("Z.hint.tracker") + " ...");
                     context.mainFrame.menuItemCloseHintTracking.setVisible(true);
+                }
                 else
                     context.mainFrame.menuItemCloseHintTracking.setVisible(false);
             }
@@ -1187,11 +1193,13 @@ public class Navigator
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
                 {
+                    quitByeRemotes(true, false);
                     NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
                     root.loadTable();
                     root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
                     root.loadTable();
                     context.subscriberRepo = null;
+                    context.preferences.setLastIsRemote(false);
                 }
             }
         });
@@ -1217,14 +1225,17 @@ public class Navigator
                 }
                 if (r == JOptionPane.YES_OPTION)
                 {
+                    // close Hint Keys and Hint Tracker/Server
+                    quitByeRemotes(false, true);
                     context.hints = null;
                     context.hintKeys = null;
-                    context.statusRepo = null;
                     context.cfg.setHintKeysFile("");
+                    context.preferences.setLastHintKeysIsUsed(false);
+                    context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     context.preferences.setLastHintTrackingInUse(false);
-                    context.preferences.setLastHintKeysIsUsed(false);
+                    context.preferences.setLastHintTrackingIsRemote(false);
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                 }
             }
@@ -1237,14 +1248,19 @@ public class Navigator
             public void actionPerformed(ActionEvent actionEvent)
             {
                 int r = JOptionPane.showConfirmDialog(context.mainFrame,
-                        context.cfg.gs("Z.are.you.sure.you.want.to.close") + context.cfg.gs("Z.hint.tracker"),
+                        context.cfg.gs("Z.are.you.sure.you.want.to.close") +
+                                (context.statusStty != null && context.statusStty.isConnected() ?
+                                 context.cfg.gs("Z.hint.server") : context.cfg.gs("Z.hint.tracker")) + "?",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
                 {
+                    // close Hint Tracker/Server
+                    quitByeRemotes(false, true);
                     context.statusRepo = null;
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     context.preferences.setLastHintTrackingInUse(false);
+                    context.preferences.setLastHintTrackingIsRemote(false);
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                 }
             }
@@ -2628,6 +2644,81 @@ public class Navigator
             context.mainFrame.labelStatusMiddle.setText(job.getConfigName() + context.cfg.gs("Z.completed"));
     }
 
+    public void quitByeRemotes(boolean elsListener, boolean hintStatusServer)
+    {
+        boolean closure = false;
+        if (elsListener && context.clientStty != null)
+        {
+            try
+            {
+                closure = true;
+                context.clientSftp.stopClient();
+                if (context.clientStty.isConnected())
+                {
+                    if (!context.timeout)
+                    {
+                        logger.info(context.cfg.gs("Main.disconnecting.stty"));
+                        if (context.fault)
+                        {
+                            String resp;
+                            try
+                            {
+                                resp = context.clientStty.roundTrip("fault", "Sending fault to remote", 1000);
+                            }
+                            catch (Exception e)
+                            {
+                                resp = null;
+                            }
+                        }
+                        else if (quitRemoteSubscriber)
+                            context.clientStty.send("quit", "Sending quit command to remote subscriber");
+                        else
+                            context.clientStty.send("bye", "Sending bye command to remote subscriber");
+                    }
+                }
+                context.clientStty = null;
+            }
+            catch (Exception e)
+            {
+                context.fault = true;
+                context.clientStty = null;
+                logger.error(Utils.getStackTrace(e));
+            }
+        }
+
+        if (hintStatusServer && context.statusStty != null && context.statusStty.isConnected())
+        {
+            try
+            {
+                closure = true;
+                logger.info(context.cfg.gs("Main.disconnecting.status.server"));
+                if (quitRemoteHintStatusServer)
+                    context.statusStty.send("quit", "Sending quit command to remote Hint Status Server");
+                else
+                    context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
+                context.statusStty = null;
+            }
+            catch (Exception e)
+            {
+                context.fault = true;
+                logger.error(Utils.getStackTrace(e));
+            }
+        }
+
+        // give the quit/bye commands a moment to be received
+        if (closure && elsListener && hintStatusServer)
+        {
+            try
+            {
+                Thread.sleep(1500);
+            }
+            catch (Exception e)
+            {
+                // ignore
+            }
+        }
+    }
+
     public void readBookmarks()
     {
         try
@@ -2852,77 +2943,7 @@ public class Navigator
 
     public void stop()
     {
-        boolean closure = false;
-        logger.info(context.cfg.gs("Main.disconnecting.and.shutting.down"));
-
-        if (context.clientStty != null)
-        {
-            try
-            {
-                closure = true;
-                context.clientSftp.stopClient();
-                if (context.clientStty.isConnected())
-                {
-                    if (!context.timeout)
-                    {
-                        if (context.fault)
-                        {
-                            String resp;
-                            try
-                            {
-                                resp = context.clientStty.roundTrip("fault", "Sending fault to remote", 1000);
-                            }
-                            catch (Exception e)
-                            {
-                                resp = null;
-                            }
-                        }
-                        else if (quitRemoteSubscriber)
-                            context.clientStty.send("quit", "Sending quit command to remote subscriber");
-                        else
-                            context.clientStty.send("bye", "Sending bye command to remote subscriber");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                context.fault = true;
-                logger.error(Utils.getStackTrace(e));
-            }
-        }
-        context.clientStty = null;
-
-        if (context.statusStty != null && context.statusStty.isConnected())
-        {
-            try
-            {
-                closure = true;
-                if (quitRemoteHintStatusServer)
-                    context.statusStty.send("quit", "Sending quit command to remote Hint Status Server");
-                else
-                    context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
-            }
-            catch (Exception e)
-            {
-                context.fault = true;
-                logger.error(Utils.getStackTrace(e));
-            }
-        }
-        context.statusStty = null;
-
-        // give the quit/bye commands a moment to be received
-        if (closure)
-        {
-            try
-            {
-                Thread.sleep(1500);
-            }
-            catch (Exception e)
-            {
-                // ignore
-            }
-        }
-
+        quitByeRemotes(true, true);
         if (context.mainFrame != null)
         {
             try
