@@ -401,7 +401,7 @@ public class Configuration
 
 
         // --- Remote
-        if (cc.isRemoteSession())
+        if (cc.isRemoteOperation())
             sb.append(" " + (glo ? "--remote" : "-r") + " P");
 
         // --- libraries
@@ -1451,7 +1451,7 @@ public class Configuration
      *
      * @return true/false
      */
-    public boolean isRemotePublish()
+    public boolean isRemotePublishOperation()
     {
         return (getOperation() == PUBLISH_REMOTE);
     }
@@ -1461,9 +1461,32 @@ public class Configuration
      *
      * @return true/false
      */
-    public boolean isRemoteSession()
+    public boolean isRemoteOperation()
     {
         return (getOperation() != NOT_REMOTE);
+    }
+
+    public boolean isRemoteActive()
+    {
+        if (isRemoteStatusServer())
+            return true;
+        if (isRemoteSubscriber())
+            return true;
+        return false;
+    }
+
+    public boolean isRemoteStatusServer()
+    {
+        if (context.statusStty != null && context.statusStty.isConnected())
+            return true;
+        return false;
+    }
+
+    public boolean isRemoteSubscriber()
+    {
+        if (context.clientStty != null && context.clientStty.isConnected())
+            return true;
+        return false;
     }
 
     /**

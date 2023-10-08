@@ -91,42 +91,43 @@ public class Main
         if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0 && !context.cfg.isStatusServer())
             context.cfg.setDefaultNavigator(true);
 
-        if (context.preferences.isUseLastPublisherSubscriber() && (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE))
+        if (context.cfg.isNavigator() && context.preferences.isUseLastPublisherSubscriber() &&
+                (context.cfg.getOperation() == NOT_REMOTE || context.cfg.getOperation() == PUBLISH_REMOTE))
         {
-            if (context.cfg.isNavigator())
+            if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
             {
-                if (context.cfg.getPublisherFilename().length() == 0 && context.cfg.getSubscriberFilename().length() == 0)
-                {
-                    logger.trace("Defaulting to publisher and subscriber from preferences");
+                if (context.preferences.isLastPublisherInUse())
                     context.cfg.setPublisherLibrariesFileName(context.preferences.getLastPublisherOpenFile());
+
+                if (context.preferences.isLastSubscriberInUse())
+                {
                     context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
-                    if (context.preferences.isLastIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
+                    if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
                     {
                         try
                         {
                             context.cfg.setRemoteType("P");
                         }
                         catch (MungeException e)
-                        {
-                            // will not be thrown
-                        }
+                        { /* will not be thrown */ }
                     }
+                }
 
-                    // hint keys
-                    if (context.cfg.getHintKeysFile().length() == 0 &&
-                            context.preferences.getLastHintKeysOpenFile().length() > 0 && context.preferences.isLastHintKeysInUse())
+                // hint keys
+                if (context.preferences.isLastHintKeysInUse() && context.cfg.getHintKeysFile().length() == 0 &&
+                        context.preferences.getLastHintKeysOpenFile().length() > 0)
+                {
+                    context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
+
+                    // hint tracking, must have hint keys
+                    if (context.preferences.isLastHintTrackingInUse() && context.cfg.getHintHandlerFilename().length() == 0 &&
+                            context.preferences.getLastHintTrackingOpenFile().length() > 0)
                     {
-                        context.cfg.setHintKeysFile(context.preferences.getLastHintKeysOpenFile());
-
-                        // hint tracking, must have hint keys
-                        if (context.preferences.isLastHintTrackingInUse() && context.preferences.getLastHintTrackingOpenFile().length() > 0)
-                        {
-                            // hint daemon or tracker?
-                            if (context.preferences.isLastHintTrackingIsRemote())
-                                context.cfg.setHintsDaemonFilename(context.preferences.getLastHintTrackingOpenFile());
-                            else
-                                context.cfg.setHintTrackerFilename(context.preferences.getLastHintTrackingOpenFile());
-                        }
+                        // hint daemon or tracker?
+                        if (context.preferences.isLastHintTrackingIsRemote())
+                            context.cfg.setHintsDaemonFilename(context.preferences.getLastHintTrackingOpenFile());
+                        else
+                            context.cfg.setHintTrackerFilename(context.preferences.getLastHintTrackingOpenFile());
                     }
                 }
             }
@@ -425,7 +426,7 @@ public class Main
                     context.subscriberRepo = readRepo(context, Repository.SUBSCRIBER, Repository.NO_VALIDATE);
 
                     // start clients
-                    if (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized())
+                    if (context.cfg.isNavigator() || (context.publisherRepo.isInitialized() && context.subscriberRepo.isInitialized()))
                     {
                         // connect to the hint status server if defined
                         setupHints(context.publisherRepo);
@@ -840,20 +841,25 @@ public class Main
             else if (context.cfg.getPublisherLibrariesFileName().length() == 0 &&               // neither
                     context.cfg.getPublisherCollectionFilename().length() == 0)
             {
-                if (context.cfg.isRemoteSession())
+                if (!context.cfg.isNavigator())
                 {
-                    throw new MungeException("A -p publisher library or -P collection file is required for -r P");
+                    if (context.cfg.isRemoteOperation())
+                    {
+                        throw new MungeException("A -p publisher library or -P collection file is required for -r P");
+                    }
+                    else
+                    {
+                        throw new MungeException("A -p publisher library or -P collection file is required, or the filename missing from -p or -P");
+                    }
                 }
                 else
-                {
-                    throw new MungeException("A -p publisher library or -P collection file is required, or the filename missing from -p or -P");
-                }
+                    return null;
             }
 
             // get Publisher data
             repo.read(context.cfg.getPublisherFilename(), "Publisher", true);
         }
-        else
+        else // is Repository.SUBSCRIBER
         {
             if (context.cfg.getSubscriberLibrariesFileName().length() > 0 &&                    // both
                     context.cfg.getSubscriberCollectionFilename().length() > 0)
@@ -863,18 +869,23 @@ public class Main
             else if (context.cfg.getSubscriberLibrariesFileName().length() == 0 &&              // neither
                     context.cfg.getSubscriberCollectionFilename().length() == 0)
             {
-                if (context.cfg.isRemoteSession())
+                if (!context.cfg.isNavigator())
                 {
-                    throw new MungeException("A -s subscriber library or -S collection file is required for -r S");
+                    if (context.cfg.isRemoteOperation())
+                    {
+                        throw new MungeException("A -s subscriber library or -S collection file is required for -r S");
+                    }
+                    else
+                    {
+                        if (context.cfg.isPublishOperation())
+                        {
+                            throw new MungeException("A -s subscriber library or -S collection file is required, or the filename missing for -s or -S");
+                        }
+                        return null;
+                    }
                 }
                 else
-                {
-                    if (context.cfg.isPublishOperation())
-                    {
-                        throw new MungeException("A -s subscriber library or -S collection file is required, or the filename missing for -s or -S");
-                    }
                     return null;
-                }
             }
 
             // get Subscriber data

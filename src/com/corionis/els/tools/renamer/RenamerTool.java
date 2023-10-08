@@ -433,7 +433,7 @@ public class RenamerTool extends AbstractTool
         }
 
         // only subscribers can be remote
-        if (subscriberRepo != null && getCfg().isRemoteSession())
+        if (subscriberRepo != null && getCfg().isRemoteOperation())
             setIsRemote(true);
 
         for (int i = 0; i < origins.size(); ++i)

@@ -306,7 +306,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
         NavTreeUserObject toTuo = toNode.getUserObject();
         toTuo.node = toNode;
         toTuo.path = path;
-        toTuo.isRemote = !targetIsPublisher && context.cfg.isRemoteSession();
+        toTuo.isRemote = !targetIsPublisher && context.cfg.isRemoteOperation();
         toTuo.file = new File(path);
         if (!toTuo.isRemote || (toTuo.isRemote && !context.cfg.isPreserveDates()))
             toTuo.fileTime = FileTime.fromMillis(toTuo.file.lastModified());
@@ -462,6 +462,7 @@ public class NavTransferWorker extends SwingWorker<Object, Object>
                                 context.cfg.gs("NavTransferHandler.progress.of") + sourceTuo.name + context.cfg.gs("NavTransferHandler.failed"));
                 }
             }
+            batchSize = batchSize - sourceTuo.size;
 
             // update trees with progress so far, do again when done
             if (context.preferences.isAutoRefresh())

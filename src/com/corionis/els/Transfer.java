@@ -119,7 +119,7 @@ public class Transfer
                 }
                 else
                 {
-                    String targetPath = getTarget(groupItem.getLibrary(), context.cfg.isRemoteSession(), totalSize, groupItem.getItemPath());
+                    String targetPath = getTarget(groupItem.getLibrary(), context.cfg.isRemoteOperation(), totalSize, groupItem.getItemPath());
                     if (targetPath != null)
                     {
                         // copy item(s) to targetPath
@@ -134,7 +134,7 @@ public class Transfer
                         logger.info(msg);
                         response += (msg + "\r\n");
 
-                        copyFile(groupItem.getFullPath(), groupItem.getModifiedDate(), to, context.cfg.isRemoteSession(), overwrite);
+                        copyFile(groupItem.getFullPath(), groupItem.getModifiedDate(), to, context.cfg.isRemoteOperation(), overwrite);
 
                         grandTotalItems = grandTotalItems + 1;
                         grandTotalSize = grandTotalSize + groupItem.getSize();
@@ -326,7 +326,7 @@ public class Transfer
     {
         String location = null;
 
-        if (context.cfg.isRemoteSession() && context.cfg.isRequestTargets())
+        if (context.cfg.isRemoteOperation() && context.cfg.isRequestTargets())
         {
             // request target data from remote subscriber
             location = context.clientStty.retrieveRemoteData("targets", "Requesting targets", 20000);
@@ -339,7 +339,7 @@ public class Transfer
                 storageTargets = new Storage();
 
             storageTargets.read(location, context.subscriberRepo.getLibraryData().libraries.flavor);
-            if (!context.cfg.isRemoteSession())
+            if (!context.cfg.isRemoteOperation())
                 storageTargets.validate();
         }
     }
@@ -469,7 +469,7 @@ public class Transfer
             isInitialized = true;
 
             // For -r P connect to remote subscriber -r S
-            if (context.cfg.isRemotePublish() || context.cfg.isPublisherListener())
+            if (context.cfg.isRemotePublishOperation() || context.cfg.isPublisherListener())
             {
                 // sanity checks
                 if (context.publisherRepo.getLibraryData().libraries.flavor == null ||
@@ -494,7 +494,7 @@ public class Transfer
 
             if (context.cfg.isNavigator())
             {
-                if (context.cfg.isRemoteSession())
+                if (context.cfg.isRemoteOperation())
                 {
                     requestLibrary();
                 }
@@ -504,7 +504,7 @@ public class Transfer
                 // get -s Subscriber libraries
                 if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
                 {
-                    if (context.cfg.isRemoteSession() && context.cfg.isRequestCollection())
+                    if (context.cfg.isRemoteOperation() && context.cfg.isRequestCollection())
                     {
                         requestCollection();
                     }
@@ -956,7 +956,7 @@ public class Transfer
      */
     public void requestCollection() throws Exception
     {
-        if (context.cfg.isRemoteSession())
+        if (context.cfg.isRemoteOperation())
         {
             // request collection data from remote subscriber
             String location = context.clientStty.retrieveRemoteData("collection",
@@ -976,7 +976,7 @@ public class Transfer
      */
     public void requestLibrary() throws Exception
     {
-        if (context.cfg.isRemoteSession())
+        if (context.cfg.isRemoteOperation())
         {
             // request collection data from remote subscriber
             String location = context.clientStty.retrieveRemoteData("library",

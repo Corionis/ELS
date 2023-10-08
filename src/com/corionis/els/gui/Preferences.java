@@ -68,10 +68,12 @@ public class Preferences implements Serializable
     private boolean lastHintTrackingIsRemote = false;
     private String lastHintTrackingOpenFile = "";
     private String lastHintTrackingOpenPath = "";
-    private boolean lastIsRemote = false;
-    private boolean lastIsWorkstation = false;
+    private boolean lastPublisherInUse = false;
+    private boolean lastPublisherIsWorkstation = false;
     private String lastPublisherOpenFile = "";
     private String lastPublisherOpenPath = "";
+    private boolean lastSubscriberInUse = false;
+    private boolean lastSubscriberIsRemote = false;
     private String lastSubscriberOpenFile = "";
     private String lastSubscriberOpenPath = "";
     private int librariesBiblioDividerLocation = 142;
@@ -143,6 +145,7 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
+
     //private transient LookAndFeel laf = null;
     public Preferences()
     {
@@ -936,14 +939,24 @@ public class Preferences implements Serializable
         return lastHintTrackingIsRemote;
     }
 
-    public boolean isLastIsRemote()
+    public boolean isLastPublisherInUse()
     {
-        return lastIsRemote;
+        return lastPublisherInUse;
     }
 
-    public boolean isLastIsWorkstation()
+    public boolean isLastPublisherIsWorkstation()
     {
-        return lastIsWorkstation;
+        return lastPublisherIsWorkstation;
+    }
+
+    public boolean isLastSubscriberInUse()
+    {
+        return lastSubscriberInUse;
+    }
+
+    public boolean isLastSubscriberIsRemote()
+    {
+        return lastSubscriberIsRemote;
     }
 
     public boolean isPreserveFileTimes()
@@ -1213,14 +1226,14 @@ public class Preferences implements Serializable
         this.lastHintTrackingOpenPath = lastHintTrackingOpenPath;
     }
 
-    public void setLastIsRemote(boolean lastIsRemote)
+    public void setLastPublisherInUse(boolean lastPublisherInUse)
     {
-        this.lastIsRemote = lastIsRemote;
+        this.lastPublisherInUse = lastPublisherInUse;
     }
 
-    public void setLastIsWorkstation(boolean lastIsWorkstation)
+    public void setLastPublisherIsWorkstation(boolean lastPublisherIsWorkstation)
     {
-        this.lastIsWorkstation = lastIsWorkstation;
+        this.lastPublisherIsWorkstation = lastPublisherIsWorkstation;
     }
 
     public void setLastPublisherOpenFile(String lastPublisherOpenFile)
@@ -1231,6 +1244,16 @@ public class Preferences implements Serializable
     public void setLastPublisherOpenPath(String lastPublisherOpenPath)
     {
         this.lastPublisherOpenPath = lastPublisherOpenPath;
+    }
+
+    public void setLastSubscriberInUse(boolean lastSubscriberInUse)
+    {
+        this.lastSubscriberInUse = lastSubscriberInUse;
+    }
+
+    public void setLastSubscriberIsRemote(boolean lastSubscriberIsRemote)
+    {
+        this.lastSubscriberIsRemote = lastSubscriberIsRemote;
     }
 
     public void setLastSubscriberOpenFile(String lastSubscriberOpenFile)

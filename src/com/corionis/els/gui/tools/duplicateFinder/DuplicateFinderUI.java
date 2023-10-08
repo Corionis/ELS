@@ -292,7 +292,7 @@ public class DuplicateFinderUI extends JDialog
                         }
                         else
                         {
-                            if (context.cfg.isRemoteSession())
+                            if (context.cfg.isRemoteOperation())
                             {
                                 if (!context.clientStty.isConnected())
                                 {

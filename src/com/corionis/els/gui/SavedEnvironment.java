@@ -67,7 +67,7 @@ public class SavedEnvironment
             context.subscriberRepo.read(context.cfg.getSubscriberFilename(), "Subscriber", true);
         }
 
-        if (context.cfg.isRemoteSession() && task.getSubscriberKey().length() > 0 &&
+        if (context.cfg.isRemoteOperation() && task.getSubscriberKey().length() > 0 &&
                 context.clientStty != null && context.clientStty.isConnected() &&
                 !context.clientStty.getTheirKey().equals(context.subscriberRepo.getLibraryData().libraries.key) &&
                 !task.getSubscriberKey().equals(Task.ANY_SERVER))
@@ -78,7 +78,7 @@ public class SavedEnvironment
         else
         {
             // if not a remote session, and connected, disconnect
-            if (!context.cfg.isRemoteSession() && context.clientStty != null && context.clientStty.isConnected())
+            if (!context.cfg.isRemoteOperation() && context.clientStty != null && context.clientStty.isConnected())
             {
                 try
                 {

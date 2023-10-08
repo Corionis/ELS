@@ -132,7 +132,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                         {
                             String path = Utils.makeLinuxPath(empty.path);
                             logger.info(context.cfg.gs("EmptyDirectoryFinder.removing") + path);
-                            context.transfer.remove(path, true, !isPublisher && context.cfg.isRemoteSession());
+                            context.transfer.remove(path, true, !isPublisher && context.cfg.isRemoteOperation());
                         }
                         catch (Exception ex)
                         {
@@ -306,7 +306,7 @@ public class EmptyDirectoryFinderUI extends JDialog
                         }
                         else
                         {
-                            if (context.cfg.isRemoteSession())
+                            if (context.cfg.isRemoteOperation())
                             {
                                 if (!context.clientStty.isConnected())
                                 {

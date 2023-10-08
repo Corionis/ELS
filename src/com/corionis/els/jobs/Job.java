@@ -412,7 +412,7 @@ public class Job extends AbstractTool
 
     private boolean willDisconnect(Context context)
     {
-        if (context.cfg.isRemoteSession())
+        if (context.cfg.isRemoteOperation())
         {
             for (Task task : getTasks())
             {

@@ -15,7 +15,6 @@ import com.corionis.els.gui.tools.sleep.SleepUI;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.jobs.Origin;
 import com.corionis.els.jobs.Origins;
-import com.corionis.els.repository.Hints;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.stty.ClientStty;
@@ -26,7 +25,6 @@ import com.corionis.els.gui.libraries.LibrariesUI;
 import com.corionis.els.gui.system.FileEditor;
 import com.corionis.els.gui.update.DownloadUpdater;
 import com.corionis.els.gui.util.GuiLogAppender;
-import com.corionis.els.repository.HintKeys;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -327,11 +325,23 @@ public class Navigator
     public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
     {
         context.mainFrame.menuItemJunk.setEnabled(enable);
+        context.mainFrame.menuItemJunk.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         context.mainFrame.menuItemOperations.setEnabled(enable);
+        context.mainFrame.menuItemOperations.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         context.mainFrame.menuItemRenamer.setEnabled(enable);
+        context.mainFrame.menuItemRenamer.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         context.mainFrame.menuItemSleep.setEnabled(enable);
+        context.mainFrame.menuItemSleep.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         context.mainFrame.menuItemJobsManage.setEnabled(enable);
+        context.mainFrame.menuItemJobsManage.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         context.mainFrame.menuItemUpdates.setEnabled(enable);
+        context.mainFrame.menuItemUpdates.setToolTipText(enable ? "" : context.cfg.gs("Navigator.a.tool.is.active"));
+
         if (!enable)
         {
             if (dialog instanceof JunkRemoverUI)
@@ -427,14 +437,14 @@ public class Navigator
 
         if (context.cfg.getPublisherCollectionFilename().length() > 0)
         {
-            context.preferences.setLastIsWorkstation(false);
+            context.preferences.setLastPublisherIsWorkstation(false);
             context.preferences.setLastPublisherOpenFile(context.cfg.getPublisherCollectionFilename());
             context.preferences.setLastPublisherOpenPath(Utils.getLeftPath(context.cfg.getPublisherCollectionFilename(),
                     Utils.getSeparatorFromPath(context.cfg.getPublisherCollectionFilename())));
         }
         else if (context.cfg.getPublisherLibrariesFileName().length() > 0)
         {
-            context.preferences.setLastIsWorkstation(true);
+            context.preferences.setLastPublisherIsWorkstation(true);
             context.preferences.setLastPublisherOpenPath(context.cfg.getPublisherLibrariesFileName());
             context.preferences.setLastPublisherOpenPath(Utils.getLeftPath(context.cfg.getPublisherLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getPublisherLibrariesFileName())));
@@ -444,14 +454,14 @@ public class Navigator
 
         if (context.cfg.getSubscriberCollectionFilename().length() > 0)
         {
-            context.preferences.setLastIsRemote(true);
+            context.preferences.setLastSubscriberIsRemote(true);
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberCollectionFilename());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberCollectionFilename(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberCollectionFilename())));
         }
         else if (context.cfg.getSubscriberLibrariesFileName().length() > 0)
         {
-            context.preferences.setLastIsRemote(false);
+            context.preferences.setLastSubscriberIsRemote(false);
             context.preferences.setLastSubscriberOpenFile(context.cfg.getSubscriberLibrariesFileName());
             context.preferences.setLastSubscriberOpenPath(Utils.getLeftPath(context.cfg.getSubscriberLibrariesFileName(),
                     Utils.getSeparatorFromPath(context.cfg.getSubscriberLibrariesFileName())));
@@ -605,11 +615,11 @@ public class Navigator
 
                 JRadioButton rbCollection = new JRadioButton(context.cfg.gs("Navigator.menu.Open.publisher.collection.radio"));
                 rbCollection.setToolTipText(context.cfg.gs("Navigator.menu.Open.publisher.collection.radio.tooltip"));
-                rbCollection.setSelected(!context.preferences.isLastIsWorkstation());
+                rbCollection.setSelected(!context.preferences.isLastPublisherIsWorkstation());
 
                 JRadioButton rbWorkstation = new JRadioButton(context.cfg.gs("Navigator.menu.Open.publisher.workstation.radio"));
                 rbWorkstation.setToolTipText(context.cfg.gs("Navigator.menu.Open.publisher.workstation.radio.tooltip"));
-                rbWorkstation.setSelected(context.preferences.isLastIsWorkstation());
+                rbWorkstation.setSelected(context.preferences.isLastPublisherIsWorkstation());
 
                 ButtonGroup group = new ButtonGroup();
                 group.add(rbCollection);
@@ -637,9 +647,7 @@ public class Navigator
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
                         boolean isWorkstation = rbWorkstation.isSelected();
-                        context.preferences.setLastIsWorkstation(isWorkstation);
                         File last = fc.getCurrentDirectory();
-                        context.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
@@ -653,7 +661,10 @@ public class Navigator
                         }
                         try
                         {
+                            context.preferences.setLastPublisherInUse(true);
                             context.preferences.setLastPublisherOpenFile(file.getAbsolutePath());
+                            context.preferences.setLastPublisherOpenPath(last.getAbsolutePath());
+                            context.preferences.setLastPublisherIsWorkstation(isWorkstation);
                             if (isWorkstation)
                             {
                                 context.cfg.setPublisherCollectionFilename("");
@@ -687,12 +698,6 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (context.publisherRepo == null)
-                {
-                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.subscriber.please.open.a.publisher.library.first"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-
                 JFileChooser fc = new JFileChooser();
                 fc.setFileFilter(new FileFilter()
                 {
@@ -737,7 +742,7 @@ public class Navigator
                         context.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox") + "</body></html>");
                 cbIsRemote.setHorizontalTextPosition(SwingConstants.LEFT);
                 cbIsRemote.setToolTipText(context.cfg.gs("Navigator.menu.Open.subscriber.connection.checkbox.tooltip"));
-                cbIsRemote.setSelected(context.preferences.isLastIsRemote());
+                cbIsRemote.setSelected(context.preferences.isLastSubscriberIsRemote());
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.insets = new Insets(0, 0, 0, 8);
                 gb.setConstraints(cbIsRemote, gbc);
@@ -749,7 +754,30 @@ public class Navigator
                     int selection = fc.showOpenDialog(context.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (context.clientStty != null && context.cfg.isRemoteSession() && context.clientStty.isConnected())
+                        if (cbIsRemote.isSelected() && context.publisherRepo == null)
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.a.publisher.library.required"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                            return;
+                        }
+
+                        File last = fc.getCurrentDirectory();
+                        File file = fc.getSelectedFile();
+                        if (!file.exists())
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
+                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        if (file.isDirectory())
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.open.error.select.a.file.only"),
+                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+
+                        if (context.cfg.isRemoteSubscriber())
                         {
                             int r = JOptionPane.showConfirmDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.subscriber.close.current.remote.connection"),
@@ -769,45 +797,34 @@ public class Navigator
                             context.clientSftp.stopClient();
                         }
 
-                        context.preferences.setLastIsRemote(cbIsRemote.isSelected());
-                        File last = fc.getCurrentDirectory();
-                        context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
-                        File file = fc.getSelectedFile();
-                        if (!file.exists())
-                        {
-                            JOptionPane.showMessageDialog(context.mainFrame,
-                                    context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
-                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                            break;
-                        }
-                        if (file.isDirectory())
-                        {
-                            JOptionPane.showMessageDialog(context.mainFrame,
-                                    context.cfg.gs("Navigator.open.error.select.a.file.only"),
-                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                            break;
-                        }
                         try
                         {
+                            context.preferences.setLastSubscriberInUse(true);
+                            context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
+                            context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
+                            context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
+
                             // this defines the value returned by context.cfg.isRemoteSession()
-                            if (context.preferences.isLastIsRemote())
+                            if (context.preferences.isLastSubscriberIsRemote())
                                 context.cfg.setRemoteType("P"); // publisher to remote subscriber
                             else
                                 context.cfg.setRemoteType("-"); // not remote
 
                             setQuitTerminate();
-                            context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
                             context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
                             context.cfg.setSubscriberCollectionFilename("");
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                            context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastIsRemote());
+                            context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastSubscriberIsRemote());
 
-                            if (context.preferences.isLastIsRemote())
+                            if (context.preferences.isLastSubscriberIsRemote())
                             {
+                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+
                                 // start the serveStty client for automation
                                 context.clientStty = new ClientStty(context, false, true);
                                 if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
                                 {
+                                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                     JOptionPane.showMessageDialog(context.mainFrame,
                                             context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
                                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -827,6 +844,7 @@ public class Navigator
                                 context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
                                 if (!context.clientSftp.startClient())
                                 {
+                                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                     JOptionPane.showMessageDialog(context.mainFrame,
                                             context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
                                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -837,12 +855,14 @@ public class Navigator
                             }
 
                             // load the subscriber library
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                             context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.requesting.collection.data.from.remote"));
-                            context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastIsRemote());
-                            context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastIsRemote());
+                            context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
+                            context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                         }
                         catch (Exception e)
                         {
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                             JOptionPane.showMessageDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
@@ -856,7 +876,7 @@ public class Navigator
         };
         context.mainFrame.menuItemOpenSubscriber.addActionListener(openSubscriberAction);
         if (context.subscriberRepo != null)
-            context.preferences.setLastIsRemote(context.cfg.isRemoteSession());
+            context.preferences.setLastSubscriberIsRemote(context.cfg.isRemoteOperation());
 
         // --- Open Hint Keys
         AbstractAction openHintKeysAction = new AbstractAction()
@@ -864,12 +884,6 @@ public class Navigator
             @Override
             public void actionPerformed(ActionEvent actionEvent)
             {
-                if (context.publisherRepo == null)
-                {
-                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.subscriber.please.open.a.publisher.library.first"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
-                    return;
-                }
-
                 JFileChooser fc = new JFileChooser();
                 fc.setFileFilter(new FileFilter()
                 {
@@ -910,7 +924,6 @@ public class Navigator
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
                         File last = fc.getCurrentDirectory();
-                        context.preferences.setLastHintKeysOpenPath(last.getAbsolutePath());
                         File file = fc.getSelectedFile();
                         if (!file.exists())
                         {
@@ -926,14 +939,14 @@ public class Navigator
                                     context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
+
                         try
                         {
                             context.preferences.setLastHintKeysInUse(true);
                             context.preferences.setLastHintKeysOpenFile(file.getAbsolutePath());
+                            context.preferences.setLastHintKeysOpenPath(last.getAbsolutePath());
                             context.cfg.setHintKeysFile(file.getAbsolutePath());
-                            context.hintKeys = new HintKeys(context);
-                            context.hintKeys.read(context.cfg.getHintKeysFile());
-                            context.hints = new Hints(context, context.hintKeys);
+                            context.main.setupHints(context.publisherRepo);
                             if (!showHintTrackingButton)
                             {
                                 showHintTrackingButton = true;
@@ -1025,7 +1038,30 @@ public class Navigator
                     int selection = fc.showOpenDialog(context.mainFrame);
                     if (selection == JFileChooser.APPROVE_OPTION)
                     {
-                        if (context.cfg.isUsingHintTracking() && context.statusStty != null && context.statusStty.isConnected())
+                        if (cbIsRemote.isSelected() && context.publisherRepo == null)
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.menu.Open.a.publisher.library.required"), context.cfg.getNavigatorName(), JOptionPane.INFORMATION_MESSAGE);
+                            return;
+                        }
+
+                        File last = fc.getCurrentDirectory();
+                        File file = fc.getSelectedFile();
+                        if (!file.exists())
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
+                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+                        if (file.isDirectory())
+                        {
+                            JOptionPane.showMessageDialog(context.mainFrame,
+                                    context.cfg.gs("Navigator.open.error.select.a.file.only"),
+                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+
+                        if (context.cfg.isUsingHintTracking() && context.cfg.isRemoteStatusServer())
                         {
                             int r = JOptionPane.showConfirmDialog(context.mainFrame,
                                     context.cfg.gs("Navigator.menu.Open.hint.tracking.close.current.status.server"),
@@ -1044,28 +1080,12 @@ public class Navigator
                             context.statusStty.disconnect();
                         }
 
-                        context.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
-                        File last = fc.getCurrentDirectory();
-                        context.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
-                        File file = fc.getSelectedFile();
-                        if (!file.exists())
-                        {
-                            JOptionPane.showMessageDialog(context.mainFrame,
-                                    context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
-                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                            break;
-                        }
-                        if (file.isDirectory())
-                        {
-                            JOptionPane.showMessageDialog(context.mainFrame,
-                                    context.cfg.gs("Navigator.open.error.select.a.file.only"),
-                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                            break;
-                        }
                         try
                         {
                             context.preferences.setLastHintTrackingInUse(true);
                             context.preferences.setLastHintTrackingOpenFile(file.getAbsolutePath());
+                            context.preferences.setLastHintTrackingOpenPath(last.getAbsolutePath());
+                            context.preferences.setLastHintTrackingIsRemote(cbIsRemote.isSelected());
 
                             if (context.preferences.isLastHintTrackingIsRemote())
                             {
@@ -1097,27 +1117,6 @@ public class Navigator
         };
         context.mainFrame.menuItemOpenHintTracking.addActionListener(openHintTrackingAction);
 
-        // Save Layout
-        AbstractAction saveLayoutAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                try
-                {
-                    context.preferences.write(context);
-                }
-                catch (Exception e)
-                {
-                    logger.error(Utils.getStackTrace(e));
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
-                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        };
-        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
-
         // --- Close ...
         context.mainFrame.menuItemClose.addMenuListener(new MenuListener()
         {
@@ -1125,7 +1124,19 @@ public class Navigator
             public void menuSelected(MenuEvent menuEvent)
             {
                 if (context.publisherRepo != null && context.publisherRepo.isInitialized())
+                {
                     context.mainFrame.menuItemClosePublisher.setVisible(true);
+                    if (context.cfg.isRemoteActive())
+                    {
+                        context.mainFrame.menuItemClosePublisher.setEnabled(false);
+                        context.mainFrame.menuItemClosePublisher.setToolTipText(context.cfg.gs("Navigator.menu.Open.a.publisher.library.required"));
+                    }
+                    else
+                    {
+                        context.mainFrame.menuItemClosePublisher.setEnabled(true);
+                        context.mainFrame.menuItemClosePublisher.setToolTipText(context.cfg.gs(""));
+                    }
+                }
                 else
                     context.mainFrame.menuItemClosePublisher.setVisible(false);
 
@@ -1135,13 +1146,13 @@ public class Navigator
                     context.mainFrame.menuItemCloseSubscriber.setVisible(false);
 
                 if (context.hintKeys != null && context.cfg.getHintKeysFile().length() > 0)
-                    context.mainFrame.menuItemHintKeys.setVisible(true);
+                    context.mainFrame.menuItemCloseHintKeys.setVisible(true);
                 else
                     context.mainFrame.menuItemCloseHintKeys.setVisible(false);
 
                 if (context.statusRepo != null && context.statusRepo.isInitialized())
                 {
-                    if (context.statusStty != null && context.statusStty.isConnected())
+                    if (context.cfg.isRemoteStatusServer())
                         context.mainFrame.menuItemCloseHintTracking.setText(context.cfg.gs("Z.hint.server") + " ...");
                     else
                         context.mainFrame.menuItemCloseHintTracking.setText(context.cfg.gs("Z.hint.tracker") + " ...");
@@ -1178,6 +1189,9 @@ public class Navigator
                     root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemOne, context.cfg.gs("Browser.open.a.publisher"), false);
                     root.loadTable();
                     context.publisherRepo = null;
+                    context.cfg.setPublisherCollectionFilename("");
+                    context.cfg.setPublisherLibrariesFileName("");
+                    context.preferences.setLastPublisherInUse(false);
                 }
             }
         });
@@ -1199,7 +1213,9 @@ public class Navigator
                     root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
                     root.loadTable();
                     context.subscriberRepo = null;
-                    context.preferences.setLastIsRemote(false);
+                    context.cfg.setSubscriberCollectionFilename("");
+                    context.cfg.setSubscriberLibrariesFileName("");
+                    context.preferences.setLastSubscriberInUse(false);
                 }
             }
         });
@@ -1235,7 +1251,6 @@ public class Navigator
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     context.preferences.setLastHintTrackingInUse(false);
-                    context.preferences.setLastHintTrackingIsRemote(false);
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                 }
             }
@@ -1249,7 +1264,7 @@ public class Navigator
             {
                 int r = JOptionPane.showConfirmDialog(context.mainFrame,
                         context.cfg.gs("Z.are.you.sure.you.want.to.close") +
-                                (context.statusStty != null && context.statusStty.isConnected() ?
+                                (context.cfg.isRemoteStatusServer() ?
                                  context.cfg.gs("Z.hint.server") : context.cfg.gs("Z.hint.tracker")) + "?",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
@@ -1260,11 +1275,31 @@ public class Navigator
                     context.cfg.setHintTrackerFilename("");
                     context.cfg.setHintsDaemonFilename("");
                     context.preferences.setLastHintTrackingInUse(false);
-                    context.preferences.setLastHintTrackingIsRemote(false);
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
                 }
             }
         });
+
+        // Save Layout
+        AbstractAction saveLayoutAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    context.preferences.write(context);
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         // --- Quit & Stop Remote(s)
         context.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
@@ -2615,8 +2650,8 @@ public class Navigator
                 {
                     if (context.progress != null)
                         context.progress.update(context.cfg.gs("Navigator.scanning.subscriber"));
-                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
-                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteSession(), false);
+                    context.browser.deepScanCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteOperation(), false);
+                    context.browser.deepScanSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteOperation(), false);
                 }
             }
 
@@ -2686,7 +2721,7 @@ public class Navigator
             }
         }
 
-        if (hintStatusServer && context.statusStty != null && context.statusStty.isConnected())
+        if (hintStatusServer && context.cfg.isRemoteStatusServer())
         {
             try
             {
@@ -2736,13 +2771,13 @@ public class Navigator
     public boolean reconnectRemote(Context context, Repository publisherRepo, Repository subscriberRepo) throws Exception
     {
         // is this necessary?
-        if (context.cfg.isRemoteSession() && subscriberRepo != null &&
+        if (context.cfg.isRemoteOperation() && subscriberRepo != null &&
                 context.clientStty != null && context.clientStty.getTheirKey().equals(subscriberRepo.getLibraryData().libraries.key) &&
                 context.clientStty.isConnected())
             return true;
 
         // close any existing connections
-        if (context.clientStty != null && context.clientStty.isConnected())
+        if (context.cfg.isRemoteSubscriber())
         {
             try
             {
@@ -2758,7 +2793,7 @@ public class Navigator
         // connect to the hint status server if defined
         context.main.setupHints(context.publisherRepo);
 
-        if (context.cfg.isRemoteSession())
+        if (context.cfg.isRemoteOperation())
         {
             // start the serveStty client for automation
             context.clientStty = new ClientStty(context, false, true);
@@ -2917,7 +2952,7 @@ public class Navigator
 
     private void setQuitTerminate()
     {
-        if (context.cfg.getHintsDaemonFilename().length() > 0 || context.cfg.isRemoteSession())
+        if (context.cfg.getHintsDaemonFilename().length() > 0 || context.cfg.isRemoteOperation())
             context.mainFrame.menuItemQuitTerminate.setVisible(true);
         else
             context.mainFrame.menuItemQuitTerminate.setVisible(false);

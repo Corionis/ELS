@@ -257,7 +257,7 @@ public class Generator
     {
         String java = context.cfg.getJavaExe();
         String jar = context.cfg.getElsJar();
-
+// LEFTOFF Not setting -r P , etc. for remotes
         // tool has all the parameter data, use it's generate method
         String conf = getCfgOpt();
         String opts = ((OperationsTool) tool).generateCommandLine(context.cfg.getPublisherFilename(), context.cfg.getSubscriberFilename());

@@ -1051,18 +1051,21 @@ public class MainFrame extends JFrame
                 menuItemExternalTools.setMnemonic(context.cfg.gs("Navigator.menuItemExternalTools.mnemonic").charAt(0));
                 menuItemExternalTools.setEnabled(false);
                 menuItemExternalTools.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemExternalTools.displayedMnemonicIndex")));
+                menuItemExternalTools.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
                 menuTools.add(menuItemExternalTools);
 
                 //---- menuItemPlexGenerator ----
                 menuItemPlexGenerator.setText(context.cfg.gs("Navigator.menu.PlexGenerator.text"));
                 menuItemPlexGenerator.setEnabled(false);
                 menuItemPlexGenerator.setMargin(new Insets(2, 18, 2, 2));
+                menuItemPlexGenerator.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
                 menuTools.add(menuItemPlexGenerator);
 
                 //---- menuItem1 ----
                 menuItem1.setText("Handbrake");
                 menuItem1.setMargin(new Insets(2, 18, 2, 2));
                 menuItem1.setEnabled(false);
+                menuItem1.setToolTipText(context.cfg.gs("Z.not.implemented.yet"));
                 menuTools.add(menuItem1);
             }
             menuBarMain.add(menuTools);
@@ -2507,7 +2510,7 @@ public class MainFrame extends JFrame
 
         //======== popupMenuBrowser ========
         {
-            popupMenuBrowser.setPreferredSize(new Dimension(204, 194));
+            popupMenuBrowser.setPreferredSize(new Dimension(212, 194));
 
             //---- popupMenuItemRefresh ----
             popupMenuItemRefresh.setText(context.cfg.gs("Navigator.popupMenuItemRefresh.text"));
@@ -2571,7 +2574,7 @@ public class MainFrame extends JFrame
 
         //======== popupMenuLog ========
         {
-            popupMenuLog.setPreferredSize(new Dimension(180, 156));
+            popupMenuLog.setPreferredSize(new Dimension(188, 156));
 
             //---- popupMenuItemFindNext ----
             popupMenuItemFindNext.setText(context.cfg.gs("Navigator.popupMenuItemFindNext.text"));

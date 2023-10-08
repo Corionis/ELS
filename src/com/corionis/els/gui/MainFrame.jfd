@@ -1624,18 +1624,21 @@ new FormModel {
 						"mnemonic": new FormMessage( null, "Navigator.menuItemExternalTools.mnemonic" )
 						"enabled": false
 						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemExternalTools.displayedMnemonicIndex" )
+						"toolTipText": new FormMessage( null, "Z.not.implemented.yet" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemPlexGenerator"
 						"text": new FormMessage( null, "Navigator.menu.PlexGenerator.text" )
 						"enabled": false
 						"margin": new java.awt.Insets( 2, 18, 2, 2 )
+						"toolTipText": new FormMessage( null, "Z.not.implemented.yet" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItem1"
 						"text": "Handbrake"
 						"margin": new java.awt.Insets( 2, 18, 2, 2 )
 						"enabled": false
+						"toolTipText": new FormMessage( null, "Z.not.implemented.yet" )
 					} )
 				} )
 				add( new FormContainer( "javax.swing.JMenu", new FormLayoutManager( class javax.swing.JMenu ) ) {
@@ -1798,7 +1801,7 @@ new FormModel {
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "popupMenuBrowser"
-			"preferredSize": new java.awt.Dimension( 204, 194 )
+			"preferredSize": new java.awt.Dimension( 212, 194 )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemRefresh"
 				"text": new FormMessage( null, "Navigator.popupMenuItemRefresh.text" )
@@ -1866,11 +1869,11 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 1045, 95 )
-			"size": new java.awt.Dimension( 205, 194 )
+			"size": new java.awt.Dimension( 210, 194 )
 		} )
 		add( new FormContainer( "javax.swing.JPopupMenu", new FormLayoutManager( class javax.swing.JPopupMenu ) ) {
 			name: "popupMenuLog"
-			"preferredSize": new java.awt.Dimension( 180, 156 )
+			"preferredSize": new java.awt.Dimension( 188, 156 )
 			add( new FormComponent( "javax.swing.JMenuItem" ) {
 				name: "popupMenuItemFindNext"
 				"text": new FormMessage( null, "Navigator.popupMenuItemFindNext.text" )
@@ -1922,7 +1925,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 1045, 330 )
-			"size": new java.awt.Dimension( 180, 156 )
+			"size": new java.awt.Dimension( 190, 156 )
 		} )
 	}
 }

@@ -302,7 +302,7 @@ public class Hints
                     {
                         candidate = lib.sources[j];
                         // check size of item(s) to be copied
-                        long space = context.transfer.getFreespace(candidate, context.cfg.isRemoteSession());
+                        long space = context.transfer.getFreespace(candidate, context.cfg.isRemoteOperation());
                         if (space > (item.getSize() + (1024 * 1024 * 10)))
                         {
                             target = candidate + Utils.getFileSeparator(context.subscriberRepo.getLibraryData().libraries.flavor) + item.getItemPath();
@@ -522,7 +522,7 @@ public class Hints
                         // do the libraries have items or do they need to be scanned?
                         if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            if (!context.cfg.isRemoteSession()) // remote collection already loaded and may be empty
+                            if (!context.cfg.isRemoteOperation()) // remote collection already loaded and may be empty
                             {
                                 context.subscriberRepo.scan(subLib.name);
                             }
@@ -557,7 +557,7 @@ public class Hints
                             // transfer the hint to the subscriber
                             String toPath = getHintTarget(item); // never null
                             String tmpPath = toPath + ".merge";
-                            context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, context.cfg.isRemoteSession(), true);
+                            context.transfer.copyFile(item.getFullPath(), item.getModifiedDate(), tmpPath, context.cfg.isRemoteOperation(), true);
 
                             toItem = SerializationUtils.clone(item);
                             toItem.setFullPath(toPath);
@@ -567,7 +567,7 @@ public class Hints
                             }
 
                             boolean updatePubSide = false;
-                            if (context.cfg.isRemoteSession())
+                            if (context.cfg.isRemoteOperation())
                             {
                                 if (context.clientStty.isConnected())
                                 {
@@ -607,7 +607,7 @@ public class Hints
 
                             updateSubscriberOnPublisher(item);
 
-                            if (!context.cfg.isRemoteSession()) // subscriber-side does this itself
+                            if (!context.cfg.isRemoteOperation()) // subscriber-side does this itself
                             {
                                 postprocessHintFile(context.subscriberRepo, toItem);
                             }
@@ -642,7 +642,7 @@ public class Hints
                     {
                         if (lib.rescanNeeded)
                         {
-                            if (context.cfg.isRemoteSession())
+                            if (context.cfg.isRemoteOperation())
                             {
                                 request = true;
                                 break;
@@ -678,7 +678,7 @@ public class Hints
      */
     public void hintsSubscriberCleanup() throws Exception
     {
-        if (context.cfg.isRemoteSession() && !context.localMode)
+        if (context.cfg.isRemoteOperation() && !context.localMode)
         {
             if (context.clientStty.isConnected())
             {
@@ -1570,7 +1570,7 @@ public class Hints
 
     public void writeOrUpdateHint(String hintPath, String command, String sourceKey) throws Exception
     {
-        if (context.cfg.isRemoteSession() && !context.localMode)
+        if (context.cfg.isRemoteOperation() && !context.localMode)
         {
             String line = "hint \"" + hintPath + "\" " + command;
             context.clientStty.roundTrip(line + "\n", "Sending remote: " + line, 10000);

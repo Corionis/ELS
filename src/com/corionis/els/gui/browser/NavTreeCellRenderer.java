@@ -38,7 +38,7 @@ public class NavTreeCellRenderer extends DefaultTreeCellRenderer
                     case NavTreeUserObject.COLLECTION:
                         setIcon(UIManager.getIcon("FileChooser.homeFolderIcon")); // collection root
                         setToolTipText((tuo.isRemote ? context.cfg.gs("Z.remote.uppercase") : context.cfg.gs("NavTreeNode.local")) +
-                                (!tuo.isSubscriber() && context.preferences.isLastIsWorkstation() ? context.cfg.gs("Navigator.workstation") : context.cfg.gs("NavTreeNode.collection")) +
+                                (!tuo.isSubscriber() && context.preferences.isLastPublisherIsWorkstation() ? context.cfg.gs("Navigator.workstation") : context.cfg.gs("NavTreeNode.collection")) +
                                 ", " + tuo.node.getChildCount() + context.cfg.gs("Navigator.libraries"));
                         break;
                     case NavTreeUserObject.COMPUTER:

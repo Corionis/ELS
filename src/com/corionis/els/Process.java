@@ -250,7 +250,7 @@ public class Process
                         }
                         if (subLib.items == null || subLib.items.size() < 1)
                         {
-                            if (!context.cfg.isRemoteSession()) // remote collection already loaded and may be empty
+                            if (!context.cfg.isRemoteOperation()) // remote collection already loaded and may be empty
                             {
                                 context.subscriberRepo.scan(subLib.name);
                             }
@@ -495,7 +495,7 @@ public class Process
             }
 
             // process ELS Hints locally, no subscriber, publisher's targets
-            if (context.hints != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteSession() &&
+            if (context.hints != null && context.cfg.isTargetsEnabled() && !context.cfg.isRemoteOperation() &&
                     (context.cfg.getPublisherLibrariesFileName().length() > 0 ||
                             context.cfg.getPublisherCollectionFilename().length() > 0) &&
                     (context.cfg.getSubscriberLibrariesFileName().length() == 0 &&

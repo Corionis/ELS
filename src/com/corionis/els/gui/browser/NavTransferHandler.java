@@ -315,7 +315,7 @@ public class NavTransferHandler extends TransferHandler
     {
         if (context.browser.isHintTrackingEnabled() && sourceTuo.node.getMyTree().getName().toLowerCase().contains("collection"))
         {
-            String hintPath = context.hints.writeHint(act, context.preferences.isLastIsWorkstation(), sourceTuo, targetTuo);
+            String hintPath = context.hints.writeHint(act, context.preferences.isLastPublisherIsWorkstation(), sourceTuo, targetTuo);
             if (hintPath.length() > 0)
             {
                 if (hintPath.toLowerCase().equals("false"))
@@ -349,7 +349,7 @@ public class NavTransferHandler extends TransferHandler
                     }
 
                     // update status tracking
-                    if (!context.preferences.isLastIsWorkstation() || sourceTuo.isSubscriber())
+                    if (!context.preferences.isLastPublisherIsWorkstation() || sourceTuo.isSubscriber())
                     {
                         NavTreeNode node = sourceTuo.getParentLibrary();
                         if (node == null)

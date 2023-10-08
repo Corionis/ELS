@@ -377,7 +377,7 @@ public class Task implements Comparable, Serializable
                 {
                     pubRepo = getRepo(context, getPublisherKey(), true);
                     subRepo = getRepo(context, getSubscriberKey(), false);
-                    remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteSession())) ? "P" : "-";
+                    remoteType = (isSubscriberRemote() || (getSubscriberKey().equals(Task.ANY_SERVER) && context.cfg.isRemoteOperation())) ? "P" : "-";
 
                     context.cfg.setRemoteType(remoteType);
                     context.cfg.setPublishOperation(remoteType.equals("p") ? true : false); // QUESTION Correct?

@@ -1018,7 +1018,7 @@ public class Browser
     public long getFreespace(String path, boolean isRemote) throws Exception
     {
         long space = 0L;
-        if (isRemote && context.cfg.isRemoteSession())
+        if (isRemote && context.cfg.isRemoteOperation())
         {
             try
             {
@@ -1408,9 +1408,9 @@ public class Browser
         // --- treeCollectionTwo
         context.mainFrame.treeCollectionTwo.setName("treeCollectionTwo");
         if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
-            loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteSession());
+            loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.cfg.isRemoteOperation());
         else
-            setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteSession());
+            setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteOperation());
         //
         // treeCollectionTwo tree expansion event handler
         context.mainFrame.treeCollectionTwo.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -1453,9 +1453,9 @@ public class Browser
         // --- treeSystemTwo
         context.mainFrame.treeSystemTwo.setName("treeSystemTwo");
         if (context.subscriberRepo != null && context.subscriberRepo.isInitialized())
-            loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteSession());
+            loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.cfg.isRemoteOperation());
         else
-            setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteSession());
+            setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), context.cfg.isRemoteOperation());
         //
         // treeSystemTwo tree expansion event handler
         context.mainFrame.treeSystemTwo.addTreeWillExpandListener(new TreeWillExpandListener()
@@ -2089,7 +2089,7 @@ public class Browser
             }
             else // subscriber collection or system
             {
-                remote = context.cfg.isRemoteSession();
+                remote = context.cfg.isRemoteOperation();
                 repo = context.subscriberRepo;
                 tree = panelName.contains("collection") ? context.mainFrame.treeCollectionTwo : context.mainFrame.treeSystemTwo;
                 table = panelName.contains("collection") ? context.mainFrame.tableCollectionTwo : context.mainFrame.tableSystemTwo;
