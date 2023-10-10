@@ -196,7 +196,7 @@ public class Navigator
                 {
                     while (true)
                     {
-                        // no, a new version is available
+                        // a new version is available
                         message = java.text.MessageFormat.format(context.cfg.gs("Navigator.install.new.version"),
                                 Configuration.getBuildDate(), version.get(Configuration.BUILD_DATE));
                         Object[] opts = {context.cfg.gs("Z.yes"), context.cfg.gs("Z.no"), context.cfg.gs("Navigator.recent.changes")};
@@ -347,22 +347,27 @@ public class Navigator
             if (dialog instanceof JunkRemoverUI)
             {
                 context.mainFrame.menuItemJunk.setEnabled(true);
+                context.mainFrame.menuItemJunk.setToolTipText("");
             }
             else if (dialog instanceof OperationsUI)
             {
                 context.mainFrame.menuItemOperations.setEnabled(true);
+                context.mainFrame.menuItemOperations.setToolTipText("");
             }
             else if (dialog instanceof RenamerUI)
             {
                 context.mainFrame.menuItemRenamer.setEnabled(true);
+                context.mainFrame.menuItemRenamer.setToolTipText("");
             }
             else if (dialog instanceof SleepUI)
             {
                 context.mainFrame.menuItemSleep.setEnabled(true);
+                context.mainFrame.menuItemSleep.setToolTipText("");
             }
             else if (dialog instanceof JobsUI)
             {
                 context.mainFrame.menuItemJobsManage.setEnabled(true);
+                context.mainFrame.menuItemJobsManage.setToolTipText("");
             }
         }
     }
@@ -533,7 +538,7 @@ public class Navigator
 
             context.cfg.setPreserveDates(context.preferences.isPreserveFileTimes());
 
-            setQuitTerminate();
+            setQuitTerminateVisibility();
 
             // add any defined bookmarks to the menu
             bookmarks = new Bookmarks();
@@ -659,6 +664,23 @@ public class Navigator
                             JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.open.error.select.a.file.only"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                             break;
                         }
+
+                        if (context.cfg.isRemoteSubscriber())
+                        {
+                            for (ActionListener listener : context.mainFrame.menuItemCloseSubscriber.getActionListeners())
+                            {
+                                listener.actionPerformed(new ActionEvent(context.mainFrame.menuItemCloseSubscriber, ActionEvent.ACTION_PERFORMED, null));
+                            }
+                        }
+
+                        if (context.cfg.isUsingHintTracking() && context.cfg.isRemoteStatusServer())
+                        {
+                            for (ActionListener listener : context.mainFrame.menuItemCloseHintTracking.getActionListeners())
+                            {
+                                listener.actionPerformed(new ActionEvent(context.mainFrame.menuItemCloseHintTracking, ActionEvent.ACTION_PERFORMED, null));
+                            }
+                        }
+
                         try
                         {
                             context.preferences.setLastPublisherInUse(true);
@@ -677,6 +699,7 @@ public class Navigator
                             }
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.publisherRepo = context.main.readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
+                            setQuitTerminateVisibility();
                             context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
                             context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
                         }
@@ -786,15 +809,7 @@ public class Navigator
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                                 return;
 
-                            try
-                            {
-                                context.clientStty.send("bye", "Sending bye command to remote subscriber");
-                            }
-                            catch (Exception e)
-                            {
-                            }
-                            context.clientStty.disconnect();
-                            context.clientSftp.stopClient();
+                            quitByeRemotes(true, false);
                         }
 
                         try
@@ -810,7 +825,7 @@ public class Navigator
                             else
                                 context.cfg.setRemoteType("-"); // not remote
 
-                            setQuitTerminate();
+                            setQuitTerminateVisibility();
                             context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
                             context.cfg.setSubscriberCollectionFilename("");
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
@@ -1070,14 +1085,7 @@ public class Navigator
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                                 return;
 
-                            try
-                            {
-                                context.statusStty.send("bye", "Sending bye command to remote Hint Status Server");
-                            }
-                            catch (Exception e)
-                            {
-                            }
-                            context.statusStty.disconnect();
+                            quitByeRemotes(false, true);
                         }
 
                         try
@@ -1097,7 +1105,7 @@ public class Navigator
                                 context.cfg.setHintsDaemonFilename("");
                                 context.cfg.setHintTrackerFilename(file.getAbsolutePath());
                             }
-                            setQuitTerminate();
+                            setQuitTerminateVisibility();
 
                             // connect to the hint tracker or status server
                             context.main.setupHints(context.publisherRepo);
@@ -1192,6 +1200,7 @@ public class Navigator
                     context.cfg.setPublisherCollectionFilename("");
                     context.cfg.setPublisherLibrariesFileName("");
                     context.preferences.setLastPublisherInUse(false);
+                    setQuitTerminateVisibility();
                 }
             }
         });
@@ -1216,6 +1225,7 @@ public class Navigator
                     context.cfg.setSubscriberCollectionFilename("");
                     context.cfg.setSubscriberLibrariesFileName("");
                     context.preferences.setLastSubscriberInUse(false);
+                    setQuitTerminateVisibility();
                 }
             }
         });
@@ -1276,6 +1286,7 @@ public class Navigator
                     context.cfg.setHintsDaemonFilename("");
                     context.preferences.setLastHintTrackingInUse(false);
                     showHintTrackingButton = context.browser.resetHintTrackingButton();
+                    setQuitTerminateVisibility();
                 }
             }
         });
@@ -2261,21 +2272,6 @@ public class Navigator
         // -- Help Menu
         // --------------------------------------------------------
 
-        // --- Changelist
-        context.mainFrame.menuItemChangelist.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Settings.date.format.help.title"), "changes_" + context.preferences.getLocale() + ".html");
-                if (!dialog.fault)
-                {
-                    dialog.setTitle(context.cfg.gs("Navigator.changes.help.title"));
-                    dialog.setVisible(true);
-                }
-            }
-        });
-
         // --- Controls
         context.mainFrame.menuItemControls.addActionListener(new AbstractAction()
         {
@@ -2338,6 +2334,21 @@ public class Navigator
                 catch (Exception e)
                 {
                     JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // --- Changelist
+        context.mainFrame.menuItemChangelist.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                NavHelp dialog = new NavHelp(context.mainFrame, context.mainFrame, context, context.cfg.gs("Settings.date.format.help.title"), "changes_" + context.preferences.getLocale() + ".html");
+                if (!dialog.fault)
+                {
+                    dialog.setTitle(context.cfg.gs("Navigator.changes.help.title"));
+                    dialog.setVisible(true);
                 }
             }
         });
@@ -2950,9 +2961,9 @@ public class Navigator
         return path;
     }
 
-    private void setQuitTerminate()
+    private void setQuitTerminateVisibility()
     {
-        if (context.cfg.getHintsDaemonFilename().length() > 0 || context.cfg.isRemoteOperation())
+        if (context.cfg.isRemoteActive())
             context.mainFrame.menuItemQuitTerminate.setVisible(true);
         else
             context.mainFrame.menuItemQuitTerminate.setVisible(false);
