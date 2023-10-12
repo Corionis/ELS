@@ -2507,7 +2507,7 @@ public class Configuration
      *
      * @param type the remote type and remote flag
      */
-    public void setRemoteType(String type) throws MungeException
+    public void setRemoteType(String type)
     {
         this.operation = NOT_REMOTE;
         if (type.equalsIgnoreCase("P")) // 1
@@ -2523,7 +2523,7 @@ public class Configuration
         else if (type.equalsIgnoreCase("J")) // 8
             this.operation = JOB_PROCESS;
         else if (!type.equals("-"))
-            throw new MungeException("Error: -r must be followed by J|L|M|P|S|T, case-insensitive");
+            type = "-";
     }
 
     /**

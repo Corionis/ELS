@@ -322,6 +322,21 @@ public class Navigator
 
     }
 
+    public void disconnectSubscriber()
+    {
+        quitByeRemotes(true, false);
+        NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
+        root.loadTable();
+        root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
+        root.loadTable();
+        context.subscriberRepo = null;
+        context.cfg.setSubscriberCollectionFilename("");
+        context.cfg.setSubscriberLibrariesFileName("");
+        context.preferences.setLastSubscriberInUse(false);
+        context.cfg.setRemoteType("-");
+        setQuitTerminateVisibility();
+    }
+
     public void enableDisableToolMenus(AbstractToolDialog dialog, boolean enable)
     {
         context.mainFrame.menuItemJunk.setEnabled(enable);
@@ -809,81 +824,97 @@ public class Navigator
                             if (r == JOptionPane.NO_OPTION || r == JOptionPane.CANCEL_OPTION)
                                 return;
 
-                            quitByeRemotes(true, false);
+                            disconnectSubscriber();
                         }
 
-                        try
+                        context.preferences.setLastSubscriberInUse(true);
+                        context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
+                        context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
+                        context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
+
+                        // this defines the value returned by context.cfg.isRemoteSession()
+                        if (context.preferences.isLastSubscriberIsRemote())
+                            context.cfg.setRemoteType("P"); // publisher to remote subscriber
+                        else
+                            context.cfg.setRemoteType("-"); // not remote
+
+                        setQuitTerminateVisibility();
+                        context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
+                        context.cfg.setSubscriberCollectionFilename("");
+                        context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+
+                        if (context.preferences.isLastSubscriberIsRemote())
                         {
-                            context.preferences.setLastSubscriberInUse(true);
-                            context.preferences.setLastSubscriberOpenFile(file.getAbsolutePath());
-                            context.preferences.setLastSubscriberOpenPath(last.getAbsolutePath());
-                            context.preferences.setLastSubscriberIsRemote(cbIsRemote.isSelected());
+                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Transfer.requesting.subscriber.library"));
+                            context.mainFrame.repaint();
+                            context.mainFrame.labelStatusMiddle.repaint();
+                        }
 
-                            // this defines the value returned by context.cfg.isRemoteSession()
-                            if (context.preferences.isLastSubscriberIsRemote())
-                                context.cfg.setRemoteType("P"); // publisher to remote subscriber
-                            else
-                                context.cfg.setRemoteType("-"); // not remote
-
-                            setQuitTerminateVisibility();
-                            context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
-                            context.cfg.setSubscriberCollectionFilename("");
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                            context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastSubscriberIsRemote());
-
-                            if (context.preferences.isLastSubscriberIsRemote())
+                        SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
                             {
-                                context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                try
+                                {
+                                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    context.mainFrame.repaint();
+                                    context.mainFrame.labelStatusMiddle.repaint();
 
-                                // start the serveStty client for automation
-                                context.clientStty = new ClientStty(context, false, true);
-                                if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                                    context.subscriberRepo = context.main.readRepo(context, Repository.SUBSCRIBER, !context.preferences.isLastSubscriberIsRemote());
+
+                                    if (context.preferences.isLastSubscriberIsRemote())
+                                    {
+                                        // start the serveStty client for automation
+                                        context.clientStty = new ClientStty(context, false, true);
+                                        if (!context.clientStty.connect(context.publisherRepo, context.subscriberRepo))
+                                        {
+                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                            disconnectSubscriber();
+                                            JOptionPane.showMessageDialog(context.mainFrame,
+                                                    context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
+                                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.cfg.setRemoteType("-");
+                                            context.fault = false;
+                                            return;
+                                        }
+
+                                        if (context.clientStty.checkBannerCommands())
+                                        {
+                                            logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
+                                        }
+                                        context.transfer.requestLibrary();
+
+                                        // start the serveSftp client
+                                        context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
+                                        if (!context.clientSftp.startClient())
+                                        {
+                                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                            disconnectSubscriber();
+                                            JOptionPane.showMessageDialog(context.mainFrame,
+                                                    context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
+                                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                                            context.fault = false;
+                                            return;
+                                        }
+                                    }
+
+                                    // load the subscriber library
+                                    context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
+                                    context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
+                                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                }
+                                catch (Exception e)
                                 {
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                                    disconnectSubscriber();
                                     JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs("Navigator.menu.Open.subscriber.remote.subscriber.failed.to.connect"),
+                                            context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
                                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                    context.cfg.setRemoteType("-");
                                     context.fault = false;
-                                    return;
-                                }
-
-                                context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Transfer.requesting.subscriber.library"));
-                                if (context.clientStty.checkBannerCommands())
-                                {
-                                    logger.info(context.cfg.gs("Transfer.received.subscriber.commands") + (context.cfg.isRequestCollection() ? "RequestCollection " : "") + (context.cfg.isRequestTargets() ? "RequestTargets" : ""));
-                                }
-                                context.transfer.requestLibrary();
-
-                                // start the serveSftp client
-                                context.clientSftp = new ClientSftp(context, context.publisherRepo, context.subscriberRepo, true);
-                                if (!context.clientSftp.startClient())
-                                {
-                                    context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                    JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs("Navigator.menu.Open.subscriber.subscriber.sftp.failed.to.connect"),
-                                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                                    context.cfg.setRemoteType("-");
-                                    context.fault = false;
-                                    return;
                                 }
                             }
-
-                            // load the subscriber library
-                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Z.requesting.collection.data.from.remote"));
-                            context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
-                            context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
-                        }
-                        catch (Exception e)
-                        {
-                            context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                            JOptionPane.showMessageDialog(context.mainFrame,
-                                    context.cfg.gs("Navigator.menu.Open.subscriber.error.opening.subscriber.library") + e.getMessage(),
-                                    context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                            context.fault = false;
-                            break;
-                        }
+                        });
                     }
                     break;
                 }
@@ -1129,6 +1160,16 @@ public class Navigator
         context.mainFrame.menuItemClose.addMenuListener(new MenuListener()
         {
             @Override
+            public void menuCanceled(MenuEvent menuEvent)
+            {
+            }
+
+            @Override
+            public void menuDeselected(MenuEvent menuEvent)
+            {
+            }
+
+            @Override
             public void menuSelected(MenuEvent menuEvent)
             {
                 if (context.publisherRepo != null && context.publisherRepo.isInitialized())
@@ -1169,16 +1210,6 @@ public class Navigator
                 else
                     context.mainFrame.menuItemCloseHintTracking.setVisible(false);
             }
-
-            @Override
-            public void menuDeselected(MenuEvent menuEvent)
-            {
-            }
-
-            @Override
-            public void menuCanceled(MenuEvent menuEvent)
-            {
-            }
         });
 
         // --- Close Publisher ...
@@ -1216,16 +1247,7 @@ public class Navigator
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
                 {
-                    quitByeRemotes(true, false);
-                    NavTreeNode root = context.browser.setCollectionRoot(null, context.mainFrame.treeCollectionTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
-                    root.loadTable();
-                    root = context.browser.setCollectionRoot(null, context.mainFrame.treeSystemTwo, context.cfg.gs("Browser.open.a.subscriber"), false);
-                    root.loadTable();
-                    context.subscriberRepo = null;
-                    context.cfg.setSubscriberCollectionFilename("");
-                    context.cfg.setSubscriberLibrariesFileName("");
-                    context.preferences.setLastSubscriberInUse(false);
-                    setQuitTerminateVisibility();
+                    disconnectSubscriber();
                 }
             }
         });
@@ -1275,7 +1297,7 @@ public class Navigator
                 int r = JOptionPane.showConfirmDialog(context.mainFrame,
                         context.cfg.gs("Z.are.you.sure.you.want.to.close") +
                                 (context.cfg.isRemoteStatusServer() ?
-                                 context.cfg.gs("Z.hint.server") : context.cfg.gs("Z.hint.tracker")) + "?",
+                                        context.cfg.gs("Z.hint.server") : context.cfg.gs("Z.hint.tracker")) + "?",
                         context.cfg.getNavigatorName(), JOptionPane.YES_NO_OPTION);
                 if (r == JOptionPane.YES_OPTION)
                 {

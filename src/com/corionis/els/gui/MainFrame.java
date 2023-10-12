@@ -1228,6 +1228,7 @@ public class MainFrame extends JFrame
             //======== tabbedPaneMain ========
             {
                 tabbedPaneMain.setFocusable(false);
+                tabbedPaneMain.setName("main");
                 tabbedPaneMain.addChangeListener(e -> tabbedPaneMainStateChanged(e));
 
                 //======== splitPaneBrowser ========
@@ -1385,6 +1386,7 @@ public class MainFrame extends JFrame
                                 tabbedPaneBrowserOne.setTabPlacement(SwingConstants.LEFT);
                                 tabbedPaneBrowserOne.setFocusable(false);
                                 tabbedPaneBrowserOne.setMinimumSize(new Dimension(0, 0));
+                                tabbedPaneBrowserOne.setName("browserOne");
 
                                 //======== panelCollectionOne ========
                                 {
@@ -1498,6 +1500,7 @@ public class MainFrame extends JFrame
                                 tabbedPaneBrowserTwo.setAutoscrolls(true);
                                 tabbedPaneBrowserTwo.setFocusable(false);
                                 tabbedPaneBrowserTwo.setComponentPopupMenu(popupMenuBrowser);
+                                tabbedPaneBrowserTwo.setName("browserTwo");
 
                                 //======== panelCollectionTwo ========
                                 {

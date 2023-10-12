@@ -30,6 +30,7 @@ new FormModel {
 				add( new FormContainer( "javax.swing.JTabbedPane", new FormLayoutManager( class javax.swing.JTabbedPane ) ) {
 					name: "tabbedPaneMain"
 					"focusable": false
+					"name": "main"
 					addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "tabbedPaneMainStateChanged", true ) )
 					add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 						name: "splitPaneBrowser"
@@ -193,6 +194,7 @@ new FormModel {
 									"tabPlacement": 2
 									"focusable": false
 									"minimumSize": new java.awt.Dimension( 0, 0 )
+									"name": "browserOne"
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 										name: "panelCollectionOne"
 										"focusable": false
@@ -300,6 +302,7 @@ new FormModel {
 									"autoscrolls": true
 									"focusable": false
 									"componentPopupMenu": new FormReference( "popupMenuBrowser" )
+									"name": "browserTwo"
 									add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class javax.swing.BoxLayout ) ) {
 										name: "panelCollectionTwo"
 										"minimumSize": new java.awt.Dimension( 0, 0 )

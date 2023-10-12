@@ -104,12 +104,7 @@ public class Main
                     context.cfg.setSubscriberLibrariesFileName(context.preferences.getLastSubscriberOpenFile());
                     if (context.preferences.isLastSubscriberIsRemote() && context.cfg.getSubscriberFilename().length() > 0)
                     {
-                        try
-                        {
-                            context.cfg.setRemoteType("P");
-                        }
-                        catch (MungeException e)
-                        { /* will not be thrown */ }
+                        context.cfg.setRemoteType("P");
                     }
                 }
 

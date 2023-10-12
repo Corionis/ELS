@@ -42,8 +42,12 @@ public class Browser
     private static int styleTwo = STYLE_SYSTEM_ALL;
     //
     private Context context;
+    int lastFocusedCollectionOne = 0;
+    int lastFocusedSystemOne = 2;
+    int lastFocusedCollectionTwo = 4;
+    int lastFocusedSystemTwo = 6;
     public JComponent lastComponent = null;
-    public int lastTab = 0;
+    public int lastTabStopIndex = 0;
     public boolean hintTrackingEnabled = false;
     private String keyBuffer = "";
     private long keyTime = 0L;
@@ -52,7 +56,7 @@ public class Browser
     private int[] navStackIndex = {-1, -1, -1, -1};
     public NavTransferHandler navTransferHandler;
     static boolean printPropertiesInUse = false;
-    private int tabStop = 0;
+    private int tabStopIndex = 0;
     private int[] tabStops = {0, 1, 4, 5};
 
     public Browser(Context context)
@@ -77,49 +81,57 @@ public class Browser
                     switch (name)
                     {
                         case "treeCollectionOne":
-                            lastTab = 0;
+                            lastTabStopIndex = 0;
+                            lastFocusedCollectionOne = 0;
                             lastComponent = context.mainFrame.treeCollectionOne;
                             tabStops[0] = 0;
                             tabStops[1] = 1;
                             break;
                         case "tableCollectionOne":
-                            lastTab = 1;
+                            lastTabStopIndex = 1;
+                            lastFocusedCollectionOne = 1;
                             lastComponent = context.mainFrame.tableCollectionOne;
                             tabStops[0] = 0;
                             tabStops[1] = 1;
                             break;
                         case "treeSystemOne":
-                            lastTab = 0;
+                            lastTabStopIndex = 0;
+                            lastFocusedSystemOne = 2;
                             lastComponent = context.mainFrame.treeSystemOne;
                             tabStops[0] = 2;
                             tabStops[1] = 3;
                             break;
                         case "tableSystemOne":
-                            lastTab = 1;
+                            lastTabStopIndex = 1;
+                            lastFocusedSystemOne = 3;
                             lastComponent = context.mainFrame.tableSystemOne;
                             tabStops[0] = 2;
                             tabStops[1] = 3;
                             break;
                         case "treeCollectionTwo":
-                            lastTab = 2;
+                            lastTabStopIndex = 2;
+                            lastFocusedCollectionTwo = 4;
                             lastComponent = context.mainFrame.treeCollectionTwo;
                             tabStops[2] = 4;
                             tabStops[3] = 5;
                             break;
                         case "tableCollectionTwo":
-                            lastTab = 3;
+                            lastTabStopIndex = 3;
+                            lastFocusedCollectionTwo = 5;
                             lastComponent = context.mainFrame.tableCollectionTwo;
                             tabStops[2] = 4;
                             tabStops[3] = 5;
                             break;
                         case "treeSystemTwo":
-                            lastTab = 2;
+                            lastTabStopIndex = 2;
+                            lastFocusedSystemTwo = 6;
                             lastComponent = context.mainFrame.treeSystemTwo;
                             tabStops[2] = 6;
                             tabStops[3] = 7;
                             break;
                         case "tableSystemTwo":
-                            lastTab = 3;
+                            lastTabStopIndex = 3;
+                            lastFocusedSystemTwo = 7;
                             lastComponent = context.mainFrame.tableSystemTwo;
                             tabStops[2] = 6;
                             tabStops[3] = 7;
@@ -306,15 +318,15 @@ public class Browser
             public void keyTyped(KeyEvent keyEvent)
             {
                 // handle Ctrl-H to toggle Show Hidden
-                if ((keyEvent.getKeyCode() == KeyEvent.VK_H) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                if ((keyEvent.getKeyChar() == 8) && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
-                    toggleShowHiddenFiles();
+                    // done by menu handler;   toggleShowHiddenFiles();
                 }
 
                 // handle Ctrl-R to Refresh current selection
-                else if (keyEvent.getKeyChar() == KeyEvent.VK_ALT && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
+                else if (keyEvent.getKeyChar() == 18 && (keyEvent.getModifiers() & KeyEvent.CTRL_MASK) != 0)
                 {
-                    refreshByObject(keyEvent.getSource());
+                    refreshByObject(keyEvent.getSource()); // menu handler is assigned to F5
                 }
 
                 // handle Ctrl-T to Touch the current selection(s)
@@ -334,6 +346,33 @@ public class Browser
                 else if ((keyEvent.getKeyChar() == KeyEvent.VK_TAB) && (keyEvent.getModifiers() & KeyEvent.SHIFT_MASK) != 0)
                 {
                     navTabKey(false);
+                }
+
+                // handle Alt-1 through Alt-4
+                if ((keyEvent.getModifiers() & KeyEvent.ALT_MASK) != 0)
+                {
+                    int next = -1;
+                    if (keyEvent.getKeyChar() == KeyEvent.VK_1)
+                    {
+                        next = lastFocusedCollectionOne;
+                    }
+                    if (keyEvent.getKeyChar() == KeyEvent.VK_2)
+                    {
+                        next = lastFocusedSystemOne;
+                    }
+                    if (keyEvent.getKeyChar() == KeyEvent.VK_3)
+                    {
+                        next = lastFocusedCollectionTwo;
+                    }
+                    if (keyEvent.getKeyChar() == KeyEvent.VK_4)
+                    {
+                        next = lastFocusedSystemTwo;
+                    }
+
+                    if (next >= 0)
+                    {
+                        selectPanelNumber(next);
+                    }
                 }
 
                 // handle ENTER key
@@ -1255,26 +1294,33 @@ public class Browser
                 JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
                 TreeModel model = null;
                 NavTreeNode node = null;
+                int next = -1;
                 switch (pane.getSelectedIndex())
                 {
-                    case 0:
+                    case 0: // Collection
+                        lastTabStopIndex = 0;
                         lastComponent = context.mainFrame.treeCollectionOne;
                         model = context.mainFrame.treeCollectionOne.getModel();
                         node = (NavTreeNode) context.mainFrame.treeCollectionOne.getLastSelectedPathComponent();
                         tabStops[0] = 0;
                         tabStops[1] = 1;
+                        next = lastFocusedCollectionOne;
                         break;
-                    case 1:
+                    case 1: // System
+                        lastTabStopIndex = 1;
                         lastComponent = context.mainFrame.treeSystemOne;
                         model = context.mainFrame.treeSystemOne.getModel();
                         node = (NavTreeNode) context.mainFrame.treeSystemOne.getLastSelectedPathComponent();
                         tabStops[0] = 2;
                         tabStops[1] = 3;
+                        next = lastFocusedSystemOne;
                         break;
                 }
                 if (node == null)
                     node = (NavTreeNode) model.getRoot();
                 node.loadStatus();
+                if (next >= 0)
+                    selectPanelNumber(next);
             }
         });
 
@@ -1382,26 +1428,33 @@ public class Browser
                 JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
                 TreeModel model = null;
                 NavTreeNode node = null;
+                int next = -1;
                 switch (pane.getSelectedIndex())
                 {
-                    case 0:
+                    case 0: // Collection
+                        lastTabStopIndex = 2;
                         lastComponent = context.mainFrame.treeCollectionTwo;
                         model = context.mainFrame.treeCollectionTwo.getModel();
                         node = (NavTreeNode) context.mainFrame.treeCollectionTwo.getLastSelectedPathComponent();
                         tabStops[2] = 4;
                         tabStops[3] = 5;
+                        next = lastFocusedCollectionTwo;
                         break;
-                    case 1:
+                    case 1: // System
+                        lastTabStopIndex = 3;
                         lastComponent = context.mainFrame.treeSystemTwo;
                         model = context.mainFrame.treeSystemTwo.getModel();
                         node = (NavTreeNode) context.mainFrame.treeSystemTwo.getLastSelectedPathComponent();
                         tabStops[2] = 6;
                         tabStops[3] = 7;
+                        next = lastFocusedSystemTwo;
                         break;
                 }
                 if (node == null)
                     node = (NavTreeNode) model.getRoot();
                 node.loadStatus();
+                if (next >= 0)
+                    selectPanelNumber(next);
             }
         });
 
@@ -1682,20 +1735,20 @@ public class Browser
     {
         int next;
         JComponent nextComponent = null;
-        tabStop = lastTab;
+        tabStopIndex = lastTabStopIndex;
         if (forward)
         {
-            ++tabStop;
-            if (tabStop >= tabStops.length)
-                tabStop = 0;
+            ++tabStopIndex;
+            if (tabStopIndex >= tabStops.length)
+                tabStopIndex = 0;
         }
         else
         {
-            --tabStop;
-            if (tabStop < 0)
-                tabStop = tabStops.length - 1;
+            --tabStopIndex;
+            if (tabStopIndex < 0)
+                tabStopIndex = tabStops.length - 1;
         }
-        next = tabStops[tabStop];
+        next = tabStops[tabStopIndex];
         nextComponent = getTabComponent(next);
         nextComponent.requestFocus();
     }
@@ -2229,34 +2282,50 @@ public class Browser
                 case 0:
                     context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(0);
                     context.mainFrame.treeCollectionOne.requestFocus();
+                    lastComponent = context.mainFrame.treeCollectionOne;
+                    lastTabStopIndex = 0;
                     break;
                 case 1:
                     context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(0);
                     context.mainFrame.tableCollectionOne.requestFocus();
+                    lastComponent = context.mainFrame.tableCollectionOne;
+                    lastTabStopIndex = 0;
                     break;
                 case 2:
                     context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
                     context.mainFrame.treeSystemOne.requestFocus();
+                    lastComponent = context.mainFrame.treeSystemOne;
+                    lastTabStopIndex = 1;
                     break;
                 case 3:
                     context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
                     context.mainFrame.tableSystemOne.requestFocus();
+                    lastComponent = context.mainFrame.tableSystemOne;
+                    lastTabStopIndex = 1;
                     break;
                 case 4:
                     context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(0);
                     context.mainFrame.treeCollectionTwo.requestFocus();
+                    lastComponent = context.mainFrame.treeCollectionTwo;
+                    lastTabStopIndex = 2;
                     break;
                 case 5:
                     context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(0);
                     context.mainFrame.tableCollectionTwo.requestFocus();
+                    lastComponent = context.mainFrame.tableCollectionTwo;
+                    lastTabStopIndex = 2;
                     break;
                 case 6:
                     context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
                     context.mainFrame.treeSystemTwo.requestFocus();
+                    lastComponent = context.mainFrame.treeSystemTwo;
+                    lastTabStopIndex = 3;
                     break;
                 case 7:
                     context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
                     context.mainFrame.tableSystemTwo.requestFocus();
+                    lastComponent = context.mainFrame.tableSystemTwo;
+                    lastTabStopIndex = 3;
                     break;
             }
         }
