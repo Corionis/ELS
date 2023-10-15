@@ -2,7 +2,7 @@ package com.corionis.els.sftp;
 
 import com.corionis.els.Context;
 import com.corionis.els.Utils;
-import com.corionis.els.repository.HintKey;
+import com.corionis.els.hints.HintKey;
 import com.corionis.els.repository.Repository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

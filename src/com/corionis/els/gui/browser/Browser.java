@@ -36,26 +36,25 @@ public class Browser
     private static final int STYLE_COLLECTION_AZ = 1;
     private static final int STYLE_COLLECTION_SOURCES = 2;
     private static final int STYLE_SYSTEM_ALL = 0;
-
+    static boolean printPropertiesInUse = false;
     // style selections
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
-    //
-    private Context context;
-    int lastFocusedCollectionOne = 0;
-    int lastFocusedSystemOne = 2;
-    int lastFocusedCollectionTwo = 4;
-    int lastFocusedSystemTwo = 6;
+    public boolean hintTrackingEnabled = false;
     public JComponent lastComponent = null;
     public int lastTabStopIndex = 0;
-    public boolean hintTrackingEnabled = false;
+    public NavTransferHandler navTransferHandler;
+    int lastFocusedCollectionOne = 0;
+    int lastFocusedCollectionTwo = 4;
+    int lastFocusedSystemOne = 2;
+    int lastFocusedSystemTwo = 6;
+    //
+    private Context context;
     private String keyBuffer = "";
     private long keyTime = 0L;
     private Logger logger = LogManager.getLogger("applog");
     private Stack<NavItem>[] navStack = new Stack[4];
     private int[] navStackIndex = {-1, -1, -1, -1};
-    public NavTransferHandler navTransferHandler;
-    static boolean printPropertiesInUse = false;
     private int tabStopIndex = 0;
     private int[] tabStops = {0, 1, 4, 5};
 
@@ -74,6 +73,7 @@ public class Browser
             public void focusGained(FocusEvent focusEvent)
             {
                 String name = "";
+                int next = -1;
                 Component active = focusEvent.getComponent();
                 name = active.getName();
                 if (name.length() > 0)
@@ -81,6 +81,7 @@ public class Browser
                     switch (name)
                     {
                         case "treeCollectionOne":
+                            next = 0;
                             lastTabStopIndex = 0;
                             lastFocusedCollectionOne = 0;
                             lastComponent = context.mainFrame.treeCollectionOne;
@@ -88,6 +89,7 @@ public class Browser
                             tabStops[1] = 1;
                             break;
                         case "tableCollectionOne":
+                            next = 1;
                             lastTabStopIndex = 1;
                             lastFocusedCollectionOne = 1;
                             lastComponent = context.mainFrame.tableCollectionOne;
@@ -95,6 +97,7 @@ public class Browser
                             tabStops[1] = 1;
                             break;
                         case "treeSystemOne":
+                            next = 2;
                             lastTabStopIndex = 0;
                             lastFocusedSystemOne = 2;
                             lastComponent = context.mainFrame.treeSystemOne;
@@ -102,6 +105,7 @@ public class Browser
                             tabStops[1] = 3;
                             break;
                         case "tableSystemOne":
+                            next = 3;
                             lastTabStopIndex = 1;
                             lastFocusedSystemOne = 3;
                             lastComponent = context.mainFrame.tableSystemOne;
@@ -109,6 +113,7 @@ public class Browser
                             tabStops[1] = 3;
                             break;
                         case "treeCollectionTwo":
+                            next = 4;
                             lastTabStopIndex = 2;
                             lastFocusedCollectionTwo = 4;
                             lastComponent = context.mainFrame.treeCollectionTwo;
@@ -116,6 +121,7 @@ public class Browser
                             tabStops[3] = 5;
                             break;
                         case "tableCollectionTwo":
+                            next = 5;
                             lastTabStopIndex = 3;
                             lastFocusedCollectionTwo = 5;
                             lastComponent = context.mainFrame.tableCollectionTwo;
@@ -123,6 +129,7 @@ public class Browser
                             tabStops[3] = 5;
                             break;
                         case "treeSystemTwo":
+                            next = 6;
                             lastTabStopIndex = 2;
                             lastFocusedSystemTwo = 6;
                             lastComponent = context.mainFrame.treeSystemTwo;
@@ -130,6 +137,7 @@ public class Browser
                             tabStops[3] = 7;
                             break;
                         case "tableSystemTwo":
+                            next = 7;
                             lastTabStopIndex = 3;
                             lastFocusedSystemTwo = 7;
                             lastComponent = context.mainFrame.tableSystemTwo;
@@ -144,6 +152,7 @@ public class Browser
                         context.mainFrame.textFieldLocation.setText(tuo.getDisplayPath());
                         printProperties(tuo);
                     }
+                    selectPanelNumber(next);
                 }
             }
 
@@ -657,6 +666,68 @@ public class Browser
         bookmarkCreate(node, name, sourceTree.getName());
     }
 
+    public void deepScanCollectionTree(JTree tree, Repository repo, boolean remote, boolean recursive)
+    {
+        if (!context.fault)
+        {
+            try
+            {
+                NavTreeNode root = setCollectionRoot(repo, tree, repo.getLibraryData().libraries.description, remote);
+                if (repo.getLibraryData().libraries.bibliography != null)
+                {
+                    Arrays.sort(repo.getLibraryData().libraries.bibliography);
+                    switch (styleOne)
+                    {
+                        case STYLE_COLLECTION_ALL:
+                            styleCollection(tree, repo, remote, true, recursive);
+                            break;
+                        case STYLE_COLLECTION_AZ:
+                            break;
+                        case STYLE_COLLECTION_SOURCES:
+                            break;
+                        default:
+                            break;
+                    }
+                    ((NavTreeModel) tree.getModel()).reload();
+                    root.loadTable();
+                }
+            }
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+                context.fault = true;
+            }
+        }
+    }
+
+    public void deepScanSystemTree(JTree tree, Repository repo, boolean remote, boolean recursive)
+    {
+        if (!context.fault)
+        {
+            try
+            {
+                NavTreeNode root = null;
+                switch (styleTwo)
+                {
+                    case STYLE_SYSTEM_ALL:
+                        root = styleComputer(tree, repo, remote, true, recursive);
+                        if (!context.fault)
+                            styleHome(tree, repo, remote, true, recursive);
+                        break;
+                    default:
+                        break;
+                }
+                ((NavTreeModel) tree.getModel()).reload();
+                root.loadTable();
+            }
+            catch (Exception e)
+            {
+                logger.error(Utils.getStackTrace(e));
+                context.fault = true;
+            }
+        }
+    }
+
     public void deleteSelected(JTable sourceTable)
     {
         int row = sourceTable.getSelectedRow();
@@ -877,68 +948,6 @@ public class Browser
                         parent.selectMe();
                     }
                 }
-            }
-        }
-    }
-
-    public void deepScanCollectionTree(JTree tree, Repository repo, boolean remote, boolean recursive)
-    {
-        if (!context.fault)
-        {
-            try
-            {
-                NavTreeNode root = setCollectionRoot(repo, tree, repo.getLibraryData().libraries.description, remote);
-                if (repo.getLibraryData().libraries.bibliography != null)
-                {
-                    Arrays.sort(repo.getLibraryData().libraries.bibliography);
-                    switch (styleOne)
-                    {
-                        case STYLE_COLLECTION_ALL:
-                            styleCollection(tree, repo, remote, true, recursive);
-                            break;
-                        case STYLE_COLLECTION_AZ:
-                            break;
-                        case STYLE_COLLECTION_SOURCES:
-                            break;
-                        default:
-                            break;
-                    }
-                    ((NavTreeModel) tree.getModel()).reload();
-                    root.loadTable();
-                }
-            }
-            catch (Exception e)
-            {
-                logger.error(Utils.getStackTrace(e));
-                context.fault = true;
-            }
-        }
-    }
-
-    public void deepScanSystemTree(JTree tree, Repository repo, boolean remote, boolean recursive)
-    {
-        if (!context.fault)
-        {
-            try
-            {
-                NavTreeNode root = null;
-                switch (styleTwo)
-                {
-                    case STYLE_SYSTEM_ALL:
-                        root = styleComputer(tree, repo, remote, true, recursive);
-                        if (!context.fault)
-                            styleHome(tree, repo, remote, true, recursive);
-                        break;
-                    default:
-                        break;
-                }
-                ((NavTreeModel) tree.getModel()).reload();
-                root.loadTable();
-            }
-            catch (Exception e)
-            {
-                logger.error(Utils.getStackTrace(e));
-                context.fault = true;
             }
         }
     }
@@ -1285,42 +1294,27 @@ public class Browser
     {
         // --- BrowserOne ------------------------------------------
         //
-        // --- tab selection handler
+        // --- tab selection handlers
+        context.mainFrame.tabbedPaneBrowserOne.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent)
+            {
+//                super.mouseClicked(mouseEvent);
+                JTabbedPane pane = (JTabbedPane) mouseEvent.getSource();
+                int index = pane.getSelectedIndex();
+                selectTabOne(index);
+            }
+        });
+
         context.mainFrame.tabbedPaneBrowserOne.addChangeListener(new ChangeListener()
         {
             @Override
             public void stateChanged(ChangeEvent changeEvent)
             {
                 JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
-                TreeModel model = null;
-                NavTreeNode node = null;
-                int next = -1;
-                switch (pane.getSelectedIndex())
-                {
-                    case 0: // Collection
-                        lastTabStopIndex = 0;
-                        lastComponent = context.mainFrame.treeCollectionOne;
-                        model = context.mainFrame.treeCollectionOne.getModel();
-                        node = (NavTreeNode) context.mainFrame.treeCollectionOne.getLastSelectedPathComponent();
-                        tabStops[0] = 0;
-                        tabStops[1] = 1;
-                        next = lastFocusedCollectionOne;
-                        break;
-                    case 1: // System
-                        lastTabStopIndex = 1;
-                        lastComponent = context.mainFrame.treeSystemOne;
-                        model = context.mainFrame.treeSystemOne.getModel();
-                        node = (NavTreeNode) context.mainFrame.treeSystemOne.getLastSelectedPathComponent();
-                        tabStops[0] = 2;
-                        tabStops[1] = 3;
-                        next = lastFocusedSystemOne;
-                        break;
-                }
-                if (node == null)
-                    node = (NavTreeNode) model.getRoot();
-                node.loadStatus();
-                if (next >= 0)
-                    selectPanelNumber(next);
+                int index = pane.getSelectedIndex();
+                selectTabOne(index);
             }
         });
 
@@ -1419,42 +1413,27 @@ public class Browser
     {
         // --- BrowserTwo ------------------------------------------
         //
-        // --- tab selection handler
+        // --- tab selection handlers
+        context.mainFrame.tabbedPaneBrowserTwo.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent mouseEvent)
+            {
+//                super.mouseClicked(mouseEvent);
+                JTabbedPane pane = (JTabbedPane) mouseEvent.getSource();
+                int index = pane.getSelectedIndex();
+                selectTabTwo(index);
+            }
+        });
+
         context.mainFrame.tabbedPaneBrowserTwo.addChangeListener(new ChangeListener()
         {
             @Override
             public void stateChanged(ChangeEvent changeEvent)
             {
                 JTabbedPane pane = (JTabbedPane) changeEvent.getSource();
-                TreeModel model = null;
-                NavTreeNode node = null;
-                int next = -1;
-                switch (pane.getSelectedIndex())
-                {
-                    case 0: // Collection
-                        lastTabStopIndex = 2;
-                        lastComponent = context.mainFrame.treeCollectionTwo;
-                        model = context.mainFrame.treeCollectionTwo.getModel();
-                        node = (NavTreeNode) context.mainFrame.treeCollectionTwo.getLastSelectedPathComponent();
-                        tabStops[2] = 4;
-                        tabStops[3] = 5;
-                        next = lastFocusedCollectionTwo;
-                        break;
-                    case 1: // System
-                        lastTabStopIndex = 3;
-                        lastComponent = context.mainFrame.treeSystemTwo;
-                        model = context.mainFrame.treeSystemTwo.getModel();
-                        node = (NavTreeNode) context.mainFrame.treeSystemTwo.getLastSelectedPathComponent();
-                        tabStops[2] = 6;
-                        tabStops[3] = 7;
-                        next = lastFocusedSystemTwo;
-                        break;
-                }
-                if (node == null)
-                    node = (NavTreeNode) model.getRoot();
-                node.loadStatus();
-                if (next >= 0)
-                    selectPanelNumber(next);
+                int index = pane.getSelectedIndex();
+                selectTabTwo(index);
             }
         });
 
@@ -2289,13 +2268,13 @@ public class Browser
                     context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(0);
                     context.mainFrame.tableCollectionOne.requestFocus();
                     lastComponent = context.mainFrame.tableCollectionOne;
-                    lastTabStopIndex = 0;
+                    lastTabStopIndex = 1;
                     break;
                 case 2:
                     context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
                     context.mainFrame.treeSystemOne.requestFocus();
                     lastComponent = context.mainFrame.treeSystemOne;
-                    lastTabStopIndex = 1;
+                    lastTabStopIndex = 0;
                     break;
                 case 3:
                     context.mainFrame.tabbedPaneBrowserOne.setSelectedIndex(1);
@@ -2313,13 +2292,13 @@ public class Browser
                     context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(0);
                     context.mainFrame.tableCollectionTwo.requestFocus();
                     lastComponent = context.mainFrame.tableCollectionTwo;
-                    lastTabStopIndex = 2;
+                    lastTabStopIndex = 3;
                     break;
                 case 6:
                     context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
                     context.mainFrame.treeSystemTwo.requestFocus();
                     lastComponent = context.mainFrame.treeSystemTwo;
-                    lastTabStopIndex = 3;
+                    lastTabStopIndex = 2;
                     break;
                 case 7:
                     context.mainFrame.tabbedPaneBrowserTwo.setSelectedIndex(1);
@@ -2329,6 +2308,87 @@ public class Browser
                     break;
             }
         }
+    }
+
+    public void selectTabOne(int index)
+    {
+        TreeModel model = null;
+        NavTreeNode node = null;
+        int next = -1;
+        switch (index)
+        {
+            case 0: // Collection
+                lastTabStopIndex = 0;
+                lastComponent = context.mainFrame.treeCollectionOne;
+                model = context.mainFrame.treeCollectionOne.getModel();
+                node = (NavTreeNode) context.mainFrame.treeCollectionOne.getLastSelectedPathComponent();
+                tabStops[0] = 0;
+                tabStops[1] = 1;
+                next = lastFocusedCollectionOne;
+                break;
+            case 1: // System
+                lastTabStopIndex = 1;
+                lastComponent = context.mainFrame.treeSystemOne;
+                model = context.mainFrame.treeSystemOne.getModel();
+                node = (NavTreeNode) context.mainFrame.treeSystemOne.getLastSelectedPathComponent();
+                tabStops[0] = 2;
+                tabStops[1] = 3;
+                next = lastFocusedSystemOne;
+                break;
+        }
+        if (node == null)
+            node = (NavTreeNode) model.getRoot();
+        node.loadStatus();
+        if (next >= 0)
+            selectPanelNumber(next);
+    }
+
+    public void selectTabTwo(int index)
+    {
+        TreeModel model = null;
+        NavTreeNode node = null;
+        int next = -1;
+        switch (index)
+        {
+            case 0: // Collection
+                lastTabStopIndex = 2;
+                lastComponent = context.mainFrame.treeCollectionTwo;
+                model = context.mainFrame.treeCollectionTwo.getModel();
+                node = (NavTreeNode) context.mainFrame.treeCollectionTwo.getLastSelectedPathComponent();
+                tabStops[2] = 4;
+                tabStops[3] = 5;
+                next = lastFocusedCollectionTwo;
+                break;
+            case 1: // System
+                lastTabStopIndex = 3;
+                lastComponent = context.mainFrame.treeSystemTwo;
+                model = context.mainFrame.treeSystemTwo.getModel();
+                node = (NavTreeNode) context.mainFrame.treeSystemTwo.getLastSelectedPathComponent();
+                tabStops[2] = 6;
+                tabStops[3] = 7;
+                next = lastFocusedSystemTwo;
+                break;
+        }
+        if (node == null)
+            node = (NavTreeNode) model.getRoot();
+        node.loadStatus();
+        if (next >= 0)
+            selectPanelNumber(next);
+    }
+
+    public NavTreeNode setCollectionRoot(Repository repo, JTree tree, String title, boolean remote)
+    {
+        NavTreeNode root = new NavTreeNode(context, repo, tree);
+        NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION, remote);
+        root.setNavTreeUserObject(tuo);
+        NavTreeModel model = new NavTreeModel(root, true);
+        model.activateFilter(context.preferences.isHideFilesInTree());
+        tree.setCellRenderer(new NavTreeCellRenderer(context));
+        tree.setRootVisible(true);
+        tree.setShowsRootHandles(true);
+        tree.setLargeModel(true);
+        tree.setModel(model);
+        return root;
     }
 
     public void setHintTrackingButton(boolean enabled)
@@ -2352,21 +2412,6 @@ public class Browser
                             context.cfg.gs("Navigator.button.Hints.disabled.tooltip"));
         }
         context.mainFrame.buttonHintTracking.setToolTipText(tt);
-    }
-
-    public NavTreeNode setCollectionRoot(Repository repo, JTree tree, String title, boolean remote)
-    {
-        NavTreeNode root = new NavTreeNode(context, repo, tree);
-        NavTreeUserObject tuo = new NavTreeUserObject(root, title, NavTreeUserObject.COLLECTION, remote);
-        root.setNavTreeUserObject(tuo);
-        NavTreeModel model = new NavTreeModel(root, true);
-        model.activateFilter(context.preferences.isHideFilesInTree());
-        tree.setCellRenderer(new NavTreeCellRenderer(context));
-        tree.setRootVisible(true);
-        tree.setShowsRootHandles(true);
-        tree.setLargeModel(true);
-        tree.setModel(model);
-        return root;
     }
 
     public void setHintTrackingEnabled(boolean sense)
@@ -2397,7 +2442,7 @@ public class Browser
         NavTreeNode computerNode;
         NavTreeNode hiddenRoot;
         NavTreeUserObject tuo;
-        if (!(tree.getModel() instanceof NavTreeModel) || ((NavTreeNode)tree.getModel().getRoot()).isLoaded() == false)
+        if (!(tree.getModel() instanceof NavTreeModel) || ((NavTreeNode) tree.getModel().getRoot()).isLoaded() == false)
         {
             // setup new invisible root for Computer/Home
             hiddenRoot = new NavTreeNode(context, repo, tree);

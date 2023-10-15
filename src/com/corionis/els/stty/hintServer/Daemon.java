@@ -1,6 +1,6 @@
 package com.corionis.els.stty.hintServer;
 
-import com.corionis.els.repository.HintKey;
+import com.corionis.els.hints.HintKey;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.Context;

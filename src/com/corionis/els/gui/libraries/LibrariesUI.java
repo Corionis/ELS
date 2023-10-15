@@ -425,6 +425,7 @@ public class LibrariesUI
                                                     context.cfg.gs("Libraries.select.new.location"), JOptionPane.ERROR_MESSAGE);
                                             directoryPicker.locationPathTextField.setText("");
                                         }
+                                        directoryPicker.pane.requestFocus();
                                     }
                                 }
                             }
@@ -735,6 +736,7 @@ public class LibrariesUI
                                                         context.cfg.gs("Libraries.select.new.source"), JOptionPane.ERROR_MESSAGE);
                                                 directoryPicker.locationPathTextField.setText("");
                                             }
+                                            directoryPicker.pane.requestFocus();
                                         }
                                     }
                                 }
@@ -743,7 +745,7 @@ public class LibrariesUI
                             }
                             catch (Exception e)
                             {
-                                if (!e.getMessage().equals("HANDLED_INTERNALLY"))
+                                if (e.getMessage() == null || !e.getMessage().equals("HANDLED_INTERNALLY"))
                                 {
                                     String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
                                     if (context.navigator != null)

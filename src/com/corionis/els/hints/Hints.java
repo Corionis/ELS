@@ -1,9 +1,12 @@
-package com.corionis.els.repository;
+package com.corionis.els.hints;
 
 import com.corionis.els.gui.browser.NavTreeUserObject;
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
+import com.corionis.els.repository.Item;
+import com.corionis.els.repository.Library;
+import com.corionis.els.repository.Repository;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

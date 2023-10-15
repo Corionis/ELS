@@ -4,17 +4,15 @@ import com.corionis.els.Context;
 import com.corionis.els.MungeException;
 import com.corionis.els.Utils;
 import com.corionis.els.gui.bookmarks.Bookmark;
-import com.corionis.els.repository.HintKey;
+import com.corionis.els.hints.HintKey;
 import com.corionis.els.repository.Library;
 import com.corionis.els.repository.Repository;
 import com.jcraft.jsch.SftpATTRS;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sun.awt.datatransfer.ClipboardTransferable;
 
 import javax.swing.*;
 import javax.swing.tree.TreePath;
-import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.File;
 import java.io.IOException;

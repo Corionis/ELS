@@ -1,6 +1,6 @@
 package com.corionis.els;
 
-import com.corionis.els.repository.Hints;
+import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Item;
 import com.corionis.els.repository.Library;
 import org.apache.logging.log4j.LogManager;

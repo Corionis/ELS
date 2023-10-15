@@ -1,4 +1,4 @@
-package com.corionis.els.repository;
+package com.corionis.els.hints;
 
 import com.corionis.els.Context;
 import com.corionis.els.MungeException;

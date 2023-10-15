@@ -1,5 +1,7 @@
 package com.corionis.els.stty.subscriber;
 
+import com.corionis.els.hints.HintKey;
+import com.corionis.els.hints.HintKeys;
 import com.corionis.els.stty.AbstractDaemon;
 import com.corionis.els.stty.ServeStty;
 import com.corionis.els.Context;

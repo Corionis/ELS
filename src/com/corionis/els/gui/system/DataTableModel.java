@@ -1,7 +1,7 @@
 package com.corionis.els.gui.system;
 
 import com.corionis.els.Context;
-import com.corionis.els.repository.HintKey;
+import com.corionis.els.hints.HintKey;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.ArrayList;

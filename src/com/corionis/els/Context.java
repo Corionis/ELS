@@ -2,8 +2,8 @@ package com.corionis.els;
 
 import com.corionis.els.gui.*;
 import com.corionis.els.gui.browser.Browser;
-import com.corionis.els.repository.HintKeys;
-import com.corionis.els.repository.Hints;
+import com.corionis.els.hints.HintKeys;
+import com.corionis.els.hints.Hints;
 import com.corionis.els.repository.Repository;
 import com.corionis.els.sftp.ClientSftp;
 import com.corionis.els.sftp.ServeSftp;

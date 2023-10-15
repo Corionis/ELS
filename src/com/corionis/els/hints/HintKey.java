@@ -1,4 +1,4 @@
-package com.corionis.els.repository;
+package com.corionis.els.hints;
 
 public class HintKey
 {
