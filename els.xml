@@ -93,6 +93,15 @@
         </unzip>
     </target>
 
+    <!-- Assemble all the pieces to run from IDE build classes -->
+    <target name="els-ide">
+        <copy todir="out/production/ELS" preservelastmodified="true">
+            <fileset dir="src/com/corionis/els/resources"/>
+        </copy>
+        <copy file="build/changes.html" tofile="out/production/ELS/changes_en_US.html" preservelastmodified="true"/>
+        <copy file="lib/log4j2.xml" todir="out/production/ELS" preservelastmodified="true"/>
+    </target>
+
     <!-- Build ELS.jar -->
     <target name="els-jar" depends="els-assemble">
         <manifest file="out/ELS/jar/META-INF/MANIFEST.MF">

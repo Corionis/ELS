@@ -43,9 +43,9 @@ public class OperationsUI extends AbstractToolDialog
     private int currentConfigIndex = -1;
     private OperationsTool currentTool;
     private String displayName;
-    private boolean fileAny = false;
-    private boolean fileKeys = false;
-    private boolean fileMustExist = false;
+    private boolean pickerAnyFile = false;
+    private boolean pickerKeys = false;
+    private boolean pickerFileMustExist = false;
     private File lastFile;
     private JList<String> libJList = null;
     private NavHelp helpDialog;
@@ -384,9 +384,9 @@ public class OperationsUI extends AbstractToolDialog
             {
                 if (file.isDirectory())
                     return true;
-                if (fileKeys)
+                if (pickerKeys)
                     return (file.getName().toLowerCase().endsWith(".keys"));
-                if (!fileAny)
+                if (!pickerAnyFile)
                     return (file.getName().toLowerCase().endsWith(".json"));
                 return true;
             }
@@ -395,68 +395,68 @@ public class OperationsUI extends AbstractToolDialog
             public String getDescription()
             {
                 String desc = "";
-                fileKeys = false;
+                pickerKeys = false;
                 switch (button.getName().toLowerCase())
                 {
                     case "authkeys":
                         desc = context.cfg.gs("OperationsUI.els.auth.keys.file");
-                        fileAny = false;
-                        fileMustExist = true;
-                        fileKeys = true;
+                        pickerAnyFile = false;
+                        pickerFileMustExist = true;
+                        pickerKeys = true;
                         break;
                     case "blacklist":
                     case "blacklist3":
                         desc = context.cfg.gs("OperationsUI.els.blacklist.file");
-                        fileAny = true;
-                        fileMustExist = true;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = true;
                         break;
                     case "ipwhitelist":
                     case "ipwhitelist3":
                         desc = context.cfg.gs("OperationsUI.els.whitelist.file");
-                        fileAny = true;
-                        fileMustExist = true;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = true;
                         break;
                     case "targets":
                     case "targets2":
                         desc = context.cfg.gs("OperationsUI.els.targets.file.json");
-                        fileAny = false;
-                        fileMustExist = true;
+                        pickerAnyFile = false;
+                        pickerFileMustExist = true;
                         break;
                     case "mismatches":
                         desc = context.cfg.gs("OperationsUI.els.mismatches.file");
-                        fileAny = true;
-                        fileMustExist = false;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = false;
                         break;
                     case "whatsnew":
                         desc = context.cfg.gs("OperationsUI.els.what.s.new.file");
-                        fileAny = true;
-                        fileMustExist = false;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = false;
                         break;
                     case "exporttext":
                         desc = context.cfg.gs("OperationsUI.els.export.text.file");
-                        fileAny = true;
-                        fileMustExist = false;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = false;
                         break;
                     case "exportitems":
                         desc = context.cfg.gs("OperationsUI.els.export.items.file");
-                        fileAny = true;
-                        fileMustExist = false;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = false;
                         break;
                     case "hintkeys":
                     case "hintkeys2":
                     case "hintkeys3":
                         desc = context.cfg.gs("OperationsUI.els.hint.keys.file");
-                        fileAny = true;
-                        fileMustExist = true;
-                        fileKeys = true;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = true;
+                        pickerKeys = true;
                         break;
                     case "hints":
                     case "hints2":
                     case "hints3":
                     case "hints6":
                         desc = context.cfg.gs("OperationsUI.els.hints.server.file");
-                        fileAny = true;
-                        fileMustExist = true;
+                        pickerAnyFile = true;
+                        pickerFileMustExist = true;
                         break;
                 }
                 return desc;
@@ -542,7 +542,7 @@ public class OperationsUI extends AbstractToolDialog
             fc.setCurrentDirectory(new File(context.cfg.getWorkingDirectory()));
         }
 
-        fc.setDialogType(fileMustExist ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG);
+        fc.setDialogType(pickerFileMustExist ? JFileChooser.OPEN_DIALOG : JFileChooser.SAVE_DIALOG);
 
         while (true)
         {
@@ -561,14 +561,14 @@ public class OperationsUI extends AbstractToolDialog
                             context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
-                if (fileMustExist && !file.exists())
+                if (pickerFileMustExist && !file.exists())
                 {
                     JOptionPane.showMessageDialog(this,
                             context.cfg.gs("Navigator.open.error.file.not.found") + file.getName(),
                             displayName, JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
-                if (fileMustExist && !file.canWrite())
+                if (pickerFileMustExist && !file.canWrite())
                 {
                     JOptionPane.showMessageDialog(this,
                             context.cfg.gs("Navigator.open.error.file.not.writable") + file.getName(),

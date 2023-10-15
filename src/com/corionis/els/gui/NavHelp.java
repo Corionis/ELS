@@ -99,6 +99,7 @@ public class NavHelp extends JDialog
             if (resourceFilename.startsWith("http"))
             {
                 URL url = new URL(resourceFilename);
+logger.info("####### URL: "  + url);
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()));
                 String buf;
                 while ((buf = bufferedReader.readLine()) != null)
@@ -110,6 +111,7 @@ public class NavHelp extends JDialog
             else
             {
                 URL url = Thread.currentThread().getContextClassLoader().getResource(resourceFilename);
+logger.info("####### URL: "  + url);
                 List<String> lines = IoUtils.readAllLines(url);
                 for (int i = 0; i < lines.size(); ++i)
                 {

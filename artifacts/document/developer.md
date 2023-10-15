@@ -1,8 +1,9 @@
 ELS is written for Java version 1.8 to support older systems that might be used as back-ups.
 The resulting jar is completely self-contained. ELS runs on any version 1.8 or newer of 
-either Oracle Java or the OpenJDK.
+either Oracle Java or the OpenJDK. The distribution files in deploy/ contain an embedded
+JRE from the [OpenJDK Project](https://wiki.openjdk.org/display/jdk8u).
 
-ELS is developed using [JetBrains Intellij IDEA](https://www.jetbrains.com/idea/). Eclipse and Netbeans
+ELS is developed using [JetBrains Intellij IDEA](https://www.jetbrains.com/idea). Eclipse and Netbeans
 users can adapt the project easily.
 
 Built using:

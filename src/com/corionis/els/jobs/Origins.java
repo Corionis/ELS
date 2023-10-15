@@ -88,27 +88,30 @@ public class Origins
             if (row > -1)
             {
                 TreePath[] paths = sourceTree.getSelectionPaths();
-                for (TreePath tp : paths)
+                if (paths != null)
                 {
-                    // do not add items that are children of other items
-                    NavTreeNode ctn = (NavTreeNode) tp.getLastPathComponent();
-                    boolean child = false;
-                    for (TreePath sp : paths)
+                    for (TreePath tp : paths)
                     {
-                        NavTreeNode ntn = (NavTreeNode) sp.getLastPathComponent();
-                        if (ntn != ctn && ntn.isNodeChild(ctn))
+                        // do not add items that are children of other items
+                        NavTreeNode ctn = (NavTreeNode) tp.getLastPathComponent();
+                        boolean child = false;
+                        for (TreePath sp : paths)
                         {
-                            logger.info(java.text.MessageFormat.format(context.cfg.gs("Z.skipping.child"),
-                                ctn.getUserObject().name, ntn.getUserObject().name));
-                            child = true;
+                            NavTreeNode ntn = (NavTreeNode) sp.getLastPathComponent();
+                            if (ntn != ctn && ntn.isNodeChild(ctn))
+                            {
+                                logger.info(java.text.MessageFormat.format(context.cfg.gs("Z.skipping.child"),
+                                        ctn.getUserObject().name, ntn.getUserObject().name));
+                                child = true;
+                            }
                         }
-                    }
-                    if (child)
-                        continue;
+                        if (child)
+                            continue;
 
-                    NavTreeUserObject tuo = ctn.getUserObject();
-                    isSubscriber = tuo.isSubscriber();
-                    origins.add(new Origin(sourceTree, tp, tuo));
+                        NavTreeUserObject tuo = ctn.getUserObject();
+                        isSubscriber = tuo.isSubscriber();
+                        origins.add(new Origin(sourceTree, tp, tuo));
+                    }
                 }
             }
         }
@@ -119,13 +122,16 @@ public class Origins
             if (row > -1)
             {
                 int[] rows = sourceTable.getSelectedRows();
-                for (int i = 0; i < rows.length; ++i)
+                if (rows != null)
                 {
-                    NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
-                    isSubscriber = tuo.isSubscriber();
-                    NavTreeNode ntn = (NavTreeNode) tuo.node.getMyTree().getLastSelectedPathComponent();
-                    TreePath tp = ntn.getTreePath();
-                    origins.add(new Origin(sourceTable, tp, rows[i], tuo));
+                    for (int i = 0; i < rows.length; ++i)
+                    {
+                        NavTreeUserObject tuo = (NavTreeUserObject) sourceTable.getValueAt(rows[i], 1);
+                        isSubscriber = tuo.isSubscriber();
+                        NavTreeNode ntn = (NavTreeNode) tuo.node.getMyTree().getLastSelectedPathComponent();
+                        TreePath tp = ntn.getTreePath();
+                        origins.add(new Origin(sourceTable, tp, rows[i], tuo));
+                    }
                 }
             }
         }

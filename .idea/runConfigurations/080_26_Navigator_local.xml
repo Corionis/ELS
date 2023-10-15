@@ -8,6 +8,7 @@
     <method v="2">
       <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="stamp" />
       <option name="Make" enabled="true" />
+      <option name="AntTarget" enabled="true" antfile="file://$PROJECT_DIR$/els.xml" target="els-ide" />
     </method>
   </configuration>
 </component>

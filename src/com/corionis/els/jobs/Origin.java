@@ -10,11 +10,11 @@ public class Origin
     private String location;
     private int type;
 
-    transient NavTreeUserObject tuo;
-    transient JTree sourceTree = null;
-    transient TreePath treePath = null;
-    transient JTable sourceTable = null;
-    transient int tableRow = -1;
+    public transient NavTreeUserObject tuo;
+    public transient JTree sourceTree = null;
+    public transient TreePath treePath = null;
+    public transient JTable sourceTable = null;
+    public transient int tableRow = -1;
 
     private Origin()
     {
