@@ -40,21 +40,22 @@ public class Browser
     // style selections
     private static int styleOne = STYLE_COLLECTION_ALL;
     private static int styleTwo = STYLE_SYSTEM_ALL;
+    //
+    private Context context;
     public boolean hintTrackingEnabled = false;
+    private String keyBuffer = "";
+    private long keyTime = 0L;
     public JComponent lastComponent = null;
+    public int lastPanelNumber = 0;
     public int lastTabStopIndex = 0;
-    public NavTransferHandler navTransferHandler;
     int lastFocusedCollectionOne = 0;
     int lastFocusedCollectionTwo = 4;
     int lastFocusedSystemOne = 2;
     int lastFocusedSystemTwo = 6;
-    //
-    private Context context;
-    private String keyBuffer = "";
-    private long keyTime = 0L;
     private Logger logger = LogManager.getLogger("applog");
     private Stack<NavItem>[] navStack = new Stack[4];
     private int[] navStackIndex = {-1, -1, -1, -1};
+    public NavTransferHandler navTransferHandler;
     private int tabStopIndex = 0;
     private int[] tabStops = {0, 1, 4, 5};
 
@@ -2256,6 +2257,7 @@ public class Browser
     {
         if (panelNo >= 0)
         {
+            lastPanelNumber = panelNo;
             switch (panelNo)
             {
                 case 0:

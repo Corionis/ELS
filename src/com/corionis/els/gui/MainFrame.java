@@ -508,6 +508,9 @@ public class MainFrame extends JFrame
             context.mainFrame.menuItemAutoRefresh.setEnabled(true);
             context.mainFrame.menuItemShowHidden.setEnabled(true);
             context.mainFrame.menuItemWordWrap.setEnabled(true);
+
+            if (context.browser != null)
+                context.browser.selectPanelNumber(context.browser.lastPanelNumber);
         }
         else if (index == 1)
         {
@@ -522,6 +525,9 @@ public class MainFrame extends JFrame
             context.mainFrame.menuItemAutoRefresh.setEnabled(false);
             context.mainFrame.menuItemShowHidden.setEnabled(false);
             context.mainFrame.menuItemWordWrap.setEnabled(false);
+
+            if (context.browser != null)
+                context.libraries.selectLastTab();
         }
     }
 
