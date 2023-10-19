@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "8.1.1.0.298" Java: "17.0.8" encoding: "UTF-8"
+JFDML JFormDesigner: "8.2.0.0.338" Java: "17.0.8" encoding: "UTF-8"
 
 new FormModel {
 	"i18n.autoExternalize": true
@@ -465,11 +465,19 @@ new FormModel {
 							} ) {
 								name: "panelTopButtons"
 								"minimumSize": new java.awt.Dimension( 140, 38 )
+								add( new FormComponent( "com.jformdesigner.designer.wrapper.HSpacer" ) {
+									name: "hSpacer7"
+									"preferredSize": new java.awt.Dimension( 1, 10 )
+									"minimumSize": new java.awt.Dimension( 1, 10 )
+								} )
 								add( new FormComponent( "javax.swing.JButton" ) {
 									name: "buttonNew"
 									"text": new FormMessage( null, "Navigator.buttonNew.text" )
 									"mnemonic": new FormMessage( null, "Navigator.buttonNew.mnemonic" )
 									"toolTipText": new FormMessage( null, "Navigator.buttonNew.toolTipText" )
+									"preferredSize": new java.awt.Dimension( 78, 31 )
+									"minimumSize": new java.awt.Dimension( 78, 31 )
+									"maximumSize": new java.awt.Dimension( 78, 31 )
 								} )
 								add( new FormComponent( "javax.swing.JButton" ) {
 									name: "buttonCopy"
@@ -881,7 +889,7 @@ new FormModel {
 												"iconTextGap": 0
 												"horizontalTextPosition": 10
 												"actionCommand": "generateUUID"
-												"toolTipText": new FormMessage( null, "Libraries.buttonLibrarySelectTempLocation.toolTipText" )
+												"toolTipText": new FormMessage( null, "Libraries.select.temp.location.path" )
 												"name": "tempLocation"
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridy": 8
@@ -1068,6 +1076,7 @@ new FormModel {
 												"mnemonic": new FormMessage( null, "Navigator.buttonAddLocation.mnemonic_2" )
 												"toolTipText": new FormMessage( null, "Navigator.buttonAddLocation.toolTipText" )
 												"margin": new java.awt.Insets( 0, -10, 0, -10 )
+												"name": "selectlocation"
 											} )
 											add( new FormComponent( "javax.swing.JButton" ) {
 												name: "buttonRemoveLocation"

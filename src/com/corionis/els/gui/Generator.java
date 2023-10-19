@@ -245,9 +245,15 @@ public class Generator
 
         // --- hints & hint server
         if (context.cfg.getHintTrackerFilename().length() > 0)
-            cmd += " " + (glo ? "--hints" : "-h") + " \"" + context.cfg.getHintTrackerFilename() + "\"";
+        {
+            String htf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.cfg.getHintTrackerFilename());
+            cmd += " " + (glo ? "--hints" : "-h") + " \"" + htf + "\"";
+        }
         else if (context.cfg.getHintsDaemonFilename().length() > 0)
-            cmd += " " + (glo ? "--hint-server" : "-H") + " \"" + context.cfg.getHintsDaemonFilename() + "\"";
+        {
+            String hdf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.cfg.getHintsDaemonFilename());
+            cmd += " " + (glo ? "--hint-server" : "-H") + " \"" + hdf + "\"";
+        }
 
         cmd += " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;

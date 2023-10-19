@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="els">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/flatlaf-3.2.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/flatlaf-3.2.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/gson-2.10.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/guava-32.0.1-jre.jar!/" />
       <root url="jar://$PROJECT_DIR$/lib/log4j-api-2.19.0.jar!/" />

@@ -43,6 +43,7 @@ public class LibrariesUI
     private int currentLibraryIndex = 0;
     private int currentLocationIndex = 0;
     private int currentSourceIndex = -1;
+    private DirectoryPicker directoryPicker = null;
     private String displayName;
     private NavHelp helpDialog;
     private File lastDirectory;
@@ -363,57 +364,62 @@ public class LibrariesUI
         }
     }
 
-    private void actionLocationAdd(ActionEvent e)
+    private void actionLocationAddClicked(ActionEvent e)
     {
-        if (currentConfigIndex >= 0)
+        if (currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
         {
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
-            DirectoryPicker directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.location"),
-                    context.cfg.gs("Libraries.select.path.of.new.location"), true);
-
-            directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
+            if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
+                    currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
+                directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.location.path"),
+                        context.cfg.gs("Libraries.select.new.location"), true, false);
+
+                directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
                 {
-                    boolean empty = false;
-                    boolean isSubscriber = false;
-                    if (context.browser.lastComponent != null)
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
                     {
-                        context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
-                        try
+                        boolean done = false;
+                        boolean empty = false;
+                        boolean isSubscriber = false;
+                        int reply = JOptionPane.NO_OPTION;
+                        if (context.browser.lastComponent != null)
                         {
-                            ArrayList<Origin> origins = new ArrayList<Origin>();
-                            isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins, true);
-
-                            if (origins != null && origins.size() > 0)
+                            try
                             {
-                                int count = origins.size();
-                                Origin origin = origins.get(0);
-                                if (count != 1 || origin.getType() != NavTreeUserObject.REAL || !origin.tuo.isDir)
-                                {
-                                    JOptionPane.showMessageDialog(context.mainFrame,
-                                            context.cfg.gs(("Libraries.please.select.a.single.directory.to.add")),
-                                            context.cfg.gs("Libraries.select.new.location"), JOptionPane.ERROR_MESSAGE);
-                                }
-                                else
-                                {
-                                    // make dialog pieces
-                                    String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
-                                    String message = MessageFormat.format(context.cfg.gs("Libraries.use.selected.item"), which);
+                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
 
-                                    // confirm using Browser selection
-                                    int reply = JOptionPane.showConfirmDialog(context.mainFrame, message,
-                                            context.cfg.gs("Libraries.select.new.location"), JOptionPane.YES_NO_OPTION);
-                                    if (reply == JOptionPane.YES_OPTION)
+                                // get selection(s)
+                                ArrayList<Origin> origins = new ArrayList<Origin>();
+                                isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins, true);
+
+                                // there can be only one
+                                if (origins != null && origins.size() > 0)
+                                {
+                                    int count = origins.size();
+                                    Origin origin = origins.get(0);
+                                    if (count != 1 || origin.getType() != NavTreeUserObject.REAL || !origin.tuo.isDir)
                                     {
-                                        directoryPicker.locationPathTextField.setText(origin.getLocation());
+                                        JOptionPane.showMessageDialog(directoryPicker.pane,
+                                                context.cfg.gs(("Libraries.please.select.a.single.directory.to.add")),
+                                                context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    else
+                                    {
+                                        // make path relative if possible
+                                        String path;
+                                        if (origin.tuo.isRemote)
+                                            path = origin.getLocation();
+                                        else
+                                            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), origin.getLocation());
 
                                         // avoid duplicates
                                         boolean found = false;
-                                        for (int i = 0; i < libMeta.repo.getLibraryData().libraries.locations.length; ++i)
+                                        Location[] locations = libMeta.repo.getLibraryData().libraries.locations;
+                                        for (int j = 0; j < locations.length; ++j)
                                         {
-                                            if (libMeta.repo.getLibraryData().libraries.locations[i].location.equals(directoryPicker.locationPathTextField.getText()))
+                                            if (locations[j].location.equals(path))
                                             {
                                                 found = true;
                                                 break;
@@ -421,142 +427,174 @@ public class LibrariesUI
                                         }
                                         if (found)
                                         {
-                                            JOptionPane.showMessageDialog(mf,
-                                                    context.cfg.gs("Libraries.that.directory.is.already.defined"),
-                                                    context.cfg.gs("Libraries.select.new.location"), JOptionPane.ERROR_MESSAGE);
-                                            directoryPicker.locationPathTextField.setText("");
+                                            JOptionPane.showMessageDialog(directoryPicker.pane,
+                                                    context.cfg.gs("Libraries.that.location.is.already.defined"),
+                                                    context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.ERROR_MESSAGE);
+                                            directoryPicker.directoryPathTextField.setText("");
+                                            directoryPicker.pane.requestFocus();
                                         }
                                         else
-                                            directoryPicker.pane.requestFocus();
+                                        {
+                                            // do origin repository and Libraries repository match?
+                                            String key = origin.tuo.node.getMyRepo().getLibraryData().libraries.key;
+                                            if (!libMeta.repo.getLibraryData().libraries.key.equals(key))
+                                            {
+                                                String name = libMeta.repo.getLibraryData().libraries.description;
+                                                reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
+                                                        java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
+                                                        context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.YES_NO_OPTION);
+                                                if (reply == JOptionPane.YES_OPTION)
+                                                    done = true;
+                                            }
+                                            else
+                                            {
+                                                // confirm using Browser selection
+                                                directoryPicker.pane.requestFocus();
+                                                String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                                                String message = MessageFormat.format(context.cfg.gs("Libraries.use.selected.item"), which);
+                                                reply = JOptionPane.showConfirmDialog(directoryPicker.pane, message,
+                                                        context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.YES_NO_OPTION);
+                                                done = true;
+                                            }
+                                        }
+
+                                        if (reply == JOptionPane.YES_OPTION)
+                                            directoryPicker.directoryPathTextField.setText(path);
+
+                                        if (done)
+                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
+                                else
+                                    empty = true;
                             }
-                            else
-                                empty = true;
-                        }
-                        catch (Exception e)
-                        {
-                            String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
-                            if (e.getMessage() == null || !e.getMessage().equals("HANDLED_INTERNALLY"))
+                            catch (Exception e)
                             {
-                                if (context.navigator != null)
+                                String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                                if (e.getMessage() == null || !e.getMessage().equals("HANDLED_INTERNALLY"))
                                 {
-                                    logger.error(msg);
-                                    JOptionPane.showMessageDialog(context.mainFrame, msg,
-                                            context.cfg.gs("Libraries.select.new.location"), JOptionPane.ERROR_MESSAGE);
+                                    if (context.navigator != null)
+                                    {
+                                        logger.error(msg);
+                                        JOptionPane.showMessageDialog(directoryPicker.pane, msg,
+                                                context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    else
+                                        logger.error(msg);
                                 }
                                 else
                                     logger.error(msg);
                             }
-                            else
-                                logger.error(msg);
                         }
-                        context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
-                    }
-                    else
-                        empty = true;
+                        else
+                            empty = true;
 
-                    if (empty)
-                    {
-                        JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Libraries.nothing.selected.in.browser"),
-                                context.cfg.gs("Libraries.select.new.location"), JOptionPane.WARNING_MESSAGE);
-                    }
-                }
-            });
-
-            directoryPicker.selectLocationButton.addActionListener(new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
-                {
-                    directoryPicker.locationPathTextField.setText(filePicker(directoryPicker.selectLocationButton));
-                    String path = directoryPicker.locationPathTextField.getText();
-
-                    // avoid duplicates
-                    boolean found = false;
-                    for (int i = 0; i < libMeta.repo.getLibraryData().libraries.locations.length; ++i)
-                    {
-                         if (libMeta.repo.getLibraryData().libraries.locations[i].location.equals(path))
+                        if (empty)
                         {
-                            found = true;
-                            break;
+                            JOptionPane.showMessageDialog(directoryPicker.pane, context.cfg.gs("Libraries.nothing.selected.in.browser"),
+                                    context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.WARNING_MESSAGE);
                         }
                     }
-                    if (found)
-                    {
-                        JOptionPane.showMessageDialog(mf,
-                                context.cfg.gs("Libraries.that.directory.is.already.defined"),
-                                context.cfg.gs("Libraries.select.new.location"), JOptionPane.ERROR_MESSAGE);
-                        directoryPicker.locationPathTextField.setText("");
-                    }
-                }
-            });
+                });
 
-            directoryPicker.pane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, ignored ->
-            {
-                if (directoryPicker.pane != null && directoryPicker.pane.getValue() != null)
+                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
                 {
-                    int selectedValue = (int) directoryPicker.pane.getValue();
-                    if (selectedValue == JOptionPane.YES_OPTION)
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
                     {
-                        String path = directoryPicker.locationPathTextField.getText();
-                        String min = directoryPicker.minSize.getText();
-                        if (path.length() > 0 && min.length() > 0)
+                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonAddLocation));
+                        String path = directoryPicker.directoryPathTextField.getText();
+
+                        // avoid duplicates
+                        boolean found = false;
+                        Location[] locations = libMeta.repo.getLibraryData().libraries.locations;
+                        for (int j = 0; j < locations.length; ++j)
                         {
-                            // add location to repository
-                            Location loc = new Location();
-                            loc.location = path;
-                            loc.minimum = min + directoryPicker.scales.getSelectedItem();
-
-                            Location[] locations = libMeta.repo.getLibraryData().libraries.locations;
-                            int arraySize = locations.length + 1;
-                            Location[] expanded = new Location[arraySize];
-                            System.arraycopy(libMeta.repo.getLibraryData().libraries.locations, 0, expanded,
-                                    0, libMeta.repo.getLibraryData().libraries.locations.length);
-                            expanded[arraySize - 1] = loc;
-                            libMeta.repo.getLibraryData().libraries.locations = expanded;
-                            currentLocationIndex = arraySize - 1;
-
-                            libMeta.setDataHasChanged();
-                            mf.tableLocations.changeSelection(currentLocationIndex, 0, false, false);
-                            loadLocationsTab();
-
-                            // select added Location row
-                            int i = 0;
-                            for (; i < mf.tableLocations.getRowCount(); ++i)
+                            if (locations[j].location.equals(path))
                             {
-                                if (locationsTableModel.getValueAt(i, 0).equals(path))
-                                    break;
-                            }
-                            if (i < mf.tableLocations.getRowCount())
-                            {
-                                mf.tableLocations.setRowSelectionInterval(i, i);
+                                found = true;
+                                break;
                             }
                         }
+                        if (found)
+                        {
+                            JOptionPane.showMessageDialog(directoryPicker.pane,
+                                    context.cfg.gs("Libraries.that.location.is.already.defined"),
+                                    context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.ERROR_MESSAGE);
+                            directoryPicker.directoryPathTextField.setText("");
+                        }
                     }
-                }
+                });
 
-                mf.buttonNew.setEnabled(true);
-                mf.buttonCopy.setEnabled(true);
-                mf.buttonDelete.setEnabled(true);
-                mf.librariesConfigItems.setEnabled(true);
-                mf.tabbedPaneLibrarySpaces.setEnabled(true);
-                mf.buttonAddLocation.setEnabled(true);
-                mf.saveButton.setEnabled(true);
-                mf.cancelButton.setEnabled(true);
-                directoryPicker.dialog.dispose();
-                mf.buttonAddLocation.requestFocus();
-            });
 
-            mf.buttonNew.setEnabled(false);
-            mf.buttonCopy.setEnabled(false);
-            mf.buttonDelete.setEnabled(false);
-            mf.librariesConfigItems.setEnabled(false);
-            mf.tabbedPaneLibrarySpaces.setEnabled(false);
-            mf.buttonAddLocation.setEnabled(false);
-            mf.saveButton.setEnabled(false);
-            mf.cancelButton.setEnabled(false);
-            directoryPicker.dialog.setVisible(true);
+                directoryPicker.pane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, ignored ->
+                {
+                    if (directoryPicker.pane != null && directoryPicker.pane.getValue() != null)
+                    {
+                        int selectedValue = (int) directoryPicker.pane.getValue();
+                        if (selectedValue == JOptionPane.YES_OPTION)
+                        {
+                            String path = directoryPicker.directoryPathTextField.getText();
+                            String min = directoryPicker.minSize.getText();
+                            if (path.length() > 0 && min.length() > 0)
+                            {
+                                // add location to repository
+                                Location loc = new Location();
+                                loc.location = path;
+                                loc.minimum = min + directoryPicker.scales.getSelectedItem();
+
+                                Location[] locations = libMeta.repo.getLibraryData().libraries.locations;
+                                int arraySize = locations.length + 1;
+                                Location[] expanded = new Location[arraySize];
+                                System.arraycopy(libMeta.repo.getLibraryData().libraries.locations, 0, expanded,
+                                        0, libMeta.repo.getLibraryData().libraries.locations.length);
+                                expanded[arraySize - 1] = loc;
+                                libMeta.repo.getLibraryData().libraries.locations = expanded;
+                                currentLocationIndex = arraySize - 1;
+
+                                libMeta.setDataHasChanged();
+                                mf.tableLocations.changeSelection(currentLocationIndex, 0, false, false);
+                                loadLocationsTab();
+
+                                // select added Location row
+                                int i = 0;
+                                for (; i < mf.tableLocations.getRowCount(); ++i)
+                                {
+                                    if (locationsTableModel.getValueAt(i, 0).equals(path))
+                                        break;
+                                }
+                                if (i < mf.tableLocations.getRowCount())
+                                {
+                                    mf.tableLocations.setRowSelectionInterval(i, i);
+                                }
+                            }
+                        }
+                    }
+
+                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                    mf.buttonNew.setEnabled(true);
+                    mf.buttonCopy.setEnabled(true);
+                    mf.buttonDelete.setEnabled(true);
+                    mf.librariesConfigItems.setEnabled(true);
+                    mf.tabbedPaneLibrarySpaces.setEnabled(true);
+                    mf.buttonAddLocation.setEnabled(true);
+                    mf.saveButton.setEnabled(true);
+                    mf.cancelButton.setEnabled(true);
+                    directoryPicker.dialog.dispose();
+                    mf.buttonAddLocation.requestFocus();
+                    directoryPicker = null;
+                });
+
+                mf.buttonNew.setEnabled(false);
+                mf.buttonCopy.setEnabled(false);
+                mf.buttonDelete.setEnabled(false);
+                mf.librariesConfigItems.setEnabled(false);
+                mf.tabbedPaneLibrarySpaces.setEnabled(false);
+                mf.buttonAddLocation.setEnabled(false);
+                mf.saveButton.setEnabled(false);
+                mf.cancelButton.setEnabled(false);
+                directoryPicker.dialog.setVisible(true);
+            }
         }
     }
 
@@ -682,72 +720,97 @@ public class LibrariesUI
             if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
                     currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
-                DirectoryPicker directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.source.path"),
-                        context.cfg.gs("Libraries.select.new.source"), false);
+                directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.source.path"),
+                        context.cfg.gs("Libraries.select.new.source"), false, false);
 
                 directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
                 {
                     @Override
                     public void actionPerformed(ActionEvent actionEvent)
                     {
+                        boolean done = false;
                         boolean empty = false;
                         boolean isSubscriber = false;
+                        int reply = JOptionPane.NO_OPTION;
                         if (context.browser.lastComponent != null)
                         {
                             try
                             {
                                 context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
 
+                                // get selection(s)
                                 ArrayList<Origin> origins = new ArrayList<Origin>();
                                 isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins, true);
 
+                                // there can be only one
                                 if (origins != null && origins.size() > 0)
                                 {
                                     int count = origins.size();
                                     Origin origin = origins.get(0);
                                     if (count != 1 || origin.getType() != NavTreeUserObject.REAL || !origin.tuo.isDir)
                                     {
-                                        JOptionPane.showMessageDialog(context.mainFrame,
+                                        JOptionPane.showMessageDialog(directoryPicker.pane,
                                                 context.cfg.gs(("Libraries.please.select.a.single.directory.to.add")),
-                                                context.cfg.gs("Libraries.select.new.source"), JOptionPane.ERROR_MESSAGE);
+                                                context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.ERROR_MESSAGE);
                                     }
                                     else
                                     {
+                                        // make path relative if possible
+                                        String path;
+                                        if (origin.tuo.isRemote)
+                                            path = origin.getLocation();
+                                        else
+                                            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), origin.getLocation());
 
-                                        // LEFTOFF Compare source & target repo - emit warning
-
-                                        // make dialog pieces
-                                        String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
-                                        String message = MessageFormat.format(context.cfg.gs("Libraries.use.selected.item"), which);
-
-                                        // confirm using Browser selection
-                                        int reply = JOptionPane.showConfirmDialog(context.mainFrame, message,
-                                                context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.YES_NO_OPTION);
-                                        if (reply == JOptionPane.YES_OPTION)
+                                        // avoid duplicates
+                                        boolean found = false;
+                                        Library lib = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex];
+                                        for (int j = 0; j < lib.sources.length; ++j)
                                         {
-                                            directoryPicker.locationPathTextField.setText(origin.getLocation());
-                                            String path = directoryPicker.locationPathTextField.getText();
-
-                                            // avoid duplicates
-                                            boolean found = false;
-                                            Library lib = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex];
-                                            for (int j = 0; j < lib.sources.length; ++j)
+                                            if (lib.sources[j].equals(path))
                                             {
-                                                if (lib.sources[j].equals(path))
-                                                {
-                                                    found = true;
-                                                    break;
-                                                }
+                                                found = true;
+                                                break;
                                             }
-                                            if (found)
-                                            {
-                                                JOptionPane.showMessageDialog(mf,
-                                                        context.cfg.gs("Libraries.that.source.is.already.defined"),
-                                                        context.cfg.gs("Libraries.select.new.source"), JOptionPane.ERROR_MESSAGE);
-                                                directoryPicker.locationPathTextField.setText("");
-                                            }
+                                        }
+                                        if (found)
+                                        {
+                                            JOptionPane.showMessageDialog(directoryPicker.pane,
+                                                    context.cfg.gs("Libraries.that.source.is.already.defined"),
+                                                    context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.ERROR_MESSAGE);
+                                            directoryPicker.directoryPathTextField.setText("");
                                             directoryPicker.pane.requestFocus();
                                         }
+                                        else
+                                        {
+                                            // do origin repository and Libraries repository match?
+                                            String key = origin.tuo.node.getMyRepo().getLibraryData().libraries.key;
+                                            if (!libMeta.repo.getLibraryData().libraries.key.equals(key))
+                                            {
+                                                String name = libMeta.repo.getLibraryData().libraries.description;
+                                                reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
+                                                        java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
+                                                        context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.YES_NO_OPTION);
+                                                if (reply == JOptionPane.YES_OPTION)
+                                                    done = true;
+                                            }
+                                            else
+                                            {
+                                                // confirm using Browser selection
+                                                directoryPicker.pane.requestFocus();
+                                                String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                                                String message = MessageFormat.format(context.cfg.gs("Libraries.use.selected.item"), which);
+                                                reply = JOptionPane.showConfirmDialog(directoryPicker.pane, message,
+                                                        context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.YES_NO_OPTION);
+                                                done = true;
+                                            }
+                                        }
+
+                                        if (reply == JOptionPane.YES_OPTION)
+                                            directoryPicker.directoryPathTextField.setText(path);
+
+                                        if (done)
+                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
                                 else
@@ -761,8 +824,8 @@ public class LibrariesUI
                                     if (context.navigator != null)
                                     {
                                         logger.error(msg);
-                                        JOptionPane.showMessageDialog(context.mainFrame, msg,
-                                                context.cfg.gs("Libraries.select.new.source"), JOptionPane.ERROR_MESSAGE);
+                                        JOptionPane.showMessageDialog(directoryPicker.pane, msg,
+                                                context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.ERROR_MESSAGE);
                                     }
                                     else
                                         logger.error(msg);
@@ -770,26 +833,25 @@ public class LibrariesUI
                                 else
                                     logger.error(msg);
                             }
-                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
                         }
                         else
                             empty = true;
 
                         if (empty)
                         {
-                            JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Libraries.nothing.selected.in.browser"),
-                                    context.cfg.gs("Libraries.select.new.source"), JOptionPane.WARNING_MESSAGE);
+                            JOptionPane.showMessageDialog(directoryPicker.pane, context.cfg.gs("Libraries.nothing.selected.in.browser"),
+                                    context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.WARNING_MESSAGE);
                         }
                     }
                 });
 
-                directoryPicker.selectLocationButton.addActionListener(new ActionListener()
+                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
                 {
                     @Override
                     public void actionPerformed(ActionEvent actionEvent)
                     {
-                        directoryPicker.locationPathTextField.setText(filePicker(mf.buttonAddSource));
-                        String path = directoryPicker.locationPathTextField.getText();
+                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonAddSource));
+                        String path = directoryPicker.directoryPathTextField.getText();
 
                         // avoid duplicates
                         boolean found = false;
@@ -804,10 +866,10 @@ public class LibrariesUI
                         }
                         if (found)
                         {
-                            JOptionPane.showMessageDialog(mf,
+                            JOptionPane.showMessageDialog(directoryPicker.pane,
                                     context.cfg.gs("Libraries.that.source.is.already.defined"),
-                                    context.cfg.gs("Libraries.select.new.source"), JOptionPane.ERROR_MESSAGE);
-                            directoryPicker.locationPathTextField.setText("");
+                                    context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.ERROR_MESSAGE);
+                            directoryPicker.directoryPathTextField.setText("");
                         }
                     }
                 });
@@ -817,11 +879,10 @@ public class LibrariesUI
                     if (directoryPicker.pane != null && directoryPicker.pane.getValue() != null)
                     {
                         int selectedValue = (int) directoryPicker.pane.getValue();
-                        Object[] o = directoryPicker.pane.getSelectionValues();
                         if (selectedValue == JOptionPane.YES_OPTION)
                         {
                             Library lib = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex];
-                            String path = directoryPicker.locationPathTextField.getText();
+                            String path = directoryPicker.directoryPathTextField.getText();
                             if (path != null && path.length() > 0)
                             {
                                 int arraySize = lib.sources.length + 1;
@@ -838,6 +899,7 @@ public class LibrariesUI
                         }
                     }
 
+                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
                     mf.buttonNew.setEnabled(true);
                     mf.buttonCopy.setEnabled(true);
                     mf.buttonDelete.setEnabled(true);
@@ -851,7 +913,8 @@ public class LibrariesUI
                     mf.saveButton.setEnabled(true);
                     mf.cancelButton.setEnabled(true);
                     directoryPicker.dialog.dispose();
-                    mf.buttonAddLocation.requestFocus();
+                    mf.buttonAddSource.requestFocus();
+                    directoryPicker = null;
                 });
 
                 mf.buttonNew.setEnabled(false);
@@ -904,213 +967,310 @@ public class LibrariesUI
 
     private void actionSourcesMultiClicked(ActionEvent e)
     {
-        if (currentConfigIndex >= 0)
+        if (currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
         {
             LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
-
-            // panel of controls
-            JPanel panel = new JPanel();
-            GridBagLayout gridBagLayout = new GridBagLayout();
-            panel.setLayout(gridBagLayout);
-
-            // prompt
-            JLabel prompt = new JLabel(context.cfg.gs(("Libraries.sources.multiple")));
-            panel.add(prompt, new GridBagConstraints(0, 0, 7, 1, 1.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.BOTH,
-                    new Insets(4, 0, 4, 4), 0, 0));
-
-            // source path
-            JTextField sourcePathTextField = new JTextField();
-            sourcePathTextField.setEditable(true);
-            sourcePathTextField.setMinimumSize(new Dimension(360, 30));
-            sourcePathTextField.setPreferredSize(new Dimension(360, 30));
-            panel.add(sourcePathTextField, new GridBagConstraints(0, 1, 6, 1, 1.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(0, 4, 4, 4), 0, 0));
-
-            // select source base path button
-            JButton selectSourceButton = new JButton("...");
-            selectSourceButton.setName("selectSource");
-            selectSourceButton.setActionCommand("selectSource");
-            selectSourceButton.setText("...");
-            selectSourceButton.setFont(selectSourceButton.getFont().deriveFont(selectSourceButton.getFont().getStyle() | Font.BOLD));
-            selectSourceButton.setMaximumSize(new Dimension(32, 24));
-            selectSourceButton.setMinimumSize(new Dimension(32, 24));
-            selectSourceButton.setPreferredSize(new Dimension(32, 24));
-            selectSourceButton.setVerticalTextPosition(SwingConstants.TOP);
-            selectSourceButton.setIconTextGap(0);
-            selectSourceButton.setHorizontalTextPosition(SwingConstants.LEADING);
-            selectSourceButton.setToolTipText(context.cfg.gs("Libraries.select.source.base.path"));
-            selectSourceButton.addActionListener(new ActionListener()
+            if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
+                    currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
+                directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.multiple.source.path"),
+                        context.cfg.gs("Libraries.select.new.multiple.source"), false, true);
+
+                directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
                 {
-                    sourcePathTextField.setText(filePicker(selectSourceButton));
-                }
-            });
-            panel.add(selectSourceButton, new GridBagConstraints(6, 1, 1, 1, 0.0, 0.0,
-                    GridBagConstraints.EAST, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 4, 4), 0, 0));
-
-            // horizontal line
-            JSeparator separator = new JSeparator();
-            panel.add(separator, new GridBagConstraints(0, 3, 7, 1, 0.0, 0.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                    new Insets(2, 0, 4, 0), 0, 0));
-
-            // source to libraries prompt
-            JLabel locLibLabel = new JLabel(context.cfg.gs("Libraries.add.new.source.to.libraries"));
-            panel.add(locLibLabel, new GridBagConstraints(0, 4, 7, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.BOTH,
-                    new Insets(0, 0, 4, 4), 0, 0));
-
-
-            // create checkbox + library table
-            JTable table = new JTable();
-            table.setCellSelectionEnabled(false);
-            table.setRowSelectionAllowed(false);
-            table.setColumnSelectionAllowed(false);
-            table.setFillsViewportHeight(true);
-
-            if (libMeta.repo != null &&
-                    libMeta.repo.getLibraryData().libraries.bibliography != null && libMeta.repo.getLibraryData().libraries.bibliography.length > 0)
-            {
-                Library[] biblio = libMeta.repo.getLibraryData().libraries.bibliography;
-                librarySelectors = new LibrarySelector[biblio.length];
-                librarySelectorTableModel = new LibrarySelectorTableModel(context, librarySelectors);
-
-                // load libraries list
-                for (int i = 0; i < biblio.length; ++i)
-                {
-                    LibrarySelector libSel = new LibrarySelector(biblio[i].name);
-                    librarySelectors[i] = libSel;
-                }
-                Arrays.sort(librarySelectors);
-            }
-            else
-            {
-                librarySelectors = new LibrarySelector[0];
-                librarySelectorTableModel = new LibrarySelectorTableModel(context, null);
-            }
-            table.setModel(librarySelectorTableModel);
-
-            TableColumn column = table.getColumnModel().getColumn(0);
-            column.setResizable(false);
-            column.setWidth(32);
-            column.setPreferredWidth(32);
-            column.setMaxWidth(32);
-            column.setMinWidth(32);
-
-            column = table.getColumnModel().getColumn(1);
-            column.setResizable(false);
-
-            JScrollPane scrollPane = new JScrollPane();
-            scrollPane.setMinimumSize(new Dimension(100, 100));
-            scrollPane.setPreferredSize(new Dimension(240, 260));
-
-            scrollPane.setViewportView(table);
-            panel.add(scrollPane, new GridBagConstraints(0, 5, 7, 4, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                    new Insets(0, 4, 4, 4), 0, 0));
-
-            // "all" checkbox
-            JCheckBox allCheckbox = new JCheckBox(context.cfg.gs("Libraries.toggle.all"));
-            allCheckbox.addActionListener(new ActionListener()
-            {
-                @Override
-                public void actionPerformed(ActionEvent actionEvent)
-                {
-                    boolean sense = allCheckbox.isSelected();
-                    for (int i = 0; i < librarySelectorTableModel.getRowCount(); ++i)
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
                     {
-                        librarySelectors[i].selected = sense;
-                    }
-                    librarySelectorTableModel.fireTableDataChanged();
-                }
-            });
-            panel.add(allCheckbox, new GridBagConstraints(0, 9, 7, 1, 0.0, 0.0,
-                    GridBagConstraints.WEST, GridBagConstraints.BOTH,
-                    new Insets(0, 15, 0, 4), 0, 0));
-
-
-            // prompt user
-            JOptionPane optPane = new JOptionPane(panel);
-            JDialog dialog = optPane.createDialog(context.mainFrame, "THING");
-            dialog.setModal(false);
-            dialog.setVisible(true);
-            if (9 > 0)
-                return;
-
-
-            Object[] params = {panel};
-            int opt = JOptionPane.showConfirmDialog(mf, params, displayName, JOptionPane.OK_CANCEL_OPTION);
-            if (opt == JOptionPane.YES_OPTION)
-            {
-                if (sourcePathTextField.getText().length() > 0)
-                {
-                    int selectedCount = 0;
-                    if (librarySelectors.length > 0)
-                    {
-                        for (int i = 0; i < librarySelectors.length; ++i)
-                        {
-                            if (librarySelectors[i].selected)
-                                ++selectedCount;
-                        }
-                    }
-
-                    if (selectedCount > 0)
-                    {
-                        String description = java.text.MessageFormat.format(context.cfg.gs("Libraries.add.multi.library.name"),
-                                sourcePathTextField.getText(), libMeta.repo.getSeparator());
-                        String question = java.text.MessageFormat.format(context.cfg.gs("Libraries.to.multi.libraries"), selectedCount);
-                        Object[] params2 = {description, question};
-                        int reply = JOptionPane.showConfirmDialog(mf, params2, displayName, JOptionPane.OK_CANCEL_OPTION);
-                        if (reply == JOptionPane.OK_OPTION)
+                        boolean done = false;
+                        boolean empty = false;
+                        boolean isSubscriber = false;
+                        int reply = JOptionPane.NO_OPTION;
+                        if (context.browser.lastComponent != null)
                         {
                             try
                             {
-                                // add location to selected libraries
-                                for (int i = 0; i < librarySelectors.length; ++i)
+                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+
+                                // get selection(s)
+                                ArrayList<Origin> origins = new ArrayList<Origin>();
+                                isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins, true);
+
+                                // there can be only one
+                                if (origins != null && origins.size() > 0)
                                 {
-                                    if (librarySelectors[i].selected)
+                                    int count = origins.size();
+                                    Origin origin = origins.get(0);
+                                    if (count != 1 || origin.getType() != NavTreeUserObject.REAL || !origin.tuo.isDir)
                                     {
-                                        Library lib = libMeta.repo.getLibrary(librarySelectors[i].name);
-                                        if (lib != null)
+                                        JOptionPane.showMessageDialog(directoryPicker.pane,
+                                                context.cfg.gs(("Libraries.please.select.a.single.directory.to.add")),
+                                                context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    else
+                                    {
+                                        // make path relative if possible
+                                        String path;
+                                        if (origin.tuo.isRemote)
+                                            path = origin.getLocation();
+                                        else
+                                            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), origin.getLocation());
+
+                                        // avoid duplicates
+                                        boolean found = false;
+                                        Library lib = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex];
+                                        for (int j = 0; j < lib.sources.length; ++j)
                                         {
-                                            String source = sourcePathTextField.getText() + libMeta.repo.getSeparator() + lib.name;
-                                            boolean exists = false;
-                                            // avoid adding a duplicate
-                                            for (int j = 0; j < lib.sources.length; ++j)
+                                            if (lib.sources[j].equals(path))
                                             {
-                                                if (lib.sources[j].equals(source))
-                                                {
-                                                    exists = true;
-                                                    break;
-                                                }
+                                                found = true;
+                                                break;
                                             }
-                                            if (!exists)
+                                        }
+                                        if (found)
+                                        {
+                                            JOptionPane.showMessageDialog(directoryPicker.pane,
+                                                    context.cfg.gs("Libraries.that.source.is.already.defined"),
+                                                    context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.ERROR_MESSAGE);
+                                            directoryPicker.directoryPathTextField.setText("");
+                                            directoryPicker.pane.requestFocus();
+                                        }
+                                        else
+                                        {
+                                            // do origin repository and Libraries repository match?
+                                            String key = origin.tuo.node.getMyRepo().getLibraryData().libraries.key;
+                                            if (!libMeta.repo.getLibraryData().libraries.key.equals(key))
                                             {
-                                                int srcSize = lib.sources.length + 1;
-                                                String[] expSources = new String[srcSize];
-                                                System.arraycopy(lib.sources, 0, expSources, 0, lib.sources.length);
-                                                expSources[srcSize - 1] = source;
-                                                lib.sources = expSources;
-                                                libMeta.setDataHasChanged();
+                                                String name = libMeta.repo.getLibraryData().libraries.description;
+                                                reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
+                                                        java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
+                                                        context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.YES_NO_OPTION);
+                                                if (reply == JOptionPane.YES_OPTION)
+                                                    done = true;
+                                            }
+                                            else
+                                            {
+                                                // confirm using Browser selection
+                                                directoryPicker.pane.requestFocus();
+                                                String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                                                String message = MessageFormat.format(context.cfg.gs("Libraries.use.selected.item"), which);
+                                                reply = JOptionPane.showConfirmDialog(directoryPicker.pane, message,
+                                                        context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.YES_NO_OPTION);
+                                                done = true;
+                                            }
+                                        }
+
+                                        if (reply == JOptionPane.YES_OPTION)
+                                            directoryPicker.directoryPathTextField.setText(path);
+
+                                        if (done)
+                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                                    }
+                                }
+                                else
+                                    empty = true;
+                            }
+                            catch (Exception e)
+                            {
+                                String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                                if (e.getMessage() == null || !e.getMessage().equals("HANDLED_INTERNALLY"))
+                                {
+                                    if (context.navigator != null)
+                                    {
+                                        logger.error(msg);
+                                        JOptionPane.showMessageDialog(directoryPicker.pane, msg,
+                                                context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    else
+                                        logger.error(msg);
+                                }
+                                else
+                                    logger.error(msg);
+                            }
+                        }
+                        else
+                            empty = true;
+
+                        if (empty)
+                        {
+                            JOptionPane.showMessageDialog(directoryPicker.pane, context.cfg.gs("Libraries.nothing.selected.in.browser"),
+                                    context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                });
+
+                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonAddSource));
+                        String path = directoryPicker.directoryPathTextField.getText();
+
+                        // avoid duplicates
+                        boolean found = false;
+                        Library lib = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex];
+                        for (int j = 0; j < lib.sources.length; ++j)
+                        {
+                            if (lib.sources[j].equals(path))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found)
+                        {
+                            JOptionPane.showMessageDialog(directoryPicker.pane,
+                                    context.cfg.gs("Libraries.that.source.is.already.defined"),
+                                    context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.ERROR_MESSAGE);
+                            directoryPicker.directoryPathTextField.setText("");
+                        }
+                    }
+                });
+
+                directoryPicker.allCheckbox.addActionListener(new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        boolean sense = directoryPicker.allCheckbox.isSelected();
+                        for (int i = 0; i < librarySelectorTableModel.getRowCount(); ++i)
+                        {
+                            librarySelectors[i].selected = sense;
+                        }
+                        librarySelectorTableModel.fireTableDataChanged();
+                    }
+                });
+
+                directoryPicker.pane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, ignored ->
+                {
+                    if (directoryPicker.pane != null && directoryPicker.pane.getValue() != null)
+                    {
+                        int selectedValue = (int) directoryPicker.pane.getValue();
+                        if (selectedValue == JOptionPane.YES_OPTION)
+                        {
+                            String path = directoryPicker.directoryPathTextField.getText();
+                            if (path != null && path.length() > 0)
+                            {
+                                try
+                                {
+                                    // add location to selected libraries
+                                    boolean dontAsk = false;
+                                    for (int i = 0; i < librarySelectors.length; ++i)
+                                    {
+                                        if (librarySelectors[i].selected)
+                                        {
+                                            Library lib = libMeta.repo.getLibrary(librarySelectors[i].name);
+                                            if (lib != null)
+                                            {
+                                                String source = path + libMeta.repo.getSeparator() + lib.name;
+                                                boolean found = false;
+                                                // avoid adding a duplicate
+                                                for (int j = 0; j < lib.sources.length; ++j)
+                                                {
+                                                    if (lib.sources[j].equals(source))
+                                                    {
+                                                        found = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!found)
+                                                {
+                                                    int srcSize = lib.sources.length + 1;
+                                                    String[] expSources = new String[srcSize];
+                                                    System.arraycopy(lib.sources, 0, expSources, 0, lib.sources.length);
+                                                    expSources[srcSize - 1] = source;
+                                                    lib.sources = expSources;
+                                                    libMeta.setDataHasChanged();
+                                                }
+                                                else
+                                                {
+                                                    if (!dontAsk)
+                                                    {
+                                                        Object[] opts = {context.cfg.gs("Z.ok"), context.cfg.gs("Z.dont.ask.again")};
+                                                        int reply = JOptionPane.showOptionDialog(directoryPicker.pane,
+                                                                java.text.MessageFormat.format(context.cfg.gs("Libraries.select.new.multiple.already.defined"), source, lib.name),
+                                                                context.cfg.gs("Libraries.select.new.multiple.source.path"),
+                                                                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, opts, opts[0]);
+                                                        if (reply == JOptionPane.NO_OPTION)
+                                                            dontAsk = true;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                            catch (MungeException me)
-                            {
-                                // should never happen
-                            }
+                                catch (MungeException me)
+                                {
+                                    // should never happen
+                                }
 
-                            loadSources();
+                                loadSources();
+                            }
                         }
                     }
+
+                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                    mf.buttonNew.setEnabled(true);
+                    mf.buttonCopy.setEnabled(true);
+                    mf.buttonDelete.setEnabled(true);
+                    mf.librariesConfigItems.setEnabled(true);
+                    mf.tabbedPaneLibrarySpaces.setEnabled(true);
+                    mf.tableBiblioLibraries.setEnabled(true);
+                    mf.buttonAddLibrary.setEnabled(true);
+                    mf.buttonRemoveLibrary.setEnabled(true);
+                    mf.buttonAddSource.setEnabled(true);
+                    mf.buttonAddMultiSource.setEnabled(true);
+                    mf.saveButton.setEnabled(true);
+                    mf.cancelButton.setEnabled(true);
+                    directoryPicker.dialog.dispose();
+                    mf.buttonAddMultiSource.requestFocus();
+                    directoryPicker = null;
+                });
+
+                // load libraries table
+                if (libMeta.repo != null &&
+                        libMeta.repo.getLibraryData().libraries.bibliography != null && libMeta.repo.getLibraryData().libraries.bibliography.length > 0)
+                {
+                    Library[] biblio = libMeta.repo.getLibraryData().libraries.bibliography;
+                    librarySelectors = new LibrarySelector[biblio.length];
+                    librarySelectorTableModel = new LibrarySelectorTableModel(context, librarySelectors);
+                    for (int i = 0; i < biblio.length; ++i)
+                    {
+                        LibrarySelector libSel = new LibrarySelector(biblio[i].name);
+                        librarySelectors[i] = libSel;
+                    }
+                    Arrays.sort(librarySelectors);
                 }
+                else
+                {
+                    librarySelectors = new LibrarySelector[0];
+                    librarySelectorTableModel = new LibrarySelectorTableModel(context, null);
+                }
+                directoryPicker.table.setModel(librarySelectorTableModel);
+                // setup columns
+                TableColumn column = directoryPicker.table.getColumnModel().getColumn(0);
+                column.setResizable(false);
+                column.setWidth(32);
+                column.setPreferredWidth(32);
+                column.setMaxWidth(32);
+                column.setMinWidth(32);
+                column = directoryPicker.table.getColumnModel().getColumn(1);
+                column.setResizable(false);
+
+
+                mf.buttonNew.setEnabled(false);
+                mf.buttonCopy.setEnabled(false);
+                mf.buttonDelete.setEnabled(false);
+                mf.librariesConfigItems.setEnabled(false);
+                mf.tabbedPaneLibrarySpaces.setEnabled(false);
+                mf.tableBiblioLibraries.setEnabled(false);
+                mf.buttonAddLibrary.setEnabled(false);
+                mf.buttonRemoveLibrary.setEnabled(false);
+                mf.buttonAddSource.setEnabled(false);
+                mf.buttonAddMultiSource.setEnabled(false);
+                mf.saveButton.setEnabled(false);
+                mf.cancelButton.setEnabled(false);
+                directoryPicker.dialog.setVisible(true);
             }
         }
     }
@@ -1180,6 +1340,169 @@ public class LibrariesUI
                     libMeta.setDataHasChanged();
                     loadSources();
                 }
+            }
+        }
+    }
+
+    private void actionSelectTempLocationClicked(ActionEvent e)
+    {
+        if (currentConfigIndex >= 0 && currentConfigIndex < configModel.getRowCount())
+        {
+            LibMeta libMeta = (LibMeta) configModel.getValueAt(currentConfigIndex, 0);
+            if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
+                    currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
+            {
+                directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.temp.location.path"),
+                        context.cfg.gs("Libraries.select.temp.location"), false, false);
+
+                directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        boolean done = false;
+                        boolean empty = false;
+                        boolean isSubscriber = false;
+                        int reply = JOptionPane.NO_OPTION;
+                        if (context.browser.lastComponent != null)
+                        {
+                            try
+                            {
+                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+
+                                // get selection(s)
+                                ArrayList<Origin> origins = new ArrayList<Origin>();
+                                isSubscriber = Origins.makeOriginsFromSelected(context, context.mainFrame, origins, true);
+
+                                // there can be only one
+                                if (origins != null && origins.size() > 0)
+                                {
+                                    int count = origins.size();
+                                    Origin origin = origins.get(0);
+                                    if (count != 1 || origin.getType() != NavTreeUserObject.REAL || !origin.tuo.isDir)
+                                    {
+                                        JOptionPane.showMessageDialog(directoryPicker.pane,
+                                                context.cfg.gs(("Libraries.please.select.a.single.directory.to.add")),
+                                                context.cfg.gs("Libraries.select.temp.location.path"), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    else
+                                    {
+                                        // make path relative if possible
+                                        String path;
+                                        if (origin.tuo.isRemote)
+                                            path = origin.getLocation();
+                                        else
+                                            path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), origin.getLocation());
+
+                                        // do origin repository and Libraries repository match?
+                                        String key = origin.tuo.node.getMyRepo().getLibraryData().libraries.key;
+                                        if (!libMeta.repo.getLibraryData().libraries.key.equals(key))
+                                        {
+                                            String name = libMeta.repo.getLibraryData().libraries.description;
+                                            reply = JOptionPane.showConfirmDialog(directoryPicker.pane,
+                                                    java.text.MessageFormat.format(context.cfg.gs("Libraries.selected.path.is.not.from.repository.continue"), name),
+                                                    context.cfg.gs("Libraries.select.temp.location.path"), JOptionPane.YES_NO_OPTION);
+                                            if (reply == JOptionPane.YES_OPTION)
+                                                done = true;
+                                        }
+                                        else
+                                        {
+                                            // confirm using Browser selection
+                                            directoryPicker.pane.requestFocus();
+                                            String which = (isSubscriber) ? context.cfg.gs("Z.subscriber") : context.cfg.gs("Z.publisher");
+                                            String message = MessageFormat.format(context.cfg.gs("Libraries.use.selected.item"), which);
+                                            reply = JOptionPane.showConfirmDialog(directoryPicker.pane, message,
+                                                    context.cfg.gs("Libraries.select.temp.location.path"), JOptionPane.YES_NO_OPTION);
+                                            done = true;
+                                        }
+
+                                        if (reply == JOptionPane.YES_OPTION)
+                                            directoryPicker.directoryPathTextField.setText(path);
+
+                                        if (done)
+                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                                    }
+                                }
+                                else
+                                    empty = true;
+                            }
+                            catch (Exception e)
+                            {
+                                String msg = context.cfg.gs("Z.exception") + " " + Utils.getStackTrace(e);
+                                if (e.getMessage() == null || !e.getMessage().equals("HANDLED_INTERNALLY"))
+                                {
+                                    if (context.navigator != null)
+                                    {
+                                        logger.error(msg);
+                                        JOptionPane.showMessageDialog(directoryPicker.pane, msg,
+                                                context.cfg.gs("Libraries.select.temp.location.path"), JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    else
+                                        logger.error(msg);
+                                }
+                                else
+                                    logger.error(msg);
+                            }
+                        }
+                        else
+                            empty = true;
+
+                        if (empty)
+                        {
+                            JOptionPane.showMessageDialog(directoryPicker.pane, context.cfg.gs("Libraries.nothing.selected.in.browser"),
+                                    context.cfg.gs("Libraries.select.temp.location.path"), JOptionPane.WARNING_MESSAGE);
+                        }
+                    }
+                });
+
+                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent actionEvent)
+                    {
+                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonLibrarySelectTempLocation));
+                    }
+                });
+
+
+                directoryPicker.pane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, ignored ->
+                {
+                    if (directoryPicker.pane != null && directoryPicker.pane.getValue() != null)
+                    {
+                        int selectedValue = (int) directoryPicker.pane.getValue();
+                        if (selectedValue == JOptionPane.YES_OPTION)
+                        {
+                            String path = directoryPicker.directoryPathTextField.getText();
+                            if (path.length() > 0)
+                            {
+                                mf.textFieldTempLocation.setText(path);
+                                mf.textFieldTempLocation.postActionEvent();
+                                libMeta.setDataHasChanged();
+                            }
+                        }
+                    }
+
+                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                    mf.buttonNew.setEnabled(true);
+                    mf.buttonCopy.setEnabled(true);
+                    mf.buttonDelete.setEnabled(true);
+                    mf.librariesConfigItems.setEnabled(true);
+                    mf.tabbedPaneLibrarySpaces.setEnabled(true);
+                    mf.saveButton.setEnabled(true);
+                    mf.cancelButton.setEnabled(true);
+                    directoryPicker.dialog.dispose();
+                    mf.textFieldTempLocation.requestFocus();
+                    directoryPicker = null;
+                });
+
+                mf.buttonNew.setEnabled(false);
+                mf.buttonCopy.setEnabled(false);
+                mf.buttonDelete.setEnabled(false);
+                mf.librariesConfigItems.setEnabled(false);
+                mf.tabbedPaneLibrarySpaces.setEnabled(false);
+                mf.saveButton.setEnabled(false);
+                mf.cancelButton.setEnabled(false);
+                directoryPicker.dialog.setVisible(true);
             }
         }
     }
@@ -1335,7 +1658,7 @@ public class LibrariesUI
 
         while (true)
         {
-            int selection = fc.showOpenDialog(mf);
+            int selection = fc.showOpenDialog((directoryPicker == null) ? mf : directoryPicker.pane);
             if (selection == JFileChooser.APPROVE_OPTION)
             {
                 file = fc.getSelectedFile();
@@ -1365,12 +1688,7 @@ public class LibrariesUI
                 }
 
                 // make path relative if possible
-                String prefix = context.cfg.getWorkingDirectory();
-                String longPath = file.getPath();
-                if (!longPath.equals(prefix) && longPath.startsWith(prefix))
-                    path = longPath.substring(prefix.length() + 1);
-                else
-                    path = longPath;
+                path = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), file.getPath());
 
                 // save value & fire updateOnChange()
                 switch (button.getName().toLowerCase())
@@ -1668,7 +1986,7 @@ public class LibrariesUI
                 genericTextFieldFocusLost(e);
             }
         });
-        mf.buttonLibrarySelectTempLocation.addActionListener(e -> filePicker(mf.buttonLibrarySelectTempLocation));
+        mf.buttonLibrarySelectTempLocation.addActionListener(e -> actionSelectTempLocationClicked(e));
 
         mf.checkBoxTerminalAllowed.addActionListener(e -> genericAction(e));
 
@@ -1677,7 +1995,7 @@ public class LibrariesUI
 
         // locations tab ==========================================
 
-        mf.buttonAddLocation.addActionListener(e -> actionLocationAdd(e));
+        mf.buttonAddLocation.addActionListener(e -> actionLocationAddClicked(e));
         mf.buttonRemoveLocation.addActionListener(e -> actionLocationsRemove(e));
 
         // bibliography tab ==========================================
@@ -2044,6 +2362,7 @@ public class LibrariesUI
         if (index == 0)
         {
             mf.generalTab.requestFocus();
+            mf.textFieldKey.select(0, 0); // fixes odd problem of the field being highlighted when it's not selected
         }
         else if (index == 1)
         {

@@ -961,6 +961,20 @@ public class Utils
     }
 
     /**
+     * Make a path relative to the working directory if possible
+     *
+     * @param workingDirectory The current working directory, context.cfg.getWorkingDirectory()
+     * @param path The path to reduce
+     * @return String the path, potentially shortened to be relative to the working path
+     */
+    public static String makeRelativePath(String workingDirectory, String path)
+    {
+        if (!path.equals(workingDirectory) && path.startsWith(workingDirectory))
+            path = path.substring(workingDirectory.length() + 1);
+        return path;
+    }
+
+    /**
      * Parse a String command line with quoted values
      * <p><p>
      * Parses individual arguments on whitespace and quoted

@@ -192,9 +192,13 @@ public class OperationsTool extends AbstractTool
         if (operation != Configuration.Operations.StatusServer)
         {
             if (pubPath != null && pubPath.length() > 0)
+            {
+                pubPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pubPath);
                 sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + pubPath + "\"");
+            }
             if (operation != Configuration.Operations.StatusServerQuit)
             {
+                subPath = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), subPath);
                 if (subPath != null && subPath.length() > 0)
                     sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + subPath + "\"");
             }

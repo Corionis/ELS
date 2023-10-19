@@ -28,19 +28,20 @@ import java.awt.event.*;
  * in the main tab-named related classes.<br/>
  * <br/>
  * Designed with: <br/>
- *  - JFormDesigner, https://www.formdev.com/jformdesigner/doc/ <br/>
+ *  - JFormDesigner: https://www.formdev.com/jformdesigner/doc/ <br/>
+ *  - GitHub project: https://github.com/JFormDesigner/FlatLaf <br/>
+ *  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf <br/>
  * <br/>
  * Uses free components from FormDev: <br/>
  *  - FlatLaf look 'n feel, https://www.formdev.com/flatlaf/ <br/>
- *  - https://github.com/JFormDesigner/FlatLaf <br/>
- *  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf <br/>
+ *  - Themes: https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes
+ *  - Download from: https://search.maven.org/artifact/com.formdev/flatlaf-intellij-themes
  * <br/>
  * See also: <br/>
  *  - https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-extras <br/>
- *  - https://github.com/JFormDesigner/svgSalamander <br/>
  *
  *  Menu icon color:  #3592C4
- *  Neby icon size:   10x10 px
+ *  Menu icon size:   14x14 px
  *  Accent color:     #2675BF
  */
 public class MainFrame extends JFrame
@@ -657,6 +658,7 @@ public class MainFrame extends JFrame
         panelLibraries = new JPanel();
         panelLibsTop = new JPanel();
         panelTopButtons = new JPanel();
+        hSpacer7 = new JPanel(null);
         buttonNew = new JButton();
         buttonCopy = new JButton();
         buttonDelete = new JButton();
@@ -1674,10 +1676,18 @@ public class MainFrame extends JFrame
                             panelTopButtons.setMinimumSize(new Dimension(140, 38));
                             panelTopButtons.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 4));
 
+                            //---- hSpacer7 ----
+                            hSpacer7.setPreferredSize(new Dimension(1, 10));
+                            hSpacer7.setMinimumSize(new Dimension(1, 10));
+                            panelTopButtons.add(hSpacer7);
+
                             //---- buttonNew ----
                             buttonNew.setText(context.cfg.gs("Navigator.buttonNew.text"));
                             buttonNew.setMnemonic(context.cfg.gs("Navigator.buttonNew.mnemonic").charAt(0));
                             buttonNew.setToolTipText(context.cfg.gs("Navigator.buttonNew.toolTipText"));
+                            buttonNew.setPreferredSize(new Dimension(78, 31));
+                            buttonNew.setMinimumSize(new Dimension(78, 31));
+                            buttonNew.setMaximumSize(new Dimension(78, 31));
                             panelTopButtons.add(buttonNew);
 
                             //---- buttonCopy ----
@@ -2060,14 +2070,14 @@ public class MainFrame extends JFrame
                                         buttonLibrarySelectTempLocation.setIconTextGap(0);
                                         buttonLibrarySelectTempLocation.setHorizontalTextPosition(SwingConstants.LEADING);
                                         buttonLibrarySelectTempLocation.setActionCommand("generateUUID");
-                                        buttonLibrarySelectTempLocation.setToolTipText(context.cfg.gs("Libraries.buttonLibrarySelectTempLocation.toolTipText"));
+                                        buttonLibrarySelectTempLocation.setToolTipText(context.cfg.gs("Libraries.select.temp.location.path"));
                                         buttonLibrarySelectTempLocation.setName("tempLocation");
                                         panelLibraryCard.add(buttonLibrarySelectTempLocation, new GridBagConstraints(4, 8, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                                             new Insets(0, 0, 4, 0), 0, 0));
 
                                         //---- labelTerminalAllosed ----
-                                        labelTerminalAllosed.setText(context.cfg.gs("Navigator.labelTerminalAllosed.text"));
+                                        labelTerminalAllosed.setText(context.cfg.gs("Navigator.labelTerminal.Allowed.text"));
                                         panelLibraryCard.add(labelTerminalAllosed, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));
@@ -2256,6 +2266,7 @@ public class MainFrame extends JFrame
                                         buttonAddLocation.setMnemonic(context.cfg.gs("Navigator.buttonAddLocation.mnemonic_2").charAt(0));
                                         buttonAddLocation.setToolTipText(context.cfg.gs("Navigator.buttonAddLocation.toolTipText"));
                                         buttonAddLocation.setMargin(new Insets(0, -10, 0, -10));
+                                        buttonAddLocation.setName("selectlocation");
                                         panelLocButtons.add(buttonAddLocation);
 
                                         //---- buttonRemoveLocation ----
@@ -2750,6 +2761,7 @@ public class MainFrame extends JFrame
     public JPanel panelLibraries;
     public JPanel panelLibsTop;
     public JPanel panelTopButtons;
+    public JPanel hSpacer7;
     public JButton buttonNew;
     public JButton buttonCopy;
     public JButton buttonDelete;

@@ -5,12 +5,16 @@ import com.corionis.els.Context;
 import javax.swing.*;
 import javax.swing.text.PlainDocument;
 import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 
 public class DirectoryPicker
 {
+    public JCheckBox allCheckbox;
     public JButton browserSelectionButton;
     public JDialog dialog;
-    public JTextField locationPathTextField;
+    public JButton directorySelectionButton;
+    public JTextField directoryPathTextField;
     public JLabel minLabel;
     public JTextField minSize;
     public JOptionPane pane;
@@ -18,33 +22,40 @@ public class DirectoryPicker
     public JLabel prompt;
     private NumberFilter numberFilter;
     public JComboBox scales;
-    public JButton selectLocationButton;
+    public JTable table;
 
     /**
      * DirectoryPicker constructor
+     * <p><br/>
+     * Works in 3 modes depending on includeSize and includeLibraries.
      * <p><br/>
      * Allows using either a Browser selection or the
      * standard file picker to select a "real" physical path.
      * Local and remote subscriber paths are supported.
      * <p><br/>
      * <b>Note:</b> Remote Browser paths are relative to
-     * that computer only.
+     * that computer.
      * <p><br/>
      * Implement required methods:<br/>
      *  * browserSelectionButton.addActionListener<br/>
      *  * selectLocationButton.addActionListener<br/>
      *  * pane.addPropertyChangeListener<br/>
      *  <p><br/>
-     *  See LibrariesUI.actionSourcesAddClicked(),
-     *  LibrariesUI.actionLocationAdd() and related methods
-     *  for implementation examples.
+     *  See:
+     *  <ul>
+     *      <li>LibrariesUI.actionLocationAddClicked()</li>
+     *      <li>LibrariesUI.actionSourcesAddClicked()</li>
+     *      <li>LibrariesUI.actionSourcesMultiClicked()</li>
+     *      <li>LibrariesUI.actionSelectTempLocationClicked</li>
+     *  </ul>
      *
      * @param context The Context
      * @param displayName The title
      * @param message The prompt
      * @param includeSize Include minimum-size line, for Locations
+     * @param includeLibraries Include the Multiple-Add libraries list and All checkbox
      */
-    public DirectoryPicker(Context context, String displayName, String message, boolean includeSize)
+    public DirectoryPicker(Context context, String displayName, String message, boolean includeSize, boolean includeLibraries)
     {
         numberFilter = new NumberFilter();
 
@@ -60,11 +71,11 @@ public class DirectoryPicker
                 new Insets(4, 0, 4, 4), 0, 0));
 
         // location path
-        locationPathTextField = new JTextField();
-        locationPathTextField.setEditable(true);
-        locationPathTextField.setMinimumSize(new Dimension(360, 30));
-        locationPathTextField.setPreferredSize(new Dimension(360, 30));
-        panel.add(locationPathTextField, new GridBagConstraints(0, 1, 6, 1, 1.0, 0.0,
+        directoryPathTextField = new JTextField();
+        directoryPathTextField.setEditable(true);
+        directoryPathTextField.setMinimumSize(new Dimension(360, 30));
+        directoryPathTextField.setPreferredSize(new Dimension(360, 30));
+        panel.add(directoryPathTextField, new GridBagConstraints(0, 1, 6, 1, 1.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 4, 4, 4), 0, 0));
 
@@ -80,24 +91,24 @@ public class DirectoryPicker
                 new Insets(0, 0, 4, 4), 0, 0));
 
         // select location button
-        selectLocationButton = new JButton("...");
-        selectLocationButton.setName("selectLocation");
-        selectLocationButton.setActionCommand("selectLocation");
-        selectLocationButton.setText("...");
-        selectLocationButton.setFont(selectLocationButton.getFont().deriveFont(selectLocationButton.getFont().getStyle() | Font.BOLD));
-        selectLocationButton.setMaximumSize(new Dimension(32, 24));
-        selectLocationButton.setMinimumSize(new Dimension(32, 24));
-        selectLocationButton.setPreferredSize(new Dimension(32, 24));
-        selectLocationButton.setVerticalTextPosition(SwingConstants.TOP);
-        selectLocationButton.setIconTextGap(0);
-        selectLocationButton.setHorizontalTextPosition(SwingConstants.LEADING);
-        selectLocationButton.setToolTipText(context.cfg.gs("Libraries.select.location"));
+        directorySelectionButton = new JButton("...");
+        directorySelectionButton.setName("selectLocation");
+        directorySelectionButton.setActionCommand("selectLocation");
+        directorySelectionButton.setText("...");
+        directorySelectionButton.setFont(directorySelectionButton.getFont().deriveFont(directorySelectionButton.getFont().getStyle() | Font.BOLD));
+        directorySelectionButton.setMaximumSize(new Dimension(32, 24));
+        directorySelectionButton.setMinimumSize(new Dimension(32, 24));
+        directorySelectionButton.setPreferredSize(new Dimension(32, 24));
+        directorySelectionButton.setVerticalTextPosition(SwingConstants.TOP);
+        directorySelectionButton.setIconTextGap(0);
+        directorySelectionButton.setHorizontalTextPosition(SwingConstants.LEADING);
+        directorySelectionButton.setToolTipText(context.cfg.gs("Libraries.select.location"));
 
-        panel.add(selectLocationButton, new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0,
+        panel.add(directorySelectionButton, new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH,
                 new Insets(0, 0, 4, 4), 0, 0));
 
-        if (includeSize)
+        if (includeSize) // for locations
         {
             // minimum size label
             minLabel = new JLabel(context.cfg.gs("Libraries.minimum.free.space.for.location"));
@@ -141,11 +152,92 @@ public class DirectoryPicker
                     new Insets(0, 0, 4, 4), 0, 0));
         }
 
+        if (includeLibraries) // for multi-add sources
+        {
+            // horizontal line
+            JSeparator separator = new JSeparator();
+            panel.add(separator, new GridBagConstraints(0, 3, 8, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(2, 0, 4, 0), 0, 0));
+
+            // source to libraries prompt
+            JLabel sourcesToLibrariesLabel = new JLabel(context.cfg.gs("Libraries.select.new.multiple.source.to.libraries"));
+            panel.add(sourcesToLibrariesLabel, new GridBagConstraints(0, 4, 8, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 4, 4), 0, 0));
+
+            // create libraries table & all checkbox
+            table = new JTable();
+            table.setCellSelectionEnabled(false);
+            table.setRowSelectionAllowed(false);
+            table.setColumnSelectionAllowed(false);
+            table.setFillsViewportHeight(true);
+
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setMinimumSize(new Dimension(100, 100));
+            scrollPane.setPreferredSize(new Dimension(240, 260));
+
+            scrollPane.setViewportView(table);
+            panel.add(scrollPane, new GridBagConstraints(0, 5, 8, 4, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                    new Insets(0, 4, 4, 4), 0, 0));
+
+            // "all" checkbox
+            allCheckbox = new JCheckBox(context.cfg.gs("Libraries.toggle.all"));
+            panel.add(allCheckbox, new GridBagConstraints(0, 9, 7, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.BOTH,
+                    new Insets(0, 15, 0, 4), 0, 0));
+        }
+
         pane = new JOptionPane(panel);
         pane.setOptionType(JOptionPane.OK_CANCEL_OPTION);
 
         dialog = pane.createDialog(context.mainFrame, displayName);
         dialog.setModal(false);
+
+        if (context.preferences != null && context.preferences.getDirectoryPickerXpos() >= 0)
+        {
+            dialog.setLocation(context.preferences.getDirectoryPickerXpos(), context.preferences.getDirectoryPickerYpos());
+        }
+        dialog.addWindowListener(new WindowListener()
+        {
+            @Override
+            public void windowOpened(WindowEvent windowEvent)
+            {
+            }
+
+            @Override
+            public void windowClosing(WindowEvent windowEvent)
+            {
+            }
+
+            @Override
+            public void windowClosed(WindowEvent windowEvent)
+            {
+                context.preferences.setDirectoryPickerXpos(dialog.getX());
+                context.preferences.setDirectoryPickerYpos(dialog.getY());
+            }
+
+            @Override
+            public void windowIconified(WindowEvent windowEvent)
+            {
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent windowEvent)
+            {
+            }
+
+            @Override
+            public void windowActivated(WindowEvent windowEvent)
+            {
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent windowEvent)
+            {
+            }
+        });
     }
 
     private void setNumberFilter(JTextField field)
@@ -153,6 +245,5 @@ public class DirectoryPicker
         PlainDocument pd = (PlainDocument) field.getDocument();
         pd.setDocumentFilter(numberFilter);
     }
-
 
 }

@@ -2910,7 +2910,7 @@ public class Navigator
                     else
                     {
                         logger.info(context.cfg.gs("Navigator.installed.up.to.date"));
-                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date") + os);
+                        context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.installed.up.to.date"));
                     }
 
                     context.mainFrame.setVisible(true);

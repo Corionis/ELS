@@ -158,7 +158,7 @@ public class Main
 
                         logger.info(SHORT, cfg.gs("Updater.preferences") + path);
                         logger.info(SHORT, cfg.gs("Updater.commandline") + commandLine);
-                        logger.info(SHORT, cfg.gs("Updater.installedpath") + installedPath);
+                        logger.info(SHORT, cfg.gs("Updater.installed.path") + installedPath);
                     }
 
                     if (!fault && !readUpdateInfo())

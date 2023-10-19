@@ -48,6 +48,8 @@ public class Preferences implements Serializable
     private int collectionTwoSortDirection = 0;
     // https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
     private String dateFormat = "yyyy-MM-dd hh:mm:ss aa";
+    private int directoryPickerXpos = -1;
+    private int directoryPickerYpos = -1;
     private int fileEditorHeight = 365;
     private int fileEditorWidth = 425;
     private int fileEditorXpos = -1;
@@ -145,7 +147,6 @@ public class Preferences implements Serializable
     private boolean useLastPublisherSubscriber = true;
     private transient Context context;
     private transient Logger logger = LogManager.getLogger("applog");
-
     //private transient LookAndFeel laf = null;
     public Preferences()
     {
@@ -415,6 +416,16 @@ public class Preferences implements Serializable
     public String getDateFormat()
     {
         return dateFormat;
+    }
+
+    public int getDirectoryPickerXpos()
+    {
+        return directoryPickerXpos;
+    }
+
+    public int getDirectoryPickerYpos()
+    {
+        return directoryPickerYpos;
     }
 
     public int getFileEditorHeight()
@@ -1126,6 +1137,16 @@ public class Preferences implements Serializable
         this.dateFormat = dateFormat;
     }
 
+    public void setDirectoryPickerXpos(int directoryPickerXpos)
+    {
+        this.directoryPickerXpos = directoryPickerXpos;
+    }
+
+    public void setDirectoryPickerYpos(int directoryPickerYpos)
+    {
+        this.directoryPickerYpos = directoryPickerYpos;
+    }
+
     public void setFileEditorHeight(int fileEditorHeight)
     {
         this.fileEditorHeight = fileEditorHeight;
@@ -1329,6 +1350,11 @@ public class Preferences implements Serializable
     public void setProgressYpos(int progressYpos)
     {
         this.progressYpos = progressYpos;
+    }
+
+    public void setSchema(int schema)
+    {
+        this.schema = schema;
     }
 
     public void setShowCcpConfirmation(boolean showCcpConfirmation)
@@ -1579,6 +1605,11 @@ public class Preferences implements Serializable
     public void setToolsSleepYpos(int toolsSleepYpos)
     {
         this.toolsSleepYpos = toolsSleepYpos;
+    }
+
+    public void setUseLastPublisherSubscriber(boolean useLastPublisherSubscriber)
+    {
+        this.useLastPublisherSubscriber = useLastPublisherSubscriber;
     }
 
     public void setuseLastPublisherSubscriber(boolean useLastPublisherSubscriber)
