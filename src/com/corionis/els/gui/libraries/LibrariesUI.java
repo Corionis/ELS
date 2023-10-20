@@ -372,8 +372,10 @@ public class LibrariesUI
             if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
                     currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
-                directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.location.path"),
-                        context.cfg.gs("Libraries.select.new.location"), true, false);
+                directoryPicker = new DirectoryPicker(context,
+                        context.cfg.gs("Libraries.select.new.location.path"),
+                        context.cfg.gs("Libraries.select.new.location") + ": " + libMeta.repo.getLibraryData().libraries.description,
+                        true, false);
 
                 directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
                 {
@@ -388,7 +390,7 @@ public class LibrariesUI
                         {
                             try
                             {
-                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                                mf.tabbedPaneMain.setSelectedIndex(0);
 
                                 // get selection(s)
                                 ArrayList<Origin> origins = new ArrayList<Origin>();
@@ -462,7 +464,7 @@ public class LibrariesUI
                                             directoryPicker.directoryPathTextField.setText(path);
 
                                         if (done)
-                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                                            mf.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
                                 else
@@ -496,36 +498,6 @@ public class LibrariesUI
                         }
                     }
                 });
-
-                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonAddLocation));
-                        String path = directoryPicker.directoryPathTextField.getText();
-
-                        // avoid duplicates
-                        boolean found = false;
-                        Location[] locations = libMeta.repo.getLibraryData().libraries.locations;
-                        for (int j = 0; j < locations.length; ++j)
-                        {
-                            if (locations[j].location.equals(path))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found)
-                        {
-                            JOptionPane.showMessageDialog(directoryPicker.pane,
-                                    context.cfg.gs("Libraries.that.location.is.already.defined"),
-                                    context.cfg.gs("Libraries.select.new.location.path"), JOptionPane.ERROR_MESSAGE);
-                            directoryPicker.directoryPathTextField.setText("");
-                        }
-                    }
-                });
-
 
                 directoryPicker.pane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, ignored ->
                 {
@@ -571,7 +543,7 @@ public class LibrariesUI
                         }
                     }
 
-                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                    mf.tabbedPaneMain.setSelectedIndex(1);
                     mf.buttonNew.setEnabled(true);
                     mf.buttonCopy.setEnabled(true);
                     mf.buttonDelete.setEnabled(true);
@@ -720,8 +692,10 @@ public class LibrariesUI
             if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
                     currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
-                directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.source.path"),
-                        context.cfg.gs("Libraries.select.new.source"), false, false);
+                directoryPicker = new DirectoryPicker(context,
+                        context.cfg.gs("Libraries.select.new.source.path"),
+                        context.cfg.gs("Libraries.select.new.source") + ": " + libMeta.repo.getLibraryData().libraries.description,
+                        false, false);
 
                 directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
                 {
@@ -736,7 +710,7 @@ public class LibrariesUI
                         {
                             try
                             {
-                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                                mf.tabbedPaneMain.setSelectedIndex(0);
 
                                 // get selection(s)
                                 ArrayList<Origin> origins = new ArrayList<Origin>();
@@ -810,7 +784,7 @@ public class LibrariesUI
                                             directoryPicker.directoryPathTextField.setText(path);
 
                                         if (done)
-                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                                            mf.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
                                 else
@@ -845,35 +819,6 @@ public class LibrariesUI
                     }
                 });
 
-                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonAddSource));
-                        String path = directoryPicker.directoryPathTextField.getText();
-
-                        // avoid duplicates
-                        boolean found = false;
-                        Library lib = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex];
-                        for (int j = 0; j < lib.sources.length; ++j)
-                        {
-                            if (lib.sources[j].equals(path))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found)
-                        {
-                            JOptionPane.showMessageDialog(directoryPicker.pane,
-                                    context.cfg.gs("Libraries.that.source.is.already.defined"),
-                                    context.cfg.gs("Libraries.select.new.source.path"), JOptionPane.ERROR_MESSAGE);
-                            directoryPicker.directoryPathTextField.setText("");
-                        }
-                    }
-                });
-
                 directoryPicker.pane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, ignored ->
                 {
                     if (directoryPicker.pane != null && directoryPicker.pane.getValue() != null)
@@ -899,7 +844,7 @@ public class LibrariesUI
                         }
                     }
 
-                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                    mf.tabbedPaneMain.setSelectedIndex(1);
                     mf.buttonNew.setEnabled(true);
                     mf.buttonCopy.setEnabled(true);
                     mf.buttonDelete.setEnabled(true);
@@ -973,8 +918,10 @@ public class LibrariesUI
             if (libMeta.repo.getLibraryData().libraries.bibliography.length > 0 &&
                     currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
-                directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.new.multiple.source.path"),
-                        context.cfg.gs("Libraries.select.new.multiple.source"), false, true);
+                directoryPicker = new DirectoryPicker(context,
+                        context.cfg.gs("Libraries.select.new.multiple.source.path"),
+                        MessageFormat.format(context.cfg.gs("Libraries.select.new.multiple.source"), libMeta.repo.getLibraryData().libraries.description),
+                        false, true);
 
                 directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
                 {
@@ -989,7 +936,7 @@ public class LibrariesUI
                         {
                             try
                             {
-                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                                mf.tabbedPaneMain.setSelectedIndex(0);
 
                                 // get selection(s)
                                 ArrayList<Origin> origins = new ArrayList<Origin>();
@@ -1063,7 +1010,7 @@ public class LibrariesUI
                                             directoryPicker.directoryPathTextField.setText(path);
 
                                         if (done)
-                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                                            mf.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
                                 else
@@ -1094,35 +1041,6 @@ public class LibrariesUI
                         {
                             JOptionPane.showMessageDialog(directoryPicker.pane, context.cfg.gs("Libraries.nothing.selected.in.browser"),
                                     context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.WARNING_MESSAGE);
-                        }
-                    }
-                });
-
-                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonAddSource));
-                        String path = directoryPicker.directoryPathTextField.getText();
-
-                        // avoid duplicates
-                        boolean found = false;
-                        Library lib = libMeta.repo.getLibraryData().libraries.bibliography[currentLibraryIndex];
-                        for (int j = 0; j < lib.sources.length; ++j)
-                        {
-                            if (lib.sources[j].equals(path))
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found)
-                        {
-                            JOptionPane.showMessageDialog(directoryPicker.pane,
-                                    context.cfg.gs("Libraries.that.source.is.already.defined"),
-                                    context.cfg.gs("Libraries.select.new.multiple.source.path"), JOptionPane.ERROR_MESSAGE);
-                            directoryPicker.directoryPathTextField.setText("");
                         }
                     }
                 });
@@ -1209,7 +1127,7 @@ public class LibrariesUI
                         }
                     }
 
-                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                    mf.tabbedPaneMain.setSelectedIndex(1);
                     mf.buttonNew.setEnabled(true);
                     mf.buttonCopy.setEnabled(true);
                     mf.buttonDelete.setEnabled(true);
@@ -1353,7 +1271,7 @@ public class LibrariesUI
                     currentLibraryIndex < libMeta.repo.getLibraryData().libraries.bibliography.length)
             {
                 directoryPicker = new DirectoryPicker(context, context.cfg.gs("Libraries.select.temp.location.path"),
-                        context.cfg.gs("Libraries.select.temp.location"), false, false);
+                        context.cfg.gs("Libraries.select.temp.location") + ": " + libMeta.repo.getLibraryData().libraries.description, false, false);
 
                 directoryPicker.browserSelectionButton.addActionListener(new ActionListener()
                 {
@@ -1368,7 +1286,7 @@ public class LibrariesUI
                         {
                             try
                             {
-                                context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
+                                mf.tabbedPaneMain.setSelectedIndex(0);
 
                                 // get selection(s)
                                 ArrayList<Origin> origins = new ArrayList<Origin>();
@@ -1420,7 +1338,7 @@ public class LibrariesUI
                                             directoryPicker.directoryPathTextField.setText(path);
 
                                         if (done)
-                                            context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                                            mf.tabbedPaneMain.setSelectedIndex(1);
                                     }
                                 }
                                 else
@@ -1455,16 +1373,6 @@ public class LibrariesUI
                     }
                 });
 
-                directoryPicker.directorySelectionButton.addActionListener(new ActionListener()
-                {
-                    @Override
-                    public void actionPerformed(ActionEvent actionEvent)
-                    {
-                        directoryPicker.directoryPathTextField.setText(filePicker(mf.buttonLibrarySelectTempLocation));
-                    }
-                });
-
-
                 directoryPicker.pane.addPropertyChangeListener(JOptionPane.VALUE_PROPERTY, ignored ->
                 {
                     if (directoryPicker.pane != null && directoryPicker.pane.getValue() != null)
@@ -1476,13 +1384,13 @@ public class LibrariesUI
                             if (path.length() > 0)
                             {
                                 mf.textFieldTempLocation.setText(path);
-                                mf.textFieldTempLocation.postActionEvent();
+                                mf.textFieldTempLocation.postActionEvent(); // like pressing Enter in case the user doesn't
                                 libMeta.setDataHasChanged();
                             }
                         }
                     }
 
-                    context.mainFrame.tabbedPaneMain.setSelectedIndex(1);
+                    mf.tabbedPaneMain.setSelectedIndex(1);
                     mf.buttonNew.setEnabled(true);
                     mf.buttonCopy.setEnabled(true);
                     mf.buttonDelete.setEnabled(true);

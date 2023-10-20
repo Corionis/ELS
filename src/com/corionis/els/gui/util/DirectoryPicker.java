@@ -13,7 +13,6 @@ public class DirectoryPicker
     public JCheckBox allCheckbox;
     public JButton browserSelectionButton;
     public JDialog dialog;
-    public JButton directorySelectionButton;
     public JTextField directoryPathTextField;
     public JLabel minLabel;
     public JTextField minSize;
@@ -72,7 +71,7 @@ public class DirectoryPicker
 
         // location path
         directoryPathTextField = new JTextField();
-        directoryPathTextField.setEditable(true);
+        directoryPathTextField.setEditable(false);
         directoryPathTextField.setMinimumSize(new Dimension(360, 30));
         directoryPathTextField.setPreferredSize(new Dimension(360, 30));
         panel.add(directoryPathTextField, new GridBagConstraints(0, 1, 6, 1, 1.0, 0.0,
@@ -87,24 +86,6 @@ public class DirectoryPicker
         browserSelectionButton.setToolTipText(context.cfg.gs("Libraries.use.browser.selection"));
 
         panel.add(browserSelectionButton, new GridBagConstraints(6, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.EAST, GridBagConstraints.BOTH,
-                new Insets(0, 0, 4, 4), 0, 0));
-
-        // select location button
-        directorySelectionButton = new JButton("...");
-        directorySelectionButton.setName("selectLocation");
-        directorySelectionButton.setActionCommand("selectLocation");
-        directorySelectionButton.setText("...");
-        directorySelectionButton.setFont(directorySelectionButton.getFont().deriveFont(directorySelectionButton.getFont().getStyle() | Font.BOLD));
-        directorySelectionButton.setMaximumSize(new Dimension(32, 24));
-        directorySelectionButton.setMinimumSize(new Dimension(32, 24));
-        directorySelectionButton.setPreferredSize(new Dimension(32, 24));
-        directorySelectionButton.setVerticalTextPosition(SwingConstants.TOP);
-        directorySelectionButton.setIconTextGap(0);
-        directorySelectionButton.setHorizontalTextPosition(SwingConstants.LEADING);
-        directorySelectionButton.setToolTipText(context.cfg.gs("Libraries.select.location"));
-
-        panel.add(directorySelectionButton, new GridBagConstraints(7, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.EAST, GridBagConstraints.BOTH,
                 new Insets(0, 0, 4, 4), 0, 0));
 

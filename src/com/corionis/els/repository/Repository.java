@@ -934,7 +934,11 @@ public class Repository
                             }
                             if (Files.notExists(Paths.get(lib.sources[j])))
                             {
-                                throw new MungeException("bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist");
+                                String msg = "bibliography[" + i + "].sources[" + j + "]: " + lib.sources[j] + " does not exist";
+                                if (context.cfg.isNavigator())
+                                    logger.error(msg);
+                                else
+                                    throw new MungeException(msg);
                             }
                             logger.info("    src: " + lib.sources[j]);
 

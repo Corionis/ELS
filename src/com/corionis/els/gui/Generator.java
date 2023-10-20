@@ -1,5 +1,6 @@
 package com.corionis.els.gui;
 
+import com.corionis.els.Configuration;
 import com.corionis.els.jobs.Job;
 import com.corionis.els.tools.AbstractTool;
 import com.corionis.els.tools.operations.OperationsTool;
@@ -206,7 +207,11 @@ public class Generator
     {
         try
         {
-            if (tool instanceof Job)
+            if (tool == null)
+            {
+                generated = context.cfg.generateCurrentCommandline();
+            }
+            else if (tool instanceof Job)
             {
                 generated = generateJobCommandline(tool, consoleLevel, debugLevel, overwrite, log);
             }
@@ -234,26 +239,26 @@ public class Generator
         String cmd = "\"" + java + "\" -jar \"" + jar + "\" " + conf + "-j \"" + tool.getConfigName() + "\"";
 
         // --- hint keys
-        if (context.cfg.getHintKeysFile().length() > 0)
+        if (context.preferences.isLastHintKeysInUse() && context.preferences.getLastHintKeysOpenFile().length() > 0)
         {
             if (context.cfg.isHintSkipMainProcess())
                 cmd += " " + (glo ? "--keys-only" : "-K");
             else
                 cmd += " " + (glo ? "--keys" : "-k");
-            cmd += " \"" + context.cfg.getHintKeysFile() + "\"";
+            cmd += " \"" + Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.preferences.getLastHintKeysOpenFile()) + "\"";
         }
 
         // --- hints & hint server
-        if (context.cfg.getHintTrackerFilename().length() > 0)
+        if (context.preferences.isLastHintTrackingInUse() && context.preferences.getLastHintTrackingOpenFile().length() > 0)
         {
-            String htf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.cfg.getHintTrackerFilename());
-            cmd += " " + (glo ? "--hints" : "-h") + " \"" + htf + "\"";
+            String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.preferences.getLastHintTrackingOpenFile());
+            if (context.preferences.isLastHintTrackingIsRemote())
+                cmd += " " + (glo ? "--hint-server" : "-H") + " \"" + hf + "\"";
+            else
+                cmd += " " + (glo ? "--hints" : "-h") + " \"" + hf + "\"";
         }
-        else if (context.cfg.getHintsDaemonFilename().length() > 0)
-        {
-            String hdf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), context.cfg.getHintsDaemonFilename());
-            cmd += " " + (glo ? "--hint-server" : "-H") + " \"" + hdf + "\"";
-        }
+
+        // Jobs use Origins and not Publisher or Subscriber arguments
 
         cmd += " -c " + consoleLevel + " -d " + debugLevel + " " + overOpt + " \"" + log + "\"";
         return cmd;
@@ -304,6 +309,8 @@ public class Generator
 
     private String getTitle(AbstractTool tool)
     {
+        if (tool == null)
+            return Configuration.NAVIGATOR_NAME;
         if (tool instanceof Job)
             return context.cfg.gs("JobsUI.title");
         if (tool instanceof OperationsTool)

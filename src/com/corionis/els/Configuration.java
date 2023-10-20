@@ -1,6 +1,7 @@
 package com.corionis.els;
 
 import com.corionis.els.gui.MainFrame;
+import com.corionis.els.gui.Preferences;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -377,6 +378,7 @@ public class Configuration
         String opts; // = ((OperationsTool) tool).generateCommandLine(context.cfg.getPublisherFilename(), context.cfg.getSubscriberFilename());
 
         Configuration cc = context.cfg;
+        Preferences pr = context.preferences;
         Configuration defCfg = new Configuration(context);
         boolean glo = context.preferences != null ? context.preferences.isGenerateLongOptions() : false;
         StringBuilder sb = new StringBuilder();
@@ -388,27 +390,34 @@ public class Configuration
             sb.append(" " + (glo ? "--dry-run" : "-D"));
 
         // --- hint keys
-        if (!cc.isHintSkipMainProcess() && cc.getHintKeysFile().length() > 0)
-            sb.append(" " + (glo ? "--keys" : "-k") + " \"" + cc.getHintKeysFile() + "\"");
-        if (cc.isHintSkipMainProcess() && cc.getHintKeysFile().length() > 0)
-            sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" + cc.getHintKeysFile() + "\"");
+        if (!cc.isHintSkipMainProcess() && pr.isLastHintKeysInUse() && pr.getLastHintKeysOpenFile().length() > 0)
+            sb.append(" " + (glo ? "--keys" : "-k") + " \"" +
+            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
+        if (cc.isHintSkipMainProcess() && pr.isLastHintKeysInUse() && pr.getLastHintKeysOpenFile().length() > 0)
+            sb.append(" " + (glo ? "--keys-only" : "-K") + " \"" +
+            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintKeysOpenFile() + "\""));
 
         // --- hints & hint server
-        if (cc.getHintTrackerFilename().length() > 0)
-            sb.append(" " + (glo ? "--hints" : "-h") + " \"" + cc.getHintTrackerFilename() + "\"");
-        if (cc.getHintsDaemonFilename().length() > 0)
-            sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + cc.getHintsDaemonFilename() + "\"");
-
+        if (pr.isLastHintTrackingInUse() && pr.getLastHintTrackingOpenFile().length() > 0)
+        {
+            String hf = Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastHintTrackingOpenFile());
+            if (pr.isLastHintTrackingIsRemote())
+                sb.append(" " + (glo ? "--hint-server" : "-H") + " \"" + hf + "\"");
+            else
+                sb.append(" " + (glo ? "--hints" : "-h") + " \"" + hf + "\"");
+        }
 
         // --- Remote
         if (cc.isRemoteOperation())
             sb.append(" " + (glo ? "--remote" : "-r") + " P");
 
         // --- libraries
-        if (cc.getPublisherFilename() != null && cc.getPublisherFilename().length() > 0)
-            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" + cc.getPublisherFilename() + "\"");
-        if (cc.getSubscriberFilename() != null && cc.getSubscriberFilename().length() > 0)
-            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" + cc.getSubscriberFilename() + "\"");
+        if (pr.isLastPublisherInUse() && pr.getLastPublisherOpenFile().length() > 0)
+            sb.append(" " + (glo ? "--publisher-libraries" : "-p") + " \"" +
+            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastPublisherOpenFile()) + "\"");
+        if (pr.isLastSubscriberInUse() && pr.getLastSubscriberOpenFile().length() > 0)
+            sb.append(" " + (glo ? "--subscriber-libraries" : "-s") + " \"" +
+            Utils.makeRelativePath(context.cfg.getWorkingDirectory(), pr.getLastSubscriberOpenFile()) + "\"");
 
         // --- options
         if (!cc.isBinaryScale() != !defCfg.isBinaryScale())

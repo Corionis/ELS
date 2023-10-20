@@ -714,9 +714,9 @@ public class Navigator
                             }
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.publisherRepo = context.main.readRepo(context, Repository.PUBLISHER, Repository.VALIDATE);
-                            setQuitTerminateVisibility();
                             context.browser.loadCollectionTree(context.mainFrame.treeCollectionOne, context.publisherRepo, false);
                             context.browser.loadSystemTree(context.mainFrame.treeSystemOne, context.publisherRepo, false);
+                            setQuitTerminateVisibility();
                         }
                         catch (Exception e)
                         {
@@ -838,7 +838,6 @@ public class Navigator
                         else
                             context.cfg.setRemoteType("-"); // not remote
 
-                        setQuitTerminateVisibility();
                         context.cfg.setSubscriberLibrariesFileName(file.getAbsolutePath());
                         context.cfg.setSubscriberCollectionFilename("");
                         context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
@@ -900,6 +899,7 @@ public class Navigator
                                     }
 
                                     // load the subscriber library
+                                    setQuitTerminateVisibility();
                                     context.browser.loadCollectionTree(context.mainFrame.treeCollectionTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.browser.loadSystemTree(context.mainFrame.treeSystemTwo, context.subscriberRepo, context.preferences.isLastSubscriberIsRemote());
                                     context.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1136,12 +1136,12 @@ public class Navigator
                                 context.cfg.setHintsDaemonFilename("");
                                 context.cfg.setHintTrackerFilename(file.getAbsolutePath());
                             }
-                            setQuitTerminateVisibility();
 
                             // connect to the hint tracker or status server
                             context.main.setupHints(context.publisherRepo);
                             context.mainFrame.tabbedPaneMain.setSelectedIndex(0);
                             context.browser.toggleHints(true);
+                            setQuitTerminateVisibility();
                         }
                         catch (Exception e)
                         {
@@ -1312,27 +1312,6 @@ public class Navigator
                 }
             }
         });
-
-        // Save Layout
-        AbstractAction saveLayoutAction = new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                try
-                {
-                    context.preferences.write(context);
-                }
-                catch (Exception e)
-                {
-                    logger.error(Utils.getStackTrace(e));
-                    JOptionPane.showMessageDialog(context.mainFrame,
-                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
-                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        };
-        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
 
         // --- Quit & Stop Remote(s)
         context.mainFrame.menuItemQuitTerminate.addActionListener(new AbstractAction()
@@ -2163,25 +2142,6 @@ public class Navigator
         // -- System Menu
         // --------------------------------------------------------
 
-        // --- Settings
-        context.mainFrame.menuItemSettings.addActionListener(new AbstractAction()
-        {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent)
-            {
-                if (dialogSettings == null || !dialogSettings.isShowing())
-                {
-                    dialogSettings = new Settings(context.mainFrame, context);
-                    dialogSettings.setVisible(true);
-                }
-                else
-                {
-                    dialogSettings.toFront();
-                    dialogSettings.requestFocus();
-                }
-            }
-        });
-
         context.mainFrame.menuItemAuthKeys.addActionListener(new AbstractAction()
         {
             @Override
@@ -2227,6 +2187,60 @@ public class Navigator
                     fileeditor.requestFocus();
                 else
                     fileeditor = new FileEditor(context, FileEditor.EditorTypes.WhiteList);
+            }
+        });
+
+        // --- Generate
+        AbstractAction generateAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                Generator generator = new Generator(context);
+                String configName = Configuration.NAVIGATOR_NAME;
+                generator.showDialog(context.mainFrame, null, configName);
+            }
+        };
+        context.mainFrame.menuItemGenerate.addActionListener(generateAction);
+
+        // --- Save Layout
+        AbstractAction saveLayoutAction = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    context.preferences.write(context);
+                    context.mainFrame.labelStatusMiddle.setText(context.cfg.gs("Navigator.preferences.saved"));
+                }
+                catch (Exception e)
+                {
+                    logger.error(Utils.getStackTrace(e));
+                    JOptionPane.showMessageDialog(context.mainFrame,
+                            context.cfg.gs("Navigator.menu.Save.layout.error.saving.layout") + e.getMessage(),
+                            context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        context.mainFrame.menuItemSaveLayout.addActionListener(saveLayoutAction);
+
+        // --- Settings
+        context.mainFrame.menuItemSettings.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                if (dialogSettings == null || !dialogSettings.isShowing())
+                {
+                    dialogSettings = new Settings(context.mainFrame, context);
+                    dialogSettings.setVisible(true);
+                }
+                else
+                {
+                    dialogSettings.toFront();
+                    dialogSettings.requestFocus();
+                }
             }
         });
 
