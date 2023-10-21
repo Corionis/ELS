@@ -2323,6 +2323,24 @@ public class Navigator
             }
         });
 
+        // --- Discussions
+        context.mainFrame.menuItemDiscussions.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    URI uri = new URI("https://github.com/Corionis/ELS/discussions");
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
         // --- Documentation
         context.mainFrame.menuItemDocumentation.addActionListener(new AbstractAction()
         {
@@ -2365,6 +2383,24 @@ public class Navigator
                 try
                 {
                     URI uri = new URI("https://github.com/Corionis/ELS");
+                    Desktop.getDesktop().browse(uri);
+                }
+                catch (Exception e)
+                {
+                    JOptionPane.showMessageDialog(context.mainFrame, context.cfg.gs("Navigator.error.launching.browser"), context.cfg.getNavigatorName(), JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // --- Submit Issue
+        context.mainFrame.menuItemIssue.addActionListener(new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent)
+            {
+                try
+                {
+                    URI uri = new URI("https://github.com/Corionis/ELS/issues");
                     Desktop.getDesktop().browse(uri);
                 }
                 catch (Exception e)

@@ -1764,6 +1764,12 @@ new FormModel {
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/controls.png" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemDiscussions"
+						"text": new FormMessage( null, "Navigator.menuItemDiscussions.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemDiscussions.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/discuss.png" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemDocumentation"
 						"text": new FormMessage( null, "Navigator.menu.Documentation.text" )
 						"mnemonic": new FormMessage( null, "Navigator.menu.Documentation.mnemonic" )
@@ -1773,13 +1779,20 @@ new FormModel {
 						name: "menuItemGettingStarted"
 						"text": new FormMessage( null, "Navigator.menuItemGettingStarted.text" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/getting-started.png" )
-						"mnemonic": new FormMessage( null, "Navigator.menuItemGettingStarted.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemGettingStarted.mnemonic_2" )
 					} )
 					add( new FormComponent( "javax.swing.JMenuItem" ) {
 						name: "menuItemGitHubProject"
 						"text": new FormMessage( null, "Navigator.menu.GitHubProject.text" )
-						"mnemonic": new FormMessage( null, "Navigator.menu.GitHubProject.mnemonic" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemGitHubProject.mnemonic" )
 						"icon": new com.jformdesigner.model.SwingIcon( 0, "/github.png" )
+					} )
+					add( new FormComponent( "javax.swing.JMenuItem" ) {
+						name: "menuItemIssue"
+						"text": new FormMessage( null, "Navigator.menuItemIssue.text" )
+						"mnemonic": new FormMessage( null, "Navigator.menuItemIssue.mnemonic" )
+						"icon": new com.jformdesigner.model.SwingIcon( 0, "/issue.png" )
+						"displayedMnemonicIndex": new FormMessage( null, "Navigator.menuItemIssue.displayedMnemonicIndex" )
 					} )
 					add( new FormComponent( "javax.swing.JPopupMenu$Separator" ) {
 						name: "separator15"

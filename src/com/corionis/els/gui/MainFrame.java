@@ -602,9 +602,11 @@ public class MainFrame extends JFrame
         menuItemSplitVertical = new JMenuItem();
         menuHelp = new JMenu();
         menuItemControls = new JMenuItem();
+        menuItemDiscussions = new JMenuItem();
         menuItemDocumentation = new JMenuItem();
         menuItemGettingStarted = new JMenuItem();
         menuItemGitHubProject = new JMenuItem();
+        menuItemIssue = new JMenuItem();
         menuItemChangelist = new JMenuItem();
         menuItemReleaseNotes = new JMenuItem();
         menuItemUpdates = new JMenuItem();
@@ -1190,6 +1192,12 @@ public class MainFrame extends JFrame
                 menuItemControls.setIcon(new ImageIcon(getClass().getResource("/controls.png")));
                 menuHelp.add(menuItemControls);
 
+                //---- menuItemDiscussions ----
+                menuItemDiscussions.setText(context.cfg.gs("Navigator.menuItemDiscussions.text"));
+                menuItemDiscussions.setMnemonic(context.cfg.gs("Navigator.menuItemDiscussions.mnemonic").charAt(0));
+                menuItemDiscussions.setIcon(new ImageIcon(getClass().getResource("/discuss.png")));
+                menuHelp.add(menuItemDiscussions);
+
                 //---- menuItemDocumentation ----
                 menuItemDocumentation.setText(context.cfg.gs("Navigator.menu.Documentation.text"));
                 menuItemDocumentation.setMnemonic(context.cfg.gs("Navigator.menu.Documentation.mnemonic").charAt(0));
@@ -1199,14 +1207,21 @@ public class MainFrame extends JFrame
                 //---- menuItemGettingStarted ----
                 menuItemGettingStarted.setText(context.cfg.gs("Navigator.menuItemGettingStarted.text"));
                 menuItemGettingStarted.setIcon(new ImageIcon(getClass().getResource("/getting-started.png")));
-                menuItemGettingStarted.setMnemonic(context.cfg.gs("Navigator.menuItemGettingStarted.mnemonic").charAt(0));
+                menuItemGettingStarted.setMnemonic(context.cfg.gs("Navigator.menuItemGettingStarted.mnemonic_2").charAt(0));
                 menuHelp.add(menuItemGettingStarted);
 
                 //---- menuItemGitHubProject ----
                 menuItemGitHubProject.setText(context.cfg.gs("Navigator.menu.GitHubProject.text"));
-                menuItemGitHubProject.setMnemonic(context.cfg.gs("Navigator.menu.GitHubProject.mnemonic").charAt(0));
+                menuItemGitHubProject.setMnemonic(context.cfg.gs("Navigator.menuItemGitHubProject.mnemonic").charAt(0));
                 menuItemGitHubProject.setIcon(new ImageIcon(getClass().getResource("/github.png")));
                 menuHelp.add(menuItemGitHubProject);
+
+                //---- menuItemIssue ----
+                menuItemIssue.setText(context.cfg.gs("Navigator.menuItemIssue.text"));
+                menuItemIssue.setMnemonic(context.cfg.gs("Navigator.menuItemIssue.mnemonic").charAt(0));
+                menuItemIssue.setIcon(new ImageIcon(getClass().getResource("/issue.png")));
+                menuItemIssue.setDisplayedMnemonicIndex(Integer.parseInt(context.cfg.gs("Navigator.menuItemIssue.displayedMnemonicIndex")));
+                menuHelp.add(menuItemIssue);
                 menuHelp.addSeparator();
 
                 //---- menuItemChangelist ----
@@ -2712,9 +2727,11 @@ public class MainFrame extends JFrame
     public JMenuItem menuItemSplitVertical;
     public JMenu menuHelp;
     public JMenuItem menuItemControls;
+    public JMenuItem menuItemDiscussions;
     public JMenuItem menuItemDocumentation;
     public JMenuItem menuItemGettingStarted;
     public JMenuItem menuItemGitHubProject;
+    public JMenuItem menuItemIssue;
     public JMenuItem menuItemChangelist;
     public JMenuItem menuItemReleaseNotes;
     public JMenuItem menuItemUpdates;
