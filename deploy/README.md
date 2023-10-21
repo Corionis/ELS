@@ -4,23 +4,24 @@ This directory contains the latest build of ELS.
 
 ## Distributable Files
 
- | File                 | Description                             |
- |----------------------|-----------------------------------------|
- | ELS.jar              | The ELS software, _it's all built-in_.  |
- | ELS-*.tar.gz         | Linux archive including built-in JRE.   |
- | ELS-*.zip            | Windows archive including built-in JRE. |         
+ | File                 | Description                               |
+ |----------------------|-------------------------------------------|
+ | ELS.jar              | The ELS software, _it's all built-in_.    |
+ | ELS-*.tar.gz         | Linux archive including built-in JRE.     |
+ | ELS-*.exe            | Windows installer including built-in JRE. |         
+ | ELS-*.zip            | Windows archive including built-in JRE.   |         
 
  ## Files Used By ELS Navigator 
 
 _Note_: These files are not intended to be executed manually.
 
- | File                 | Description                             |
- |----------------------|-----------------------------------------|
- | ELS_Updater.jar      | Updater for existing ELS installations. |
- | ELS_Updater-*.tar.gz | Linux archive including built-in JRE.   |
- | ELS_Updater-*.zip    | Windows archive including built-in JRE. |
- | update.info          | Used to check for updates.              |
- | version.info         | Downloaded for update parameters.       |
+ | File                 | Description                               |
+ |----------------------|-------------------------------------------|
+ | ELS_Updater.jar      | Updater for existing ELS installations.   |
+ | ELS_Updater-*.tar.gz | Linux archive including built-in JRE.     |
+ | ELS_Updater-*.zip    | Windows archive including built-in JRE.   |
+ | update.info          | Used to check for updates.                |
+ | version.info         | Downloaded for update parameters.         |
 
 ### Note
 
