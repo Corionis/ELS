@@ -86,10 +86,7 @@ public class Preferences implements Serializable
     private int librariesMinimumSizeColumnWidth = 120;
     private String locale = "";
     // The Look 'n Feel, 0-6
-    // 0=System default look 'n feel - use for Windows,
-    // 1=NimbusLookAndFeel, 2=FlatLightLaf,
-    // 3=FlatDarkLaf, 4=FlatIntelliJLaf, 5=FlatDarculaLaf (default)
-    private int lookAndFeel = 6;
+    private int lookAndFeel = 4; // default IntelliJ Dark, aka Darcula
     private boolean preserveFileTimes = true;
     private int progressHeight = -1;
     private int progressWidth = -1;

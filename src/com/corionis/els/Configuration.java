@@ -214,7 +214,7 @@ public class Configuration
             setLogFileFullPath(prefix + lfn);
         }
         else
-            setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "els.log");
+            setLogFileFullPath(this.workingDirectory + System.getProperty("file.separator") + "output/ELS-Navigator.log");
     }
 
     /**
@@ -2132,7 +2132,8 @@ public class Configuration
                     setLongScale(false);
                     break;
                 default:
-                    throw new MungeException("Error: unknown option: " + args[index]);
+                    if (!args[index].endsWith(".exe"))
+                        throw new MungeException("Error: unknown option: " + args[index]);
             }
         }
     }
