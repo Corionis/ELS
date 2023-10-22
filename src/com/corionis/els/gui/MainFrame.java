@@ -2101,7 +2101,7 @@ public class MainFrame extends JFrame
                                             new Insets(0, 0, 4, 0), 0, 0));
 
                                         //---- labelTerminalAllosed ----
-                                        labelTerminalAllosed.setText(context.cfg.gs("Navigator.labelTerminalAllosed.text"));
+                                        labelTerminalAllosed.setText(context.cfg.gs("Navigator.labelTerminal.Allowed.text"));
                                         panelLibraryCard.add(labelTerminalAllosed, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0,
                                             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                                             new Insets(0, 0, 4, 4), 0, 0));

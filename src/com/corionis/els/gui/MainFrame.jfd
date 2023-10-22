@@ -898,7 +898,7 @@ new FormModel {
 											} )
 											add( new FormComponent( "javax.swing.JLabel" ) {
 												name: "labelTerminalAllosed"
-												"text": new FormMessage( null, "Navigator.labelTerminalAllosed.text" )
+												"text": new FormMessage( null, "Navigator.labelTerminal.Allowed.text" )
 											}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 												"gridy": 9
 											} )
