@@ -272,12 +272,23 @@
         <copy file="build/version.info" todir="deploy" preservelastmodified="true"/>
     </target>
 
+    <!-- Configure the GitHub Pages _config.yml YAML file for deployment -->
+    <target name="deploy-website">
+        <copy file="artifacts/stage/_config.yml" todir="docs"/>
+        <echo file="docs/_config.yml" append="true">version: ${els.version.name}${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">build: ${STRINGNOW}${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">github:${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">  linux_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.tar.gz${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">  macos_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.tar.gz${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">  windows_exe_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.exe${line.separator}</echo>
+        <echo file="docs/_config.yml" append="true">  windows_zip_url: ${els.deploy.url}/ELS-${els.version.name}-${NUMBERNOW}.zip${line.separator}</echo>
+    </target>
 
     <!-- Primary Targets ========================================== -->
 
     <target name="All" depends="ELS, Updater" description="Build all deliverables"/>
 
-    <target name="All-Deploy" depends="All, deploy" description="Build all deliverables and copy to deploy"/>
+    <target name="All-Deploy" depends="All, deploy, deploy-website" description="Build all deliverables and copy to deploy"/>
 
     <target name="Jars" depends="els-jar, updater-jar" description="Build Jars"/>
 

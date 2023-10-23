@@ -1,0 +1,114 @@
+---
+---
+
+@import "{{ site.theme }}";
+header {
+  background: #303234;
+  text-align: left;
+  width: 100%;
+}
+
+body {
+  background: #cecab6;
+}
+
+hr {
+  border-top: 1px solid #A86800;
+  height: 1px;
+  background: none;
+  width: 50%;
+  margin-left: 25% !important;
+  margin-right: 25%;
+}
+
+ul {
+  list-style: disc none;
+  color: black;
+}
+
+blockquote {
+  border-left: 1px solid #8f5536;
+  background-color: #cecab6;
+  font-style: normal;
+  padding: 6px 8px 6px 10px;
+  margin-bottom: 10px;
+}
+
+blockquote p {
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+blockquote ul {
+  padding-inline-start: 16px;
+  padding-inline-end: 0;
+  margin-block-start: 0;
+  margin-block-end: 0;
+}
+
+.topimage {
+  float: left;
+  margin: 0 10px 20px 5px;
+}
+
+.topname {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0.67em 0;
+  color: #ffffff;
+  margin: 0 0 2px;
+  line-height: 1.2;
+}
+
+.topdescription {
+  font-size: 22px;
+  margin: 0.67em 0;
+  color: #ea7c03;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+#banner {
+  background: #d38100;
+  border: 1px solid #000000;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+#banner .downloads span {
+  color: #eeeeee;
+}
+
+#banner .button {
+  color: #eeeeee;
+  border-color: #aaaaaa;
+  background-color: #55585A;
+  background: linear-gradient(#55585A, #45484A);
+}
+
+#banner .button:hover {
+  color: #eeeeee;
+  background-color: #95989A;
+  background: linear-gradient(#90d35d, #255e00);
+}
+
+#banner .fork {
+  color: #eeeeee;
+  position: fixed;
+  left: 50%;
+  margin-left: -375px;
+  padding: 10px 12px;
+  margin-top: 6px;
+  line-height: 14px;
+  font-size: 14px;
+}
+
+section {
+  width: 644px;
+}
+
+.note {
+  color: #eeeeee;
+  margin-left: 4px; padding: 4px 4px; margin-top: 4px;
+  font-weight: bold;
+  background-color: #378300;
+}

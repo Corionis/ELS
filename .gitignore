@@ -34,3 +34,4 @@ hs_err_pid*
 /build/*.jar
 /build/*.tar.gz
 /build/*.zip
+/docs/_site/

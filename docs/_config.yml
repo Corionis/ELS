@@ -1,0 +1,23 @@
+remote_theme: pages-themes/leap-day@v0.2.0
+title: ELS - Entertainment Library Synchronizer
+description: Library & Title Data Management & Back-Up
+excerpt_separator: thisnevermatchme
+google_analytics: G-FRDK1DDGH2
+show_downloads: true
+plugins:
+  - jekyll-remote-theme
+
+# --- Base URLs --- #
+discussions_url: https://github.com/Corionis/ELS/discussions
+documentation_url: https://github.com/Corionis/ELS/wiki
+download_url: https://github.com/Corionis/ELS/wiki/Downloads
+issues_url: https://github.com/Corionis/ELS/issues
+
+# --- Generated below this line --- #
+version: 4.0.0-development
+build: 22 October 2023, 06:06 MDT
+github:
+  linux_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.tar.gz
+  macos_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.tar.gz
+  windows_exe_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.exe
+  windows_zip_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.zip
