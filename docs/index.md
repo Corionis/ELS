@@ -29,5 +29,6 @@ title-oriented tool with both graphical and command line interfaces and a variet
 
 _ELS is Open Source and free._
 
-ELS 4 is for computers. If you're viewing this page on a mobile device the Download and other links are hidden. Please visit the
-<a href="{{ site.github.owner_url }}" target="_blank"><b>ELS Project <img src="assets/images/link.png" alt="" align="bottom"  border="0"></b></a> on GitHub.
+ * ELS 4 is for computers. If you're viewing this page on a mobile device the Download and other links are hidden. Please visit the
+<a href="{{ site.project_url }}" target="_blank"><b>ELS Project <img src="assets/images/link.png" alt="" align="bottom"  border="0"></b></a> 
+on GitHub for more information.
