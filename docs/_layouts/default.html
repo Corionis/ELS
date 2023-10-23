@@ -1,11 +1,6 @@
 <!doctype html>
 <html lang="{{ site.lang | default: "en-US" }}">
 <head>
-    <link rel="icon" type="image/x-icon" href="favicon.ico?">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="google-site-verification" content="e1pSkAa0wXq6aHiW7jRRN7E4JuAh-0GddMMHWlF0wYY"/>
-
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-FRDK1DDGH2"></script>
     <script>
@@ -13,8 +8,13 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'G-FRDK1DDGH2'); <!-- Google Analytics account: elsnavigator -->
+        gtag('config', 'G-FRDK1DDGH2');
     </script>
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico?">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="google-site-verification" content="e1pSkAa0wXq6aHiW7jRRN7E4JuAh-0GddMMHWlF0wYY"/>
 
     {% seo %}
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
