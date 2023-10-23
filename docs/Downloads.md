@@ -9,21 +9,11 @@ show_blog: false
 Entertainment Library Synchronizer (ELS) runs on Linux and Windows, and should work on macOS,
 although it has not been tested there yet. 
 
-### Requirements
-
-ELS is self-contained and has an auto-updater. There are no requirements other than a supported platform.
-
 # Disclaimer
 
 Any software downloaded from this site is free and without warranty or guarantee of any
 kind expressed or implied. The software may not work or serve any intended or particular
 purpose. Use at your own risk. If you break it you own both parts.
-
-## Support
-
-If a bug is found please create an Issue on the project 
-<a href="{{ site.issues_url }}" target="_blank"><b>GitHub site <img src="assets/images/link.png" alt="" align="bottom"  border="0"></b></a>.
-
 
 # Download
 
