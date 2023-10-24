@@ -31,6 +31,8 @@
 	<span class="topimage"><a href="index"><img class="topimage" src="assets/images/els-logo-72px.png" alt="" border="0"></a></span>
     <span class="topname">{{ page.title | default: site.title | default: site.github.repository_name }}</span>
     <p class="topdescription">&nbsp;&nbsp;&nbsp;&nbsp;{{ page.description | default: site.description | default: site.github.project_tagline }}</p>
+    <p class="who">By <a href="{{ site.github.owner_url }}" target="_blank"><b>{{ site.github.owner_name }}<b></b></a></p>
+    <p class="version"><b>ELS Version:</b> {{ site.version }}&nbsp;&nbsp;&nbsp;&nbsp;<b>Build:</b> {{ site.build }}</p>
 </header>
 
 <div id="banner">
@@ -38,10 +40,12 @@
     <a href="{{ site.github.repository_url }}" class="button fork" target="_blank">Visit on GitHub</a>
     {% if site.show_downloads %}
     <div class="downloads">
-        <span>Downloads:</span>
+        <span>DownloadS</span>
         <ul>
-            <li><a href="{{ site.github.linux_url }}" class="button">Linux tar</a></li>
+            <!-- li><a href="{{ site.github.android_url }}" class="button">Android</a></li -->
+            <!-- li><a href="{{ site.github.ios_url }}" class="button">iOS</a></li -->
             <!-- li><a href="{{ site.github.macos_url }}" class="button">macOS tar</a></li -->
+            <li><a href="{{ site.github.linux_url }}" class="button">Linux tar</a></li>
             <li><a href="{{ site.github.windows_exe_url }}" class="button">Windows installer</a></li>
             <li><a href="{{ site.github.windows_zip_url }}" class="button">Windows zip</a></li>
         </ul>
@@ -52,15 +56,17 @@
 <div class="wrapper">
     <nav>
         <ul>
+            <li><hr class="navSeparator"/></li>
             <li><a href="index"><b>Home</b></a></li>
-            <li><a href="https://github.com/Corionis/ELS/discussions" target="_blank"><b>Discussions <img src="assets/images/link.png" alt="" align="bottom"  border="0"></b></a> </li>
-            <li><a href="https://github.com/Corionis/ELS/wiki" target="_blank"><b>Documentation <img src="assets/images/link.png" alt="" align="bottom"  border="0"></b></a> </li>
+            <li><a href="https://github.com/Corionis/ELS/discussions" target="_blank"><b>Discussions <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></b></a> </li>
+            <li><a href="https://github.com/Corionis/ELS/wiki" target="_blank"><b>Documentation <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></b></a> </li>
             <li><a href="Downloads"><b>Downloads</b></a> </li>
             <li><a href="Privacy"><b>Privacy & Security</b></a> </li>
             <li><a href="Start"><b>Quick Start</b></a> </li>
             <li><a href="Screenshots"><b>Screenshots</b></a></li>
-            <li><a href="https://github.com/Corionis/ELS/issues" target="_blank"><b>Submit Issue <img src="assets/images/link.png" alt="" align="bottom"  border="0"></b> </a></li>
+            <li><a href="https://github.com/Corionis/ELS/issues" target="_blank"><b>Submit Issue <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></b> </a></li>
             <li><a href="Updates"><b>Updates</b></a> </li>
+            <li><hr class="navSeparator"/></li>
         </ul>
     </nav>
 
@@ -85,15 +91,14 @@
     {% endif %}
 </div>
 
-<footer>
+<!-- footer>
     <p><b>ELS Version</b><br/>{{ site.version }}</br>
     <p><b>Latest ELS Update</b><br/>{{ site.build }}</br>
     {% if site.github.is_project_page %}
     <p>{{ site.github.repository_name }} is maintained by <a href="{{ site.github.owner_url }}" target="_blank">{{ site.github.owner_name }} </p>
     {% endif %}
     <!-- p><small>Leap Day theme by <a href="https://twitter.com/mattgraham" target="_blank">mattgraham</a></small></p -->
-    <!-- p><small>Screenshots taken using <a href="https://getgreenshot.org/" target="_blank">Greenshot</a></small></p -->
-</footer>
+</footer -->
 </div>
 
 </body>

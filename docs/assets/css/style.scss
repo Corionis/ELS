@@ -2,6 +2,7 @@
 ---
 
 @import "{{ site.theme }}";
+
 header {
   background: #303234;
   text-align: left;
@@ -74,11 +75,29 @@ blockquote ul {
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
 }
 
+.who {
+  font-size: 12px;
+  text-align: left;
+  position: fixed;
+  left: 50%;
+  margin-left: -250px;
+}
+
+.version {
+  font-size: 12px;
+  text-align: right;
+  position: fixed;
+  left: 50%;
+  margin-left: -86px;
+}
+
 #banner .downloads span {
   color: #eeeeee;
+  margin-right: -10px;
 }
 
 #banner .button {
+  border-radius: 12px;
   color: #eeeeee;
   border-color: #aaaaaa;
   background-color: #55585A;
@@ -95,20 +114,32 @@ blockquote ul {
   color: #eeeeee;
   position: fixed;
   left: 50%;
-  margin-left: -375px;
+  margin-left: -466px;
   padding: 10px 12px;
   margin-top: 6px;
   line-height: 14px;
   font-size: 14px;
 }
 
+nav {
+  top: 200px;
+}
+
+.navSeparator {
+  margin-left: 50% !important;
+  margin-bottom: 0%;
+  margin-right: 0%;
+}
+
 section {
   width: 644px;
 }
 
-.note {
+.construction {
   color: #eeeeee;
-  margin-left: 4px; padding: 4px 4px; margin-top: 4px;
+  padding: 4px 4px; margin-top: 4px;
+  font-size: 16px;
   font-weight: bold;
   background-color: #378300;
+  margin-left: 24%;
 }
