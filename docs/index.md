@@ -10,7 +10,8 @@ show_blog: false
 Entertainment Library Synchronizer (ELS) Version 4 is a purpose-built tool for preparing, managing and backing-up data and media for creators of all kinds and 
 applications such as home media systems. 
 
-ELS Version 4 is in development. The current released version is 3.1.0.
+The current released version is 3.1.0. ELS Version 4 is in development. See the project 
+<a href="{{ site.milestones_url }}" target="_blank"><b>Milestones <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></b></a>.
 
 <img src="assets/images/screenshot-main.png" border="0"/>
 
