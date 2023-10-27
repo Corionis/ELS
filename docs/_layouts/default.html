@@ -44,12 +44,12 @@
 	<span class="topimage"><a href="index"><img class="topimage" src="assets/images/els-logo-72px.png" alt="" border="0"></a></span>
     <span class="topname">{{ page.title | default: site.title | default: site.github.repository_name }}</span>
     <p class="topdescription">&nbsp;&nbsp;&nbsp;&nbsp;{{ page.description | default: site.description | default: site.github.project_tagline }}</p>
-    <p class="who">By <a href="{{ site.github.owner_url }}" target="_blank"><b>{{ site.github.owner_name }}<b></b></a></p>
+    <p class="who"><b><a style="color: #d38100; font-weight: bold" href="{{ site.github.repository_url }}" class="button fork" target="_blank">ELS Project <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></a></b> on GitHub</p>
     <p class="version"><b>ELS Version:</b> {{ site.version }}&nbsp;&nbsp;&nbsp;&nbsp;<b>Build:</b> {{ site.build }}</p>
 </header>
 
 <div id="banner">
-    <a href="{{ site.github.repository_url }}" class="button fork" target="_blank">Visit on GitHub</a>
+    <!-- a href="" class="button fork" target="_blank">Donate</a -->
     {% if site.show_downloads %}
     <div class="downloads">
         <span>DownloadS</span>
@@ -78,7 +78,6 @@
             <li><a href="Start"><b>Quick Start</b></a> </li>
             <li><a href="Screenshots"><b>Screenshots</b></a></li>
             <li><a href="https://github.com/Corionis/ELS/issues" target="_blank"><b>Submit Issue <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></b> </a></li>
-            <li><a href="Updates"><b>Updates</b></a> </li>
             <li><hr class="navSeparator"/></li>
         </ul>
     </nav>
@@ -100,8 +99,9 @@
     <section>
         {{ content }}
     </section>
-
     {% endif %}
+
+    <p style="text-align: right; margin-top: -16px; margin-right: -42px;"><b><a style="color: #d38100; font-weight: bold" href="{{ site.github.repository_url }}" class="button fork" target="_blank">ELS Project <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></a></b> on GitHub</p>
 </div>
 
 <!-- footer>

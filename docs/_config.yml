@@ -1,6 +1,6 @@
 remote_theme: pages-themes/leap-day@v0.2.0
 title: ELS - Entertainment Library Synchronizer
-description: Data Management & Back-Up
+description: Library-Based Data Management & Back-Up
 excerpt_separator: thisnevermatchme
 # google_analytics: G-FRDK1DDGH2
 show_downloads: true
@@ -19,6 +19,8 @@ project_url: https://github.com/Corionis/ELS
 version: 4.0.0-development
 build: 22 October 2023, 06:06 MDT
 github:
+  android_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.and
+  ios_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.apl
   linux_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.tar.gz
   macos_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.tar.gz
   windows_exe_url: https://raw.githubusercontent.com/Corionis/ELS/Version-4.0.0/deploy/ELS-4.0.0-development-2310220606.exe

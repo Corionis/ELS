@@ -15,7 +15,7 @@ The current released version is 3.1.0. ELS Version 4 is in development. See the 
 
 <img src="assets/images/screenshot-main.png" border="0"/>
 
-If you create for YouTube, TikTok, Instagram, Mom 'n Dad, a media system like Plex, or any project involving
+ If you create for YouTube, TikTok, Instagram, Mom 'n Dad, a media system like Plex, or any project involving
 lots of data and files, managing your work and backing it up is important. 
 
 ELS is a library- and title-oriented tool with both graphical and command line interfaces and a variety of powerful capabilities.
@@ -33,7 +33,3 @@ ELS is a library- and title-oriented tool with both graphical and command line i
 * Works locally or remotely over a LAN or the Internet with two computers running ELS.
 
 _ELS is Open Source and free._
-
- * ELS 4 is for computers. If you're viewing this page on a mobile device the downloads and other links are hidden. Please visit the
-<a href="{{ site.project_url }}" target="_blank"><b>ELS Project <img src="assets/images/link.png" alt="" title="Opens new tab" align="bottom"  border="0"></b></a> 
-on GitHub for more information.
