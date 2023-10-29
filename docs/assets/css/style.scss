@@ -11,6 +11,7 @@ header {
 
 body {
   background: #cecab6;
+  font-size: 13pt;
 }
 
 hr {
@@ -20,11 +21,6 @@ hr {
   width: 50%;
   margin-left: 25% !important;
   margin-right: 25%;
-}
-
-ul {
-  list-style: disc none;
-  color: black;
 }
 
 blockquote {
@@ -45,6 +41,35 @@ blockquote ul {
   padding-inline-end: 0;
   margin-block-start: 0;
   margin-block-end: 0;
+}
+
+h1 {
+  color: #925600;
+}
+
+h2 {
+  color: #a26601;
+}
+
+h3 {
+  color: #a26601;
+}
+
+h4 {
+  color: #a26601;
+}
+
+h5 {
+  color: #a26601;
+}
+
+h6 {
+  color: #a26601;
+}
+
+ul {
+  list-style: disc none;
+  color: black;
 }
 
 .topimage {
@@ -95,7 +120,9 @@ blockquote ul {
 
 #banner .downloads span {
   color: #000000;
+  font-size: 85%;
   margin-right: -10px;
+  text-transform: capitalize;
 }
 
 .downloads {
@@ -140,6 +167,10 @@ nav {
 section {
   border-radius: 12px;
   width: 644px;
+}
+
+section li {
+  margin-bottom: 2px;
 }
 
 .construction {

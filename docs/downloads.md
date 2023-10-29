@@ -17,11 +17,15 @@ purpose. Use at your own risk. If you break it you own both parts.
 
 ## &bull; Support
 
-If a bug is found please create an issue on the project [GitHub site]({{ site.issues_url }}).
+If a bug is found please create an 
+<a href="{{ site.issues_url }}" target="_blank"><b>Issue <img src="assets/images/link.png" alt="" title="On GitHub" align="bottom"  border="0"></b></a>
+on the GitHub Project.
+
 
 ## &bull; Downloads
 
-Use the button at the top of this page for your platform.
+Use the buttons at the top of this page <img style="vertical-align:middle" src="assets/images/swoop-up-arrow.png" border="0"/> for your platform.
+
 
 ## &bull; Installation
 
